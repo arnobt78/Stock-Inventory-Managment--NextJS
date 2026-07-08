@@ -52,7 +52,7 @@
 - [x] Deploy REQ-0018 (`2c1cf32`)
 - [x] Deploy REQ-0019 (`4f02cf3`)
 - [x] Deploy REQ-0020 (`21d7fc4`)
-- [ ] Deploy REQ-0021
+- [ ] Deploy REQ-0021 (`733681a`)
 - [ ] Confirm Vercel prod SHA
 - [ ] Sentry 24h: no OAuth state error, no ErrorBoundary removeChild on admin/suppliers nav
 
