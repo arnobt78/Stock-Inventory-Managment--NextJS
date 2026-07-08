@@ -37,7 +37,7 @@
 |------|--------|
 | Sentry/Groq/Select (REQ-0001–0007) | code done; manual QA partial |
 | Agile V bootstrap (REQ-0008) | done |
-| Zod + 4xx logging (REQ-0010–0013) | done, 301 tests |
+| Zod + 4xx logging (REQ-0010–0013) | done, 304 tests |
 | Sentry chunk/order/oauth/radix (REQ-0014–0017) | done |
 | Groq model chain (REQ-0018) | done |
 | Admin AI + hydration (REQ-0019) | done |
