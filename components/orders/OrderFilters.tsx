@@ -23,7 +23,10 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { OrderStatusDropDown } from "./OrderStatusFilter";
 import { PaymentStatusDropDown } from "./PaymentStatusFilter";
-import { OrderSourceDropDown, type OrderSourceFilterValue } from "./OrderSourceFilter";
+import {
+  OrderSourceDropDown,
+  type OrderSourceFilterValue,
+} from "./OrderSourceFilter";
 import type { Order } from "@/types";
 
 interface OrderFiltersProps {
@@ -41,7 +44,6 @@ interface OrderFiltersProps {
   orderSourceFilter?: OrderSourceFilterValue;
   setOrderSourceFilter?: (value: OrderSourceFilterValue) => void;
 }
-
 
 export default function OrderFilters({
   searchTerm,
@@ -203,9 +205,9 @@ export default function OrderFilters({
   }, [filteredOrders, toast]);
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-2">
       {/* Single Row: Search (Left) | Filters (Middle) | Export (Right) */}
-      <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4">
+      <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
         {/* Search Bar - Left */}
         <div className="relative flex-1 sm:max-w-md">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-600 dark:text-white/60 z-10" />
@@ -213,7 +215,7 @@ export default function OrderFilters({
             placeholder="Search by Order #..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="h-10 pl-9 pr-10 w-full rounded-[28px] bg-white/10 dark:bg-white/5 backdrop-blur-sm border border-sky-400/30 dark:border-white/20 text-gray-900 dark:text-white placeholder:text-gray-500 dark:placeholder:text-white/40 focus-visible:border-sky-400 focus-visible:ring-sky-500/50 shadow-[0_10px_30px_rgba(2,132,199,0.15)]"
+            className="h-10 pl-9 pr-10 w-full rounded-[28px] bg-white/10 dark:bg-white/5 backdrop-blur-sm border border-sky-400/30 dark:border-white/20 text-gray-700 dark:text-white placeholder:text-gray-500 dark:placeholder:text-white/40 focus-visible:border-sky-400 focus-visible:ring-sky-500/50 shadow-[0_10px_30px_rgba(2,132,199,0.15)]"
           />
           {searchTerm && (
             <Button
@@ -228,7 +230,7 @@ export default function OrderFilters({
         </div>
 
         {/* Filters - Middle */}
-        <div className="flex items-center gap-4 flex-wrap sm:flex-nowrap">
+        <div className="flex items-center gap-2 flex-wrap sm:flex-nowrap">
           {showOrderSourceFilter && setOrderSourceFilter && (
             <OrderSourceDropDown
               value={orderSourceFilter}
@@ -265,14 +267,14 @@ export default function OrderFilters({
             >
               <DropdownMenuItem
                 onClick={handleExportToCSV}
-                className="cursor-pointer text-gray-700 dark:text-white/80 hover:text-gray-900 dark:hover:text-white focus:bg-violet-100 dark:focus:bg-white/10 focus:text-gray-900 dark:focus:text-white"
+                className="cursor-pointer text-gray-700 dark:text-white/80 hover:text-gray-700 dark:hover:text-white focus:bg-violet-100 dark:focus:bg-white/10 focus:text-gray-700 dark:focus:text-white"
               >
                 <FiFileText className="mr-2 h-4 w-4" />
                 Export as CSV
               </DropdownMenuItem>
               <DropdownMenuItem
                 onClick={handleExportToExcel}
-                className="cursor-pointer text-gray-700 dark:text-white/80 hover:text-gray-900 dark:hover:text-white focus:bg-violet-100 dark:focus:bg-white/10 focus:text-gray-900 dark:focus:text-white"
+                className="cursor-pointer text-gray-700 dark:text-white/80 hover:text-gray-700 dark:hover:text-white focus:bg-violet-100 dark:focus:bg-white/10 focus:text-gray-700 dark:focus:text-white"
               >
                 <FiGrid className="mr-2 h-4 w-4" />
                 Export as Excel

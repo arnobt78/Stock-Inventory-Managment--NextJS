@@ -2,7 +2,7 @@
 
 **Generated:** 2026-07-08  
 **eval_gate_status:** PENDING (Human Gate 2)  
-**Red Team:** lint ✓ test 304 ✓ invalidate 200 ✓ build ✓
+**Red Team:** lint ✓ test 310 ✓ invalidate 200 ✓ build ✓
 
 ---
 
@@ -11,7 +11,7 @@
 | Check | Command | Result | REQ-IDs |
 |-------|---------|--------|---------|
 | Lint | `npm run lint` | PASS | ALL |
-| Unit tests | `npm run test` | PASS (304) | REQ-0020, REQ-0019, AI |
+| Unit tests | `npm run test` | PASS (310) | REQ-0021, REQ-0020 |
 | Invalidation audit | `npm run test:invalidate` | PASS (200) | — |
 | Build | `npm run build` | PASS | ALL |
 
@@ -40,6 +40,7 @@
 | VS-012 | INFO | Groq model chain migration (REQ-0018) | PASS (304 tests) |
 | VS-013 | INFO | Forecasting AI max_tokens + cache v2 (REQ-0019) | PASS |
 | VS-014 | INFO | Locale-aware admin formatting (REQ-0020) | PASS |
+| VS-015 | INFO | Shell-first nav + data-slot pulse (REQ-0021) | PASS |
 
 ---
 
@@ -51,7 +52,8 @@
 - [x] Deploy REQ-0018 (`2c1cf32`)
 - [x] Deploy REQ-0019 (`4f02cf3`)
 - [x] Deploy REQ-0020 (`21d7fc4`)
-- [ ] Confirm Vercel prod SHA (`455d96b`)
+- [ ] Deploy REQ-0021
+- [ ] Confirm Vercel prod SHA
 - [ ] Sentry 24h: no OAuth state error, no ErrorBoundary removeChild on admin/suppliers nav
 
 **Approver:** _pending_  

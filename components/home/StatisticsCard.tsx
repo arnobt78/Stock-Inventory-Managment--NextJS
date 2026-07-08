@@ -8,6 +8,7 @@ import React from "react";
 import { LucideIcon } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
+import { DataSlotPulse } from "@/components/shared/DataSlotPulse";
 
 /**
  * Color variant types for statistics cards
@@ -27,7 +28,7 @@ type CardVariant =
  */
 interface BadgeData {
   label: string;
-  value: string | number;
+  value: string | number | React.ReactNode;
   variant?: "default" | "secondary" | "destructive" | "outline";
 }
 
@@ -63,6 +64,14 @@ interface StatisticsCardProps {
    * Optional className for additional styling
    */
   className?: string;
+  /**
+   * When true, main value shows inline pulse (title/icon/description stay visible — REQ-0021)
+   */
+  valueLoading?: boolean;
+  /**
+   * When true, badge values pulse; badge labels remain visible
+   */
+  badgeValuesLoading?: boolean;
 }
 
 /**
@@ -154,13 +163,20 @@ export function StatisticsCard({
   variant = "sky",
   badges = [],
   className,
+  valueLoading = false,
+  badgeValuesLoading = false,
 }: StatisticsCardProps) {
   const config = variantConfig[variant];
+  const displayValue = valueLoading ? (
+    <DataSlotPulse variant="metric" />
+  ) : (
+    value
+  );
 
   return (
     <article
       className={cn(
-        "group rounded-[28px] border min-h-[210px] h-full flex flex-col p-4 sm:p-6 backdrop-blur-sm transition min-w-0 overflow-visible",
+        "group rounded-[28px] border min-h-[210px] h-full flex flex-col p-2 sm:p-4 backdrop-blur-sm transition min-w-0 overflow-visible",
         config.border,
         config.gradient,
         config.shadow,
@@ -175,11 +191,11 @@ export function StatisticsCard({
             {title}
           </p>
           <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-gray-300/30 bg-gray-100/50 shadow-inner shadow-primary/30 backdrop-blur dark:border-white/15 dark:bg-white/10">
-            <Icon className="h-5 w-5 text-gray-900 dark:text-white" />
+            <Icon className="h-5 w-5 text-gray-700 dark:text-white" />
           </div>
         </div>
-        <p className="text-2xl font-semibold text-gray-900 dark:text-white">
-          {value}
+        <p className="text-lg sm:text-xl font-semibold text-gray-700 dark:text-white">
+          {displayValue}
         </p>
         {description && (
           <p className="mt-2 text-sm text-gray-600 dark:text-white/70">
@@ -195,7 +211,13 @@ export function StatisticsCard({
                 className="text-xs border-gray-300/50 bg-gray-100/80 text-gray-800 backdrop-blur-sm shadow-[0_10px_30px_rgba(0,0,0,0.1)] dark:border-white/10 dark:bg-white/5 dark:text-white/80"
               >
                 <span className="font-medium">{badge.label}:</span>{" "}
-                <span className="ml-1">{badge.value}</span>
+                <span className="ml-1">
+                  {badgeValuesLoading ? (
+                    <DataSlotPulse variant="badge" />
+                  ) : (
+                    badge.value
+                  )}
+                </span>
               </Badge>
             ))}
           </div>

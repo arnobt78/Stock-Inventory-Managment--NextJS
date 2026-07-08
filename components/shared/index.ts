@@ -63,3 +63,5 @@ export type {
   ClientCurrencyProps,
   ClientCompactDateTimeProps,
 } from "./ClientFormatDisplay";
+export { DataSlotPulse } from "./DataSlotPulse";
+export type { DataSlotPulseProps, DataSlotPulseVariant } from "./DataSlotPulse";

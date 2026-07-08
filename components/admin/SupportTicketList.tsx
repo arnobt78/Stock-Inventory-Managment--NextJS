@@ -6,11 +6,11 @@
 "use client";
 
 import React, { useState, useEffect, useRef, useMemo } from "react";
-import { useAuth } from "@/contexts";
 import {
   useSupportTickets,
   type SupportTicketViewFilter,
 } from "@/hooks/queries";
+import { isDataSlotLoading } from "@/lib/react-query";
 import { PaginationType } from "@/components/shared/PaginationSelector";
 import { createSupportTicketColumns } from "./SupportTicketTableColumns";
 import SupportTicketFilters from "./SupportTicketFilters";
@@ -19,25 +19,27 @@ import SupportTicketDialog from "@/components/support-tickets/SupportTicketDialo
 import { Button } from "@/components/ui/button";
 import { MessageSquare, AlertCircle } from "lucide-react";
 import { StatisticsCard } from "@/components/home/StatisticsCard";
-import { StatisticsCardSkeleton } from "@/components/home/StatisticsCardSkeleton";
 import type { ProductOwnerOption } from "@/components/support-tickets/SupportTicketDialog";
+import type { SupportTicket } from "@/types";
 
 export type SupportTicketListProps = {
   detailHrefBase?: string;
   productOwners?: ProductOwnerOption[];
+  /** SSR-passed tickets for first-render hydration (REQ-0021) */
+  initialTickets?: SupportTicket[];
 };
 
 export default function SupportTicketList({
   detailHrefBase,
   productOwners = [],
+  initialTickets,
 }: SupportTicketListProps = {}) {
   const isMountedRef = useRef(false);
   const [isMounted, setIsMounted] = useState(false);
   const [viewFilter, setViewFilter] = useState<SupportTicketViewFilter>("all");
-  const supportTicketsQuery = useSupportTickets(viewFilter);
-  const { isCheckingAuth } = useAuth();
+  const supportTicketsQuery = useSupportTickets(viewFilter, initialTickets);
 
-  const allTickets = supportTicketsQuery.data ?? [];
+  const allTickets = supportTicketsQuery.data ?? initialTickets ?? [];
 
   const ticketStats = useMemo(() => {
     const statusCounts = { open: 0, in_progress: 0, resolved: 0, closed: 0 };
@@ -72,68 +74,61 @@ export default function SupportTicketList({
     [detailHrefBase],
   );
 
-  const showSkeleton =
-    !isMounted || isCheckingAuth || supportTicketsQuery.isPending;
-  const showCardsSkeleton = showSkeleton;
+  // REQ-0021: shell-first — only data slots pulse
+  const dataLoading = isDataSlotLoading(supportTicketsQuery, initialTickets);
 
   return (
     <div className="flex flex-col poppins">
       <div className="pb-6 flex flex-col items-start text-left">
-        <h2 className="text-xl sm:text-2xl font-semibold text-gray-900 dark:text-white pb-2">
+        <h2 className="text-lg sm:text-xl font-semibold text-gray-700 dark:text-white ">
           Store Support Tickets (assigned to you)
         </h2>
-        <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400">
+        <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">
           Manage customer support tickets. Create, view, update status and
           priority, and add internal notes.
         </p>
       </div>
 
-      {/* Summary cards — 2 cards, 2 per row; same style as dashboard/orders/invoices */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-4 pb-6 items-stretch">
-        {showCardsSkeleton ? (
-          <>
-            <StatisticsCardSkeleton />
-            <StatisticsCardSkeleton />
-          </>
-        ) : (
-          <>
-            <StatisticsCard
-              title="Support Tickets"
-              value={allTickets.length}
-              description="Sent by users, clients & suppliers"
-              icon={MessageSquare}
-              variant="violet"
-              badges={[
-                { label: "Open", value: ticketStats.statusCounts.open },
-                {
-                  label: "In progress",
-                  value: ticketStats.statusCounts.in_progress,
-                },
-                {
-                  label: "Resolved",
-                  value: ticketStats.statusCounts.resolved,
-                },
-                { label: "Closed", value: ticketStats.statusCounts.closed },
-              ]}
-            />
-            <StatisticsCard
-              title="Total messages"
-              value={ticketStats.totalMessages}
-              description="Replies across tickets"
-              icon={AlertCircle}
-              variant="rose"
-              badges={[
-                { label: "Low", value: ticketStats.priorityCounts.low },
-                { label: "Medium", value: ticketStats.priorityCounts.medium },
-                { label: "High", value: ticketStats.priorityCounts.high },
-                { label: "Urgent", value: ticketStats.priorityCounts.urgent },
-              ]}
-            />
-          </>
-        )}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-2 pb-6 items-stretch">
+        <StatisticsCard
+          title="Support Tickets"
+          value={allTickets.length}
+          description="Sent by users, clients & suppliers"
+          icon={MessageSquare}
+          variant="violet"
+          valueLoading={dataLoading}
+          badgeValuesLoading={dataLoading}
+          badges={[
+            { label: "Open", value: ticketStats.statusCounts.open },
+            {
+              label: "In progress",
+              value: ticketStats.statusCounts.in_progress,
+            },
+            {
+              label: "Resolved",
+              value: ticketStats.statusCounts.resolved,
+            },
+            { label: "Closed", value: ticketStats.statusCounts.closed },
+          ]}
+        />
+        <StatisticsCard
+          title="Total messages"
+          value={ticketStats.totalMessages}
+          description="Replies across tickets"
+          icon={AlertCircle}
+          variant="rose"
+          valueLoading={dataLoading}
+          badgeValuesLoading={dataLoading}
+          badges={[
+            { label: "Low", value: ticketStats.priorityCounts.low },
+            { label: "Medium", value: ticketStats.priorityCounts.medium },
+            { label: "High", value: ticketStats.priorityCounts.high },
+            { label: "Urgent", value: ticketStats.priorityCounts.urgent },
+          ]}
+        />
       </div>
 
-      <div className="pb-6 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4">
+      <div className="pb-6 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2">
         <div className="w-full max-w-9xl">
           <SupportTicketFilters
             searchTerm={searchTerm}
@@ -165,7 +160,7 @@ export default function SupportTicketList({
       <SupportTicketTable
         data={allTickets}
         columns={columns}
-        isLoading={showSkeleton}
+        isLoading={dataLoading}
         searchTerm={searchTerm}
         pagination={pagination}
         setPagination={setPagination}

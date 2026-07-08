@@ -10,6 +10,7 @@ import {
   queryKeys,
   invalidateAllRelatedQueries,
   cancelOrRemoveDetailQuery,
+  withInitialData,
 } from "@/lib/react-query";
 import { useToast } from "@/hooks/use-toast";
 import type {
@@ -17,18 +18,20 @@ import type {
   CreateProductInput,
   UpdateProductInput,
 } from "@/types";
+import type { ProductForHome } from "@/lib/server/home-data";
 
 /**
  * Fetch all products
- * Query hook for getting the list of all products
+ * @param initialData — SSR-passed list for first-render hydration (REQ-0021)
  */
-export function useProducts() {
-  return useQuery({
+export function useProducts(initialData?: Product[] | ProductForHome[]) {
+  return useQuery<Product[]>({
     queryKey: queryKeys.products.lists(),
     queryFn: async () => {
       const response = await apiClient.products.getAll();
       return response.data;
     },
+    ...withInitialData(initialData as Product[] | undefined),
   });
 }
 

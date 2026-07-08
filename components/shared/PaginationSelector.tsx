@@ -100,9 +100,7 @@ export default function PaginationSelector({
 
   if (layout === "inline") {
     return (
-      <div
-        className={cn("flex items-center gap-3", className)}
-      >
+      <div className={cn("flex items-center gap-2", className)}>
         <div className={labelClass}>Rows per page</div>
         {control}
       </div>
@@ -111,10 +109,7 @@ export default function PaginationSelector({
 
   return (
     <div
-      className={cn(
-        "flex flex-col sm:flex-row items-center gap-3",
-        className,
-      )}
+      className={cn("flex flex-col sm:flex-row items-center gap-2", className)}
     >
       <div className={labelClass}>Rows per page</div>
       {control}

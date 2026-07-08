@@ -50,7 +50,7 @@ export default function AdminHistoryDetailContent({
   if (isError || (!isLoading && !record)) {
     return (
       <PageContentWrapper>
-        <div className="space-y-6">
+        <div className="space-y-4">
           <Button variant="ghost" size="sm" asChild>
             <Link href={backHref} className="gap-2">
               <ArrowLeft className="h-4 w-4" />
@@ -84,15 +84,15 @@ export default function AdminHistoryDetailContent({
 
   return (
     <PageContentWrapper>
-      <div className="space-y-6">
-        <div className="flex items-center gap-4">
+      <div className="space-y-4">
+        <div className="flex items-center gap-2">
           <Button variant="ghost" size="icon" asChild>
             <Link href={backHref} className="h-10 w-10">
               <ArrowLeft className="h-5 w-5" />
             </Link>
           </Button>
           <div>
-            <h1 className="text-2xl font-semibold text-foreground">
+            <h1 className="text-lg sm:text-xl font-semibold text-foreground">
               Import History Details
             </h1>
             <p className="text-sm text-muted-foreground">
@@ -102,8 +102,8 @@ export default function AdminHistoryDetailContent({
         </div>
 
         <Card>
-          <CardContent className="p-4 sm:p-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <CardContent className="p-2 sm:p-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-2 sm:gap-4">
               <div>
                 <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
                   <FileText className="h-5 w-5" />
@@ -192,11 +192,11 @@ export default function AdminHistoryDetailContent({
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="space-y-3 max-h-[400px] overflow-y-auto">
+              <div className="space-y-2 max-h-[400px] overflow-y-auto">
                 {r.errors!.map((err, idx) => (
                   <div
                     key={idx}
-                    className="rounded-lg border border-destructive/30 bg-destructive/5 dark:bg-destructive/10 p-3 text-sm"
+                    className="rounded-lg border border-destructive/30 bg-destructive/5 dark:bg-destructive/10 p-2 text-sm"
                   >
                     <span className="font-mono font-medium">
                       Row {err.rowNumber}

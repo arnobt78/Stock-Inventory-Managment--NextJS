@@ -1,18 +1,24 @@
+import { Suspense } from "react";
 import { redirect } from "next/navigation";
 import { getSession } from "@/lib/auth-server";
 import WarehousesPage from "@/components/Pages/WarehousesPage";
 import { getWarehousesForUser } from "@/lib/server/warehouses-data";
 
-/**
- * Warehouses route — server component.
- * If user is not logged in, redirect to login. Otherwise fetch warehouses on the server
- * and pass to WarehousesPage so the client can hydrate React Query in one round-trip.
- */
+/** REQ-0021 — session shell + Suspense-streamed warehouses */
 export default async function WarehousesRoute() {
   const user = await getSession();
   if (!user) {
     redirect("/login");
   }
-  const initialWarehouses = await getWarehousesForUser(user.id);
+
+  return (
+    <Suspense fallback={<WarehousesPage />}>
+      <WarehousesPageWithData userId={user.id} />
+    </Suspense>
+  );
+}
+
+async function WarehousesPageWithData({ userId }: { userId: string }) {
+  const initialWarehouses = await getWarehousesForUser(userId);
   return <WarehousesPage initialWarehouses={initialWarehouses} />;
 }

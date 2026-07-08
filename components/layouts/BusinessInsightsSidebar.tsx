@@ -39,7 +39,10 @@ export default function BusinessInsightsSidebar({
 }: BusinessInsightsSidebarProps) {
   if (collapsed) {
     return (
-      <nav className="flex min-h-0 flex-col items-center py-3 gap-1" aria-label="Insights sections">
+      <nav
+        className="flex min-h-0 flex-col items-center py-3 gap-1"
+        aria-label="Insights sections"
+      >
         {TAB_ITEMS.map((item) => {
           const Icon = item.icon;
           const isActive = value === item.value;
@@ -66,9 +69,12 @@ export default function BusinessInsightsSidebar({
   }
 
   return (
-    <nav className="flex min-h-0 flex-col p-2 gap-1" aria-label="Insights sections">
+    <nav
+      className="flex min-h-0 flex-col p-2 gap-1"
+      aria-label="Insights sections"
+    >
       {/* Grouped header — same style as AdminSidebar */}
-      <p className="px-3 pt-2 pb-1 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+      <p className="px-3 pt-2  text-xs font-semibold uppercase tracking-wider text-muted-foreground">
         Insights
       </p>
       {TAB_ITEMS.map((item) => {

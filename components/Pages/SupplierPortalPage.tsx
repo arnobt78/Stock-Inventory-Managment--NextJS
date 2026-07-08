@@ -5,7 +5,7 @@
  * Dashboard for suppliers to view their products, orders, and revenue
  */
 
-import React, { useState, useEffect } from "react";
+import React from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -17,7 +17,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Skeleton } from "@/components/ui/skeleton";
+import { TableBodyPulseRows } from "@/components/ui/table-data-skeleton";
 import { useSupplierPortalDashboard } from "@/hooks/queries";
 import { useAuth } from "@/contexts";
 import {
@@ -38,9 +38,9 @@ import {
 } from "recharts";
 import { ResponsiveChartContainer } from "@/components/ui/responsive-chart-container";
 import Navbar from "@/components/layouts/Navbar";
-import { PageContentWrapper } from "@/components/shared";
+import { PageContentWrapper, DataSlotPulse } from "@/components/shared";
 import { StatisticsCard } from "@/components/home/StatisticsCard";
-import { StatisticsCardSkeleton } from "@/components/home/StatisticsCardSkeleton";
+import { isDataSlotLoading } from "@/lib/react-query";
 import { cn } from "@/lib/utils";
 
 /**
@@ -72,67 +72,28 @@ function getStatusBadge(status: string) {
 }
 
 export default function SupplierPortalPage() {
-  const [mounted, setMounted] = useState(false);
   const { isCheckingAuth } = useAuth();
-  const { data: dashboard, isLoading, isError } = useSupplierPortalDashboard();
+  const dashboardQuery = useSupplierPortalDashboard();
+  const dashboard = dashboardQuery.data;
+  const dataLoading = isDataSlotLoading(dashboardQuery);
+  const showError =
+    !dataLoading && !isCheckingAuth && (dashboardQuery.isError || !dashboard);
 
-  useEffect(() => {
-    queueMicrotask(() => setMounted(true));
-  }, []);
-
-  // Same initial output on server and client to avoid hydration mismatch (React Query state can differ)
-  if (!mounted) {
+  if (showError) {
     return (
       <Navbar>
         <PageContentWrapper>
-          <div className="space-y-6">
-            <Skeleton className="h-12 w-64 rounded-md" />
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
-              {[1, 2, 3, 4].map((i) => (
-                <StatisticsCardSkeleton key={i} />
-              ))}
-            </div>
-            <Skeleton className="h-64 rounded-md" />
-          </div>
-        </PageContentWrapper>
-      </Navbar>
-    );
-  }
-
-  // Show skeleton while auth is resolving or portal data is loading (avoids "Failed to load" on refresh)
-  if (isCheckingAuth || isLoading) {
-    return (
-      <Navbar>
-        <PageContentWrapper>
-          <div className="space-y-6">
-            <Skeleton className="h-12 w-64 rounded-md" />
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
-              {[1, 2, 3, 4].map((i) => (
-                <StatisticsCardSkeleton key={i} />
-              ))}
-            </div>
-            <Skeleton className="h-64 rounded-md" />
-          </div>
-        </PageContentWrapper>
-      </Navbar>
-    );
-  }
-
-  if (isError || !dashboard) {
-    return (
-      <Navbar>
-        <PageContentWrapper>
-          <div className="space-y-6">
-            <h1 className="text-2xl font-semibold text-primary">
+          <div className="space-y-4">
+            <h1 className="text-lg sm:text-xl font-semibold text-primary">
               Supplier Portal
             </h1>
             <article
               className={cn(
-                "rounded-[28px] border border-white/10 dark:border-white/20 p-4 sm:p-6 backdrop-blur-sm bg-white/60 dark:bg-white/5 shadow-[0_15px_40px_rgba(0,0,0,0.08)] dark:shadow-[0_30px_80px_rgba(255,255,255,0.08)]",
+                "rounded-[28px] border border-white/10 dark:border-white/20 p-2 sm:p-4 backdrop-blur-sm bg-white/60 dark:bg-white/5 shadow-[0_15px_40px_rgba(0,0,0,0.08)] dark:shadow-[0_30px_80px_rgba(255,255,255,0.08)]",
               )}
             >
               <p className="text-muted-foreground text-center">
-                {isError
+                {dashboardQuery.isError
                   ? "Failed to load supplier dashboard. Please ensure your account is linked to a supplier entity."
                   : "No supplier data available."}
               </p>
@@ -151,44 +112,53 @@ export default function SupplierPortalPage() {
   return (
     <Navbar>
       <PageContentWrapper>
-        <div className="space-y-6">
+        <div className="space-y-4">
           <div className="">
-            <h1 className="text-xl sm:text-2xl font-semibold text-gray-900 dark:text-white">
+            <h1 className="text-lg sm:text-xl font-semibold text-gray-700 dark:text-white">
               Supplier Portal
             </h1>
-            <p className="text-sm sm:text-base text-muted-foreground">
-              Welcome, {dashboard.supplierName}
+            <p className="text-xs sm:text-sm text-muted-foreground">
+              Welcome,{" "}
+              {dataLoading ? (
+                <DataSlotPulse variant="text-sm" />
+              ) : (
+                dashboard?.supplierName
+              )}
             </p>
           </div>
 
           {/* Summary Cards — supplier's products/orders/revenue only */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-2">
             <StatisticsCard
               title="Total Products"
-              value={dashboard.totalProducts}
+              value={dashboard?.totalProducts ?? 0}
               description="Products in your catalog"
               icon={Package}
               variant="sky"
+              valueLoading={dataLoading}
+              badgeValuesLoading={dataLoading}
               badges={[
                 {
                   label: "Available",
                   value:
-                    dashboard.productStatusCounts?.available ??
-                    dashboard.totalProducts - dashboard.lowStockProducts.length,
+                    dashboard?.productStatusCounts?.available ??
+                    (dashboard?.totalProducts ?? 0) -
+                      (dashboard?.lowStockProducts.length ?? 0),
                 },
                 {
                   label: "Stock low",
                   value:
-                    dashboard.productStatusCounts?.stockLow ??
-                    dashboard.lowStockProducts.length,
+                    dashboard?.productStatusCounts?.stockLow ??
+                    dashboard?.lowStockProducts.length ??
+                    0,
                 },
                 {
                   label: "Stock out",
-                  value: dashboard.productStatusCounts?.stockOut ?? 0,
+                  value: dashboard?.productStatusCounts?.stockOut ?? 0,
                 },
                 {
                   label: "Product value",
-                  value: `$${(dashboard.productValue ?? 0).toLocaleString(
+                  value: `$${(dashboard?.productValue ?? 0).toLocaleString(
                     undefined,
                     { minimumFractionDigits: 2, maximumFractionDigits: 2 },
                   )}`,
@@ -197,70 +167,76 @@ export default function SupplierPortalPage() {
             />
             <StatisticsCard
               title="Total Orders"
-              value={dashboard.totalOrders}
+              value={dashboard?.totalOrders ?? 0}
               description="Orders containing your products"
               icon={ShoppingCart}
               variant="emerald"
+              valueLoading={dataLoading}
+              badgeValuesLoading={dataLoading}
               badges={[
                 {
                   label: "Pending",
-                  value: dashboard.orderStatusCounts?.pending ?? 0,
+                  value: dashboard?.orderStatusCounts?.pending ?? 0,
                 },
                 {
                   label: "In progress",
-                  value: dashboard.orderStatusCounts?.inProgress ?? 0,
+                  value: dashboard?.orderStatusCounts?.inProgress ?? 0,
                 },
                 {
                   label: "Shipped",
-                  value: dashboard.orderStatusCounts?.shipped ?? 0,
+                  value: dashboard?.orderStatusCounts?.shipped ?? 0,
                 },
                 {
                   label: "Delivered",
-                  value: dashboard.orderStatusCounts?.delivered ?? 0,
+                  value: dashboard?.orderStatusCounts?.delivered ?? 0,
                 },
                 {
                   label: "Refunded",
-                  value: dashboard.orderStatusCounts?.refunded ?? 0,
+                  value: dashboard?.orderStatusCounts?.refunded ?? 0,
                 },
                 {
                   label: "Cancelled",
-                  value: dashboard.orderStatusCounts?.cancelled ?? 0,
+                  value: dashboard?.orderStatusCounts?.cancelled ?? 0,
                 },
               ]}
             />
             <StatisticsCard
               title="Pending Orders"
-              value={dashboard.pendingOrders}
+              value={dashboard?.pendingOrders ?? 0}
               description="Orders awaiting action"
               icon={Clock}
               variant="amber"
+              valueLoading={dataLoading}
+              badgeValuesLoading={dataLoading}
               badges={[
                 {
                   label: "Cancelled",
-                  value: dashboard.orderStatusCounts?.cancelled ?? 0,
+                  value: dashboard?.orderStatusCounts?.cancelled ?? 0,
                 },
                 {
                   label: "Completed",
-                  value: dashboard.orderStatusCounts?.completed ?? 0,
+                  value: dashboard?.orderStatusCounts?.completed ?? 0,
                 },
                 {
                   label: "Refunded",
-                  value: dashboard.orderStatusCounts?.refunded ?? 0,
+                  value: dashboard?.orderStatusCounts?.refunded ?? 0,
                 },
-                { label: "Of Total", value: dashboard.totalOrders },
+                { label: "Of Total", value: dashboard?.totalOrders ?? 0 },
               ]}
             />
             <StatisticsCard
               title="Total Revenue"
-              value={`$${(dashboard.totalRevenue ?? 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}
+              value={`$${(dashboard?.totalRevenue ?? 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}
               description="Revenue from your products (excl. cancelled)"
               icon={DollarSign}
               variant="violet"
+              valueLoading={dataLoading}
+              badgeValuesLoading={dataLoading}
               badges={[
                 {
                   label: "Paid",
                   value: `$${(
-                    dashboard.revenueBreakdown?.paid ?? dashboard.paidRevenue
+                    dashboard?.revenueBreakdown?.paid ?? dashboard?.paidRevenue ?? 0
                   ).toLocaleString(undefined, {
                     minimumFractionDigits: 2,
                     maximumFractionDigits: 2,
@@ -269,7 +245,7 @@ export default function SupplierPortalPage() {
                 {
                   label: "Due",
                   value: `$${(
-                    dashboard.revenueBreakdown?.due ?? 0
+                    dashboard?.revenueBreakdown?.due ?? 0
                   ).toLocaleString(undefined, {
                     minimumFractionDigits: 2,
                     maximumFractionDigits: 2,
@@ -278,7 +254,7 @@ export default function SupplierPortalPage() {
                 {
                   label: "Refund",
                   value: `$${(
-                    dashboard.revenueBreakdown?.refund ?? 0
+                    dashboard?.revenueBreakdown?.refund ?? 0
                   ).toLocaleString(undefined, {
                     minimumFractionDigits: 2,
                     maximumFractionDigits: 2,
@@ -287,23 +263,24 @@ export default function SupplierPortalPage() {
                 {
                   label: "Pending",
                   value: `$${(
-                    dashboard.revenueBreakdown?.pending ??
-                    dashboard.unpaidRevenue
+                    dashboard?.revenueBreakdown?.pending ??
+                    dashboard?.unpaidRevenue ??
+                    0
                   ).toLocaleString(undefined, {
                     minimumFractionDigits: 2,
                     maximumFractionDigits: 2,
                   })}`,
                 },
-                ...(dashboard.totalOrders > 0
+                ...((dashboard?.totalOrders ?? 0) > 0
                   ? [
                       {
                         label: "Avg/Order",
                         value: `$${(
-                          dashboard.totalRevenue /
+                          (dashboard?.totalRevenue ?? 0) /
                           Math.max(
                             1,
-                            dashboard.totalOrders -
-                              (dashboard.orderStatusCounts?.cancelled ?? 0),
+                            (dashboard?.totalOrders ?? 0) -
+                              (dashboard?.orderStatusCounts?.cancelled ?? 0),
                           )
                         ).toLocaleString(undefined, {
                           minimumFractionDigits: 2,
@@ -317,29 +294,31 @@ export default function SupplierPortalPage() {
           </div>
 
           {/* Revenue Chart — glassmorphic card */}
-          {dashboard.monthlyRevenue.length > 0 && (
-            <article
-              className={cn(
-                "rounded-[28px] border border-emerald-400/20 dark:border-emerald-400/30 p-4 sm:p-6 backdrop-blur-sm transition-all",
-                "bg-white/60 dark:bg-white/5",
-                "bg-gradient-to-br from-emerald-500/15 via-emerald-500/5 to-transparent dark:from-emerald-500/25 dark:via-emerald-500/10 dark:to-emerald-500/5",
-                "shadow-[0_15px_40px_rgba(16,185,129,0.15)] dark:shadow-[0_30px_80px_rgba(16,185,129,0.25)]",
-                "hover:border-emerald-300/40",
-              )}
-            >
-              <div className="mb-4">
-                <h3 className="flex items-center gap-2 text-lg font-semibold text-gray-900 dark:text-white">
-                  <TrendingUp className="h-5 w-5 text-emerald-500 dark:text-emerald-400" />
-                  Monthly Revenue
-                </h3>
-                <p className="text-sm text-gray-600 dark:text-white/70 mt-1">
-                  Revenue from your products over the last 6 months (grouped by
-                  month)
-                </p>
-              </div>
+          <article
+            className={cn(
+              "rounded-[28px] border border-emerald-400/20 dark:border-emerald-400/30 p-2 sm:p-4 backdrop-blur-sm transition-all",
+              "bg-white/60 dark:bg-white/5",
+              "bg-gradient-to-br from-emerald-500/15 via-emerald-500/5 to-transparent dark:from-emerald-500/25 dark:via-emerald-500/10 dark:to-emerald-500/5",
+              "shadow-[0_15px_40px_rgba(16,185,129,0.15)] dark:shadow-[0_30px_80px_rgba(16,185,129,0.25)]",
+              "hover:border-emerald-300/40",
+            )}
+          >
+            <div className="mb-4">
+              <h3 className="flex items-center gap-2 text-lg font-semibold text-gray-700 dark:text-white">
+                <TrendingUp className="h-5 w-5 text-emerald-500 dark:text-emerald-400" />
+                Monthly Revenue
+              </h3>
+              <p className="text-sm text-gray-600 dark:text-white/70 mt-1">
+                Revenue from your products over the last 6 months (grouped by
+                month)
+              </p>
+            </div>
+            {dataLoading ? (
+              <DataSlotPulse variant="chart" className="min-h-[240px]" />
+            ) : (dashboard?.monthlyRevenue.length ?? 0) > 0 ? (
               <ResponsiveChartContainer>
                 <AreaChart
-                  data={dashboard.monthlyRevenue}
+                  data={dashboard!.monthlyRevenue}
                   margin={{ top: 10, right: 30, left: 0, bottom: 0 }}
                 >
                   <CartesianGrid strokeDasharray="3 3" />
@@ -359,14 +338,18 @@ export default function SupplierPortalPage() {
                   />
                 </AreaChart>
               </ResponsiveChartContainer>
-            </article>
-          )}
+            ) : (
+              <p className="text-muted-foreground text-center py-8">
+                No revenue data yet
+              </p>
+            )}
+          </article>
 
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-2 sm:gap-4">
             {/* Recent Orders — glassmorphic */}
             <article
               className={cn(
-                "rounded-[28px] border border-sky-400/20 dark:border-sky-400/30 p-4 sm:p-6 backdrop-blur-sm transition-all",
+                "rounded-[28px] border border-sky-400/20 dark:border-sky-400/30 p-2 sm:p-4 backdrop-blur-sm transition-all",
                 "bg-white/60 dark:bg-white/5",
                 "bg-gradient-to-br from-sky-500/15 via-sky-500/5 to-transparent dark:from-sky-500/25 dark:via-sky-500/10 dark:to-sky-500/5",
                 "shadow-[0_15px_40px_rgba(2,132,199,0.15)] dark:shadow-[0_30px_80px_rgba(2,132,199,0.25)]",
@@ -374,7 +357,7 @@ export default function SupplierPortalPage() {
               )}
             >
               <div className="mb-4">
-                <h3 className="flex items-center gap-2 text-lg font-semibold text-gray-900 dark:text-white">
+                <h3 className="flex items-center gap-2 text-lg font-semibold text-gray-700 dark:text-white">
                   <ShoppingCart className="h-5 w-5 text-sky-500 dark:text-sky-400" />
                   Recent Orders
                 </h3>
@@ -383,7 +366,18 @@ export default function SupplierPortalPage() {
                 </p>
               </div>
               <div>
-                {dashboard.recentOrders.length === 0 ? (
+                {dataLoading ? (
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Order #</TableHead>
+                        <TableHead className="text-right">Revenue</TableHead>
+                        <TableHead>Status</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBodyPulseRows rows={5} columnCount={3} />
+                  </Table>
+                ) : (dashboard?.recentOrders.length ?? 0) === 0 ? (
                   <p className="text-muted-foreground text-center py-4">
                     No orders yet
                   </p>
@@ -398,7 +392,7 @@ export default function SupplierPortalPage() {
                         </TableRow>
                       </TableHeader>
                       <TableBody>
-                        {dashboard.recentOrders.slice(0, 5).map((order) => (
+                        {dashboard!.recentOrders.slice(0, 5).map((order) => (
                           <TableRow key={order.id}>
                             <TableCell>
                               <Link
@@ -427,7 +421,7 @@ export default function SupplierPortalPage() {
             <article
               id="products"
               className={cn(
-                "rounded-[28px] border border-amber-400/20 dark:border-amber-400/30 p-4 sm:p-6 backdrop-blur-sm transition-all",
+                "rounded-[28px] border border-amber-400/20 dark:border-amber-400/30 p-2 sm:p-4 backdrop-blur-sm transition-all",
                 "bg-white/60 dark:bg-white/5",
                 "bg-gradient-to-br from-amber-500/15 via-amber-500/5 to-transparent dark:from-amber-500/25 dark:via-amber-500/10 dark:to-amber-500/5",
                 "shadow-[0_15px_40px_rgba(245,158,11,0.15)] dark:shadow-[0_30px_80px_rgba(245,158,11,0.2)]",
@@ -435,7 +429,7 @@ export default function SupplierPortalPage() {
               )}
             >
               <div className="mb-4">
-                <h3 className="flex items-center gap-2 text-lg font-semibold text-gray-900 dark:text-white">
+                <h3 className="flex items-center gap-2 text-lg font-semibold text-gray-700 dark:text-white">
                   <AlertTriangle className="h-5 w-5 text-amber-500 dark:text-amber-400" />
                   Low Stock Products
                 </h3>
@@ -445,7 +439,18 @@ export default function SupplierPortalPage() {
                 </p>
               </div>
               <div>
-                {dashboard.lowStockProducts.length === 0 ? (
+                {dataLoading ? (
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Product</TableHead>
+                        <TableHead className="text-right">Available</TableHead>
+                        <TableHead>Status</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBodyPulseRows rows={5} columnCount={3} />
+                  </Table>
+                ) : (dashboard?.lowStockProducts.length ?? 0) === 0 ? (
                   <p className="text-muted-foreground text-center py-4">
                     All products have sufficient stock
                   </p>
@@ -462,7 +467,7 @@ export default function SupplierPortalPage() {
                         </TableRow>
                       </TableHeader>
                       <TableBody>
-                        {dashboard.lowStockProducts
+                        {dashboard!.lowStockProducts
                           .slice(0, 5)
                           .map((product) => (
                             <TableRow key={product.id}>
@@ -504,17 +509,17 @@ export default function SupplierPortalPage() {
           {/* Quick Links — glassmorphic */}
           <article
             className={cn(
-              "rounded-[28px] border border-violet-400/20 dark:border-violet-400/30 p-4 sm:p-6 backdrop-blur-sm transition-all",
+              "rounded-[28px] border border-violet-400/20 dark:border-violet-400/30 p-2 sm:p-4 backdrop-blur-sm transition-all",
               "bg-white/60 dark:bg-white/5",
               "bg-gradient-to-br from-violet-500/15 via-violet-500/5 to-transparent dark:from-violet-500/25 dark:via-violet-500/10 dark:to-violet-500/5",
               "shadow-[0_15px_40px_rgba(139,92,246,0.15)] dark:shadow-[0_30px_80px_rgba(139,92,246,0.25)]",
               "hover:border-violet-300/40",
             )}
           >
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+            <h3 className="text-lg font-semibold text-gray-700 dark:text-white mb-4">
               Quick Links
             </h3>
-            <div className="flex flex-wrap gap-3">
+            <div className="flex flex-wrap gap-2">
               <Button asChild variant="outline" className="gap-2">
                 <Link href="/products">
                   <Package className="h-4 w-4" />

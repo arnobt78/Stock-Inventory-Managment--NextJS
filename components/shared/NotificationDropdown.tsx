@@ -138,7 +138,7 @@ export function NotificationDropdown({
     <div className="w-full overflow-hidden rounded-lg">
       {/* Header */}
       <div className="flex items-center justify-between p-4 border-b border-rose-400/20 dark:border-white/10">
-        <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+        <h3 className="text-lg font-semibold text-gray-700 dark:text-white">
           Notifications
         </h3>
         {hasUnread && (
@@ -171,7 +171,7 @@ export function NotificationDropdown({
             <p className="text-sm">Failed to load notifications</p>
           </div>
         ) : notifications.length === 0 ? (
-          <div className="p-8 text-center text-gray-500 dark:text-gray-400">
+          <div className="p-4 sm:p-6 text-center text-gray-500 dark:text-gray-400">
             <Bell className="h-8 w-8 mx-auto mb-2 opacity-50" />
             <p className="text-sm">No notifications</p>
           </div>
@@ -188,7 +188,7 @@ export function NotificationDropdown({
                     !notification.read && "bg-rose-50/30 dark:bg-rose-500/5",
                   )}
                 >
-                  <div className="flex items-start gap-3">
+                  <div className="flex items-start gap-2">
                     {/* Icon */}
                     <div
                       className={cn(
@@ -212,7 +212,7 @@ export function NotificationDropdown({
                         >
                           <p
                             className={cn(
-                              "text-sm font-medium text-gray-900 dark:text-white mb-1",
+                              "text-sm font-medium text-gray-700 dark:text-white mb-1",
                               !notification.read && "font-semibold",
                             )}
                           >
@@ -226,7 +226,7 @@ export function NotificationDropdown({
                         <>
                           <p
                             className={cn(
-                              "text-sm font-medium text-gray-900 dark:text-white mb-1",
+                              "text-sm font-medium text-gray-700 dark:text-white mb-1",
                               !notification.read && "font-semibold",
                             )}
                           >
@@ -292,12 +292,12 @@ export function NotificationDropdown({
 
       {/* Footer */}
       {notifications.length > 0 && (
-        <div className="p-3 border-t border-rose-400/20 dark:border-white/10 text-center">
+        <div className="p-2 border-t border-rose-400/20 dark:border-white/10 text-center">
           <Button
             variant="ghost"
             size="sm"
             onClick={onClose}
-            className="text-xs text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
+            className="text-xs text-gray-600 dark:text-gray-400 hover:text-gray-700 dark:hover:text-white"
           >
             Close
           </Button>

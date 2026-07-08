@@ -24,10 +24,10 @@ import {
   useClientPortalDashboard,
   useSupplierPortalDashboard,
 } from "@/hooks/queries";
+import { isDataSlotLoading } from "@/lib/react-query";
 import OrderFilters from "./OrderFilters";
 import OrderDialog from "./OrderDialog";
 import { StatisticsCard } from "@/components/home/StatisticsCard";
-import { StatisticsCardSkeleton } from "@/components/home/StatisticsCardSkeleton";
 import {
   DollarSign,
   CreditCard,
@@ -37,6 +37,7 @@ import {
   Package,
 } from "lucide-react";
 import type { Order } from "@/types";
+import type { OrderForPage } from "@/lib/server/orders-data";
 import type { OrderWithSource } from "./OrderTableColumns";
 import type { OrderSourceFilterValue } from "./OrderSourceFilter";
 
@@ -60,18 +61,30 @@ export type OrderListProps = {
   detailHrefBase?: string;
   /** When "clientOrders", fetches client orders; when "adminCombined", merge personal + client with Order type filter */
   dataSource?: "orders" | "clientOrders" | "adminCombined";
+  /** SSR-passed orders for first-render hydration (REQ-0021) */
+  initialOrders?: Order[] | OrderForPage[];
 };
 
 const OrderList = React.memo(
-  ({ detailHrefBase, dataSource = "orders" }: OrderListProps = {}) => {
+  ({
+    detailHrefBase,
+    dataSource = "orders",
+    initialOrders,
+  }: OrderListProps = {}) => {
     // Track if component has mounted on client to prevent hydration mismatch
     const isMountedRef = useRef(false);
     const [isMounted, setIsMounted] = useState(false);
 
     const pathname = usePathname();
-    const { user, isCheckingAuth } = useAuth();
-    const ordersQueryDefault = useOrders();
-    const ordersQueryClient = useClientOrders();
+    const { user } = useAuth();
+    const ordersQueryDefault = useOrders(
+      dataSource === "orders" ? initialOrders : undefined,
+    );
+    const ordersQueryClient = useClientOrders(
+      dataSource === "clientOrders"
+        ? (initialOrders as Order[] | undefined)
+        : undefined,
+    );
     const dashboardQuery = useDashboard();
     const dashboard =
       dataSource === "adminCombined" ? (dashboardQuery.data ?? null) : null;
@@ -179,35 +192,36 @@ const OrderList = React.memo(
           showPlacedBy: isSupplierOrdersPage,
           showProductOwner: isClientOrdersPage,
         }),
-      [handleEditOrder, effectiveDetailBase, dataSource, isSupplierOrdersPage, isClientOrdersPage],
+      [
+        handleEditOrder,
+        effectiveDetailBase,
+        dataSource,
+        isSupplierOrdersPage,
+        isClientOrdersPage,
+      ],
     );
 
-    // Determine loading state - FIXES HYDRATION & FLICKER (same approach as StatisticsSection)
-    // Show skeleton if:
-    // 1. Not mounted yet (prevents hydration mismatch - server and client both show skeleton)
-    // 2. OR auth is checking OR orders query is still pending (hasn't fetched yet)
-    // This ensures server and client render match initially, preventing hydration errors
-    // Once mounted and queries have fetched, data shows immediately - no flicker
-    const ordersQueryPending =
+    // REQ-0021: shell-first — only data slots pulse
+    const tableDataLoading =
       dataSource === "adminCombined"
-        ? ordersQueryDefault.isPending || ordersQueryClient.isPending
-        : ordersQuery.isPending;
-    const showSkeleton = !isMounted || isCheckingAuth || ordersQueryPending;
-    const showCardsSkeleton =
-      dataSource === "adminCombined"
-        ? showSkeleton || dashboardQuery.isPending
-        : false;
-    /** For /orders page cards: show skeleton until mounted and dashboard loaded */
-    const ordersPageCardsLoading =
-      isUserOrdersPage && (!isMounted || dashboardQuery.isPending);
-    /** Client /orders cards: skeleton until mounted, auth ready, and portal dashboard loaded */
-    const clientOrdersCardsLoading =
-      isClientOrdersPage &&
-      (!isMounted || isCheckingAuth || portalDashboardQuery.isPending);
-    /** Supplier /orders cards: skeleton until mounted, auth ready, and supplier portal loaded */
-    const supplierOrdersCardsLoading =
-      isSupplierOrdersPage &&
-      (!isMounted || isCheckingAuth || supplierPortalQuery.isPending);
+        ? isDataSlotLoading(ordersQueryDefault, initialOrders) ||
+          isDataSlotLoading(ordersQueryClient)
+        : dataSource === "clientOrders"
+          ? isDataSlotLoading(ordersQueryClient, initialOrders)
+          : isDataSlotLoading(ordersQuery, initialOrders);
+    const dashboardCardsLoading = isDataSlotLoading(dashboardQuery);
+    const clientPortalCardsLoading = isDataSlotLoading(portalDashboardQuery);
+    const supplierPortalCardsLoading = isDataSlotLoading(supplierPortalQuery);
+    const supplierPortal = supplierPortalQuery.data;
+    const supplierNonCancelledOrders = Math.max(
+      0,
+      (supplierPortal?.totalOrders ?? 0) -
+        (supplierPortal?.orderStatusCounts?.cancelled ?? 0),
+    );
+    const supplierAvgOrder =
+      supplierNonCancelledOrders > 0
+        ? (supplierPortal?.totalRevenue ?? 0) / supplierNonCancelledOrders
+        : 0;
 
     const isClientOrders = dataSource === "clientOrders";
     const isAdminCombined = dataSource === "adminCombined";
@@ -218,7 +232,7 @@ const OrderList = React.memo(
       <div className="flex flex-col poppins">
         {/* Order Management Section Header */}
         <div className="pb-6 flex flex-col items-start text-left">
-          <h2 className="text-xl sm:text-2xl font-semibold text-gray-900 dark:text-white pb-2">
+          <h2 className="text-lg sm:text-xl font-semibold text-gray-700 dark:text-white ">
             {isAdminCombined
               ? "Store Orders Management (self + client)"
               : isClientOrders
@@ -229,7 +243,7 @@ const OrderList = React.memo(
                     ? "Orders (Your Products)"
                     : "Order Management"}
           </h2>
-          <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400">
+          <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">
             {isAdminCombined
               ? "Orders placed by you and by clients. Filter by order type, status, and payment."
               : isClientOrders
@@ -244,712 +258,679 @@ const OrderList = React.memo(
 
         {/* Store-wide state cards — only on /orders page (user), same as homepage */}
         {isUserOrdersPage && (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 items-stretch pb-6">
-            {ordersPageCardsLoading ? (
-              <>
-                {[1, 2, 3, 4].map((i) => (
-                  <StatisticsCardSkeleton key={i} />
-                ))}
-              </>
-            ) : ordersPageStats ? (
-              <>
-                <StatisticsCard
-                  title="Total Value"
-                  value={formatCurrency(
-                    ordersPageStats.totalInventoryValue ?? 0,
-                  )}
-                  description="Total inventory value"
-                  icon={DollarSign}
-                  variant="violet"
-                  badges={[
-                    {
-                      label: "Orders",
-                      value: formatCurrency(
-                        ordersPageStats.orderAnalytics
-                          ?.totalRevenueExcludingCancelled ??
-                          ordersPageStats.revenue?.fromOrders ??
-                          0,
-                      ),
-                    },
-                    {
-                      label: "Invoices",
-                      value: formatCurrency(
-                        ordersPageStats.revenue?.fromInvoices ?? 0,
-                      ),
-                    },
-                    {
-                      label: "Due",
-                      value: formatCurrency(
-                        ordersPageStats.invoiceAnalytics?.outstandingAmount ??
-                          0,
-                      ),
-                    },
-                    {
-                      label: "Cancelled",
-                      value: formatCurrency(
-                        ordersPageStats.orderAnalytics?.cancelledOrderAmount ??
-                          0,
-                      ),
-                    },
-                  ]}
-                />
-                <StatisticsCard
-                  title="Total Revenue"
-                  value={formatCurrency(
-                    ordersPageStats.orderAnalytics
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2 items-stretch pb-6">
+            <StatisticsCard
+              title="Total Value"
+              value={formatCurrency(ordersPageStats?.totalInventoryValue ?? 0)}
+              description="Total inventory value"
+              icon={DollarSign}
+              variant="violet"
+              valueLoading={dashboardCardsLoading}
+              badgeValuesLoading={dashboardCardsLoading}
+              badges={[
+                {
+                  label: "Orders",
+                  value: formatCurrency(
+                    ordersPageStats?.orderAnalytics
                       ?.totalRevenueExcludingCancelled ??
-                      ordersPageStats.revenue?.fromOrders ??
+                      ordersPageStats?.revenue?.fromOrders ??
                       0,
-                  )}
-                  description="Profits (excl. cancelled)"
-                  icon={DollarSign}
-                  variant="emerald"
-                  badges={[
-                    {
-                      label: "Paid",
-                      value: formatCurrency(
-                        ordersPageStats.orderAnalytics?.paidOrderAmount ?? 0,
-                      ),
-                    },
-                    {
-                      label: "Due",
-                      value: formatCurrency(
-                        ordersPageStats.invoiceAnalytics?.outstandingAmount ??
-                          0,
-                      ),
-                    },
-                    {
-                      label: "Refund",
-                      value: formatCurrency(
-                        ordersPageStats.orderAnalytics?.refundedAmount ?? 0,
-                      ),
-                    },
-                    {
-                      label: "Pending",
-                      value: formatCurrency(
-                        ordersPageStats.orderAnalytics?.pendingOrderAmount ?? 0,
-                      ),
-                    },
-                    ...(ordersPageStats.selfOthersBreakdown
-                      ? [
-                          {
-                            label: "Self",
-                            value: formatCurrency(
-                              ordersPageStats.selfOthersBreakdown.revenueSelf,
-                            ),
-                          },
-                          {
-                            label: "Others",
-                            value: formatCurrency(
-                              ordersPageStats.selfOthersBreakdown.revenueOthers,
-                            ),
-                          },
-                        ]
-                      : []),
-                  ]}
-                />
-                <StatisticsCard
-                  title="Total Orders"
-                  value={ordersPageStats.counts.orders}
-                  description="Total orders placed (self + client)"
-                  icon={ShoppingCart}
-                  variant="blue"
-                  badges={[
-                    {
-                      label: "Pending",
-                      value:
-                        ordersPageStats.orderAnalytics?.statusDistribution
-                          ?.pending ?? 0,
-                    },
-                    {
-                      label: "Confirmed",
-                      value:
-                        ordersPageStats.orderAnalytics?.statusDistribution
-                          ?.confirmed ?? 0,
-                    },
-                    {
-                      label: "Shipping",
-                      value:
-                        (ordersPageStats.orderAnalytics?.statusDistribution
-                          ?.processing ?? 0) +
-                        (ordersPageStats.orderAnalytics?.statusDistribution
-                          ?.shipped ?? 0),
-                    },
-                    {
-                      label: "Refund",
-                      value: ordersPageStats.orderAnalytics?.refundedCount ?? 0,
-                    },
-                    {
-                      label: "Cancel",
-                      value:
-                        ordersPageStats.orderAnalytics?.statusDistribution
-                          ?.cancelled ?? 0,
-                    },
-                    ...(ordersPageStats.selfOthersBreakdown
-                      ? [
-                          {
-                            label: "Self",
-                            value:
-                              ordersPageStats.selfOthersBreakdown
-                                .orderSelfCount,
-                          },
-                          {
-                            label: "Others",
-                            value:
-                              ordersPageStats.selfOthersBreakdown
-                                .orderOthersCount,
-                          },
-                        ]
-                      : []),
-                  ]}
-                />
-                <StatisticsCard
-                  title="Invoices"
-                  value={ordersPageStats.counts.invoices}
-                  description="Total invoices (store-wide)"
-                  icon={FileText}
-                  variant="sky"
-                  badges={[
-                    {
-                      label: "Paid",
-                      value:
-                        ordersPageStats.invoiceAnalytics?.statusDistribution
-                          ?.paid ?? 0,
-                    },
-                    {
-                      label: "Pending",
-                      value:
-                        (ordersPageStats.invoiceAnalytics?.statusDistribution
-                          ?.draft ?? 0) +
-                        (ordersPageStats.invoiceAnalytics?.statusDistribution
-                          ?.sent ?? 0),
-                    },
-                    {
-                      label: "Overdue",
-                      value:
-                        ordersPageStats.invoiceAnalytics?.statusDistribution
-                          ?.overdue ?? 0,
-                    },
-                    {
-                      label: "Cancelled",
-                      value:
-                        ordersPageStats.invoiceAnalytics?.statusDistribution
-                          ?.cancelled ?? 0,
-                    },
-                    {
-                      label: "Refunded",
-                      value: ordersPageStats.orderAnalytics?.refundedCount ?? 0,
-                    },
-                    ...(ordersPageStats.selfOthersBreakdown
-                      ? [
-                          {
-                            label: "Self",
-                            value:
-                              ordersPageStats.selfOthersBreakdown
-                                .invoiceSelfCount,
-                          },
-                          {
-                            label: "Others",
-                            value:
-                              ordersPageStats.selfOthersBreakdown
-                                .invoiceOthersCount,
-                          },
-                        ]
-                      : []),
-                  ]}
-                />
-              </>
-            ) : null}
+                  ),
+                },
+                {
+                  label: "Invoices",
+                  value: formatCurrency(
+                    ordersPageStats?.revenue?.fromInvoices ?? 0,
+                  ),
+                },
+                {
+                  label: "Due",
+                  value: formatCurrency(
+                    ordersPageStats?.invoiceAnalytics?.outstandingAmount ?? 0,
+                  ),
+                },
+                {
+                  label: "Cancelled",
+                  value: formatCurrency(
+                    ordersPageStats?.orderAnalytics?.cancelledOrderAmount ?? 0,
+                  ),
+                },
+              ]}
+            />
+            <StatisticsCard
+              title="Total Revenue"
+              value={formatCurrency(
+                ordersPageStats?.orderAnalytics
+                  ?.totalRevenueExcludingCancelled ??
+                  ordersPageStats?.revenue?.fromOrders ??
+                  0,
+              )}
+              description="Profits (excl. cancelled)"
+              icon={DollarSign}
+              variant="emerald"
+              valueLoading={dashboardCardsLoading}
+              badgeValuesLoading={dashboardCardsLoading}
+              badges={[
+                {
+                  label: "Paid",
+                  value: formatCurrency(
+                    ordersPageStats?.orderAnalytics?.paidOrderAmount ?? 0,
+                  ),
+                },
+                {
+                  label: "Due",
+                  value: formatCurrency(
+                    ordersPageStats?.invoiceAnalytics?.outstandingAmount ?? 0,
+                  ),
+                },
+                {
+                  label: "Refund",
+                  value: formatCurrency(
+                    ordersPageStats?.orderAnalytics?.refundedAmount ?? 0,
+                  ),
+                },
+                {
+                  label: "Pending",
+                  value: formatCurrency(
+                    ordersPageStats?.orderAnalytics?.pendingOrderAmount ?? 0,
+                  ),
+                },
+                ...(ordersPageStats?.selfOthersBreakdown
+                  ? [
+                      {
+                        label: "Self",
+                        value: formatCurrency(
+                          ordersPageStats?.selfOthersBreakdown.revenueSelf,
+                        ),
+                      },
+                      {
+                        label: "Others",
+                        value: formatCurrency(
+                          ordersPageStats?.selfOthersBreakdown.revenueOthers,
+                        ),
+                      },
+                    ]
+                  : []),
+              ]}
+            />
+            <StatisticsCard
+              title="Total Orders"
+              value={ordersPageStats?.counts.orders}
+              description="Total orders placed (self + client)"
+              icon={ShoppingCart}
+              variant="blue"
+              valueLoading={dashboardCardsLoading}
+              badgeValuesLoading={dashboardCardsLoading}
+              badges={[
+                {
+                  label: "Pending",
+                  value:
+                    ordersPageStats?.orderAnalytics?.statusDistribution
+                      ?.pending ?? 0,
+                },
+                {
+                  label: "Confirmed",
+                  value:
+                    ordersPageStats?.orderAnalytics?.statusDistribution
+                      ?.confirmed ?? 0,
+                },
+                {
+                  label: "Shipping",
+                  value:
+                    (ordersPageStats?.orderAnalytics?.statusDistribution
+                      ?.processing ?? 0) +
+                    (ordersPageStats?.orderAnalytics?.statusDistribution
+                      ?.shipped ?? 0),
+                },
+                {
+                  label: "Refund",
+                  value: ordersPageStats?.orderAnalytics?.refundedCount ?? 0,
+                },
+                {
+                  label: "Cancel",
+                  value:
+                    ordersPageStats?.orderAnalytics?.statusDistribution
+                      ?.cancelled ?? 0,
+                },
+                ...(ordersPageStats?.selfOthersBreakdown
+                  ? [
+                      {
+                        label: "Self",
+                        value:
+                          ordersPageStats?.selfOthersBreakdown.orderSelfCount,
+                      },
+                      {
+                        label: "Others",
+                        value:
+                          ordersPageStats?.selfOthersBreakdown.orderOthersCount,
+                      },
+                    ]
+                  : []),
+              ]}
+            />
+            <StatisticsCard
+              title="Invoices"
+              value={ordersPageStats?.counts.invoices}
+              description="Total invoices (store-wide)"
+              icon={FileText}
+              variant="sky"
+              valueLoading={dashboardCardsLoading}
+              badgeValuesLoading={dashboardCardsLoading}
+              badges={[
+                {
+                  label: "Paid",
+                  value:
+                    ordersPageStats?.invoiceAnalytics?.statusDistribution
+                      ?.paid ?? 0,
+                },
+                {
+                  label: "Pending",
+                  value:
+                    (ordersPageStats?.invoiceAnalytics?.statusDistribution
+                      ?.draft ?? 0) +
+                    (ordersPageStats?.invoiceAnalytics?.statusDistribution
+                      ?.sent ?? 0),
+                },
+                {
+                  label: "Overdue",
+                  value:
+                    ordersPageStats?.invoiceAnalytics?.statusDistribution
+                      ?.overdue ?? 0,
+                },
+                {
+                  label: "Cancelled",
+                  value:
+                    ordersPageStats?.invoiceAnalytics?.statusDistribution
+                      ?.cancelled ?? 0,
+                },
+                {
+                  label: "Refunded",
+                  value: ordersPageStats?.orderAnalytics?.refundedCount ?? 0,
+                },
+                ...(ordersPageStats?.selfOthersBreakdown
+                  ? [
+                      {
+                        label: "Self",
+                        value:
+                          ordersPageStats?.selfOthersBreakdown.invoiceSelfCount,
+                      },
+                      {
+                        label: "Others",
+                        value:
+                          ordersPageStats?.selfOthersBreakdown
+                            .invoiceOthersCount,
+                      },
+                    ]
+                  : []),
+              ]}
+            />
           </div>
         )}
 
         {/* Client order state cards — /orders as client (same data as /client portal) */}
         {isClientOrdersPage && (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 items-stretch pb-6">
-            {clientOrdersCardsLoading ? (
-              <>
-                {[1, 2, 3, 4].map((i) => (
-                  <StatisticsCardSkeleton key={i} />
-                ))}
-              </>
-            ) : clientPortalDashboard ? (
-              <>
-                <StatisticsCard
-                  title="Total Orders"
-                  value={clientPortalDashboard.totalOrders}
-                  description="Your order history"
-                  icon={ShoppingCart}
-                  variant="sky"
-                  badges={[
-                    {
-                      label: "Pending",
-                      value:
-                        clientPortalDashboard.orderStatusCounts?.pending ?? 0,
-                    },
-                    {
-                      label: "In progress",
-                      value:
-                        clientPortalDashboard.orderStatusCounts?.inProgress ??
-                        0,
-                    },
-                    {
-                      label: "Shipped",
-                      value:
-                        clientPortalDashboard.orderStatusCounts?.shipped ?? 0,
-                    },
-                    {
-                      label: "Delivered",
-                      value:
-                        clientPortalDashboard.orderStatusCounts?.delivered ?? 0,
-                    },
-                    {
-                      label: "Refunded",
-                      value: clientPortalDashboard.refundedOrdersCount ?? 0,
-                    },
-                  ]}
-                />
-                <StatisticsCard
-                  title="Awaiting Payment"
-                  value={clientPortalDashboard.ordersAwaitingPayment ?? 0}
-                  description="Orders awaiting payment"
-                  icon={Clock}
-                  variant="amber"
-                  badges={[
-                    {
-                      label: "Cancelled",
-                      value:
-                        clientPortalDashboard.orderStatusCounts?.cancelled ?? 0,
-                    },
-                    {
-                      label: "Completed",
-                      value: clientPortalDashboard.ordersCompleted ?? 0,
-                    },
-                    {
-                      label: "Refunded",
-                      value: clientPortalDashboard.refundedOrdersCount ?? 0,
-                    },
-                    {
-                      label: "Of Total",
-                      value: clientPortalDashboard.totalOrders,
-                    },
-                  ]}
-                />
-                <StatisticsCard
-                  title="Total Spent"
-                  value={formatCurrency(clientPortalDashboard.totalSpent)}
-                  description="Total order value"
-                  icon={DollarSign}
-                  variant="emerald"
-                  badges={[
-                    {
-                      label: "Paid",
-                      value: formatCurrency(
-                        clientPortalDashboard.paymentBreakdown?.paid ?? 0,
-                      ),
-                    },
-                    {
-                      label: "Due",
-                      value: formatCurrency(
-                        clientPortalDashboard.paymentBreakdown?.due ?? 0,
-                      ),
-                    },
-                    {
-                      label: "Refund",
-                      value: formatCurrency(
-                        clientPortalDashboard.paymentBreakdown?.refund ?? 0,
-                      ),
-                    },
-                    {
-                      label: "Pending",
-                      value: formatCurrency(
-                        clientPortalDashboard.paymentBreakdown?.pending ?? 0,
-                      ),
-                    },
-                    {
-                      label: "Cancelled",
-                      value: formatCurrency(
-                        clientPortalDashboard.paymentBreakdown?.cancelled ?? 0,
-                      ),
-                    },
-                  ]}
-                />
-                <StatisticsCard
-                  title="Average Order Value"
-                  value={formatCurrency(
-                    clientPortalDashboard.totalOrders > 0
-                      ? clientPortalDashboard.totalSpent /
-                          clientPortalDashboard.totalOrders
-                      : 0,
-                  )}
-                  description="Per order average"
-                  icon={CreditCard}
-                  variant="violet"
-                  badges={[
-                    {
-                      label: "Paid",
-                      value: formatCurrency(
-                        clientPortalDashboard.paymentBreakdown?.paid ?? 0,
-                      ),
-                    },
-                    {
-                      label: "due",
-                      value: formatCurrency(
-                        clientPortalDashboard.paymentBreakdown?.due ?? 0,
-                      ),
-                    },
-                    ...(clientPortalDashboard.outstandingAmount === 0
-                      ? [{ label: "Status", value: "All Paid" as string }]
-                      : []),
-                    {
-                      label: "Total Invoices",
-                      value: clientPortalDashboard.invoiceBreakdown?.total ?? 0,
-                    },
-                  ]}
-                />
-              </>
-            ) : null}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2 items-stretch pb-6">
+            <StatisticsCard
+              title="Total Orders"
+              value={clientPortalDashboard?.totalOrders ?? 0}
+              description="Your order history"
+              icon={ShoppingCart}
+              variant="sky"
+              valueLoading={clientPortalCardsLoading}
+              badgeValuesLoading={clientPortalCardsLoading}
+              badges={[
+                {
+                  label: "Pending",
+                  value: clientPortalDashboard?.orderStatusCounts?.pending ?? 0,
+                },
+                {
+                  label: "In progress",
+                  value:
+                    clientPortalDashboard?.orderStatusCounts?.inProgress ?? 0,
+                },
+                {
+                  label: "Shipped",
+                  value: clientPortalDashboard?.orderStatusCounts?.shipped ?? 0,
+                },
+                {
+                  label: "Delivered",
+                  value:
+                    clientPortalDashboard?.orderStatusCounts?.delivered ?? 0,
+                },
+                {
+                  label: "Refunded",
+                  value: clientPortalDashboard?.refundedOrdersCount ?? 0,
+                },
+              ]}
+            />
+            <StatisticsCard
+              title="Awaiting Payment"
+              value={clientPortalDashboard?.ordersAwaitingPayment ?? 0}
+              description="Orders awaiting payment"
+              icon={Clock}
+              variant="amber"
+              valueLoading={clientPortalCardsLoading}
+              badgeValuesLoading={clientPortalCardsLoading}
+              badges={[
+                {
+                  label: "Cancelled",
+                  value:
+                    clientPortalDashboard?.orderStatusCounts?.cancelled ?? 0,
+                },
+                {
+                  label: "Completed",
+                  value: clientPortalDashboard?.ordersCompleted ?? 0,
+                },
+                {
+                  label: "Refunded",
+                  value: clientPortalDashboard?.refundedOrdersCount ?? 0,
+                },
+                {
+                  label: "Of Total",
+                  value: clientPortalDashboard?.totalOrders,
+                },
+              ]}
+            />
+            <StatisticsCard
+              title="Total Spent"
+              value={formatCurrency(clientPortalDashboard?.totalSpent ?? 0)}
+              description="Total order value"
+              icon={DollarSign}
+              variant="emerald"
+              valueLoading={clientPortalCardsLoading}
+              badgeValuesLoading={clientPortalCardsLoading}
+              badges={[
+                {
+                  label: "Paid",
+                  value: formatCurrency(
+                    clientPortalDashboard?.paymentBreakdown?.paid ?? 0,
+                  ),
+                },
+                {
+                  label: "Due",
+                  value: formatCurrency(
+                    clientPortalDashboard?.paymentBreakdown?.due ?? 0,
+                  ),
+                },
+                {
+                  label: "Refund",
+                  value: formatCurrency(
+                    clientPortalDashboard?.paymentBreakdown?.refund ?? 0,
+                  ),
+                },
+                {
+                  label: "Pending",
+                  value: formatCurrency(
+                    clientPortalDashboard?.paymentBreakdown?.pending ?? 0,
+                  ),
+                },
+                {
+                  label: "Cancelled",
+                  value: formatCurrency(
+                    clientPortalDashboard?.paymentBreakdown?.cancelled ?? 0,
+                  ),
+                },
+              ]}
+            />
+            <StatisticsCard
+              title="Average Order Value"
+              value={formatCurrency(
+                (clientPortalDashboard?.totalOrders ?? 0) > 0
+                  ? (clientPortalDashboard?.totalSpent ?? 0) /
+                      (clientPortalDashboard?.totalOrders ?? 1)
+                  : 0,
+              )}
+              description="Per order average"
+              icon={CreditCard}
+              variant="violet"
+              valueLoading={clientPortalCardsLoading}
+              badgeValuesLoading={clientPortalCardsLoading}
+              badges={[
+                {
+                  label: "Paid",
+                  value: formatCurrency(
+                    clientPortalDashboard?.paymentBreakdown?.paid ?? 0,
+                  ),
+                },
+                {
+                  label: "due",
+                  value: formatCurrency(
+                    clientPortalDashboard?.paymentBreakdown?.due ?? 0,
+                  ),
+                },
+                ...(clientPortalDashboard?.outstandingAmount === 0
+                  ? [{ label: "Status", value: "All Paid" as string }]
+                  : []),
+                {
+                  label: "Total Invoices",
+                  value: clientPortalDashboard?.invoiceBreakdown?.total ?? 0,
+                },
+              ]}
+            />
           </div>
         )}
 
         {/* Supplier /orders state cards — 4 cards, supplier portal data */}
         {isSupplierOrdersPage && (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 items-stretch pb-6">
-            {supplierOrdersCardsLoading ? (
-              <>
-                {[1, 2, 3, 4].map((i) => (
-                  <StatisticsCardSkeleton key={i} />
-                ))}
-              </>
-            ) : supplierPortalQuery.data ? (
-              (() => {
-                const d = supplierPortalQuery.data;
-                const nonCancelledOrders = Math.max(
-                  0,
-                  d.totalOrders - (d.orderStatusCounts?.cancelled ?? 0),
-                );
-                const avgOrder =
-                  nonCancelledOrders > 0
-                    ? d.totalRevenue / nonCancelledOrders
-                    : 0;
-                return (
-                  <>
-                    <StatisticsCard
-                      title="Total Products"
-                      value={d.totalProducts}
-                      description="Products in your catalog"
-                      icon={Package}
-                      variant="rose"
-                      badges={[
-                        {
-                          label: "Available",
-                          value: d.productStatusCounts?.available ?? 0,
-                        },
-                        {
-                          label: "Stock low",
-                          value: d.productStatusCounts?.stockLow ?? 0,
-                        },
-                        {
-                          label: "Stock out",
-                          value: d.productStatusCounts?.stockOut ?? 0,
-                        },
-                        {
-                          label: "Product value",
-                          value: formatCurrency(d.productValue ?? 0),
-                        },
-                        {
-                          label: "Orders",
-                          value: formatCurrency(d.valueBreakdown?.orders ?? 0),
-                        },
-                        {
-                          label: "Invoices",
-                          value: formatCurrency(
-                            d.valueBreakdown?.invoices ?? 0,
-                          ),
-                        },
-                        {
-                          label: "Due",
-                          value: formatCurrency(d.valueBreakdown?.due ?? 0),
-                        },
-                        {
-                          label: "Cancelled",
-                          value: formatCurrency(
-                            d.valueBreakdown?.cancelled ?? 0,
-                          ),
-                        },
-                        {
-                          label: "Refunded",
-                          value: formatCurrency(
-                            d.valueBreakdown?.refunded ?? 0,
-                          ),
-                        },
-                      ]}
-                    />
-                    <StatisticsCard
-                      title="Total Orders"
-                      value={d.totalOrders}
-                      description="Orders containing your products"
-                      icon={ShoppingCart}
-                      variant="emerald"
-                      badges={[
-                        {
-                          label: "Pending",
-                          value: d.orderStatusCounts?.pending ?? 0,
-                        },
-                        {
-                          label: "In progress",
-                          value: d.orderStatusCounts?.inProgress ?? 0,
-                        },
-                        {
-                          label: "Shipped",
-                          value: d.orderStatusCounts?.shipped ?? 0,
-                        },
-                        {
-                          label: "Delivered",
-                          value: d.orderStatusCounts?.delivered ?? 0,
-                        },
-                        {
-                          label: "Refunded",
-                          value: d.orderStatusCounts?.refunded ?? 0,
-                        },
-                        {
-                          label: "Cancelled",
-                          value: d.orderStatusCounts?.cancelled ?? 0,
-                        },
-                      ]}
-                    />
-                    <StatisticsCard
-                      title="Total Revenue"
-                      value={formatCurrency(d.totalRevenue ?? 0)}
-                      description="Revenue from your products (excl. cancelled)"
-                      icon={DollarSign}
-                      variant="amber"
-                      badges={[
-                        {
-                          label: "Paid",
-                          value: formatCurrency(d.revenueBreakdown?.paid ?? 0),
-                        },
-                        {
-                          label: "Due",
-                          value: formatCurrency(d.revenueBreakdown?.due ?? 0),
-                        },
-                        {
-                          label: "Refund",
-                          value: formatCurrency(
-                            d.revenueBreakdown?.refund ?? 0,
-                          ),
-                        },
-                        {
-                          label: "Pending",
-                          value: formatCurrency(
-                            d.revenueBreakdown?.pending ?? 0,
-                          ),
-                        },
-                        {
-                          label: "Avg/Order",
-                          value: formatCurrency(avgOrder),
-                        },
-                      ]}
-                    />
-                    <StatisticsCard
-                      title="Total Invoices"
-                      value={d.totalInvoices ?? 0}
-                      description="Invoices created by product owner"
-                      icon={FileText}
-                      variant="sky"
-                      badges={[
-                        {
-                          label: "Paid",
-                          value: d.invoiceBreakdown?.paid ?? 0,
-                        },
-                        {
-                          label: "Pending",
-                          value: d.invoiceBreakdown?.pending ?? 0,
-                        },
-                        {
-                          label: "Overdue",
-                          value: d.invoiceBreakdown?.overdue ?? 0,
-                        },
-                        {
-                          label: "Cancelled",
-                          value: d.invoiceBreakdown?.cancelled ?? 0,
-                        },
-                        {
-                          label: "Refunded",
-                          value: d.invoiceBreakdown?.refunded ?? 0,
-                        },
-                      ]}
-                    />
-                  </>
-                );
-              })()
-            ) : null}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2 items-stretch pb-6">
+            <StatisticsCard
+              title="Total Products"
+              value={supplierPortal?.totalProducts ?? 0}
+              description="Products in your catalog"
+              icon={Package}
+              variant="rose"
+              valueLoading={supplierPortalCardsLoading}
+              badgeValuesLoading={supplierPortalCardsLoading}
+              badges={[
+                {
+                  label: "Available",
+                  value: supplierPortal?.productStatusCounts?.available ?? 0,
+                },
+                {
+                  label: "Stock low",
+                  value: supplierPortal?.productStatusCounts?.stockLow ?? 0,
+                },
+                {
+                  label: "Stock out",
+                  value: supplierPortal?.productStatusCounts?.stockOut ?? 0,
+                },
+                {
+                  label: "Product value",
+                  value: formatCurrency(supplierPortal?.productValue ?? 0),
+                },
+                {
+                  label: "Orders",
+                  value: formatCurrency(
+                    supplierPortal?.valueBreakdown?.orders ?? 0,
+                  ),
+                },
+                {
+                  label: "Invoices",
+                  value: formatCurrency(
+                    supplierPortal?.valueBreakdown?.invoices ?? 0,
+                  ),
+                },
+                {
+                  label: "Due",
+                  value: formatCurrency(
+                    supplierPortal?.valueBreakdown?.due ?? 0,
+                  ),
+                },
+                {
+                  label: "Cancelled",
+                  value: formatCurrency(
+                    supplierPortal?.valueBreakdown?.cancelled ?? 0,
+                  ),
+                },
+                {
+                  label: "Refunded",
+                  value: formatCurrency(
+                    supplierPortal?.valueBreakdown?.refunded ?? 0,
+                  ),
+                },
+              ]}
+            />
+            <StatisticsCard
+              title="Total Orders"
+              value={supplierPortal?.totalOrders ?? 0}
+              description="Orders containing your products"
+              icon={ShoppingCart}
+              variant="emerald"
+              valueLoading={supplierPortalCardsLoading}
+              badgeValuesLoading={supplierPortalCardsLoading}
+              badges={[
+                {
+                  label: "Pending",
+                  value: supplierPortal?.orderStatusCounts?.pending ?? 0,
+                },
+                {
+                  label: "In progress",
+                  value: supplierPortal?.orderStatusCounts?.inProgress ?? 0,
+                },
+                {
+                  label: "Shipped",
+                  value: supplierPortal?.orderStatusCounts?.shipped ?? 0,
+                },
+                {
+                  label: "Delivered",
+                  value: supplierPortal?.orderStatusCounts?.delivered ?? 0,
+                },
+                {
+                  label: "Refunded",
+                  value: supplierPortal?.orderStatusCounts?.refunded ?? 0,
+                },
+                {
+                  label: "Cancelled",
+                  value: supplierPortal?.orderStatusCounts?.cancelled ?? 0,
+                },
+              ]}
+            />
+            <StatisticsCard
+              title="Total Revenue"
+              value={formatCurrency(supplierPortal?.totalRevenue ?? 0)}
+              description="Revenue from your products (excl. cancelled)"
+              icon={DollarSign}
+              variant="amber"
+              valueLoading={supplierPortalCardsLoading}
+              badgeValuesLoading={supplierPortalCardsLoading}
+              badges={[
+                {
+                  label: "Paid",
+                  value: formatCurrency(
+                    supplierPortal?.revenueBreakdown?.paid ?? 0,
+                  ),
+                },
+                {
+                  label: "Due",
+                  value: formatCurrency(
+                    supplierPortal?.revenueBreakdown?.due ?? 0,
+                  ),
+                },
+                {
+                  label: "Refund",
+                  value: formatCurrency(
+                    supplierPortal?.revenueBreakdown?.refund ?? 0,
+                  ),
+                },
+                {
+                  label: "Pending",
+                  value: formatCurrency(
+                    supplierPortal?.revenueBreakdown?.pending ?? 0,
+                  ),
+                },
+                { label: "Avg/Order", value: formatCurrency(supplierAvgOrder) },
+              ]}
+            />
+            <StatisticsCard
+              title="Total Invoices"
+              value={supplierPortal?.totalInvoices ?? 0}
+              description="Invoices created by product owner"
+              icon={FileText}
+              variant="sky"
+              valueLoading={supplierPortalCardsLoading}
+              badgeValuesLoading={supplierPortalCardsLoading}
+              badges={[
+                {
+                  label: "Paid",
+                  value: supplierPortal?.invoiceBreakdown?.paid ?? 0,
+                },
+                {
+                  label: "Pending",
+                  value: supplierPortal?.invoiceBreakdown?.pending ?? 0,
+                },
+                {
+                  label: "Overdue",
+                  value: supplierPortal?.invoiceBreakdown?.overdue ?? 0,
+                },
+                {
+                  label: "Cancelled",
+                  value: supplierPortal?.invoiceBreakdown?.cancelled ?? 0,
+                },
+                {
+                  label: "Refunded",
+                  value: supplierPortal?.invoiceBreakdown?.refunded ?? 0,
+                },
+              ]}
+            />
           </div>
         )}
 
         {/* Summary cards — admin combined only (4 cards, 2 per row); same as dashboard/products */}
         {isAdminCombined && (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-4 pb-6 items-stretch">
-            {showCardsSkeleton ? (
-              <>
-                <StatisticsCardSkeleton />
-                <StatisticsCardSkeleton />
-                <StatisticsCardSkeleton />
-                <StatisticsCardSkeleton />
-              </>
-            ) : dashboard ? (
-              <>
-                <StatisticsCard
-                  title="Total Orders"
-                  value={dashboard.counts?.orders ?? 0}
-                  description="Total orders placed (self + client)"
-                  icon={ShoppingCart}
-                  variant="blue"
-                  badges={[
-                    {
-                      label: "Pending",
-                      value:
-                        dashboard.orderAnalytics?.statusDistribution?.pending ??
-                        0,
-                    },
-                    {
-                      label: "Confirmed",
-                      value:
-                        dashboard.orderAnalytics?.statusDistribution
-                          ?.confirmed ?? 0,
-                    },
-                    {
-                      label: "Shipping",
-                      value:
-                        (dashboard.orderAnalytics?.statusDistribution
-                          ?.processing ?? 0) +
-                        (dashboard.orderAnalytics?.statusDistribution
-                          ?.shipped ?? 0),
-                    },
-                    {
-                      label: "Refund",
-                      value: dashboard.orderAnalytics?.refundedCount ?? 0,
-                    },
-                    {
-                      label: "Cancel",
-                      value:
-                        dashboard.orderAnalytics?.statusDistribution
-                          ?.cancelled ?? 0,
-                    },
-                  ]}
-                />
-                <StatisticsCard
-                  title="Total Revenue"
-                  value={formatCurrency(
-                    dashboard.orderAnalytics?.totalRevenueExcludingCancelled ??
-                      dashboard.revenue?.fromOrders ??
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-2 pb-6 items-stretch">
+            <StatisticsCard
+              title="Total Orders"
+              value={dashboard?.counts?.orders ?? 0}
+              description="Total orders placed (self + client)"
+              icon={ShoppingCart}
+              variant="blue"
+              valueLoading={dashboardCardsLoading}
+              badgeValuesLoading={dashboardCardsLoading}
+              badges={[
+                {
+                  label: "Pending",
+                  value:
+                    dashboard?.orderAnalytics?.statusDistribution?.pending ?? 0,
+                },
+                {
+                  label: "Confirmed",
+                  value:
+                    dashboard?.orderAnalytics?.statusDistribution?.confirmed ??
+                    0,
+                },
+                {
+                  label: "Shipping",
+                  value:
+                    (dashboard?.orderAnalytics?.statusDistribution
+                      ?.processing ?? 0) +
+                    (dashboard?.orderAnalytics?.statusDistribution?.shipped ??
+                      0),
+                },
+                {
+                  label: "Refund",
+                  value: dashboard?.orderAnalytics?.refundedCount ?? 0,
+                },
+                {
+                  label: "Cancel",
+                  value:
+                    dashboard?.orderAnalytics?.statusDistribution?.cancelled ??
+                    0,
+                },
+              ]}
+            />
+            <StatisticsCard
+              title="Total Revenue"
+              value={formatCurrency(
+                dashboard?.orderAnalytics?.totalRevenueExcludingCancelled ??
+                  dashboard?.revenue?.fromOrders ??
+                  0,
+              )}
+              description="Revenue (excl. cancelled)"
+              icon={CreditCard}
+              variant="amber"
+              valueLoading={dashboardCardsLoading}
+              badgeValuesLoading={dashboardCardsLoading}
+              badges={[
+                {
+                  label: "Paid",
+                  value: formatCurrency(
+                    dashboard?.orderAnalytics?.paidOrderAmount ?? 0,
+                  ),
+                },
+                {
+                  label: "Due",
+                  value: formatCurrency(
+                    dashboard?.invoiceAnalytics?.outstandingAmount ?? 0,
+                  ),
+                },
+                {
+                  label: "Refund",
+                  value: formatCurrency(
+                    dashboard?.orderAnalytics?.refundedAmount ?? 0,
+                  ),
+                },
+                {
+                  label: "Pending",
+                  value: formatCurrency(
+                    dashboard?.orderAnalytics?.pendingOrderAmount ?? 0,
+                  ),
+                },
+              ]}
+            />
+            <StatisticsCard
+              title="Total Value"
+              value={formatCurrency(
+                (dashboard as { totalInventoryValue?: number })
+                  .totalInventoryValue ?? 0,
+              )}
+              description="Total inventory value"
+              icon={DollarSign}
+              variant="violet"
+              valueLoading={dashboardCardsLoading}
+              badgeValuesLoading={dashboardCardsLoading}
+              badges={[
+                {
+                  label: "Orders",
+                  value: formatCurrency(
+                    dashboard?.orderAnalytics?.totalRevenueExcludingCancelled ??
+                      dashboard?.revenue?.fromOrders ??
                       0,
-                  )}
-                  description="Revenue (excl. cancelled)"
-                  icon={CreditCard}
-                  variant="amber"
-                  badges={[
-                    {
-                      label: "Paid",
-                      value: formatCurrency(
-                        dashboard.orderAnalytics?.paidOrderAmount ?? 0,
-                      ),
-                    },
-                    {
-                      label: "Due",
-                      value: formatCurrency(
-                        dashboard.invoiceAnalytics?.outstandingAmount ?? 0,
-                      ),
-                    },
-                    {
-                      label: "Refund",
-                      value: formatCurrency(
-                        dashboard.orderAnalytics?.refundedAmount ?? 0,
-                      ),
-                    },
-                    {
-                      label: "Pending",
-                      value: formatCurrency(
-                        dashboard.orderAnalytics?.pendingOrderAmount ?? 0,
-                      ),
-                    },
-                  ]}
-                />
-                <StatisticsCard
-                  title="Total Value"
-                  value={formatCurrency(
-                    (dashboard as { totalInventoryValue?: number })
-                      .totalInventoryValue ?? 0,
-                  )}
-                  description="Total inventory value"
-                  icon={DollarSign}
-                  variant="violet"
-                  badges={[
-                    {
-                      label: "Orders",
-                      value: formatCurrency(
-                        dashboard.orderAnalytics
-                          ?.totalRevenueExcludingCancelled ??
-                          dashboard.revenue?.fromOrders ??
-                          0,
-                      ),
-                    },
-                    {
-                      label: "Invoices",
-                      value: formatCurrency(
-                        dashboard.revenue?.fromInvoices ?? 0,
-                      ),
-                    },
-                    {
-                      label: "Due",
-                      value: formatCurrency(
-                        dashboard.invoiceAnalytics?.outstandingAmount ?? 0,
-                      ),
-                    },
-                    {
-                      label: "Cancelled",
-                      value: formatCurrency(
-                        dashboard.orderAnalytics?.cancelledOrderAmount ?? 0,
-                      ),
-                    },
-                  ]}
-                />
-                <StatisticsCard
-                  title="Invoices"
-                  value={dashboard.counts?.invoices ?? 0}
-                  description="Total invoices (store-wide)"
-                  icon={FileText}
-                  variant="sky"
-                  badges={[
-                    {
-                      label: "Paid",
-                      value:
-                        dashboard.invoiceAnalytics?.statusDistribution?.paid ??
-                        0,
-                    },
-                    {
-                      label: "Pending",
-                      value:
-                        (dashboard.invoiceAnalytics?.statusDistribution
-                          ?.draft ?? 0) +
-                        (dashboard.invoiceAnalytics?.statusDistribution?.sent ??
-                          0),
-                    },
-                    {
-                      label: "Overdue",
-                      value:
-                        dashboard.invoiceAnalytics?.statusDistribution
-                          ?.overdue ?? 0,
-                    },
-                    {
-                      label: "Cancelled",
-                      value:
-                        dashboard.invoiceAnalytics?.statusDistribution
-                          ?.cancelled ?? 0,
-                    },
-                  ]}
-                />
-              </>
-            ) : null}
+                  ),
+                },
+                {
+                  label: "Invoices",
+                  value: formatCurrency(dashboard?.revenue?.fromInvoices ?? 0),
+                },
+                {
+                  label: "Due",
+                  value: formatCurrency(
+                    dashboard?.invoiceAnalytics?.outstandingAmount ?? 0,
+                  ),
+                },
+                {
+                  label: "Cancelled",
+                  value: formatCurrency(
+                    dashboard?.orderAnalytics?.cancelledOrderAmount ?? 0,
+                  ),
+                },
+              ]}
+            />
+            <StatisticsCard
+              title="Invoices"
+              value={dashboard?.counts?.invoices ?? 0}
+              description="Total invoices (store-wide)"
+              icon={FileText}
+              variant="sky"
+              valueLoading={dashboardCardsLoading}
+              badgeValuesLoading={dashboardCardsLoading}
+              badges={[
+                {
+                  label: "Paid",
+                  value:
+                    dashboard?.invoiceAnalytics?.statusDistribution?.paid ?? 0,
+                },
+                {
+                  label: "Pending",
+                  value:
+                    (dashboard?.invoiceAnalytics?.statusDistribution?.draft ??
+                      0) +
+                    (dashboard?.invoiceAnalytics?.statusDistribution?.sent ??
+                      0),
+                },
+                {
+                  label: "Overdue",
+                  value:
+                    dashboard?.invoiceAnalytics?.statusDistribution?.overdue ??
+                    0,
+                },
+                {
+                  label: "Cancelled",
+                  value:
+                    dashboard?.invoiceAnalytics?.statusDistribution
+                      ?.cancelled ?? 0,
+                },
+              ]}
+            />
           </div>
         )}
 
@@ -979,7 +960,7 @@ const OrderList = React.memo(
         <OrderTable
           data={allOrders || []}
           columns={columns}
-          isLoading={showSkeleton}
+          isLoading={tableDataLoading}
           searchTerm={searchTerm}
           pagination={pagination}
           setPagination={setPagination}

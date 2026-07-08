@@ -68,14 +68,14 @@ export default function AdminSettingsPage() {
   return (
     <Navbar>
       <PageContentWrapper>
-        <div className="space-y-6">
+        <div className="space-y-4">
           {/* Header */}
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2">
             <div className="p-2 rounded-lg bg-blue-100 dark:bg-blue-900/30">
               <Settings className="h-6 w-6 text-blue-600 dark:text-blue-400" />
             </div>
             <div>
-              <h1 className="text-2xl font-semibold tracking-tight">
+              <h1 className="text-lg sm:text-xl font-semibold tracking-tight">
                 System Settings
               </h1>
               <p className="text-muted-foreground">

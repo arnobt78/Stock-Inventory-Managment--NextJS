@@ -70,14 +70,14 @@ export default function SupportTicketFilters({
     "h-10 rounded-[28px] border border-sky-400/30 dark:border-sky-400/30 bg-gradient-to-r from-sky-500/25 via-sky-500/15 to-sky-500/10 dark:from-sky-500/25 dark:via-sky-500/15 dark:to-sky-500/10 text-gray-700 dark:text-white shadow-[0_10px_30px_rgba(2,132,199,0.2)] backdrop-blur-sm transition duration-200 hover:border-sky-300/40 hover:from-sky-500/35 hover:via-sky-500/25 hover:to-sky-500/15 dark:hover:border-sky-300/40 dark:hover:from-sky-500/35 dark:hover:via-sky-500/25 dark:hover:to-sky-500/15";
 
   return (
-    <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4">
+    <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
       <div className="relative flex-1 sm:max-w-md">
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-600 dark:text-white/60 z-10" />
         <Input
           placeholder="Search by subject or description..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-          className="h-10 pl-9 pr-10 w-full rounded-[28px] bg-white/10 dark:bg-white/5 backdrop-blur-sm border border-sky-400/30 dark:border-white/20 text-gray-900 dark:text-white placeholder:text-gray-500 dark:placeholder:text-white/40 focus-visible:border-sky-400 focus-visible:ring-sky-500/50 shadow-[0_10px_30px_rgba(2,132,199,0.15)]"
+          className="h-10 pl-9 pr-10 w-full rounded-[28px] bg-white/10 dark:bg-white/5 backdrop-blur-sm border border-sky-400/30 dark:border-white/20 text-gray-700 dark:text-white placeholder:text-gray-500 dark:placeholder:text-white/40 focus-visible:border-sky-400 focus-visible:ring-sky-500/50 shadow-[0_10px_30px_rgba(2,132,199,0.15)]"
         />
         {searchTerm && (
           <Button
@@ -94,7 +94,7 @@ export default function SupportTicketFilters({
         <DeferredSelectGate
           placeholder={
             <div
-              className="h-10 w-[180px] rounded-[28px] border border-violet-400/30 bg-white/10 dark:bg-white/5 text-gray-900 dark:text-white flex items-center justify-between px-3 py-2"
+              className="h-10 w-[180px] rounded-[28px] border border-violet-400/30 bg-white/10 dark:bg-white/5 text-gray-700 dark:text-white flex items-center justify-between px-3 py-2"
               aria-hidden
             >
               <span>
@@ -113,7 +113,7 @@ export default function SupportTicketFilters({
                 onViewFilterChange(v as SupportTicketViewFilter)
               }
             >
-              <SelectTrigger className="h-10 w-[180px] rounded-[28px] border border-violet-400/30 dark:border-violet-400/30 bg-white/10 dark:bg-white/5 text-gray-900 dark:text-white">
+              <SelectTrigger className="h-10 w-[180px] rounded-[28px] border border-violet-400/30 dark:border-violet-400/30 bg-white/10 dark:bg-white/5 text-gray-700 dark:text-white">
                 <SelectValue placeholder="View" />
               </SelectTrigger>
               <SelectContent className="rounded-xl border-violet-400/20">
@@ -131,7 +131,7 @@ export default function SupportTicketFilters({
           )}
         </DeferredSelectGate>
       )}
-      <div className="flex items-center gap-4 flex-wrap sm:flex-nowrap">
+      <div className="flex items-center gap-2 flex-wrap sm:flex-nowrap">
         <FilterDropdown
           selectedValues={selectedStatuses}
           setSelectedValues={setSelectedStatuses}

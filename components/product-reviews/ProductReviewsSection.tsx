@@ -199,12 +199,12 @@ export default function ProductReviewsSection({
         config.shadow,
       )}
     >
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-4">
         <div className="flex items-center gap-2">
           <div className={cn("p-2 rounded-xl border", config.iconBg)}>
             <Star className="h-5 w-5 text-amber-500" />
           </div>
-          <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+          <h3 className="text-lg font-semibold text-gray-700 dark:text-white">
             Reviews
           </h3>
         </div>
@@ -231,7 +231,7 @@ export default function ProductReviewsSection({
       </div>
 
       {reviewsLoading ? (
-        <div className="space-y-3 py-4">
+        <div className="space-y-2 py-4">
           {[1, 2].map((i) => (
             <div
               key={i}

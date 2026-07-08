@@ -1,10 +1,11 @@
 "use client";
 
-import React, { useState, useEffect, useRef, useMemo } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import dynamic from "next/dynamic";
 import { PaginationType } from "@/components/shared/PaginationSelector";
 import { columns } from "./ProductTableColumns";
 import { useClientBrowseMeta, useClientBrowseProducts } from "@/hooks/queries";
+import { isDataSlotLoading } from "@/lib/react-query";
 import type { Product, Category, Supplier } from "@/types";
 import { StatisticsCard } from "@/components/home/StatisticsCard";
 import { Users, Truck, FolderTree, Warehouse } from "lucide-react";
@@ -28,9 +29,6 @@ export default function ClientProductList({
   selectedOwnerId: controlledOwnerId,
   onOwnerChange,
 }: ClientProductListProps = {}) {
-  const isMountedRef = useRef(false);
-  const [isMounted, setIsMounted] = useState(false);
-
   const [internalOwnerId, setInternalOwnerId] = useState<string>("");
   const selectedOwnerId = controlledOwnerId ?? internalOwnerId;
   const setSelectedOwnerId = onOwnerChange ?? setInternalOwnerId;
@@ -54,13 +52,6 @@ export default function ClientProductList({
   const products = productsData?.products ?? [];
   const ownerCategories = productsData?.categories ?? [];
   const ownerSuppliers = productsData?.suppliers ?? [];
-
-  useEffect(() => {
-    if (!isMountedRef.current) {
-      isMountedRef.current = true;
-      queueMicrotask(() => setIsMounted(true));
-    }
-  }, []);
 
   useEffect(() => {
     if (admins.length > 0 && !selectedOwnerId) {
@@ -90,14 +81,14 @@ export default function ClientProductList({
     [products],
   );
 
-  const anyPending =
-    metaQuery.isPending || (!!selectedOwnerId && productsQuery.isPending);
-  const showSkeleton = !isMounted || anyPending;
+  // REQ-0021: shell-first — only table data slot pulses
+  const tableDataLoading =
+    !!selectedOwnerId && isDataSlotLoading(productsQuery);
 
   return (
-    <div className="flex flex-col poppins space-y-6">
+    <div className="flex flex-col poppins space-y-4">
       {/* Stat Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 items-stretch">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2 items-stretch">
         <StatisticsCard
           title="Product Owners"
           value={stats.admins}
@@ -146,11 +137,12 @@ export default function ClientProductList({
 
       {/* Product Inventory Section — client-facing copy */}
       <div className="pb-6 flex flex-col items-start text-left">
-        <h2 className="text-2xl font-semibold text-gray-900 dark:text-white pb-2">
+        <h2 className="text-lg sm:text-xl font-semibold text-gray-700 dark:text-white ">
           Browse & Purchase Products
         </h2>
         <p className="text-base text-gray-600 dark:text-gray-400">
-          Explore products from our store. Filter by category, supplier, or status, or choose a product owner to browse their catalog.
+          Explore products from our store. Filter by category, supplier, or
+          status, or choose a product owner to browse their catalog.
         </p>
       </div>
 
@@ -195,7 +187,7 @@ export default function ClientProductList({
         data={productsAsProductType}
         columns={columns}
         userId=""
-        isLoading={showSkeleton}
+        isLoading={tableDataLoading}
         searchTerm={searchTerm}
         pagination={pagination}
         setPagination={setPagination}

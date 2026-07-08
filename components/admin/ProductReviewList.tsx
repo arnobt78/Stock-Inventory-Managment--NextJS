@@ -6,8 +6,8 @@
 "use client";
 
 import React, { useState, useEffect, useRef, useMemo } from "react";
-import { useAuth } from "@/contexts";
 import { useProductReviews, useDashboard } from "@/hooks/queries";
+import { isDataSlotLoading } from "@/lib/react-query";
 import { PaginationType } from "@/components/shared/PaginationSelector";
 import { createProductReviewColumns } from "./ProductReviewTableColumns";
 import ProductReviewFilters from "./ProductReviewFilters";
@@ -16,23 +16,25 @@ import ProductReviewDialog from "./ProductReviewDialog";
 import { Button } from "@/components/ui/button";
 import { Star } from "lucide-react";
 import { StatisticsCard } from "@/components/home/StatisticsCard";
-import { StatisticsCardSkeleton } from "@/components/home/StatisticsCardSkeleton";
+import type { ProductReview } from "@/types";
 
 export type ProductReviewListProps = {
   detailHrefBase?: string;
+  /** SSR-passed reviews for first-render hydration (REQ-0021) */
+  initialReviews?: ProductReview[];
 };
 
 export default function ProductReviewList({
   detailHrefBase,
+  initialReviews,
 }: ProductReviewListProps = {}) {
   const isMountedRef = useRef(false);
   const [isMounted, setIsMounted] = useState(false);
-  const reviewsQuery = useProductReviews();
+  const reviewsQuery = useProductReviews(initialReviews);
   const dashboardQuery = useDashboard();
   const dashboard = dashboardQuery.data ?? null;
-  const { isCheckingAuth } = useAuth();
 
-  const allReviews = reviewsQuery.data ?? [];
+  const allReviews = reviewsQuery.data ?? initialReviews ?? [];
 
   const ratingBreakdown = useMemo(() => {
     const r5 = allReviews.filter((r) => r.rating === 5).length;
@@ -82,70 +84,66 @@ export default function ProductReviewList({
     [detailHrefBase],
   );
 
-  const showSkeleton = !isMounted || isCheckingAuth || reviewsQuery.isPending;
-  const showCardsSkeleton = showSkeleton || dashboardQuery.isPending;
+  // REQ-0021: shell-first — only data slots pulse
+  const dashboardCardsLoading = isDataSlotLoading(dashboardQuery);
+  const reviewsCardsLoading = isDataSlotLoading(reviewsQuery, initialReviews);
+  const tableDataLoading = isDataSlotLoading(reviewsQuery, initialReviews);
 
   return (
     <div className="flex flex-col poppins">
       <div className="pb-6 flex flex-col items-start text-left">
-        <h2 className="text-xl sm:text-2xl font-semibold text-gray-900 dark:text-white pb-2">
+        <h2 className="text-lg sm:text-xl font-semibold text-gray-700 dark:text-white ">
           Store Product Reviews (your products)
         </h2>
-        <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400">
+        <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">
           Manage and moderate product reviews. Approve or reject, view by
           product, rating, and status. Add reviews for products.
         </p>
       </div>
 
-      {/* Summary cards — 2 cards, 2 per row; product-owner reviews only */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-4 pb-6 items-stretch">
-        {showCardsSkeleton ? (
-          <>
-            <StatisticsCardSkeleton />
-            <StatisticsCardSkeleton />
-          </>
-        ) : (
-          <>
-            <StatisticsCard
-              title="Reviews"
-              value={dashboard?.counts?.reviews ?? allReviews.length}
-              description="Product reviews"
-              icon={Star}
-              variant="violet"
-              badges={[
-                {
-                  label: "Pending",
-                  value: dashboard?.reviewStatusBreakdown?.pending ?? 0,
-                },
-                {
-                  label: "Approved",
-                  value: dashboard?.reviewStatusBreakdown?.approved ?? 0,
-                },
-                {
-                  label: "Rejected",
-                  value: dashboard?.reviewStatusBreakdown?.rejected ?? 0,
-                },
-              ]}
-            />
-            <StatisticsCard
-              title="Avg. Rating"
-              value={avgRating > 0 ? `${avgRating} · ${avgRatingLabel}` : "—"}
-              description="Average among your product reviews"
-              icon={Star}
-              variant="amber"
-              badges={[
-                { label: "5 best", value: ratingBreakdown.r5 },
-                { label: "4 very good", value: ratingBreakdown.r4 },
-                { label: "3 good", value: ratingBreakdown.r3 },
-                { label: "2 not good", value: ratingBreakdown.r2 },
-                { label: "1 bad", value: ratingBreakdown.r1 },
-              ]}
-            />
-          </>
-        )}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-2 pb-6 items-stretch">
+        <StatisticsCard
+          title="Reviews"
+          value={dashboard?.counts?.reviews ?? allReviews.length}
+          description="Product reviews"
+          icon={Star}
+          variant="violet"
+          valueLoading={dashboardCardsLoading}
+          badgeValuesLoading={dashboardCardsLoading}
+          badges={[
+            {
+              label: "Pending",
+              value: dashboard?.reviewStatusBreakdown?.pending ?? 0,
+            },
+            {
+              label: "Approved",
+              value: dashboard?.reviewStatusBreakdown?.approved ?? 0,
+            },
+            {
+              label: "Rejected",
+              value: dashboard?.reviewStatusBreakdown?.rejected ?? 0,
+            },
+          ]}
+        />
+        <StatisticsCard
+          title="Avg. Rating"
+          value={avgRating > 0 ? `${avgRating} · ${avgRatingLabel}` : "—"}
+          description="Average among your product reviews"
+          icon={Star}
+          variant="amber"
+          valueLoading={reviewsCardsLoading}
+          badgeValuesLoading={reviewsCardsLoading}
+          badges={[
+            { label: "5 best", value: ratingBreakdown.r5 },
+            { label: "4 very good", value: ratingBreakdown.r4 },
+            { label: "3 good", value: ratingBreakdown.r3 },
+            { label: "2 not good", value: ratingBreakdown.r2 },
+            { label: "1 bad", value: ratingBreakdown.r1 },
+          ]}
+        />
       </div>
 
-      <div className="pb-6 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4">
+      <div className="pb-6 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2">
         <div className="w-full max-w-9xl">
           <ProductReviewFilters
             searchTerm={searchTerm}
@@ -173,7 +171,7 @@ export default function ProductReviewList({
       <ProductReviewTable
         data={allReviews}
         columns={columns}
-        isLoading={showSkeleton}
+        isLoading={tableDataLoading}
         searchTerm={searchTerm}
         pagination={pagination}
         setPagination={setPagination}

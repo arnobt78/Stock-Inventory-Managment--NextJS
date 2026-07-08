@@ -1,23 +1,19 @@
 "use client";
 
-import React, { useLayoutEffect } from "react";
+import React from "react";
 import Link from "next/link";
-import { useQueryClient } from "@tanstack/react-query";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { AnalyticsCard } from "@/components/ui/analytics-card";
-import { AnalyticsCardSkeleton } from "@/components/ui/analytics-card-skeleton";
-import { PageContentWrapper } from "@/components/shared";
+import { PageContentWrapper, DataSlotPulse } from "@/components/shared";
 import { useClientPortal } from "@/hooks/queries";
-import { queryKeys } from "@/lib/react-query";
-import { useAuth } from "@/contexts";
+import { isDataSlotLoading } from "@/lib/react-query";
 import {
   Users,
   ShoppingCart,
   FileText,
   DollarSign,
   ArrowRight,
-  Loader2,
 } from "lucide-react";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
@@ -143,82 +139,66 @@ function getStatusColor(status: string): string {
 export default function AdminClientPortalContent({
   initialStats,
 }: AdminClientPortalContentProps = {}) {
-  const queryClient = useQueryClient();
-  const { isCheckingAuth } = useAuth();
-  const portalQuery = useClientPortal();
+  const portalQuery = useClientPortal(initialStats ?? undefined);
   const stats = portalQuery.data ?? initialStats ?? null;
-
-  useLayoutEffect(() => {
-    if (initialStats != null) {
-      queryClient.setQueryData(queryKeys.clientPortal.overview(), initialStats);
-    }
-  }, [queryClient, initialStats]);
-
-  const loading = isCheckingAuth || portalQuery.isPending;
+  const dataLoading = isDataSlotLoading(portalQuery, initialStats);
 
   return (
     <PageContentWrapper>
-      <div className="mx-auto space-y-6">
+      <div className="mx-auto space-y-4">
         <div className="space-y-2">
-          <h1 className="text-xl sm:text-2xl font-semibold text-gray-900 dark:text-white">
+          <h1 className="text-lg sm:text-xl font-semibold text-gray-700 dark:text-white">
             Client Portal
           </h1>
-          <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400">
+          <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">
             Overview of client users, their orders, invoices, and activity.
           </p>
         </div>
 
         {/* Summary cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-4 items-stretch">
-          {loading || !stats ? (
-            <>
-              <AnalyticsCardSkeleton />
-              <AnalyticsCardSkeleton />
-              <AnalyticsCardSkeleton />
-              <AnalyticsCardSkeleton />
-            </>
-          ) : (
-            <>
-              <AnalyticsCard
-                title="Clients"
-                value={stats.counts?.clients ?? 0}
-                icon={Users}
-                description="Users with role client"
-                variant="violet"
-              />
-              <AnalyticsCard
-                title="Orders"
-                value={stats.counts?.orders ?? 0}
-                icon={ShoppingCart}
-                description="Client orders"
-                variant="sky"
-              />
-              <AnalyticsCard
-                title="Invoices"
-                value={stats.counts?.invoices ?? 0}
-                icon={FileText}
-                description="Client invoices"
-                variant="emerald"
-              />
-              <AnalyticsCard
-                title="Revenue"
-                value={`$${((stats.revenue?.orders ?? 0) + (stats.revenue?.invoices ?? 0)).toLocaleString()}`}
-                icon={DollarSign}
-                description="Orders + Invoices"
-                variant="amber"
-              />
-            </>
-          )}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-2 items-stretch">
+          <AnalyticsCard
+            title="Clients"
+            value={stats?.counts?.clients ?? 0}
+            icon={Users}
+            description="Users with role client"
+            variant="violet"
+            valueLoading={dataLoading}
+          />
+          <AnalyticsCard
+            title="Orders"
+            value={stats?.counts?.orders ?? 0}
+            icon={ShoppingCart}
+            description="Client orders"
+            variant="sky"
+            valueLoading={dataLoading}
+          />
+          <AnalyticsCard
+            title="Invoices"
+            value={stats?.counts?.invoices ?? 0}
+            icon={FileText}
+            description="Client invoices"
+            variant="emerald"
+            valueLoading={dataLoading}
+          />
+          <AnalyticsCard
+            title="Revenue"
+            value={`$${((stats?.revenue?.orders ?? 0) + (stats?.revenue?.invoices ?? 0)).toLocaleString()}`}
+            icon={DollarSign}
+            description="Orders + Invoices"
+            variant="amber"
+            valueLoading={dataLoading}
+          />
         </div>
 
         {/* Recent orders & invoices — glassmorphic cards */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-2 sm:gap-4">
           {/* Recent orders */}
           <GlassCard variant="sky">
-            <div className="flex items-center gap-3 mb-4">
+            <div className="flex items-center gap-2 mb-4">
               <div
                 className={cn(
-                  "p-2.5 rounded-xl border",
+                  "p-2 rounded-xl border",
                   variantConfig.sky.iconBg,
                   "dark:border-sky-400/30 dark:bg-sky-500/20",
                 )}
@@ -226,7 +206,7 @@ export default function AdminClientPortalContent({
                 <ShoppingCart className="h-5 w-5 text-sky-600 dark:text-sky-400" />
               </div>
               <div>
-                <h3 className="text-md sm:text-lg font-semibold text-gray-900 dark:text-white">
+                <h3 className="text-md sm:text-lg font-semibold text-gray-700 dark:text-white">
                   Recent Client Orders
                 </h3>
                 <p className="text-xs text-gray-600 dark:text-gray-400">
@@ -234,17 +214,22 @@ export default function AdminClientPortalContent({
                 </p>
               </div>
             </div>
-            {loading || !stats ? (
-              <div className="flex items-center justify-center py-8">
-                <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
-              </div>
-            ) : (stats.recentOrders?.length ?? 0) === 0 ? (
+            {dataLoading ? (
+              <ul className="space-y-3 py-4">
+                {[1, 2, 3, 4, 5].map((i) => (
+                  <li key={i} className="flex justify-between gap-2">
+                    <DataSlotPulse variant="text-sm" className="w-32" />
+                    <DataSlotPulse variant="badge" />
+                  </li>
+                ))}
+              </ul>
+            ) : (stats?.recentOrders?.length ?? 0) === 0 ? (
               <p className="text-sm text-muted-foreground text-center py-8">
                 No client orders yet.
               </p>
             ) : (
               <ul className="divide-y divide-sky-200/40 dark:divide-white/10">
-                {(stats.recentOrders ?? []).map((o) => (
+                {(stats?.recentOrders ?? []).map((o) => (
                   <li
                     key={o.id}
                     className="py-3 flex items-center justify-between gap-2"
@@ -265,7 +250,7 @@ export default function AdminClientPortalContent({
                       <Badge className={getStatusColor(o.status)}>
                         {o.status}
                       </Badge>
-                      <span className="text-sm font-medium text-gray-900 dark:text-white">
+                      <span className="text-sm font-medium text-gray-700 dark:text-white">
                         ${o.total.toLocaleString()}
                       </span>
                     </div>
@@ -273,7 +258,7 @@ export default function AdminClientPortalContent({
                 ))}
               </ul>
             )}
-            {stats && stats.recentOrders.length > 0 && (
+            {stats && (stats.recentOrders?.length ?? 0) > 0 && (
               <Button
                 variant="ghost"
                 size="sm"
@@ -289,10 +274,10 @@ export default function AdminClientPortalContent({
 
           {/* Recent invoices */}
           <GlassCard variant="emerald">
-            <div className="flex items-center gap-3 mb-4">
+            <div className="flex items-center gap-2 mb-4">
               <div
                 className={cn(
-                  "p-2.5 rounded-xl border",
+                  "p-2 rounded-xl border",
                   variantConfig.emerald.iconBg,
                   "dark:border-emerald-400/30 dark:bg-emerald-500/20",
                 )}
@@ -300,7 +285,7 @@ export default function AdminClientPortalContent({
                 <FileText className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
               </div>
               <div>
-                <h3 className="text-md sm:text-lg font-semibold text-gray-900 dark:text-white">
+                <h3 className="text-md sm:text-lg font-semibold text-gray-700 dark:text-white">
                   Recent Client Invoices
                 </h3>
                 <p className="text-xs text-gray-600 dark:text-gray-400">
@@ -308,17 +293,22 @@ export default function AdminClientPortalContent({
                 </p>
               </div>
             </div>
-            {loading || !stats ? (
-              <div className="flex items-center justify-center py-8">
-                <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
-              </div>
-            ) : stats.recentInvoices.length === 0 ? (
+            {dataLoading ? (
+              <ul className="space-y-3 py-4">
+                {[1, 2, 3, 4, 5].map((i) => (
+                  <li key={i} className="flex justify-between gap-2">
+                    <DataSlotPulse variant="text-sm" className="w-32" />
+                    <DataSlotPulse variant="badge" />
+                  </li>
+                ))}
+              </ul>
+            ) : (stats?.recentInvoices?.length ?? 0) === 0 ? (
               <p className="text-sm text-muted-foreground text-center py-8">
                 No client invoices yet.
               </p>
             ) : (
               <ul className="divide-y divide-emerald-200/40 dark:divide-white/10">
-                {stats.recentInvoices.map((i) => (
+                {(stats?.recentInvoices ?? []).map((i) => (
                   <li
                     key={i.id}
                     className="py-3 flex items-center justify-between gap-2"
@@ -339,7 +329,7 @@ export default function AdminClientPortalContent({
                       <Badge className={getStatusColor(i.status)}>
                         {i.status}
                       </Badge>
-                      <span className="text-sm font-medium text-gray-900 dark:text-white">
+                      <span className="text-sm font-medium text-gray-700 dark:text-white">
                         ${i.total.toLocaleString()}
                       </span>
                     </div>
@@ -347,7 +337,7 @@ export default function AdminClientPortalContent({
                 ))}
               </ul>
             )}
-            {stats && stats.recentInvoices.length > 0 && (
+            {stats && (stats.recentInvoices?.length ?? 0) > 0 && (
               <Button
                 variant="ghost"
                 size="sm"
@@ -364,10 +354,10 @@ export default function AdminClientPortalContent({
 
         {/* Clients list — glassmorphic card */}
         <GlassCard variant="violet">
-          <div className="flex items-center gap-3 mb-4">
+          <div className="flex items-center gap-2 mb-4">
             <div
               className={cn(
-                "p-2.5 rounded-xl border",
+                "p-2 rounded-xl border",
                 variantConfig.violet.iconBg,
                 "dark:border-violet-400/30 dark:bg-violet-500/20",
               )}
@@ -375,7 +365,7 @@ export default function AdminClientPortalContent({
               <Users className="h-5 w-5 text-violet-600 dark:text-violet-400" />
             </div>
             <div>
-              <h3 className="text-md sm:text-lg font-semibold text-gray-900 dark:text-white">
+              <h3 className="text-md sm:text-lg font-semibold text-gray-700 dark:text-white">
                 Clients
               </h3>
               <p className="text-xs text-gray-600 dark:text-gray-400">
@@ -383,11 +373,16 @@ export default function AdminClientPortalContent({
               </p>
             </div>
           </div>
-          {loading || !stats ? (
-            <div className="flex items-center justify-center py-8">
-              <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+          {dataLoading ? (
+            <div className="space-y-3 py-4">
+              {[1, 2, 3, 4, 5].map((i) => (
+                <div key={i} className="flex justify-between gap-2">
+                  <DataSlotPulse variant="text-sm" className="w-40" />
+                  <DataSlotPulse variant="metric" />
+                </div>
+              ))}
             </div>
-          ) : stats.clients.length === 0 ? (
+          ) : (stats?.clients?.length ?? 0) === 0 ? (
             <p className="text-sm text-muted-foreground text-center py-8">
               No client users yet. Assign &ldquo;client&rdquo; role to users
               from User Management.
@@ -405,7 +400,7 @@ export default function AdminClientPortalContent({
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-violet-200/40 dark:divide-white/10">
-                  {stats.clients.map((c) => (
+                  {(stats?.clients ?? []).map((c) => (
                     <tr key={c.id}>
                       <td className="py-2 pr-4">
                         <Link
@@ -418,13 +413,13 @@ export default function AdminClientPortalContent({
                       <td className="py-2 pr-4 hidden sm:table-cell text-gray-600 dark:text-gray-400 truncate max-w-[160px]">
                         {c.email}
                       </td>
-                      <td className="py-2 pr-4 text-right text-gray-900 dark:text-white">
+                      <td className="py-2 pr-4 text-right text-gray-700 dark:text-white">
                         {c.orderCount}
                       </td>
-                      <td className="py-2 pr-4 text-right text-gray-900 dark:text-white">
+                      <td className="py-2 pr-4 text-right text-gray-700 dark:text-white">
                         {c.invoiceCount}
                       </td>
-                      <td className="py-2 text-right text-gray-900 dark:text-white">
+                      <td className="py-2 text-right text-gray-700 dark:text-white">
                         ${c.totalSpent.toLocaleString()}
                       </td>
                     </tr>
@@ -433,7 +428,7 @@ export default function AdminClientPortalContent({
               </table>
             </div>
           )}
-          {stats && stats.clients.length > 0 && (
+          {stats && (stats.clients?.length ?? 0) > 0 && (
             <Button
               variant="ghost"
               size="sm"

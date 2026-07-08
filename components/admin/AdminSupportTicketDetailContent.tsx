@@ -190,7 +190,7 @@ export default function AdminSupportTicketDetailContent() {
   if (isError || (!isLoading && !ticket)) {
     return (
       <PageContentWrapper>
-        <div className="space-y-6">
+        <div className="space-y-4">
           <Button variant="ghost" size="sm" asChild>
             <Link href="/admin/support-tickets" className="gap-2">
               <ArrowLeft className="h-4 w-4" />
@@ -226,15 +226,15 @@ export default function AdminSupportTicketDetailContent() {
 
   return (
     <PageContentWrapper>
-      <div className="space-y-6">
-        <div className="flex items-center gap-4">
+      <div className="space-y-4">
+        <div className="flex items-center gap-2">
           <Button variant="ghost" size="icon" asChild>
             <Link href="/admin/support-tickets" className="h-10 w-10">
               <ArrowLeft className="h-5 w-5" />
             </Link>
           </Button>
           <div>
-            <h1 className="text-2xl font-semibold text-foreground">
+            <h1 className="text-lg sm:text-xl font-semibold text-foreground">
               Support Ticket Details
             </h1>
             <p className="text-sm text-muted-foreground">{t.subject}</p>
@@ -249,8 +249,8 @@ export default function AdminSupportTicketDetailContent() {
             variantConfig.shadow,
           )}
         >
-          <CardContent className="p-4 sm:p-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <CardContent className="p-2 sm:p-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-2 sm:gap-4">
               <div>
                 <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
                   <MessageSquare className="h-5 w-5" />
@@ -436,7 +436,7 @@ export default function AdminSupportTicketDetailContent() {
               ticket thread and get a notification.
             </CardDescription>
           </CardHeader>
-          <CardContent className="space-y-3">
+          <CardContent className="space-y-2">
             {repliesLoading ? (
               <div className="h-16 rounded-xl bg-muted/30 animate-pulse" />
             ) : replies.length === 0 ? (
@@ -444,7 +444,7 @@ export default function AdminSupportTicketDetailContent() {
                 No replies yet. Add a reply below.
               </p>
             ) : (
-              <ul className="space-y-3 mb-4">
+              <ul className="space-y-2 mb-4">
                 {replies.map((r) => {
                   const avatarSrc =
                     r.userImage ||
@@ -496,7 +496,7 @@ export default function AdminSupportTicketDetailContent() {
                 })}
               </ul>
             )}
-            <form onSubmit={handleSubmitReply} className="space-y-3">
+            <form onSubmit={handleSubmitReply} className="space-y-2">
               <Textarea
                 placeholder="Write a reply to the user..."
                 value={replyBody}
@@ -536,7 +536,7 @@ export default function AdminSupportTicketDetailContent() {
               Admin-only notes. Not visible to the ticket creator.
             </CardDescription>
           </CardHeader>
-          <CardContent className="space-y-3">
+          <CardContent className="space-y-2">
             <Textarea
               placeholder="Add internal notes..."
               value={notesValue}

@@ -73,7 +73,7 @@ export function KeyboardShortcutsProvider({
             {SHORTCUTS.map(({ keys, description }) => (
               <li
                 key={keys}
-                className="flex items-center justify-between gap-4 rounded-md border border-white/10 dark:border-white/10 bg-white/5 dark:bg-white/5 px-3 py-2"
+                className="flex items-center justify-between gap-2 rounded-md border border-white/10 dark:border-white/10 bg-white/5 dark:bg-white/5 px-3 py-2"
               >
                 <kbd className="font-mono text-xs font-medium text-foreground rounded border border-white/20 dark:border-white/20 bg-white/10 dark:bg-white/10 px-2 py-1">
                   {keys}

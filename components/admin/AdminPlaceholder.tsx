@@ -25,9 +25,11 @@ export default function AdminPlaceholder({
 }: AdminPlaceholderProps) {
   return (
     <PageContentWrapper>
-      <div className="space-y-6">
+      <div className="space-y-4">
         <div className="space-y-2">
-          <h1 className="text-2xl font-semibold text-primary">{title}</h1>
+          <h1 className="text-lg sm:text-xl font-semibold text-primary">
+            {title}
+          </h1>
           <p className="text-lg text-muted-foreground">{description}</p>
         </div>
         <Card className="border border-white/10 dark:border-white/10">

@@ -146,6 +146,7 @@ Prevents `NotFoundError: removeChild` when App Router navigates between pages wh
 | Filter/login/dialog Selects | `DeferredSelectGate` on status/view Selects, `LoginPage`, order/product/invoice/support dialogs, admin form dialogs |
 | Admin dashboard hydration (REQ-0019) | `formatStableCurrency` + `formatStableCompactDateTime` (UTC) in `AdminAnalyticsContent`; `LLM_INSIGHTS_MAX_TOKENS=512` in forecasting route; cache key `forecasting:summary:v2` |
 | Locale-aware admin (REQ-0020) | `lib/format/client-locale.ts` + `ClientFormatDisplay.tsx`; browser local TZ/currency after mount on admin dashboard + my-activity |
+| Shell-first nav (REQ-0021) | `DataSlotPulse` + `isDataSlotLoading`; `page.tsx` Suspense shell + streamed SSR; hooks `initialData`; tables keep headers, body pulses; invalidation unchanged |
 
 Tests: `lib/ai/openrouter.test.ts`, `lib/ai/groq.test.ts`, `lib/ai/create-chat-completion.test.ts`, `lib/auth/unique-username.test.ts`.
 

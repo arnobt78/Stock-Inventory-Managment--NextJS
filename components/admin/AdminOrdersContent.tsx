@@ -1,11 +1,9 @@
 "use client";
 
-import React, { useLayoutEffect } from "react";
-import { useQueryClient } from "@tanstack/react-query";
+import React from "react";
 import OrderList from "@/components/orders/OrderList";
 import { PageContentWrapper } from "@/components/shared";
 import FloatingActionButtons from "@/components/shared/FloatingActionButtons";
-import { queryKeys } from "@/lib/react-query";
 import type { OrderForPage } from "@/lib/server/orders-data";
 
 export type AdminOrdersContentProps = {
@@ -21,17 +19,12 @@ export default function AdminOrdersContent({
   initialOrders,
   detailHrefBase = "/admin/orders",
 }: AdminOrdersContentProps = {}) {
-  const queryClient = useQueryClient();
-
-  useLayoutEffect(() => {
-    if (initialOrders != null) {
-      queryClient.setQueryData(queryKeys.orders.lists(), initialOrders);
-    }
-  }, [queryClient, initialOrders]);
-
   return (
     <PageContentWrapper>
-      <OrderList detailHrefBase={detailHrefBase} />
+      <OrderList
+        detailHrefBase={detailHrefBase}
+        initialOrders={initialOrders}
+      />
       <FloatingActionButtons variant="orders" />
     </PageContentWrapper>
   );

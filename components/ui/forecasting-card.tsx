@@ -270,33 +270,33 @@ export function ForecastingCard({ products, className }: ForecastingCardProps) {
     >
       {/* Header */}
       <div className="flex items-center justify-between px-4 sm:px-5 pt-4 sm:pt-5 pb-3">
-        <h3 className="text-base sm:text-lg font-semibold text-gray-900 dark:text-white flex items-center gap-2">
+        <h3 className="text-base sm:text-lg font-semibold text-gray-700 dark:text-white flex items-center gap-2">
           <Target className="h-4 w-4 sm:h-5 sm:w-5" />
           Demand Forecasting & Insights
         </h3>
       </div>
 
-      <div className="px-4 sm:px-5 pb-4 sm:pb-5 space-y-6">
+      <div className="px-4 sm:px-5 pb-4 sm:pb-5 space-y-4">
         {/* Key Metrics */}
-        <div className="grid grid-cols-3 gap-4">
-          <div className="text-center p-3 rounded-xl border border-blue-400/20 bg-gradient-to-br from-blue-500/15 via-blue-500/5 to-transparent">
-            <div className="text-2xl font-semibold text-blue-600 dark:text-blue-400">
+        <div className="grid grid-cols-3 gap-2">
+          <div className="text-center p-2 rounded-xl border border-blue-400/20 bg-gradient-to-br from-blue-500/15 via-blue-500/5 to-transparent">
+            <div className="text-lg sm:text-xl font-semibold text-blue-600 dark:text-blue-400">
               {forecastData.totalProducts}
             </div>
             <div className="text-sm text-gray-600 dark:text-white/70">
               Total Products
             </div>
           </div>
-          <div className="text-center p-3 rounded-xl border border-amber-400/20 bg-gradient-to-br from-amber-500/15 via-amber-500/5 to-transparent">
-            <div className="text-2xl font-semibold text-amber-600 dark:text-amber-400">
+          <div className="text-center p-2 rounded-xl border border-amber-400/20 bg-gradient-to-br from-amber-500/15 via-amber-500/5 to-transparent">
+            <div className="text-lg sm:text-xl font-semibold text-amber-600 dark:text-amber-400">
               {forecastData.lowStockProducts}
             </div>
             <div className="text-sm text-gray-600 dark:text-white/70">
               Low Stock
             </div>
           </div>
-          <div className="text-center p-3 rounded-xl border border-rose-400/20 bg-gradient-to-br from-rose-500/15 via-rose-500/5 to-transparent">
-            <div className="text-2xl font-semibold text-rose-600 dark:text-rose-400">
+          <div className="text-center p-2 rounded-xl border border-rose-400/20 bg-gradient-to-br from-rose-500/15 via-rose-500/5 to-transparent">
+            <div className="text-lg sm:text-xl font-semibold text-rose-600 dark:text-rose-400">
               {forecastData.outOfStockProducts}
             </div>
             <div className="text-sm text-gray-600 dark:text-white/70">
@@ -307,7 +307,7 @@ export function ForecastingCard({ products, className }: ForecastingCardProps) {
 
         {/* Reorder Suggestions */}
         <div>
-          <h4 className="font-semibold mb-3 flex items-center gap-2 text-gray-900 dark:text-white">
+          <h4 className="font-semibold mb-3 flex items-center gap-2 text-gray-700 dark:text-white">
             <AlertTriangle className="h-4 w-4" />
             Reorder Suggestions
           </h4>
@@ -316,10 +316,10 @@ export function ForecastingCard({ products, className }: ForecastingCardProps) {
               forecastData.reorderSuggestions.map((suggestion, index) => (
                 <div
                   key={index}
-                  className="flex items-center justify-between p-3 rounded-xl border border-gray-300/30 bg-gradient-to-r from-gray-100/50 to-transparent dark:border-white/10 dark:from-white/5 backdrop-blur-sm"
+                  className="flex items-center justify-between p-2 rounded-xl border border-gray-300/30 bg-gradient-to-r from-gray-100/50 to-transparent dark:border-white/10 dark:from-white/5 backdrop-blur-sm"
                 >
                   <div className="flex-1">
-                    <div className="font-medium text-sm text-gray-900 dark:text-white">
+                    <div className="font-medium text-sm text-gray-700 dark:text-white">
                       {suggestion.product.name}
                     </div>
                     <div className="text-xs text-gray-600 dark:text-white/60">
@@ -345,18 +345,18 @@ export function ForecastingCard({ products, className }: ForecastingCardProps) {
 
         {/* Demand Forecast by Category */}
         <div>
-          <h4 className="font-semibold mb-3 flex items-center gap-2 text-gray-900 dark:text-white">
+          <h4 className="font-semibold mb-3 flex items-center gap-2 text-gray-700 dark:text-white">
             <Package className="h-4 w-4" />
             Category Demand Forecast
           </h4>
-          <div className="space-y-3">
+          <div className="space-y-2">
             {forecastData.demandForecast.map((forecast, index) => (
               <div
                 key={index}
-                className="space-y-2 p-3 rounded-xl border border-gray-300/20 bg-gradient-to-r from-gray-100/30 to-transparent dark:border-white/10 dark:from-white/5"
+                className="space-y-2 p-2 rounded-xl border border-gray-300/20 bg-gradient-to-r from-gray-100/30 to-transparent dark:border-white/10 dark:from-white/5"
               >
                 <div className="flex justify-between items-center">
-                  <span className="font-medium text-sm text-gray-900 dark:text-white">
+                  <span className="font-medium text-sm text-gray-700 dark:text-white">
                     {forecast.category}
                   </span>
                   <span className="text-xs text-gray-600 dark:text-white/60">
@@ -375,7 +375,7 @@ export function ForecastingCard({ products, className }: ForecastingCardProps) {
 
         {/* Seasonal Trends */}
         <div>
-          <h4 className="font-semibold mb-3 flex items-center gap-2 text-gray-900 dark:text-white">
+          <h4 className="font-semibold mb-3 flex items-center gap-2 text-gray-700 dark:text-white">
             <Clock className="h-4 w-4" />
             Seasonal Demand Trends
           </h4>
@@ -391,7 +391,7 @@ export function ForecastingCard({ products, className }: ForecastingCardProps) {
                 <div className="text-xs font-medium text-gray-700 dark:text-white/80">
                   {trend.month}
                 </div>
-                <div className="text-lg font-semibold text-gray-900 dark:text-white">
+                <div className="text-lg font-semibold text-gray-700 dark:text-white">
                   {trend.demand}
                 </div>
                 <div className="flex justify-center mt-1">
@@ -403,7 +403,7 @@ export function ForecastingCard({ products, className }: ForecastingCardProps) {
         </div>
 
         {/* Action Buttons */}
-        <div className="flex flex-col sm:flex-row gap-3 pt-4">
+        <div className="flex flex-col sm:flex-row gap-2 pt-4">
           <Button
             variant="outline"
             className="flex-1 rounded-xl border-emerald-400/30 bg-gradient-to-r from-emerald-500/10 to-transparent hover:from-emerald-500/20 hover:border-emerald-300/50"

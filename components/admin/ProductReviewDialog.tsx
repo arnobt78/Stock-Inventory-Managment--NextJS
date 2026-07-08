@@ -97,7 +97,7 @@ export default function ProductReviewDialog({
         onOpenAutoFocus={(e) => e.preventDefault()}
       >
         <DialogHeader>
-          <DialogTitle className="text-[22px] text-white flex items-center gap-3">
+          <DialogTitle className="text-[22px] text-white flex items-center gap-2">
             <div className="p-2 rounded-xl border border-amber-300/30 bg-amber-100/50 dark:border-amber-400/30 dark:bg-amber-500/20">
               <Star className="h-5 w-5 text-amber-600 dark:text-amber-400 fill-amber-500/50" />
             </div>
@@ -151,7 +151,7 @@ export default function ProductReviewDialog({
                       <SelectItem
                         key={p.id}
                         value={p.id}
-                        className="cursor-pointer text-gray-900 dark:text-white focus:bg-amber-100 dark:focus:bg-white/10 focus:text-gray-900 dark:focus:text-white"
+                        className="cursor-pointer text-gray-700 dark:text-white focus:bg-amber-100 dark:focus:bg-white/10 focus:text-gray-700 dark:focus:text-white"
                       >
                         {p.name} {p.sku ? `(${p.sku})` : ""}
                       </SelectItem>
@@ -244,7 +244,7 @@ export default function ProductReviewDialog({
               {comment.length}/2000
             </p>
           </div>
-          <DialogFooter className="mt-6 flex flex-col sm:flex-row items-center gap-3">
+          <DialogFooter className="mt-6 flex flex-col sm:flex-row items-center gap-2">
             <DialogClose asChild>
               <Button
                 type="button"

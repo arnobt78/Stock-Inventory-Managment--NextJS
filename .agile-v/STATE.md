@@ -3,19 +3,19 @@
 | Field | Value |
 |-------|-------|
 | **Cycle** | C1 |
-| **Phase** | `phases/06-locale-aware-formatting` |
-| **Infinity Loop stage** | Prove → Verify (REQ-0020 done) |
+| **Phase** | `phases/07-shell-first-navigation` |
+| **Infinity Loop stage** | Verify (REQ-0021 done) |
 | **Last updated** | 2026-07-08 |
-| **Active REQ range** | REQ-0001 … REQ-0020 |
-| **Prod deploy target** | `21d7fc4` (REQ-0020) |
+| **Active REQ range** | REQ-0001 … REQ-0021 |
+| **Prod deploy target** | pending (REQ-0021) |
 | **Human Gate 1** | APPROVED (retroactive bootstrap) |
 | **Human Gate 2** | PENDING — Sentry 24h after REQ-0020 deploy |
 | **Resume token** | — |
 
 ## Current focus
 
-1. **REQ-0020** — locale-aware admin formatting (hydration + browser local)
-2. **Human Gate 2** — Sentry 24h after REQ-0020 deploy
+1. **REQ-0021** — shell-first navigation + data-slot pulse skeletons (done)
+2. **Human Gate 2** — Sentry 24h after REQ-0021 deploy
 
 ## Session resume (every chat)
 
@@ -42,4 +42,5 @@
 | Groq model chain (REQ-0018) | done |
 | Admin AI + hydration (REQ-0019) | done |
 | Locale-aware admin format (REQ-0020) | done |
+| Shell-first nav + data-slot pulse (REQ-0021) | done |
 | TanStack invalidation | unchanged; 200 audit pass |

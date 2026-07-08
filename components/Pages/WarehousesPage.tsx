@@ -5,13 +5,11 @@
 
 "use client";
 
-import React, { useLayoutEffect } from "react";
-import { useQueryClient } from "@tanstack/react-query";
+import React from "react";
 import Navbar from "@/components/layouts/Navbar";
 import WarehouseList from "@/components/warehouses/WarehouseList";
 import { PageContentWrapper } from "@/components/shared";
 import FloatingActionButtons from "@/components/shared/FloatingActionButtons";
-import { queryKeys } from "@/lib/react-query";
 import type { WarehouseForPage } from "@/lib/server/warehouses-data";
 
 export type WarehousesPageProps = {
@@ -20,23 +18,15 @@ export type WarehousesPageProps = {
 
 /**
  * Warehouses page client component.
- * Accepts optional server-fetched data to hydrate React Query and avoid client round-trips.
+ * REQ-0021 — shell-first; SSR initialData passed to WarehouseList.
  */
 export default function WarehousesPage({
   initialWarehouses,
 }: WarehousesPageProps = {}) {
-  const queryClient = useQueryClient();
-
-  useLayoutEffect(() => {
-    if (initialWarehouses != null) {
-      queryClient.setQueryData(queryKeys.warehouses.lists(), initialWarehouses);
-    }
-  }, [queryClient, initialWarehouses]);
-
   return (
     <Navbar>
       <PageContentWrapper>
-        <WarehouseList />
+        <WarehouseList initialWarehouses={initialWarehouses} />
         <FloatingActionButtons variant="warehouses" />
       </PageContentWrapper>
     </Navbar>

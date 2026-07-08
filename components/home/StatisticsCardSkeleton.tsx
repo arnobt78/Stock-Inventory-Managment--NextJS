@@ -27,7 +27,7 @@ export function StatisticsCardSkeleton({
   return (
     <article
       className={cn(
-        "group rounded-[28px] border border-gray-300/30 dark:border-white/10 bg-gradient-to-br from-gray-100/50 via-gray-100/30 to-gray-100/20 dark:from-white/5 dark:via-white/5 dark:to-white/5 min-h-[210px] h-full p-4 sm:p-6 backdrop-blur-sm animate-pulse",
+        "group rounded-[28px] border border-gray-300/30 dark:border-white/10 bg-gradient-to-br from-gray-100/50 via-gray-100/30 to-gray-100/20 dark:from-white/5 dark:via-white/5 dark:to-white/5 min-h-[210px] h-full p-2 sm:p-4 backdrop-blur-sm animate-pulse",
         className,
       )}
     >

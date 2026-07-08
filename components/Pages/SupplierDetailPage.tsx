@@ -41,11 +41,13 @@ import {
   ClientDateTime,
   ClientRelativeTime,
   PageContentWrapper,
+  DataSlotPulse,
 } from "@/components/shared";
 import SupplierDialog from "@/components/supplier/SupplierDialog";
 import { AlertDialogWrapper } from "@/components/dialogs";
 import type { Supplier } from "@/types";
 import Image from "next/image";
+import { isDataSlotLoading } from "@/lib/react-query";
 import { cn } from "@/lib/utils";
 
 /**
@@ -183,13 +185,13 @@ export default function SupplierDetailPage({
   const { handleBack } = useBackWithRefresh("supplier");
   const supplierId = params?.id as string;
   const { user, isCheckingAuth } = useAuth();
-  const isMountedRef = useRef(false);
-  const [isMounted, setIsMounted] = useState(false);
 
   const PageWrapper = embedInAdmin ? React.Fragment : Navbar;
 
   // Fetch supplier details
-  const { data: supplier, isLoading, isError, error } = useSupplier(supplierId);
+  const supplierQuery = useSupplier(supplierId);
+  const supplier = supplierQuery.data;
+  const dataLoading = isDataSlotLoading(supplierQuery);
   const createSupplierMutation = useCreateSupplier();
   const deleteSupplierMutation = useDeleteSupplier();
   const [editDialogOpen, setEditDialogOpen] = useState(false);
@@ -212,11 +214,11 @@ export default function SupplierDetailPage({
     if (!supplier || !user?.id) return;
     createSupplierMutation.mutate(
       {
-        name: `${supplier.name} (copy)`,
+        name: `${supplier?.name} (copy)`,
         userId: user.id,
-        status: supplier.status ?? true,
-        description: supplier.description ?? undefined,
-        notes: supplier.notes ?? undefined,
+        status: supplier?.status ?? true,
+        description: supplier?.description ?? undefined,
+        notes: supplier?.notes ?? undefined,
       },
       {
         onSuccess: () => {
@@ -229,7 +231,7 @@ export default function SupplierDetailPage({
   // Delete: confirm then delete (same pattern as ProductActions / SupplierActions)
   const handleConfirmDeleteSupplier = () => {
     if (!supplier) return;
-    deleteSupplierMutation.mutate(supplier.id, {
+    deleteSupplierMutation.mutate(supplier?.id, {
       onSuccess: () => {
         setDeleteDialogOpen(false);
         router.push("/");
@@ -238,20 +240,7 @@ export default function SupplierDetailPage({
         setDeleteDialogOpen(false);
       },
     });
-  };
-
-  // Mark component as mounted after client-side hydration
-  useEffect(() => {
-    if (!isMountedRef.current) {
-      isMountedRef.current = true;
-      queueMicrotask(() => setIsMounted(true));
-    }
-  }, []);
-
-  // Determine loading state - prevents hydration mismatch
-  const showSkeleton = !isMounted || isCheckingAuth || isLoading;
-
-  // Redirect if not authenticated
+  };// Redirect if not authenticated
   useEffect(() => {
     if (!isCheckingAuth && !user) {
       router.push("/login");
@@ -259,17 +248,17 @@ export default function SupplierDetailPage({
   }, [user, isCheckingAuth, router]);
 
   // Show error state
-  if (isError) {
+  if (supplierQuery.isError) {
     return (
       <PageWrapper>
-        <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4">
+        <div className="flex flex-col items-center justify-center min-h-[60vh] gap-2">
           <div className="text-center">
-            <h2 className="text-2xl font-semibold text-gray-900 dark:text-white mb-2">
+            <h2 className="text-lg sm:text-xl font-semibold text-gray-700 dark:text-white mb-2">
               Supplier Not Found
             </h2>
             <p className="text-gray-600 dark:text-gray-400 mb-4">
-              {error instanceof Error
-                ? error.message
+              {supplierQuery.error instanceof Error
+                ? supplierQuery.error.message
                 : "Failed to load supplier details"}
             </p>
             <Button onClick={() => router.push("/")} variant="outline">
@@ -282,63 +271,14 @@ export default function SupplierDetailPage({
     );
   }
 
-  // Show loading skeleton
-  if (showSkeleton || !supplier) {
-    return (
-      <PageWrapper>
-        <PageContentWrapper>
-          <div className="max-w-9xl mx-auto space-y-6">
-            {/* Header Skeleton */}
-            <div className="flex items-center gap-4">
-              <div className="h-10 w-10 bg-gray-200/50 dark:bg-white/10 rounded-xl animate-pulse" />
-              <div className="h-8 w-48 bg-gray-200/50 dark:bg-white/10 rounded-xl animate-pulse" />
-            </div>
 
-            {/* Status Card Skeleton */}
-            <GlassCard variant="emerald">
-              <div className="p-4 sm:p-5">
-                <div className="h-4 w-20 bg-gray-200/50 dark:bg-white/10 rounded animate-pulse mb-3" />
-                <div className="h-8 w-24 bg-gray-200/50 dark:bg-white/10 rounded-xl animate-pulse" />
-              </div>
-            </GlassCard>
-
-            {/* Info and Statistics Skeleton */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <GlassCard variant="orange">
-                <div className="p-4 sm:p-5 space-y-4">
-                  <div className="h-6 w-40 bg-gray-200/50 dark:bg-white/10 rounded-lg animate-pulse" />
-                  {[1, 2, 3, 4].map((i) => (
-                    <div
-                      key={i}
-                      className="h-4 w-full bg-gray-200/50 dark:bg-white/10 rounded animate-pulse"
-                    />
-                  ))}
-                </div>
-              </GlassCard>
-              <GlassCard variant="teal">
-                <div className="p-4 sm:p-5 space-y-4">
-                  <div className="h-6 w-40 bg-gray-200/50 dark:bg-white/10 rounded-lg animate-pulse" />
-                  {[1, 2, 3].map((i) => (
-                    <div
-                      key={i}
-                      className="h-12 w-full bg-gray-200/50 dark:bg-white/10 rounded-xl animate-pulse"
-                    />
-                  ))}
-                </div>
-              </GlassCard>
-            </div>
-          </div>
-        </PageContentWrapper>
-      </PageWrapper>
-    );
-  }
 
   // Format dates
-  const createdAt = new Date(supplier.createdAt);
-  const updatedAt = supplier.updatedAt ? new Date(supplier.updatedAt) : null;
+  const createdAt = supplier?.createdAt ? new Date(supplier?.createdAt) : new Date();
+  const updatedAt = supplier?.updatedAt ? new Date(supplier?.updatedAt) : null;
 
   // Supplier statistics
-  const stats = supplier.statistics || {
+  const stats = supplier?.statistics || {
     totalProducts: 0,
     totalQuantitySold: 0,
     totalRevenue: 0,
@@ -349,9 +289,9 @@ export default function SupplierDetailPage({
   return (
     <PageWrapper>
       <PageContentWrapper>
-        <div className="max-w-9xl mx-auto space-y-6">
+        <div className="max-w-9xl mx-auto space-y-4">
           {/* Header */}
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2">
             <Button
               variant="ghost"
               size="icon"
@@ -361,8 +301,8 @@ export default function SupplierDetailPage({
               <ArrowLeft className="h-5 w-5" />
             </Button>
             <div className="flex-1">
-              <h1 className="text-2xl font-semibold text-gray-900 dark:text-white">
-                {supplier.name}
+              <h1 className="text-lg sm:text-xl font-semibold text-gray-700 dark:text-white">
+                {supplier?.name}
               </h1>
               <p className="text-sm text-gray-600 dark:text-white/60 mt-1">
                 <ClientRelativeTime date={createdAt} prefix="Created " />
@@ -379,12 +319,12 @@ export default function SupplierDetailPage({
               <Badge
                 className={cn(
                   "text-sm border",
-                  supplier.status
+                  supplier?.status
                     ? "bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 border-emerald-400/30"
                     : "bg-rose-500/20 text-rose-700 dark:text-rose-300 border-rose-400/30",
                 )}
               >
-                {supplier.status ? (
+                {supplier?.status ? (
                   <span className="flex items-center gap-2">
                     <CheckCircle2 className="h-3 w-3" />
                     Active
@@ -400,15 +340,15 @@ export default function SupplierDetailPage({
           </GlassCard>
 
           {/* Supplier Information and Statistics */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-2 sm:gap-4">
             {/* Supplier Information */}
             <GlassCard variant="orange">
               <div className="p-4 sm:p-5">
                 <div className="flex items-center gap-2 mb-4">
                   <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-orange-300/30 bg-orange-100/50 dark:border-white/15 dark:bg-white/10">
-                    <Truck className="h-4 w-4 text-gray-900 dark:text-white" />
+                    <Truck className="h-4 w-4 text-gray-700 dark:text-white" />
                   </div>
-                  <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+                  <h3 className="text-lg font-semibold text-gray-700 dark:text-white">
                     Supplier Information
                   </h3>
                 </div>
@@ -418,29 +358,29 @@ export default function SupplierDetailPage({
                     <span className="text-gray-600 dark:text-white/60">
                       Name:
                     </span>
-                    <span className="font-medium text-gray-900 dark:text-white">
-                      {supplier.name}
+                    <span className="font-medium text-gray-700 dark:text-white">
+                      {supplier?.name}
                     </span>
                   </div>
 
-                  {supplier.description && (
+                  {supplier?.description && (
                     <div className="pt-3 mt-3 border-t border-orange-400/20">
                       <p className="text-sm text-gray-600 dark:text-white/60 mb-1">
                         Description:
                       </p>
-                      <p className="text-sm text-gray-900 dark:text-white">
-                        {supplier.description}
+                      <p className="text-sm text-gray-700 dark:text-white">
+                        {supplier?.description}
                       </p>
                     </div>
                   )}
 
-                  {supplier.notes && (
+                  {supplier?.notes && (
                     <div className="pt-3 mt-3 border-t border-orange-400/20">
                       <p className="text-sm text-gray-600 dark:text-white/60 mb-1">
                         Notes:
                       </p>
-                      <p className="text-sm text-gray-900 dark:text-white">
-                        {supplier.notes}
+                      <p className="text-sm text-gray-700 dark:text-white">
+                        {supplier?.notes}
                       </p>
                     </div>
                   )}
@@ -450,7 +390,7 @@ export default function SupplierDetailPage({
                     <span className="text-gray-600 dark:text-white/60">
                       Created:
                     </span>
-                    <span className="font-medium text-gray-900 dark:text-white">
+                    <span className="font-medium text-gray-700 dark:text-white">
                       <ClientDateTime date={createdAt} />
                     </span>
                   </div>
@@ -461,22 +401,22 @@ export default function SupplierDetailPage({
                       <span className="text-gray-600 dark:text-white/60">
                         Updated:
                       </span>
-                      <span className="font-medium text-gray-900 dark:text-white">
+                      <span className="font-medium text-gray-700 dark:text-white">
                         <ClientDateTime date={updatedAt} />
                       </span>
                     </div>
                   )}
 
                   {/* Creator Information */}
-                  {supplier.creator && (
+                  {supplier?.creator && (
                     <div className="pt-3 mt-3 border-t border-orange-400/20">
                       <div className="flex items-center gap-2 text-sm">
                         <User className="h-4 w-4 text-gray-500 dark:text-white/50" />
                         <span className="text-gray-600 dark:text-white/60">
                           Created by:
                         </span>
-                        <span className="font-medium text-gray-900 dark:text-white">
-                          {supplier.creator.name}
+                        <span className="font-medium text-gray-700 dark:text-white">
+                          {supplier?.creator.name}
                         </span>
                       </div>
                       <div className="flex items-center gap-2 text-sm mt-1">
@@ -484,23 +424,23 @@ export default function SupplierDetailPage({
                         <span className="text-gray-600 dark:text-white/60">
                           Email:
                         </span>
-                        <span className="font-medium text-gray-900 dark:text-white">
-                          {supplier.creator.email}
+                        <span className="font-medium text-gray-700 dark:text-white">
+                          {supplier?.creator.email}
                         </span>
                       </div>
                     </div>
                   )}
 
                   {/* Updater Information */}
-                  {supplier.updater && (
+                  {supplier?.updater && (
                     <div className="pt-3 mt-3 border-t border-orange-400/20">
                       <div className="flex items-center gap-2 text-sm">
                         <User className="h-4 w-4 text-gray-500 dark:text-white/50" />
                         <span className="text-gray-600 dark:text-white/60">
                           Updated by:
                         </span>
-                        <span className="font-medium text-gray-900 dark:text-white">
-                          {supplier.updater.name}
+                        <span className="font-medium text-gray-700 dark:text-white">
+                          {supplier?.updater.name}
                         </span>
                       </div>
                       <div className="flex items-center gap-2 text-sm mt-1">
@@ -508,8 +448,8 @@ export default function SupplierDetailPage({
                         <span className="text-gray-600 dark:text-white/60">
                           Email:
                         </span>
-                        <span className="font-medium text-gray-900 dark:text-white">
-                          {supplier.updater.email}
+                        <span className="font-medium text-gray-700 dark:text-white">
+                          {supplier?.updater.email}
                         </span>
                       </div>
                     </div>
@@ -523,10 +463,10 @@ export default function SupplierDetailPage({
               <div className="p-4 sm:p-5">
                 <div className="flex items-center gap-2 mb-2">
                   <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-teal-300/30 bg-teal-100/50 dark:border-white/15 dark:bg-white/10">
-                    <BarChart3 className="h-4 w-4 text-gray-900 dark:text-white" />
+                    <BarChart3 className="h-4 w-4 text-gray-700 dark:text-white" />
                   </div>
                   <div>
-                    <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+                    <h3 className="text-lg font-semibold text-gray-700 dark:text-white">
                       Statistics
                     </h3>
                     <p className="text-xs text-gray-600 dark:text-white/60">
@@ -534,26 +474,26 @@ export default function SupplierDetailPage({
                     </p>
                   </div>
                 </div>
-                <div className="space-y-3 mt-4">
-                  <div className="flex justify-between items-center p-3 rounded-xl border border-violet-400/20 bg-gradient-to-r from-violet-500/10 to-transparent">
+                <div className="space-y-2 mt-4">
+                  <div className="flex justify-between items-center p-2 rounded-xl border border-violet-400/20 bg-gradient-to-r from-violet-500/10 to-transparent">
                     <span className="text-sm text-gray-600 dark:text-white/70">
                       Total Products:
                     </span>
-                    <span className="text-lg font-semibold text-gray-900 dark:text-white">
+                    <span className="text-lg font-semibold text-gray-700 dark:text-white">
                       {stats.totalProducts}
                     </span>
                   </div>
 
-                  <div className="flex justify-between items-center p-3 rounded-xl border border-sky-400/20 bg-gradient-to-r from-sky-500/10 to-transparent">
+                  <div className="flex justify-between items-center p-2 rounded-xl border border-sky-400/20 bg-gradient-to-r from-sky-500/10 to-transparent">
                     <span className="text-sm text-gray-600 dark:text-white/70">
                       Total Quantity Sold:
                     </span>
-                    <span className="text-lg font-semibold text-gray-900 dark:text-white">
+                    <span className="text-lg font-semibold text-gray-700 dark:text-white">
                       {stats.totalQuantitySold}
                     </span>
                   </div>
 
-                  <div className="flex justify-between items-center p-3 rounded-xl border border-emerald-400/20 bg-gradient-to-r from-emerald-500/10 to-transparent">
+                  <div className="flex justify-between items-center p-2 rounded-xl border border-emerald-400/20 bg-gradient-to-r from-emerald-500/10 to-transparent">
                     <span className="text-sm text-gray-600 dark:text-white/70">
                       Total Revenue:
                     </span>
@@ -562,16 +502,16 @@ export default function SupplierDetailPage({
                     </span>
                   </div>
 
-                  <div className="flex justify-between items-center p-3 rounded-xl border border-amber-400/20 bg-gradient-to-r from-amber-500/10 to-transparent">
+                  <div className="flex justify-between items-center p-2 rounded-xl border border-amber-400/20 bg-gradient-to-r from-amber-500/10 to-transparent">
                     <span className="text-sm text-gray-600 dark:text-white/70">
                       Orders Containing Products:
                     </span>
-                    <span className="text-lg font-semibold text-gray-900 dark:text-white">
+                    <span className="text-lg font-semibold text-gray-700 dark:text-white">
                       {stats.uniqueOrders}
                     </span>
                   </div>
 
-                  <div className="flex justify-between items-center p-3 rounded-xl border border-blue-400/20 bg-gradient-to-r from-blue-500/10 to-transparent">
+                  <div className="flex justify-between items-center p-2 rounded-xl border border-blue-400/20 bg-gradient-to-r from-blue-500/10 to-transparent">
                     <span className="text-sm text-gray-600 dark:text-white/70">
                       Current Stock Value:
                     </span>
@@ -585,25 +525,25 @@ export default function SupplierDetailPage({
           </div>
 
           {/* Products from this Supplier */}
-          {supplier.products && supplier.products.length > 0 && (
+          {supplier?.products && supplier?.products.length > 0 && (
             <GlassCard variant="sky">
               <div className="p-4 sm:p-5">
                 <div className="flex items-center gap-2 mb-2">
                   <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-sky-300/30 bg-sky-100/50 dark:border-white/15 dark:bg-white/10">
-                    <Package className="h-4 w-4 text-gray-900 dark:text-white" />
+                    <Package className="h-4 w-4 text-gray-700 dark:text-white" />
                   </div>
                   <div>
-                    <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+                    <h3 className="text-lg font-semibold text-gray-700 dark:text-white">
                       Products from this Supplier
                     </h3>
                     <p className="text-xs text-gray-600 dark:text-white/60">
-                      {supplier.products.length} product
-                      {supplier.products.length !== 1 ? "s" : ""} supplied
+                      {supplier?.products.length} product
+                      {supplier?.products.length !== 1 ? "s" : ""} supplied
                     </p>
                   </div>
                 </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-4">
-                  {supplier.products.map((product) => (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2 mt-4">
+                  {supplier?.products.map((product) => (
                     <Link
                       key={product.id}
                       href={
@@ -611,7 +551,7 @@ export default function SupplierDetailPage({
                           ? `/admin/products/${product.id}`
                           : `/products/${product.id}`
                       }
-                      className="flex items-center gap-3 p-4 rounded-xl border border-gray-300/20 dark:border-white/10 bg-white/30 dark:bg-white/5 hover:bg-white/50 dark:hover:bg-white/10 backdrop-blur-sm transition-colors"
+                      className="flex items-center gap-2 p-4 rounded-xl border border-gray-300/20 dark:border-white/10 bg-white/30 dark:bg-white/5 hover:bg-white/50 dark:hover:bg-white/10 backdrop-blur-sm transition-colors"
                     >
                       {product.imageUrl && (
                         <div className="relative w-16 h-16 rounded-xl overflow-hidden bg-white/50 dark:bg-white/5 border border-gray-300/20 dark:border-white/10 flex-shrink-0">
@@ -625,7 +565,7 @@ export default function SupplierDetailPage({
                         </div>
                       )}
                       <div className="flex-1 min-w-0">
-                        <h4 className="font-medium text-gray-900 dark:text-white truncate">
+                        <h4 className="font-medium text-gray-700 dark:text-white truncate">
                           {product.name}
                         </h4>
                         <p className="text-sm text-gray-600 dark:text-white/60">
@@ -644,15 +584,15 @@ export default function SupplierDetailPage({
           )}
 
           {/* Recent Orders */}
-          {supplier.recentOrders && supplier.recentOrders.length > 0 && (
+          {supplier?.recentOrders && supplier?.recentOrders.length > 0 && (
             <GlassCard variant="violet">
               <div className="p-4 sm:p-5">
                 <div className="flex items-center gap-2 mb-2">
                   <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-violet-300/30 bg-violet-100/50 dark:border-white/15 dark:bg-white/10">
-                    <ShoppingCart className="h-4 w-4 text-gray-900 dark:text-white" />
+                    <ShoppingCart className="h-4 w-4 text-gray-700 dark:text-white" />
                   </div>
                   <div>
-                    <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+                    <h3 className="text-lg font-semibold text-gray-700 dark:text-white">
                       Recent Orders
                     </h3>
                     <p className="text-xs text-gray-600 dark:text-white/60">
@@ -660,8 +600,8 @@ export default function SupplierDetailPage({
                     </p>
                   </div>
                 </div>
-                <div className="space-y-3 mt-4">
-                  {supplier.recentOrders.map((order) => (
+                <div className="space-y-2 mt-4">
+                  {supplier?.recentOrders.map((order) => (
                     <Link
                       key={order.id}
                       href={
@@ -669,10 +609,10 @@ export default function SupplierDetailPage({
                           ? `/admin/orders/${order.orderId}`
                           : `/orders/${order.orderId}`
                       }
-                      className="flex flex-col sm:flex-row sm:items-center justify-between p-4 rounded-xl border border-gray-300/20 dark:border-white/10 bg-white/30 dark:bg-white/5 hover:bg-white/50 dark:hover:bg-white/10 backdrop-blur-sm transition-colors gap-3"
+                      className="flex flex-col sm:flex-row sm:items-center justify-between p-4 rounded-xl border border-gray-300/20 dark:border-white/10 bg-white/30 dark:bg-white/5 hover:bg-white/50 dark:hover:bg-white/10 backdrop-blur-sm transition-colors gap-2"
                     >
                       <div className="flex-1">
-                        <h4 className="font-medium text-gray-900 dark:text-white">
+                        <h4 className="font-medium text-gray-700 dark:text-white">
                           Order {order.orderNumber}
                         </h4>
                         <p className="text-sm text-gray-600 dark:text-white/60 mt-1">
@@ -680,13 +620,12 @@ export default function SupplierDetailPage({
                         </p>
                         <p className="text-sm text-gray-600 dark:text-white/60">
                           Quantity: {order.quantity} × ${order.price.toFixed(2)}{" "}
-                          • Date:{" "}
-                          <ClientDate date={order.orderDate} />
+                          • Date: <ClientDate date={order.orderDate} />
                         </p>
                       </div>
                       <div className="text-left sm:text-right">
                         {/* Sale price style: crossed-out subtotal + actual proportional amount */}
-                        <p className="font-semibold text-gray-900 dark:text-white">
+                        <p className="font-semibold text-gray-700 dark:text-white">
                           {typeof order.proportionalAmount === "number" &&
                           order.proportionalAmount !== order.subtotal ? (
                             <>
@@ -727,7 +666,7 @@ export default function SupplierDetailPage({
           )}
 
           {/* Actions — Back, Edit, Duplicate, Delete; responsive (stack on small, row on larger) */}
-          <div className="flex flex-col sm:flex-row flex-wrap gap-2 sm:gap-4">
+          <div className="flex flex-col sm:flex-row flex-wrap gap-2">
             <Button
               variant="outline"
               onClick={handleBack}
@@ -769,7 +708,7 @@ export default function SupplierDetailPage({
             open={deleteDialogOpen}
             onOpenChange={setDeleteDialogOpen}
             title="Are you absolutely sure?"
-            description={`This action cannot be undone. This will permanently delete the supplier "${supplier.name}".`}
+            description={`This action cannot be undone. This will permanently delete the supplier "${supplier?.name}".`}
             actionLabel="Delete"
             actionLoadingLabel="Deleting..."
             isLoading={isDeleting}

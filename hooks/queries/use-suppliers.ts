@@ -9,6 +9,7 @@ import {
   queryKeys,
   invalidateAllRelatedQueries,
   cancelOrRemoveDetailQuery,
+  withInitialData,
 } from "@/lib/react-query";
 import { useToast } from "@/hooks/use-toast";
 import type {
@@ -16,18 +17,20 @@ import type {
   CreateSupplierInput,
   UpdateSupplierInput,
 } from "@/types";
+import type { SupplierForHome } from "@/lib/server/home-data";
 
 /**
  * Fetch all suppliers
  * Query hook for getting the list of all suppliers
  */
-export function useSuppliers() {
-  return useQuery({
+export function useSuppliers(initialData?: Supplier[] | SupplierForHome[]) {
+  return useQuery<Supplier[]>({
     queryKey: queryKeys.suppliers.lists(),
     queryFn: async () => {
       const response = await apiClient.suppliers.getAll();
       return response.data;
     },
+    ...withInitialData(initialData as Supplier[] | undefined),
   });
 }
 

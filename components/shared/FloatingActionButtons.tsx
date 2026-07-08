@@ -55,7 +55,7 @@ export default function FloatingActionButtons({
 
   return (
     <div
-      className="fixed right-4 top-1/2 -translate-y-1/2 z-50 hidden md:flex flex-col gap-3"
+      className="fixed right-4 top-1/2 -translate-y-1/2 z-50 hidden md:flex flex-col gap-2"
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
     >

@@ -107,9 +107,7 @@ export default function SupportTicketDialog({
   const iconBorderClass = isViolet
     ? "border-violet-300/30 bg-violet-100/50 dark:border-violet-400/30 dark:bg-violet-500/20"
     : "border-sky-300/30 bg-sky-100/50 dark:border-sky-400/30 dark:bg-sky-500/20";
-  const iconColorClass = isViolet
-    ? "text-violet-400"
-    : "text-sky-400";
+  const iconColorClass = isViolet ? "text-violet-400" : "text-sky-400";
   const inputClass = isViolet
     ? "border border-violet-400/30 border-white/20 bg-white/10 text-white placeholder:text-white/40 focus-visible:outline-none focus-visible:border focus-visible:border-violet-400 focus-visible:ring-2 focus-visible:ring-violet-500/50 focus:outline-none focus:border focus:border-violet-400 focus:ring-2 focus:ring-violet-500/50 shadow-[0_10px_30px_rgba(139,92,246,0.15)]"
     : "border border-sky-400/30 border-white/20 bg-white/10 text-white placeholder:text-white/40 focus-visible:outline-none focus-visible:border focus-visible:border-sky-400 focus-visible:ring-2 focus-visible:ring-sky-500/50 focus:outline-none focus:border focus:border-sky-400 focus:ring-2 focus:ring-sky-500/50 shadow-[0_10px_30px_rgba(2,132,199,0.15)]";
@@ -137,7 +135,7 @@ export default function SupportTicketDialog({
         }}
       >
         <DialogHeader>
-          <DialogTitle className={cn("flex items-center gap-3", titleClass)}>
+          <DialogTitle className={cn("flex items-center gap-2", titleClass)}>
             <div className={cn("p-2 rounded-xl border", iconBorderClass)}>
               <MessageSquare className={cn("h-5 w-5", iconColorClass)} />
             </div>
@@ -202,8 +200,8 @@ export default function SupportTicketDialog({
                     aria-hidden
                   >
                     {assignedToId
-                      ? productOwners.find((po) => po.id === assignedToId)
-                          ?.name ?? "Select product owner"
+                      ? (productOwners.find((po) => po.id === assignedToId)
+                          ?.name ?? "Select product owner")
                       : "Select product owner (optional)"}
                   </div>
                 }
@@ -272,9 +270,7 @@ export default function SupportTicketDialog({
                 <Select
                   key={selectRemountKey}
                   value={priority}
-                  onValueChange={(v) =>
-                    setPriority(v as SupportTicketPriority)
-                  }
+                  onValueChange={(v) => setPriority(v as SupportTicketPriority)}
                   disabled={isPending}
                 >
                   <SelectTrigger
@@ -302,16 +298,16 @@ export default function SupportTicketDialog({
               )}
             </DeferredSelectGate>
           </div>
-          <DialogFooter className="mt-6 flex flex-col sm:flex-row items-center gap-3">
+          <DialogFooter className="mt-6 flex flex-col sm:flex-row items-center gap-2">
             <DialogClose asChild>
-            <Button
-              type="button"
-              variant="secondary"
-              className="h-11 rounded-xl border border-white/20 bg-white/15 text-white hover:bg-white/25 backdrop-blur-sm"
-              disabled={isPending}
-            >
-              Cancel
-            </Button>
+              <Button
+                type="button"
+                variant="secondary"
+                className="h-11 rounded-xl border border-white/20 bg-white/15 text-white hover:bg-white/25 backdrop-blur-sm"
+                disabled={isPending}
+              >
+                Cancel
+              </Button>
             </DialogClose>
             <Button
               type="submit"

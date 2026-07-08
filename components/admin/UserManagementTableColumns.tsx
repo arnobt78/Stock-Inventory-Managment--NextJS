@@ -57,7 +57,7 @@ function SortableHeader({ column, label }: SortableHeaderProps) {
       <DropdownMenuTrigger className="" asChild>
         <div
           className={cn(
-            "flex items-center select-none cursor-pointer gap-1 py-2 text-gray-900 dark:text-white",
+            "flex items-center select-none cursor-pointer gap-1 py-2 text-gray-700 dark:text-white",
             isSorted && "text-primary",
           )}
           aria-label={`Sort by ${label}`}

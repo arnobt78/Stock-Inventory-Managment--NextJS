@@ -25,10 +25,7 @@ import { Separator } from "@/components/ui/separator";
 import { useQueryClient } from "@tanstack/react-query";
 import { useOrder, useDeleteOrder } from "@/hooks/queries";
 import { useBackWithRefresh } from "@/hooks/use-back-with-refresh";
-import {
-  queryKeys,
-  invalidateAfterOrderGraphChange,
-} from "@/lib/react-query";
+import { queryKeys, invalidateAfterOrderGraphChange } from "@/lib/react-query";
 import { useAuth } from "@/contexts";
 import Navbar from "@/components/layouts/Navbar";
 import {
@@ -36,6 +33,7 @@ import {
   ClientDateTime,
   ClientRelativeTime,
   PageContentWrapper,
+  DataSlotPulse,
 } from "@/components/shared";
 import type { OrderStatus, PaymentStatus } from "@/types";
 import type { Order } from "@/types";
@@ -340,9 +338,9 @@ export default function OrderDetailPage() {
   if (isError) {
     return (
       <Navbar>
-        <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4">
+        <div className="flex flex-col items-center justify-center min-h-[60vh] gap-2">
           <GlassCard variant="rose" className="max-w-md text-center">
-            <h2 className="text-2xl font-semibold text-gray-900 dark:text-white mb-2">
+            <h2 className="text-lg sm:text-xl font-semibold text-gray-700 dark:text-white mb-2">
               Order Not Found
             </h2>
             <p className="text-gray-600 dark:text-gray-400 mb-4">
@@ -352,7 +350,7 @@ export default function OrderDetailPage() {
             </p>
             <Button
               onClick={() => router.push("/")}
-              className="rounded-xl border border-gray-300/30 bg-white/50 dark:bg-white/5 dark:border-white/10 hover:bg-gray-100/50 dark:hover:bg-white/10 text-gray-900 dark:text-white"
+              className="rounded-xl border border-gray-300/30 bg-white/50 dark:bg-white/5 dark:border-white/10 hover:bg-gray-100/50 dark:hover:bg-white/10 text-gray-700 dark:text-white"
             >
               <ArrowLeft className="h-4 w-4 mr-2" />
               Back to Home
@@ -368,9 +366,9 @@ export default function OrderDetailPage() {
     return (
       <Navbar>
         <PageContentWrapper>
-          <div className="max-w-9xl mx-auto space-y-6">
+          <div className="max-w-9xl mx-auto space-y-4">
             {/* Header Skeleton */}
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2">
               <div className="h-10 w-10 bg-white/50 dark:bg-white/5 rounded-xl border border-gray-300/30 dark:border-white/10 animate-pulse" />
               <div className="flex-1">
                 <div className="h-8 w-48 bg-white/50 dark:bg-white/5 rounded-lg border border-gray-300/30 dark:border-white/10 animate-pulse" />
@@ -379,7 +377,7 @@ export default function OrderDetailPage() {
             </div>
 
             {/* Status Cards Skeleton */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
               <GlassCard variant="amber" className="animate-pulse">
                 <div className="h-4 w-24 bg-white/50 dark:bg-white/10 rounded mb-3" />
                 <div className="h-6 w-20 bg-white/50 dark:bg-white/10 rounded-full" />
@@ -393,7 +391,7 @@ export default function OrderDetailPage() {
             {/* Order Items Skeleton */}
             <GlassCard variant="sky" className="animate-pulse">
               <div className="h-6 w-32 bg-white/50 dark:bg-white/10 rounded mb-4" />
-              <div className="space-y-3">
+              <div className="space-y-2">
                 {[1, 2, 3].map((i) => (
                   <div
                     key={i}
@@ -404,10 +402,10 @@ export default function OrderDetailPage() {
             </GlassCard>
 
             {/* Order Information and Summary Skeletons */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-2 sm:gap-4">
               <GlassCard variant="orange" className="animate-pulse">
                 <div className="h-6 w-40 bg-white/50 dark:bg-white/10 rounded mb-4" />
-                <div className="space-y-3">
+                <div className="space-y-2">
                   {[1, 2, 3, 4].map((i) => (
                     <div
                       key={i}
@@ -417,7 +415,7 @@ export default function OrderDetailPage() {
                 </div>
               </GlassCard>
 
-              <div className="space-y-6">
+              <div className="space-y-4">
                 <GlassCard variant="violet" className="animate-pulse">
                   <div className="h-6 w-36 bg-white/50 dark:bg-white/10 rounded mb-4" />
                   <div className="h-4 w-full bg-white/50 dark:bg-white/10 rounded" />
@@ -437,7 +435,7 @@ export default function OrderDetailPage() {
             </div>
 
             {/* Action Buttons Skeleton */}
-            <div className="flex flex-col sm:flex-row gap-3">
+            <div className="flex flex-col sm:flex-row gap-2">
               {[1, 2, 3, 4].map((i) => (
                 <div
                   key={i}
@@ -463,9 +461,9 @@ export default function OrderDetailPage() {
   return (
     <Navbar>
       <PageContentWrapper>
-        <div className="max-w-9xl mx-auto space-y-6">
+        <div className="max-w-9xl mx-auto space-y-4">
           {/* Header */}
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2">
             <Button
               variant="ghost"
               size="icon"
@@ -475,7 +473,7 @@ export default function OrderDetailPage() {
               <ArrowLeft className="h-5 w-5" />
             </Button>
             <div className="flex-1">
-              <h1 className="text-2xl font-semibold text-gray-900 dark:text-white">
+              <h1 className="text-lg sm:text-xl font-semibold text-gray-700 dark:text-white">
                 Order {order.orderNumber}
               </h1>
               <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
@@ -493,7 +491,7 @@ export default function OrderDetailPage() {
             return (
               <div
                 className={cn(
-                  "grid gap-4",
+                  "grid gap-2",
                   hasShipping
                     ? "grid-cols-1 lg:grid-cols-3"
                     : "grid-cols-1 md:grid-cols-2",
@@ -501,7 +499,7 @@ export default function OrderDetailPage() {
               >
                 <div
                   className={cn(
-                    "grid grid-cols-1 md:grid-cols-2 gap-4",
+                    "grid grid-cols-1 md:grid-cols-2 gap-2",
                     hasShipping && "lg:col-span-2",
                   )}
                 >
@@ -545,10 +543,10 @@ export default function OrderDetailPage() {
 
           {/* Order Items */}
           <GlassCard variant="sky">
-            <div className="flex items-center gap-3 mb-2">
+            <div className="flex items-center gap-2 mb-2">
               <div
                 className={cn(
-                  "p-2.5 rounded-xl border",
+                  "p-2 rounded-xl border",
                   variantConfig.sky.iconBg,
                   "dark:border-sky-400/30 dark:bg-sky-500/20",
                 )}
@@ -556,7 +554,7 @@ export default function OrderDetailPage() {
                 <Package className="h-5 w-5 text-sky-600 dark:text-sky-400" />
               </div>
               <div>
-                <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+                <h3 className="text-lg font-semibold text-gray-700 dark:text-white">
                   Order Items
                 </h3>
                 <p className="text-xs text-gray-600 dark:text-gray-400">
@@ -566,14 +564,14 @@ export default function OrderDetailPage() {
               </div>
             </div>
 
-            <div className="space-y-3 mt-4">
+            <div className="space-y-2 mt-4">
               {order.items.map((item) => (
                 <div
                   key={item.id}
-                  className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 rounded-xl border border-sky-200/40 dark:border-sky-400/20 bg-gradient-to-r from-sky-100/40 via-sky-50/20 to-transparent dark:from-sky-500/10 dark:via-sky-500/5 dark:to-transparent"
+                  className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 p-4 rounded-xl border border-sky-200/40 dark:border-sky-400/20 bg-gradient-to-r from-sky-100/40 via-sky-50/20 to-transparent dark:from-sky-500/10 dark:via-sky-500/5 dark:to-transparent"
                 >
                   <div className="flex-1 min-w-0">
-                    <h4 className="font-medium text-gray-900 dark:text-white">
+                    <h4 className="font-medium text-gray-700 dark:text-white">
                       {item.productName}
                     </h4>
                     {item.sku && (
@@ -605,80 +603,80 @@ export default function OrderDetailPage() {
           </GlassCard>
 
           {/* Order Summary */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-2 sm:gap-4">
             {/* Order Information */}
             <GlassCard variant="orange">
-              <div className="flex items-center gap-3 mb-4">
+              <div className="flex items-center gap-2 mb-4">
                 <div
                   className={cn(
-                    "p-2.5 rounded-xl border",
+                    "p-2 rounded-xl border",
                     variantConfig.orange.iconBg,
                     "dark:border-orange-400/30 dark:bg-orange-500/20",
                   )}
                 >
                   <FileText className="h-5 w-5 text-orange-600 dark:text-orange-400" />
                 </div>
-                <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+                <h3 className="text-lg font-semibold text-gray-700 dark:text-white">
                   Order Information
                 </h3>
               </div>
 
-              <div className="space-y-3">
-                <div className="flex items-center gap-2 text-sm p-3 rounded-xl bg-gradient-to-r from-orange-100/50 via-orange-50/30 to-transparent dark:from-orange-500/10 dark:via-orange-500/5 dark:to-transparent border border-orange-200/30 dark:border-orange-400/10">
+              <div className="space-y-2">
+                <div className="flex items-center gap-2 text-sm p-2 rounded-xl bg-gradient-to-r from-orange-100/50 via-orange-50/30 to-transparent dark:from-orange-500/10 dark:via-orange-500/5 dark:to-transparent border border-orange-200/30 dark:border-orange-400/10">
                   <Calendar className="h-4 w-4 text-orange-500 dark:text-orange-400" />
                   <span className="text-gray-600 dark:text-gray-400">
                     Created:
                   </span>
-                  <span className="font-medium text-gray-900 dark:text-white">
+                  <span className="font-medium text-gray-700 dark:text-white">
                     <ClientDateTime date={createdAt} />
                   </span>
                 </div>
                 {updatedAt && (
-                  <div className="flex items-center gap-2 text-sm p-3 rounded-xl bg-gradient-to-r from-amber-100/50 via-amber-50/30 to-transparent dark:from-amber-500/10 dark:via-amber-500/5 dark:to-transparent border border-amber-200/30 dark:border-amber-400/10">
+                  <div className="flex items-center gap-2 text-sm p-2 rounded-xl bg-gradient-to-r from-amber-100/50 via-amber-50/30 to-transparent dark:from-amber-500/10 dark:via-amber-500/5 dark:to-transparent border border-amber-200/30 dark:border-amber-400/10">
                     <Calendar className="h-4 w-4 text-amber-500 dark:text-amber-400" />
                     <span className="text-gray-600 dark:text-gray-400">
                       Updated:
                     </span>
-                    <span className="font-medium text-gray-900 dark:text-white">
+                    <span className="font-medium text-gray-700 dark:text-white">
                       <ClientDateTime date={updatedAt} />
                     </span>
                   </div>
                 )}
                 {shippedAt && (
-                  <div className="flex items-center gap-2 text-sm p-3 rounded-xl bg-gradient-to-r from-sky-100/50 via-sky-50/30 to-transparent dark:from-sky-500/10 dark:via-sky-500/5 dark:to-transparent border border-sky-200/30 dark:border-sky-400/10">
+                  <div className="flex items-center gap-2 text-sm p-2 rounded-xl bg-gradient-to-r from-sky-100/50 via-sky-50/30 to-transparent dark:from-sky-500/10 dark:via-sky-500/5 dark:to-transparent border border-sky-200/30 dark:border-sky-400/10">
                     <Truck className="h-4 w-4 text-sky-500 dark:text-sky-400" />
                     <span className="text-gray-600 dark:text-gray-400">
                       Shipped:
                     </span>
-                    <span className="font-medium text-gray-900 dark:text-white">
+                    <span className="font-medium text-gray-700 dark:text-white">
                       <ClientDateTime date={shippedAt} />
                     </span>
                   </div>
                 )}
                 {deliveredAt && (
-                  <div className="flex items-center gap-2 text-sm p-3 rounded-xl bg-gradient-to-r from-emerald-100/50 via-emerald-50/30 to-transparent dark:from-emerald-500/10 dark:via-emerald-500/5 dark:to-transparent border border-emerald-200/30 dark:border-emerald-400/10">
+                  <div className="flex items-center gap-2 text-sm p-2 rounded-xl bg-gradient-to-r from-emerald-100/50 via-emerald-50/30 to-transparent dark:from-emerald-500/10 dark:via-emerald-500/5 dark:to-transparent border border-emerald-200/30 dark:border-emerald-400/10">
                     <Package className="h-4 w-4 text-emerald-500 dark:text-emerald-400" />
                     <span className="text-gray-600 dark:text-gray-400">
                       Delivered:
                     </span>
-                    <span className="font-medium text-gray-900 dark:text-white">
+                    <span className="font-medium text-gray-700 dark:text-white">
                       <ClientDateTime date={deliveredAt} />
                     </span>
                   </div>
                 )}
                 {estimatedDelivery && (
-                  <div className="flex items-center gap-2 text-sm p-3 rounded-xl bg-gradient-to-r from-violet-100/50 via-violet-50/30 to-transparent dark:from-violet-500/10 dark:via-violet-500/5 dark:to-transparent border border-violet-200/30 dark:border-violet-400/10">
+                  <div className="flex items-center gap-2 text-sm p-2 rounded-xl bg-gradient-to-r from-violet-100/50 via-violet-50/30 to-transparent dark:from-violet-500/10 dark:via-violet-500/5 dark:to-transparent border border-violet-200/30 dark:border-violet-400/10">
                     <Calendar className="h-4 w-4 text-violet-500 dark:text-violet-400" />
                     <span className="text-gray-600 dark:text-gray-400">
                       Estimated Delivery:
                     </span>
-                    <span className="font-medium text-gray-900 dark:text-white">
+                    <span className="font-medium text-gray-700 dark:text-white">
                       <ClientDate date={estimatedDelivery} />
                     </span>
                   </div>
                 )}
                 {order.trackingNumber && (
-                  <div className="flex items-center gap-2 text-sm p-3 rounded-xl bg-gradient-to-r from-blue-100/50 via-blue-50/30 to-transparent dark:from-blue-500/10 dark:via-blue-500/5 dark:to-transparent border border-blue-200/30 dark:border-blue-400/10">
+                  <div className="flex items-center gap-2 text-sm p-2 rounded-xl bg-gradient-to-r from-blue-100/50 via-blue-50/30 to-transparent dark:from-blue-500/10 dark:via-blue-500/5 dark:to-transparent border border-blue-200/30 dark:border-blue-400/10">
                     <Truck className="h-4 w-4 text-blue-500 dark:text-blue-400" />
                     <span className="text-gray-600 dark:text-gray-400">
                       Tracking:
@@ -693,18 +691,18 @@ export default function OrderDetailPage() {
                         {order.trackingNumber}
                       </a>
                     ) : (
-                      <span className="font-medium text-gray-900 dark:text-white">
+                      <span className="font-medium text-gray-700 dark:text-white">
                         {order.trackingNumber}
                       </span>
                     )}
                   </div>
                 )}
                 {order.notes && (
-                  <div className="p-3 rounded-xl bg-gradient-to-r from-teal-100/50 via-teal-50/30 to-transparent dark:from-teal-500/10 dark:via-teal-500/5 dark:to-transparent border border-teal-200/30 dark:border-teal-400/10">
+                  <div className="p-2 rounded-xl bg-gradient-to-r from-teal-100/50 via-teal-50/30 to-transparent dark:from-teal-500/10 dark:via-teal-500/5 dark:to-transparent border border-teal-200/30 dark:border-teal-400/10">
                     <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">
                       Notes:
                     </p>
-                    <p className="text-sm text-gray-900 dark:text-white">
+                    <p className="text-sm text-gray-700 dark:text-white">
                       {order.notes}
                     </p>
                   </div>
@@ -718,26 +716,26 @@ export default function OrderDetailPage() {
               (order.orderProductOwners &&
                 order.orderProductOwners.length > 0)) && (
               <GlassCard variant="teal">
-                <div className="flex items-center gap-3 mb-4">
+                <div className="flex items-center gap-2 mb-4">
                   <div
                     className={cn(
-                      "p-2.5 rounded-xl border",
+                      "p-2 rounded-xl border",
                       variantConfig.teal.iconBg,
                       "dark:border-teal-400/30 dark:bg-teal-500/20",
                     )}
                   >
                     <Package className="h-5 w-5 text-teal-600 dark:text-teal-400" />
                   </div>
-                  <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+                  <h3 className="text-lg font-semibold text-gray-700 dark:text-white">
                     Parties &amp; roles
                   </h3>
                 </div>
-                <div className="space-y-3 text-sm">
-                  <div className="p-3 rounded-xl bg-gradient-to-r from-teal-100/50 via-teal-50/30 to-transparent dark:from-teal-500/10 dark:via-teal-500/5 dark:to-transparent border border-teal-200/30 dark:border-teal-400/10">
+                <div className="space-y-2 text-sm">
+                  <div className="p-2 rounded-xl bg-gradient-to-r from-teal-100/50 via-teal-50/30 to-transparent dark:from-teal-500/10 dark:via-teal-500/5 dark:to-transparent border border-teal-200/30 dark:border-teal-400/10">
                     <p className="text-gray-600 dark:text-gray-400 font-medium mb-0.5">
                       Ordered by
                     </p>
-                    <p className="text-gray-900 dark:text-white">
+                    <p className="text-gray-700 dark:text-white">
                       {order.placedByName ?? "—"}
                       {order.placedByEmail && (
                         <span className="text-gray-600 dark:text-gray-400 block text-xs">
@@ -746,11 +744,11 @@ export default function OrderDetailPage() {
                       )}
                     </p>
                   </div>
-                  <div className="p-3 rounded-xl bg-gradient-to-r from-teal-100/50 via-teal-50/30 to-transparent dark:from-teal-500/10 dark:via-teal-500/5 dark:to-transparent border border-teal-200/30 dark:border-teal-400/10">
+                  <div className="p-2 rounded-xl bg-gradient-to-r from-teal-100/50 via-teal-50/30 to-transparent dark:from-teal-500/10 dark:via-teal-500/5 dark:to-transparent border border-teal-200/30 dark:border-teal-400/10">
                     <p className="text-gray-600 dark:text-gray-400 font-medium mb-0.5">
                       Customer / Ship to
                     </p>
-                    <p className="text-gray-900 dark:text-white">
+                    <p className="text-gray-700 dark:text-white">
                       {(order.shippingAddress as { name?: string })?.name ??
                         order.placedByName ??
                         "—"}
@@ -765,7 +763,7 @@ export default function OrderDetailPage() {
                   </div>
                   {order.orderProductOwners &&
                     order.orderProductOwners.length > 0 && (
-                      <div className="p-3 rounded-xl bg-gradient-to-r from-teal-100/50 via-teal-50/30 to-transparent dark:from-teal-500/10 dark:via-teal-500/5 dark:to-transparent border border-teal-200/30 dark:border-teal-400/10">
+                      <div className="p-2 rounded-xl bg-gradient-to-r from-teal-100/50 via-teal-50/30 to-transparent dark:from-teal-500/10 dark:via-teal-500/5 dark:to-transparent border border-teal-200/30 dark:border-teal-400/10">
                         <p className="text-gray-600 dark:text-gray-400 font-medium mb-1">
                           Product owner(s)
                         </p>
@@ -791,25 +789,25 @@ export default function OrderDetailPage() {
             )}
 
             {/* Addresses & Totals */}
-            <div className="space-y-6">
+            <div className="space-y-4">
               {/* Shipping Address */}
               {order.shippingAddress && (
                 <GlassCard variant="violet">
-                  <div className="flex items-center gap-3 mb-3">
+                  <div className="flex items-center gap-2 mb-3">
                     <div
                       className={cn(
-                        "p-2.5 rounded-xl border",
+                        "p-2 rounded-xl border",
                         variantConfig.violet.iconBg,
                         "dark:border-violet-400/30 dark:bg-violet-500/20",
                       )}
                     >
                       <MapPin className="h-5 w-5 text-violet-600 dark:text-violet-400" />
                     </div>
-                    <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+                    <h3 className="text-lg font-semibold text-gray-700 dark:text-white">
                       Shipping Address
                     </h3>
                   </div>
-                  <p className="text-sm text-gray-900 dark:text-white p-3 rounded-xl bg-gradient-to-r from-violet-100/40 via-violet-50/20 to-transparent dark:from-violet-500/10 dark:via-violet-500/5 dark:to-transparent border border-violet-200/30 dark:border-violet-400/10">
+                  <p className="text-sm text-gray-700 dark:text-white p-2 rounded-xl bg-gradient-to-r from-violet-100/40 via-violet-50/20 to-transparent dark:from-violet-500/10 dark:via-violet-500/5 dark:to-transparent border border-violet-200/30 dark:border-violet-400/10">
                     {formatAddress(order.shippingAddress)}
                   </p>
                 </GlassCard>
@@ -818,21 +816,21 @@ export default function OrderDetailPage() {
               {/* Billing Address */}
               {order.billingAddress && (
                 <GlassCard variant="blue">
-                  <div className="flex items-center gap-3 mb-3">
+                  <div className="flex items-center gap-2 mb-3">
                     <div
                       className={cn(
-                        "p-2.5 rounded-xl border",
+                        "p-2 rounded-xl border",
                         variantConfig.blue.iconBg,
                         "dark:border-blue-400/30 dark:bg-blue-500/20",
                       )}
                     >
                       <CreditCard className="h-5 w-5 text-blue-600 dark:text-blue-400" />
                     </div>
-                    <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+                    <h3 className="text-lg font-semibold text-gray-700 dark:text-white">
                       Billing Address
                     </h3>
                   </div>
-                  <p className="text-sm text-gray-900 dark:text-white p-3 rounded-xl bg-gradient-to-r from-blue-100/40 via-blue-50/20 to-transparent dark:from-blue-500/10 dark:via-blue-500/5 dark:to-transparent border border-blue-200/30 dark:border-blue-400/10">
+                  <p className="text-sm text-gray-700 dark:text-white p-2 rounded-xl bg-gradient-to-r from-blue-100/40 via-blue-50/20 to-transparent dark:from-blue-500/10 dark:via-blue-500/5 dark:to-transparent border border-blue-200/30 dark:border-blue-400/10">
                     {formatAddress(order.billingAddress)}
                   </p>
                 </GlassCard>
@@ -840,17 +838,17 @@ export default function OrderDetailPage() {
 
               {/* Order Totals */}
               <GlassCard variant="teal">
-                <div className="flex items-center gap-3 mb-4">
+                <div className="flex items-center gap-2 mb-4">
                   <div
                     className={cn(
-                      "p-2.5 rounded-xl border",
+                      "p-2 rounded-xl border",
                       variantConfig.teal.iconBg,
                       "dark:border-teal-400/30 dark:bg-teal-500/20",
                     )}
                   >
                     <DollarSign className="h-5 w-5 text-teal-600 dark:text-teal-400" />
                   </div>
-                  <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+                  <h3 className="text-lg font-semibold text-gray-700 dark:text-white">
                     Order Summary
                   </h3>
                 </div>
@@ -860,7 +858,7 @@ export default function OrderDetailPage() {
                     <span className="text-gray-600 dark:text-gray-400">
                       Subtotal:
                     </span>
-                    <span className="font-medium text-gray-900 dark:text-white">
+                    <span className="font-medium text-gray-700 dark:text-white">
                       ${order.subtotal.toFixed(2)}
                     </span>
                   </div>
@@ -869,7 +867,7 @@ export default function OrderDetailPage() {
                       <span className="text-gray-600 dark:text-gray-400">
                         Tax:
                       </span>
-                      <span className="font-medium text-gray-900 dark:text-white">
+                      <span className="font-medium text-gray-700 dark:text-white">
                         ${order.tax.toFixed(2)}
                       </span>
                     </div>
@@ -879,7 +877,7 @@ export default function OrderDetailPage() {
                       <span className="text-gray-600 dark:text-gray-400">
                         Shipping:
                       </span>
-                      <span className="font-medium text-gray-900 dark:text-white">
+                      <span className="font-medium text-gray-700 dark:text-white">
                         ${order.shipping.toFixed(2)}
                       </span>
                     </div>
@@ -895,8 +893,8 @@ export default function OrderDetailPage() {
                     </div>
                   )}
                   <Separator className="my-2 bg-teal-200/50 dark:bg-teal-400/20" />
-                  <div className="flex justify-between text-lg font-semibold p-3 rounded-xl bg-gradient-to-r from-emerald-100/50 via-emerald-50/30 to-transparent dark:from-emerald-500/15 dark:via-emerald-500/10 dark:to-transparent border border-emerald-200/30 dark:border-emerald-400/20">
-                    <span className="text-gray-900 dark:text-white">
+                  <div className="flex justify-between text-lg font-semibold p-2 rounded-xl bg-gradient-to-r from-emerald-100/50 via-emerald-50/30 to-transparent dark:from-emerald-500/15 dark:via-emerald-500/10 dark:to-transparent border border-emerald-200/30 dark:border-emerald-400/20">
+                    <span className="text-gray-700 dark:text-white">
                       Total:
                     </span>
                     <span className="text-emerald-600 dark:text-emerald-400">
@@ -909,11 +907,11 @@ export default function OrderDetailPage() {
           </div>
 
           {/* Actions — Back, Update Order, Pay, Cancel Order */}
-          <div className="flex flex-col sm:flex-row flex-wrap gap-3 sm:gap-4">
+          <div className="flex flex-col sm:flex-row flex-wrap gap-2">
             <Button
               variant="outline"
               onClick={handleBack}
-              className="w-full sm:w-auto gap-2 rounded-xl border border-gray-300/30 bg-white/50 dark:bg-white/5 dark:border-white/10 hover:bg-gray-100/50 dark:hover:bg-white/10 text-gray-900 dark:text-white transition-all duration-300"
+              className="w-full sm:w-auto gap-2 rounded-xl border border-gray-300/30 bg-white/50 dark:bg-white/5 dark:border-white/10 hover:bg-gray-100/50 dark:hover:bg-white/10 text-gray-700 dark:text-white transition-all duration-300"
             >
               <ArrowLeft className="h-4 w-4 shrink-0" />
               Back

@@ -229,7 +229,7 @@ export default function WarehouseDialog({
                       <SelectItem
                         key={wt.value}
                         value={wt.value}
-                        className="cursor-pointer text-gray-900 dark:text-white focus:bg-teal-100 dark:focus:bg-white/10 focus:text-gray-900 dark:focus:text-white"
+                        className="cursor-pointer text-gray-700 dark:text-white focus:bg-teal-100 dark:focus:bg-white/10 focus:text-gray-700 dark:focus:text-white"
                       >
                         {wt.label}
                       </SelectItem>
@@ -239,7 +239,7 @@ export default function WarehouseDialog({
               )}
             </DeferredSelectGate>
           </div>
-          <div className="flex items-center gap-3 p-3 rounded-xl bg-white/5 border border-teal-400/20">
+          <div className="flex items-center gap-2 p-2 rounded-xl bg-white/5 border border-teal-400/20">
             <Switch
               id="warehouse-status"
               checked={status}
@@ -260,7 +260,7 @@ export default function WarehouseDialog({
               </span>
             </div>
           </div>
-          <DialogFooter className="mt-6 flex flex-col sm:flex-row items-center gap-3">
+          <DialogFooter className="mt-6 flex flex-col sm:flex-row items-center gap-2">
             <DialogClose asChild>
               <Button
                 type="button"

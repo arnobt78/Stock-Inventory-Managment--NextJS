@@ -36,10 +36,12 @@ import {
   ClientDateTime,
   ClientRelativeTime,
   PageContentWrapper,
+  DataSlotPulse,
 } from "@/components/shared";
 import WarehouseDialog from "@/components/warehouses/WarehouseDialog";
 import { AlertDialogWrapper } from "@/components/dialogs";
 import type { Warehouse as WarehouseType } from "@/types";
+import { isDataSlotLoading } from "@/lib/react-query";
 import { cn } from "@/lib/utils";
 
 /**
@@ -216,19 +218,14 @@ export default function WarehouseDetailPage({
   const { navigateTo } = useBackWithRefresh("warehouse");
   const warehouseId = params?.id as string;
   const { user, isCheckingAuth } = useAuth();
-  const isMountedRef = useRef(false);
-  const [isMounted, setIsMounted] = useState(false);
 
   const PageWrapper = embedInAdmin ? React.Fragment : Navbar;
 
   const warehousesListHref = embedInAdmin ? "/admin/warehouses" : "/warehouses";
 
-  const {
-    data: warehouse,
-    isLoading,
-    isError,
-    error,
-  } = useWarehouse(warehouseId);
+  const warehouseQuery = useWarehouse(warehouseId);
+  const warehouse = warehouseQuery.data;
+  const dataLoading = isDataSlotLoading(warehouseQuery);
   const { data: stockAllocations, isLoading: isLoadingStock } =
     useStockByWarehouse(warehouseId);
   const deleteWarehouseMutation = useDeleteWarehouse();
@@ -247,7 +244,7 @@ export default function WarehouseDetailPage({
 
   const handleConfirmDelete = () => {
     if (!warehouse) return;
-    deleteWarehouseMutation.mutate(warehouse.id, {
+    deleteWarehouseMutation.mutate(warehouse?.id, {
       onSuccess: () => {
         setDeleteDialogOpen(false);
         router.push(warehousesListHref);
@@ -259,36 +256,27 @@ export default function WarehouseDetailPage({
   };
 
   useEffect(() => {
-    if (!isMountedRef.current) {
-      isMountedRef.current = true;
-      queueMicrotask(() => setIsMounted(true));
-    }
-  }, []);
-
-  const showSkeleton = !isMounted || isCheckingAuth || isLoading;
-
-  useEffect(() => {
     if (!isCheckingAuth && !user) {
       router.push("/login");
     }
   }, [user, isCheckingAuth, router]);
 
-  if (isError) {
+  if (warehouseQuery.isError) {
     return (
       <PageWrapper>
-        <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4">
+        <div className="flex flex-col items-center justify-center min-h-[60vh] gap-2">
           <GlassCard variant="rose" className="max-w-md text-center">
-            <h2 className="text-2xl font-semibold text-gray-900 dark:text-white mb-2">
+            <h2 className="text-lg sm:text-xl font-semibold text-gray-700 dark:text-white mb-2">
               Warehouse Not Found
             </h2>
             <p className="text-gray-600 dark:text-gray-400 mb-4">
-              {error instanceof Error
-                ? error.message
+              {warehouseQuery.error instanceof Error
+                ? warehouseQuery.error.message
                 : "Failed to load warehouse details"}
             </p>
             <Button
               onClick={() => navigateTo(warehousesListHref)}
-              className="rounded-xl border border-gray-300/30 bg-white/50 dark:bg-white/5 dark:border-white/10 hover:bg-gray-100/50 dark:hover:bg-white/10 text-gray-900 dark:text-white"
+              className="rounded-xl border border-gray-300/30 bg-white/50 dark:bg-white/5 dark:border-white/10 hover:bg-gray-100/50 dark:hover:bg-white/10 text-gray-700 dark:text-white"
             >
               <ArrowLeft className="h-4 w-4 mr-2" />
               Back to Warehouses
@@ -299,69 +287,16 @@ export default function WarehouseDetailPage({
     );
   }
 
-  if (showSkeleton || !warehouse) {
-    return (
-      <PageWrapper>
-        <PageContentWrapper>
-          <div className="max-w-9xl mx-auto space-y-6">
-            {/* Header Skeleton */}
-            <div className="flex flex-col sm:flex-row sm:items-center gap-4">
-              <div className="h-10 w-10 bg-white/50 dark:bg-white/5 rounded-xl border border-gray-300/30 dark:border-white/10 animate-pulse" />
-              <div className="flex-1">
-                <div className="h-8 w-48 bg-white/50 dark:bg-white/5 rounded-lg border border-gray-300/30 dark:border-white/10 animate-pulse" />
-                <div className="h-4 w-32 mt-2 bg-white/50 dark:bg-white/5 rounded-lg border border-gray-300/30 dark:border-white/10 animate-pulse" />
-              </div>
-              <div className="flex items-center gap-2">
-                <div className="h-9 w-24 bg-white/50 dark:bg-white/5 rounded-xl border border-gray-300/30 dark:border-white/10 animate-pulse" />
-                <div className="h-9 w-24 bg-white/50 dark:bg-white/5 rounded-xl border border-gray-300/30 dark:border-white/10 animate-pulse" />
-              </div>
-            </div>
-
-            {/* Status Card Skeleton */}
-            <GlassCard variant="teal" className="animate-pulse">
-              <div className="h-4 w-20 bg-white/50 dark:bg-white/10 rounded mb-3" />
-              <div className="h-6 w-24 bg-white/50 dark:bg-white/10 rounded-full" />
-            </GlassCard>
-
-            {/* Two Column Skeleton */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <GlassCard variant="cyan" className="animate-pulse">
-                <div className="h-6 w-40 bg-white/50 dark:bg-white/10 rounded mb-4" />
-                <div className="space-y-3">
-                  {[1, 2, 3, 4].map((i) => (
-                    <div
-                      key={i}
-                      className="h-4 w-full bg-white/50 dark:bg-white/10 rounded"
-                    />
-                  ))}
-                </div>
-              </GlassCard>
-              <GlassCard variant="violet" className="animate-pulse">
-                <div className="h-6 w-36 bg-white/50 dark:bg-white/10 rounded mb-4" />
-                <div className="space-y-2">
-                  {[1, 2, 3].map((i) => (
-                    <div
-                      key={i}
-                      className="h-12 w-full bg-white/50 dark:bg-white/10 rounded-lg"
-                    />
-                  ))}
-                </div>
-              </GlassCard>
-            </div>
-          </div>
-        </PageContentWrapper>
-      </PageWrapper>
-    );
-  }
-
   const createdAt =
-    typeof warehouse.createdAt === "string"
-      ? new Date(warehouse.createdAt)
-      : warehouse.createdAt;
-  const updatedAt = warehouse.updatedAt
-    ? typeof warehouse.updatedAt === "string"
-      ? new Date(warehouse.updatedAt)
-      : warehouse.updatedAt
+    warehouse?.createdAt
+      ? typeof warehouse?.createdAt === "string"
+        ? new Date(warehouse?.createdAt)
+        : warehouse?.createdAt
+      : new Date();
+  const updatedAt = warehouse?.updatedAt
+    ? typeof warehouse?.updatedAt === "string"
+      ? new Date(warehouse?.updatedAt)
+      : warehouse?.updatedAt
     : null;
 
   // Calculate stock summary
@@ -383,9 +318,9 @@ export default function WarehouseDetailPage({
   return (
     <PageWrapper>
       <PageContentWrapper>
-        <div className="max-w-9xl mx-auto space-y-6">
+        <div className="max-w-9xl mx-auto space-y-4">
           {/* Header */}
-          <div className="flex flex-col sm:flex-row sm:items-center gap-4">
+          <div className="flex flex-col sm:flex-row sm:items-center gap-2">
             <Button
               variant="ghost"
               size="icon"
@@ -396,8 +331,8 @@ export default function WarehouseDetailPage({
               <ArrowLeft className="h-5 w-5" />
             </Button>
             <div className="flex-1">
-              <h1 className="text-2xl font-semibold text-gray-900 dark:text-white">
-                {warehouse.name}
+              <h1 className="text-lg sm:text-xl font-semibold text-gray-700 dark:text-white">
+                {warehouse?.name}
               </h1>
               <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
                 <ClientRelativeTime date={createdAt} prefix="Created " />
@@ -406,7 +341,7 @@ export default function WarehouseDetailPage({
           </div>
 
           {/* Status Card */}
-          <GlassCard variant={warehouse.status ? "emerald" : "rose"}>
+          <GlassCard variant={warehouse?.status ? "emerald" : "rose"}>
             <p className="text-xs uppercase tracking-[0.25em] text-gray-600 dark:text-white/60 mb-3">
               Warehouse Status
             </p>
@@ -414,10 +349,10 @@ export default function WarehouseDetailPage({
               variant="outline"
               className={cn(
                 "text-sm px-3 py-1.5 rounded-full flex items-center gap-2 w-fit font-medium",
-                getWarehouseStatusBadgeClasses(Boolean(warehouse.status)),
+                getWarehouseStatusBadgeClasses(Boolean(warehouse?.status)),
               )}
             >
-              {warehouse.status ? (
+              {warehouse?.status ? (
                 <>
                   <CheckCircle2 className="h-4 w-4" />
                   Active
@@ -433,18 +368,18 @@ export default function WarehouseDetailPage({
 
           {/* Stock Summary Statistics */}
           {stockSummary && stockSummary.totalProducts > 0 && (
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
               <GlassCard variant="sky" className="text-center">
                 <div
                   className={cn(
-                    "p-2.5 rounded-xl border w-fit mx-auto mb-2",
+                    "p-2 rounded-xl border w-fit mx-auto mb-2",
                     variantConfig.sky.iconBg,
                     "dark:border-sky-400/30 dark:bg-sky-500/20",
                   )}
                 >
                   <Boxes className="h-5 w-5 text-sky-600 dark:text-sky-400" />
                 </div>
-                <p className="text-2xl font-semibold text-gray-900 dark:text-white">
+                <p className="text-lg sm:text-xl font-semibold text-gray-700 dark:text-white">
                   {stockSummary.totalProducts}
                 </p>
                 <p className="text-xs text-gray-600 dark:text-gray-400">
@@ -454,14 +389,14 @@ export default function WarehouseDetailPage({
               <GlassCard variant="violet" className="text-center">
                 <div
                   className={cn(
-                    "p-2.5 rounded-xl border w-fit mx-auto mb-2",
+                    "p-2 rounded-xl border w-fit mx-auto mb-2",
                     variantConfig.violet.iconBg,
                     "dark:border-violet-400/30 dark:bg-violet-500/20",
                   )}
                 >
                   <Package className="h-5 w-5 text-violet-600 dark:text-violet-400" />
                 </div>
-                <p className="text-2xl font-semibold text-gray-900 dark:text-white">
+                <p className="text-lg sm:text-xl font-semibold text-gray-700 dark:text-white">
                   {stockSummary.totalQuantity}
                 </p>
                 <p className="text-xs text-gray-600 dark:text-gray-400">
@@ -471,14 +406,14 @@ export default function WarehouseDetailPage({
               <GlassCard variant="emerald" className="text-center">
                 <div
                   className={cn(
-                    "p-2.5 rounded-xl border w-fit mx-auto mb-2",
+                    "p-2 rounded-xl border w-fit mx-auto mb-2",
                     variantConfig.emerald.iconBg,
                     "dark:border-emerald-400/30 dark:bg-emerald-500/20",
                   )}
                 >
                   <CheckCircle2 className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
                 </div>
-                <p className="text-2xl font-semibold text-emerald-600 dark:text-emerald-400">
+                <p className="text-lg sm:text-xl font-semibold text-emerald-600 dark:text-emerald-400">
                   {stockSummary.availableQuantity}
                 </p>
                 <p className="text-xs text-gray-600 dark:text-gray-400">
@@ -488,14 +423,14 @@ export default function WarehouseDetailPage({
               <GlassCard variant="amber" className="text-center">
                 <div
                   className={cn(
-                    "p-2.5 rounded-xl border w-fit mx-auto mb-2",
+                    "p-2 rounded-xl border w-fit mx-auto mb-2",
                     variantConfig.amber.iconBg,
                     "dark:border-amber-400/30 dark:bg-amber-500/20",
                   )}
                 >
                   <Clock className="h-5 w-5 text-amber-600 dark:text-amber-400" />
                 </div>
-                <p className="text-2xl font-semibold text-amber-600 dark:text-amber-400">
+                <p className="text-lg sm:text-xl font-semibold text-amber-600 dark:text-amber-400">
                   {stockSummary.reservedQuantity}
                 </p>
                 <p className="text-xs text-gray-600 dark:text-gray-400">
@@ -506,52 +441,52 @@ export default function WarehouseDetailPage({
           )}
 
           {/* Warehouse Information & Stock */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-2 sm:gap-4">
             <GlassCard variant="cyan">
-              <div className="flex items-center gap-3 mb-4">
+              <div className="flex items-center gap-2 mb-4">
                 <div
                   className={cn(
-                    "p-2.5 rounded-xl border",
+                    "p-2 rounded-xl border",
                     variantConfig.cyan.iconBg,
                     "dark:border-cyan-400/30 dark:bg-cyan-500/20",
                   )}
                 >
                   <Building2 className="h-5 w-5 text-cyan-600 dark:text-cyan-400" />
                 </div>
-                <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+                <h3 className="text-lg font-semibold text-gray-700 dark:text-white">
                   Warehouse Information
                 </h3>
               </div>
 
-              <div className="space-y-3">
-                <div className="flex items-start gap-2 text-sm p-3 rounded-xl bg-gradient-to-r from-cyan-100/50 via-cyan-50/30 to-transparent dark:from-cyan-500/10 dark:via-cyan-500/5 dark:to-transparent border border-cyan-200/30 dark:border-cyan-400/10">
+              <div className="space-y-2">
+                <div className="flex items-start gap-2 text-sm p-2 rounded-xl bg-gradient-to-r from-cyan-100/50 via-cyan-50/30 to-transparent dark:from-cyan-500/10 dark:via-cyan-500/5 dark:to-transparent border border-cyan-200/30 dark:border-cyan-400/10">
                   <Warehouse className="h-4 w-4 text-cyan-500 dark:text-cyan-400 mt-0.5 shrink-0" />
                   <div className="flex-1">
                     <span className="text-gray-600 dark:text-gray-400">
                       Name:
                     </span>
-                    <span className="ml-2 font-medium text-gray-900 dark:text-white">
-                      {warehouse.name}
+                    <span className="ml-2 font-medium text-gray-700 dark:text-white">
+                      {warehouse?.name}
                     </span>
                   </div>
                 </div>
 
-                {warehouse.address && (
-                  <div className="flex items-start gap-2 text-sm p-3 rounded-xl bg-gradient-to-r from-teal-100/50 via-teal-50/30 to-transparent dark:from-teal-500/10 dark:via-teal-500/5 dark:to-transparent border border-teal-200/30 dark:border-teal-400/10">
+                {warehouse?.address && (
+                  <div className="flex items-start gap-2 text-sm p-2 rounded-xl bg-gradient-to-r from-teal-100/50 via-teal-50/30 to-transparent dark:from-teal-500/10 dark:via-teal-500/5 dark:to-transparent border border-teal-200/30 dark:border-teal-400/10">
                     <MapPin className="h-4 w-4 text-teal-500 dark:text-teal-400 mt-0.5 shrink-0" />
                     <div className="flex-1">
                       <span className="text-gray-600 dark:text-gray-400">
                         Address:
                       </span>
-                      <span className="font-medium text-gray-900 dark:text-white block mt-1">
-                        {warehouse.address}
+                      <span className="font-medium text-gray-700 dark:text-white block mt-1">
+                        {warehouse?.address}
                       </span>
                     </div>
                   </div>
                 )}
 
-                {warehouse.type && (
-                  <div className="flex items-center gap-2 text-sm p-3 rounded-xl bg-gradient-to-r from-blue-100/50 via-blue-50/30 to-transparent dark:from-blue-500/10 dark:via-blue-500/5 dark:to-transparent border border-blue-200/30 dark:border-blue-400/10">
+                {warehouse?.type && (
+                  <div className="flex items-center gap-2 text-sm p-2 rounded-xl bg-gradient-to-r from-blue-100/50 via-blue-50/30 to-transparent dark:from-blue-500/10 dark:via-blue-500/5 dark:to-transparent border border-blue-200/30 dark:border-blue-400/10">
                     <Tag className="h-4 w-4 text-blue-500 dark:text-blue-400 shrink-0" />
                     <span className="text-gray-600 dark:text-gray-400">
                       Type:
@@ -560,31 +495,31 @@ export default function WarehouseDetailPage({
                       variant="outline"
                       className={cn(
                         "capitalize font-medium text-sm px-3 py-1 rounded-full",
-                        getWarehouseTypeBadgeClasses(warehouse.type),
+                        getWarehouseTypeBadgeClasses(warehouse?.type),
                       )}
                     >
-                      {warehouse.type}
+                      {warehouse?.type}
                     </Badge>
                   </div>
                 )}
 
-                <div className="flex items-center gap-2 text-sm p-3 rounded-xl bg-gradient-to-r from-orange-100/50 via-orange-50/30 to-transparent dark:from-orange-500/10 dark:via-orange-500/5 dark:to-transparent border border-orange-200/30 dark:border-orange-400/10">
+                <div className="flex items-center gap-2 text-sm p-2 rounded-xl bg-gradient-to-r from-orange-100/50 via-orange-50/30 to-transparent dark:from-orange-500/10 dark:via-orange-500/5 dark:to-transparent border border-orange-200/30 dark:border-orange-400/10">
                   <Calendar className="h-4 w-4 text-orange-500 dark:text-orange-400 shrink-0" />
                   <span className="text-gray-600 dark:text-gray-400">
                     Created:
                   </span>
-                  <span className="font-medium text-gray-900 dark:text-white">
+                  <span className="font-medium text-gray-700 dark:text-white">
                     <ClientDateTime date={createdAt} />
                   </span>
                 </div>
 
                 {updatedAt && (
-                  <div className="flex items-center gap-2 text-sm p-3 rounded-xl bg-gradient-to-r from-violet-100/50 via-violet-50/30 to-transparent dark:from-violet-500/10 dark:via-violet-500/5 dark:to-transparent border border-violet-200/30 dark:border-violet-400/10">
+                  <div className="flex items-center gap-2 text-sm p-2 rounded-xl bg-gradient-to-r from-violet-100/50 via-violet-50/30 to-transparent dark:from-violet-500/10 dark:via-violet-500/5 dark:to-transparent border border-violet-200/30 dark:border-violet-400/10">
                     <Clock className="h-4 w-4 text-violet-500 dark:text-violet-400 shrink-0" />
                     <span className="text-gray-600 dark:text-gray-400">
                       Updated:
                     </span>
-                    <span className="font-medium text-gray-900 dark:text-white">
+                    <span className="font-medium text-gray-700 dark:text-white">
                       <ClientRelativeTime date={updatedAt} />
                     </span>
                   </div>
@@ -594,10 +529,10 @@ export default function WarehouseDetailPage({
 
             {/* Stock by warehouse */}
             <GlassCard variant="violet">
-              <div className="flex items-center gap-3 mb-2">
+              <div className="flex items-center gap-2 mb-2">
                 <div
                   className={cn(
-                    "p-2.5 rounded-xl border",
+                    "p-2 rounded-xl border",
                     variantConfig.violet.iconBg,
                     "dark:border-violet-400/30 dark:bg-violet-500/20",
                   )}
@@ -605,7 +540,7 @@ export default function WarehouseDetailPage({
                   <Package className="h-5 w-5 text-violet-600 dark:text-violet-400" />
                 </div>
                 <div>
-                  <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+                  <h3 className="text-lg font-semibold text-gray-700 dark:text-white">
                     Stock in Warehouse
                   </h3>
                   <p className="text-xs text-gray-600 dark:text-gray-400">
@@ -625,7 +560,7 @@ export default function WarehouseDetailPage({
                     ))}
                   </div>
                 ) : stockAllocations && stockAllocations.length > 0 ? (
-                  <div className="space-y-3 max-h-64 overflow-y-auto pr-1">
+                  <div className="space-y-2 max-h-64 overflow-y-auto pr-1">
                     {stockAllocations.map((allocation, index) => {
                       const colors = [
                         "sky",
@@ -639,7 +574,7 @@ export default function WarehouseDetailPage({
                         <div
                           key={allocation.id}
                           className={cn(
-                            "flex items-center justify-between p-3 rounded-xl border transition-all duration-200 hover:scale-[1.02]",
+                            "flex items-center justify-between p-2 rounded-xl border transition-all duration-200 hover:scale-[1.02]",
                             `bg-gradient-to-r from-${colorVariant}-100/50 via-${colorVariant}-50/30 to-transparent dark:from-${colorVariant}-500/10 dark:via-${colorVariant}-500/5 dark:to-transparent`,
                             `border-${colorVariant}-200/30 dark:border-${colorVariant}-400/10`,
                           )}
@@ -648,7 +583,7 @@ export default function WarehouseDetailPage({
                           }}
                         >
                           <div className="flex-1 min-w-0">
-                            <p className="font-medium text-sm truncate text-gray-900 dark:text-white">
+                            <p className="font-medium text-sm truncate text-gray-700 dark:text-white">
                               {allocation.product?.name || "Unknown Product"}
                             </p>
                             {allocation.product?.sku && (
@@ -679,7 +614,7 @@ export default function WarehouseDetailPage({
                   <div className="text-center py-8 rounded-xl bg-white/30 dark:bg-white/5 border border-violet-200/30 dark:border-violet-400/10">
                     <div
                       className={cn(
-                        "p-3 rounded-xl border w-fit mx-auto mb-3",
+                        "p-2 rounded-xl border w-fit mx-auto mb-3",
                         variantConfig.violet.iconBg,
                         "dark:border-violet-400/30 dark:bg-violet-500/20",
                       )}
@@ -699,11 +634,11 @@ export default function WarehouseDetailPage({
           </div>
 
           {/* Action Buttons */}
-          <div className="flex flex-col sm:flex-row flex-wrap gap-3 sm:gap-4">
+          <div className="flex flex-col sm:flex-row flex-wrap gap-2">
             <Button
               variant="outline"
               onClick={() => navigateTo(warehousesListHref)}
-              className="w-full sm:w-auto gap-2 rounded-xl border border-gray-300/30 bg-white/50 dark:bg-white/5 dark:border-white/10 hover:bg-gray-100/50 dark:hover:bg-white/10 text-gray-900 dark:text-white transition-all duration-300"
+              className="w-full sm:w-auto gap-2 rounded-xl border border-gray-300/30 bg-white/50 dark:bg-white/5 dark:border-white/10 hover:bg-gray-100/50 dark:hover:bg-white/10 text-gray-700 dark:text-white transition-all duration-300"
             >
               <ArrowLeft className="h-4 w-4 shrink-0" />
               Back
@@ -742,7 +677,7 @@ export default function WarehouseDetailPage({
           open={deleteDialogOpen}
           onOpenChange={setDeleteDialogOpen}
           title="Are you absolutely sure?"
-          description={`This will permanently delete the warehouse "${warehouse.name}".`}
+          description={`This will permanently delete the warehouse "${warehouse?.name}".`}
           actionLabel="Delete"
           actionLoadingLabel="Deleting..."
           isLoading={isDeleting}

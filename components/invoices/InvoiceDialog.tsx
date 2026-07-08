@@ -28,9 +28,23 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { usePathname } from "next/navigation";
-import { useCreateInvoice, useUpdateInvoice, useOrders, useClientOrders } from "@/hooks/queries";
-import { createInvoiceSchema, updateInvoiceSchema, type UpdateInvoiceFormData } from "@/lib/validations";
-import type { CreateInvoiceInput, Invoice, Order, InvoiceStatus } from "@/types";
+import {
+  useCreateInvoice,
+  useUpdateInvoice,
+  useOrders,
+  useClientOrders,
+} from "@/hooks/queries";
+import {
+  createInvoiceSchema,
+  updateInvoiceSchema,
+  type UpdateInvoiceFormData,
+} from "@/lib/validations";
+import type {
+  CreateInvoiceInput,
+  Invoice,
+  Order,
+  InvoiceStatus,
+} from "@/types";
 import { useAuth } from "@/contexts";
 import { useToast } from "@/hooks/use-toast";
 import { FileText, Calendar as CalendarIcon } from "lucide-react";
@@ -63,7 +77,8 @@ export default function InvoiceDialog({
   onEditInvoice,
 }: InvoiceDialogProps) {
   const [internalOpen, setInternalOpen] = useState(false);
-  const [internalEditingInvoice, setInternalEditingInvoice] = useState<Invoice | null>(null);
+  const [internalEditingInvoice, setInternalEditingInvoice] =
+    useState<Invoice | null>(null);
   const dialogCloseRef = useRef<HTMLButtonElement | null>(null);
   const { user } = useAuth();
   const { toast } = useToast();
@@ -84,7 +99,7 @@ export default function InvoiceDialog({
         setInternalOpen(value);
       }
     },
-    [isControlled, controlledOnOpenChange]
+    [isControlled, controlledOnOpenChange],
   );
 
   // Use external or internal editing invoice
@@ -118,7 +133,9 @@ export default function InvoiceDialog({
     return Array.from(byId.values());
   }, [isAdmin, isAdminInvoicesPage, selfOrders, clientOrders]);
 
-  const availableOrders = orders.filter((order) => order.status !== "cancelled");
+  const availableOrders = orders.filter(
+    (order) => order.status !== "cancelled",
+  );
 
   // Use TanStack Query mutations
   const createInvoiceMutation = useCreateInvoice();
@@ -174,8 +191,11 @@ export default function InvoiceDialog({
         },
   });
 
-  const { reset: editReset, watch: editWatch, setValue: editSetValue } =
-    editFormMethods;
+  const {
+    reset: editReset,
+    watch: editWatch,
+    setValue: editSetValue,
+  } = editFormMethods;
 
   // Reset edit form when invoice changes or dialog opens
   useEffect(() => {
@@ -184,7 +204,10 @@ export default function InvoiceDialog({
       const shippingVal = editingInvoice.shipping ?? 0;
       const discountVal = editingInvoice.discount ?? 0;
       const subtotalVal = editingInvoice.subtotal ?? 0;
-      const totalVal = Math.max(0, subtotalVal + taxVal + shippingVal - discountVal);
+      const totalVal = Math.max(
+        0,
+        subtotalVal + taxVal + shippingVal - discountVal,
+      );
       editReset({
         id: editingInvoice.id,
         status: editingInvoice.status,
@@ -240,9 +263,19 @@ export default function InvoiceDialog({
     const taxVal = Number(watchedTax) || 0;
     const shippingVal = Number(watchedShipping) || 0;
     const discountVal = Number(watchedDiscount) || 0;
-    const totalVal = Math.max(0, subtotalVal + taxVal + shippingVal - discountVal);
+    const totalVal = Math.max(
+      0,
+      subtotalVal + taxVal + shippingVal - discountVal,
+    );
     editSetValue("total", totalVal);
-  }, [open, editingInvoice, watchedTax, watchedShipping, watchedDiscount, editSetValue]);
+  }, [
+    open,
+    editingInvoice,
+    watchedTax,
+    watchedShipping,
+    watchedDiscount,
+    editSetValue,
+  ]);
 
   // Keep amountDue in sync with total - amountPaid in the edit form (dynamic calculation)
   const watchedAmountPaid = editWatch("amountPaid");
@@ -264,7 +297,10 @@ export default function InvoiceDialog({
       const taxVal = data.tax ?? 0;
       const shippingVal = data.shipping ?? 0;
       const discountVal = data.discount ?? 0;
-      const total = Math.max(0, subtotalVal + taxVal + shippingVal - discountVal);
+      const total = Math.max(
+        0,
+        subtotalVal + taxVal + shippingVal - discountVal,
+      );
       const amountPaid = data.amountPaid ?? editingInvoice.amountPaid;
       const amountDue = Math.max(0, total - amountPaid);
 
@@ -278,10 +314,14 @@ export default function InvoiceDialog({
         discount: data.discount,
         total,
         amountDue,
-        dueDate: data.dueDate ? new Date(data.dueDate).toISOString() : undefined,
+        dueDate: data.dueDate
+          ? new Date(data.dueDate).toISOString()
+          : undefined,
         sentAt: data.sentAt ? new Date(data.sentAt).toISOString() : undefined,
         paidAt: data.paidAt ? new Date(data.paidAt).toISOString() : undefined,
-        cancelledAt: data.cancelledAt ? new Date(data.cancelledAt).toISOString() : undefined,
+        cancelledAt: data.cancelledAt
+          ? new Date(data.cancelledAt).toISOString()
+          : undefined,
         paymentLink: data.paymentLink || undefined,
         notes: data.notes || undefined,
       };
@@ -333,7 +373,9 @@ export default function InvoiceDialog({
     }
   }, [open, editingInvoice, isControlled]);
 
-  const selectedOrder = availableOrders.find((order) => order.id === selectedOrderId);
+  const selectedOrder = availableOrders.find(
+    (order) => order.id === selectedOrderId,
+  );
 
   // Handle form submission
   const handleSubmit = useCallback(
@@ -380,7 +422,8 @@ export default function InvoiceDialog({
           .join(". ");
         toast({
           title: "Validation Error",
-          description: errorMessages || "Please fix the form errors before submitting.",
+          description:
+            errorMessages || "Please fix the form errors before submitting.",
           variant: "destructive",
         });
         return;
@@ -400,7 +443,15 @@ export default function InvoiceDialog({
         // Error toast is handled by the mutation hook
       }
     },
-    [selectedOrderId, selectedOrder, dueDate, notes, createInvoiceMutation, setOpen, toast]
+    [
+      selectedOrderId,
+      selectedOrder,
+      dueDate,
+      notes,
+      createInvoiceMutation,
+      setOpen,
+      toast,
+    ],
   );
 
   // Handle cancel
@@ -420,7 +471,9 @@ export default function InvoiceDialog({
       >
         <DialogHeader>
           <DialogTitle className="text-[22px] text-white">
-            {editingInvoice ? `Edit Invoice ${editingInvoice.invoiceNumber}` : "Generate Invoice from Order"}
+            {editingInvoice
+              ? `Edit Invoice ${editingInvoice.invoiceNumber}`
+              : "Generate Invoice from Order"}
           </DialogTitle>
           <DialogDescription className="text-white/70">
             {editingInvoice
@@ -433,7 +486,7 @@ export default function InvoiceDialog({
         {editingInvoice ? (
           <FormProvider {...editFormMethods}>
             <form onSubmit={editFormMethods.handleSubmit(handleUpdateInvoice)}>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mt-4">
                 {/* Invoice Status */}
                 <div className="flex flex-col gap-2">
                   <label className="text-sm font-medium text-white/80">
@@ -515,7 +568,9 @@ export default function InvoiceDialog({
                   {(editingInvoice.discount ?? 0) > 0 && (
                     <div className="flex justify-between text-sm text-white/70">
                       <span>Discount:</span>
-                      <span className="text-red-400">-{fmt(editingInvoice.discount ?? 0)}</span>
+                      <span className="text-red-400">
+                        -{fmt(editingInvoice.discount ?? 0)}
+                      </span>
                     </div>
                   )}
                   <div className="flex justify-between text-base font-semibold text-white pt-2 border-t border-indigo-400/20">
@@ -534,7 +589,9 @@ export default function InvoiceDialog({
                 />
 
                 {/* Sent At */}
-                {editWatch("status") === "sent" || editWatch("status") === "paid" || editWatch("status") === "overdue" ? (
+                {editWatch("status") === "sent" ||
+                editWatch("status") === "paid" ||
+                editWatch("status") === "overdue" ? (
                   <FormField
                     name="sentAt"
                     label="Sent At"
@@ -589,7 +646,7 @@ export default function InvoiceDialog({
                 </div>
               </div>
 
-              <DialogFooter className="mt-9 mb-4 flex flex-col sm:flex-row items-center gap-4">
+              <DialogFooter className="mt-9 mb-4 flex flex-col sm:flex-row items-center gap-2">
                 <Button
                   onClick={handleCancelEdit}
                   variant="secondary"
@@ -610,149 +667,161 @@ export default function InvoiceDialog({
         ) : (
           /* Create Invoice Form (shown when not editing) */
           <form onSubmit={handleSubmit}>
-          <div className="space-y-4 mt-4">
-            {/* Order Selection */}
-            <div className="space-y-2">
-              <Label htmlFor="order-select" className="text-sm font-medium text-white/80">
-                Select Order <span className="text-red-400">*</span>
-              </Label>
-              <DeferredSelectGate
-                enabled={open}
-                placeholder={
-                  <div
-                    className="flex h-11 w-full items-center rounded-md border border-white/20 bg-white/10 px-3 text-sm text-white/60"
-                    aria-hidden
-                  >
-                    {selectedOrder?.orderNumber ?? "Select an order..."}
-                  </div>
-                }
-              >
-                {({ selectRemountKey }) => (
-                  <Select
-                    key={selectRemountKey}
-                    value={selectedOrderId}
-                    onValueChange={setSelectedOrderId}
-                  >
-                    <SelectTrigger
-                      id="order-select"
-                      className="w-full bg-white/10 backdrop-blur-sm border border-white/20 text-white placeholder:text-white/40 focus-visible:border-indigo-400 focus-visible:ring-indigo-500/50 shadow-[0_10px_30px_rgba(99,102,241,0.15)]"
+            <div className="space-y-4 mt-4">
+              {/* Order Selection */}
+              <div className="space-y-2">
+                <Label
+                  htmlFor="order-select"
+                  className="text-sm font-medium text-white/80"
+                >
+                  Select Order <span className="text-red-400">*</span>
+                </Label>
+                <DeferredSelectGate
+                  enabled={open}
+                  placeholder={
+                    <div
+                      className="flex h-11 w-full items-center rounded-md border border-white/20 bg-white/10 px-3 text-sm text-white/60"
+                      aria-hidden
                     >
-                      <SelectValue placeholder="Select an order..." />
-                    </SelectTrigger>
-                    <SelectContent className="bg-white/80 dark:bg-popover/50 backdrop-blur-sm">
-                      {availableOrders.map((order) => {
-                        const placer =
-                          order.placedByName || order.placedByEmail || null;
-                        const showPlacer =
-                          isAdminInvoicesPage && isAdmin && placer;
-                        return (
-                          <SelectItem key={order.id} value={order.id}>
-                            {order.orderNumber} - {fmt(order.total)} (
-                            {order.status})
-                            {showPlacer ? ` — ${placer}` : ""}
-                          </SelectItem>
-                        );
-                      })}
-                    </SelectContent>
-                  </Select>
+                      {selectedOrder?.orderNumber ?? "Select an order..."}
+                    </div>
+                  }
+                >
+                  {({ selectRemountKey }) => (
+                    <Select
+                      key={selectRemountKey}
+                      value={selectedOrderId}
+                      onValueChange={setSelectedOrderId}
+                    >
+                      <SelectTrigger
+                        id="order-select"
+                        className="w-full bg-white/10 backdrop-blur-sm border border-white/20 text-white placeholder:text-white/40 focus-visible:border-indigo-400 focus-visible:ring-indigo-500/50 shadow-[0_10px_30px_rgba(99,102,241,0.15)]"
+                      >
+                        <SelectValue placeholder="Select an order..." />
+                      </SelectTrigger>
+                      <SelectContent className="bg-white/80 dark:bg-popover/50 backdrop-blur-sm">
+                        {availableOrders.map((order) => {
+                          const placer =
+                            order.placedByName || order.placedByEmail || null;
+                          const showPlacer =
+                            isAdminInvoicesPage && isAdmin && placer;
+                          return (
+                            <SelectItem key={order.id} value={order.id}>
+                              {order.orderNumber} - {fmt(order.total)} (
+                              {order.status}){showPlacer ? ` — ${placer}` : ""}
+                            </SelectItem>
+                          );
+                        })}
+                      </SelectContent>
+                    </Select>
+                  )}
+                </DeferredSelectGate>
+                {selectedOrder && (
+                  <p className="text-xs text-white/60">
+                    Order Total: ${selectedOrder.total.toFixed(2)} | Items:{" "}
+                    {selectedOrder.items?.length || 0}
+                  </p>
                 )}
-              </DeferredSelectGate>
+              </div>
+
+              {/* Due Date */}
+              <div className="space-y-2">
+                <Label
+                  htmlFor="due-date"
+                  className="text-sm font-medium text-white/80 flex items-center gap-2"
+                >
+                  <CalendarIcon className="h-4 w-4" />
+                  Due Date <span className="text-red-400">*</span>
+                </Label>
+                <div className="relative">
+                  <Input
+                    id="due-date"
+                    type="date"
+                    value={dueDate}
+                    onChange={(e) => setDueDate(e.target.value)}
+                    className="w-full bg-white/10 backdrop-blur-sm border border-white/20 text-white placeholder:text-white/40 focus-visible:border-indigo-400 focus-visible:ring-indigo-500/50 shadow-[0_10px_30px_rgba(99,102,241,0.15)] pr-10"
+                    min={new Date().toISOString().split("T")[0]}
+                  />
+                  <CalendarIcon className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-white dark:text-white/40 pointer-events-none" />
+                </div>
+              </div>
+
+              {/* Order Pricing Summary (read-only — values calculated at order time) */}
               {selectedOrder && (
-                <p className="text-xs text-white/60">
-                  Order Total: ${selectedOrder.total.toFixed(2)} | Items: {selectedOrder.items?.length || 0}
-                </p>
+                <div className="p-4 border border-indigo-400/20 rounded-lg bg-white/5 space-y-2">
+                  <div className="flex justify-between text-sm text-white/70">
+                    <span>Subtotal:</span>
+                    <span>{fmt(selectedOrder.subtotal ?? 0)}</span>
+                  </div>
+                  {(selectedOrder.tax ?? 0) > 0 && (
+                    <div className="flex justify-between text-sm text-white/70">
+                      <span>Tax (7%):</span>
+                      <span>{fmt(selectedOrder.tax ?? 0)}</span>
+                    </div>
+                  )}
+                  {(selectedOrder.shipping ?? 0) > 0 && (
+                    <div className="flex justify-between text-sm text-white/70">
+                      <span>Shipping:</span>
+                      <span>{fmt(selectedOrder.shipping ?? 0)}</span>
+                    </div>
+                  )}
+                  {(selectedOrder.discount ?? 0) > 0 && (
+                    <div className="flex justify-between text-sm text-white/70">
+                      <span>Discount:</span>
+                      <span className="text-red-400">
+                        -{fmt(selectedOrder.discount ?? 0)}
+                      </span>
+                    </div>
+                  )}
+                  <div className="flex justify-between text-base font-semibold text-white pt-2 border-t border-indigo-400/20">
+                    <span>Invoice Total:</span>
+                    <span>{fmt(selectedOrder.total ?? 0)}</span>
+                  </div>
+                  <p className="text-xs text-white/50 pt-1">
+                    Tax, shipping, and discount are calculated from the order
+                    and cannot be changed.
+                  </p>
+                </div>
               )}
-            </div>
 
-            {/* Due Date */}
-            <div className="space-y-2">
-              <Label htmlFor="due-date" className="text-sm font-medium text-white/80 flex items-center gap-2">
-                <CalendarIcon className="h-4 w-4" />
-                Due Date <span className="text-red-400">*</span>
-              </Label>
-              <div className="relative">
-                <Input
-                  id="due-date"
-                  type="date"
-                  value={dueDate}
-                  onChange={(e) => setDueDate(e.target.value)}
-                  className="w-full bg-white/10 backdrop-blur-sm border border-white/20 text-white placeholder:text-white/40 focus-visible:border-indigo-400 focus-visible:ring-indigo-500/50 shadow-[0_10px_30px_rgba(99,102,241,0.15)] pr-10"
-                  min={new Date().toISOString().split("T")[0]}
+              {/* Notes */}
+              <div className="space-y-2">
+                <Label
+                  htmlFor="notes"
+                  className="text-sm font-medium text-white/80"
+                >
+                  Notes (Optional)
+                </Label>
+                <Textarea
+                  id="notes"
+                  value={notes}
+                  onChange={(e) => setNotes(e.target.value)}
+                  placeholder="Add any additional notes for this invoice..."
+                  rows={3}
+                  className="w-full bg-white/10 backdrop-blur-sm border border-white/20 text-white placeholder:text-white/40 focus-visible:border-indigo-400 focus-visible:ring-indigo-500/50 shadow-[0_10px_30px_rgba(99,102,241,0.15)]"
                 />
-                <CalendarIcon className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-white dark:text-white/40 pointer-events-none" />
               </div>
             </div>
 
-            {/* Order Pricing Summary (read-only — values calculated at order time) */}
-            {selectedOrder && (
-              <div className="p-4 border border-indigo-400/20 rounded-lg bg-white/5 space-y-2">
-                <div className="flex justify-between text-sm text-white/70">
-                  <span>Subtotal:</span>
-                  <span>{fmt(selectedOrder.subtotal ?? 0)}</span>
-                </div>
-                {(selectedOrder.tax ?? 0) > 0 && (
-                  <div className="flex justify-between text-sm text-white/70">
-                    <span>Tax (7%):</span>
-                    <span>{fmt(selectedOrder.tax ?? 0)}</span>
-                  </div>
-                )}
-                {(selectedOrder.shipping ?? 0) > 0 && (
-                  <div className="flex justify-between text-sm text-white/70">
-                    <span>Shipping:</span>
-                    <span>{fmt(selectedOrder.shipping ?? 0)}</span>
-                  </div>
-                )}
-                {(selectedOrder.discount ?? 0) > 0 && (
-                  <div className="flex justify-between text-sm text-white/70">
-                    <span>Discount:</span>
-                    <span className="text-red-400">-{fmt(selectedOrder.discount ?? 0)}</span>
-                  </div>
-                )}
-                <div className="flex justify-between text-base font-semibold text-white pt-2 border-t border-indigo-400/20">
-                  <span>Invoice Total:</span>
-                  <span>{fmt(selectedOrder.total ?? 0)}</span>
-                </div>
-                <p className="text-xs text-white/50 pt-1">
-                  Tax, shipping, and discount are calculated from the order and cannot be changed.
-                </p>
-              </div>
-            )}
-
-            {/* Notes */}
-            <div className="space-y-2">
-              <Label htmlFor="notes" className="text-sm font-medium text-white/80">
-                Notes (Optional)
-              </Label>
-              <Textarea
-                id="notes"
-                value={notes}
-                onChange={(e) => setNotes(e.target.value)}
-                placeholder="Add any additional notes for this invoice..."
-                rows={3}
-                className="w-full bg-white/10 backdrop-blur-sm border border-white/20 text-white placeholder:text-white/40 focus-visible:border-indigo-400 focus-visible:ring-indigo-500/50 shadow-[0_10px_30px_rgba(99,102,241,0.15)]"
-              />
-            </div>
-          </div>
-
-          <DialogFooter className="mt-9 mb-4 flex flex-col sm:flex-row items-center gap-4">
-            <Button
-              type="button"
-              onClick={handleCancel}
-              variant="secondary"
-              className="h-11 w-full sm:w-auto px-11 inline-flex items-center justify-center rounded-xl border border-white/10 bg-gradient-to-r from-gray-400/40 via-gray-300/30 to-gray-400/40 dark:bg-background/50 backdrop-blur-sm shadow-[0_15px_35px_rgba(0,0,0,0.3)] dark:shadow-[0_15px_35px_rgba(255,255,255,0.25)] transition duration-200 hover:bg-gradient-to-r hover:from-gray-400/60 hover:via-gray-300/50 hover:to-gray-400/60 dark:hover:bg-accent/50 hover:border-white/20 dark:hover:border-white/20 hover:shadow-[0_20px_45px_rgba(0,0,0,0.5)] dark:hover:shadow-[0_20px_45px_rgba(255,255,255,0.4)]"
-            >
-              Cancel
-            </Button>
-            <Button
-              type="submit"
-              className="h-11 w-full sm:w-auto px-11 inline-flex items-center justify-center rounded-xl border border-indigo-400/30 bg-gradient-to-r from-indigo-500/70 via-indigo-500/50 to-indigo-500/30 text-white shadow-[0_15px_35px_rgba(99,102,241,0.45)] backdrop-blur-sm transition duration-200 hover:border-indigo-300/40 hover:from-indigo-500/80 hover:via-indigo-500/60 hover:to-indigo-500/40 hover:shadow-[0_20px_45px_rgba(99,102,241,0.6)]"
-              disabled={isCreating || !selectedOrderId || !dueDate}
-            >
-              <FileText className="h-4 w-4 mr-2" />
-              {isCreating ? "Generating..." : "Generate Invoice"}
-            </Button>
-          </DialogFooter>
-        </form>
+            <DialogFooter className="mt-9 mb-4 flex flex-col sm:flex-row items-center gap-2">
+              <Button
+                type="button"
+                onClick={handleCancel}
+                variant="secondary"
+                className="h-11 w-full sm:w-auto px-11 inline-flex items-center justify-center rounded-xl border border-white/10 bg-gradient-to-r from-gray-400/40 via-gray-300/30 to-gray-400/40 dark:bg-background/50 backdrop-blur-sm shadow-[0_15px_35px_rgba(0,0,0,0.3)] dark:shadow-[0_15px_35px_rgba(255,255,255,0.25)] transition duration-200 hover:bg-gradient-to-r hover:from-gray-400/60 hover:via-gray-300/50 hover:to-gray-400/60 dark:hover:bg-accent/50 hover:border-white/20 dark:hover:border-white/20 hover:shadow-[0_20px_45px_rgba(0,0,0,0.5)] dark:hover:shadow-[0_20px_45px_rgba(255,255,255,0.4)]"
+              >
+                Cancel
+              </Button>
+              <Button
+                type="submit"
+                className="h-11 w-full sm:w-auto px-11 inline-flex items-center justify-center rounded-xl border border-indigo-400/30 bg-gradient-to-r from-indigo-500/70 via-indigo-500/50 to-indigo-500/30 text-white shadow-[0_15px_35px_rgba(99,102,241,0.45)] backdrop-blur-sm transition duration-200 hover:border-indigo-300/40 hover:from-indigo-500/80 hover:via-indigo-500/60 hover:to-indigo-500/40 hover:shadow-[0_20px_45px_rgba(99,102,241,0.6)]"
+                disabled={isCreating || !selectedOrderId || !dueDate}
+              >
+                <FileText className="h-4 w-4 mr-2" />
+                {isCreating ? "Generating..." : "Generate Invoice"}
+              </Button>
+            </DialogFooter>
+          </form>
         )}
       </DialogContent>
     </Dialog>

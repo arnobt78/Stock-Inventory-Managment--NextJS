@@ -116,7 +116,7 @@ export default function RegisterPage() {
       <div className="relative z-10 w-full">
         <div className="flex flex-col lg:flex-row min-h-screen">
           {/* Left Side - SVG Background & Professional Advertising Cards */}
-          <div className="hidden lg:flex lg:w-1/2 relative items-center justify-center p-8 lg:p-12">
+          <div className="hidden lg:flex lg:w-1/2 relative items-center justify-center p-4 sm:p-6 lg:p-12">
             <div className="absolute inset-0 opacity-25 dark:opacity-20">
               <Image
                 src="/personal-finance.svg"
@@ -126,10 +126,10 @@ export default function RegisterPage() {
                 priority
               />
             </div>
-            <div className="relative z-10 max-w-lg w-full space-y-6">
+            <div className="relative z-10 max-w-lg w-full space-y-4">
               {/* Main Welcome Card */}
-              <div className="rounded-[28px] border border-emerald-400/30 dark:border-white/10 bg-gradient-to-br from-emerald-500/25 via-emerald-500/10 to-emerald-500/5 dark:from-white/5 dark:via-white/5 dark:to-white/5 backdrop-blur-sm shadow-[0_30px_80px_rgba(16,185,129,0.35)] dark:shadow-lg p-4 sm:p-8">
-                <h1 className="text-2xl lg:text-2xl font-semibold text-gray-900 dark:text-white mb-3 tracking-tight text-center">
+              <div className="rounded-[28px] border border-emerald-400/30 dark:border-white/10 bg-gradient-to-br from-emerald-500/25 via-emerald-500/10 to-emerald-500/5 dark:from-white/5 dark:via-white/5 dark:to-white/5 backdrop-blur-sm shadow-[0_30px_80px_rgba(16,185,129,0.35)] dark:shadow-lg p-4 sm:p-6">
+                <h1 className="text-lg sm:text-xl lg:text-lg sm:text-xl font-semibold text-gray-700 dark:text-white mb-3 tracking-tight text-center">
                   Transform Your Warehouse
                 </h1>
                 <p className="text-lg lg:text-xl text-gray-700 dark:text-white/80 font-medium leading-relaxed text-center">
@@ -139,14 +139,14 @@ export default function RegisterPage() {
               </div>
 
               {/* Feature Cards Grid */}
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-2 gap-2">
                 {/* Feature Card 1 - Speed */}
                 <div className="rounded-[20px] border border-sky-400/30 dark:border-white/10 bg-gradient-to-br from-sky-500/25 via-sky-500/10 to-sky-500/5 dark:from-white/5 dark:via-white/5 dark:to-white/5 backdrop-blur-sm shadow-[0_20px_60px_rgba(2,132,199,0.3)] dark:shadow-lg p-4 transition-all hover:shadow-[0_25px_70px_rgba(2,132,199,0.4)] hover:border-sky-300/50 dark:hover:border-sky-300/40">
-                  <div className="flex items-center gap-3 mb-2">
+                  <div className="flex items-center gap-2 mb-2">
                     <div className="rounded-xl border border-sky-400/30 dark:border-sky-400/20 bg-sky-500/20 dark:bg-sky-500/10 backdrop-blur-sm p-2">
                       <Zap className="h-5 w-5 text-sky-600 dark:text-sky-400" />
                     </div>
-                    <h3 className="text-md font-semibold text-gray-900 dark:text-white">
+                    <h3 className="text-md font-semibold text-gray-700 dark:text-white">
                       Lightning Fast
                     </h3>
                   </div>
@@ -158,11 +158,11 @@ export default function RegisterPage() {
 
                 {/* Feature Card 2 - Analytics */}
                 <div className="rounded-[20px] border border-amber-400/30 dark:border-white/10 bg-gradient-to-br from-amber-500/30 via-amber-500/15 to-amber-500/5 dark:from-white/5 dark:via-white/5 dark:to-white/5 backdrop-blur-sm shadow-[0_20px_60px_rgba(245,158,11,0.25)] dark:shadow-lg p-4 transition-all hover:shadow-[0_25px_70px_rgba(245,158,11,0.35)] hover:border-amber-300/60 dark:hover:border-amber-300/40">
-                  <div className="flex items-center gap-3 mb-2">
+                  <div className="flex items-center gap-2 mb-2">
                     <div className="rounded-xl border border-amber-400/30 dark:border-amber-400/20 bg-amber-500/20 dark:bg-amber-500/10 backdrop-blur-sm p-2">
                       <BarChart3 className="h-5 w-5 text-amber-600 dark:text-amber-400" />
                     </div>
-                    <h3 className="text-md font-semibold text-gray-900 dark:text-white">
+                    <h3 className="text-md font-semibold text-gray-700 dark:text-white">
                       Smart Analytics
                     </h3>
                   </div>
@@ -174,11 +174,11 @@ export default function RegisterPage() {
 
                 {/* Feature Card 3 - Verified */}
                 <div className="rounded-[20px] border border-violet-400/30 dark:border-white/10 bg-gradient-to-br from-violet-500/25 via-violet-500/10 to-violet-500/5 dark:from-white/5 dark:via-white/5 dark:to-white/5 backdrop-blur-sm shadow-[0_20px_60px_rgba(139,92,246,0.35)] dark:shadow-lg p-4 transition-all hover:shadow-[0_25px_70px_rgba(139,92,246,0.45)] hover:border-violet-300/50 dark:hover:border-violet-300/40">
-                  <div className="flex items-center gap-3 mb-2">
+                  <div className="flex items-center gap-2 mb-2">
                     <div className="rounded-xl border border-violet-400/30 dark:border-violet-400/20 bg-violet-500/20 dark:bg-violet-500/10 backdrop-blur-sm p-2">
                       <CheckCircle2 className="h-5 w-5 text-violet-600 dark:text-violet-400" />
                     </div>
-                    <h3 className="text-md font-semibold text-gray-900 dark:text-white">
+                    <h3 className="text-md font-semibold text-gray-700 dark:text-white">
                       Trusted Platform
                     </h3>
                   </div>
@@ -189,11 +189,11 @@ export default function RegisterPage() {
 
                 {/* Feature Card 4 - Security */}
                 <div className="rounded-[20px] border border-blue-400/30 dark:border-white/10 bg-gradient-to-br from-blue-500/25 via-blue-500/10 to-blue-500/5 dark:from-white/5 dark:via-white/5 dark:to-white/5 backdrop-blur-sm shadow-[0_20px_60px_rgba(59,130,246,0.35)] dark:shadow-lg p-4 transition-all hover:shadow-[0_25px_70px_rgba(59,130,246,0.45)] hover:border-blue-300/50 dark:hover:border-blue-300/40">
-                  <div className="flex items-center gap-3 mb-2">
+                  <div className="flex items-center gap-2 mb-2">
                     <div className="rounded-xl border border-blue-400/30 dark:border-blue-400/20 bg-blue-500/20 dark:bg-blue-500/10 backdrop-blur-sm p-2">
                       <Shield className="h-5 w-5 text-blue-600 dark:text-blue-400" />
                     </div>
-                    <h3 className="text-md font-semibold text-gray-900 dark:text-white">
+                    <h3 className="text-md font-semibold text-gray-700 dark:text-white">
                       Enterprise Security
                     </h3>
                   </div>
@@ -207,13 +207,13 @@ export default function RegisterPage() {
           </div>
 
           {/* Right Side - Register Form */}
-          <div className="w-full lg:w-1/2 flex items-center justify-center p-0 sm:p-8 lg:p-12">
-            <div className="w-full max-w-md space-y-6 rounded-[28px] border border-emerald-400/30 dark:border-white/10 bg-gradient-to-br from-emerald-500/25 via-emerald-500/10 to-emerald-500/5 dark:from-white/5 dark:via-white/5 dark:to-white/5 backdrop-blur-sm shadow-[0_30px_80px_rgba(16,185,129,0.35)] dark:shadow-lg p-4 sm:p-8 transition-all duration-300 hover:shadow-[0_40px_100px_rgba(16,185,129,0.5)] dark:hover:shadow-[0_40px_100px_rgba(16,185,129,0.4)] hover:border-emerald-300/50 dark:hover:border-emerald-300/30">
+          <div className="w-full lg:w-1/2 flex items-center justify-center p-0 sm:p-4 sm:p-6 lg:p-12">
+            <div className="w-full max-w-md space-y-4 rounded-[28px] border border-emerald-400/30 dark:border-white/10 bg-gradient-to-br from-emerald-500/25 via-emerald-500/10 to-emerald-500/5 dark:from-white/5 dark:via-white/5 dark:to-white/5 backdrop-blur-sm shadow-[0_30px_80px_rgba(16,185,129,0.35)] dark:shadow-lg p-4 sm:p-6 transition-all duration-300 hover:shadow-[0_40px_100px_rgba(16,185,129,0.5)] dark:hover:shadow-[0_40px_100px_rgba(16,185,129,0.4)] hover:border-emerald-300/50 dark:hover:border-emerald-300/30">
               <div className="space-y-2">
-                <h2 className="text-2xl sm:text-2xl font-semibold text-gray-900 dark:text-white text-center">
+                <h2 className="text-lg sm:text-xl sm:text-lg sm:text-xl font-semibold text-gray-700 dark:text-white text-center">
                   Create Account
                 </h2>
-                <p className="text-sm sm:text-base text-gray-600 dark:text-white/70 text-center">
+                <p className="text-xs sm:text-sm text-gray-600 dark:text-white/70 text-center">
                   Sign up to get started with your inventory dashboard
                 </p>
               </div>
@@ -234,7 +234,7 @@ export default function RegisterPage() {
                     onChange={(e) => setName(e.target.value)}
                     placeholder="John Doe"
                     required
-                    className="w-full bg-white/10 dark:bg-white/5 backdrop-blur-sm border border-emerald-400/30 dark:border-white/20 text-gray-900 dark:text-white placeholder:text-gray-500 dark:placeholder:text-white/40 focus-visible:border-emerald-400 focus-visible:ring-emerald-500/50 shadow-[0_10px_30px_rgba(16,185,129,0.15)]"
+                    className="w-full bg-white/10 dark:bg-white/5 backdrop-blur-sm border border-emerald-400/30 dark:border-white/20 text-gray-700 dark:text-white placeholder:text-gray-500 dark:placeholder:text-white/40 focus-visible:border-emerald-400 focus-visible:ring-emerald-500/50 shadow-[0_10px_30px_rgba(16,185,129,0.15)]"
                   />
                 </div>
 
@@ -253,7 +253,7 @@ export default function RegisterPage() {
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder="you@example.com"
                     required
-                    className="w-full bg-white/10 dark:bg-white/5 backdrop-blur-sm border border-emerald-400/30 dark:border-white/20 text-gray-900 dark:text-white placeholder:text-gray-500 dark:placeholder:text-white/40 focus-visible:border-emerald-400 focus-visible:ring-emerald-500/50 shadow-[0_10px_30px_rgba(16,185,129,0.15)]"
+                    className="w-full bg-white/10 dark:bg-white/5 backdrop-blur-sm border border-emerald-400/30 dark:border-white/20 text-gray-700 dark:text-white placeholder:text-gray-500 dark:placeholder:text-white/40 focus-visible:border-emerald-400 focus-visible:ring-emerald-500/50 shadow-[0_10px_30px_rgba(16,185,129,0.15)]"
                   />
                 </div>
 
@@ -272,7 +272,7 @@ export default function RegisterPage() {
                     onChange={(e) => setPassword(e.target.value)}
                     placeholder="Enter your password"
                     required
-                    className="w-full bg-white/10 dark:bg-white/5 backdrop-blur-sm border border-emerald-400/30 dark:border-white/20 text-gray-900 dark:text-white placeholder:text-gray-500 dark:placeholder:text-white/40 focus-visible:border-emerald-400 focus-visible:ring-emerald-500/50 shadow-[0_10px_30px_rgba(16,185,129,0.15)]"
+                    className="w-full bg-white/10 dark:bg-white/5 backdrop-blur-sm border border-emerald-400/30 dark:border-white/20 text-gray-700 dark:text-white placeholder:text-gray-500 dark:placeholder:text-white/40 focus-visible:border-emerald-400 focus-visible:ring-emerald-500/50 shadow-[0_10px_30px_rgba(16,185,129,0.15)]"
                   />
                 </div>
 
@@ -291,7 +291,7 @@ export default function RegisterPage() {
                     onChange={(e) => setConfirmPassword(e.target.value)}
                     placeholder="Confirm your password"
                     required
-                    className="w-full bg-white/10 dark:bg-white/5 backdrop-blur-sm border border-emerald-400/30 dark:border-white/20 text-gray-900 dark:text-white placeholder:text-gray-500 dark:placeholder:text-white/40 focus-visible:border-emerald-400 focus-visible:ring-emerald-500/50 shadow-[0_10px_30px_rgba(16,185,129,0.15)]"
+                    className="w-full bg-white/10 dark:bg-white/5 backdrop-blur-sm border border-emerald-400/30 dark:border-white/20 text-gray-700 dark:text-white placeholder:text-gray-500 dark:placeholder:text-white/40 focus-visible:border-emerald-400 focus-visible:ring-emerald-500/50 shadow-[0_10px_30px_rgba(16,185,129,0.15)]"
                   />
                 </div>
 
@@ -323,7 +323,7 @@ export default function RegisterPage() {
                 variant="outline"
                 onClick={handleGoogleSignUp}
                 disabled={isLoading}
-                className="w-full border-emerald-400/30 dark:border-white/20 bg-white/10 dark:bg-white/5 backdrop-blur-sm text-gray-900 dark:text-white hover:bg-white/20 dark:hover:bg-white/10 hover:text-gray-900 dark:hover:text-white"
+                className="w-full border-emerald-400/30 dark:border-white/20 bg-white/10 dark:bg-white/5 backdrop-blur-sm text-gray-700 dark:text-white hover:bg-white/20 dark:hover:bg-white/10 hover:text-gray-700 dark:hover:text-white"
               >
                 <svg
                   className="mr-2 h-4 w-4"

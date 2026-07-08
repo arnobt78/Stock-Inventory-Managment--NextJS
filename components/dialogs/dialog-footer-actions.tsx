@@ -1,7 +1,7 @@
 /**
  * Reusable Dialog Footer Actions Component
  * Provides consistent footer button layout and styling for dialogs
- * 
+ *
  * Features:
  * - Consistent button sizing and spacing
  * - Responsive layout (stacked on mobile, side-by-side on desktop)
@@ -24,67 +24,79 @@ export interface DialogFooterActionsProps {
    * Cancel button label (default: "Cancel")
    */
   cancelLabel?: string;
-  
+
   /**
    * Action button label (e.g., "Save", "Submit", "Delete")
    */
   actionLabel: string;
-  
+
   /**
    * Action button loading label (e.g., "Saving...", "Submitting...")
    */
   actionLoadingLabel?: string;
-  
+
   /**
    * Whether the action is in progress (shows loading state)
    */
   isLoading?: boolean;
-  
+
   /**
    * Whether the action button is disabled
    */
   isDisabled?: boolean;
-  
+
   /**
    * Cancel button click handler
    */
   onCancel?: () => void;
-  
+
   /**
    * Action button click handler
    */
   onAction: () => void;
-  
+
   /**
    * Cancel button variant (default: "secondary")
    */
-  cancelVariant?: "default" | "destructive" | "outline" | "secondary" | "ghost" | "link";
-  
+  cancelVariant?:
+    | "default"
+    | "destructive"
+    | "outline"
+    | "secondary"
+    | "ghost"
+    | "link";
+
   /**
    * Action button variant (default: "default")
    */
-  actionVariant?: "default" | "destructive" | "outline" | "secondary" | "ghost" | "link";
-  
+  actionVariant?:
+    | "default"
+    | "destructive"
+    | "outline"
+    | "secondary"
+    | "ghost"
+    | "link";
+
   /**
    * Additional className for footer container
    */
   footerClassName?: string;
-  
+
   /**
    * Additional className for cancel button
    */
   cancelClassName?: string;
-  
+
   /**
    * Additional className for action button
    */
   actionClassName?: string;
-  
+
   /**
    * Whether to show cancel button (default: true)
    */
   showCancel?: boolean;
-  
+
   /**
    * Custom footer content (overrides default buttons if provided)
    */
@@ -93,7 +105,7 @@ export interface DialogFooterActionsProps {
 
 /**
  * Dialog Footer Actions Component
- * 
+ *
  * Provides consistent footer button layout:
  * - Cancel button (left/secondary)
  * - Action button (right/primary)
@@ -121,8 +133,8 @@ export function DialogFooterActions({
     return (
       <DialogFooter
         className={cn(
-          "mt-9 mb-4 flex flex-col sm:flex-row items-center gap-4",
-          footerClassName
+          "mt-9 mb-4 flex flex-col sm:flex-row items-center gap-2",
+          footerClassName,
         )}
       >
         {children}
@@ -137,8 +149,8 @@ export function DialogFooterActions({
   return (
     <DialogFooter
       className={cn(
-        "mt-9 mb-4 flex flex-col sm:flex-row items-center gap-4",
-        footerClassName
+        "mt-9 mb-4 flex flex-col sm:flex-row items-center gap-2",
+        footerClassName,
       )}
     >
       {showCancel && (
@@ -165,4 +177,3 @@ export function DialogFooterActions({
     </DialogFooter>
   );
 }
-

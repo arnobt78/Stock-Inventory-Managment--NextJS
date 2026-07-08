@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import { redirect } from "next/navigation";
 import { getSession } from "@/lib/auth-server";
 import OrdersPage from "@/components/Pages/OrdersPage";
@@ -8,29 +9,41 @@ import {
 } from "@/lib/server/orders-data";
 import { getSupplierByUserId } from "@/prisma/supplier";
 
-/**
- * Orders route — server component.
- * If user is not logged in, redirect to login. Otherwise fetch orders on the server
- * and pass to OrdersPage so the client can hydrate React Query in one round-trip.
- * Client: orders where they are the customer. Supplier: orders that contain their products. Admin: orders they created.
- */
+/** REQ-0021 — session shell + Suspense-streamed orders */
 export default async function OrdersRoute() {
   const user = await getSession();
   if (!user) {
     redirect("/login");
   }
+
+  return (
+    <Suspense fallback={<OrdersPage userRole={user.role ?? undefined} />}>
+      <OrdersPageWithData userId={user.id} userRole={user.role ?? undefined} />
+    </Suspense>
+  );
+}
+
+async function OrdersPageWithData({
+  userId,
+  userRole,
+}: {
+  userId: string;
+  userRole?: string;
+}) {
   let initialOrders;
-  if (user.role === "client") {
-    initialOrders = await getOrdersForClientId(user.id);
-  } else if (user.role === "supplier") {
-    const supplier = await getSupplierByUserId(user.id);
+
+  if (userRole === "client") {
+    initialOrders = await getOrdersForClientId(userId);
+  } else if (userRole === "supplier") {
+    const [supplier] = await Promise.all([getSupplierByUserId(userId)]);
     initialOrders = supplier
       ? await getOrdersForSupplierId(supplier.id)
       : [];
   } else {
-    initialOrders = await getOrdersForUser(user.id);
+    initialOrders = await getOrdersForUser(userId);
   }
+
   return (
-    <OrdersPage initialOrders={initialOrders} userRole={user.role ?? undefined} />
+    <OrdersPage initialOrders={initialOrders} userRole={userRole} />
   );
 }

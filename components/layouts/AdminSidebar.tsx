@@ -24,6 +24,8 @@ import { cn } from "@/lib/utils";
 import { useAuth } from "@/contexts";
 import { Button } from "@/components/ui/button";
 import { useAdminCounts } from "@/hooks/queries";
+import { isDataSlotLoading } from "@/lib/react-query";
+import { DataSlotPulse } from "@/components/shared/DataSlotPulse";
 
 /**
  * Admin sidebar: section headlines + links.
@@ -131,7 +133,9 @@ export default function AdminSidebar({
 }: { collapsed?: boolean } = {}) {
   const pathname = usePathname();
   const { user, logout } = useAuth();
-  const { data: counts } = useAdminCounts();
+  const countsQuery = useAdminCounts();
+  const counts = countsQuery.data;
+  const countsLoading = isDataSlotLoading(countsQuery);
 
   const handleLogout = async () => {
     await logout();
@@ -157,7 +161,7 @@ export default function AdminSidebar({
     items.map((item) => {
       const Icon = item.icon;
       const count = getCount(item.countKey);
-      const showBadge = count !== undefined && count > 0;
+      const showBadge = item.countKey != null;
       return (
         <Link
           key={item.href}
@@ -172,12 +176,22 @@ export default function AdminSidebar({
           {!collapsed && showBadge && (
             <span
               className={cn(
-                "flex-shrink-0 rounded-full px-1.5 py-0.5 text-xs font-medium",
+                "flex-shrink-0 rounded-full px-1.5 py-0.5 text-xs font-medium min-w-[1.25rem] text-center",
                 "bg-muted text-muted-foreground",
               )}
-              aria-label={`${count} items`}
+              aria-label={
+                countsLoading
+                  ? "Loading count"
+                  : count !== undefined
+                    ? `${count} items`
+                    : undefined
+              }
             >
-              {count > 99 ? "99+" : count}
+              {countsLoading ? (
+                <DataSlotPulse variant="badge" className="mx-auto" />
+              ) : count !== undefined && count > 0 ? (
+                count > 99 ? "99+" : count
+              ) : null}
             </span>
           )}
         </Link>
@@ -210,25 +224,25 @@ export default function AdminSidebar({
   return (
     <nav className="flex min-h-0 flex-col p-2 gap-1">
       {/* My Store */}
-      <p className="px-3 pt-2 pb-1 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+      <p className="px-3 pt-2  text-xs font-semibold uppercase tracking-wider text-muted-foreground">
         My Store
       </p>
       {renderNavItems(MY_STORE_ITEMS)}
 
       {/* Product & System Management */}
-      <p className="px-3 pt-3 pb-1 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+      <p className="px-3 pt-3  text-xs font-semibold uppercase tracking-wider text-muted-foreground">
         Product & System Management
       </p>
       {renderNavItems(MANAGEMENT_ITEMS)}
 
       {/* My Activity */}
-      <p className="px-3 pt-3 pb-1 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+      <p className="px-3 pt-3  text-xs font-semibold uppercase tracking-wider text-muted-foreground">
         Personal activity
       </p>
       {renderNavItems(MY_ACTIVITY_ITEMS)}
 
       {/* System Settings */}
-      <p className="px-3 pt-3 pb-1 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+      <p className="px-3 pt-3  text-xs font-semibold uppercase tracking-wider text-muted-foreground">
         System Settings
       </p>
       <Link

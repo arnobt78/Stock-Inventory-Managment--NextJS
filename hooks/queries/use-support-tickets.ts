@@ -9,6 +9,7 @@ import {
   queryKeys,
   invalidateAllRelatedQueries,
   cancelOrRemoveDetailQuery,
+  withInitialData,
 } from "@/lib/react-query";
 import { useToast } from "@/hooks/use-toast";
 import type {
@@ -24,7 +25,10 @@ export type SupportTicketViewFilter =
   | "assigned_to_me"
   | "created_by_me";
 
-export function useSupportTickets(view?: SupportTicketViewFilter) {
+export function useSupportTickets(
+  view?: SupportTicketViewFilter,
+  initialData?: SupportTicket[],
+) {
   return useQuery({
     queryKey: queryKeys.supportTickets.list({ view: view ?? "all" }),
     queryFn: async () => {
@@ -33,6 +37,7 @@ export function useSupportTickets(view?: SupportTicketViewFilter) {
       );
       return response.data;
     },
+    ...withInitialData(initialData),
   });
 }
 

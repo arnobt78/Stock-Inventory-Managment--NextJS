@@ -92,10 +92,10 @@ export default function AddProductDialog({
   // Filter to only show active categories and suppliers in dropdowns
   // Include currently selected category/supplier even if inactive (for edit mode)
   const activeCategories = categories.filter(
-    (category) => category.status !== false || category.id === selectedCategory
+    (category) => category.status !== false || category.id === selectedCategory,
   );
   const activeSuppliers = suppliers.filter(
-    (supplier) => supplier.status !== false || supplier.id === selectedSupplier
+    (supplier) => supplier.status !== false || supplier.id === selectedSupplier,
   );
 
   // Use TanStack Query mutations
@@ -260,7 +260,7 @@ export default function AddProductDialog({
           {/* react-hook-form handleSubmit passes a ref; rule is for raw refs during render */}
           {/* eslint-disable-next-line react-hooks/refs */}
           <form onSubmit={methods.handleSubmit(onSubmit)}>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
               <ProductName />
               <SKU allProducts={allProducts} />
               <Quantity />
@@ -288,7 +288,10 @@ export default function AddProductDialog({
                     <Select
                       key={selectRemountKey}
                       value={selectedCategory}
-                      onValueChange={(value) => { setSelectedCategory(value); setCategoryError(""); }}
+                      onValueChange={(value) => {
+                        setSelectedCategory(value);
+                        setCategoryError("");
+                      }}
                     >
                       <SelectTrigger className="h-11 w-full border-rose-400/30 dark:border-white/20 bg-white/10 dark:bg-white/5 backdrop-blur-sm text-white placeholder:text-white/40 focus:border-rose-400 focus:ring-rose-500/50 shadow-[0_10px_30px_rgba(225,29,72,0.15)]">
                         <SelectValue placeholder="Select Category" />
@@ -303,7 +306,7 @@ export default function AddProductDialog({
                           <SelectItem
                             key={category.id}
                             value={category.id}
-                            className="cursor-pointer text-gray-900 dark:text-white focus:bg-rose-100 dark:focus:bg-white/10 focus:text-gray-900 dark:focus:text-white"
+                            className="cursor-pointer text-gray-700 dark:text-white focus:bg-rose-100 dark:focus:bg-white/10 focus:text-gray-700 dark:focus:text-white"
                           >
                             {category.name}
                           </SelectItem>
@@ -336,7 +339,10 @@ export default function AddProductDialog({
                     <Select
                       key={selectRemountKey}
                       value={selectedSupplier}
-                      onValueChange={(value) => { setSelectedSupplier(value); setSupplierError(""); }}
+                      onValueChange={(value) => {
+                        setSelectedSupplier(value);
+                        setSupplierError("");
+                      }}
                     >
                       <SelectTrigger className="h-11 w-full border-rose-400/30 dark:border-white/20 bg-white/10 dark:bg-white/5 backdrop-blur-sm text-white placeholder:text-white/40 focus:border-rose-400 focus:ring-rose-500/50 shadow-[0_10px_30px_rgba(225,29,72,0.15)]">
                         <SelectValue placeholder="Select Supplier" />
@@ -351,7 +357,7 @@ export default function AddProductDialog({
                           <SelectItem
                             key={supplier.id}
                             value={supplier.id}
-                            className="cursor-pointer text-gray-900 dark:text-white focus:bg-rose-100 dark:focus:bg-white/10 focus:text-gray-900 dark:focus:text-white"
+                            className="cursor-pointer text-gray-700 dark:text-white focus:bg-rose-100 dark:focus:bg-white/10 focus:text-gray-700 dark:focus:text-white"
                           >
                             {supplier.name}
                           </SelectItem>
@@ -365,7 +371,7 @@ export default function AddProductDialog({
                 )}
               </div>
             </div>
-            <DialogFooter className="mt-9 mb-4 flex flex-col sm:flex-row items-center gap-4">
+            <DialogFooter className="mt-9 mb-4 flex flex-col sm:flex-row items-center gap-2">
               <DialogClose asChild>
                 <Button
                   ref={dialogCloseRef}
@@ -383,8 +389,8 @@ export default function AddProductDialog({
                 {isSubmitting
                   ? "Loading..."
                   : selectedProduct
-                  ? "Update Product"
-                  : "Add Product"}
+                    ? "Update Product"
+                    : "Add Product"}
               </Button>
             </DialogFooter>
           </form>

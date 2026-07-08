@@ -15,7 +15,14 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { FileText, CheckCircle, XCircle, Clock, AlertTriangle, ArrowUpDown } from "lucide-react";
+import {
+  FileText,
+  CheckCircle,
+  XCircle,
+  Clock,
+  AlertTriangle,
+  ArrowUpDown,
+} from "lucide-react";
 import { IoMdArrowDown, IoMdArrowUp } from "react-icons/io";
 import { format } from "date-fns";
 import Link from "next/link";
@@ -80,14 +87,14 @@ const SortableHeader: React.FC<SortableHeaderProps> = ({ column, label }) => {
     isSorted === "asc"
       ? IoMdArrowUp
       : isSorted === "desc"
-      ? IoMdArrowDown
-      : ArrowUpDown;
+        ? IoMdArrowDown
+        : ArrowUpDown;
 
   return (
     <DropdownMenu>
       <DropdownMenuTrigger className="" asChild>
         <div
-          className={`flex items-center select-none cursor-pointer gap-1 py-2 text-gray-900 dark:text-white ${
+          className={`flex items-center select-none cursor-pointer gap-1 py-2 text-gray-700 dark:text-white ${
             isSorted && "text-primary"
           }`}
           aria-label={`Sort by ${label}`}
@@ -139,127 +146,141 @@ export const createInvoiceColumns = (
   const invoiceHref = (id: string) =>
     detailHrefBase ? `${detailHrefBase}/${id}` : `/invoices/${id}`;
   return [
-  {
-    accessorKey: "invoiceNumber",
-    header: ({ column }) => <SortableHeader column={column} label="Invoice #" />,
-    cell: ({ row }) => {
-      const invoice = row.original as InvoiceWithSource;
-      const showBadge = options?.showSourceBadge && invoice._source != null;
-      const showIssuedBy = options?.showIssuedBy && (invoice.issuedByName || invoice.issuedByEmail);
-      return (
-        <div className="flex flex-col gap-0.5">
-          <Link
-            href={invoiceHref(invoice.id)}
-            className="font-semibold text-sky-600 dark:text-sky-400 hover:text-sky-500 dark:hover:text-sky-300"
-          >
-            {invoice.invoiceNumber}
-          </Link>
-          {showBadge && (
-            <div className="flex items-center gap-1.5 flex-wrap">
-              {invoice._displayName != null && invoice._displayName !== "" && (
-                <span className="text-xs text-gray-500 dark:text-gray-400">
-                  {invoice._displayName}
-                </span>
-              )}
-              <Badge
-                className={
-                  invoice._source === "personal"
-                    ? "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300 text-xs"
-                    : "bg-violet-100 text-violet-800 dark:bg-violet-900/30 dark:text-violet-300 text-xs"
-                }
-              >
-                {invoice._source === "personal" ? "Self" : "Client"}
-              </Badge>
-            </div>
-          )}
-          {showIssuedBy && (
-            <span className="text-xs text-gray-500 dark:text-gray-400">
-              {invoice.issuedByName}{invoice.issuedByEmail ? ` (${invoice.issuedByEmail})` : ""}
+    {
+      accessorKey: "invoiceNumber",
+      header: ({ column }) => (
+        <SortableHeader column={column} label="Invoice #" />
+      ),
+      cell: ({ row }) => {
+        const invoice = row.original as InvoiceWithSource;
+        const showBadge = options?.showSourceBadge && invoice._source != null;
+        const showIssuedBy =
+          options?.showIssuedBy &&
+          (invoice.issuedByName || invoice.issuedByEmail);
+        return (
+          <div className="flex flex-col gap-0.5">
+            <Link
+              href={invoiceHref(invoice.id)}
+              className="font-semibold text-sky-600 dark:text-sky-400 hover:text-sky-500 dark:hover:text-sky-300"
+            >
+              {invoice.invoiceNumber}
+            </Link>
+            {showBadge && (
+              <div className="flex items-center gap-1 flex-wrap">
+                {invoice._displayName != null &&
+                  invoice._displayName !== "" && (
+                    <span className="text-xs text-gray-500 dark:text-gray-400">
+                      {invoice._displayName}
+                    </span>
+                  )}
+                <Badge
+                  className={
+                    invoice._source === "personal"
+                      ? "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300 text-xs"
+                      : "bg-violet-100 text-violet-800 dark:bg-violet-900/30 dark:text-violet-300 text-xs"
+                  }
+                >
+                  {invoice._source === "personal" ? "Self" : "Client"}
+                </Badge>
+              </div>
+            )}
+            {showIssuedBy && (
+              <span className="text-xs text-gray-500 dark:text-gray-400">
+                {invoice.issuedByName}
+                {invoice.issuedByEmail ? ` (${invoice.issuedByEmail})` : ""}
+              </span>
+            )}
+          </div>
+        );
+      },
+    },
+    {
+      accessorKey: "status",
+      header: ({ column }) => <SortableHeader column={column} label="Status" />,
+      cell: ({ row }) => {
+        const status = row.original.status;
+        return (
+          <Badge className={getStatusColor(status)}>
+            <span className="flex items-center gap-1">
+              {getStatusIcon(status)}
+              {status.charAt(0).toUpperCase() + status.slice(1)}
             </span>
-          )}
-        </div>
-      );
+          </Badge>
+        );
+      },
     },
-  },
-  {
-    accessorKey: "status",
-    header: ({ column }) => <SortableHeader column={column} label="Status" />,
-    cell: ({ row }) => {
-      const status = row.original.status;
-      return (
-        <Badge className={getStatusColor(status)}>
-          <span className="flex items-center gap-1">
-            {getStatusIcon(status)}
-            {status.charAt(0).toUpperCase() + status.slice(1)}
+    {
+      accessorKey: "total",
+      header: ({ column }) => <SortableHeader column={column} label="Total" />,
+      cell: ({ getValue }) => {
+        const total = getValue<number>();
+        return <span className="font-semibold">${total.toFixed(2)}</span>;
+      },
+    },
+    {
+      accessorKey: "amountDue",
+      header: ({ column }) => (
+        <SortableHeader column={column} label="Amount Due" />
+      ),
+      cell: ({ getValue }) => {
+        const amountDue = getValue<number>();
+        return (
+          <span
+            className={`font-semibold ${amountDue > 0 ? "text-red-600 dark:text-red-400" : "text-green-600 dark:text-green-400"}`}
+          >
+            ${amountDue.toFixed(2)}
           </span>
-        </Badge>
-      );
+        );
+      },
     },
-  },
-  {
-    accessorKey: "total",
-    header: ({ column }) => <SortableHeader column={column} label="Total" />,
-    cell: ({ getValue }) => {
-      const total = getValue<number>();
-      return (
-        <span className="font-semibold">${total.toFixed(2)}</span>
-      );
+    {
+      accessorKey: "dueDate",
+      header: ({ column }) => (
+        <SortableHeader column={column} label="Due Date" />
+      ),
+      cell: ({ getValue }) => {
+        const date = getValue<Date>();
+        const dueDate = new Date(date);
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        dueDate.setHours(0, 0, 0, 0);
+        const isOverdue = dueDate < today;
+
+        return (
+          <span
+            className={`text-sm ${isOverdue ? "text-red-600 dark:text-red-400" : ""}`}
+          >
+            {format(new Date(date), "MMM dd, yyyy")}
+          </span>
+        );
+      },
     },
-  },
-  {
-    accessorKey: "amountDue",
-    header: ({ column }) => <SortableHeader column={column} label="Amount Due" />,
-    cell: ({ getValue }) => {
-      const amountDue = getValue<number>();
-      return (
-        <span className={`font-semibold ${amountDue > 0 ? "text-red-600 dark:text-red-400" : "text-green-600 dark:text-green-400"}`}>
-          ${amountDue.toFixed(2)}
-        </span>
-      );
+    {
+      accessorKey: "createdAt",
+      header: ({ column }) => (
+        <SortableHeader column={column} label="Created" />
+      ),
+      cell: ({ getValue }) => {
+        const date = getValue<Date>();
+        return (
+          <span className="text-sm">
+            {format(new Date(date), "MMM dd, yyyy")}
+          </span>
+        );
+      },
     },
-  },
-  {
-    accessorKey: "dueDate",
-    header: ({ column }) => <SortableHeader column={column} label="Due Date" />,
-    cell: ({ getValue }) => {
-      const date = getValue<Date>();
-      const dueDate = new Date(date);
-      const today = new Date();
-      today.setHours(0, 0, 0, 0);
-      dueDate.setHours(0, 0, 0, 0);
-      const isOverdue = dueDate < today;
-      
-      return (
-        <span className={`text-sm ${isOverdue ? "text-red-600 dark:text-red-400" : ""}`}>
-          {format(new Date(date), "MMM dd, yyyy")}
-        </span>
-      );
+    {
+      id: "actions",
+      header: "Actions",
+      cell: ({ row }) => {
+        return (
+          <InvoiceActions
+            invoice={row.original}
+            onEdit={onEdit}
+            detailHrefBase={detailHrefBase}
+          />
+        );
+      },
     },
-  },
-  {
-    accessorKey: "createdAt",
-    header: ({ column }) => <SortableHeader column={column} label="Created" />,
-    cell: ({ getValue }) => {
-      const date = getValue<Date>();
-      return (
-        <span className="text-sm">
-          {format(new Date(date), "MMM dd, yyyy")}
-        </span>
-      );
-    },
-  },
-  {
-    id: "actions",
-    header: "Actions",
-    cell: ({ row }) => {
-      return (
-        <InvoiceActions
-          invoice={row.original}
-          onEdit={onEdit}
-          detailHrefBase={detailHrefBase}
-        />
-      );
-    },
-  },
-];
+  ];
 };

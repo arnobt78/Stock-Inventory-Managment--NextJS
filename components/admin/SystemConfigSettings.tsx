@@ -114,7 +114,7 @@ export default function SystemConfigSettings() {
 
   if (isLoading) {
     return (
-      <div className="space-y-6">
+      <div className="space-y-4">
         {[1, 2, 3].map((i) => (
           <Card key={i} className="animate-pulse">
             <CardHeader>
@@ -133,7 +133,7 @@ export default function SystemConfigSettings() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       {/* Actions */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
@@ -183,7 +183,7 @@ export default function SystemConfigSettings() {
               Configure {category.toLowerCase()} settings for your application
             </CardDescription>
           </CardHeader>
-          <CardContent className="space-y-6">
+          <CardContent className="space-y-4">
             {configs.map((config, index) => (
               <React.Fragment key={config.key}>
                 {index > 0 && <Separator />}

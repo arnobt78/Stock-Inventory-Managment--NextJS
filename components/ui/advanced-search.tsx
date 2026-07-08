@@ -155,7 +155,7 @@ export function AdvancedSearch({
                 {savedSearches.length === 0 ? (
                   <p className="text-sm text-muted-foreground">No saved searches</p>
                 ) : (
-                  <div className="space-y-1">
+                  <div className="">
                     {savedSearches.map((search, index) => (
                       <Button
                         key={index}

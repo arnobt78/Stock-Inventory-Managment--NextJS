@@ -133,7 +133,7 @@ export function ChartCard({
     >
       <div className="flex flex-row items-center justify-between px-4 sm:px-5 pt-4 sm:pt-5 pb-3">
         <div>
-          <h3 className="text-base sm:text-lg font-semibold text-gray-900 dark:text-white">
+          <h3 className="text-base sm:text-lg font-semibold text-gray-700 dark:text-white">
             {title}
           </h3>
           {description && (

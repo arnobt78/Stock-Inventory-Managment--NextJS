@@ -32,7 +32,7 @@ const SortableHeader: React.FC<SortableHeaderProps> = ({ column, label }) => {
     <DropdownMenu>
       <DropdownMenuTrigger className="" asChild>
         <div
-          className={`flex items-center select-none cursor-pointer gap-1 py-2 text-gray-900 dark:text-white ${
+          className={`flex items-center select-none cursor-pointer gap-1 py-2 text-gray-700 dark:text-white ${
             isSorted && "text-primary"
           }`}
           aria-label={`Sort by ${label}`}
@@ -72,7 +72,9 @@ export const createWarehouseColumns = (
     accessorKey: "name",
     cell: ({ row }) => {
       const w = row.original;
-      const href = detailBase ? `${detailBase}/warehouses/${w.id}` : `/warehouses/${w.id}`;
+      const href = detailBase
+        ? `${detailBase}/warehouses/${w.id}`
+        : `/warehouses/${w.id}`;
       return (
         <Link
           href={href}
@@ -90,7 +92,7 @@ export const createWarehouseColumns = (
     header: ({ column }) => <SortableHeader column={column} label="Address" />,
     cell: ({ row }) => (
       <span
-        className="text-gray-900 dark:text-white"
+        className="text-gray-700 dark:text-white"
         title={row.original.address || undefined}
       >
         {truncateText(row.original.address, 40)}
@@ -102,7 +104,7 @@ export const createWarehouseColumns = (
     accessorKey: "type",
     header: ({ column }) => <SortableHeader column={column} label="Type" />,
     cell: ({ row }) => (
-      <span className="text-gray-900 dark:text-white">
+      <span className="text-gray-700 dark:text-white">
         {row.original.type || "-"}
       </span>
     ),
@@ -136,9 +138,9 @@ export const createWarehouseColumns = (
       const date =
         typeof dateValue === "string" ? new Date(dateValue) : dateValue;
       if (!date || isNaN(date.getTime()))
-        return <span className="text-gray-900 dark:text-white">-</span>;
+        return <span className="text-gray-700 dark:text-white">-</span>;
       return (
-        <span className="text-gray-900 dark:text-white">
+        <span className="text-gray-700 dark:text-white">
           {date.toLocaleDateString("en-US", {
             year: "numeric",
             month: "short",

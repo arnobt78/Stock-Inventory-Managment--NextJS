@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import { redirect } from "next/navigation";
 import { getSession } from "@/lib/auth-server";
 import HomePage from "@/components/Pages/HomePage";
@@ -6,12 +7,9 @@ import {
   getCategoriesForUser,
   getSuppliersForUser,
 } from "@/lib/server/home-data";
+import { getDashboardForAdmin } from "@/lib/server/dashboard-data";
 
-/**
- * Home route — server component.
- * No route-level Suspense: root layout uses force-dynamic so useSearchParams works
- * without a fallback skeleton. SSR fetch here; client HomePage handles OAuth + RQ hydrate.
- */
+/** REQ-0021 — session shell + Suspense-streamed home data */
 export default async function HomeRoute({
   searchParams,
 }: {
@@ -31,10 +29,28 @@ export default async function HomeRoute({
   const params = await searchParams;
   const initialOAuthSuccess = params.oauth_success === "true";
 
-  const [products, categories, suppliers] = await Promise.all([
-    getProductsForUser(user.id),
-    getCategoriesForUser(user.id),
-    getSuppliersForUser(user.id),
+  return (
+    <Suspense fallback={<HomePage initialOAuthSuccess={initialOAuthSuccess} />}>
+      <HomePageWithData
+        userId={user.id}
+        initialOAuthSuccess={initialOAuthSuccess}
+      />
+    </Suspense>
+  );
+}
+
+async function HomePageWithData({
+  userId,
+  initialOAuthSuccess,
+}: {
+  userId: string;
+  initialOAuthSuccess: boolean;
+}) {
+  const [products, categories, suppliers, stats] = await Promise.all([
+    getProductsForUser(userId),
+    getCategoriesForUser(userId),
+    getSuppliersForUser(userId),
+    getDashboardForAdmin(userId),
   ]);
 
   return (
@@ -42,6 +58,7 @@ export default async function HomeRoute({
       initialProducts={products}
       initialCategories={categories}
       initialSuppliers={suppliers}
+      initialStats={stats}
       initialOAuthSuccess={initialOAuthSuccess}
     />
   );

@@ -41,7 +41,7 @@ export default function SKU({ allProducts }: SKUProps) {
 
   return (
     <div className="mt-5 flex flex-col gap-2">
-      <div className="flex items-center gap-1.5">
+      <div className="flex items-center gap-1">
         <Label htmlFor="sku" className="text-white/80">
           SKU
         </Label>

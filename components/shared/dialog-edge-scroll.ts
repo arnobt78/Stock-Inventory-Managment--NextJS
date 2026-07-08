@@ -9,7 +9,7 @@ export const DIALOG_EDGE_SCROLL_SHELL =
 
 /** DialogHeader — inset content, not the scroll track */
 export const DIALOG_EDGE_SCROLL_HEADER =
-  "flex-shrink-0 space-y-1.5 pr-4 sm:pr-8";
+  "flex-shrink-0 .5 pr-4 sm:pr-8";
 
 /** Full-width scroll region; y-scrollbar flush to the shell right edge (no overflow-x-hidden — avoids clipping input/table shadows) */
 export const DIALOG_EDGE_SCROLL_BODY =

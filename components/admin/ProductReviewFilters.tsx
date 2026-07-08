@@ -50,27 +50,27 @@ export default function ProductReviewFilters({
     "h-10 rounded-[28px] border border-amber-400/30 dark:border-amber-400/30 bg-gradient-to-r from-amber-500/25 via-amber-500/15 to-amber-500/10 dark:from-amber-500/25 dark:via-amber-500/15 dark:to-amber-500/10 text-gray-700 dark:text-white shadow-[0_10px_30px_rgba(245,158,11,0.2)] backdrop-blur-sm transition duration-200 hover:border-amber-300/40 hover:from-amber-500/35 hover:via-amber-500/25 hover:to-amber-500/15 dark:hover:border-amber-300/40 dark:hover:from-amber-500/35 dark:hover:via-amber-500/25 dark:hover:to-amber-500/15";
 
   return (
-    <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4">
+    <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
       <div className="relative flex-1 sm:max-w-md">
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-600 dark:text-white/60 z-10" />
         <Input
           placeholder="Search by product, SKU, or comment..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-          className="h-10 pl-9 pr-10 w-full rounded-[28px] bg-white/10 dark:bg-white/5 backdrop-blur-sm border border-sky-400/30 dark:border-white/20 text-gray-900 dark:text-white placeholder:text-gray-500 dark:placeholder:text-white/40 focus-visible:border-sky-400 focus-visible:ring-sky-500/50 shadow-[0_10px_30px_rgba(2,132,199,0.15)]"
+          className="h-10 pl-9 pr-10 w-full rounded-[28px] bg-white/10 dark:bg-white/5 backdrop-blur-sm border border-sky-400/30 dark:border-white/20 text-gray-700 dark:text-white placeholder:text-gray-500 dark:placeholder:text-white/40 focus-visible:border-sky-400 focus-visible:ring-sky-500/50 shadow-[0_10px_30px_rgba(2,132,199,0.15)]"
         />
         {searchTerm && (
           <Button
             variant="ghost"
             size="sm"
             onClick={() => setSearchTerm("")}
-            className="absolute right-1 top-1/2 -translate-y-1/2 h-8 w-8 p-0 text-gray-700 dark:text-white/60 hover:text-gray-900 dark:hover:text-white hover:bg-white/10"
+            className="absolute right-1 top-1/2 -translate-y-1/2 h-8 w-8 p-0 text-gray-700 dark:text-white/60 hover:text-gray-700 dark:hover:text-white hover:bg-white/10"
           >
             <IoClose className="h-4 w-4" />
           </Button>
         )}
       </div>
-      <div className="flex items-center gap-4 flex-wrap sm:flex-nowrap">
+      <div className="flex items-center gap-2 flex-wrap sm:flex-nowrap">
         <FilterDropdown
           selectedValues={selectedStatuses}
           setSelectedValues={setSelectedStatuses}

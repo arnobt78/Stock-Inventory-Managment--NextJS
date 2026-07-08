@@ -1,17 +1,14 @@
 "use client";
 
-import React, { useLayoutEffect, useCallback, useState } from "react";
+import React, { useCallback, useState } from "react";
 import Link from "next/link";
-import { useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { ChartCard } from "@/components/ui/chart-card";
 import { StatisticsCard } from "@/components/home/StatisticsCard";
-import { StatisticsCardSkeleton } from "@/components/home/StatisticsCardSkeleton";
 import { PageContentWrapper } from "@/components/shared";
 import { useDashboard } from "@/hooks/queries";
-import { queryKeys } from "@/lib/react-query";
+import { isDataSlotLoading } from "@/lib/react-query";
 import { useToast } from "@/hooks/use-toast";
-import { useAuth } from "@/contexts";
 import {
   Package,
   Users,
@@ -40,13 +37,8 @@ import {
   YAxis,
 } from "recharts";
 import { ResponsiveChartContainer } from "@/components/ui/responsive-chart-container";
-import {
-  ClientCompactDateTime,
-} from "@/components/shared";
-import {
-  formatStableCurrency,
-  formatClientCurrency,
-} from "@/lib/format";
+import { ClientCompactDateTime } from "@/components/shared";
+import { formatStableCurrency, formatClientCurrency } from "@/lib/format";
 import type { DashboardStats } from "@/types";
 import ForecastingSection from "@/components/admin/ForecastingSection";
 
@@ -62,20 +54,10 @@ export type AdminAnalyticsContentProps = {
 export default function AdminAnalyticsContent({
   initialStats,
 }: AdminAnalyticsContentProps = {}) {
-  const queryClient = useQueryClient();
   const { toast } = useToast();
-  const { isCheckingAuth, user } = useAuth();
-  const dashboardQuery = useDashboard();
+  const dashboardQuery = useDashboard(initialStats ?? undefined);
   const stats = dashboardQuery.data ?? initialStats ?? null;
-
-  useLayoutEffect(() => {
-    if (initialStats != null && user?.id) {
-      queryClient.setQueryData(
-        queryKeys.dashboard.overview(user.id),
-        initialStats,
-      );
-    }
-  }, [queryClient, initialStats, user?.id]);
+  const dataLoading = isDataSlotLoading(dashboardQuery, initialStats);
 
   const [aiText, setAiText] = useState<string | null>(null);
   const [aiLoading, setAiLoading] = useState(false);
@@ -151,7 +133,6 @@ export default function AdminAnalyticsContent({
     }
   }, [buildAiSummary, toast]);
 
-  const showSkeleton = isCheckingAuth || dashboardQuery.isPending;
   const revenueFromOrders =
     stats?.orderAnalytics?.totalRevenueExcludingCancelled ??
     stats?.revenue?.fromOrders ??
@@ -159,334 +140,344 @@ export default function AdminAnalyticsContent({
 
   return (
     <PageContentWrapper>
-      <div className="space-y-6">
-        <div className="flex flex-col items-start text-left pb-2">
-          <h1 className="text-xl sm:text-2xl font-semibold text-gray-900 dark:text-white pb-1">
+      <div className="space-y-4">
+        <div className="flex flex-col items-start text-left ">
+          <h1 className="text-lg sm:text-xl font-semibold text-gray-700 dark:text-white ">
             Store Analytics &amp; Dashboard (self + client + supplier + other
             users)
           </h1>
-          <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400">
+          <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">
             Overview, statistics, trends, and AI-powered insights across
             products, users, suppliers, categories, orders, invoices,
             warehouses, tickets, and reviews. Store-wide metrics.
           </p>
         </div>
 
-        {/* Overview cards — max 3 per row on admin (sidebar); same height via h-full */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 items-stretch">
-          {showSkeleton ? (
-            <>
-              {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].map((i) => (
-                <StatisticsCardSkeleton key={i} />
-              ))}
-            </>
-          ) : stats ? (
-            <>
-              <StatisticsCard
-                title="Total Products"
-                value={stats.counts?.products}
-                description="Products availability"
-                icon={Package}
-                variant="rose"
-                badges={[
-                  {
-                    label: "Available",
-                    value: stats.productStatusBreakdown?.available ?? 0,
-                  },
-                  {
-                    label: "Stock low",
-                    value: stats.productStatusBreakdown?.stockLow ?? 0,
-                  },
-                  {
-                    label: "Stock out",
-                    value: stats.productStatusBreakdown?.stockOut ?? 0,
-                  },
-                ]}
-              />
-              <StatisticsCard
-                title="Total Value"
-                value={formatCurrency(stats.totalInventoryValue ?? 0)}
-                description="Total inventory value"
-                icon={DollarSign}
-                variant="violet"
-                badges={[
-                  {
-                    label: "Orders",
-                    value: formatCurrency(
-                      stats.orderAnalytics?.totalRevenueExcludingCancelled ??
-                        stats.revenue?.fromOrders ??
-                        0,
-                    ),
-                  },
-                  {
-                    label: "Invoices",
-                    value: formatCurrency(stats.revenue?.fromInvoices ?? 0),
-                  },
-                  {
-                    label: "Due",
-                    value: formatCurrency(
-                      stats.invoiceAnalytics?.outstandingAmount ?? 0,
-                    ),
-                  },
-                  {
-                    label: "Cancelled",
-                    value: formatCurrency(
-                      stats.orderAnalytics?.cancelledOrderAmount ?? 0,
-                    ),
-                  },
-                ]}
-              />
-              <StatisticsCard
-                title="Total Revenue"
-                value={formatCurrency(revenueFromOrders)}
-                description="Profits (excl. cancelled)"
-                icon={DollarSign}
-                variant="emerald"
-                badges={[
-                  {
-                    label: "Paid",
-                    value: formatCurrency(
-                      stats.orderAnalytics?.paidOrderAmount ?? 0,
-                    ),
-                  },
-                  {
-                    label: "Due",
-                    value: formatCurrency(
-                      stats.invoiceAnalytics?.outstandingAmount ?? 0,
-                    ),
-                  },
-                  {
-                    label: "Refund",
-                    value: formatCurrency(
-                      stats.orderAnalytics?.refundedAmount ?? 0,
-                    ),
-                  },
-                  {
-                    label: "Pending",
-                    value: formatCurrency(
-                      stats.orderAnalytics?.pendingOrderAmount ?? 0,
-                    ),
-                  },
-                ]}
-              />
-              <StatisticsCard
-                title="Total Orders"
-                value={stats.counts?.orders}
-                description="Total orders placed (self + client)"
-                icon={ShoppingCart}
-                variant="blue"
-                badges={[
-                  {
-                    label: "Pending",
-                    value:
-                      stats.orderAnalytics?.statusDistribution?.pending ?? 0,
-                  },
-                  {
-                    label: "Confirmed",
-                    value:
-                      stats.orderAnalytics?.statusDistribution?.confirmed ?? 0,
-                  },
-                  {
-                    label: "Shipping",
-                    value:
-                      (stats.orderAnalytics?.statusDistribution?.processing ??
-                        0) +
-                      (stats.orderAnalytics?.statusDistribution?.shipped ?? 0),
-                  },
-                  {
-                    label: "Refund",
-                    value: stats.orderAnalytics?.refundedCount ?? 0,
-                  },
-                  {
-                    label: "Cancel",
-                    value:
-                      stats.orderAnalytics?.statusDistribution?.cancelled ?? 0,
-                  },
-                ]}
-              />
-              <StatisticsCard
-                title="Total Users"
-                value={stats.counts?.users}
-                description="Registered users"
-                icon={Users}
-                variant="amber"
-                badges={[
-                  {
-                    label: "Admin",
-                    value: stats.userRoleBreakdown?.admin ?? 0,
-                  },
-                  {
-                    label: "Client",
-                    value: stats.userRoleBreakdown?.client ?? 0,
-                  },
-                  {
-                    label: "Supplier",
-                    value: stats.userRoleBreakdown?.supplier ?? 0,
-                  },
-                ]}
-              />
-              <StatisticsCard
-                title="Total Suppliers"
-                value={stats.counts?.suppliers}
-                description="Suppliers"
-                icon={Truck}
-                variant="emerald"
-                badges={[
-                  {
-                    label: "Active",
-                    value: stats.supplierStatusBreakdown?.active ?? 0,
-                  },
-                  {
-                    label: "Inactive",
-                    value: stats.supplierStatusBreakdown?.inactive ?? 0,
-                  },
-                ]}
-              />
-              <StatisticsCard
-                title="Total Warehouses"
-                value={stats.counts?.warehouses}
-                description="Storage locations"
-                icon={Warehouse}
-                variant="teal"
-                badges={[
-                  {
-                    label: "Active",
-                    value: stats.warehouseAnalytics?.activeWarehouses ?? 0,
-                  },
-                  {
-                    label: "Inactive",
-                    value: stats.warehouseAnalytics?.inactiveWarehouses ?? 0,
-                  },
-                ]}
-              />
-              <StatisticsCard
-                title="Invoices"
-                value={stats.counts?.invoices}
-                description="Total invoices (store-wide)"
-                icon={FileText}
-                variant="sky"
-                badges={[
-                  {
-                    label: "Paid",
-                    value:
-                      stats.invoiceAnalytics?.statusDistribution?.paid ?? 0,
-                  },
-                  {
-                    label: "Pending",
-                    value:
-                      (stats.invoiceAnalytics?.statusDistribution?.draft ?? 0) +
-                      (stats.invoiceAnalytics?.statusDistribution?.sent ?? 0),
-                  },
-                  {
-                    label: "Overdue",
-                    value:
-                      stats.invoiceAnalytics?.statusDistribution?.overdue ?? 0,
-                  },
-                  {
-                    label: "Cancelled",
-                    value:
-                      stats.invoiceAnalytics?.statusDistribution?.cancelled ??
-                      0,
-                  },
-                  {
-                    label: "Refunded",
-                    value: stats.orderAnalytics?.refundedCount ?? 0,
-                  },
-                ]}
-              />
-              <StatisticsCard
-                title="Categories"
-                value={stats.counts?.categories}
-                description="Product categories"
-                icon={FolderTree}
-                variant="amber"
-                badges={[
-                  {
-                    label: "Active",
-                    value: stats.categoryStatusBreakdown?.active ?? 0,
-                  },
-                  {
-                    label: "Inactive",
-                    value: stats.categoryStatusBreakdown?.inactive ?? 0,
-                  },
-                ]}
-              />
-              <StatisticsCard
-                title="Support Tickets"
-                value={stats.counts?.tickets}
-                description="Tickets"
-                icon={MessageSquare}
-                variant="rose"
-                badges={[
-                  {
-                    label: "Open",
-                    value: stats.ticketStatusBreakdown?.open ?? 0,
-                  },
-                  {
-                    label: "In progress",
-                    value: stats.ticketStatusBreakdown?.in_progress ?? 0,
-                  },
-                  {
-                    label: "Resolved",
-                    value: stats.ticketStatusBreakdown?.resolved ?? 0,
-                  },
-                  {
-                    label: "Closed",
-                    value: stats.ticketStatusBreakdown?.closed ?? 0,
-                  },
-                ]}
-              />
-              <StatisticsCard
-                title="Reviews"
-                value={stats.counts?.reviews}
-                description="Product reviews"
-                icon={Star}
-                variant="orange"
-                badges={[
-                  {
-                    label: "Pending",
-                    value: stats.reviewStatusBreakdown?.pending ?? 0,
-                  },
-                  {
-                    label: "Approved",
-                    value: stats.reviewStatusBreakdown?.approved ?? 0,
-                  },
-                  {
-                    label: "Rejected",
-                    value: stats.reviewStatusBreakdown?.rejected ?? 0,
-                  },
-                ]}
-              />
-              <StatisticsCard
-                title="Average Order Value"
-                value={formatCurrency(
-                  stats.orderAnalytics?.averageOrderValue ?? 0,
-                )}
-                description="Per order (store-wide)"
-                icon={DollarSign}
-                variant="sky"
-                badges={[
-                  {
-                    label: "Paid revenue",
-                    value: formatCurrency(
-                      stats.invoiceAnalytics?.paidRevenue ?? 0,
-                    ),
-                  },
-                  {
-                    label: "Outstanding",
-                    value: formatCurrency(
-                      stats.invoiceAnalytics?.outstandingAmount ?? 0,
-                    ),
-                  },
-                ]}
-              />
-            </>
-          ) : null}
+        {/* Overview cards — REQ-0021 shell-first: titles/icons always visible */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 items-stretch">
+          <StatisticsCard
+            title="Total Products"
+            value={stats?.counts?.products ?? 0}
+            description="Products availability"
+            icon={Package}
+            variant="rose"
+            valueLoading={dataLoading}
+            badgeValuesLoading={dataLoading}
+            badges={[
+              {
+                label: "Available",
+                value: stats?.productStatusBreakdown?.available ?? 0,
+              },
+              {
+                label: "Stock low",
+                value: stats?.productStatusBreakdown?.stockLow ?? 0,
+              },
+              {
+                label: "Stock out",
+                value: stats?.productStatusBreakdown?.stockOut ?? 0,
+              },
+            ]}
+          />
+          <StatisticsCard
+            title="Total Value"
+            value={formatCurrency(stats?.totalInventoryValue ?? 0)}
+            description="Total inventory value"
+            icon={DollarSign}
+            variant="violet"
+            valueLoading={dataLoading}
+            badgeValuesLoading={dataLoading}
+            badges={[
+              {
+                label: "Orders",
+                value: formatCurrency(
+                  stats?.orderAnalytics?.totalRevenueExcludingCancelled ??
+                    stats?.revenue?.fromOrders ??
+                    0,
+                ),
+              },
+              {
+                label: "Invoices",
+                value: formatCurrency(stats?.revenue?.fromInvoices ?? 0),
+              },
+              {
+                label: "Due",
+                value: formatCurrency(
+                  stats?.invoiceAnalytics?.outstandingAmount ?? 0,
+                ),
+              },
+              {
+                label: "Cancelled",
+                value: formatCurrency(
+                  stats?.orderAnalytics?.cancelledOrderAmount ?? 0,
+                ),
+              },
+            ]}
+          />
+          <StatisticsCard
+            title="Total Revenue"
+            value={formatCurrency(revenueFromOrders)}
+            description="Profits (excl. cancelled)"
+            icon={DollarSign}
+            variant="emerald"
+            valueLoading={dataLoading}
+            badgeValuesLoading={dataLoading}
+            badges={[
+              {
+                label: "Paid",
+                value: formatCurrency(
+                  stats?.orderAnalytics?.paidOrderAmount ?? 0,
+                ),
+              },
+              {
+                label: "Due",
+                value: formatCurrency(
+                  stats?.invoiceAnalytics?.outstandingAmount ?? 0,
+                ),
+              },
+              {
+                label: "Refund",
+                value: formatCurrency(
+                  stats?.orderAnalytics?.refundedAmount ?? 0,
+                ),
+              },
+              {
+                label: "Pending",
+                value: formatCurrency(
+                  stats?.orderAnalytics?.pendingOrderAmount ?? 0,
+                ),
+              },
+            ]}
+          />
+          <StatisticsCard
+            title="Total Orders"
+            value={stats?.counts?.orders ?? 0}
+            description="Total orders placed (self + client)"
+            icon={ShoppingCart}
+            variant="blue"
+            valueLoading={dataLoading}
+            badgeValuesLoading={dataLoading}
+            badges={[
+              {
+                label: "Pending",
+                value: stats?.orderAnalytics?.statusDistribution?.pending ?? 0,
+              },
+              {
+                label: "Confirmed",
+                value:
+                  stats?.orderAnalytics?.statusDistribution?.confirmed ?? 0,
+              },
+              {
+                label: "Shipping",
+                value:
+                  (stats?.orderAnalytics?.statusDistribution?.processing ?? 0) +
+                  (stats?.orderAnalytics?.statusDistribution?.shipped ?? 0),
+              },
+              {
+                label: "Refund",
+                value: stats?.orderAnalytics?.refundedCount ?? 0,
+              },
+              {
+                label: "Cancel",
+                value:
+                  stats?.orderAnalytics?.statusDistribution?.cancelled ?? 0,
+              },
+            ]}
+          />
+          <StatisticsCard
+            title="Total Users"
+            value={stats?.counts?.users ?? 0}
+            description="Registered users"
+            icon={Users}
+            variant="amber"
+            valueLoading={dataLoading}
+            badgeValuesLoading={dataLoading}
+            badges={[
+              {
+                label: "Admin",
+                value: stats?.userRoleBreakdown?.admin ?? 0,
+              },
+              {
+                label: "Client",
+                value: stats?.userRoleBreakdown?.client ?? 0,
+              },
+              {
+                label: "Supplier",
+                value: stats?.userRoleBreakdown?.supplier ?? 0,
+              },
+            ]}
+          />
+          <StatisticsCard
+            title="Total Suppliers"
+            value={stats?.counts?.suppliers ?? 0}
+            description="Suppliers"
+            icon={Truck}
+            variant="emerald"
+            valueLoading={dataLoading}
+            badgeValuesLoading={dataLoading}
+            badges={[
+              {
+                label: "Active",
+                value: stats?.supplierStatusBreakdown?.active ?? 0,
+              },
+              {
+                label: "Inactive",
+                value: stats?.supplierStatusBreakdown?.inactive ?? 0,
+              },
+            ]}
+          />
+          <StatisticsCard
+            title="Total Warehouses"
+            value={stats?.counts?.warehouses ?? 0}
+            description="Storage locations"
+            icon={Warehouse}
+            variant="teal"
+            valueLoading={dataLoading}
+            badgeValuesLoading={dataLoading}
+            badges={[
+              {
+                label: "Active",
+                value: stats?.warehouseAnalytics?.activeWarehouses ?? 0,
+              },
+              {
+                label: "Inactive",
+                value: stats?.warehouseAnalytics?.inactiveWarehouses ?? 0,
+              },
+            ]}
+          />
+          <StatisticsCard
+            title="Invoices"
+            value={stats?.counts?.invoices ?? 0}
+            description="Total invoices (store-wide)"
+            icon={FileText}
+            variant="sky"
+            valueLoading={dataLoading}
+            badgeValuesLoading={dataLoading}
+            badges={[
+              {
+                label: "Paid",
+                value: stats?.invoiceAnalytics?.statusDistribution?.paid ?? 0,
+              },
+              {
+                label: "Pending",
+                value:
+                  (stats?.invoiceAnalytics?.statusDistribution?.draft ?? 0) +
+                  (stats?.invoiceAnalytics?.statusDistribution?.sent ?? 0),
+              },
+              {
+                label: "Overdue",
+                value:
+                  stats?.invoiceAnalytics?.statusDistribution?.overdue ?? 0,
+              },
+              {
+                label: "Cancelled",
+                value:
+                  stats?.invoiceAnalytics?.statusDistribution?.cancelled ?? 0,
+              },
+              {
+                label: "Refunded",
+                value: stats?.orderAnalytics?.refundedCount ?? 0,
+              },
+            ]}
+          />
+          <StatisticsCard
+            title="Categories"
+            value={stats?.counts?.categories ?? 0}
+            description="Product categories"
+            icon={FolderTree}
+            variant="amber"
+            valueLoading={dataLoading}
+            badgeValuesLoading={dataLoading}
+            badges={[
+              {
+                label: "Active",
+                value: stats?.categoryStatusBreakdown?.active ?? 0,
+              },
+              {
+                label: "Inactive",
+                value: stats?.categoryStatusBreakdown?.inactive ?? 0,
+              },
+            ]}
+          />
+          <StatisticsCard
+            title="Support Tickets"
+            value={stats?.counts?.tickets ?? 0}
+            description="Tickets"
+            icon={MessageSquare}
+            variant="rose"
+            valueLoading={dataLoading}
+            badgeValuesLoading={dataLoading}
+            badges={[
+              {
+                label: "Open",
+                value: stats?.ticketStatusBreakdown?.open ?? 0,
+              },
+              {
+                label: "In progress",
+                value: stats?.ticketStatusBreakdown?.in_progress ?? 0,
+              },
+              {
+                label: "Resolved",
+                value: stats?.ticketStatusBreakdown?.resolved ?? 0,
+              },
+              {
+                label: "Closed",
+                value: stats?.ticketStatusBreakdown?.closed ?? 0,
+              },
+            ]}
+          />
+          <StatisticsCard
+            title="Reviews"
+            value={stats?.counts?.reviews ?? 0}
+            description="Product reviews"
+            icon={Star}
+            variant="orange"
+            valueLoading={dataLoading}
+            badgeValuesLoading={dataLoading}
+            badges={[
+              {
+                label: "Pending",
+                value: stats?.reviewStatusBreakdown?.pending ?? 0,
+              },
+              {
+                label: "Approved",
+                value: stats?.reviewStatusBreakdown?.approved ?? 0,
+              },
+              {
+                label: "Rejected",
+                value: stats?.reviewStatusBreakdown?.rejected ?? 0,
+              },
+            ]}
+          />
+          <StatisticsCard
+            title="Average Order Value"
+            value={formatCurrency(
+              stats?.orderAnalytics?.averageOrderValue ?? 0,
+            )}
+            description="Per order (store-wide)"
+            icon={DollarSign}
+            variant="sky"
+            valueLoading={dataLoading}
+            badgeValuesLoading={dataLoading}
+            badges={[
+              {
+                label: "Paid revenue",
+                value: formatCurrency(
+                  stats?.invoiceAnalytics?.paidRevenue ?? 0,
+                ),
+              },
+              {
+                label: "Outstanding",
+                value: formatCurrency(
+                  stats?.invoiceAnalytics?.outstandingAmount ?? 0,
+                ),
+              },
+            ]}
+          />
         </div>
 
         {/* Trending charts */}
         {stats && stats.trends?.length > 0 && (
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-2">
             <ChartCard
               variant="sky"
               title="Orders & revenue over time"
@@ -603,13 +594,13 @@ export default function AdminAnalyticsContent({
         {/* Order Analytics section */}
         {stats && stats.orderAnalytics && (
           <div className="space-y-4">
-            <h2 className="text-xl sm:text-2xl font-semibold text-gray-900 dark:text-white flex items-center gap-2">
+            <h2 className="text-lg sm:text-xl font-semibold text-gray-700 dark:text-white flex items-center gap-2">
               <ShoppingCart className="h-5 w-5 text-sky-600" />
               Order Analytics
             </h2>
 
             {/* Summary cards */}
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
               <StatisticsCard
                 title="Average Order Value"
                 value={formatCurrency(stats.orderAnalytics.averageOrderValue)}
@@ -722,7 +713,7 @@ export default function AdminAnalyticsContent({
               />
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-2">
               {/* Order Status Distribution */}
               <ChartCard
                 variant="sky"
@@ -867,13 +858,13 @@ export default function AdminAnalyticsContent({
         {/* Invoice Analytics section */}
         {stats && stats.invoiceAnalytics && (
           <div className="space-y-4">
-            <h2 className="text-xl font-semibold text-gray-900 dark:text-white flex items-center gap-2">
+            <h2 className="text-xl font-semibold text-gray-700 dark:text-white flex items-center gap-2">
               <FileText className="h-5 w-5 text-amber-600" />
               Invoice Analytics
             </h2>
 
             {/* Summary cards — 4 cards: 2 per row */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-4 items-stretch">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-2 items-stretch">
               <StatisticsCard
                 title="Avg Invoice Value"
                 value={formatCurrency(
@@ -1088,13 +1079,13 @@ export default function AdminAnalyticsContent({
             }));
             return (
               <div className="space-y-4">
-                <h2 className="text-xl font-semibold text-gray-900 dark:text-white flex items-center gap-2">
+                <h2 className="text-xl font-semibold text-gray-700 dark:text-white flex items-center gap-2">
                   <Warehouse className="h-5 w-5 text-amber-500" />
                   Warehouse Analytics
                 </h2>
 
                 {/* Summary cards */}
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
                   <StatisticsCard
                     title="Total Warehouses"
                     value={stats.warehouseAnalytics.totalWarehouses}
@@ -1186,7 +1177,7 @@ export default function AdminAnalyticsContent({
 
         {/* Log summary: recent activity — 4 cards: 2 per row */}
         {stats && (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-4 items-stretch">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-2 items-stretch">
             <ChartCard
               variant="sky"
               title="Recent Orders"
@@ -1382,8 +1373,8 @@ export default function AdminAnalyticsContent({
             </Button>
             {aiUnavailable && (
               <p className="text-sm text-muted-foreground">
-                AI insights require OPENROUTER_API_KEY and/or GROQ_API_KEY. Set in .env to
-                enable.
+                AI insights require OPENROUTER_API_KEY and/or GROQ_API_KEY. Set
+                in .env to enable.
               </p>
             )}
             {aiText && (

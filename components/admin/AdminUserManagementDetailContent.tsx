@@ -229,7 +229,7 @@ export default function AdminUserManagementDetailContent() {
   if (isError || (!isLoading && !user)) {
     return (
       <PageContentWrapper>
-        <div className="space-y-6">
+        <div className="space-y-4">
           <Button variant="ghost" size="sm" asChild>
             <Link href="/admin/user-management" className="gap-2">
               <ArrowLeft className="h-4 w-4" />
@@ -266,15 +266,15 @@ export default function AdminUserManagementDetailContent() {
 
   return (
     <PageContentWrapper>
-      <div className="space-y-6">
-        <div className="flex items-center gap-4">
+      <div className="space-y-4">
+        <div className="flex items-center gap-2">
           <Button variant="ghost" size="icon" asChild>
             <Link href="/admin/user-management" className="h-10 w-10">
               <ArrowLeft className="h-5 w-5" />
             </Link>
           </Button>
           <div>
-            <h1 className="text-2xl font-semibold text-gray-900 dark:text-white">
+            <h1 className="text-lg sm:text-xl font-semibold text-gray-700 dark:text-white">
               User Details
             </h1>
             <p className="text-sm text-gray-600 dark:text-gray-400">
@@ -284,10 +284,10 @@ export default function AdminUserManagementDetailContent() {
         </div>
 
         <GlassCard variant="violet">
-          <div className="flex items-center gap-3 mb-4">
+          <div className="flex items-center gap-2 mb-4">
             <div
               className={cn(
-                "p-2.5 rounded-xl border",
+                "p-2 rounded-xl border",
                 variantConfig.violet.iconBg,
                 "dark:border-violet-400/30 dark:bg-violet-500/20",
               )}
@@ -295,7 +295,7 @@ export default function AdminUserManagementDetailContent() {
               <User className="h-5 w-5 text-violet-600 dark:text-violet-400" />
             </div>
             <div>
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+              <h3 className="text-lg font-semibold text-gray-700 dark:text-white">
                 Profile
               </h3>
               <p className="text-xs text-gray-600 dark:text-gray-400">
@@ -303,14 +303,14 @@ export default function AdminUserManagementDetailContent() {
               </p>
             </div>
           </div>
-          <div className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-2 sm:gap-4">
               <div className="space-y-4">
                 <div>
                   <Label className="text-gray-600 dark:text-gray-400">
                     Email
                   </Label>
-                  <p className="font-medium mt-1 text-gray-900 dark:text-white">
+                  <p className="font-medium mt-1 text-gray-700 dark:text-white">
                     {u.email}
                   </p>
                 </div>
@@ -318,7 +318,7 @@ export default function AdminUserManagementDetailContent() {
                   <Label className="text-gray-600 dark:text-gray-400">
                     Username
                   </Label>
-                  <p className="font-medium mt-1 text-gray-900 dark:text-white">
+                  <p className="font-medium mt-1 text-gray-700 dark:text-white">
                     {getDisplayUsername(u)}
                   </p>
                 </div>
@@ -326,7 +326,7 @@ export default function AdminUserManagementDetailContent() {
                   <Label className="text-gray-600 dark:text-gray-400">
                     Joined
                   </Label>
-                  <p className="font-medium mt-1 text-gray-900 dark:text-white">
+                  <p className="font-medium mt-1 text-gray-700 dark:text-white">
                     {format(new Date(u.createdAt), "MMMM d, yyyy 'at' h:mm a")}
                   </p>
                 </div>
@@ -334,7 +334,7 @@ export default function AdminUserManagementDetailContent() {
                   <Label className="text-gray-600 dark:text-gray-400">
                     Last Updated
                   </Label>
-                  <p className="font-medium mt-1 text-gray-900 dark:text-white">
+                  <p className="font-medium mt-1 text-gray-700 dark:text-white">
                     {u.updatedAt
                       ? format(
                           new Date(u.updatedAt),
@@ -353,7 +353,7 @@ export default function AdminUserManagementDetailContent() {
                     Name
                   </Label>
                   {isProtected ? (
-                    <p className="font-medium mt-1 text-gray-900 dark:text-white">
+                    <p className="font-medium mt-1 text-gray-700 dark:text-white">
                       {u.name ?? "—"}
                     </p>
                   ) : (
@@ -444,10 +444,10 @@ export default function AdminUserManagementDetailContent() {
         {/* Overview */}
         {overview && (
           <GlassCard variant="sky">
-            <div className="flex items-center gap-3 mb-4">
+            <div className="flex items-center gap-2 mb-4">
               <div
                 className={cn(
-                  "p-2.5 rounded-xl border",
+                  "p-2 rounded-xl border",
                   variantConfig.sky.iconBg,
                   "dark:border-sky-400/30 dark:bg-sky-500/20",
                 )}
@@ -455,7 +455,7 @@ export default function AdminUserManagementDetailContent() {
                 <DollarSign className="h-5 w-5 text-sky-600 dark:text-sky-400" />
               </div>
               <div>
-                <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+                <h3 className="text-lg font-semibold text-gray-700 dark:text-white">
                   Overview
                 </h3>
                 <p className="text-xs text-gray-600 dark:text-gray-400">
@@ -466,14 +466,14 @@ export default function AdminUserManagementDetailContent() {
                 </p>
               </div>
             </div>
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
               <Link
                 href="/admin/orders"
-                className="flex items-center gap-2 p-3 rounded-xl border border-sky-200/40 dark:border-white/10 bg-white/30 dark:bg-white/5 hover:bg-white/50 dark:hover:bg-white/10 transition-colors"
+                className="flex items-center gap-2 p-2 rounded-xl border border-sky-200/40 dark:border-white/10 bg-white/30 dark:bg-white/5 hover:bg-white/50 dark:hover:bg-white/10 transition-colors"
               >
                 <ShoppingCart className="h-5 w-5 text-sky-600 dark:text-sky-400" />
                 <div>
-                  <p className="text-2xl font-semibold text-gray-900 dark:text-white">
+                  <p className="text-lg sm:text-xl font-semibold text-gray-700 dark:text-white">
                     {overview.orderCount}
                   </p>
                   <p className="text-xs text-gray-600 dark:text-gray-400">
@@ -483,11 +483,11 @@ export default function AdminUserManagementDetailContent() {
               </Link>
               <Link
                 href="/admin/invoices"
-                className="flex items-center gap-2 p-3 rounded-xl border border-sky-200/40 dark:border-white/10 bg-white/30 dark:bg-white/5 hover:bg-white/50 dark:hover:bg-white/10 transition-colors"
+                className="flex items-center gap-2 p-2 rounded-xl border border-sky-200/40 dark:border-white/10 bg-white/30 dark:bg-white/5 hover:bg-white/50 dark:hover:bg-white/10 transition-colors"
               >
                 <FileText className="h-5 w-5 text-sky-600 dark:text-sky-400" />
                 <div>
-                  <p className="text-2xl font-semibold text-gray-900 dark:text-white">
+                  <p className="text-lg sm:text-xl font-semibold text-gray-700 dark:text-white">
                     {overview.invoiceCount}
                   </p>
                   <p className="text-xs text-gray-600 dark:text-gray-400">
@@ -495,10 +495,10 @@ export default function AdminUserManagementDetailContent() {
                   </p>
                 </div>
               </Link>
-              <div className="flex items-center gap-2 p-3 rounded-xl border border-violet-200/40 dark:border-white/10 bg-white/30 dark:bg-white/5">
+              <div className="flex items-center gap-2 p-2 rounded-xl border border-violet-200/40 dark:border-white/10 bg-white/30 dark:bg-white/5">
                 <DollarSign className="h-5 w-5 text-violet-600 dark:text-violet-400" />
                 <div>
-                  <p className="text-2xl font-semibold text-gray-900 dark:text-white">
+                  <p className="text-lg sm:text-xl font-semibold text-gray-700 dark:text-white">
                     ${(overview.totalRevenue ?? 0).toLocaleString()}
                   </p>
                   <p className="text-xs text-gray-600 dark:text-gray-400">
@@ -506,10 +506,10 @@ export default function AdminUserManagementDetailContent() {
                   </p>
                 </div>
               </div>
-              <div className="flex items-center gap-2 p-3 rounded-xl border border-emerald-200/40 dark:border-white/10 bg-white/30 dark:bg-white/5">
+              <div className="flex items-center gap-2 p-2 rounded-xl border border-emerald-200/40 dark:border-white/10 bg-white/30 dark:bg-white/5">
                 <DollarSign className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
                 <div>
-                  <p className="text-2xl font-semibold text-gray-900 dark:text-white">
+                  <p className="text-lg sm:text-xl font-semibold text-gray-700 dark:text-white">
                     ${overview.totalSpent.toLocaleString()}
                   </p>
                   <p className="text-xs text-gray-600 dark:text-gray-400">
@@ -517,10 +517,10 @@ export default function AdminUserManagementDetailContent() {
                   </p>
                 </div>
               </div>
-              <div className="flex items-center gap-2 p-3 rounded-xl border border-amber-200/40 dark:border-white/10 bg-white/30 dark:bg-white/5">
+              <div className="flex items-center gap-2 p-2 rounded-xl border border-amber-200/40 dark:border-white/10 bg-white/30 dark:bg-white/5">
                 <DollarSign className="h-5 w-5 text-amber-600 dark:text-amber-400" />
                 <div>
-                  <p className="text-2xl font-semibold text-gray-900 dark:text-white">
+                  <p className="text-lg sm:text-xl font-semibold text-gray-700 dark:text-white">
                     ${overview.totalDue.toLocaleString()}
                   </p>
                   <p className="text-xs text-gray-600 dark:text-gray-400">
@@ -529,14 +529,14 @@ export default function AdminUserManagementDetailContent() {
                 </div>
               </div>
             </div>
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mt-4 pt-4 border-t border-sky-200/40 dark:border-white/10">
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mt-4 pt-4 border-t border-sky-200/40 dark:border-white/10">
               <Link
                 href="/admin/products"
-                className="flex items-center gap-2 p-3 rounded-xl border border-violet-200/40 dark:border-white/10 bg-white/30 dark:bg-white/5 hover:bg-white/50 dark:hover:bg-white/10 transition-colors"
+                className="flex items-center gap-2 p-2 rounded-xl border border-violet-200/40 dark:border-white/10 bg-white/30 dark:bg-white/5 hover:bg-white/50 dark:hover:bg-white/10 transition-colors"
               >
                 <Package className="h-5 w-5 text-violet-600 dark:text-violet-400" />
                 <div>
-                  <p className="text-xl font-semibold text-gray-900 dark:text-white">
+                  <p className="text-xl font-semibold text-gray-700 dark:text-white">
                     {overview.productCount}
                   </p>
                   <p className="text-xs text-gray-600 dark:text-gray-400">
@@ -546,11 +546,11 @@ export default function AdminUserManagementDetailContent() {
               </Link>
               <Link
                 href="/admin/supplier-portal"
-                className="flex items-center gap-2 p-3 rounded-xl border border-violet-200/40 dark:border-white/10 bg-white/30 dark:bg-white/5 hover:bg-white/50 dark:hover:bg-white/10 transition-colors"
+                className="flex items-center gap-2 p-2 rounded-xl border border-violet-200/40 dark:border-white/10 bg-white/30 dark:bg-white/5 hover:bg-white/50 dark:hover:bg-white/10 transition-colors"
               >
                 <Truck className="h-5 w-5 text-violet-600 dark:text-violet-400" />
                 <div>
-                  <p className="text-xl font-semibold text-gray-900 dark:text-white">
+                  <p className="text-xl font-semibold text-gray-700 dark:text-white">
                     {overview.supplierCount}
                   </p>
                   <p className="text-xs text-gray-600 dark:text-gray-400">
@@ -560,11 +560,11 @@ export default function AdminUserManagementDetailContent() {
               </Link>
               <Link
                 href="/admin/products"
-                className="flex items-center gap-2 p-3 rounded-xl border border-violet-200/40 dark:border-white/10 bg-white/30 dark:bg-white/5 hover:bg-white/50 dark:hover:bg-white/10 transition-colors"
+                className="flex items-center gap-2 p-2 rounded-xl border border-violet-200/40 dark:border-white/10 bg-white/30 dark:bg-white/5 hover:bg-white/50 dark:hover:bg-white/10 transition-colors"
               >
                 <Tag className="h-5 w-5 text-violet-600 dark:text-violet-400" />
                 <div>
-                  <p className="text-xl font-semibold text-gray-900 dark:text-white">
+                  <p className="text-xl font-semibold text-gray-700 dark:text-white">
                     {overview.categoryCount}
                   </p>
                   <p className="text-xs text-gray-600 dark:text-gray-400">
@@ -574,11 +574,11 @@ export default function AdminUserManagementDetailContent() {
               </Link>
               <Link
                 href="/admin/warehouses"
-                className="flex items-center gap-2 p-3 rounded-xl border border-violet-200/40 dark:border-white/10 bg-white/30 dark:bg-white/5 hover:bg-white/50 dark:hover:bg-white/10 transition-colors"
+                className="flex items-center gap-2 p-2 rounded-xl border border-violet-200/40 dark:border-white/10 bg-white/30 dark:bg-white/5 hover:bg-white/50 dark:hover:bg-white/10 transition-colors"
               >
                 <Building2 className="h-5 w-5 text-violet-600 dark:text-violet-400" />
                 <div>
-                  <p className="text-xl font-semibold text-gray-900 dark:text-white">
+                  <p className="text-xl font-semibold text-gray-700 dark:text-white">
                     {overview.warehouseCount}
                   </p>
                   <p className="text-xs text-gray-600 dark:text-gray-400">
@@ -592,10 +592,10 @@ export default function AdminUserManagementDetailContent() {
 
         {/* Danger Zone */}
         <GlassCard variant="rose" className="border-rose-300/30">
-          <div className="flex items-center gap-3 mb-4">
+          <div className="flex items-center gap-2 mb-4">
             <div
               className={cn(
-                "p-2.5 rounded-xl border border-rose-300/30 bg-rose-100/50",
+                "p-2 rounded-xl border border-rose-300/30 bg-rose-100/50",
                 "dark:border-rose-400/30 dark:bg-rose-500/20",
               )}
             >

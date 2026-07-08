@@ -108,7 +108,7 @@ export default function WriteEditReviewDialog({
         }}
       >
         <DialogHeader>
-          <DialogTitle className="text-[22px] text-white flex items-center gap-3">
+          <DialogTitle className="text-[22px] text-white flex items-center gap-2">
             <div className="p-2 rounded-xl border border-amber-300/30 bg-amber-100/50 dark:border-amber-400/30 dark:bg-amber-500/20">
               <Star className="h-5 w-5 text-amber-500" />
             </div>
@@ -128,7 +128,7 @@ export default function WriteEditReviewDialog({
                   type="button"
                   onClick={() => setRating(v)}
                   className={cn(
-                    "p-1.5 rounded-lg transition-colors",
+                    "p-1 rounded-lg transition-colors",
                     rating >= v
                       ? "text-amber-400 hover:text-amber-300"
                       : "text-white/50 hover:text-amber-400",
@@ -159,7 +159,7 @@ export default function WriteEditReviewDialog({
               className="min-h-[100px] rounded-xl mt-1 border border-amber-400/30 bg-white/10 text-white placeholder:text-white/40 focus-visible:outline-none focus-visible:border focus-visible:border-amber-400 focus-visible:ring-2 focus-visible:ring-amber-500/50 shadow-[0_10px_30px_rgba(245,158,11,0.15)]"
             />
           </div>
-          <DialogFooter className="mt-6 flex flex-col sm:flex-row items-center gap-3">
+          <DialogFooter className="mt-6 flex flex-col sm:flex-row items-center gap-2">
             <Button
               type="button"
               variant="secondary"

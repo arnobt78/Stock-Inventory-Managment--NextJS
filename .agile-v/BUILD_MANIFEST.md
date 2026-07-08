@@ -39,6 +39,11 @@
 | ART-0031 | REQ-0019 | `lib/date/format-stable.ts` | Stable currency + UTC datetime |
 | ART-0033 | REQ-0020 | `lib/format/client-locale.ts` | Browser Intl formatters |
 | ART-0034 | REQ-0020 | `components/shared/ClientFormatDisplay.tsx` | ClientCurrency + ClientCompactDateTime |
+| ART-0035 | REQ-0021 | `components/shared/DataSlotPulse.tsx` | Inline value pulse |
+| ART-0036 | REQ-0021 | `lib/react-query/is-data-slot-loading.ts` | Loading predicate |
+| ART-0037 | REQ-0021 | `components/ui/table-data-skeleton.tsx` | TableBodyPulseRows |
+| ART-0038 | REQ-0021 | `app/**/page.tsx` (tier 1+2) | Suspense shell + streamed data |
+| ART-0039 | REQ-0021 | `hooks/queries/*` | initialData on list/dashboard hooks |
 
 ## Tests
 

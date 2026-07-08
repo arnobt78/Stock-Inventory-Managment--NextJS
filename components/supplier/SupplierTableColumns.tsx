@@ -31,14 +31,14 @@ const SortableHeader: React.FC<SortableHeaderProps> = ({ column, label }) => {
     isSorted === "asc"
       ? IoMdArrowUp
       : isSorted === "desc"
-      ? IoMdArrowDown
-      : ArrowUpDown;
+        ? IoMdArrowDown
+        : ArrowUpDown;
 
   return (
     <DropdownMenu>
       <DropdownMenuTrigger className="" asChild>
         <div
-          className={`flex items-center select-none cursor-pointer gap-1 py-2 text-gray-900 dark:text-white ${
+          className={`flex items-center select-none cursor-pointer gap-1 py-2 text-gray-700 dark:text-white ${
             isSorted && "text-primary"
           }`}
           aria-label={`Sort by ${label}`}
@@ -67,7 +67,10 @@ const SortableHeader: React.FC<SortableHeaderProps> = ({ column, label }) => {
  * Truncate text helper function
  * Truncates text to specified length with ellipsis
  */
-const truncateText = (text: string | null | undefined, maxLength: number = 50): string => {
+const truncateText = (
+  text: string | null | undefined,
+  maxLength: number = 50,
+): string => {
   if (!text || text.trim() === "") return "-";
   if (text.length <= maxLength) return text;
   return `${text.substring(0, maxLength)}...`;
@@ -106,7 +109,7 @@ function NameLinkWithClose({
  */
 export const createSupplierColumns = (
   onEdit: (supplier: Supplier) => void,
-  onBeforeNavigate?: () => void
+  onBeforeNavigate?: () => void,
 ): ColumnDef<Supplier>[] => [
   {
     accessorKey: "name",
@@ -115,7 +118,11 @@ export const createSupplierColumns = (
       const href = `/suppliers/${supplier.id}`;
       if (onBeforeNavigate) {
         return (
-          <NameLinkWithClose href={href} name={supplier.name} onBeforeNavigate={onBeforeNavigate} />
+          <NameLinkWithClose
+            href={href}
+            name={supplier.name}
+            onBeforeNavigate={onBeforeNavigate}
+          />
         );
       }
       return (
@@ -152,11 +159,16 @@ export const createSupplierColumns = (
   },
   {
     accessorKey: "description",
-    header: ({ column }) => <SortableHeader column={column} label="Description" />,
+    header: ({ column }) => (
+      <SortableHeader column={column} label="Description" />
+    ),
     cell: ({ row }) => {
       const description = row.original.description;
       return (
-        <span className="text-gray-900 dark:text-white" title={description || undefined}>
+        <span
+          className="text-gray-700 dark:text-white"
+          title={description || undefined}
+        >
           {truncateText(description, 50)}
         </span>
       );
@@ -169,7 +181,10 @@ export const createSupplierColumns = (
     cell: ({ row }) => {
       const notes = row.original.notes;
       return (
-        <span className="text-gray-900 dark:text-white" title={notes || undefined}>
+        <span
+          className="text-gray-700 dark:text-white"
+          title={notes || undefined}
+        >
           {truncateText(notes, 50)}
         </span>
       );
@@ -188,12 +203,12 @@ export const createSupplierColumns = (
 
       if (!date || isNaN(date.getTime())) {
         return (
-          <span className="text-gray-900 dark:text-white">Unknown Date</span>
+          <span className="text-gray-700 dark:text-white">Unknown Date</span>
         );
       }
 
       return (
-        <span className="text-gray-900 dark:text-white">
+        <span className="text-gray-700 dark:text-white">
           {date.toLocaleDateString("en-US", {
             year: "numeric",
             month: "short",
@@ -211,20 +226,20 @@ export const createSupplierColumns = (
     ),
     cell: ({ getValue }) => {
       const dateValue = getValue<string | Date | null | undefined>();
-      
+
       if (!dateValue) {
-        return <span className="text-gray-900 dark:text-white">-</span>;
+        return <span className="text-gray-700 dark:text-white">-</span>;
       }
 
       const date =
         typeof dateValue === "string" ? new Date(dateValue) : dateValue;
 
       if (!date || isNaN(date.getTime())) {
-        return <span className="text-gray-900 dark:text-white">-</span>;
+        return <span className="text-gray-700 dark:text-white">-</span>;
       }
 
       return (
-        <span className="text-gray-900 dark:text-white">
+        <span className="text-gray-700 dark:text-white">
           {date.toLocaleDateString("en-US", {
             year: "numeric",
             month: "short",
@@ -239,7 +254,13 @@ export const createSupplierColumns = (
     id: "actions",
     header: "Actions",
     cell: ({ row }) => {
-      return <SupplierActions row={row} onEdit={onEdit} onBeforeNavigate={onBeforeNavigate} />;
+      return (
+        <SupplierActions
+          row={row}
+          onEdit={onEdit}
+          onBeforeNavigate={onBeforeNavigate}
+        />
+      );
     },
     size: 10,
   },

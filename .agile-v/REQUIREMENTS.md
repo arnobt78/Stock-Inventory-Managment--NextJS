@@ -301,6 +301,30 @@ Canonical REQ source. All artifacts link via `REQ-XXXX`. Status: `done` | `verif
 
 ---
 
+## REQ-0021 — Shell-first navigation + data-slot pulse skeletons
+
+| Field | Value |
+|-------|-------|
+| **Priority** | P1 |
+| **Risk** | R2 |
+| **Status** | done |
+
+**Intent:** Instant layout shell on navbar/sidebar navigation; pulse skeletons only on dynamic values (metrics, counts, table cells, charts) while SSR/RQ loads. No `loading.tsx`.
+
+**Acceptance criteria**
+
+- AC1: `DataSlotPulse` + `isDataSlotLoading` in shared lib
+- AC2: Tables render real column headers; body cells pulse while loading
+- AC3: `StatisticsCard` shows titles/icons; values and badge numbers pulse only
+- AC4: Tier 1 navbar + Tier 2 admin routes shell-first (no full-card/table replacement)
+- AC5: `page.tsx` session-only shell + Suspense streamed data OR parallelized fetch; no sequential blocking chains
+- AC6: List/dashboard hooks accept `initialData` for first-render hydration (no `isPending` flash when SSR data exists)
+- AC7: Red Team pass (lint, test, test:invalidate, build)
+
+**Artifacts:** `components/shared/DataSlotPulse.tsx`, `lib/react-query/is-data-slot-loading.ts`, `components/ui/table-data-skeleton.tsx`, `hooks/queries/*`, list/table components, `app/**/page.tsx`
+
+---
+
 ## REQ-0020 — Locale-aware admin formatting
 
 | Field | Value |

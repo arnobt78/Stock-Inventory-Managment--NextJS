@@ -253,7 +253,7 @@ export function ProductImportDialog({
                   <FileText className="h-4 w-4" />
                   <span className="font-semibold">Import Summary</span>
                 </div>
-                <div className="text-sm space-y-1 text-white/80">
+                <div className="text-sm  text-white/80">
                   <p>
                     Total Rows: <strong className="text-white">{importResult.totalRows}</strong>
                   </p>
@@ -269,7 +269,7 @@ export function ProductImportDialog({
                 {importResult.errors && importResult.errors.length > 0 && (
                   <div className="mt-2 max-h-32 overflow-y-auto">
                     <p className="text-xs font-semibold mb-1 text-white/70">Errors:</p>
-                    <ul className="text-xs space-y-1 list-disc list-inside">
+                    <ul className="text-xs  list-disc list-inside">
                       {importResult.errors.slice(0, 5).map((error, index) => (
                         <li
                           key={index}

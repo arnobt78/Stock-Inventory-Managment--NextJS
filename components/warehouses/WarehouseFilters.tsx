@@ -206,9 +206,9 @@ export default function WarehouseFilters({
   }, [filteredWarehouses, toast]);
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-2">
       {/* Single Row: Search (Left) | Filters (Middle) | Export (Right) */}
-      <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-4">
+      <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
         {/* Search Bar - Left */}
         <div className="relative flex-1 sm:max-w-md">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-600 dark:text-white/60 z-10" />
@@ -219,7 +219,7 @@ export default function WarehouseFilters({
               setSearchTerm(e.target.value);
               setPagination((prev) => ({ ...prev, pageIndex: 0 }));
             }}
-            className="h-10 pl-9 pr-10 w-full rounded-[28px] bg-white/10 dark:bg-white/5 backdrop-blur-sm border border-teal-400/30 dark:border-white/20 text-gray-900 dark:text-white placeholder:text-gray-500 dark:placeholder:text-white/40 focus-visible:border-teal-400 focus-visible:ring-teal-500/50 shadow-[0_10px_30px_rgba(20,184,166,0.15)]"
+            className="h-10 pl-9 pr-10 w-full rounded-[28px] bg-white/10 dark:bg-white/5 backdrop-blur-sm border border-teal-400/30 dark:border-white/20 text-gray-700 dark:text-white placeholder:text-gray-500 dark:placeholder:text-white/40 focus-visible:border-teal-400 focus-visible:ring-teal-500/50 shadow-[0_10px_30px_rgba(20,184,166,0.15)]"
           />
           {searchTerm && (
             <Button
@@ -267,19 +267,19 @@ export default function WarehouseFilters({
                 <SelectContent className="rounded-[28px] border border-cyan-400/20 dark:border-white/10 bg-white/80 dark:bg-popover/50 backdrop-blur-sm shadow-[0_10px_30px_rgba(6,182,212,0.15)]">
                   <SelectItem
                     value="all"
-                    className="text-gray-700 dark:text-white/80 focus:bg-cyan-100 dark:focus:bg-white/10 focus:text-gray-900 dark:focus:text-white"
+                    className="text-gray-700 dark:text-white/80 focus:bg-cyan-100 dark:focus:bg-white/10 focus:text-gray-700 dark:focus:text-white"
                   >
                     All Warehouses
                   </SelectItem>
                   <SelectItem
                     value="active"
-                    className="text-gray-700 dark:text-white/80 focus:bg-cyan-100 dark:focus:bg-white/10 focus:text-gray-900 dark:focus:text-white"
+                    className="text-gray-700 dark:text-white/80 focus:bg-cyan-100 dark:focus:bg-white/10 focus:text-gray-700 dark:focus:text-white"
                   >
                     Active
                   </SelectItem>
                   <SelectItem
                     value="inactive"
-                    className="text-gray-700 dark:text-white/80 focus:bg-cyan-100 dark:focus:bg-white/10 focus:text-gray-900 dark:focus:text-white"
+                    className="text-gray-700 dark:text-white/80 focus:bg-cyan-100 dark:focus:bg-white/10 focus:text-gray-700 dark:focus:text-white"
                   >
                     Inactive
                   </SelectItem>
@@ -308,14 +308,14 @@ export default function WarehouseFilters({
             >
               <DropdownMenuItem
                 onClick={exportToCSV}
-                className="cursor-pointer text-gray-700 dark:text-white/80 hover:text-gray-900 dark:hover:text-white focus:bg-teal-100 dark:focus:bg-white/10 focus:text-gray-900 dark:focus:text-white"
+                className="cursor-pointer text-gray-700 dark:text-white/80 hover:text-gray-700 dark:hover:text-white focus:bg-teal-100 dark:focus:bg-white/10 focus:text-gray-700 dark:focus:text-white"
               >
                 <FiFileText className="mr-2 h-4 w-4" />
                 Export as CSV
               </DropdownMenuItem>
               <DropdownMenuItem
                 onClick={exportToExcel}
-                className="cursor-pointer text-gray-700 dark:text-white/80 hover:text-gray-900 dark:hover:text-white focus:bg-teal-100 dark:focus:bg-white/10 focus:text-gray-900 dark:focus:text-white"
+                className="cursor-pointer text-gray-700 dark:text-white/80 hover:text-gray-700 dark:hover:text-white focus:bg-teal-100 dark:focus:bg-white/10 focus:text-gray-700 dark:focus:text-white"
               >
                 <FiGrid className="mr-2 h-4 w-4" />
                 Export as Excel
@@ -350,7 +350,7 @@ function FilterArea({
   if (!hasActiveFilter) return null;
 
   return (
-    <div className="flex flex-col sm:flex-row gap-3 poppins">
+    <div className="flex flex-col sm:flex-row gap-2 poppins">
       {/* Status Filter */}
       {hasActiveFilter && (
         <div className="inline-flex items-center gap-1 px-2 py-1 text-xs border border-teal-400/30 bg-gradient-to-r from-teal-500/25 via-teal-500/10 to-teal-500/5 text-gray-700 dark:text-white rounded-md backdrop-blur-sm shadow-[0_10px_30px_rgba(20,184,166,0.2)]">
@@ -376,7 +376,7 @@ function FilterArea({
             setStatusFilter("all");
           }}
           variant={"ghost"}
-          className="p-1 px-2 text-gray-700 dark:text-white/80 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-white/10 backdrop-blur-sm"
+          className="p-1 px-2 text-gray-700 dark:text-white/80 hover:text-gray-700 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-white/10 backdrop-blur-sm"
         >
           <span>Reset</span>
           <IoClose className="h-3 w-3 text-gray-700 dark:text-white" />

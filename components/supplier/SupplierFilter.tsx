@@ -78,7 +78,7 @@ export function SuppliersDropDown({
               <CommandGroup>
                 {suppliers.map((supplier) => (
                   <CommandItem
-                    className="h-9 text-gray-700 dark:text-white/80 focus:bg-emerald-100 dark:focus:bg-white/10 focus:text-gray-900 dark:focus:text-white"
+                    className="h-9 text-gray-700 dark:text-white/80 focus:bg-emerald-100 dark:focus:bg-white/10 focus:text-gray-700 dark:focus:text-white"
                     key={supplier.id}
                   >
                     <Checkbox
@@ -100,7 +100,7 @@ export function SuppliersDropDown({
               <Button
                 onClick={clearFilters}
                 variant={"ghost"}
-                className="text-[12px] mb-1 text-gray-700 dark:text-white/80 hover:text-gray-900 dark:hover:text-white hover:bg-emerald-100 dark:hover:bg-white/10"
+                className="text-[12px] mb-1 text-gray-700 dark:text-white/80 hover:text-gray-700 dark:hover:text-white hover:bg-emerald-100 dark:hover:bg-white/10"
               >
                 Clear Filters
               </Button>

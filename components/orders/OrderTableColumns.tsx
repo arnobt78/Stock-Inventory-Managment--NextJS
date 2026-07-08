@@ -119,7 +119,7 @@ const SortableHeader: React.FC<SortableHeaderProps> = ({ column, label }) => {
     <DropdownMenu>
       <DropdownMenuTrigger className="" asChild>
         <div
-          className={`flex items-center select-none cursor-pointer gap-1 py-2 text-gray-900 dark:text-white ${
+          className={`flex items-center select-none cursor-pointer gap-1 py-2 text-gray-700 dark:text-white ${
             isSorted && "text-primary"
           }`}
           aria-label={`Sort by ${label}`}
@@ -179,8 +179,11 @@ export const createOrderColumns = (
         ? `${detailHrefBase}/${order.id}`
         : `/orders/${order.id}`;
       const showBadge = options?.showSourceBadge && order._source != null;
-      const showPlacedBy = options?.showPlacedBy && (order.placedByName || order.placedByEmail);
-      const showProductOwner = options?.showProductOwner && (order.productOwnerName || order.productOwnerEmail);
+      const showPlacedBy =
+        options?.showPlacedBy && (order.placedByName || order.placedByEmail);
+      const showProductOwner =
+        options?.showProductOwner &&
+        (order.productOwnerName || order.productOwnerEmail);
       return (
         <div className="flex flex-col gap-0.5">
           <Link
@@ -190,7 +193,7 @@ export const createOrderColumns = (
             {order.orderNumber}
           </Link>
           {showBadge && (
-            <div className="flex items-center gap-1.5 flex-wrap">
+            <div className="flex items-center gap-1 flex-wrap">
               {order._displayName != null && order._displayName !== "" && (
                 <span className="text-xs text-gray-500 dark:text-gray-400">
                   {order._displayName}
@@ -209,12 +212,14 @@ export const createOrderColumns = (
           )}
           {showPlacedBy && (
             <span className="text-xs text-gray-500 dark:text-gray-400">
-              {order.placedByName}{order.placedByEmail ? ` (${order.placedByEmail})` : ""}
+              {order.placedByName}
+              {order.placedByEmail ? ` (${order.placedByEmail})` : ""}
             </span>
           )}
           {showProductOwner && (
             <span className="text-xs text-gray-500 dark:text-gray-400">
-              {order.productOwnerName}{order.productOwnerEmail ? ` (${order.productOwnerEmail})` : ""}
+              {order.productOwnerName}
+              {order.productOwnerEmail ? ` (${order.productOwnerEmail})` : ""}
             </span>
           )}
         </div>

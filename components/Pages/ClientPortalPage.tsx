@@ -17,8 +17,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Skeleton } from "@/components/ui/skeleton";
-import { TableSkeleton } from "@/components/ui/table-skeleton";
+import { TableBodyPulseRows } from "@/components/ui/table-data-skeleton";
 import {
   useClientPortalDashboard,
   useClientCatalogOverview,
@@ -46,9 +45,9 @@ import {
 } from "recharts";
 import { ResponsiveChartContainer } from "@/components/ui/responsive-chart-container";
 import Navbar from "@/components/layouts/Navbar";
-import { PageContentWrapper } from "@/components/shared";
+import { PageContentWrapper, DataSlotPulse } from "@/components/shared";
 import { StatisticsCard } from "@/components/home/StatisticsCard";
-import { StatisticsCardSkeleton } from "@/components/home/StatisticsCardSkeleton";
+import { isDataSlotLoading } from "@/lib/react-query";
 import { cn } from "@/lib/utils";
 
 /** Catalog badge: Active = green (success), Inactive = secondary (gray) — matches admin/user style */
@@ -143,47 +142,32 @@ function getInvoiceStatusBadge(status: string) {
 
 export default function ClientPortalPage() {
   const { isCheckingAuth } = useAuth();
-  const { data: dashboard, isLoading, isError } = useClientPortalDashboard();
-  const {
-    data: catalog,
-    isLoading: catalogLoading,
-    isError: catalogError,
-  } = useClientCatalogOverview();
+  const dashboardQuery = useClientPortalDashboard();
+  const catalogQuery = useClientCatalogOverview();
+  const dashboard = dashboardQuery.data;
+  const catalog = catalogQuery.data;
+  const dashboardLoading = isDataSlotLoading(dashboardQuery);
+  const catalogLoading = isDataSlotLoading(catalogQuery);
+  const showError =
+    !dashboardLoading &&
+    !isCheckingAuth &&
+    (dashboardQuery.isError || !dashboard);
 
-  // Show skeleton while auth is resolving or portal data is loading (avoids "Failed to load" on refresh)
-  if (isCheckingAuth || isLoading) {
+  if (showError) {
     return (
       <Navbar>
         <PageContentWrapper>
-          <div className="space-y-6">
-            <Skeleton className="h-12 w-64" />
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
-              {[1, 2, 3, 4].map((i) => (
-                <StatisticsCardSkeleton key={i} />
-              ))}
-            </div>
-            <Skeleton className="h-64" />
-          </div>
-        </PageContentWrapper>
-      </Navbar>
-    );
-  }
-
-  if (isError || !dashboard) {
-    return (
-      <Navbar>
-        <PageContentWrapper>
-          <div className="space-y-6">
-            <h1 className="text-2xl font-semibold text-primary">
+          <div className="space-y-4">
+            <h1 className="text-lg sm:text-xl font-semibold text-primary">
               Client Portal
             </h1>
             <article
               className={cn(
-                "rounded-[28px] border border-white/10 dark:border-white/20 p-4 sm:p-6 backdrop-blur-sm bg-white/60 dark:bg-white/5 shadow-[0_15px_40px_rgba(0,0,0,0.08)] dark:shadow-[0_30px_80px_rgba(255,255,255,0.08)]",
+                "rounded-[28px] border border-white/10 dark:border-white/20 p-2 sm:p-4 backdrop-blur-sm bg-white/60 dark:bg-white/5 shadow-[0_15px_40px_rgba(0,0,0,0.08)] dark:shadow-[0_30px_80px_rgba(255,255,255,0.08)]",
               )}
             >
               <p className="text-muted-foreground text-center">
-                Failed to load client dashboard.
+                Failed to load client dashboard?.
               </p>
               <div className="flex justify-center mt-4">
                 <Button asChild variant="outline">
@@ -200,83 +184,94 @@ export default function ClientPortalPage() {
   return (
     <Navbar>
       <PageContentWrapper>
-        <div className="space-y-6">
+        <div className="space-y-4">
           <div className="">
-            <h1 className="text-xl sm:text-2xl font-semibold text-gray-900 dark:text-white">
+            <h1 className="text-lg sm:text-xl font-semibold text-gray-700 dark:text-white">
               Client Portal
             </h1>
-            <p className="text-sm sm:text-base text-muted-foreground">
-              Welcome, {dashboard.clientName}
+            <p className="text-xs sm:text-sm text-muted-foreground">
+              Welcome,{" "}
+              {dashboardLoading ? (
+                <DataSlotPulse variant="text-sm" />
+              ) : (
+                dashboard?.clientName
+              )}
             </p>
           </div>
 
           {/* Summary Cards — glassmorphic round-28px, same style as business-insights / homepage */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-2">
             <StatisticsCard
               title="Total Orders"
-              value={dashboard.totalOrders}
+              value={dashboard?.totalOrders ?? 0}
               description="Your order history"
               icon={ShoppingCart}
               variant="sky"
+              valueLoading={dashboardLoading}
+              badgeValuesLoading={dashboardLoading}
               badges={[
                 {
                   label: "Pending",
-                  value: dashboard.orderStatusCounts?.pending ?? 0,
+                  value: dashboard?.orderStatusCounts?.pending ?? 0,
                 },
                 {
                   label: "In progress",
-                  value: dashboard.orderStatusCounts?.inProgress ?? 0,
+                  value: dashboard?.orderStatusCounts?.inProgress ?? 0,
                 },
                 {
                   label: "Shipped",
-                  value: dashboard.orderStatusCounts?.shipped ?? 0,
+                  value: dashboard?.orderStatusCounts?.shipped ?? 0,
                 },
                 {
                   label: "Delivered",
-                  value: dashboard.orderStatusCounts?.delivered ?? 0,
+                  value: dashboard?.orderStatusCounts?.delivered ?? 0,
                 },
                 {
                   label: "Refunded",
-                  value: dashboard.refundedOrdersCount ?? 0,
+                  value: dashboard?.refundedOrdersCount ?? 0,
                 },
               ]}
             />
             <StatisticsCard
               title="Awaiting Payment"
-              value={dashboard.ordersAwaitingPayment ?? 0}
+              value={dashboard?.ordersAwaitingPayment ?? 0}
               description="Orders awaiting payment"
               icon={Clock}
               variant="amber"
+              valueLoading={dashboardLoading}
+              badgeValuesLoading={dashboardLoading}
               badges={[
                 {
                   label: "Cancelled",
-                  value: dashboard.orderStatusCounts?.cancelled ?? 0,
+                  value: dashboard?.orderStatusCounts?.cancelled ?? 0,
                 },
                 {
                   label: "Completed",
-                  value: dashboard.ordersCompleted ?? 0,
+                  value: dashboard?.ordersCompleted ?? 0,
                 },
                 {
                   label: "Refunded",
-                  value: dashboard.refundedOrdersCount ?? 0,
+                  value: dashboard?.refundedOrdersCount ?? 0,
                 },
-                { label: "Of Total", value: dashboard.totalOrders },
+                { label: "Of Total", value: dashboard?.totalOrders },
               ]}
             />
             <StatisticsCard
               title="Total Spent"
-              value={`$${dashboard.totalSpent.toLocaleString(undefined, {
+              value={`$${(dashboard?.totalSpent ?? 0).toLocaleString(undefined, {
                 minimumFractionDigits: 2,
                 maximumFractionDigits: 2,
               })}`}
               description="Total order value"
               icon={DollarSign}
               variant="emerald"
+              valueLoading={dashboardLoading}
+              badgeValuesLoading={dashboardLoading}
               badges={[
                 {
                   label: "Paid",
                   value: `$${(
-                    dashboard.paymentBreakdown?.paid ?? 0
+                    dashboard?.paymentBreakdown?.paid ?? 0
                   ).toLocaleString(undefined, {
                     minimumFractionDigits: 2,
                     maximumFractionDigits: 2,
@@ -285,7 +280,7 @@ export default function ClientPortalPage() {
                 {
                   label: "Due",
                   value: `$${(
-                    dashboard.paymentBreakdown?.due ?? 0
+                    dashboard?.paymentBreakdown?.due ?? 0
                   ).toLocaleString(undefined, {
                     minimumFractionDigits: 2,
                     maximumFractionDigits: 2,
@@ -294,7 +289,7 @@ export default function ClientPortalPage() {
                 {
                   label: "Refund",
                   value: `$${(
-                    dashboard.paymentBreakdown?.refund ?? 0
+                    dashboard?.paymentBreakdown?.refund ?? 0
                   ).toLocaleString(undefined, {
                     minimumFractionDigits: 2,
                     maximumFractionDigits: 2,
@@ -303,7 +298,7 @@ export default function ClientPortalPage() {
                 {
                   label: "Pending",
                   value: `$${(
-                    dashboard.paymentBreakdown?.pending ?? 0
+                    dashboard?.paymentBreakdown?.pending ?? 0
                   ).toLocaleString(undefined, {
                     minimumFractionDigits: 2,
                     maximumFractionDigits: 2,
@@ -312,18 +307,18 @@ export default function ClientPortalPage() {
                 {
                   label: "Cancelled",
                   value: `$${(
-                    dashboard.paymentBreakdown?.cancelled ?? 0
+                    dashboard?.paymentBreakdown?.cancelled ?? 0
                   ).toLocaleString(undefined, {
                     minimumFractionDigits: 2,
                     maximumFractionDigits: 2,
                   })}`,
                 },
-                ...(dashboard.totalOrders > 0
+                ...((dashboard?.totalOrders ?? 0) > 0
                   ? [
                       {
                         label: "Avg/Order",
                         value: `$${(
-                          dashboard.totalSpent / dashboard.totalOrders
+                          (dashboard?.totalSpent ?? 0) / (dashboard?.totalOrders ?? 1)
                         ).toLocaleString(undefined, {
                           minimumFractionDigits: 2,
                           maximumFractionDigits: 2,
@@ -335,64 +330,67 @@ export default function ClientPortalPage() {
             />
             <StatisticsCard
               title="Outstanding"
-              value={`$${dashboard.outstandingAmount.toLocaleString(undefined, {
+              value={`$${(dashboard?.outstandingAmount ?? 0).toLocaleString(undefined, {
                 minimumFractionDigits: 2,
                 maximumFractionDigits: 2,
               })}`}
               description="Unpaid invoice balance"
               icon={AlertCircle}
               variant="rose"
+              valueLoading={dashboardLoading}
+              badgeValuesLoading={dashboardLoading}
               badges={[
-                ...(dashboard.outstandingAmount === 0
+                ...(dashboard?.outstandingAmount === 0
                   ? [{ label: "Status", value: "All Paid" }]
                   : []),
                 {
                   label: "Invoices Paid",
-                  value: dashboard.invoiceBreakdown?.paid ?? 0,
+                  value: dashboard?.invoiceBreakdown?.paid ?? 0,
                 },
                 {
                   label: "Pending",
-                  value: dashboard.invoiceBreakdown?.pending ?? 0,
+                  value: dashboard?.invoiceBreakdown?.pending ?? 0,
                 },
                 {
                   label: "Overdue",
-                  value: dashboard.invoiceBreakdown?.overdue ?? 0,
+                  value: dashboard?.invoiceBreakdown?.overdue ?? 0,
                 },
                 {
                   label: "Cancelled",
-                  value: dashboard.invoiceBreakdown?.cancelled ?? 0,
+                  value: dashboard?.invoiceBreakdown?.cancelled ?? 0,
                 },
                 {
                   label: "Total Invoices",
-                  value: dashboard.invoiceBreakdown?.total ?? 0,
+                  value: dashboard?.invoiceBreakdown?.total ?? 0,
                 },
               ]}
             />
           </div>
 
-          {/* Spending Chart — glassmorphic card */}
-          {dashboard.monthlySpending.length > 0 && (
-            <article
-              className={cn(
-                "rounded-[28px] border border-emerald-400/20 dark:border-emerald-400/30 p-4 sm:p-6 backdrop-blur-sm transition-all",
-                "bg-white/60 dark:bg-white/5",
-                "bg-gradient-to-br from-emerald-500/15 via-emerald-500/5 to-transparent dark:from-emerald-500/25 dark:via-emerald-500/10 dark:to-emerald-500/5",
-                "shadow-[0_15px_40px_rgba(16,185,129,0.15)] dark:shadow-[0_30px_80px_rgba(16,185,129,0.25)]",
-                "hover:border-emerald-300/40",
-              )}
-            >
-              <div className="mb-4">
-                <h3 className="flex items-center gap-2 text-lg font-semibold text-gray-900 dark:text-white">
-                  <TrendingUp className="h-5 w-5 text-emerald-500 dark:text-emerald-400" />
-                  Monthly Spending
-                </h3>
-                <p className="text-sm text-gray-600 dark:text-white/70 mt-1">
-                  Your spending over the last 6 months (grouped by month)
-                </p>
-              </div>
+          <article
+            className={cn(
+              "rounded-[28px] border border-emerald-400/20 dark:border-emerald-400/30 p-2 sm:p-4 backdrop-blur-sm transition-all",
+              "bg-white/60 dark:bg-white/5",
+              "bg-gradient-to-br from-emerald-500/15 via-emerald-500/5 to-transparent dark:from-emerald-500/25 dark:via-emerald-500/10 dark:to-emerald-500/5",
+              "shadow-[0_15px_40px_rgba(16,185,129,0.15)] dark:shadow-[0_30px_80px_rgba(16,185,129,0.25)]",
+              "hover:border-emerald-300/40",
+            )}
+          >
+            <div className="mb-4">
+              <h3 className="flex items-center gap-2 text-lg font-semibold text-gray-700 dark:text-white">
+                <TrendingUp className="h-5 w-5 text-emerald-500 dark:text-emerald-400" />
+                Monthly Spending
+              </h3>
+              <p className="text-sm text-gray-600 dark:text-white/70 mt-1">
+                Your spending over the last 6 months (grouped by month)
+              </p>
+            </div>
+            {dashboardLoading ? (
+              <DataSlotPulse variant="chart" className="min-h-[240px]" />
+            ) : (dashboard?.monthlySpending.length ?? 0) > 0 ? (
               <ResponsiveChartContainer>
                 <AreaChart
-                  data={dashboard.monthlySpending}
+                  data={dashboard!.monthlySpending}
                   margin={{ top: 10, right: 30, left: 0, bottom: 0 }}
                 >
                   <CartesianGrid strokeDasharray="3 3" />
@@ -412,14 +410,18 @@ export default function ClientPortalPage() {
                   />
                 </AreaChart>
               </ResponsiveChartContainer>
-            </article>
-          )}
+            ) : (
+              <p className="text-muted-foreground text-center py-8">
+                No spending data yet
+              </p>
+            )}
+          </article>
 
           {/* Catalog — glassmorphic */}
           <article
             id="catalog"
             className={cn(
-              "rounded-[28px] border border-sky-400/20 dark:border-sky-400/30 p-4 sm:p-6 backdrop-blur-sm transition-all",
+              "rounded-[28px] border border-sky-400/20 dark:border-sky-400/30 p-2 sm:p-4 backdrop-blur-sm transition-all",
               "bg-white/60 dark:bg-white/5",
               "bg-gradient-to-br from-sky-500/15 via-sky-500/5 to-transparent dark:from-sky-500/25 dark:via-sky-500/10 dark:to-sky-500/5",
               "shadow-[0_15px_40px_rgba(2,132,199,0.15)] dark:shadow-[0_30px_80px_rgba(2,132,199,0.25)]",
@@ -427,7 +429,7 @@ export default function ClientPortalPage() {
             )}
           >
             <div className="mb-6">
-              <h3 className="flex items-center gap-2 text-lg font-semibold text-gray-900 dark:text-white">
+              <h3 className="flex items-center gap-2 text-lg font-semibold text-gray-700 dark:text-white">
                 <Store className="h-5 w-5 text-sky-500 dark:text-sky-400" />
                 Catalog — What&apos;s available
               </h3>
@@ -435,29 +437,74 @@ export default function ClientPortalPage() {
                 Browse suppliers, categories, and products
               </p>
             </div>
-            <div className="space-y-6">
-              {catalogLoading && (
+            <div className="space-y-4">
+              {catalogLoading ? (
                 <>
                   <div>
-                    <Skeleton className="h-6 w-32 mb-2" />
-                    <TableSkeleton rows={5} columns={3} />
+                    <p className="text-sm font-medium mb-2 flex items-center gap-2">
+                      <Layers className="h-4 w-4 text-sky-500" />
+                      Suppliers
+                    </p>
+                    <div className="overflow-x-auto rounded-md border">
+                      <Table>
+                        <TableHeader>
+                          <TableRow>
+                            <TableHead>Name</TableHead>
+                            <TableHead>Status</TableHead>
+                            <TableHead className="text-right">Products</TableHead>
+                          </TableRow>
+                        </TableHeader>
+                        <TableBodyPulseRows rows={5} columnCount={3} />
+                      </Table>
+                    </div>
                   </div>
                   <div>
-                    <Skeleton className="h-6 w-32 mb-2" />
-                    <TableSkeleton rows={5} columns={4} />
+                    <p className="text-sm font-medium mb-2 flex items-center gap-2">
+                      <Boxes className="h-4 w-4 text-violet-500" />
+                      Categories
+                    </p>
+                    <div className="overflow-x-auto rounded-md border">
+                      <Table>
+                        <TableHeader>
+                          <TableRow>
+                            <TableHead>Name</TableHead>
+                            <TableHead>Status</TableHead>
+                            <TableHead>Product Owner</TableHead>
+                            <TableHead className="text-right">Products</TableHead>
+                          </TableRow>
+                        </TableHeader>
+                        <TableBodyPulseRows rows={5} columnCount={4} />
+                      </Table>
+                    </div>
                   </div>
                   <div>
-                    <Skeleton className="h-6 w-32 mb-2" />
-                    <TableSkeleton rows={8} columns={7} />
+                    <p className="text-sm font-medium mb-2 flex items-center gap-2">
+                      <Package className="h-4 w-4 text-emerald-500" />
+                      Products
+                    </p>
+                    <div className="overflow-x-auto rounded-md border">
+                      <Table>
+                        <TableHeader>
+                          <TableRow>
+                            <TableHead>Product Name</TableHead>
+                            <TableHead>SKU</TableHead>
+                            <TableHead>Category</TableHead>
+                            <TableHead>Supplier</TableHead>
+                            <TableHead>Product Owner</TableHead>
+                            <TableHead className="text-right">Price</TableHead>
+                            <TableHead>Status</TableHead>
+                          </TableRow>
+                        </TableHeader>
+                        <TableBodyPulseRows rows={8} columnCount={7} />
+                      </Table>
+                    </div>
                   </div>
                 </>
-              )}
-              {!catalogLoading && (catalogError || !catalog) && (
+              ) : catalogQuery.isError || !catalog ? (
                 <p className="text-muted-foreground text-center py-4">
                   Unable to load catalog.
                 </p>
-              )}
-              {!catalogLoading && catalog && (
+              ) : (
                 <>
                   <div>
                     <p className="text-sm font-medium mb-2 flex items-center gap-2">
@@ -660,11 +707,11 @@ export default function ClientPortalPage() {
             </div>
           </article>
 
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-2 sm:gap-4">
             {/* Recent Orders — glassmorphic */}
             <article
               className={cn(
-                "rounded-[28px] border border-sky-400/20 dark:border-sky-400/30 p-4 sm:p-6 backdrop-blur-sm transition-all",
+                "rounded-[28px] border border-sky-400/20 dark:border-sky-400/30 p-2 sm:p-4 backdrop-blur-sm transition-all",
                 "bg-white/60 dark:bg-white/5",
                 "bg-gradient-to-br from-sky-500/15 via-sky-500/5 to-transparent dark:from-sky-500/25 dark:via-sky-500/10 dark:to-sky-500/5",
                 "shadow-[0_15px_40px_rgba(2,132,199,0.15)] dark:shadow-[0_30px_80px_rgba(2,132,199,0.25)]",
@@ -672,7 +719,7 @@ export default function ClientPortalPage() {
               )}
             >
               <div className="mb-4">
-                <h3 className="flex items-center gap-2 text-lg font-semibold text-gray-900 dark:text-white">
+                <h3 className="flex items-center gap-2 text-lg font-semibold text-gray-700 dark:text-white">
                   <ShoppingCart className="h-5 w-5 text-sky-500 dark:text-sky-400" />
                   Recent Orders
                 </h3>
@@ -681,7 +728,18 @@ export default function ClientPortalPage() {
                 </p>
               </div>
               <div>
-                {dashboard.recentOrders.length === 0 ? (
+                {dashboardLoading ? (
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Order #</TableHead>
+                        <TableHead className="text-right">Total</TableHead>
+                        <TableHead>Status</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBodyPulseRows rows={5} columnCount={3} />
+                  </Table>
+                ) : (dashboard?.recentOrders.length ?? 0) === 0 ? (
                   <p className="text-muted-foreground text-center py-4">
                     No orders yet
                   </p>
@@ -696,7 +754,7 @@ export default function ClientPortalPage() {
                         </TableRow>
                       </TableHeader>
                       <TableBody>
-                        {dashboard.recentOrders.slice(0, 5).map((order) => (
+                        {dashboard!.recentOrders.slice(0, 5).map((order) => (
                           <TableRow key={order.id}>
                             <TableCell>
                               <Link
@@ -737,7 +795,7 @@ export default function ClientPortalPage() {
             {/* Recent Invoices — glassmorphic */}
             <article
               className={cn(
-                "rounded-[28px] border border-violet-400/20 dark:border-violet-400/30 p-4 sm:p-6 backdrop-blur-sm transition-all",
+                "rounded-[28px] border border-violet-400/20 dark:border-violet-400/30 p-2 sm:p-4 backdrop-blur-sm transition-all",
                 "bg-white/60 dark:bg-white/5",
                 "bg-gradient-to-br from-violet-500/15 via-violet-500/5 to-transparent dark:from-violet-500/25 dark:via-violet-500/10 dark:to-violet-500/5",
                 "shadow-[0_15px_40px_rgba(139,92,246,0.15)] dark:shadow-[0_30px_80px_rgba(139,92,246,0.25)]",
@@ -745,7 +803,7 @@ export default function ClientPortalPage() {
               )}
             >
               <div className="mb-4">
-                <h3 className="flex items-center gap-2 text-lg font-semibold text-gray-900 dark:text-white">
+                <h3 className="flex items-center gap-2 text-lg font-semibold text-gray-700 dark:text-white">
                   <FileText className="h-5 w-5 text-violet-500 dark:text-violet-400" />
                   Recent Invoices
                 </h3>
@@ -754,7 +812,18 @@ export default function ClientPortalPage() {
                 </p>
               </div>
               <div>
-                {dashboard.recentInvoices.length === 0 ? (
+                {dashboardLoading ? (
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Invoice #</TableHead>
+                        <TableHead className="text-right">Due</TableHead>
+                        <TableHead>Status</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBodyPulseRows rows={5} columnCount={3} />
+                  </Table>
+                ) : (dashboard?.recentInvoices.length ?? 0) === 0 ? (
                   <p className="text-muted-foreground text-center py-4">
                     No invoices yet
                   </p>
@@ -769,7 +838,7 @@ export default function ClientPortalPage() {
                         </TableRow>
                       </TableHeader>
                       <TableBody>
-                        {dashboard.recentInvoices.slice(0, 5).map((invoice) => (
+                        {dashboard!.recentInvoices.slice(0, 5).map((invoice) => (
                           <TableRow key={invoice.id}>
                             <TableCell>
                               <Link
@@ -811,17 +880,17 @@ export default function ClientPortalPage() {
           {/* Quick Links — glassmorphic */}
           <article
             className={cn(
-              "rounded-[28px] border border-violet-400/20 dark:border-violet-400/30 p-4 sm:p-6 backdrop-blur-sm transition-all",
+              "rounded-[28px] border border-violet-400/20 dark:border-violet-400/30 p-2 sm:p-4 backdrop-blur-sm transition-all",
               "bg-white/60 dark:bg-white/5",
               "bg-gradient-to-br from-violet-500/15 via-violet-500/5 to-transparent dark:from-violet-500/25 dark:via-violet-500/10 dark:to-violet-500/5",
               "shadow-[0_15px_40px_rgba(139,92,246,0.15)] dark:shadow-[0_30px_80px_rgba(139,92,246,0.25)]",
               "hover:border-violet-300/40",
             )}
           >
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+            <h3 className="text-lg font-semibold text-gray-700 dark:text-white mb-4">
               Quick Links
             </h3>
-            <div className="flex flex-wrap gap-3">
+            <div className="flex flex-wrap gap-2">
               <Button asChild variant="outline" className="gap-2">
                 <Link href="/orders">
                   <ShoppingCart className="h-4 w-4" />

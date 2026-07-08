@@ -38,10 +38,12 @@ export default function AdminPage() {
     <Navbar>
       <PageWithSidebar sidebarContent={<AdminSidebar />}>
         <PageContentWrapper>
-          <div className="space-y-6">
+          <div className="space-y-4">
             <div className="space-y-2">
               <div className="flex items-center gap-2">
-                <h1 className="text-2xl font-semibold text-primary">Admin</h1>
+                <h1 className="text-lg sm:text-xl font-semibold text-primary">
+                  Admin
+                </h1>
                 <HelpTooltip
                   content="Quick links to system health, API docs, analytics, and notification settings."
                   ariaLabel="Admin hub help"
@@ -52,10 +54,10 @@ export default function AdminPage() {
               </p>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
               <Link href="/api-status" className={linkCardClass}>
                 <Card className="border-0 bg-transparent shadow-none">
-                  <CardHeader className="pb-2">
+                  <CardHeader className="">
                     <div className="flex items-center gap-2">
                       <FiActivity className="h-5 w-5 text-sky-600 dark:text-sky-400" />
                       <CardTitle className="text-lg">
@@ -74,7 +76,7 @@ export default function AdminPage() {
 
               <Link href="/api-docs" className={linkCardClass}>
                 <Card className="border-0 bg-transparent shadow-none">
-                  <CardHeader className="pb-2">
+                  <CardHeader className="">
                     <div className="flex items-center gap-2">
                       <FiFileText className="h-5 w-5 text-sky-600 dark:text-sky-400" />
                       <CardTitle className="text-lg">API Docs</CardTitle>
@@ -94,7 +96,7 @@ export default function AdminPage() {
                 className={linkCardClass}
               >
                 <Card className="border-0 bg-transparent shadow-none">
-                  <CardHeader className="pb-2">
+                  <CardHeader className="">
                     <div className="flex items-center gap-2">
                       <FiSettings className="h-5 w-5 text-sky-600 dark:text-sky-400" />
                       <CardTitle className="text-lg">
@@ -113,7 +115,7 @@ export default function AdminPage() {
 
               <Link href="/business-insights" className={linkCardClass}>
                 <Card className="border-0 bg-transparent shadow-none">
-                  <CardHeader className="pb-2">
+                  <CardHeader className="">
                     <div className="flex items-center gap-2">
                       <FiBarChart2 className="h-5 w-5 text-sky-600 dark:text-sky-400" />
                       <CardTitle className="text-lg">
@@ -132,7 +134,7 @@ export default function AdminPage() {
 
               <Link href="/client" className={linkCardClass}>
                 <Card className="border-0 bg-transparent shadow-none">
-                  <CardHeader className="pb-2">
+                  <CardHeader className="">
                     <div className="flex items-center gap-2">
                       <FiShoppingCart className="h-5 w-5 text-sky-600 dark:text-sky-400" />
                       <CardTitle className="text-lg">Client Portal</CardTitle>
@@ -150,7 +152,7 @@ export default function AdminPage() {
 
               <div className={disabledCardClass}>
                 <Card className="border-0 bg-transparent shadow-none">
-                  <CardHeader className="pb-2">
+                  <CardHeader className="">
                     <div className="flex items-center gap-2">
                       <FiUsers className="h-5 w-5 text-muted-foreground" />
                       <CardTitle className="text-lg text-muted-foreground">
@@ -168,7 +170,7 @@ export default function AdminPage() {
 
               <div className={disabledCardClass}>
                 <Card className="border-0 bg-transparent shadow-none">
-                  <CardHeader className="pb-2">
+                  <CardHeader className="">
                     <div className="flex items-center gap-2">
                       <FiServer className="h-5 w-5 text-muted-foreground" />
                       <CardTitle className="text-lg text-muted-foreground">

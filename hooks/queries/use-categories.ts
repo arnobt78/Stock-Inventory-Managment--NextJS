@@ -9,6 +9,7 @@ import {
   queryKeys,
   invalidateAllRelatedQueries,
   cancelOrRemoveDetailQuery,
+  withInitialData,
 } from "@/lib/react-query";
 import { useToast } from "@/hooks/use-toast";
 import type {
@@ -16,18 +17,20 @@ import type {
   CreateCategoryInput,
   UpdateCategoryInput,
 } from "@/types";
+import type { CategoryForHome } from "@/lib/server/home-data";
 
 /**
  * Fetch all categories
  * Query hook for getting the list of all categories
  */
-export function useCategories() {
-  return useQuery({
+export function useCategories(initialData?: Category[] | CategoryForHome[]) {
+  return useQuery<Category[]>({
     queryKey: queryKeys.categories.lists(),
     queryFn: async () => {
       const response = await apiClient.categories.getAll();
       return response.data;
     },
+    ...withInitialData(initialData as Category[] | undefined),
   });
 }
 

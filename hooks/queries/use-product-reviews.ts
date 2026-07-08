@@ -9,6 +9,7 @@ import {
   queryKeys,
   invalidateAllRelatedQueries,
   cancelOrRemoveDetailQuery,
+  withInitialData,
 } from "@/lib/react-query";
 import { useToast } from "@/hooks/use-toast";
 import type {
@@ -17,13 +18,14 @@ import type {
   UpdateProductReviewInput,
 } from "@/types";
 
-export function useProductReviews() {
+export function useProductReviews(initialData?: ProductReview[]) {
   return useQuery({
     queryKey: queryKeys.productReviews.lists(),
     queryFn: async () => {
       const response = await apiClient.productReviews.getAll();
       return response.data;
     },
+    ...withInitialData(initialData),
   });
 }
 

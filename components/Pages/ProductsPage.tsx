@@ -7,8 +7,7 @@
 
 "use client";
 
-import React, { useLayoutEffect, useState } from "react";
-import { useQueryClient } from "@tanstack/react-query";
+import React, { useState } from "react";
 import Navbar from "@/components/layouts/Navbar";
 import ProductList from "@/components/products/ProductList";
 import ClientProductList from "@/components/products/ClientProductList";
@@ -16,7 +15,6 @@ import { PageContentWrapper } from "@/components/shared";
 import FloatingActionButtons from "@/components/shared/FloatingActionButtons";
 import { useProducts } from "@/hooks/queries";
 import { useAuth } from "@/contexts";
-import { queryKeys } from "@/lib/react-query";
 import type { ProductForHome } from "@/lib/server/home-data";
 
 export type ProductsPageProps = {
@@ -28,26 +26,20 @@ export type ProductsPageProps = {
 
 /**
  * Products page client component.
- * Client role: ClientProductList (browse by product owner) + floating Create Order tied to owner select.
- * Admin/Supplier: ProductList (own products).
+ * REQ-0021 — shell-first; SSR initialData passed to hooks and ProductList.
  */
 export default function ProductsPage({
   initialProducts,
   userRole,
   initialOwnerId = "",
 }: ProductsPageProps = {}) {
-  const queryClient = useQueryClient();
-  const { data: allProducts = [] } = useProducts();
+  const { data: allProducts = [] } = useProducts(
+    !userRole || userRole === "client" ? undefined : initialProducts,
+  );
   const { user } = useAuth();
   const role = userRole ?? user?.role ?? "user";
   const isClient = role === "client";
   const [selectedOwnerId, setSelectedOwnerId] = useState<string>(initialOwnerId);
-
-  useLayoutEffect(() => {
-    if (initialProducts != null && !isClient) {
-      queryClient.setQueryData(queryKeys.products.lists(), initialProducts);
-    }
-  }, [queryClient, initialProducts, isClient]);
 
   return (
     <Navbar>
@@ -58,7 +50,7 @@ export default function ProductsPage({
             onOwnerChange={setSelectedOwnerId}
           />
         ) : (
-          <ProductList />
+          <ProductList initialProducts={initialProducts} />
         )}
         {!isClient && user?.role !== "supplier" && (
           <FloatingActionButtons

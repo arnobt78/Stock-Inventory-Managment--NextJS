@@ -1200,20 +1200,20 @@ export default function ApiDocsPage() {
   return (
     <Navbar>
       <PageContentWrapper>
-        <div className="space-y-6">
+        <div className="space-y-4">
           {/* Header */}
           <div className="text-center space-y-4 pb-4">
-            <h1 className="text-xl sm:text-2xl font-semibold text-gray-900 dark:text-white">
+            <h1 className="text-lg sm:text-xl font-semibold text-gray-700 dark:text-white">
               Stock API Documentation
             </h1>
-            <p className="text-sm sm:text-base text-gray-600 dark:text-white/70 max-w-2xl mx-auto">
+            <p className="text-xs sm:text-sm text-gray-600 dark:text-white/70 max-w-2xl mx-auto">
               Comprehensive API documentation for the Stock inventory management
               system. All endpoints require authentication via JWT token.
             </p>
           </div>
 
           {/* Quick Info Cards — skeleton until mounted to avoid hydration mismatch and match loading UX */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-2">
             {!isMounted ? (
               <>
                 {[1, 2, 3, 4].map((i) => (
@@ -1234,9 +1234,9 @@ export default function ApiDocsPage() {
                   <div className="p-4 sm:p-5">
                     <div className="flex items-center gap-2 mb-3">
                       <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-blue-300/30 bg-blue-100/50 dark:border-white/15 dark:bg-white/10">
-                        <FiCode className="h-4 w-4 text-gray-900 dark:text-white" />
+                        <FiCode className="h-4 w-4 text-gray-700 dark:text-white" />
                       </div>
-                      <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+                      <h3 className="text-lg font-semibold text-gray-700 dark:text-white">
                         Base URL
                       </h3>
                     </div>
@@ -1251,9 +1251,9 @@ export default function ApiDocsPage() {
                   <div className="p-4 sm:p-5">
                     <div className="flex items-center gap-2 mb-3">
                       <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-violet-300/30 bg-violet-100/50 dark:border-white/15 dark:bg-white/10">
-                        <FiKey className="h-4 w-4 text-gray-900 dark:text-white" />
+                        <FiKey className="h-4 w-4 text-gray-700 dark:text-white" />
                       </div>
-                      <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+                      <h3 className="text-lg font-semibold text-gray-700 dark:text-white">
                         Auth
                       </h3>
                     </div>
@@ -1271,9 +1271,9 @@ export default function ApiDocsPage() {
                   <div className="p-4 sm:p-5">
                     <div className="flex items-center gap-2 mb-3">
                       <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-amber-300/30 bg-amber-100/50 dark:border-white/15 dark:bg-white/10">
-                        <Zap className="h-4 w-4 text-gray-900 dark:text-white" />
+                        <Zap className="h-4 w-4 text-gray-700 dark:text-white" />
                       </div>
-                      <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+                      <h3 className="text-lg font-semibold text-gray-700 dark:text-white">
                         Rate Limit
                       </h3>
                     </div>
@@ -1289,9 +1289,9 @@ export default function ApiDocsPage() {
                   <div className="p-4 sm:p-5">
                     <div className="flex items-center gap-2 mb-3">
                       <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-teal-300/30 bg-teal-100/50 dark:border-white/15 dark:bg-white/10">
-                        <FileJson className="h-4 w-4 text-gray-900 dark:text-white" />
+                        <FileJson className="h-4 w-4 text-gray-700 dark:text-white" />
                       </div>
-                      <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+                      <h3 className="text-lg font-semibold text-gray-700 dark:text-white">
                         OpenAPI 3.0
                       </h3>
                     </div>
@@ -1312,7 +1312,7 @@ export default function ApiDocsPage() {
 
           {/* API Docs — grouped in tabs to avoid long scroll */}
           <Tabs defaultValue="authentication" className="w-full">
-            <TabsList className="flex flex-wrap gap-1.5 h-auto p-2 bg-muted/50 dark:bg-muted/20 border border-border rounded-lg w-full">
+            <TabsList className="flex flex-wrap gap-1 h-auto p-2 bg-muted/50 dark:bg-muted/20 border border-border rounded-lg w-full">
               {endpoints.map((section) => (
                 <TabsTrigger
                   key={section.name}
@@ -1368,9 +1368,9 @@ export default function ApiDocsPage() {
                               "border-amber-300/30 bg-amber-100/50 dark:border-white/15 dark:bg-white/10",
                           )}
                         >
-                          <section.icon className="h-5 w-5 text-gray-900 dark:text-white" />
+                          <section.icon className="h-5 w-5 text-gray-700 dark:text-white" />
                         </div>
-                        <h3 className="text-xl font-semibold text-gray-900 dark:text-white">
+                        <h3 className="text-xl font-semibold text-gray-700 dark:text-white">
                           {section.name}
                         </h3>
                       </div>
@@ -1379,9 +1379,9 @@ export default function ApiDocsPage() {
                         {section.endpoints.map((endpoint, index) => (
                           <div
                             key={index}
-                            className="rounded-xl border border-gray-300/20 dark:border-white/10 bg-white/30 dark:bg-white/5 p-4 space-y-3 backdrop-blur-sm"
+                            className="rounded-xl border border-gray-300/20 dark:border-white/10 bg-white/30 dark:bg-white/5 p-4 space-y-2 backdrop-blur-sm"
                           >
-                            <div className="flex flex-wrap items-center gap-3">
+                            <div className="flex flex-wrap items-center gap-2">
                               <Badge
                                 className={cn(
                                   "font-mono text-xs border",
@@ -1400,10 +1400,10 @@ export default function ApiDocsPage() {
 
                             {endpoint.parameters.length > 0 && (
                               <div>
-                                <h5 className="font-semibold text-sm mb-2 text-gray-900 dark:text-white">
+                                <h5 className="font-semibold text-sm mb-2 text-gray-700 dark:text-white">
                                   Parameters:
                                 </h5>
-                                <div className="space-y-1">
+                                <div className="">
                                   {endpoint.parameters.map(
                                     (param, paramIndex) => (
                                       <div
@@ -1435,7 +1435,7 @@ export default function ApiDocsPage() {
                             )}
 
                             <div>
-                              <h5 className="font-semibold text-sm mb-2 text-gray-900 dark:text-white">
+                              <h5 className="font-semibold text-sm mb-2 text-gray-700 dark:text-white">
                                 Response:
                               </h5>
                               <div className="space-y-2">
@@ -1466,7 +1466,7 @@ export default function ApiDocsPage() {
                             </div>
 
                             <div>
-                              <h5 className="font-semibold text-sm mb-2 flex items-center justify-between text-gray-900 dark:text-white">
+                              <h5 className="font-semibold text-sm mb-2 flex items-center justify-between text-gray-700 dark:text-white">
                                 Code example
                                 <CopyCodeButton
                                   text={getFetchExample(
@@ -1476,7 +1476,7 @@ export default function ApiDocsPage() {
                                   ariaLabel={`Copy ${endpoint.method} ${endpoint.path} example`}
                                 />
                               </h5>
-                              <pre className="bg-gray-900/90 dark:bg-black/50 p-3 rounded-xl text-xs font-mono overflow-x-auto border border-gray-700/50">
+                              <pre className="bg-gray-900/90 dark:bg-black/50 p-2 rounded-xl text-xs font-mono overflow-x-auto border border-gray-700/50">
                                 <code className="text-emerald-400">
                                   {getFetchExample(
                                     endpoint.method,
@@ -1502,10 +1502,10 @@ export default function ApiDocsPage() {
                 <div className="p-4 sm:p-5">
                   <div className="flex items-center gap-2 mb-4">
                     <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-sky-300/30 bg-sky-100/50 dark:border-white/15 dark:bg-white/10">
-                      <FiDatabase className="h-5 w-5 text-gray-900 dark:text-white" />
+                      <FiDatabase className="h-5 w-5 text-gray-700 dark:text-white" />
                     </div>
                     <div>
-                      <h3 className="text-xl font-semibold text-gray-900 dark:text-white">
+                      <h3 className="text-xl font-semibold text-gray-700 dark:text-white">
                         Data Types
                       </h3>
                       <p className="text-sm text-gray-600 dark:text-white/60">
@@ -1514,7 +1514,7 @@ export default function ApiDocsPage() {
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                     {dataTypes.map((type, typeIndex) => {
                       const typeVariants: CardVariant[] = [
                         "emerald",
@@ -1539,7 +1539,7 @@ export default function ApiDocsPage() {
                               "border-teal-400/20 bg-gradient-to-br from-teal-500/10 via-teal-500/5 to-transparent",
                           )}
                         >
-                          <h4 className="font-semibold mb-3 text-gray-900 dark:text-white">
+                          <h4 className="font-semibold mb-3 text-gray-700 dark:text-white">
                             {type.name}
                           </h4>
                           <div className="space-y-2">
@@ -1576,10 +1576,10 @@ export default function ApiDocsPage() {
                 <div className="p-4 sm:p-5">
                   <div className="flex items-center gap-2 mb-4">
                     <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-rose-300/30 bg-rose-100/50 dark:border-white/15 dark:bg-white/10">
-                      <AlertCircle className="h-5 w-5 text-gray-900 dark:text-white" />
+                      <AlertCircle className="h-5 w-5 text-gray-700 dark:text-white" />
                     </div>
                     <div>
-                      <h3 className="text-xl font-semibold text-gray-900 dark:text-white">
+                      <h3 className="text-xl font-semibold text-gray-700 dark:text-white">
                         Error Codes
                       </h3>
                       <p className="text-sm text-gray-600 dark:text-white/60">
@@ -1588,9 +1588,9 @@ export default function ApiDocsPage() {
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                     {/* Success Codes */}
-                    <div className="rounded-xl border border-emerald-400/20 bg-gradient-to-br from-emerald-500/10 via-emerald-500/5 to-transparent p-4 backdrop-blur-sm space-y-3">
+                    <div className="rounded-xl border border-emerald-400/20 bg-gradient-to-br from-emerald-500/10 via-emerald-500/5 to-transparent p-4 backdrop-blur-sm space-y-2">
                       <h4 className="font-medium text-emerald-700 dark:text-emerald-300 text-sm">
                         Success Codes
                       </h4>
@@ -1615,7 +1615,7 @@ export default function ApiDocsPage() {
                     </div>
 
                     {/* Error Codes */}
-                    <div className="rounded-xl border border-rose-400/20 bg-gradient-to-br from-rose-500/10 via-rose-500/5 to-transparent p-4 backdrop-blur-sm space-y-3">
+                    <div className="rounded-xl border border-rose-400/20 bg-gradient-to-br from-rose-500/10 via-rose-500/5 to-transparent p-4 backdrop-blur-sm space-y-2">
                       <h4 className="font-medium text-rose-700 dark:text-rose-300 text-sm">
                         Error Codes
                       </h4>

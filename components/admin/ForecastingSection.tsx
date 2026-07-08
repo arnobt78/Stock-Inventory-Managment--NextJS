@@ -6,7 +6,7 @@
  * Uses mount guard so server and client render the same placeholder first (avoids hydration mismatch).
  */
 
-import React, { useState, useLayoutEffect } from "react";
+import React from "react";
 import {
   Card,
   CardContent,
@@ -23,8 +23,10 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Skeleton } from "@/components/ui/skeleton";
+import { TableBodyPulseRows } from "@/components/ui/table-data-skeleton";
+import { DataSlotPulse } from "@/components/shared/DataSlotPulse";
 import { useForecastingSummary } from "@/hooks/queries";
+import { isDataSlotLoading } from "@/lib/react-query";
 import {
   AlertTriangle,
   TrendingUp,
@@ -97,45 +99,24 @@ function getAnomalySeverityColor(severity: SalesAnomaly["severity"]): string {
   }
 }
 
-/** Same skeleton structure for loading and for initial SSR/client match (avoids hydration mismatch). */
-function ForecastingSkeleton() {
-  return (
-    <div className="space-y-6">
-      <Card>
-        <CardHeader>
-          <Skeleton className="h-6 w-48" />
-          <Skeleton className="h-4 w-72" />
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            {[1, 2, 3, 4].map((i) => (
-              <Skeleton key={i} className="h-24" />
-            ))}
-          </div>
-        </CardContent>
-      </Card>
-    </div>
-  );
+/** Inline metric value — pulse when loading (REQ-0021). */
+function MetricValue({
+  loading,
+  children,
+}: {
+  loading: boolean;
+  children: React.ReactNode;
+}) {
+  if (loading) return <DataSlotPulse variant="metric" />;
+  return <>{children}</>;
 }
 
 export default function ForecastingSection() {
-  const [mounted, setMounted] = useState(false);
-  const { data: summary, isLoading, isError } = useForecastingSummary();
+  const forecastingQuery = useForecastingSummary();
+  const summary = forecastingQuery.data;
+  const dataLoading = isDataSlotLoading(forecastingQuery);
 
-  useLayoutEffect(() => {
-    queueMicrotask(() => setMounted(true));
-  }, []);
-
-  // Server and initial client render: same placeholder so hydration matches.
-  if (!mounted) {
-    return <ForecastingSkeleton />;
-  }
-
-  if (isLoading) {
-    return <ForecastingSkeleton />;
-  }
-
-  if (isError || !summary) {
+  if (!dataLoading && (forecastingQuery.isError || !summary)) {
     return (
       <Card>
         <CardContent className="pt-6">
@@ -147,19 +128,16 @@ export default function ForecastingSection() {
     );
   }
 
-  const urgentProducts = summary.forecasts.filter(
-    (f) => f.reorderRecommendation === "urgent",
-  );
-  const soonProducts = summary.forecasts.filter(
-    (f) => f.reorderRecommendation === "soon",
-  );
+  const urgentProducts =
+    summary?.forecasts.filter((f) => f.reorderRecommendation === "urgent") ?? [];
+  const soonProducts =
+    summary?.forecasts.filter((f) => f.reorderRecommendation === "soon") ?? [];
 
   return (
-    <div className="space-y-6">
-      {/* Summary Cards */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+    <div className="space-y-4">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
         <Card>
-          <CardHeader className="pb-2">
+          <CardHeader className="">
             <CardTitle className="text-sm font-medium text-muted-foreground">
               Products Analyzed
             </CardTitle>
@@ -167,15 +145,17 @@ export default function ForecastingSection() {
           <CardContent>
             <div className="flex items-center gap-2">
               <Package className="h-5 w-5 text-blue-500" />
-              <span className="text-2xl font-semibold">
-                {summary.totalProducts}
+              <span className="text-lg sm:text-xl font-semibold">
+                <MetricValue loading={dataLoading}>
+                  {summary?.totalProducts ?? 0}
+                </MetricValue>
               </span>
             </div>
           </CardContent>
         </Card>
 
         <Card>
-          <CardHeader className="pb-2">
+          <CardHeader className="">
             <CardTitle className="text-sm font-medium text-muted-foreground">
               At Risk of Stockout
             </CardTitle>
@@ -183,15 +163,17 @@ export default function ForecastingSection() {
           <CardContent>
             <div className="flex items-center gap-2">
               <AlertTriangle className="h-5 w-5 text-red-500" />
-              <span className="text-2xl font-semibold">
-                {summary.productsAtRisk}
+              <span className="text-lg sm:text-xl font-semibold">
+                <MetricValue loading={dataLoading}>
+                  {summary?.productsAtRisk ?? 0}
+                </MetricValue>
               </span>
             </div>
           </CardContent>
         </Card>
 
         <Card>
-          <CardHeader className="pb-2">
+          <CardHeader className="">
             <CardTitle className="text-sm font-medium text-muted-foreground">
               Overstocked
             </CardTitle>
@@ -199,15 +181,17 @@ export default function ForecastingSection() {
           <CardContent>
             <div className="flex items-center gap-2">
               <TrendingDown className="h-5 w-5 text-orange-500" />
-              <span className="text-2xl font-semibold">
-                {summary.productsOverstocked}
+              <span className="text-lg sm:text-xl font-semibold">
+                <MetricValue loading={dataLoading}>
+                  {summary?.productsOverstocked ?? 0}
+                </MetricValue>
               </span>
             </div>
           </CardContent>
         </Card>
 
         <Card>
-          <CardHeader className="pb-2">
+          <CardHeader className="">
             <CardTitle className="text-sm font-medium text-muted-foreground">
               Anomalies Detected
             </CardTitle>
@@ -215,16 +199,29 @@ export default function ForecastingSection() {
           <CardContent>
             <div className="flex items-center gap-2">
               <AlertCircle className="h-5 w-5 text-purple-500" />
-              <span className="text-2xl font-semibold">
-                {summary.anomaliesDetected}
+              <span className="text-lg sm:text-xl font-semibold">
+                <MetricValue loading={dataLoading}>
+                  {summary?.anomaliesDetected ?? 0}
+                </MetricValue>
               </span>
             </div>
           </CardContent>
         </Card>
       </div>
 
-      {/* AI Insights */}
-      {summary.aiInsights && (
+      {dataLoading ? (
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Sparkles className="h-5 w-5 text-purple-500" />
+              AI Insights
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <DataSlotPulse variant="text-sm" className="w-full min-h-[4rem]" />
+          </CardContent>
+        </Card>
+      ) : summary?.aiInsights ? (
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
@@ -234,14 +231,42 @@ export default function ForecastingSection() {
           </CardHeader>
           <CardContent>
             <p className="text-sm text-muted-foreground whitespace-pre-line">
-              {summary.aiInsights}
+              {summary!.aiInsights}
             </p>
           </CardContent>
         </Card>
-      )}
+      ) : null}
 
-      {/* Urgent Reorder Products */}
-      {(urgentProducts.length > 0 || soonProducts.length > 0) && (
+      {dataLoading ? (
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Clock className="h-5 w-5 text-red-500" />
+              Reorder Recommendations
+            </CardTitle>
+            <CardDescription>
+              Products that need attention based on predicted stockout dates
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="overflow-x-auto">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Product</TableHead>
+                    <TableHead className="text-right">Available</TableHead>
+                    <TableHead className="text-right">Daily Sales</TableHead>
+                    <TableHead className="text-right">Days Left</TableHead>
+                    <TableHead className="text-right">Suggested Order</TableHead>
+                    <TableHead>Status</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBodyPulseRows rows={5} columnCount={6} />
+              </Table>
+            </div>
+          </CardContent>
+        </Card>
+      ) : urgentProducts.length > 0 || soonProducts.length > 0 ? (
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
@@ -311,10 +336,38 @@ export default function ForecastingSection() {
             </div>
           </CardContent>
         </Card>
-      )}
+      ) : null}
 
-      {/* Sales Anomalies */}
-      {summary.anomalies.length > 0 && (
+      {dataLoading ? (
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <TrendingUp className="h-5 w-5 text-purple-500" />
+              Sales Anomalies
+            </CardTitle>
+            <CardDescription>
+              Unusual sales patterns detected in the last 30 days
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="overflow-x-auto">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Product</TableHead>
+                    <TableHead>Date</TableHead>
+                    <TableHead className="text-right">Expected</TableHead>
+                    <TableHead className="text-right">Actual</TableHead>
+                    <TableHead className="text-right">Deviation</TableHead>
+                    <TableHead>Type</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBodyPulseRows rows={5} columnCount={6} />
+              </Table>
+            </div>
+          </CardContent>
+        </Card>
+      ) : (summary?.anomalies.length ?? 0) > 0 ? (
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
@@ -339,7 +392,7 @@ export default function ForecastingSection() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {summary.anomalies.slice(0, 10).map((anomaly, idx) => (
+                  {summary!.anomalies.slice(0, 10).map((anomaly, idx) => (
                     <TableRow
                       key={`${anomaly.productId}-${anomaly.date}-${idx}`}
                     >
@@ -383,9 +436,8 @@ export default function ForecastingSection() {
             </div>
           </CardContent>
         </Card>
-      )}
+      ) : null}
 
-      {/* All Product Forecasts */}
       <Card>
         <CardHeader>
           <CardTitle>All Product Forecasts</CardTitle>
@@ -409,8 +461,11 @@ export default function ForecastingSection() {
                   <TableHead>Status</TableHead>
                 </TableRow>
               </TableHeader>
+              {dataLoading ? (
+                <TableBodyPulseRows rows={10} columnCount={8} />
+              ) : (
               <TableBody>
-                {summary.forecasts.slice(0, 20).map((forecast) => (
+                {(summary?.forecasts ?? []).slice(0, 20).map((forecast) => (
                   <TableRow key={forecast.productId}>
                     <TableCell>
                       <div>
@@ -451,6 +506,7 @@ export default function ForecastingSection() {
                   </TableRow>
                 ))}
               </TableBody>
+              )}
             </Table>
           </div>
         </CardContent>

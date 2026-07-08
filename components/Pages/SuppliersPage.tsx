@@ -5,13 +5,11 @@
 
 "use client";
 
-import React, { useLayoutEffect } from "react";
-import { useQueryClient } from "@tanstack/react-query";
+import React from "react";
 import Navbar from "@/components/layouts/Navbar";
 import SupplierList from "@/components/supplier/SupplierList";
 import { PageContentWrapper } from "@/components/shared";
 import FloatingActionButtons from "@/components/shared/FloatingActionButtons";
-import { queryKeys } from "@/lib/react-query";
 import type { SupplierForHome } from "@/lib/server/home-data";
 
 export type SuppliersPageProps = {
@@ -20,23 +18,15 @@ export type SuppliersPageProps = {
 
 /**
  * Suppliers page client component.
- * Accepts optional server-fetched data to hydrate React Query and avoid client round-trips.
+ * REQ-0021 — shell-first; SSR initialData passed to SupplierList.
  */
 export default function SuppliersPage({
   initialSuppliers,
 }: SuppliersPageProps = {}) {
-  const queryClient = useQueryClient();
-
-  useLayoutEffect(() => {
-    if (initialSuppliers != null) {
-      queryClient.setQueryData(queryKeys.suppliers.lists(), initialSuppliers);
-    }
-  }, [queryClient, initialSuppliers]);
-
   return (
     <Navbar>
       <PageContentWrapper>
-        <SupplierList />
+        <SupplierList initialSuppliers={initialSuppliers} />
         <FloatingActionButtons variant="suppliers" />
       </PageContentWrapper>
     </Navbar>

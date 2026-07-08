@@ -9,6 +9,7 @@ import {
   queryKeys,
   invalidateAfterOrderGraphChange,
   cancelOrRemoveDetailQuery,
+  withInitialData,
 } from "@/lib/react-query";
 import { useToast } from "@/hooks/use-toast";
 import type {
@@ -17,12 +18,16 @@ import type {
   UpdateInvoiceInput,
   InvoiceFilters,
 } from "@/types";
+import type { InvoiceForPage } from "@/lib/server/invoices-data";
 
 /**
  * Fetch all invoices for the authenticated user
  * @param filters - Optional filters for invoices
  */
-export function useInvoices(filters?: InvoiceFilters) {
+export function useInvoices(
+  filters?: InvoiceFilters,
+  initialData?: Invoice[] | InvoiceForPage[],
+) {
   return useQuery<Invoice[], Error>({
     queryKey: queryKeys.invoices.list(
       filters as Record<string, unknown> | undefined,
@@ -31,6 +36,7 @@ export function useInvoices(filters?: InvoiceFilters) {
       const response = await apiClient.invoices.getAll(filters);
       return response.data;
     },
+    ...withInitialData(initialData as Invoice[] | undefined),
   });
 }
 
@@ -38,13 +44,14 @@ export function useInvoices(filters?: InvoiceFilters) {
  * Fetch client invoices (invoices for orders that contain products owned by the current user).
  * Used on admin "Client Invoices" page.
  */
-export function useClientInvoices() {
+export function useClientInvoices(initialData?: Invoice[]) {
   return useQuery<Invoice[], Error>({
     queryKey: queryKeys.clientInvoices.lists(),
     queryFn: async () => {
       const response = await apiClient.admin.getClientInvoices();
       return response.data;
     },
+    ...withInitialData(initialData),
   });
 }
 

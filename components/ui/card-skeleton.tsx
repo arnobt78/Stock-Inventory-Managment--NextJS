@@ -43,7 +43,7 @@ export function CardSkeleton({
 }: CardSkeletonProps) {
   return (
     <Card className={className}>
-      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+      <CardHeader className="flex flex-row items-center justify-between space-y-0 ">
         <Skeleton className="h-4 w-24" />
         {showIcon && <Skeleton className="h-4 w-4 rounded" />}
       </CardHeader>
@@ -55,4 +55,3 @@ export function CardSkeleton({
     </Card>
   );
 }
-

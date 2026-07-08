@@ -107,11 +107,9 @@ export default function CreateUserDialog() {
           Create User
         </Button>
       </DialogTrigger>
-      <DialogContent
-        className="p-4 sm:p-7 sm:px-8 poppins max-h-[90vh] overflow-y-auto border-blue-400/30 dark:border-blue-400/30 shadow-[0_30px_80px_rgba(59,130,246,0.35)] dark:shadow-[0_30px_80px_rgba(59,130,246,0.25)]"
-      >
+      <DialogContent className="p-4 sm:p-7 sm:px-8 poppins max-h-[90vh] overflow-y-auto border-blue-400/30 dark:border-blue-400/30 shadow-[0_30px_80px_rgba(59,130,246,0.35)] dark:shadow-[0_30px_80px_rgba(59,130,246,0.25)]">
         <DialogHeader>
-          <DialogTitle className="text-[22px] text-white flex items-center gap-3">
+          <DialogTitle className="text-[22px] text-white flex items-center gap-2">
             <div className="p-2 rounded-xl border border-blue-300/30 bg-blue-100/50 dark:border-blue-400/30 dark:bg-blue-500/20">
               <UserPlus className="h-5 w-5 text-blue-600 dark:text-blue-400" />
             </div>
@@ -122,7 +120,7 @@ export default function CreateUserDialog() {
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 mt-4">
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
             <div className="space-y-2">
               <Label
                 htmlFor="name"
@@ -256,7 +254,7 @@ export default function CreateUserDialog() {
                       <SelectItem
                         key={opt.value}
                         value={opt.value}
-                        className={`cursor-pointer focus:bg-blue-100 dark:focus:bg-white/10 focus:text-gray-900 dark:focus:text-white ${opt.color}`}
+                        className={`cursor-pointer focus:bg-blue-100 dark:focus:bg-white/10 focus:text-gray-700 dark:focus:text-white ${opt.color}`}
                       >
                         {opt.label}
                       </SelectItem>
@@ -270,7 +268,7 @@ export default function CreateUserDialog() {
             )}
           </div>
 
-          <DialogFooter className="mt-6 flex flex-col sm:flex-row items-center gap-3">
+          <DialogFooter className="mt-6 flex flex-col sm:flex-row items-center gap-2">
             <DialogClose asChild>
               <Button
                 type="button"

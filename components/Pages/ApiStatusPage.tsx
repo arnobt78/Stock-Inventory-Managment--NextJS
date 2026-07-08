@@ -447,14 +447,14 @@ export default function ApiStatusPage() {
   return (
     <Navbar>
       <PageContentWrapper>
-        <div className="space-y-6">
+        <div className="space-y-4">
           {/* Header - Always visible */}
-          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
             <div className="space-y-2">
-              <h1 className="text-xl sm:text-2xl font-semibold text-gray-900 dark:text-white">
+              <h1 className="text-lg sm:text-xl font-semibold text-gray-700 dark:text-white">
                 API & Project Status
               </h1>
-              <p className="text-sm sm:text-base text-gray-600 dark:text-white/70">
+              <p className="text-xs sm:text-sm text-gray-600 dark:text-white/70">
                 Real-time monitoring of Stockly&apos;s API endpoints and system
                 health
               </p>
@@ -473,7 +473,7 @@ export default function ApiStatusPage() {
 
           {/* System Overview - Show skeletons while loading, data when available */}
           {isLoading ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-2">
               {[1, 2, 3, 4].map((i) => (
                 <GlassCard
                   key={i}
@@ -489,13 +489,13 @@ export default function ApiStatusPage() {
               ))}
             </div>
           ) : systemStatus ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-2">
               <GlassCard variant="blue">
                 <div className="p-4 sm:p-5">
                   <p className="text-xs uppercase tracking-[0.2em] text-gray-600 dark:text-white/60 mb-2">
                     Project
                   </p>
-                  <p className="text-md sm:text-base font-semibold text-gray-900 dark:text-white">
+                  <p className="text-md sm:text-base font-semibold text-gray-700 dark:text-white">
                     {systemStatus.project}
                   </p>
                 </div>
@@ -506,7 +506,7 @@ export default function ApiStatusPage() {
                   <p className="text-xs uppercase tracking-[0.2em] text-gray-600 dark:text-white/60 mb-2">
                     Environment
                   </p>
-                  <p className="text-md sm:text-base font-semibold text-gray-900 dark:text-white capitalize">
+                  <p className="text-md sm:text-base font-semibold text-gray-700 dark:text-white capitalize">
                     {systemStatus.environment}
                   </p>
                 </div>
@@ -517,7 +517,7 @@ export default function ApiStatusPage() {
                   <p className="text-xs uppercase tracking-[0.2em] text-gray-600 dark:text-white/60 mb-2">
                     Current Time
                   </p>
-                  <p className="text-md sm:text-base font-semibold text-gray-900 dark:text-white">
+                  <p className="text-md sm:text-base font-semibold text-gray-700 dark:text-white">
                     {systemStatus.currentTime}
                   </p>
                 </div>
@@ -528,7 +528,7 @@ export default function ApiStatusPage() {
                   <p className="text-xs uppercase tracking-[0.2em] text-gray-600 dark:text-white/60 mb-2">
                     Uptime
                   </p>
-                  <p className="text-md sm:text-base font-semibold text-gray-900 dark:text-white">
+                  <p className="text-md sm:text-base font-semibold text-gray-700 dark:text-white">
                     {systemStatus.uptime}
                   </p>
                 </div>
@@ -548,12 +548,12 @@ export default function ApiStatusPage() {
                     <Skeleton className="h-4 w-48 mt-2" />
                   </>
                 ) : (
-                  <div className="flex items-center gap-3 mb-4">
+                  <div className="flex items-center gap-2 mb-4">
                     <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-emerald-300/30 bg-emerald-100/50 dark:border-white/15 dark:bg-white/10">
-                      <FiActivity className="h-5 w-5 text-gray-900 dark:text-white" />
+                      <FiActivity className="h-5 w-5 text-gray-700 dark:text-white" />
                     </div>
                     <div>
-                      <h3 className="text-md sm:text-lg font-semibold text-gray-900 dark:text-white">
+                      <h3 className="text-md sm:text-lg font-semibold text-gray-700 dark:text-white">
                         API Health
                       </h3>
                       <p className="text-sm text-gray-600 dark:text-white/60">
@@ -566,7 +566,7 @@ export default function ApiStatusPage() {
               {isLoading ? (
                 <Skeleton className="h-8 w-24" />
               ) : systemStatus ? (
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-2">
                   {getStatusIcon(systemStatus.apiHealth)}
                   <Badge className={getStatusColor(systemStatus.apiHealth)}>
                     API is {systemStatus.apiHealth.toLowerCase()}.
@@ -588,12 +588,12 @@ export default function ApiStatusPage() {
                     <Skeleton className="h-4 w-48 mt-2" />
                   </>
                 ) : (
-                  <div className="flex items-center gap-3 mb-4">
+                  <div className="flex items-center gap-2 mb-4">
                     <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-sky-300/30 bg-sky-100/50 dark:border-white/15 dark:bg-white/10">
-                      <FiServer className="h-5 w-5 text-gray-900 dark:text-white" />
+                      <FiServer className="h-5 w-5 text-gray-700 dark:text-white" />
                     </div>
                     <div>
-                      <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+                      <h3 className="text-lg font-semibold text-gray-700 dark:text-white">
                         Endpoints
                       </h3>
                       <p className="text-sm text-gray-600 dark:text-white/60">
@@ -603,7 +603,7 @@ export default function ApiStatusPage() {
                   </div>
                 )}
               </React.Fragment>
-              <div className="space-y-3">
+              <div className="space-y-2">
                 {isLoading
                   ? endpoints.map((_, i) => (
                       <div
@@ -618,12 +618,12 @@ export default function ApiStatusPage() {
                     ? systemStatus.endpoints.map((endpoint) => (
                         <div
                           key={endpoint.path}
-                          className="flex flex-col sm:flex-row sm:items-center justify-between p-4 rounded-xl border border-gray-300/20 dark:border-white/10 bg-white/30 dark:bg-white/5 backdrop-blur-sm gap-3"
+                          className="flex flex-col sm:flex-row sm:items-center justify-between p-4 rounded-xl border border-gray-300/20 dark:border-white/10 bg-white/30 dark:bg-white/5 backdrop-blur-sm gap-2"
                         >
-                          <div className="flex items-center gap-3">
+                          <div className="flex items-center gap-2">
                             {getStatusIcon(endpoint.status)}
                             <div>
-                              <h4 className="font-semibold text-gray-900 dark:text-white">
+                              <h4 className="font-semibold text-gray-700 dark:text-white">
                                 {endpoint.name}
                               </h4>
                               <p className="text-sm text-gray-600 dark:text-white/60">
@@ -631,7 +631,7 @@ export default function ApiStatusPage() {
                               </p>
                             </div>
                           </div>
-                          <div className="flex items-center gap-4">
+                          <div className="flex items-center gap-2">
                             <Badge className={getStatusColor(endpoint.status)}>
                               {endpoint.status}
                             </Badge>
@@ -660,12 +660,12 @@ export default function ApiStatusPage() {
                     <Skeleton className="h-4 w-48 mt-2" />
                   </>
                 ) : (
-                  <div className="flex items-center gap-3 mb-4">
+                  <div className="flex items-center gap-2 mb-4">
                     <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-violet-300/30 bg-violet-100/50 dark:border-white/15 dark:bg-white/10">
-                      <FiCloud className="h-5 w-5 text-gray-900 dark:text-white" />
+                      <FiCloud className="h-5 w-5 text-gray-700 dark:text-white" />
                     </div>
                     <div>
-                      <h3 className="text-md sm:text-lg font-semibold text-gray-900 dark:text-white">
+                      <h3 className="text-md sm:text-lg font-semibold text-gray-700 dark:text-white">
                         External Services
                       </h3>
                       <p className="text-sm text-gray-600 dark:text-white/60">
@@ -676,11 +676,11 @@ export default function ApiStatusPage() {
                 )}
               </React.Fragment>
               {isLoading ? (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                   {[1, 2, 3, 4].map((i) => (
                     <div
                       key={i}
-                      className="space-y-2 p-3 rounded-xl border border-gray-300/20 dark:border-white/10"
+                      className="space-y-2 p-2 rounded-xl border border-gray-300/20 dark:border-white/10"
                     >
                       <Skeleton className="h-6 w-full" />
                       <Skeleton className="h-4 w-full" />
@@ -688,13 +688,13 @@ export default function ApiStatusPage() {
                   ))}
                 </div>
               ) : systemStatus ? (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                   {/* Database */}
-                  <div className="flex flex-col sm:flex-row sm:items-center justify-between p-3 rounded-xl border border-emerald-400/20 bg-gradient-to-r from-emerald-500/10 to-transparent backdrop-blur-sm gap-2">
-                    <div className="flex items-center gap-3">
-                      <FiDatabase className="h-5 w-5 text-gray-900 dark:text-white" />
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between p-2 rounded-xl border border-emerald-400/20 bg-gradient-to-r from-emerald-500/10 to-transparent backdrop-blur-sm gap-2">
+                    <div className="flex items-center gap-2">
+                      <FiDatabase className="h-5 w-5 text-gray-700 dark:text-white" />
                       <div>
-                        <h4 className="font-semibold text-sm text-gray-900 dark:text-white">
+                        <h4 className="font-semibold text-sm text-gray-700 dark:text-white">
                           Database
                         </h4>
                         <p className="text-xs text-gray-600 dark:text-white/60">
@@ -720,11 +720,11 @@ export default function ApiStatusPage() {
                   </div>
 
                   {/* Redis */}
-                  <div className="flex flex-col sm:flex-row sm:items-center justify-between p-3 rounded-xl border border-amber-400/20 bg-gradient-to-r from-amber-500/10 to-transparent backdrop-blur-sm gap-2">
-                    <div className="flex items-center gap-3">
-                      <FiActivity className="h-5 w-5 text-gray-900 dark:text-white" />
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between p-2 rounded-xl border border-amber-400/20 bg-gradient-to-r from-amber-500/10 to-transparent backdrop-blur-sm gap-2">
+                    <div className="flex items-center gap-2">
+                      <FiActivity className="h-5 w-5 text-gray-700 dark:text-white" />
                       <div>
-                        <h4 className="font-semibold text-sm text-gray-900 dark:text-white">
+                        <h4 className="font-semibold text-sm text-gray-700 dark:text-white">
                           Redis Cache
                         </h4>
                         <p className="text-xs text-gray-600 dark:text-white/60">
@@ -752,11 +752,11 @@ export default function ApiStatusPage() {
                   </div>
 
                   {/* ImageKit */}
-                  <div className="flex flex-col sm:flex-row sm:items-center justify-between p-3 rounded-xl border border-sky-400/20 bg-gradient-to-r from-sky-500/10 to-transparent backdrop-blur-sm gap-2">
-                    <div className="flex items-center gap-3">
-                      <FiImage className="h-5 w-5 text-gray-900 dark:text-white" />
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between p-2 rounded-xl border border-sky-400/20 bg-gradient-to-r from-sky-500/10 to-transparent backdrop-blur-sm gap-2">
+                    <div className="flex items-center gap-2">
+                      <FiImage className="h-5 w-5 text-gray-700 dark:text-white" />
                       <div>
-                        <h4 className="font-semibold text-sm text-gray-900 dark:text-white">
+                        <h4 className="font-semibold text-sm text-gray-700 dark:text-white">
                           ImageKit
                         </h4>
                         <p className="text-xs text-gray-600 dark:text-white/60">
@@ -785,11 +785,11 @@ export default function ApiStatusPage() {
                   </div>
 
                   {/* Brevo */}
-                  <div className="flex flex-col sm:flex-row sm:items-center justify-between p-3 rounded-xl border border-rose-400/20 bg-gradient-to-r from-rose-500/10 to-transparent backdrop-blur-sm gap-2">
-                    <div className="flex items-center gap-3">
-                      <FiMail className="h-5 w-5 text-gray-900 dark:text-white" />
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between p-2 rounded-xl border border-rose-400/20 bg-gradient-to-r from-rose-500/10 to-transparent backdrop-blur-sm gap-2">
+                    <div className="flex items-center gap-2">
+                      <FiMail className="h-5 w-5 text-gray-700 dark:text-white" />
                       <div>
-                        <h4 className="font-semibold text-sm text-gray-900 dark:text-white">
+                        <h4 className="font-semibold text-sm text-gray-700 dark:text-white">
                           Brevo Email
                         </h4>
                         <p className="text-xs text-gray-600 dark:text-white/60">
@@ -824,12 +824,12 @@ export default function ApiStatusPage() {
           {systemStatus?.performance && (
             <GlassCard variant="orange">
               <div className="p-4 sm:p-5">
-                <div className="flex items-center gap-3 mb-4">
+                <div className="flex items-center gap-2 mb-4">
                   <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-orange-300/30 bg-orange-100/50 dark:border-white/15 dark:bg-white/10">
-                    <FiTrendingUp className="h-5 w-5 text-gray-900 dark:text-white" />
+                    <FiTrendingUp className="h-5 w-5 text-gray-700 dark:text-white" />
                   </div>
                   <div>
-                    <h3 className="text-md sm:text-lg font-semibold text-gray-900 dark:text-white">
+                    <h3 className="text-md sm:text-lg font-semibold text-gray-700 dark:text-white">
                       Performance Metrics
                     </h3>
                     <p className="text-sm text-gray-600 dark:text-white/60">
@@ -837,14 +837,14 @@ export default function ApiStatusPage() {
                     </p>
                   </div>
                 </div>
-                <div className="space-y-6">
+                <div className="space-y-4">
                   {/* Summary Stats */}
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
                     <div className="p-4 rounded-xl border border-blue-400/20 bg-gradient-to-br from-blue-500/10 via-blue-500/5 to-transparent backdrop-blur-sm">
                       <div className="text-sm text-gray-600 dark:text-white/60 mb-1">
                         Total Endpoints
                       </div>
-                      <div className="text-2xl font-semibold text-gray-900 dark:text-white">
+                      <div className="text-lg sm:text-xl font-semibold text-gray-700 dark:text-white">
                         {systemStatus.performance.totalEndpoints}
                       </div>
                     </div>
@@ -852,7 +852,7 @@ export default function ApiStatusPage() {
                       <div className="text-sm text-gray-600 dark:text-white/60 mb-1">
                         Total Requests
                       </div>
-                      <div className="text-2xl font-semibold text-gray-900 dark:text-white">
+                      <div className="text-lg sm:text-xl font-semibold text-gray-700 dark:text-white">
                         {systemStatus.performance.totalRequests.toLocaleString()}
                       </div>
                     </div>
@@ -861,7 +861,7 @@ export default function ApiStatusPage() {
                         <FiClock className="h-3 w-3" />
                         Avg Response
                       </div>
-                      <div className="text-2xl font-semibold text-gray-900 dark:text-white">
+                      <div className="text-lg sm:text-xl font-semibold text-gray-700 dark:text-white">
                         {systemStatus.performance.averageResponseTime}ms
                       </div>
                     </div>
@@ -869,7 +869,7 @@ export default function ApiStatusPage() {
                       <div className="text-sm text-gray-600 dark:text-white/60 mb-1">
                         Error Rate
                       </div>
-                      <div className="text-2xl font-semibold text-gray-900 dark:text-white">
+                      <div className="text-lg sm:text-xl font-semibold text-gray-700 dark:text-white">
                         {systemStatus.performance.overallErrorRate}%
                       </div>
                     </div>
@@ -878,7 +878,7 @@ export default function ApiStatusPage() {
                   {/* Top Slow Endpoints */}
                   {systemStatus.performance.topSlowEndpoints.length > 0 && (
                     <div>
-                      <h4 className="font-semibold mb-3 text-sm text-gray-900 dark:text-white">
+                      <h4 className="font-semibold mb-3 text-sm text-gray-700 dark:text-white">
                         Slowest Endpoints
                       </h4>
                       <div className="space-y-2">
@@ -886,10 +886,10 @@ export default function ApiStatusPage() {
                           (endpoint, index) => (
                             <div
                               key={`slow-${endpoint.method}-${endpoint.endpoint}-${index}`}
-                              className="flex items-center justify-between p-3 rounded-xl border border-gray-300/20 dark:border-white/10 bg-white/30 dark:bg-white/5 backdrop-blur-sm"
+                              className="flex items-center justify-between p-2 rounded-xl border border-gray-300/20 dark:border-white/10 bg-white/30 dark:bg-white/5 backdrop-blur-sm"
                             >
                               <div>
-                                <div className="font-medium text-sm text-gray-900 dark:text-white">
+                                <div className="font-medium text-sm text-gray-700 dark:text-white">
                                   {endpoint.method} {endpoint.endpoint}
                                 </div>
                                 <div className="text-xs text-gray-600 dark:text-white/60">
@@ -912,7 +912,7 @@ export default function ApiStatusPage() {
                   {/* Top Error Endpoints */}
                   {systemStatus.performance.topErrorEndpoints.length > 0 && (
                     <div>
-                      <h4 className="font-semibold mb-3 text-sm text-gray-900 dark:text-white">
+                      <h4 className="font-semibold mb-3 text-sm text-gray-700 dark:text-white">
                         Highest Error Rates
                       </h4>
                       <div className="space-y-2">
@@ -920,10 +920,10 @@ export default function ApiStatusPage() {
                           (endpoint, index) => (
                             <div
                               key={`error-${endpoint.method}-${endpoint.endpoint}-${index}`}
-                              className="flex items-center justify-between p-3 rounded-xl border border-gray-300/20 dark:border-white/10 bg-white/30 dark:bg-white/5 backdrop-blur-sm"
+                              className="flex items-center justify-between p-2 rounded-xl border border-gray-300/20 dark:border-white/10 bg-white/30 dark:bg-white/5 backdrop-blur-sm"
                             >
                               <div>
-                                <div className="font-medium text-sm text-gray-900 dark:text-white">
+                                <div className="font-medium text-sm text-gray-700 dark:text-white">
                                   {endpoint.method} {endpoint.endpoint}
                                 </div>
                                 <div className="text-xs text-gray-600 dark:text-white/60">
@@ -961,12 +961,12 @@ export default function ApiStatusPage() {
           {systemStatus?.systemMetrics && (
             <GlassCard variant="teal">
               <div className="p-4 sm:p-5">
-                <div className="flex items-center gap-3 mb-4">
+                <div className="flex items-center gap-2 mb-4">
                   <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-teal-300/30 bg-teal-100/50 dark:border-white/15 dark:bg-white/10">
-                    <FiCpu className="h-5 w-5 text-gray-900 dark:text-white" />
+                    <FiCpu className="h-5 w-5 text-gray-700 dark:text-white" />
                   </div>
                   <div>
-                    <h3 className="text-md sm:text-lg font-semibold text-gray-900 dark:text-white">
+                    <h3 className="text-md sm:text-lg font-semibold text-gray-700 dark:text-white">
                       System Metrics
                     </h3>
                     <p className="text-sm text-gray-600 dark:text-white/60">
@@ -975,15 +975,15 @@ export default function ApiStatusPage() {
                     </p>
                   </div>
                 </div>
-                <div className="space-y-6">
+                <div className="space-y-4">
                   {/* Cache Statistics */}
                   <div>
-                    <h4 className="font-semibold mb-3 text-sm flex items-center gap-2 text-gray-900 dark:text-white">
+                    <h4 className="font-semibold mb-3 text-sm flex items-center gap-2 text-gray-700 dark:text-white">
                       <FiHardDrive className="h-4 w-4" />
                       Cache Statistics
                     </h4>
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                      <div className="p-3 rounded-xl border border-emerald-400/20 bg-gradient-to-br from-emerald-500/10 via-emerald-500/5 to-transparent backdrop-blur-sm">
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+                      <div className="p-2 rounded-xl border border-emerald-400/20 bg-gradient-to-br from-emerald-500/10 via-emerald-500/5 to-transparent backdrop-blur-sm">
                         <div className="text-xs text-gray-600 dark:text-white/60 mb-1">
                           Cache Hits
                         </div>
@@ -991,7 +991,7 @@ export default function ApiStatusPage() {
                           {systemStatus.systemMetrics.cache.hits.toLocaleString()}
                         </div>
                       </div>
-                      <div className="p-3 rounded-xl border border-orange-400/20 bg-gradient-to-br from-orange-500/10 via-orange-500/5 to-transparent backdrop-blur-sm">
+                      <div className="p-2 rounded-xl border border-orange-400/20 bg-gradient-to-br from-orange-500/10 via-orange-500/5 to-transparent backdrop-blur-sm">
                         <div className="text-xs text-gray-600 dark:text-white/60 mb-1">
                           Cache Misses
                         </div>
@@ -999,19 +999,19 @@ export default function ApiStatusPage() {
                           {systemStatus.systemMetrics.cache.misses.toLocaleString()}
                         </div>
                       </div>
-                      <div className="p-3 rounded-xl border border-blue-400/20 bg-gradient-to-br from-blue-500/10 via-blue-500/5 to-transparent backdrop-blur-sm">
+                      <div className="p-2 rounded-xl border border-blue-400/20 bg-gradient-to-br from-blue-500/10 via-blue-500/5 to-transparent backdrop-blur-sm">
                         <div className="text-xs text-gray-600 dark:text-white/60 mb-1">
                           Hit Rate
                         </div>
-                        <div className="text-xl font-semibold text-gray-900 dark:text-white">
+                        <div className="text-xl font-semibold text-gray-700 dark:text-white">
                           {systemStatus.systemMetrics.cache.hitRate}%
                         </div>
                       </div>
-                      <div className="p-3 rounded-xl border border-violet-400/20 bg-gradient-to-br from-violet-500/10 via-violet-500/5 to-transparent backdrop-blur-sm">
+                      <div className="p-2 rounded-xl border border-violet-400/20 bg-gradient-to-br from-violet-500/10 via-violet-500/5 to-transparent backdrop-blur-sm">
                         <div className="text-xs text-gray-600 dark:text-white/60 mb-1">
                           Total Requests
                         </div>
-                        <div className="text-xl font-semibold text-gray-900 dark:text-white">
+                        <div className="text-xl font-semibold text-gray-700 dark:text-white">
                           {systemStatus.systemMetrics.cache.totalRequests.toLocaleString()}
                         </div>
                       </div>
@@ -1020,30 +1020,30 @@ export default function ApiStatusPage() {
 
                   {/* Database Performance */}
                   <div>
-                    <h4 className="font-semibold mb-3 text-sm flex items-center gap-2 text-gray-900 dark:text-white">
+                    <h4 className="font-semibold mb-3 text-sm flex items-center gap-2 text-gray-700 dark:text-white">
                       <FiDatabase className="h-4 w-4" />
                       Database Performance
                     </h4>
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                      <div className="p-3 rounded-xl border border-sky-400/20 bg-gradient-to-br from-sky-500/10 via-sky-500/5 to-transparent backdrop-blur-sm">
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
+                      <div className="p-2 rounded-xl border border-sky-400/20 bg-gradient-to-br from-sky-500/10 via-sky-500/5 to-transparent backdrop-blur-sm">
                         <div className="text-xs text-gray-600 dark:text-white/60 mb-1">
                           Total Queries
                         </div>
-                        <div className="text-xl font-semibold text-gray-900 dark:text-white">
+                        <div className="text-xl font-semibold text-gray-700 dark:text-white">
                           {systemStatus.systemMetrics.database.totalQueries.toLocaleString()}
                         </div>
                       </div>
-                      <div className="p-3 rounded-xl border border-emerald-400/20 bg-gradient-to-br from-emerald-500/10 via-emerald-500/5 to-transparent backdrop-blur-sm">
+                      <div className="p-2 rounded-xl border border-emerald-400/20 bg-gradient-to-br from-emerald-500/10 via-emerald-500/5 to-transparent backdrop-blur-sm">
                         <div className="text-xs text-gray-600 dark:text-white/60 mb-1 flex items-center gap-1">
                           <FiClock className="h-3 w-3" />
                           Avg Query Time
                         </div>
-                        <div className="text-xl font-semibold text-gray-900 dark:text-white">
+                        <div className="text-xl font-semibold text-gray-700 dark:text-white">
                           {systemStatus.systemMetrics.database.averageQueryTime}
                           ms
                         </div>
                       </div>
-                      <div className="p-3 rounded-xl border border-amber-400/20 bg-gradient-to-br from-amber-500/10 via-amber-500/5 to-transparent backdrop-blur-sm">
+                      <div className="p-2 rounded-xl border border-amber-400/20 bg-gradient-to-br from-amber-500/10 via-amber-500/5 to-transparent backdrop-blur-sm">
                         <div className="text-xs text-gray-600 dark:text-white/60 mb-1">
                           Slow Queries (&gt;1s)
                         </div>
@@ -1056,13 +1056,13 @@ export default function ApiStatusPage() {
 
                   {/* System Resources */}
                   <div>
-                    <h4 className="font-semibold mb-3 text-sm flex items-center gap-2 text-gray-900 dark:text-white">
+                    <h4 className="font-semibold mb-3 text-sm flex items-center gap-2 text-gray-700 dark:text-white">
                       <FiCpu className="h-4 w-4" />
                       System Resources
                     </h4>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                       <div className="p-4 rounded-xl border border-rose-400/20 bg-gradient-to-br from-rose-500/10 via-rose-500/5 to-transparent backdrop-blur-sm">
-                        <h5 className="font-medium mb-3 text-sm text-gray-900 dark:text-white">
+                        <h5 className="font-medium mb-3 text-sm text-gray-700 dark:text-white">
                           Memory Usage
                         </h5>
                         <div className="space-y-2 text-sm">
@@ -1070,7 +1070,7 @@ export default function ApiStatusPage() {
                             <span className="text-gray-600 dark:text-white/60">
                               RSS:
                             </span>
-                            <span className="font-medium text-gray-900 dark:text-white">
+                            <span className="font-medium text-gray-700 dark:text-white">
                               {
                                 systemStatus.systemMetrics.resources.memoryUsage
                                   .rss
@@ -1082,7 +1082,7 @@ export default function ApiStatusPage() {
                             <span className="text-gray-600 dark:text-white/60">
                               Heap Total:
                             </span>
-                            <span className="font-medium text-gray-900 dark:text-white">
+                            <span className="font-medium text-gray-700 dark:text-white">
                               {
                                 systemStatus.systemMetrics.resources.memoryUsage
                                   .heapTotal
@@ -1094,7 +1094,7 @@ export default function ApiStatusPage() {
                             <span className="text-gray-600 dark:text-white/60">
                               Heap Used:
                             </span>
-                            <span className="font-medium text-gray-900 dark:text-white">
+                            <span className="font-medium text-gray-700 dark:text-white">
                               {
                                 systemStatus.systemMetrics.resources.memoryUsage
                                   .heapUsed
@@ -1106,7 +1106,7 @@ export default function ApiStatusPage() {
                             <span className="text-gray-600 dark:text-white/60">
                               External:
                             </span>
-                            <span className="font-medium text-gray-900 dark:text-white">
+                            <span className="font-medium text-gray-700 dark:text-white">
                               {
                                 systemStatus.systemMetrics.resources.memoryUsage
                                   .external
@@ -1117,7 +1117,7 @@ export default function ApiStatusPage() {
                         </div>
                       </div>
                       <div className="p-4 rounded-xl border border-violet-400/20 bg-gradient-to-br from-violet-500/10 via-violet-500/5 to-transparent backdrop-blur-sm">
-                        <h5 className="font-medium mb-3 text-sm text-gray-900 dark:text-white">
+                        <h5 className="font-medium mb-3 text-sm text-gray-700 dark:text-white">
                           Process Info
                         </h5>
                         <div className="space-y-2 text-sm">
@@ -1125,7 +1125,7 @@ export default function ApiStatusPage() {
                             <span className="text-gray-600 dark:text-white/60">
                               Node.js:
                             </span>
-                            <span className="font-medium text-gray-900 dark:text-white">
+                            <span className="font-medium text-gray-700 dark:text-white">
                               {systemStatus.systemMetrics.resources.nodeVersion}
                             </span>
                           </div>
@@ -1133,7 +1133,7 @@ export default function ApiStatusPage() {
                             <span className="text-gray-600 dark:text-white/60">
                               Platform:
                             </span>
-                            <span className="font-medium capitalize text-gray-900 dark:text-white">
+                            <span className="font-medium capitalize text-gray-700 dark:text-white">
                               {systemStatus.systemMetrics.resources.platform}
                             </span>
                           </div>
@@ -1141,7 +1141,7 @@ export default function ApiStatusPage() {
                             <span className="text-gray-600 dark:text-white/60">
                               Process Uptime:
                             </span>
-                            <span className="font-medium text-gray-900 dark:text-white">
+                            <span className="font-medium text-gray-700 dark:text-white">
                               {Math.floor(
                                 systemStatus.systemMetrics.resources.uptime /
                                   3600,
@@ -1159,7 +1159,7 @@ export default function ApiStatusPage() {
                             <span className="text-gray-600 dark:text-white/60">
                               CPU Time:
                             </span>
-                            <span className="font-medium text-gray-900 dark:text-white">
+                            <span className="font-medium text-gray-700 dark:text-white">
                               {
                                 systemStatus.systemMetrics.resources.cpuUsage
                                   .user
@@ -1187,17 +1187,17 @@ export default function ApiStatusPage() {
               {isLoading ? (
                 <Skeleton className="h-6 w-32 mb-4" />
               ) : (
-                <div className="flex items-center gap-3 mb-4">
+                <div className="flex items-center gap-2 mb-4">
                   <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-rose-300/30 bg-rose-100/50 dark:border-white/15 dark:bg-white/10">
-                    <FiPackage className="h-5 w-5 text-gray-900 dark:text-white" />
+                    <FiPackage className="h-5 w-5 text-gray-700 dark:text-white" />
                   </div>
-                  <h3 className="text-md sm:text-lg font-semibold text-gray-900 dark:text-white">
+                  <h3 className="text-md sm:text-lg font-semibold text-gray-700 dark:text-white">
                     Deployment Information
                   </h3>
                 </div>
               )}
               {isLoading ? (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                   <div>
                     <Skeleton className="h-6 w-24 mb-2" />
                     <Skeleton className="h-4 w-32" />
@@ -1208,20 +1208,20 @@ export default function ApiStatusPage() {
                   </div>
                 </div>
               ) : systemStatus ? (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="p-3 rounded-xl border border-gray-300/20 dark:border-white/10 bg-white/30 dark:bg-white/5 backdrop-blur-sm">
-                    <h4 className="font-semibold mb-2 text-sm sm:text-base text-gray-900 dark:text-white">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                  <div className="p-2 rounded-xl border border-gray-300/20 dark:border-white/10 bg-white/30 dark:bg-white/5 backdrop-blur-sm">
+                    <h4 className="font-semibold mb-2 text-xs sm:text-sm text-gray-700 dark:text-white">
                       Deployment
                     </h4>
-                    <p className="text-sm sm:text-base text-gray-600 dark:text-white/70">
+                    <p className="text-xs sm:text-sm text-gray-600 dark:text-white/70">
                       {systemStatus.deployment}
                     </p>
                   </div>
-                  <div className="p-3 rounded-xl border border-gray-300/20 dark:border-white/10 bg-white/30 dark:bg-white/5 backdrop-blur-sm">
-                    <h4 className="font-semibold mb-2 text-sm sm:text-base text-gray-900 dark:text-white">
+                  <div className="p-2 rounded-xl border border-gray-300/20 dark:border-white/10 bg-white/30 dark:bg-white/5 backdrop-blur-sm">
+                    <h4 className="font-semibold mb-2 text-xs sm:text-sm text-gray-700 dark:text-white">
                       Last checked
                     </h4>
-                    <p className="text-sm sm:text-base text-gray-600 dark:text-white/70">
+                    <p className="text-xs sm:text-sm text-gray-600 dark:text-white/70">
                       {systemStatus.lastChecked}
                     </p>
                   </div>

@@ -13,12 +13,13 @@ import { PaginationType } from "@/components/shared/PaginationSelector";
 import { createSupplierColumns } from "./SupplierTableColumns";
 import { useAuth } from "@/contexts";
 import { useSuppliers, useDashboard } from "@/hooks/queries";
+import { isDataSlotLoading } from "@/lib/react-query";
 import SupplierFilters from "./SupplierFilters";
 import AddSupplierDialog from "./SupplierDialog";
 import { StatisticsCard } from "@/components/home/StatisticsCard";
-import { StatisticsCardSkeleton } from "@/components/home/StatisticsCardSkeleton";
 import { Package, DollarSign, Truck, FolderTree } from "lucide-react";
 import { Supplier } from "@/types";
+import type { SupplierForHome } from "@/lib/server/home-data";
 
 const formatCurrency = (value: number) =>
   `$${value.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
@@ -36,18 +37,24 @@ const SupplierTable = dynamic(
   },
 );
 
+export type SupplierListProps = {
+  /** SSR-passed suppliers for first-render hydration (REQ-0021) */
+  initialSuppliers?: Supplier[] | SupplierForHome[];
+};
+
 /**
  * SupplierList Component
  * Main component for displaying and managing suppliers
  * Follows the same pattern as ProductList with consistent spacing
  */
-const SupplierList = React.memo(() => {
-  // Track if component has mounted on client to prevent hydration mismatch
+const SupplierList = React.memo(function SupplierList({
+  initialSuppliers,
+}: SupplierListProps = {}) {
   const isMountedRef = useRef(false);
   const [isMounted, setIsMounted] = useState(false);
 
   const pathname = usePathname();
-  const suppliersQuery = useSuppliers();
+  const suppliersQuery = useSuppliers(initialSuppliers);
   const dashboardQuery = useDashboard();
   const allSuppliers = suppliersQuery.data ?? [];
   /** Show store-wide state cards only on the user suppliers page (/suppliers), not admin or homepage */
@@ -56,7 +63,7 @@ const SupplierList = React.memo(() => {
     ? (dashboardQuery.data ?? null)
     : null;
 
-  const { user, isCheckingAuth } = useAuth();
+  const { user } = useAuth();
 
   // Mark component as mounted after client-side hydration
   useEffect(() => {
@@ -82,17 +89,11 @@ const SupplierList = React.memo(() => {
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [editingSupplier, setEditingSupplier] = useState<Supplier | null>(null);
 
-  // Determine loading state - FIXES HYDRATION & FLICKER (same approach as StatisticsSection)
-  // Show skeleton if:
-  // 1. Not mounted yet (prevents hydration mismatch - server and client both show skeleton)
-  // 2. OR auth is checking OR suppliers query is still pending (hasn't fetched yet)
-  // This ensures server and client render match initially, preventing hydration errors
-  // Once mounted and queries have fetched, data shows immediately - no flicker
-  const suppliersQueryPending = suppliersQuery.isPending;
-  const showSkeleton = !isMounted || isCheckingAuth || suppliersQueryPending;
-  /** For /suppliers page cards: show skeleton until mounted and dashboard loaded */
-  const suppliersPageCardsLoading =
-    isUserSuppliersPage && (!isMounted || dashboardQuery.isPending);
+  // REQ-0021: shell-first — only data slots pulse
+  const tableDataLoading = isDataSlotLoading(suppliersQuery, initialSuppliers);
+  const cardsDataLoading = isUserSuppliersPage
+    ? isDataSlotLoading(dashboardQuery)
+    : false;
 
   // Create table columns with edit handler
   const handleEditSupplier = useCallback((supplier: Supplier) => {
@@ -111,10 +112,10 @@ const SupplierList = React.memo(() => {
     <div className="flex flex-col poppins">
       {/* Supplier Management Section Header — same alignment as products page */}
       <div className="pb-6 flex flex-col items-start text-left">
-        <h2 className="text-xl sm:text-2xl font-semibold text-gray-900 dark:text-white pb-2">
+        <h2 className="text-lg sm:text-xl font-semibold text-gray-700 dark:text-white ">
           Supplier Management
         </h2>
-        <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400">
+        <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">
           Manage your supplier relationships efficiently. Track supplier
           information, status, and maintain detailed records for better
           inventory management and procurement planning.
@@ -123,137 +124,127 @@ const SupplierList = React.memo(() => {
 
       {/* Store-wide state cards — only on /suppliers page (user), same as homepage/products */}
       {isUserSuppliersPage && (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 items-stretch pb-6">
-          {suppliersPageCardsLoading ? (
-            <>
-              {[1, 2, 3, 4].map((i) => (
-                <StatisticsCardSkeleton key={i} />
-              ))}
-            </>
-          ) : suppliersPageStats ? (
-            <>
-              <StatisticsCard
-                title="Total Products"
-                value={suppliersPageStats.counts.products}
-                description="Products availability"
-                icon={Package}
-                variant="rose"
-                badges={[
-                  {
-                    label: "Available",
-                    value:
-                      suppliersPageStats.productStatusBreakdown?.available ?? 0,
-                  },
-                  {
-                    label: "Stock low",
-                    value:
-                      suppliersPageStats.productStatusBreakdown?.stockLow ?? 0,
-                  },
-                  {
-                    label: "Stock out",
-                    value:
-                      suppliersPageStats.productStatusBreakdown?.stockOut ?? 0,
-                  },
-                ]}
-              />
-              <StatisticsCard
-                title="Total Value"
-                value={formatCurrency(
-                  suppliersPageStats.totalInventoryValue ?? 0,
-                )}
-                description="Total inventory value"
-                icon={DollarSign}
-                variant="violet"
-                badges={[
-                  {
-                    label: "Orders",
-                    value: formatCurrency(
-                      suppliersPageStats.orderAnalytics
-                        ?.totalRevenueExcludingCancelled ??
-                        suppliersPageStats.revenue?.fromOrders ??
-                        0,
-                    ),
-                  },
-                  {
-                    label: "Invoices",
-                    value: formatCurrency(
-                      suppliersPageStats.revenue?.fromInvoices ?? 0,
-                    ),
-                  },
-                  {
-                    label: "Due",
-                    value: formatCurrency(
-                      suppliersPageStats.invoiceAnalytics?.outstandingAmount ??
-                        0,
-                    ),
-                  },
-                  {
-                    label: "Cancelled",
-                    value: formatCurrency(
-                      suppliersPageStats.orderAnalytics?.cancelledOrderAmount ??
-                        0,
-                    ),
-                  },
-                ]}
-              />
-              <StatisticsCard
-                title="Total Suppliers"
-                value={suppliersPageStats.counts.suppliers}
-                description="Suppliers"
-                icon={Truck}
-                variant="emerald"
-                badges={[
-                  {
-                    label: "Active",
-                    value:
-                      suppliersPageStats.supplierStatusBreakdown?.active ?? 0,
-                  },
-                  {
-                    label: "Inactive",
-                    value:
-                      suppliersPageStats.supplierStatusBreakdown?.inactive ?? 0,
-                  },
-                ]}
-              />
-              <StatisticsCard
-                title="Categories"
-                value={suppliersPageStats.counts.categories}
-                description="Product categories"
-                icon={FolderTree}
-                variant="amber"
-                badges={[
-                  {
-                    label: "Active",
-                    value:
-                      suppliersPageStats.categoryStatusBreakdown?.active ?? 0,
-                  },
-                  {
-                    label: "Inactive",
-                    value:
-                      suppliersPageStats.categoryStatusBreakdown?.inactive ?? 0,
-                  },
-                ]}
-              />
-            </>
-          ) : null}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2 items-stretch pb-6">
+          <StatisticsCard
+            title="Total Products"
+            value={suppliersPageStats?.counts.products ?? 0}
+            description="Products availability"
+            icon={Package}
+            variant="rose"
+            valueLoading={cardsDataLoading}
+            badgeValuesLoading={cardsDataLoading}
+            badges={[
+              {
+                label: "Available",
+                value:
+                  suppliersPageStats?.productStatusBreakdown?.available ?? 0,
+              },
+              {
+                label: "Stock low",
+                value:
+                  suppliersPageStats?.productStatusBreakdown?.stockLow ?? 0,
+              },
+              {
+                label: "Stock out",
+                value:
+                  suppliersPageStats?.productStatusBreakdown?.stockOut ?? 0,
+              },
+            ]}
+          />
+          <StatisticsCard
+            title="Total Value"
+            value={formatCurrency(suppliersPageStats?.totalInventoryValue ?? 0)}
+            description="Total inventory value"
+            icon={DollarSign}
+            variant="violet"
+            valueLoading={cardsDataLoading}
+            badgeValuesLoading={cardsDataLoading}
+            badges={[
+              {
+                label: "Orders",
+                value: formatCurrency(
+                  suppliersPageStats?.orderAnalytics
+                    ?.totalRevenueExcludingCancelled ??
+                    suppliersPageStats?.revenue?.fromOrders ??
+                    0,
+                ),
+              },
+              {
+                label: "Invoices",
+                value: formatCurrency(
+                  suppliersPageStats?.revenue?.fromInvoices ?? 0,
+                ),
+              },
+              {
+                label: "Due",
+                value: formatCurrency(
+                  suppliersPageStats?.invoiceAnalytics?.outstandingAmount ?? 0,
+                ),
+              },
+              {
+                label: "Cancelled",
+                value: formatCurrency(
+                  suppliersPageStats?.orderAnalytics?.cancelledOrderAmount ?? 0,
+                ),
+              },
+            ]}
+          />
+          <StatisticsCard
+            title="Total Suppliers"
+            value={suppliersPageStats?.counts.suppliers ?? 0}
+            description="Suppliers"
+            icon={Truck}
+            variant="emerald"
+            valueLoading={cardsDataLoading}
+            badgeValuesLoading={cardsDataLoading}
+            badges={[
+              {
+                label: "Active",
+                value: suppliersPageStats?.supplierStatusBreakdown?.active ?? 0,
+              },
+              {
+                label: "Inactive",
+                value:
+                  suppliersPageStats?.supplierStatusBreakdown?.inactive ?? 0,
+              },
+            ]}
+          />
+          <StatisticsCard
+            title="Categories"
+            value={suppliersPageStats?.counts.categories ?? 0}
+            description="Product categories"
+            icon={FolderTree}
+            variant="amber"
+            valueLoading={cardsDataLoading}
+            badgeValuesLoading={cardsDataLoading}
+            badges={[
+              {
+                label: "Active",
+                value: suppliersPageStats?.categoryStatusBreakdown?.active ?? 0,
+              },
+              {
+                label: "Inactive",
+                value:
+                  suppliersPageStats?.categoryStatusBreakdown?.inactive ?? 0,
+              },
+            ]}
+          />
         </div>
       )}
 
       {/* Filters and Actions - Always visible, only disabled during auth check */}
       <div className="pb-6 flex justify-center">
         <div className="w-full max-w-9xl">
-          {isMounted ? (
-            <SupplierFilters
-              allSuppliers={allSuppliers}
-              statusFilter={statusFilter}
-              setStatusFilter={setStatusFilter}
-              searchTerm={searchTerm}
-              setSearchTerm={setSearchTerm}
-              pagination={pagination}
-              setPagination={setPagination}
-              userId={user?.id || ""}
-            />
-          ) : null}
+          <SupplierFilters
+            allSuppliers={allSuppliers}
+            statusFilter={statusFilter}
+            setStatusFilter={setStatusFilter}
+            searchTerm={searchTerm}
+            setSearchTerm={setSearchTerm}
+            pagination={pagination}
+            setPagination={setPagination}
+            userId={user?.id || ""}
+          />
         </div>
       </div>
 
@@ -262,7 +253,7 @@ const SupplierList = React.memo(() => {
         data={allSuppliers || []}
         columns={columns}
         userId={user?.id || ""}
-        isLoading={showSkeleton}
+        isLoading={tableDataLoading}
         searchTerm={searchTerm}
         pagination={pagination}
         setPagination={setPagination}

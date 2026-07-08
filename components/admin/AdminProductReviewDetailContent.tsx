@@ -118,7 +118,7 @@ export default function AdminProductReviewDetailContent() {
   if (isError || (!isLoading && !review)) {
     return (
       <PageContentWrapper>
-        <div className="space-y-6">
+        <div className="space-y-4">
           <Button variant="ghost" size="sm" asChild>
             <Link href="/admin/product-reviews" className="gap-2">
               <ArrowLeft className="h-4 w-4" />
@@ -154,15 +154,15 @@ export default function AdminProductReviewDetailContent() {
 
   return (
     <PageContentWrapper>
-      <div className="space-y-6">
-        <div className="flex items-center gap-4">
+      <div className="space-y-4">
+        <div className="flex items-center gap-2">
           <Button variant="ghost" size="icon" asChild>
             <Link href="/admin/product-reviews" className="h-10 w-10">
               <ArrowLeft className="h-5 w-5" />
             </Link>
           </Button>
           <div>
-            <h1 className="text-2xl font-semibold text-foreground">
+            <h1 className="text-lg sm:text-xl font-semibold text-foreground">
               Product Review Details
             </h1>
             <p className="text-sm text-muted-foreground">
@@ -173,8 +173,8 @@ export default function AdminProductReviewDetailContent() {
         </div>
 
         <Card>
-          <CardContent className="p-4 sm:p-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <CardContent className="p-2 sm:p-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-2 sm:gap-4">
               <div>
                 <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
                   <Package className="h-5 w-5" />
@@ -353,7 +353,7 @@ export default function AdminProductReviewDetailContent() {
               Update the review comment. Changes apply after Save.
             </CardDescription>
           </CardHeader>
-          <CardContent className="space-y-3">
+          <CardContent className="space-y-2">
             <Textarea
               placeholder="Review comment..."
               value={commentValue}

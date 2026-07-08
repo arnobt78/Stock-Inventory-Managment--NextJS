@@ -28,3 +28,5 @@ Format: `TIMESTAMP | AGENT | DECISION | RATIONALE | REQ-ID`
 2026-07-08T00:00:00Z | red-team | REQ-0018 audit complete | lib/ai only; no TanStack/SSR changes; 296 tests pass | REQ-0018
 2026-07-08T00:00:00Z | build-agent | Forecasting max_tokens 512 + cache v2 | Truncated AI insights on admin dashboard | REQ-0019
 2026-07-08T00:00:00Z | build-agent | Locale-aware ClientCurrency/ClientCompactDateTime | Stable SSR + browser locale after mount for global demo | REQ-0020
+2026-07-08T00:00:00Z | build-agent | Shell-first nav + DataSlotPulse | Suspense shell in page.tsx; initialData hooks; table headers always visible | REQ-0021
+2026-07-08T00:00:00Z | red-team | REQ-0021 automated gates | lint ✓ test 310 ✓ invalidate 200 ✓ build ✓ | REQ-0021

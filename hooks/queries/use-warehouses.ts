@@ -9,6 +9,7 @@ import {
   queryKeys,
   invalidateAllRelatedQueries,
   cancelOrRemoveDetailQuery,
+  withInitialData,
 } from "@/lib/react-query";
 import { useToast } from "@/hooks/use-toast";
 import type {
@@ -16,17 +17,19 @@ import type {
   CreateWarehouseInput,
   UpdateWarehouseInput,
 } from "@/types";
+import type { WarehouseForPage } from "@/lib/server/warehouses-data";
 
 /**
  * Fetch all warehouses
  */
-export function useWarehouses() {
-  return useQuery({
+export function useWarehouses(initialData?: Warehouse[] | WarehouseForPage[]) {
+  return useQuery<Warehouse[]>({
     queryKey: queryKeys.warehouses.lists(),
     queryFn: async () => {
       const response = await apiClient.warehouses.getAll();
       return response.data;
     },
+    ...withInitialData(initialData as Warehouse[] | undefined),
   });
 }
 

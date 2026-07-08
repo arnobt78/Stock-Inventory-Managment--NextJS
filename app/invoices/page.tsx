@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import { redirect } from "next/navigation";
 import { getSession } from "@/lib/auth-server";
 import InvoicesPage from "@/components/Pages/InvoicesPage";
@@ -6,19 +7,31 @@ import {
   getInvoicesForClientId,
 } from "@/lib/server/invoices-data";
 
-/**
- * Invoices route — server component.
- * If user is not logged in, redirect to login.
- * Client role: invoices where they are the client. Admin/supplier: invoices they created.
- */
+/** REQ-0021 — session shell + Suspense-streamed invoices */
 export default async function InvoicesRoute() {
   const user = await getSession();
   if (!user) {
     redirect("/login");
   }
+
+  return (
+    <Suspense fallback={<InvoicesPage />}>
+      <InvoicesPageWithData userId={user.id} userRole={user.role ?? undefined} />
+    </Suspense>
+  );
+}
+
+async function InvoicesPageWithData({
+  userId,
+  userRole,
+}: {
+  userId: string;
+  userRole?: string;
+}) {
   const initialInvoices =
-    user.role === "client"
-      ? await getInvoicesForClientId(user.id)
-      : await getInvoicesForUser(user.id);
+    userRole === "client"
+      ? await getInvoicesForClientId(userId)
+      : await getInvoicesForUser(userId);
+
   return <InvoicesPage initialInvoices={initialInvoices} />;
 }

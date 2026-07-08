@@ -1,11 +1,9 @@
 "use client";
 
-import React, { useLayoutEffect } from "react";
-import { useQueryClient } from "@tanstack/react-query";
+import React from "react";
 import HistoryList from "./HistoryList";
 import ActivityLogSection from "./ActivityLogSection";
 import { PageContentWrapper } from "@/components/shared";
-import { queryKeys } from "@/lib/react-query";
 import type { ImportHistoryForPage, AuditLog } from "@/types";
 
 export type AdminHistoryContentProps = {
@@ -23,17 +21,12 @@ export default function AdminHistoryContent({
   initialActivityLogs,
   detailHrefBase = "/admin/activity-history",
 }: AdminHistoryContentProps = {}) {
-  const queryClient = useQueryClient();
-
-  useLayoutEffect(() => {
-    if (initialHistory != null) {
-      queryClient.setQueryData(queryKeys.history.lists(), initialHistory);
-    }
-  }, [queryClient, initialHistory]);
-
   return (
     <PageContentWrapper>
-      <HistoryList detailHrefBase={detailHrefBase} />
+      <HistoryList
+        detailHrefBase={detailHrefBase}
+        initialHistory={initialHistory}
+      />
       <ActivityLogSection
         initialLogs={initialActivityLogs}
         initialPeriod="7days"

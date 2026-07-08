@@ -389,14 +389,14 @@ export default function AdminOrderDetailContent({
   if (isError || (!isLoading && !order)) {
     return (
       <PageContentWrapper>
-        <div className="space-y-6">
+        <div className="space-y-4">
           <Button variant="ghost" size="sm" asChild>
             <Link href={backHref} className="gap-2">
               <ArrowLeft className="h-4 w-4" />
               Back to Orders
             </Link>
           </Button>
-          <div className="rounded-[20px] border border-gray-200/50 dark:border-white/10 bg-white/60 dark:bg-white/5 backdrop-blur-sm p-8 text-center">
+          <div className="rounded-[20px] border border-gray-200/50 dark:border-white/10 bg-white/60 dark:bg-white/5 backdrop-blur-sm p-4 sm:p-6 text-center">
             <p className="text-muted-foreground">
               {error instanceof Error ? error.message : "Order not found"}
             </p>
@@ -424,9 +424,9 @@ export default function AdminOrderDetailContent({
 
   return (
     <PageContentWrapper>
-      <div className="mx-auto space-y-6">
+      <div className="mx-auto space-y-4">
         {/* Header — Order number + Created X days ago */}
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-2">
           <Button
             variant="ghost"
             size="icon"
@@ -438,7 +438,7 @@ export default function AdminOrderDetailContent({
             </Link>
           </Button>
           <div className="flex-1">
-            <h1 className="text-2xl font-semibold text-gray-900 dark:text-white">
+            <h1 className="text-lg sm:text-xl font-semibold text-gray-700 dark:text-white">
               Order {order.orderNumber}
             </h1>
             <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
@@ -448,7 +448,7 @@ export default function AdminOrderDetailContent({
         </div>
 
         {/* Order Status + Payment Status — glassmorphic */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
           <GlassCard variant="amber">
             <p className="text-xs uppercase tracking-[0.25em] text-gray-600 dark:text-white/60 mb-3">
               Order Status
@@ -477,9 +477,7 @@ export default function AdminOrderDetailContent({
                   <Select
                     key={selectRemountKey}
                     value={order.status}
-                    onValueChange={(v) =>
-                      handleStatusChange(v as OrderStatus)
-                    }
+                    onValueChange={(v) => handleStatusChange(v as OrderStatus)}
                     disabled={isUpdating}
                   >
                     <SelectTrigger className="w-[130px] h-8 text-xs border-gray-300/30 dark:border-white/10">
@@ -515,10 +513,10 @@ export default function AdminOrderDetailContent({
 
         {/* Order Items — with product / category / supplier links */}
         <GlassCard variant="sky">
-          <div className="flex items-center gap-3 mb-2">
+          <div className="flex items-center gap-2 mb-2">
             <div
               className={cn(
-                "p-2.5 rounded-xl border",
+                "p-2 rounded-xl border",
                 variantConfig.sky.iconBg,
                 "dark:border-sky-400/30 dark:bg-sky-500/20",
               )}
@@ -526,7 +524,7 @@ export default function AdminOrderDetailContent({
               <Package className="h-5 w-5 text-sky-600 dark:text-sky-400" />
             </div>
             <div>
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+              <h3 className="text-lg font-semibold text-gray-700 dark:text-white">
                 Order Items
               </h3>
               <p className="text-xs text-gray-600 dark:text-gray-400">
@@ -535,7 +533,7 @@ export default function AdminOrderDetailContent({
               </p>
             </div>
           </div>
-          <div className="space-y-3 mt-4">
+          <div className="space-y-2 mt-4">
             {order.items && order.items.length > 0 ? (
               order.items.map((item) => (
                 <div
@@ -544,7 +542,7 @@ export default function AdminOrderDetailContent({
                 >
                   <div className="flex-1">
                     <div className="flex flex-wrap items-center gap-2">
-                      <h4 className="font-medium text-gray-900 dark:text-white">
+                      <h4 className="font-medium text-gray-700 dark:text-white">
                         {item.productId ? (
                           <Link
                             href={`/admin/products/${item.productId}`}
@@ -606,50 +604,50 @@ export default function AdminOrderDetailContent({
         </GlassCard>
 
         {/* Order Information + Customer + Parties & roles + Invoice link */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-2 sm:gap-4">
           {/* Order Information */}
           <GlassCard variant="orange">
-            <div className="flex items-center gap-3 mb-4">
+            <div className="flex items-center gap-2 mb-4">
               <div
                 className={cn(
-                  "p-2.5 rounded-xl border",
+                  "p-2 rounded-xl border",
                   variantConfig.orange.iconBg,
                   "dark:border-orange-400/30 dark:bg-orange-500/20",
                 )}
               >
                 <FileText className="h-5 w-5 text-orange-600 dark:text-orange-400" />
               </div>
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+              <h3 className="text-lg font-semibold text-gray-700 dark:text-white">
                 Order Information
               </h3>
             </div>
-            <div className="space-y-3">
-              <div className="flex items-center gap-2 text-sm p-3 rounded-xl bg-gradient-to-r from-orange-100/50 via-orange-50/30 to-transparent dark:from-orange-500/10 dark:via-orange-500/5 dark:to-transparent border border-orange-200/30 dark:border-orange-400/10">
+            <div className="space-y-2">
+              <div className="flex items-center gap-2 text-sm p-2 rounded-xl bg-gradient-to-r from-orange-100/50 via-orange-50/30 to-transparent dark:from-orange-500/10 dark:via-orange-500/5 dark:to-transparent border border-orange-200/30 dark:border-orange-400/10">
                 <Calendar className="h-4 w-4 text-orange-500 dark:text-orange-400" />
                 <span className="text-gray-600 dark:text-gray-400">
                   Created:
                 </span>
-                <span className="font-medium text-gray-900 dark:text-white">
+                <span className="font-medium text-gray-700 dark:text-white">
                   <ClientDateTime date={createdAt} />
                 </span>
               </div>
               {updatedAt && (
-                <div className="flex items-center gap-2 text-sm p-3 rounded-xl bg-gradient-to-r from-amber-100/50 via-amber-50/30 to-transparent dark:from-amber-500/10 dark:via-amber-500/5 dark:to-transparent border border-amber-200/30 dark:border-amber-400/10">
+                <div className="flex items-center gap-2 text-sm p-2 rounded-xl bg-gradient-to-r from-amber-100/50 via-amber-50/30 to-transparent dark:from-amber-500/10 dark:via-amber-500/5 dark:to-transparent border border-amber-200/30 dark:border-amber-400/10">
                   <Calendar className="h-4 w-4 text-amber-500 dark:text-amber-400" />
                   <span className="text-gray-600 dark:text-gray-400">
                     Updated:
                   </span>
-                  <span className="font-medium text-gray-900 dark:text-white">
+                  <span className="font-medium text-gray-700 dark:text-white">
                     <ClientDateTime date={updatedAt} />
                   </span>
                 </div>
               )}
               {order.notes && (
-                <div className="p-3 rounded-xl bg-gradient-to-r from-teal-100/50 via-teal-50/30 to-transparent dark:from-teal-500/10 dark:via-teal-500/5 dark:to-transparent border border-teal-200/30 dark:border-teal-400/10">
+                <div className="p-2 rounded-xl bg-gradient-to-r from-teal-100/50 via-teal-50/30 to-transparent dark:from-teal-500/10 dark:via-teal-500/5 dark:to-transparent border border-teal-200/30 dark:border-teal-400/10">
                   <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">
                     Notes:
                   </p>
-                  <p className="text-sm text-gray-900 dark:text-white">
+                  <p className="text-sm text-gray-700 dark:text-white">
                     {order.notes}
                   </p>
                 </div>
@@ -659,36 +657,36 @@ export default function AdminOrderDetailContent({
 
           {/* Customer Information */}
           <GlassCard variant="blue">
-            <div className="flex items-center gap-3 mb-4">
+            <div className="flex items-center gap-2 mb-4">
               <div
                 className={cn(
-                  "p-2.5 rounded-xl border",
+                  "p-2 rounded-xl border",
                   variantConfig.blue.iconBg,
                   "dark:border-blue-400/30 dark:bg-blue-500/20",
                 )}
               >
                 <MapPin className="h-5 w-5 text-blue-600 dark:text-blue-400" />
               </div>
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+              <h3 className="text-lg font-semibold text-gray-700 dark:text-white">
                 Customer Information
               </h3>
             </div>
             <dl className="space-y-2 text-sm">
               <div>
                 <dt className="text-gray-600 dark:text-gray-400">Name</dt>
-                <dd className="font-medium text-gray-900 dark:text-white">
+                <dd className="font-medium text-gray-700 dark:text-white">
                   {getCustomerDisplay(order)}
                 </dd>
               </div>
               <div>
                 <dt className="text-gray-600 dark:text-gray-400">Email</dt>
-                <dd className="font-medium text-gray-900 dark:text-white">
+                <dd className="font-medium text-gray-700 dark:text-white">
                   {getCustomerEmail(order)}
                 </dd>
               </div>
               <div>
                 <dt className="text-gray-600 dark:text-gray-400">User ID</dt>
-                <dd className="font-mono text-xs break-all text-gray-900 dark:text-white">
+                <dd className="font-mono text-xs break-all text-gray-700 dark:text-white">
                   {order.userId}
                 </dd>
               </div>
@@ -702,26 +700,26 @@ export default function AdminOrderDetailContent({
           (order.orderProductOwners &&
             order.orderProductOwners.length > 0)) && (
           <GlassCard variant="teal">
-            <div className="flex items-center gap-3 mb-4">
+            <div className="flex items-center gap-2 mb-4">
               <div
                 className={cn(
-                  "p-2.5 rounded-xl border",
+                  "p-2 rounded-xl border",
                   variantConfig.teal.iconBg,
                   "dark:border-teal-400/30 dark:bg-teal-500/20",
                 )}
               >
                 <Package className="h-5 w-5 text-teal-600 dark:text-teal-400" />
               </div>
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+              <h3 className="text-lg font-semibold text-gray-700 dark:text-white">
                 Parties &amp; roles
               </h3>
             </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
-              <div className="p-3 rounded-xl bg-gradient-to-r from-teal-100/50 via-teal-50/30 to-transparent dark:from-teal-500/10 dark:via-teal-500/5 dark:to-transparent border border-teal-200/30 dark:border-teal-400/10">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm">
+              <div className="p-2 rounded-xl bg-gradient-to-r from-teal-100/50 via-teal-50/30 to-transparent dark:from-teal-500/10 dark:via-teal-500/5 dark:to-transparent border border-teal-200/30 dark:border-teal-400/10">
                 <p className="text-gray-600 dark:text-gray-400 font-medium mb-0.5">
                   Ordered by
                 </p>
-                <p className="text-gray-900 dark:text-white">
+                <p className="text-gray-700 dark:text-white">
                   {order.placedByName ?? "—"}
                 </p>
                 {order.placedByEmail && (
@@ -730,11 +728,11 @@ export default function AdminOrderDetailContent({
                   </span>
                 )}
               </div>
-              <div className="p-3 rounded-xl bg-gradient-to-r from-teal-100/50 via-teal-50/30 to-transparent dark:from-teal-500/10 dark:via-teal-500/5 dark:to-transparent border border-teal-200/30 dark:border-teal-400/10">
+              <div className="p-2 rounded-xl bg-gradient-to-r from-teal-100/50 via-teal-50/30 to-transparent dark:from-teal-500/10 dark:via-teal-500/5 dark:to-transparent border border-teal-200/30 dark:border-teal-400/10">
                 <p className="text-gray-600 dark:text-gray-400 font-medium mb-0.5">
                   Customer / Ship to
                 </p>
-                <p className="text-gray-900 dark:text-white">
+                <p className="text-gray-700 dark:text-white">
                   {getCustomerDisplay(order)}
                 </p>
                 {getCustomerEmail(order) !== "—" && (
@@ -745,7 +743,7 @@ export default function AdminOrderDetailContent({
               </div>
               {order.orderProductOwners &&
                 order.orderProductOwners.length > 0 && (
-                  <div className="sm:col-span-2 p-3 rounded-xl bg-gradient-to-r from-teal-100/50 via-teal-50/30 to-transparent dark:from-teal-500/10 dark:via-teal-500/5 dark:to-transparent border border-teal-200/30 dark:border-teal-400/10">
+                  <div className="sm:col-span-2 p-2 rounded-xl bg-gradient-to-r from-teal-100/50 via-teal-50/30 to-transparent dark:from-teal-500/10 dark:via-teal-500/5 dark:to-transparent border border-teal-200/30 dark:border-teal-400/10">
                     <p className="text-gray-600 dark:text-gray-400 font-medium mb-1">
                       Product owner(s)
                     </p>
@@ -753,7 +751,7 @@ export default function AdminOrderDetailContent({
                       {order.orderProductOwners.map((owner) => (
                         <span
                           key={owner.userId}
-                          className="inline-flex items-center gap-1 rounded-md bg-white/50 dark:bg-white/10 px-2 py-1 text-xs border border-teal-200/30 dark:border-teal-400/20 text-gray-900 dark:text-white"
+                          className="inline-flex items-center gap-1 rounded-md bg-white/50 dark:bg-white/10 px-2 py-1 text-xs border border-teal-200/30 dark:border-teal-400/20 text-gray-700 dark:text-white"
                         >
                           {owner.name ?? owner.email}
                           {owner.name && (
@@ -773,17 +771,17 @@ export default function AdminOrderDetailContent({
         {/* Invoice link (admin) when order has an invoice */}
         {order.invoiceForOrder && (
           <GlassCard variant="violet">
-            <div className="flex items-center gap-3 mb-2">
+            <div className="flex items-center gap-2 mb-2">
               <div
                 className={cn(
-                  "p-2.5 rounded-xl border",
+                  "p-2 rounded-xl border",
                   variantConfig.violet.iconBg,
                   "dark:border-violet-400/30 dark:bg-violet-500/20",
                 )}
               >
                 <FileText className="h-5 w-5 text-violet-600 dark:text-violet-400" />
               </div>
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+              <h3 className="text-lg font-semibold text-gray-700 dark:text-white">
                 Invoice
               </h3>
             </div>
@@ -806,21 +804,21 @@ export default function AdminOrderDetailContent({
         {/* Shipping Address */}
         {order.shippingAddress && (
           <GlassCard variant="violet">
-            <div className="flex items-center gap-3 mb-3">
+            <div className="flex items-center gap-2 mb-3">
               <div
                 className={cn(
-                  "p-2.5 rounded-xl border",
+                  "p-2 rounded-xl border",
                   variantConfig.violet.iconBg,
                   "dark:border-violet-400/30 dark:bg-violet-500/20",
                 )}
               >
                 <MapPin className="h-5 w-5 text-violet-600 dark:text-violet-400" />
               </div>
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+              <h3 className="text-lg font-semibold text-gray-700 dark:text-white">
                 Shipping Address
               </h3>
             </div>
-            <p className="text-sm text-gray-900 dark:text-white p-3 rounded-xl bg-gradient-to-r from-violet-100/40 via-violet-50/20 to-transparent dark:from-violet-500/10 dark:via-violet-500/5 dark:to-transparent border border-violet-200/30 dark:border-violet-400/10">
+            <p className="text-sm text-gray-700 dark:text-white p-2 rounded-xl bg-gradient-to-r from-violet-100/40 via-violet-50/20 to-transparent dark:from-violet-500/10 dark:via-violet-500/5 dark:to-transparent border border-violet-200/30 dark:border-violet-400/10">
               {formatAddress(order.shippingAddress)}
             </p>
           </GlassCard>
@@ -828,17 +826,17 @@ export default function AdminOrderDetailContent({
 
         {/* Order Summary — Subtotal, Tax, Shipping, Discount, Total */}
         <GlassCard variant="teal">
-          <div className="flex items-center gap-3 mb-4">
+          <div className="flex items-center gap-2 mb-4">
             <div
               className={cn(
-                "p-2.5 rounded-xl border",
+                "p-2 rounded-xl border",
                 variantConfig.teal.iconBg,
                 "dark:border-teal-400/30 dark:bg-teal-500/20",
               )}
             >
               <DollarSign className="h-5 w-5 text-teal-600 dark:text-teal-400" />
             </div>
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+            <h3 className="text-lg font-semibold text-gray-700 dark:text-white">
               Order Summary
             </h3>
           </div>
@@ -847,14 +845,14 @@ export default function AdminOrderDetailContent({
               <span className="text-gray-600 dark:text-gray-400">
                 Subtotal:
               </span>
-              <span className="font-medium text-gray-900 dark:text-white">
+              <span className="font-medium text-gray-700 dark:text-white">
                 ${Number(order.subtotal).toFixed(2)}
               </span>
             </div>
             {order.tax != null && order.tax > 0 && (
               <div className="flex justify-between text-sm p-2 rounded-lg bg-gradient-to-r from-amber-100/40 via-amber-50/20 to-transparent dark:from-amber-500/10 dark:via-amber-500/5 dark:to-transparent">
                 <span className="text-gray-600 dark:text-gray-400">Tax:</span>
-                <span className="font-medium text-gray-900 dark:text-white">
+                <span className="font-medium text-gray-700 dark:text-white">
                   ${Number(order.tax).toFixed(2)}
                 </span>
               </div>
@@ -864,7 +862,7 @@ export default function AdminOrderDetailContent({
                 <span className="text-gray-600 dark:text-gray-400">
                   Shipping:
                 </span>
-                <span className="font-medium text-gray-900 dark:text-white">
+                <span className="font-medium text-gray-700 dark:text-white">
                   ${Number(order.shipping).toFixed(2)}
                 </span>
               </div>
@@ -880,8 +878,8 @@ export default function AdminOrderDetailContent({
               </div>
             )}
             <Separator className="my-2 bg-teal-200/50 dark:bg-teal-400/20" />
-            <div className="flex justify-between text-lg font-semibold p-3 rounded-xl bg-gradient-to-r from-emerald-100/50 via-emerald-50/30 to-transparent dark:from-emerald-500/15 dark:via-emerald-500/10 dark:to-transparent border border-emerald-200/30 dark:border-emerald-400/20">
-              <span className="text-gray-900 dark:text-white">Total:</span>
+            <div className="flex justify-between text-lg font-semibold p-2 rounded-xl bg-gradient-to-r from-emerald-100/50 via-emerald-50/30 to-transparent dark:from-emerald-500/15 dark:via-emerald-500/10 dark:to-transparent border border-emerald-200/30 dark:border-emerald-400/20">
+              <span className="text-gray-700 dark:text-white">Total:</span>
               <span className="text-emerald-600 dark:text-emerald-400">
                 ${Number(order.total).toFixed(2)}
               </span>
@@ -892,17 +890,17 @@ export default function AdminOrderDetailContent({
         {/* Shipping & Tracking — auto generate + manual; when generated show OrderTrackingInfo above */}
         {order.status !== "cancelled" && (
           <GlassCard variant="emerald">
-            <div className="flex items-center gap-3 mb-4">
+            <div className="flex items-center gap-2 mb-4">
               <div
                 className={cn(
-                  "p-2.5 rounded-xl border",
+                  "p-2 rounded-xl border",
                   variantConfig.emerald.iconBg,
                   "dark:border-emerald-400/30 dark:bg-emerald-500/20",
                 )}
               >
                 <Truck className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
               </div>
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+              <h3 className="text-lg font-semibold text-gray-700 dark:text-white">
                 Shipping &amp; Tracking
               </h3>
             </div>
@@ -910,7 +908,7 @@ export default function AdminOrderDetailContent({
               <OrderTrackingInfo order={order} />
             ) : (
               <>
-                <div className="flex flex-wrap items-center gap-3 mb-4">
+                <div className="flex flex-wrap items-center gap-2 mb-4">
                   <ShippingManagement
                     order={order}
                     trigger={
@@ -922,10 +920,10 @@ export default function AdminOrderDetailContent({
                   />
                 </div>
                 <div className="border-t border-emerald-200/30 dark:border-emerald-400/20 pt-4">
-                  <h4 className="text-sm font-medium text-gray-900 dark:text-white mb-3">
+                  <h4 className="text-sm font-medium text-gray-700 dark:text-white mb-3">
                     Or enter tracking manually
                   </h4>
-                  <div className="flex flex-col sm:flex-row gap-3">
+                  <div className="flex flex-col sm:flex-row gap-2">
                     <div className="flex-1 space-y-2">
                       <Label
                         htmlFor="admin-trackingNumber"
@@ -1015,8 +1013,8 @@ export default function AdminOrderDetailContent({
         {/* Refund Management */}
         {canRefund && (
           <GlassCard variant="rose">
-            <div className="flex items-center gap-3 mb-2">
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+            <div className="flex items-center gap-2 mb-2">
+              <h3 className="text-lg font-semibold text-gray-700 dark:text-white">
                 Refund Management
               </h3>
             </div>

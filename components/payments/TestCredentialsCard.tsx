@@ -72,7 +72,7 @@ export default function TestCredentialsCard() {
   return (
     <Card className="border-amber-500/30 bg-amber-50/50 dark:bg-amber-950/20">
       <CardHeader className="pb-3 pt-4 px-4 space-y-2">
-        <div className="flex items-center gap-3 flex-wrap">
+        <div className="flex items-center gap-2 flex-wrap">
           <CardTitle className="text-base font-semibold text-amber-700 dark:text-amber-400">
             Note: Test Credentials
           </CardTitle>
@@ -88,9 +88,9 @@ export default function TestCredentialsCard() {
           card details:
         </CardDescription>
       </CardHeader>
-      <CardContent className="space-y-3 px-4 pb-4 pt-0">
+      <CardContent className="space-y-2 px-4 pb-4 pt-0">
         <CopyableField label="Card Number" value="4242424242424242" />
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-2 gap-2">
           <CopyableField label="Expiry" value="12/34" />
           <CopyableField label="CVC" value="123" />
         </div>

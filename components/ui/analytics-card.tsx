@@ -1,5 +1,6 @@
 import { cn } from "@/lib/utils";
 import { LucideIcon } from "lucide-react";
+import { DataSlotPulse } from "@/components/shared/DataSlotPulse";
 
 /**
  * Color variant types for analytics cards (matching StatisticsCard)
@@ -26,6 +27,8 @@ interface AnalyticsCardProps {
   className?: string;
   iconColor?: string;
   variant?: CardVariant;
+  /** When true, value shows inline pulse (title/icon stay visible — REQ-0021) */
+  valueLoading?: boolean;
 }
 
 /**
@@ -112,8 +115,9 @@ export function AnalyticsCard({
   icon: Icon,
   trend,
   className,
-  iconColor = "text-gray-900 dark:text-white",
+  iconColor = "text-gray-700 dark:text-white",
   variant = "blue",
+  valueLoading = false,
 }: AnalyticsCardProps) {
   const config = variantConfig[variant];
 
@@ -137,8 +141,12 @@ export function AnalyticsCard({
             <Icon className={cn("h-5 w-5", iconColor)} />
           </div>
         </div>
-        <p className="text-2xl font-semibold text-gray-900 dark:text-white">
-          {value}
+        <p className="text-lg sm:text-xl font-semibold text-gray-700 dark:text-white">
+          {valueLoading ? (
+            <DataSlotPulse variant="metric" />
+          ) : (
+            value
+          )}
         </p>
         {description && (
           <p className="mt-2 text-sm text-gray-600 dark:text-white/70">

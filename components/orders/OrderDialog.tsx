@@ -693,7 +693,7 @@ export default function OrderDialog({
         {editingOrder ? (
           <FormProvider {...editFormMethods}>
             <form onSubmit={editFormMethods.handleSubmit(handleUpdateOrder)}>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                 {/* Order Status */}
                 <div className="flex flex-col gap-2">
                   <label className="text-sm font-medium text-white/80">
@@ -719,8 +719,7 @@ export default function OrderDialog({
                       <Select
                         key={selectRemountKey}
                         value={
-                          editFormMethods.watch("status") ||
-                          editingOrder.status
+                          editFormMethods.watch("status") || editingOrder.status
                         }
                         onValueChange={(value) =>
                           editFormMethods.setValue(
@@ -742,7 +741,7 @@ export default function OrderDialog({
                             <SelectItem
                               key={option.value}
                               value={option.value}
-                              className="cursor-pointer text-gray-900 dark:text-white focus:bg-violet-100 dark:focus:bg-white/10 focus:text-gray-900 dark:focus:text-white"
+                              className="cursor-pointer text-gray-700 dark:text-white focus:bg-violet-100 dark:focus:bg-white/10 focus:text-gray-700 dark:focus:text-white"
                             >
                               {option.label}
                             </SelectItem>
@@ -801,7 +800,7 @@ export default function OrderDialog({
                             <SelectItem
                               key={option.value}
                               value={option.value}
-                              className="cursor-pointer text-gray-900 dark:text-white focus:bg-violet-100 dark:focus:bg-white/10 focus:text-gray-900 dark:focus:text-white"
+                              className="cursor-pointer text-gray-700 dark:text-white focus:bg-violet-100 dark:focus:bg-white/10 focus:text-gray-700 dark:focus:text-white"
                             >
                               {option.label}
                             </SelectItem>
@@ -916,7 +915,7 @@ export default function OrderDialog({
                 </div>
               </div>
 
-              <DialogFooter className="mt-9 mb-4 flex flex-col sm:flex-row items-center gap-4">
+              <DialogFooter className="mt-9 mb-4 flex flex-col sm:flex-row items-center gap-2">
                 <Button
                   onClick={handleCancelEdit}
                   variant="secondary"
@@ -1005,7 +1004,7 @@ export default function OrderDialog({
                 },
               )}
             >
-              <div className="space-y-6">
+              <div className="space-y-4">
                 {/* Order Items Section */}
                 <div className="space-y-4">
                   <div className="flex items-center justify-between">
@@ -1051,10 +1050,10 @@ export default function OrderDialog({
                     return (
                       <div
                         key={field.id}
-                        className="p-4 border border-violet-400/20 rounded-lg bg-white/5 space-y-3"
+                        className="p-4 border border-violet-400/20 rounded-lg bg-white/5 space-y-2"
                       >
-                        <div className="flex items-start justify-between gap-4">
-                          <div className="flex-1 grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div className="flex items-start justify-between gap-2">
+                          <div className="flex-1 grid grid-cols-1 sm:grid-cols-2 gap-2">
                             {/* Product Selection */}
                             <div className="flex flex-col gap-2">
                               <Label className="text-white/80 text-sm">
@@ -1114,7 +1113,7 @@ export default function OrderDialog({
                                           <SelectItem
                                             key={product.id}
                                             value={product.id}
-                                            className="cursor-pointer text-gray-900 dark:text-white focus:bg-violet-100 dark:focus:bg-white/10 focus:text-gray-900 dark:focus:text-white"
+                                            className="cursor-pointer text-gray-700 dark:text-white focus:bg-violet-100 dark:focus:bg-white/10 focus:text-gray-700 dark:focus:text-white"
                                           >
                                             {product.name} - $
                                             {Number(product.price).toFixed(2)}{" "}
@@ -1216,7 +1215,7 @@ export default function OrderDialog({
 
                         {/* Item Subtotal and Warning - Same row aligned with columns */}
                         {selectedProduct && (
-                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                             {/* Subtotal - aligned with product column */}
                             <div className="text-sm text-white/70">
                               Subtotal: ${itemSubtotal.toFixed(2)} (
@@ -1254,7 +1253,7 @@ export default function OrderDialog({
                   <Label className="text-white/80 text-base font-semibold">
                     Shipping Address
                   </Label>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                     <FormField
                       name="shippingAddress.street"
                       label="Street Address"
@@ -1318,7 +1317,7 @@ export default function OrderDialog({
                       <Label className="text-white/80 text-base font-semibold">
                         Billing Address
                       </Label>
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                         <FormField
                           name="billingAddress.street"
                           label="Street Address"
@@ -1403,7 +1402,7 @@ export default function OrderDialog({
                 </div>
               </div>
 
-              <DialogFooter className="mt-9 mb-4 flex flex-col sm:flex-row items-center gap-4">
+              <DialogFooter className="mt-9 mb-4 flex flex-col sm:flex-row items-center gap-2">
                 <DialogClose asChild>
                   <Button
                     ref={dialogCloseRef}

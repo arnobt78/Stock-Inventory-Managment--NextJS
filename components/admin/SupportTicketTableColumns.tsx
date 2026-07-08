@@ -71,7 +71,7 @@ function SortableHeader({ column, label }: SortableHeaderProps) {
       <DropdownMenuTrigger className="" asChild>
         <div
           className={cn(
-            "flex items-center select-none cursor-pointer gap-1 py-2 text-gray-900 dark:text-white",
+            "flex items-center select-none cursor-pointer gap-1 py-2 text-gray-700 dark:text-white",
             isSorted && "text-primary",
           )}
           aria-label={`Sort by ${label}`}
@@ -137,7 +137,10 @@ export function createSupportTicketColumns(
               {name}
             </span>
             {email ? (
-              <span className="text-xs text-muted-foreground truncate" title={email}>
+              <span
+                className="text-xs text-muted-foreground truncate"
+                title={email}
+              >
                 {email}
               </span>
             ) : null}
@@ -158,7 +161,10 @@ export function createSupportTicketColumns(
               {name}
             </span>
             {email ? (
-              <span className="text-xs text-muted-foreground truncate" title={email}>
+              <span
+                className="text-xs text-muted-foreground truncate"
+                title={email}
+              >
                 {email}
               </span>
             ) : null}
@@ -210,7 +216,9 @@ export function createSupportTicketColumns(
         return (
           <div className="flex flex-col text-sm whitespace-nowrap">
             <span className="text-muted-foreground">Created: {created}</span>
-            <span className="text-muted-foreground mt-0.5">Updated: {updated}</span>
+            <span className="text-muted-foreground mt-0.5">
+              Updated: {updated}
+            </span>
           </div>
         );
       },

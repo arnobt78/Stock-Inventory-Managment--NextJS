@@ -8,6 +8,7 @@ import {
   queryKeys,
   invalidateAllRelatedQueries,
   cancelOrRemoveDetailQuery,
+  withInitialData,
 } from "@/lib/react-query";
 import { useToast } from "@/hooks/use-toast";
 import type {
@@ -16,13 +17,14 @@ import type {
   CreateUserAdminInput,
 } from "@/types";
 
-export function useUsers() {
+export function useUsers(initialData?: UserForAdmin[]) {
   return useQuery({
     queryKey: queryKeys.userManagement.lists(),
     queryFn: async () => {
       const response = await apiClient.users.getAll();
       return response.data;
     },
+    ...withInitialData(initialData),
   });
 }
 

@@ -5,7 +5,7 @@
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { apiClient, getErrorMessage } from "@/lib/api";
-import { queryKeys } from "@/lib/react-query";
+import { queryKeys, withInitialData } from "@/lib/react-query";
 import { invalidateAllRelatedQueries } from "@/lib/react-query/invalidate-all";
 import { useToast } from "@/hooks/use-toast";
 import type {
@@ -17,13 +17,14 @@ import type {
  * Fetch user email preferences
  * Query hook for getting the user's email notification preferences
  */
-export function useEmailPreferences() {
+export function useEmailPreferences(initialData?: EmailPreferences) {
   return useQuery({
     queryKey: queryKeys.user.emailPreferences(),
     queryFn: async () => {
       const response = await apiClient.user.getEmailPreferences();
       return response.data;
     },
+    ...withInitialData(initialData),
   });
 }
 

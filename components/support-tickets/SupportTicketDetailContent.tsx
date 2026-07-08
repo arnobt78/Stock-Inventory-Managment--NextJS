@@ -86,8 +86,8 @@ export default function SupportTicketDetailContent({
   return (
     <Navbar>
       <PageContentWrapper>
-        <div className="space-y-6 poppins">
-          <div className="flex items-center gap-3">
+        <div className="space-y-4 poppins">
+          <div className="flex items-center gap-2">
             <Link
               href="/support-tickets"
               className={cn(
@@ -104,17 +104,17 @@ export default function SupportTicketDetailContent({
 
           <article
             className={cn(
-              "rounded-[20px] border p-4 sm:p-6 backdrop-blur-sm",
+              "rounded-[20px] border p-2 sm:p-4 backdrop-blur-sm",
               "bg-white/60 dark:bg-white/5",
               variantConfig.border,
               variantConfig.gradient,
               variantConfig.shadow,
             )}
           >
-            <div className="flex flex-col sm:flex-row sm:items-start gap-3 mb-4">
+            <div className="flex flex-col sm:flex-row sm:items-start gap-2 mb-4">
               <div
                 className={cn(
-                  "p-2.5 rounded-xl border shrink-0",
+                  "p-2 rounded-xl border shrink-0",
                   variantConfig.iconBg,
                 )}
               >
@@ -126,7 +126,7 @@ export default function SupportTicketDetailContent({
                     {ticket.ticketNumber}
                   </p>
                 )}
-                <h1 className="text-xl font-semibold text-gray-900 dark:text-white">
+                <h1 className="text-xl font-semibold text-gray-700 dark:text-white">
                   {ticket.subject}
                 </h1>
                 <div className="flex flex-wrap items-center gap-2 mt-2">
@@ -200,18 +200,18 @@ export default function SupportTicketDetailContent({
 
           <section
             className={cn(
-              "rounded-[20px] border p-4 sm:p-6 backdrop-blur-sm",
+              "rounded-[20px] border p-2 sm:p-4 backdrop-blur-sm",
               "bg-white/60 dark:bg-white/5",
               variantConfig.border,
               variantConfig.gradient,
               variantConfig.shadow,
             )}
           >
-            <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+            <h2 className="text-lg font-semibold text-gray-700 dark:text-white mb-4">
               Replies
             </h2>
             {repliesLoading ? (
-              <div className="space-y-3">
+              <div className="space-y-2">
                 <div className="h-16 rounded-xl bg-gray-200/50 dark:bg-white/10 animate-pulse" />
                 <div className="h-16 rounded-xl bg-gray-200/50 dark:bg-white/10 animate-pulse" />
               </div>
@@ -220,7 +220,7 @@ export default function SupportTicketDetailContent({
                 No replies yet. Add a reply below.
               </p>
             ) : (
-              <ul className="space-y-3 mb-6">
+              <ul className="space-y-2 mb-6">
                 {replies.map((r) => {
                   const avatarSrc =
                     r.userImage ||
@@ -276,13 +276,13 @@ export default function SupportTicketDetailContent({
               </ul>
             )}
 
-            <form onSubmit={handleSubmitReply} className="space-y-3">
+            <form onSubmit={handleSubmitReply} className="space-y-2">
               <Textarea
                 placeholder="Write a reply..."
                 value={replyBody}
                 onChange={(e) => setReplyBody(e.target.value)}
                 disabled={createReply.isPending}
-                className="min-h-[100px] rounded-xl border-sky-400/30 dark:border-white/20 bg-white/80 dark:bg-white/5 text-gray-900 dark:text-white placeholder:text-gray-500 resize-none"
+                className="min-h-[100px] rounded-xl border-sky-400/30 dark:border-white/20 bg-white/80 dark:bg-white/5 text-gray-700 dark:text-white placeholder:text-gray-500 resize-none"
               />
               <Button
                 type="submit"

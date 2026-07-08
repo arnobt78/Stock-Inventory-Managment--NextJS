@@ -1,23 +1,19 @@
 "use client";
 
-import React, { useLayoutEffect } from "react";
+import React from "react";
 import Link from "next/link";
-import { useQueryClient } from "@tanstack/react-query";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { AnalyticsCard } from "@/components/ui/analytics-card";
-import { AnalyticsCardSkeleton } from "@/components/ui/analytics-card-skeleton";
-import { PageContentWrapper } from "@/components/shared";
+import { PageContentWrapper, DataSlotPulse } from "@/components/shared";
 import { useSupplierPortal } from "@/hooks/queries";
-import { queryKeys } from "@/lib/react-query";
-import { useAuth } from "@/contexts";
+import { isDataSlotLoading } from "@/lib/react-query";
 import {
   Truck,
   Package,
   ShoppingCart,
   DollarSign,
   ArrowRight,
-  Loader2,
 } from "lucide-react";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
@@ -145,85 +141,66 @@ function getStatusColor(status: string): string {
 export default function AdminSupplierPortalContent({
   initialStats,
 }: AdminSupplierPortalContentProps = {}) {
-  const queryClient = useQueryClient();
-  const { isCheckingAuth } = useAuth();
-  const portalQuery = useSupplierPortal();
+  const portalQuery = useSupplierPortal(initialStats ?? undefined);
   const stats = portalQuery.data ?? initialStats ?? null;
-
-  useLayoutEffect(() => {
-    if (initialStats != null) {
-      queryClient.setQueryData(
-        queryKeys.supplierPortal.overview(),
-        initialStats,
-      );
-    }
-  }, [queryClient, initialStats]);
-
-  const loading = isCheckingAuth || portalQuery.isPending;
+  const dataLoading = isDataSlotLoading(portalQuery, initialStats);
 
   return (
     <PageContentWrapper>
-      <div className="mx-auto space-y-6">
+      <div className="mx-auto space-y-4">
         <div className="space-y-2">
-          <h1 className="text-xl sm:text-2xl font-semibold text-gray-900 dark:text-white">
+          <h1 className="text-lg sm:text-xl font-semibold text-gray-700 dark:text-white">
             Supplier Portal
           </h1>
-          <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400">
+          <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">
             Overview of supplier entities, their products, orders, and activity.
           </p>
         </div>
 
         {/* Summary cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-4 items-stretch">
-          {loading || !stats ? (
-            <>
-              <AnalyticsCardSkeleton />
-              <AnalyticsCardSkeleton />
-              <AnalyticsCardSkeleton />
-              <AnalyticsCardSkeleton />
-            </>
-          ) : (
-            <>
-              <AnalyticsCard
-                title="Suppliers"
-                value={stats.counts?.suppliers}
-                icon={Truck}
-                description="Supplier entities"
-                variant="violet"
-              />
-              <AnalyticsCard
-                title="Products"
-                value={stats.counts?.products}
-                icon={Package}
-                description="From all suppliers"
-                variant="sky"
-              />
-              <AnalyticsCard
-                title="Orders"
-                value={stats.counts?.orders}
-                icon={ShoppingCart}
-                description="Containing supplier products"
-                variant="emerald"
-              />
-              <AnalyticsCard
-                title="Inventory Value"
-                value={`$${stats.counts?.totalValue.toLocaleString()}`}
-                icon={DollarSign}
-                description="Total product value"
-                variant="amber"
-              />
-            </>
-          )}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-2 items-stretch">
+          <AnalyticsCard
+            title="Suppliers"
+            value={stats?.counts?.suppliers ?? 0}
+            icon={Truck}
+            description="Supplier entities"
+            variant="violet"
+            valueLoading={dataLoading}
+          />
+          <AnalyticsCard
+            title="Products"
+            value={stats?.counts?.products ?? 0}
+            icon={Package}
+            description="From all suppliers"
+            variant="sky"
+            valueLoading={dataLoading}
+          />
+          <AnalyticsCard
+            title="Orders"
+            value={stats?.counts?.orders ?? 0}
+            icon={ShoppingCart}
+            description="Containing supplier products"
+            variant="emerald"
+            valueLoading={dataLoading}
+          />
+          <AnalyticsCard
+            title="Inventory Value"
+            value={`$${(stats?.counts?.totalValue ?? 0).toLocaleString()}`}
+            icon={DollarSign}
+            description="Total product value"
+            variant="amber"
+            valueLoading={dataLoading}
+          />
         </div>
 
         {/* Recent products & orders — glassmorphic cards */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-2 sm:gap-4">
           {/* Recent products */}
           <GlassCard variant="sky">
-            <div className="flex items-center gap-3 mb-4">
+            <div className="flex items-center gap-2 mb-4">
               <div
                 className={cn(
-                  "p-2.5 rounded-xl border",
+                  "p-2 rounded-xl border",
                   variantConfig.sky.iconBg,
                   "dark:border-sky-400/30 dark:bg-sky-500/20",
                 )}
@@ -231,7 +208,7 @@ export default function AdminSupplierPortalContent({
                 <Package className="h-5 w-5 text-sky-600 dark:text-sky-400" />
               </div>
               <div>
-                <h3 className="text-md sm:text-lg font-semibold text-gray-900 dark:text-white">
+                <h3 className="text-md sm:text-lg font-semibold text-gray-700 dark:text-white">
                   Recent Supplier Products
                 </h3>
                 <p className="text-xs text-gray-600 dark:text-gray-400">
@@ -239,17 +216,22 @@ export default function AdminSupplierPortalContent({
                 </p>
               </div>
             </div>
-            {loading || !stats ? (
-              <div className="flex items-center justify-center py-8">
-                <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
-              </div>
-            ) : stats.recentProducts.length === 0 ? (
+            {dataLoading ? (
+              <ul className="space-y-3 py-4">
+                {[1, 2, 3, 4, 5].map((i) => (
+                  <li key={i} className="flex justify-between gap-2">
+                    <DataSlotPulse variant="text-sm" className="w-32" />
+                    <DataSlotPulse variant="badge" />
+                  </li>
+                ))}
+              </ul>
+            ) : (stats?.recentProducts?.length ?? 0) === 0 ? (
               <p className="text-sm text-muted-foreground text-center py-8">
                 No supplier products yet.
               </p>
             ) : (
               <ul className="divide-y divide-sky-200/40 dark:divide-white/10">
-                {stats.recentProducts.map((p) => (
+                {(stats?.recentProducts ?? []).map((p) => (
                   <li
                     key={p.id}
                     className="py-3 flex items-center justify-between gap-2"
@@ -269,7 +251,7 @@ export default function AdminSupplierPortalContent({
                       <Badge className={getStatusColor(p.status)}>
                         {p.status.replace("_", " ")}
                       </Badge>
-                      <span className="text-sm font-medium text-gray-900 dark:text-white">
+                      <span className="text-sm font-medium text-gray-700 dark:text-white">
                         ${p.price.toLocaleString()}
                       </span>
                     </div>
@@ -293,10 +275,10 @@ export default function AdminSupplierPortalContent({
 
           {/* Recent orders */}
           <GlassCard variant="emerald">
-            <div className="flex items-center gap-3 mb-4">
+            <div className="flex items-center gap-2 mb-4">
               <div
                 className={cn(
-                  "p-2.5 rounded-xl border",
+                  "p-2 rounded-xl border",
                   variantConfig.emerald.iconBg,
                   "dark:border-emerald-400/30 dark:bg-emerald-500/20",
                 )}
@@ -304,7 +286,7 @@ export default function AdminSupplierPortalContent({
                 <ShoppingCart className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
               </div>
               <div>
-                <h3 className="text-md sm:text-lg font-semibold text-gray-900 dark:text-white">
+                <h3 className="text-md sm:text-lg font-semibold text-gray-700 dark:text-white">
                   Recent Supplier Orders
                 </h3>
                 <p className="text-xs text-gray-600 dark:text-gray-400">
@@ -312,17 +294,22 @@ export default function AdminSupplierPortalContent({
                 </p>
               </div>
             </div>
-            {loading || !stats ? (
-              <div className="flex items-center justify-center py-8">
-                <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
-              </div>
-            ) : stats.recentOrders.length === 0 ? (
+            {dataLoading ? (
+              <ul className="space-y-3 py-4">
+                {[1, 2, 3, 4, 5].map((i) => (
+                  <li key={i} className="flex justify-between gap-2">
+                    <DataSlotPulse variant="text-sm" className="w-32" />
+                    <DataSlotPulse variant="currency" />
+                  </li>
+                ))}
+              </ul>
+            ) : (stats?.recentOrders?.length ?? 0) === 0 ? (
               <p className="text-sm text-muted-foreground text-center py-8">
                 No supplier orders yet.
               </p>
             ) : (
               <ul className="divide-y divide-emerald-200/40 dark:divide-white/10">
-                {stats.recentOrders.map((o) => (
+                {(stats?.recentOrders ?? []).map((o) => (
                   <li
                     key={o.id}
                     className="py-3 flex items-center justify-between gap-2"
@@ -343,7 +330,7 @@ export default function AdminSupplierPortalContent({
                       <Badge className={getStatusColor(o.status)}>
                         {o.status}
                       </Badge>
-                      <span className="text-sm font-medium text-gray-900 dark:text-white">
+                      <span className="text-sm font-medium text-gray-700 dark:text-white">
                         ${o.total.toLocaleString()}
                       </span>
                     </div>
@@ -368,10 +355,10 @@ export default function AdminSupplierPortalContent({
 
         {/* Suppliers table — glassmorphic card */}
         <GlassCard variant="violet">
-          <div className="flex items-center gap-3 mb-4">
+          <div className="flex items-center gap-2 mb-4">
             <div
               className={cn(
-                "p-2.5 rounded-xl border",
+                "p-2 rounded-xl border",
                 variantConfig.violet.iconBg,
                 "dark:border-violet-400/30 dark:bg-violet-500/20",
               )}
@@ -379,7 +366,7 @@ export default function AdminSupplierPortalContent({
               <Truck className="h-5 w-5 text-violet-600 dark:text-violet-400" />
             </div>
             <div>
-              <h3 className="text-md sm:text-lg font-semibold text-gray-900 dark:text-white">
+              <h3 className="text-md sm:text-lg font-semibold text-gray-700 dark:text-white">
                 Suppliers
               </h3>
               <p className="text-xs text-gray-600 dark:text-gray-400">
@@ -387,11 +374,16 @@ export default function AdminSupplierPortalContent({
               </p>
             </div>
           </div>
-          {loading || !stats ? (
-            <div className="flex items-center justify-center py-8">
-              <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+          {dataLoading ? (
+            <div className="space-y-3 py-4">
+              {[1, 2, 3, 4, 5].map((i) => (
+                <div key={i} className="flex justify-between gap-2">
+                  <DataSlotPulse variant="text-sm" className="w-40" />
+                  <DataSlotPulse variant="metric" />
+                </div>
+              ))}
             </div>
-          ) : stats.suppliers.length === 0 ? (
+          ) : (stats?.suppliers?.length ?? 0) === 0 ? (
             <p className="text-sm text-muted-foreground text-center py-8">
               No suppliers yet. Add suppliers from the Suppliers page.
             </p>
@@ -414,7 +406,7 @@ export default function AdminSupplierPortalContent({
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-violet-200/40 dark:divide-white/10">
-                  {stats.suppliers.map((s) => (
+                  {(stats?.suppliers ?? []).map((s) => (
                     <tr key={s.id}>
                       <td className="py-3 pr-4">
                         <Link
@@ -427,13 +419,13 @@ export default function AdminSupplierPortalContent({
                       <td className="py-3 pr-4 hidden sm:table-cell text-muted-foreground truncate max-w-[200px]">
                         {s.email}
                       </td>
-                      <td className="py-3 pr-4 text-right text-gray-900 dark:text-white">
+                      <td className="py-3 pr-4 text-right text-gray-700 dark:text-white">
                         {s.productCount}
                       </td>
-                      <td className="py-3 pr-4 text-right text-gray-900 dark:text-white">
+                      <td className="py-3 pr-4 text-right text-gray-700 dark:text-white">
                         {s.orderCount}
                       </td>
-                      <td className="py-3 text-right font-medium text-gray-900 dark:text-white">
+                      <td className="py-3 text-right font-medium text-gray-700 dark:text-white">
                         ${s.totalValue.toLocaleString()}
                       </td>
                     </tr>

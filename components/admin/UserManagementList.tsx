@@ -5,30 +5,34 @@
 "use client";
 
 import React, { useState, useEffect, useRef, useMemo } from "react";
-import { useAuth } from "@/contexts";
 import { useUsers } from "@/hooks/queries";
+import { isDataSlotLoading } from "@/lib/react-query";
 import { PaginationType } from "@/components/shared/PaginationSelector";
 import { createUserManagementColumns } from "./UserManagementTableColumns";
 import UserManagementFilters from "./UserManagementFilters";
 import { UserManagementTable } from "./UserManagementTable";
 import CreateUserDialog from "./CreateUserDialog";
-import { AnalyticsCard } from "@/components/ui/analytics-card";
-import { AnalyticsCardSkeleton } from "@/components/ui/analytics-card-skeleton";
+import { StatisticsCard } from "@/components/home/StatisticsCard";
 import { Users, Shield, Truck, UserCircle } from "lucide-react";
+import { useAuth } from "@/contexts";
+import type { UserForAdmin } from "@/types";
 
 export type UserManagementListProps = {
   detailHrefBase?: string;
+  /** SSR-passed users for first-render hydration (REQ-0021) */
+  initialUsers?: UserForAdmin[];
 };
 
 export default function UserManagementList({
   detailHrefBase,
+  initialUsers,
 }: UserManagementListProps = {}) {
   const isMountedRef = useRef(false);
   const [isMounted, setIsMounted] = useState(false);
-  const usersQuery = useUsers();
-  const { user, isCheckingAuth } = useAuth();
+  const usersQuery = useUsers(initialUsers);
+  const { user } = useAuth();
 
-  const allUsers = usersQuery.data ?? [];
+  const allUsers = usersQuery.data ?? initialUsers ?? [];
 
   useEffect(() => {
     if (!isMountedRef.current) {
@@ -53,7 +57,9 @@ export default function UserManagementList({
     [detailHrefBase, user?.id],
   );
 
-  const showSkeleton = !isMounted || isCheckingAuth || usersQuery.isPending;
+  // REQ-0021: shell-first — only data slots pulse
+  const cardsDataLoading = isDataSlotLoading(usersQuery, initialUsers);
+  const tableDataLoading = isDataSlotLoading(usersQuery, initialUsers);
 
   const roleCounts = useMemo(() => {
     const total = allUsers.length;
@@ -66,58 +72,54 @@ export default function UserManagementList({
   return (
     <div className="flex flex-col poppins">
       <div className="pb-6 flex flex-col items-start text-left">
-        <h2 className="text-xl sm:text-2xl font-semibold text-gray-900 dark:text-white pb-2">
+        <h2 className="text-lg sm:text-xl font-semibold text-gray-700 dark:text-white ">
           User Management
         </h2>
-        <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400">
+        <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">
           Manage users and roles. View and update name, role, and profile.
         </p>
       </div>
 
-      {/* Role count cards — same data as table, updates on user CRUD */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-4 pb-6 items-stretch">
-        {showSkeleton ? (
-          <>
-            <AnalyticsCardSkeleton />
-            <AnalyticsCardSkeleton />
-            <AnalyticsCardSkeleton />
-            <AnalyticsCardSkeleton />
-          </>
-        ) : (
-          <>
-            <AnalyticsCard
-              title="Total Users"
-              value={roleCounts.total}
-              description="All registered users"
-              icon={Users}
-              variant="violet"
-            />
-            <AnalyticsCard
-              title="Admins"
-              value={roleCounts.admin}
-              description="Users with role admin"
-              icon={Shield}
-              variant="blue"
-            />
-            <AnalyticsCard
-              title="Suppliers"
-              value={roleCounts.supplier}
-              description="Users with role supplier"
-              icon={Truck}
-              variant="emerald"
-            />
-            <AnalyticsCard
-              title="Clients"
-              value={roleCounts.client}
-              description="Users with role client"
-              icon={UserCircle}
-              variant="amber"
-            />
-          </>
-        )}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-2 pb-6 items-stretch">
+        <StatisticsCard
+          title="Total Users"
+          value={roleCounts.total}
+          description="All registered users"
+          icon={Users}
+          variant="violet"
+          valueLoading={cardsDataLoading}
+          badgeValuesLoading={cardsDataLoading}
+        />
+        <StatisticsCard
+          title="Admins"
+          value={roleCounts.admin}
+          description="Users with role admin"
+          icon={Shield}
+          variant="blue"
+          valueLoading={cardsDataLoading}
+          badgeValuesLoading={cardsDataLoading}
+        />
+        <StatisticsCard
+          title="Suppliers"
+          value={roleCounts.supplier}
+          description="Users with role supplier"
+          icon={Truck}
+          variant="emerald"
+          valueLoading={cardsDataLoading}
+          badgeValuesLoading={cardsDataLoading}
+        />
+        <StatisticsCard
+          title="Clients"
+          value={roleCounts.client}
+          description="Users with role client"
+          icon={UserCircle}
+          variant="amber"
+          valueLoading={cardsDataLoading}
+          badgeValuesLoading={cardsDataLoading}
+        />
       </div>
 
-      <div className="pb-6 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4">
+      <div className="pb-6 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2">
         <div className="flex-1">
           <UserManagementFilters
             searchTerm={searchTerm}
@@ -136,7 +138,7 @@ export default function UserManagementList({
       <UserManagementTable
         data={allUsers}
         columns={columns}
-        isLoading={showSkeleton}
+        isLoading={tableDataLoading}
         searchTerm={searchTerm}
         pagination={pagination}
         setPagination={setPagination}

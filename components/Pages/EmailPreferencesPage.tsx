@@ -1,9 +1,9 @@
 "use client";
 
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect } from "react";
 import { useAuth } from "@/contexts";
 import Navbar from "@/components/layouts/Navbar";
-import { PageContentWrapper } from "@/components/shared";
+import { PageContentWrapper, DataSlotPulse } from "@/components/shared";
 import {
   Card,
   CardContent,
@@ -14,12 +14,12 @@ import {
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
-import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/hooks/use-toast";
 import {
   useEmailPreferences,
   useUpdateEmailPreferences,
 } from "@/hooks/queries";
+import { isDataSlotLoading } from "@/lib/react-query";
 import type { EmailPreferences } from "@/types";
 import {
   Mail,
@@ -36,6 +36,8 @@ import { HelpTooltip } from "@/components/shared";
 export type EmailPreferencesPageProps = {
   /** When true, render only content (no Navbar) for use inside admin layout */
   embedded?: boolean;
+  /** SSR-passed preferences for first-render hydration (REQ-0021) */
+  initialPreferences?: EmailPreferences;
 };
 
 /**
@@ -44,52 +46,32 @@ export type EmailPreferencesPageProps = {
  */
 export default function EmailPreferencesPage({
   embedded,
+  initialPreferences,
 }: EmailPreferencesPageProps = {}) {
-  const { user, isCheckingAuth } = useAuth();
-  const { toast } = useToast();
-  const isMountedRef = useRef(false);
-  const [isMounted, setIsMounted] = useState(false);
-
-  // Fetch email preferences
-  const { data: preferences, isLoading, isPending } = useEmailPreferences();
+  const { user } = useAuth();
+  const preferencesQuery = useEmailPreferences(initialPreferences);
+  const preferences = preferencesQuery.data ?? initialPreferences;
+  const dataLoading = isDataSlotLoading(preferencesQuery, initialPreferences);
   const updateMutation = useUpdateEmailPreferences();
 
-  // Local state for preferences (for optimistic updates)
   const [localPreferences, setLocalPreferences] =
-    useState<EmailPreferences | null>(null);
+    useState<EmailPreferences | null>(preferences ?? null);
 
-  // Initialize local preferences when data loads
   useEffect(() => {
     if (preferences) {
       queueMicrotask(() => setLocalPreferences(preferences));
     }
   }, [preferences]);
 
-  // Track component mount to prevent hydration issues
-  useEffect(() => {
-    if (!isMountedRef.current) {
-      isMountedRef.current = true;
-      queueMicrotask(() => setIsMounted(true));
-    }
-  }, []);
-
-  // Show skeleton while loading or not mounted
-  const showSkeleton = !isMounted || isCheckingAuth || isLoading || isPending;
-
-  /**
-   * Handle preference toggle
-   */
   const handleToggle = (key: keyof EmailPreferences) => {
     if (!localPreferences) return;
 
-    // Optimistic update
     const updated = {
       ...localPreferences,
       [key]: !localPreferences[key],
     };
     setLocalPreferences(updated);
 
-    // Update via API
     updateMutation.mutate({
       preferences: {
         [key]: updated[key],
@@ -97,20 +79,13 @@ export default function EmailPreferencesPage({
     });
   };
 
-  /**
-   * Handle save all preferences
-   */
   const handleSaveAll = () => {
     if (!localPreferences) return;
-
     updateMutation.mutate({
       preferences: localPreferences,
     });
   };
 
-  /**
-   * Reset to defaults
-   */
   const handleReset = () => {
     const defaults: EmailPreferences = {
       lowStockAlerts: true,
@@ -128,7 +103,6 @@ export default function EmailPreferencesPage({
     });
   };
 
-  // Preference items configuration
   const preferenceItems: Array<{
     key: keyof EmailPreferences;
     label: string;
@@ -188,19 +162,17 @@ export default function EmailPreferencesPage({
   const content = (
     <PageContentWrapper>
       <div className="mx-auto">
-        <div className="space-y-6">
-          {/* Header */}
+        <div className="space-y-4">
           <div className="space-y-2">
-            <h1 className="text-xl sm:text-2xl font-semibold text-gray-900 dark:text-white">
+            <h1 className="text-lg sm:text-xl font-semibold text-gray-700 dark:text-white">
               Email Preferences
             </h1>
-            <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400">
+            <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">
               Manage your email notification preferences. Choose which types of
               emails you want to receive.
             </p>
           </div>
 
-          {/* Preferences Card */}
           <Card>
             <CardHeader>
               <CardTitle className="text-md sm:text-lg flex items-center gap-2">
@@ -212,70 +184,56 @@ export default function EmailPreferencesPage({
                   ariaLabel="Notification settings help"
                 />
               </CardTitle>
-              <CardDescription className="text-sm sm:text-base text-gray-600 dark:text-gray-400">
+              <CardDescription className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">
                 Toggle email notifications on or off. Changes are saved
                 automatically.
               </CardDescription>
             </CardHeader>
             <CardContent>
-              {showSkeleton ? (
-                <div className="space-y-6">
-                  {[1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
-                    <div
-                      key={i}
-                      className="flex items-center justify-between p-4 border rounded-lg"
-                    >
-                      <div className="space-y-2 flex-1">
-                        <Skeleton className="h-5 w-48" />
-                        <Skeleton className="h-4 w-64" />
-                      </div>
-                      <Skeleton className="h-5 w-9" />
-                    </div>
-                  ))}
-                </div>
-              ) : localPreferences ? (
-                <div className="space-y-4">
-                  {preferenceItems.map((item) => {
-                    const Icon = item.icon;
-                    const isEnabled = localPreferences[item.key];
+              <div className="space-y-4">
+                {preferenceItems.map((item) => {
+                  const Icon = item.icon;
+                  const isEnabled = localPreferences?.[item.key] ?? false;
 
-                    return (
-                      <div
-                        key={item.key}
-                        className="flex items-center justify-between gap-3 p-3 sm:p-4 border rounded-lg hover:bg-gray-50 dark:hover:bg-gray-900/50 transition-colors"
-                      >
-                        <div className="flex items-start gap-2 sm:gap-3 flex-1 min-w-0">
-                          <div className="mt-0.5 shrink-0">
-                            <Icon className="h-5 w-5 text-gray-600 dark:text-gray-400" />
-                          </div>
-                          <div className="flex-1 min-w-0">
-                            <Label
-                              htmlFor={item.key}
-                              className="text-sm sm:text-base font-semibold text-gray-900 dark:text-white cursor-pointer"
-                            >
-                              {item.label}
-                            </Label>
-                            <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 mt-1">
-                              {item.description}
-                            </p>
-                          </div>
+                  return (
+                    <div
+                      key={item.key}
+                      className="flex items-center justify-between gap-2 p-2 sm:p-4 border rounded-lg hover:bg-gray-50 dark:hover:bg-gray-900/50 transition-colors"
+                    >
+                      <div className="flex items-start gap-2 sm:gap-2 flex-1 min-w-0">
+                        <div className="mt-0.5 shrink-0">
+                          <Icon className="h-5 w-5 text-gray-600 dark:text-gray-400" />
                         </div>
+                        <div className="flex-1 min-w-0">
+                          <Label
+                            htmlFor={item.key}
+                            className="text-xs sm:text-sm font-semibold text-gray-700 dark:text-white cursor-pointer"
+                          >
+                            {item.label}
+                          </Label>
+                          <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 mt-1">
+                            {item.description}
+                          </p>
+                        </div>
+                      </div>
+                      {dataLoading ? (
+                        <DataSlotPulse variant="badge" className="h-5 w-9" />
+                      ) : (
                         <Switch
                           id={item.key}
                           checked={isEnabled}
                           onCheckedChange={() => handleToggle(item.key)}
-                          disabled={updateMutation.isPending}
+                          disabled={updateMutation.isPending || !localPreferences}
                           className="shrink-0"
                         />
-                      </div>
-                    );
-                  })}
-                </div>
-              ) : null}
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
 
-              {/* Action Buttons */}
-              {!showSkeleton && localPreferences && (
-                <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-end gap-3 sm:gap-4 mt-6 pt-6 border-t">
+              {!dataLoading && localPreferences && (
+                <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-end gap-2 mt-6 pt-6 border-t">
                   <Button
                     variant="outline"
                     onClick={handleReset}
@@ -296,10 +254,9 @@ export default function EmailPreferencesPage({
             </CardContent>
           </Card>
 
-          {/* Info Card */}
           <Card>
             <CardHeader>
-              <CardTitle className="text-sm sm:text-base font-semibold text-gray-900 dark:text-white">
+              <CardTitle className="text-xs sm:text-sm font-semibold text-gray-700 dark:text-white">
                 About Email Preferences
               </CardTitle>
             </CardHeader>
@@ -316,7 +273,7 @@ export default function EmailPreferencesPage({
                 </p>
                 <p>
                   • Email notifications are sent to:{" "}
-                  <strong className="text-gray-900 dark:text-white">
+                  <strong className="text-gray-700 dark:text-white">
                     {user?.email}
                   </strong>
                 </p>

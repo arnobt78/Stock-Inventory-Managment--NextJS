@@ -1,18 +1,11 @@
 "use client";
 
-import React, {
-  useLayoutEffect,
-  useState,
-  useEffect,
-  useRef,
-  useMemo,
-} from "react";
-import { useQueryClient } from "@tanstack/react-query";
+import React, { useState, useMemo } from "react";
 import Navbar from "@/components/layouts/Navbar";
 import { PageContentWrapper } from "@/components/shared";
 import { PaginationType } from "@/components/shared/PaginationSelector";
 import { useSupportTickets } from "@/hooks/queries";
-import { queryKeys } from "@/lib/react-query";
+import { isDataSlotLoading } from "@/lib/react-query";
 import { MessageSquare, MessageCircle, Plus } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { SupportTicket } from "@/types";
@@ -23,9 +16,7 @@ import { Button } from "@/components/ui/button";
 import SupportTicketFilters from "@/components/admin/SupportTicketFilters";
 import { SupportTicketTable } from "@/components/admin/SupportTicketTable";
 import { createSupportTicketColumns } from "@/components/admin/SupportTicketTableColumns";
-import { useAuth } from "@/contexts";
 import { StatisticsCard } from "@/components/home/StatisticsCard";
-import { StatisticsCardSkeleton } from "@/components/home/StatisticsCardSkeleton";
 
 export type SupportTicketsPageContentProps = {
   initialTickets: SupportTicket[];
@@ -36,13 +27,8 @@ export default function SupportTicketsPageContent({
   initialTickets,
   productOwners,
 }: SupportTicketsPageContentProps) {
-  const queryClient = useQueryClient();
-  const { data: tickets = [], isPending } = useSupportTickets();
-  const { isCheckingAuth } = useAuth();
-  const isMountedRef = useRef(false);
-  const [isMounted, setIsMounted] = useState(false);
-
-  const list = tickets.length ? tickets : initialTickets;
+  const ticketsQuery = useSupportTickets("all", initialTickets);
+  const list = ticketsQuery.data ?? initialTickets ?? [];
 
   const ticketStats = useMemo(() => {
     if (list.length === 0) {
@@ -63,22 +49,6 @@ export default function SupportTicketsPageContent({
     return { statusCounts, priorityCounts, totalMessages };
   }, [list]);
 
-  useLayoutEffect(() => {
-    if (initialTickets != null) {
-      queryClient.setQueryData(
-        queryKeys.supportTickets.list({ view: "all" }),
-        initialTickets,
-      );
-    }
-  }, [queryClient, initialTickets]);
-
-  useEffect(() => {
-    if (!isMountedRef.current) {
-      isMountedRef.current = true;
-      queueMicrotask(() => setIsMounted(true));
-    }
-  }, []);
-
   const [searchTerm, setSearchTerm] = useState("");
   const [pagination, setPagination] = useState<PaginationType>({
     pageIndex: 0,
@@ -92,20 +62,20 @@ export default function SupportTicketsPageContent({
     [],
   );
 
-  const showSkeleton =
-    !isMounted || isCheckingAuth || (isPending && list.length === 0);
-  const cardsLoading = !isMounted || isCheckingAuth || isPending;
+  // REQ-0021: shell-first — only data slots pulse
+  const cardsLoading = isDataSlotLoading(ticketsQuery, initialTickets);
+  const tableDataLoading = isDataSlotLoading(ticketsQuery, initialTickets);
 
   return (
     <Navbar>
       <PageContentWrapper>
         <div className="flex flex-col poppins">
-          <div className="pb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div className="pb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
             <div>
-              <h1 className="text-xl sm:text-2xl font-semibold text-gray-900 dark:text-white flex items-center gap-3">
+              <h1 className="text-lg sm:text-xl font-semibold text-gray-700 dark:text-white flex items-center gap-2">
                 <div
                   className={cn(
-                    "p-2.5 rounded-xl border",
+                    "p-2 rounded-xl border",
                     "border-sky-300/30 bg-sky-100/50 dark:border-sky-400/30 dark:bg-sky-500/20",
                   )}
                 >
@@ -113,7 +83,7 @@ export default function SupportTicketsPageContent({
                 </div>
                 Your Support Tickets
               </h1>
-              <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400 mt-1">
+              <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 mt-1">
                 Open and track tickets you&apos;ve sent. Create a ticket to get
                 help from a product owner.
               </p>
@@ -140,68 +110,62 @@ export default function SupportTicketsPageContent({
             </div>
           </div>
 
-          {/* State cards — same for all roles (admin, client, supplier) on /support-tickets */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 items-stretch pb-6">
-            {cardsLoading ? (
-              <>
-                <StatisticsCardSkeleton />
-                <StatisticsCardSkeleton />
-              </>
-            ) : (
-              <>
-                <StatisticsCard
-                  title="Support Tickets"
-                  value={list.length}
-                  description="Sent by you"
-                  icon={MessageSquare}
-                  variant="sky"
-                  badges={[
-                    { label: "Open", value: ticketStats.statusCounts.open },
-                    {
-                      label: "In progress",
-                      value: ticketStats.statusCounts.in_progress,
-                    },
-                    {
-                      label: "Resolved",
-                      value: ticketStats.statusCounts.resolved,
-                    },
-                    {
-                      label: "Closed",
-                      value: ticketStats.statusCounts.closed,
-                    },
-                    {
-                      label: "Total messages",
-                      value: ticketStats.totalMessages,
-                    },
-                  ]}
-                />
-                <StatisticsCard
-                  title="Total messages"
-                  value={ticketStats.totalMessages}
-                  description="Replies across tickets"
-                  icon={MessageCircle}
-                  variant="violet"
-                  badges={[
-                    {
-                      label: "Low",
-                      value: ticketStats.priorityCounts.low,
-                    },
-                    {
-                      label: "Medium",
-                      value: ticketStats.priorityCounts.medium,
-                    },
-                    {
-                      label: "High",
-                      value: ticketStats.priorityCounts.high,
-                    },
-                    {
-                      label: "Urgent",
-                      value: ticketStats.priorityCounts.urgent,
-                    },
-                  ]}
-                />
-              </>
-            )}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 items-stretch pb-6">
+            <StatisticsCard
+              title="Support Tickets"
+              value={list.length}
+              description="Sent by you"
+              icon={MessageSquare}
+              variant="sky"
+              valueLoading={cardsLoading}
+              badgeValuesLoading={cardsLoading}
+              badges={[
+                { label: "Open", value: ticketStats.statusCounts.open },
+                {
+                  label: "In progress",
+                  value: ticketStats.statusCounts.in_progress,
+                },
+                {
+                  label: "Resolved",
+                  value: ticketStats.statusCounts.resolved,
+                },
+                {
+                  label: "Closed",
+                  value: ticketStats.statusCounts.closed,
+                },
+                {
+                  label: "Total messages",
+                  value: ticketStats.totalMessages,
+                },
+              ]}
+            />
+            <StatisticsCard
+              title="Total messages"
+              value={ticketStats.totalMessages}
+              description="Replies across tickets"
+              icon={MessageCircle}
+              variant="violet"
+              valueLoading={cardsLoading}
+              badgeValuesLoading={cardsLoading}
+              badges={[
+                {
+                  label: "Low",
+                  value: ticketStats.priorityCounts.low,
+                },
+                {
+                  label: "Medium",
+                  value: ticketStats.priorityCounts.medium,
+                },
+                {
+                  label: "High",
+                  value: ticketStats.priorityCounts.high,
+                },
+                {
+                  label: "Urgent",
+                  value: ticketStats.priorityCounts.urgent,
+                },
+              ]}
+            />
           </div>
 
           <div className="pb-6 flex justify-center">
@@ -220,7 +184,7 @@ export default function SupportTicketsPageContent({
           <SupportTicketTable
             data={list}
             columns={columns}
-            isLoading={showSkeleton}
+            isLoading={tableDataLoading}
             searchTerm={searchTerm}
             pagination={pagination}
             setPagination={setPagination}

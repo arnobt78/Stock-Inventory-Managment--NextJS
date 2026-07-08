@@ -9,21 +9,24 @@ import {
   queryKeys,
   invalidateAfterOrderGraphChange,
   cancelOrRemoveDetailQuery,
+  withInitialData,
 } from "@/lib/react-query";
 import { useToast } from "@/hooks/use-toast";
 import type { Order, CreateOrderInput, UpdateOrderInput } from "@/types";
+import type { OrderForPage } from "@/lib/server/orders-data";
 
 /**
  * Fetch all orders
  * Query hook for getting the list of all orders
  */
-export function useOrders() {
-  return useQuery({
+export function useOrders(initialData?: Order[] | OrderForPage[]) {
+  return useQuery<Order[]>({
     queryKey: queryKeys.orders.lists(),
     queryFn: async () => {
       const response = await apiClient.orders.getAll();
       return response.data;
     },
+    ...withInitialData(initialData as Order[] | undefined),
   });
 }
 
@@ -31,13 +34,14 @@ export function useOrders() {
  * Fetch client orders (orders that contain products owned by the current user).
  * Used on admin "Client Orders" page. Detail uses same useOrder(id) — GET /api/orders/:id allows product owner.
  */
-export function useClientOrders() {
+export function useClientOrders(initialData?: Order[]) {
   return useQuery({
     queryKey: queryKeys.clientOrders.lists(),
     queryFn: async () => {
       const response = await apiClient.admin.getClientOrders();
       return response.data;
     },
+    ...withInitialData(initialData),
   });
 }
 

@@ -45,31 +45,36 @@ function getRatingDisplay(rating: number): {
     case 5:
       return {
         label: "best",
-        starClass: "fill-amber-400 text-amber-400 dark:fill-amber-400 dark:text-amber-400",
+        starClass:
+          "fill-amber-400 text-amber-400 dark:fill-amber-400 dark:text-amber-400",
         textClass: "text-amber-700 dark:text-amber-300",
       };
     case 4:
       return {
         label: "very good",
-        starClass: "fill-emerald-400 text-emerald-400 dark:fill-emerald-400 dark:text-emerald-400",
+        starClass:
+          "fill-emerald-400 text-emerald-400 dark:fill-emerald-400 dark:text-emerald-400",
         textClass: "text-emerald-700 dark:text-emerald-300",
       };
     case 3:
       return {
         label: "good",
-        starClass: "fill-sky-400 text-sky-400 dark:fill-sky-400 dark:text-sky-400",
+        starClass:
+          "fill-sky-400 text-sky-400 dark:fill-sky-400 dark:text-sky-400",
         textClass: "text-sky-700 dark:text-sky-300",
       };
     case 2:
       return {
         label: "not good",
-        starClass: "fill-orange-400 text-orange-400 dark:fill-orange-400 dark:text-orange-400",
+        starClass:
+          "fill-orange-400 text-orange-400 dark:fill-orange-400 dark:text-orange-400",
         textClass: "text-orange-700 dark:text-orange-300",
       };
     case 1:
       return {
         label: "bad",
-        starClass: "fill-rose-400 text-rose-400 dark:fill-rose-400 dark:text-rose-400",
+        starClass:
+          "fill-rose-400 text-rose-400 dark:fill-rose-400 dark:text-rose-400",
         textClass: "text-rose-700 dark:text-rose-300",
       };
     default:
@@ -100,7 +105,7 @@ function SortableHeader({ column, label }: SortableHeaderProps) {
       <DropdownMenuTrigger className="" asChild>
         <div
           className={cn(
-            "flex items-center select-none cursor-pointer gap-1 py-2 text-gray-900 dark:text-white",
+            "flex items-center select-none cursor-pointer gap-1 py-2 text-gray-700 dark:text-white",
             isSorted && "text-primary",
           )}
           aria-label={`Sort by ${label}`}

@@ -11,7 +11,12 @@ import {
   PopoverContent,
 } from "@/components/ui/popover";
 import { Button } from "@/components/ui/button";
-import { Command, CommandList, CommandGroup, CommandItem } from "@/components/ui/command";
+import {
+  Command,
+  CommandList,
+  CommandGroup,
+  CommandItem,
+} from "@/components/ui/command";
 import { Separator } from "@/components/ui/separator";
 
 export type OrderSourceFilterValue = "client" | "personal" | "both";
@@ -21,13 +26,32 @@ type OrderSourceDropDownProps = {
   onChange: (value: OrderSourceFilterValue) => void;
 };
 
-const options: { value: OrderSourceFilterValue; label: string; icon: React.ReactNode }[] = [
-  { value: "client", label: "Client orders", icon: <ShoppingCart className="h-4 w-4" /> },
-  { value: "personal", label: "Personal orders", icon: <User className="h-4 w-4" /> },
-  { value: "both", label: "View both", icon: <LayoutGrid className="h-4 w-4" /> },
+const options: {
+  value: OrderSourceFilterValue;
+  label: string;
+  icon: React.ReactNode;
+}[] = [
+  {
+    value: "client",
+    label: "Client orders",
+    icon: <ShoppingCart className="h-4 w-4" />,
+  },
+  {
+    value: "personal",
+    label: "Personal orders",
+    icon: <User className="h-4 w-4" />,
+  },
+  {
+    value: "both",
+    label: "View both",
+    icon: <LayoutGrid className="h-4 w-4" />,
+  },
 ];
 
-export function OrderSourceDropDown({ value, onChange }: OrderSourceDropDownProps) {
+export function OrderSourceDropDown({
+  value,
+  onChange,
+}: OrderSourceDropDownProps) {
   const [open, setOpen] = React.useState(false);
 
   function getButtonLabel() {
@@ -57,7 +81,7 @@ export function OrderSourceDropDown({ value, onChange }: OrderSourceDropDownProp
               {options.map((opt) => (
                 <CommandItem
                   key={opt.value}
-                  className="h-10 flex items-center text-gray-700 dark:text-white/80 focus:bg-teal-100 dark:focus:bg-white/10 focus:text-gray-900 dark:focus:text-white cursor-pointer"
+                  className="h-10 flex items-center text-gray-700 dark:text-white/80 focus:bg-teal-100 dark:focus:bg-white/10 focus:text-gray-700 dark:focus:text-white cursor-pointer"
                   value={opt.value}
                   onSelect={() => {
                     onChange(opt.value);

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useMemo, useState, useEffect, useRef } from "react";
+import React, { useMemo, useState } from "react";
 import Link from "next/link";
 import {
   Table,
@@ -33,11 +33,12 @@ import {
   useCategories,
   useUsers,
 } from "@/hooks/queries";
+import { isAnyDataSlotLoading, isDataSlotLoading } from "@/lib/react-query";
 import { useAuth } from "@/contexts";
 import { PageContentWrapper } from "@/components/shared";
 import { ClientCurrency, ClientCompactDateTime } from "@/components/shared";
 import { StatisticsCard } from "@/components/home/StatisticsCard";
-import { StatisticsCardSkeleton } from "@/components/home/StatisticsCardSkeleton";
+import { TableBodyPulseRows } from "@/components/ui/table-data-skeleton";
 import { Badge } from "@/components/ui/badge";
 import { formatStableCurrency } from "@/lib/format";
 import { cn } from "@/lib/utils";
@@ -80,8 +81,6 @@ function getPaymentBadgeClass(status: string): string {
 }
 
 export default function AdminMyActivityContent() {
-  const isMountedRef = useRef(false);
-  const [isMounted, setIsMounted] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const { user: authUser } = useAuth();
 
@@ -101,22 +100,17 @@ export default function AdminMyActivityContent() {
   const categories = categoriesQuery.data ?? [];
   const users = usersQuery.data ?? [];
 
-  useEffect(() => {
-    if (!isMountedRef.current) {
-      isMountedRef.current = true;
-      queueMicrotask(() => setIsMounted(true));
-    }
-  }, []);
-
-  const anyPending =
-    ordersQuery.isPending ||
-    productsQuery.isPending ||
-    suppliersQuery.isPending ||
-    warehousesQuery.isPending ||
-    invoicesQuery.isPending ||
-    categoriesQuery.isPending ||
-    usersQuery.isPending;
-  const showSkeleton = !isMounted || anyPending;
+  // REQ-0021: shell-first — headers/cards stay visible; values pulse
+  const cardsDataLoading = isAnyDataSlotLoading([
+    { query: ordersQuery },
+    { query: productsQuery },
+    { query: suppliersQuery },
+    { query: warehousesQuery },
+    { query: invoicesQuery },
+    { query: categoriesQuery },
+    { query: usersQuery },
+  ]);
+  const ordersTableLoading = isDataSlotLoading(ordersQuery);
 
   const stats = useMemo(() => {
     const totalOrders = orders.length;
@@ -263,16 +257,14 @@ export default function AdminMyActivityContent() {
     return filtered.slice(0, 5);
   }, [orders, searchTerm, authUser?.name, authUser?.email]);
 
-  const tableSkeletonHeight = 280;
-
   return (
     <PageContentWrapper>
-      <div className="space-y-6">
-        <div className="flex flex-col items-start text-left pb-2">
-          <h1 className="text-xl sm:text-2xl font-semibold text-gray-900 dark:text-white pb-1">
+      <div className="space-y-4">
+        <div className="flex flex-col items-start text-left ">
+          <h1 className="text-lg sm:text-xl font-semibold text-gray-700 dark:text-white ">
             My Activity (self-only as user)
           </h1>
-          <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400">
+          <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">
             Your orders, products, and key metrics as the store owner as you
             placed order, created products, invoices, and more. This is
             self-only data. This is different from the Store Analytics &
@@ -281,308 +273,301 @@ export default function AdminMyActivityContent() {
           </p>
         </div>
 
-        {showSkeleton ? (
-          <>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 items-stretch">
-              {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((i) => (
-                <StatisticsCardSkeleton key={i} />
-              ))}
-            </div>
-            <article
-              className={cn(
-                "rounded-[28px] border border-gray-300/30 dark:border-white/10",
-                "bg-gradient-to-br from-gray-100/50 via-gray-100/30 to-gray-100/20 dark:from-white/5 dark:via-white/5 dark:to-white/5",
-                "p-4 sm:p-6 backdrop-blur-sm overflow-hidden",
-              )}
-              style={{ minHeight: tableSkeletonHeight }}
-            >
-              <div className="h-5 w-32 bg-gray-300/50 dark:bg-white/10 rounded animate-pulse mb-2" />
-              <div className="h-4 w-48 bg-gray-300/50 dark:bg-white/10 rounded animate-pulse mb-4" />
-              <div className="space-y-3">
-                <div className="h-10 w-full bg-gray-300/50 dark:bg-white/10 rounded animate-pulse" />
-                {[1, 2, 3, 4, 5].map((i) => (
-                  <div
-                    key={i}
-                    className="h-12 w-full bg-gray-300/50 dark:bg-white/10 rounded animate-pulse"
-                  />
-                ))}
-              </div>
-            </article>
-          </>
-        ) : (
-          <>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 items-stretch">
-              <StatisticsCard
-                title="Total Orders"
-                value={stats.totalOrders}
-                description="All time orders (self)"
-                icon={ShoppingCart}
-                variant="rose"
-                badges={[
-                  {
-                    label: "Pending",
-                    value: stats.ordersByStatus?.pending ?? 0,
-                  },
-                  {
-                    label: "Shipped",
-                    value:
-                      (stats.ordersByStatus?.shipped ?? 0) +
-                      (stats.ordersByStatus?.processing ?? 0),
-                  },
-                  {
-                    label: "Delivered",
-                    value: stats.ordersByStatus?.delivered ?? 0,
-                  },
-                  {
-                    label: "Cancelled",
-                    value: stats.ordersByStatus?.cancelled ?? 0,
-                  },
-                ]}
-              />
-              <StatisticsCard
-                title="Total order value"
-                value={<ClientCurrency value={stats.totalRevenue} />}
-                description="Your orders history (self)"
-                icon={DollarSign}
-                variant="emerald"
-                badges={[
-                  { label: "Paid", value: formatStableCurrency(stats.paidAmount) },
-                  {
-                    label: "Refunded",
-                    value: formatStableCurrency(stats.refundedAmount),
-                  },
-                  {
-                    label: "Cancelled",
-                    value: formatStableCurrency(stats.cancelledAmount),
-                  },
-                  {
-                    label: "Unpaid",
-                    value: formatStableCurrency(stats.unpaidAmount),
-                  },
-                ]}
-              />
-              <StatisticsCard
-                title="Total Products"
-                value={stats.totalProducts}
-                description="Total products in inventory"
-                icon={Package}
-                variant="violet"
-                badges={[
-                  { label: "Available", value: stats.productAvailable },
-                  { label: "Stock Low", value: stats.productStockLow },
-                  { label: "Stock Out", value: stats.productStockOut },
-                ]}
-              />
-              <StatisticsCard
-                title="Total Users"
-                value={stats.totalUsers}
-                description="Registered users"
-                icon={Users}
-                variant="amber"
-                badges={[
-                  { label: "Admin", value: stats.userAdmin },
-                  { label: "Client", value: stats.userClient },
-                  { label: "Supplier", value: stats.userSupplier },
-                ]}
-              />
-              <StatisticsCard
-                title="Total Suppliers"
-                value={stats.totalSuppliers}
-                description="Suppliers"
-                icon={Truck}
-                variant="sky"
-                badges={[
-                  { label: "Active", value: stats.supplierActive },
-                  { label: "Inactive", value: stats.supplierInactive },
-                ]}
-              />
-              <StatisticsCard
-                title="Total Warehouses"
-                value={stats.totalWarehouses}
-                description="Storage locations"
-                icon={Warehouse}
-                variant="blue"
-                badges={[
-                  { label: "Active", value: stats.warehouseActive },
-                  { label: "Inactive", value: stats.warehouseInactive },
-                ]}
-              />
-              <StatisticsCard
-                title="Invoices"
-                value={stats.totalInvoices}
-                description="Total invoices generated"
-                icon={FileText}
-                variant="blue"
-                badges={[
-                  { label: "Paid", value: stats.invoicePaid },
-                  { label: "Pending", value: stats.invoicePending },
-                  { label: "Overdue", value: stats.invoiceOverdue },
-                ]}
-              />
-              <StatisticsCard
-                title="Categories"
-                value={stats.totalCategories}
-                description="Product categories"
-                icon={FolderTree}
-                variant="sky"
-                badges={[
-                  { label: "Active", value: stats.categoryActive },
-                  { label: "Inactive", value: stats.categoryInactive },
-                ]}
-              />
-              <StatisticsCard
-                title="Average Order Value"
-                value={<ClientCurrency value={stats.avgOrderValue} />}
-                description="Per order average (self)"
-                icon={TrendingUp}
-                variant="orange"
-                badges={[
-                  {
-                    label: "Paid Revenue",
-                    value: formatStableCurrency(stats.paidAmount),
-                  },
-                  {
-                    label: "Outstanding",
-                    value: formatStableCurrency(stats.unpaidAmount),
-                  },
-                ]}
-              />
-            </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2 items-stretch">
+          <StatisticsCard
+            title="Total Orders"
+            value={stats.totalOrders}
+            description="All time orders (self)"
+            icon={ShoppingCart}
+            variant="rose"
+            valueLoading={cardsDataLoading}
+            badgeValuesLoading={cardsDataLoading}
+            badges={[
+              {
+                label: "Pending",
+                value: stats.ordersByStatus?.pending ?? 0,
+              },
+              {
+                label: "Shipped",
+                value:
+                  (stats.ordersByStatus?.shipped ?? 0) +
+                  (stats.ordersByStatus?.processing ?? 0),
+              },
+              {
+                label: "Delivered",
+                value: stats.ordersByStatus?.delivered ?? 0,
+              },
+              {
+                label: "Cancelled",
+                value: stats.ordersByStatus?.cancelled ?? 0,
+              },
+            ]}
+          />
+          <StatisticsCard
+            title="Total order value"
+            value={<ClientCurrency value={stats.totalRevenue} />}
+            description="Your orders history (self)"
+            icon={DollarSign}
+            variant="emerald"
+            valueLoading={cardsDataLoading}
+            badgeValuesLoading={cardsDataLoading}
+            badges={[
+              {
+                label: "Paid",
+                value: formatStableCurrency(stats.paidAmount),
+              },
+              {
+                label: "Refunded",
+                value: formatStableCurrency(stats.refundedAmount),
+              },
+              {
+                label: "Cancelled",
+                value: formatStableCurrency(stats.cancelledAmount),
+              },
+              {
+                label: "Unpaid",
+                value: formatStableCurrency(stats.unpaidAmount),
+              },
+            ]}
+          />
+          <StatisticsCard
+            title="Total Products"
+            value={stats.totalProducts}
+            description="Total products in inventory"
+            icon={Package}
+            variant="violet"
+            valueLoading={cardsDataLoading}
+            badgeValuesLoading={cardsDataLoading}
+            badges={[
+              { label: "Available", value: stats.productAvailable },
+              { label: "Stock Low", value: stats.productStockLow },
+              { label: "Stock Out", value: stats.productStockOut },
+            ]}
+          />
+          <StatisticsCard
+            title="Total Users"
+            value={stats.totalUsers}
+            description="Registered users"
+            icon={Users}
+            variant="amber"
+            valueLoading={cardsDataLoading}
+            badgeValuesLoading={cardsDataLoading}
+            badges={[
+              { label: "Admin", value: stats.userAdmin },
+              { label: "Client", value: stats.userClient },
+              { label: "Supplier", value: stats.userSupplier },
+            ]}
+          />
+          <StatisticsCard
+            title="Total Suppliers"
+            value={stats.totalSuppliers}
+            description="Suppliers"
+            icon={Truck}
+            variant="sky"
+            valueLoading={cardsDataLoading}
+            badgeValuesLoading={cardsDataLoading}
+            badges={[
+              { label: "Active", value: stats.supplierActive },
+              { label: "Inactive", value: stats.supplierInactive },
+            ]}
+          />
+          <StatisticsCard
+            title="Total Warehouses"
+            value={stats.totalWarehouses}
+            description="Storage locations"
+            icon={Warehouse}
+            variant="blue"
+            valueLoading={cardsDataLoading}
+            badgeValuesLoading={cardsDataLoading}
+            badges={[
+              { label: "Active", value: stats.warehouseActive },
+              { label: "Inactive", value: stats.warehouseInactive },
+            ]}
+          />
+          <StatisticsCard
+            title="Invoices"
+            value={stats.totalInvoices}
+            description="Total invoices generated"
+            icon={FileText}
+            variant="blue"
+            valueLoading={cardsDataLoading}
+            badgeValuesLoading={cardsDataLoading}
+            badges={[
+              { label: "Paid", value: stats.invoicePaid },
+              { label: "Pending", value: stats.invoicePending },
+              { label: "Overdue", value: stats.invoiceOverdue },
+            ]}
+          />
+          <StatisticsCard
+            title="Categories"
+            value={stats.totalCategories}
+            description="Product categories"
+            icon={FolderTree}
+            variant="sky"
+            valueLoading={cardsDataLoading}
+            badgeValuesLoading={cardsDataLoading}
+            badges={[
+              { label: "Active", value: stats.categoryActive },
+              { label: "Inactive", value: stats.categoryInactive },
+            ]}
+          />
+          <StatisticsCard
+            title="Average Order Value"
+            value={<ClientCurrency value={stats.avgOrderValue} />}
+            description="Per order average (self)"
+            icon={TrendingUp}
+            variant="orange"
+            valueLoading={cardsDataLoading}
+            badgeValuesLoading={cardsDataLoading}
+            badges={[
+              {
+                label: "Paid Revenue",
+                value: formatStableCurrency(stats.paidAmount),
+              },
+              {
+                label: "Outstanding",
+                value: formatStableCurrency(stats.unpaidAmount),
+              },
+            ]}
+          />
+        </div>
 
-            <article
-              className={cn(
-                "rounded-[28px] border border-teal-400/30 dark:border-teal-400/30",
-                "bg-gradient-to-br from-teal-500/25 via-teal-500/10 to-teal-500/5 dark:from-teal-500/25 dark:via-teal-500/10 dark:to-teal-500/5",
-                "shadow-[0_30px_80px_rgba(20,184,166,0.35)] dark:shadow-[0_30px_80px_rgba(20,184,166,0.25)]",
-                "p-4 sm:p-6 backdrop-blur-sm overflow-hidden",
-              )}
-            >
-              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-4">
-                <div>
-                  <h2 className="text-md sm:text-lg font-semibold text-gray-900 dark:text-white">
-                    Recent Orders
-                  </h2>
-                  <p className="text-sm text-gray-600 dark:text-gray-400">
-                    Latest 5 orders (self: {authUser?.name ?? "—"},{" "}
-                    {authUser?.email ?? "—"})
-                  </p>
-                </div>
-                <div className="relative w-full sm:max-w-md">
-                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
-                  <Input
-                    placeholder="Search by order ID..."
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    className={cn(
-                      "h-10 pl-9 pr-4 w-full rounded-[28px]",
-                      "bg-white/10 dark:bg-white/5 backdrop-blur-sm",
-                      "border border-sky-400/30 dark:border-white/20",
-                      "text-gray-900 dark:text-white placeholder:text-gray-500 dark:placeholder:text-white/40",
-                      "focus-visible:border-sky-400 focus-visible:ring-sky-500/50",
-                      "shadow-[0_10px_30px_rgba(2,132,199,0.15)]",
-                    )}
-                  />
-                </div>
-              </div>
-              <Table>
-                <TableHeader>
-                  <TableRow className="border-gray-300/30 dark:border-white/10 hover:bg-transparent">
-                    <TableHead className="text-gray-700 dark:text-gray-300">
-                      Order ID
-                    </TableHead>
-                    <TableHead className="text-gray-700 dark:text-gray-300">
-                      Status
-                    </TableHead>
-                    <TableHead className="text-gray-700 dark:text-gray-300">
-                      Payment
-                    </TableHead>
-                    <TableHead className="text-gray-700 dark:text-gray-300">
-                      Amount
-                    </TableHead>
-                    <TableHead className="text-gray-700 dark:text-gray-300">
-                      Items
-                    </TableHead>
-                    <TableHead className="text-gray-700 dark:text-gray-300">
-                      Date
-                    </TableHead>
-                    <TableHead className="text-right text-gray-700 dark:text-gray-300">
-                      Actions
-                    </TableHead>
+        <article
+          className={cn(
+            "rounded-[28px] border border-teal-400/30 dark:border-teal-400/30",
+            "bg-gradient-to-br from-teal-500/25 via-teal-500/10 to-teal-500/5 dark:from-teal-500/25 dark:via-teal-500/10 dark:to-teal-500/5",
+            "shadow-[0_30px_80px_rgba(20,184,166,0.35)] dark:shadow-[0_30px_80px_rgba(20,184,166,0.25)]",
+            "p-2 sm:p-4 backdrop-blur-sm overflow-hidden",
+          )}
+        >
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-4">
+            <div>
+              <h2 className="text-md sm:text-lg font-semibold text-gray-700 dark:text-white">
+                Recent Orders
+              </h2>
+              <p className="text-sm text-gray-600 dark:text-gray-400">
+                Latest 5 orders (self: {authUser?.name ?? "—"},{" "}
+                {authUser?.email ?? "—"})
+              </p>
+            </div>
+            <div className="relative w-full sm:max-w-md">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
+              <Input
+                placeholder="Search by order ID..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className={cn(
+                  "h-10 pl-9 pr-4 w-full rounded-[28px]",
+                  "bg-white/10 dark:bg-white/5 backdrop-blur-sm",
+                  "border border-sky-400/30 dark:border-white/20",
+                  "text-gray-700 dark:text-white placeholder:text-gray-500 dark:placeholder:text-white/40",
+                  "focus-visible:border-sky-400 focus-visible:ring-sky-500/50",
+                  "shadow-[0_10px_30px_rgba(2,132,199,0.15)]",
+                )}
+              />
+            </div>
+          </div>
+          <Table>
+            <TableHeader>
+              <TableRow className="border-gray-300/30 dark:border-white/10 hover:bg-transparent">
+                <TableHead className="text-gray-700 dark:text-gray-300">
+                  Order ID
+                </TableHead>
+                <TableHead className="text-gray-700 dark:text-gray-300">
+                  Status
+                </TableHead>
+                <TableHead className="text-gray-700 dark:text-gray-300">
+                  Payment
+                </TableHead>
+                <TableHead className="text-gray-700 dark:text-gray-300">
+                  Amount
+                </TableHead>
+                <TableHead className="text-gray-700 dark:text-gray-300">
+                  Items
+                </TableHead>
+                <TableHead className="text-gray-700 dark:text-gray-300">
+                  Date
+                </TableHead>
+                <TableHead className="text-right text-gray-700 dark:text-gray-300">
+                  Actions
+                </TableHead>
+              </TableRow>
+            </TableHeader>
+            {ordersTableLoading ? (
+              <TableBodyPulseRows columnCount={7} rows={5} striped={false} />
+            ) : (
+              <TableBody>
+                {recentOrders.length === 0 ? (
+                  <TableRow className="border-gray-300/30 dark:border-white/10">
+                    <TableCell
+                      colSpan={7}
+                      className="text-center text-gray-600 dark:text-gray-400 py-8"
+                    >
+                      No orders found
+                    </TableCell>
                   </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {recentOrders.length === 0 ? (
-                    <TableRow className="border-gray-300/30 dark:border-white/10">
-                      <TableCell
-                        colSpan={7}
-                        className="text-center text-gray-600 dark:text-gray-400 py-8"
-                      >
-                        No orders found
+                ) : (
+                  recentOrders.map((order) => (
+                    <TableRow
+                      key={order.id}
+                      className="border-gray-300/30 dark:border-white/10"
+                    >
+                      <TableCell className="font-mono text-xs text-gray-700 dark:text-gray-100">
+                        {order.id.slice(0, 8)}…
+                      </TableCell>
+                      <TableCell>
+                        <Badge
+                          variant="secondary"
+                          className={cn(
+                            "text-xs font-medium",
+                            getStatusBadgeClass(order.status ?? ""),
+                          )}
+                        >
+                          {order.status
+                            ? order.status.charAt(0).toUpperCase() +
+                              order.status.slice(1).toLowerCase()
+                            : "—"}
+                        </Badge>
+                      </TableCell>
+                      <TableCell>
+                        <Badge
+                          variant="secondary"
+                          className={cn(
+                            "text-xs font-medium",
+                            getPaymentBadgeClass(order.paymentStatus ?? ""),
+                          )}
+                        >
+                          {order.paymentStatus
+                            ? order.paymentStatus.charAt(0).toUpperCase() +
+                              order.paymentStatus.slice(1).toLowerCase()
+                            : "—"}
+                        </Badge>
+                      </TableCell>
+                      <TableCell className="text-gray-800 dark:text-gray-200">
+                        <ClientCurrency value={Number(order.total)} />
+                      </TableCell>
+                      <TableCell className="text-gray-800 dark:text-gray-200">
+                        {order.items?.length ?? 0}
+                      </TableCell>
+                      <TableCell className="text-gray-600 dark:text-gray-400">
+                        <ClientCompactDateTime date={order.createdAt} />
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <Link
+                          href={`/admin/orders/${order.id}`}
+                          className="inline-flex items-center gap-1 text-sm text-sky-600 dark:text-sky-400 hover:text-sky-500 dark:hover:text-sky-300"
+                        >
+                          <Eye className="h-4 w-4" />
+                          View
+                        </Link>
                       </TableCell>
                     </TableRow>
-                  ) : (
-                    recentOrders.map((order) => (
-                      <TableRow
-                        key={order.id}
-                        className="border-gray-300/30 dark:border-white/10"
-                      >
-                        <TableCell className="font-mono text-xs text-gray-900 dark:text-gray-100">
-                          {order.id.slice(0, 8)}…
-                        </TableCell>
-                        <TableCell>
-                          <Badge
-                            variant="secondary"
-                            className={cn(
-                              "text-xs font-medium",
-                              getStatusBadgeClass(order.status ?? ""),
-                            )}
-                          >
-                            {order.status
-                              ? order.status.charAt(0).toUpperCase() +
-                                order.status.slice(1).toLowerCase()
-                              : "—"}
-                          </Badge>
-                        </TableCell>
-                        <TableCell>
-                          <Badge
-                            variant="secondary"
-                            className={cn(
-                              "text-xs font-medium",
-                              getPaymentBadgeClass(order.paymentStatus ?? ""),
-                            )}
-                          >
-                            {order.paymentStatus
-                              ? order.paymentStatus.charAt(0).toUpperCase() +
-                                order.paymentStatus.slice(1).toLowerCase()
-                              : "—"}
-                          </Badge>
-                        </TableCell>
-                        <TableCell className="text-gray-800 dark:text-gray-200">
-                          <ClientCurrency value={Number(order.total)} />
-                        </TableCell>
-                        <TableCell className="text-gray-800 dark:text-gray-200">
-                          {order.items?.length ?? 0}
-                        </TableCell>
-                        <TableCell className="text-gray-600 dark:text-gray-400">
-                          <ClientCompactDateTime date={order.createdAt} />
-                        </TableCell>
-                        <TableCell className="text-right">
-                          <Link
-                            href={`/admin/orders/${order.id}`}
-                            className="inline-flex items-center gap-1 text-sm text-sky-600 dark:text-sky-400 hover:text-sky-500 dark:hover:text-sky-300"
-                          >
-                            <Eye className="h-4 w-4" />
-                            View
-                          </Link>
-                        </TableCell>
-                      </TableRow>
-                    ))
-                  )}
-                </TableBody>
-              </Table>
-            </article>
-          </>
-        )}
+                  ))
+                )}
+              </TableBody>
+            )}
+          </Table>
+        </article>
       </div>
     </PageContentWrapper>
   );

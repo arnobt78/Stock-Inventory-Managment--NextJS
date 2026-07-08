@@ -30,16 +30,14 @@ import { Separator } from "@/components/ui/separator";
 import { useQueryClient } from "@tanstack/react-query";
 import { useInvoice, useDeleteInvoice, useSendInvoice } from "@/hooks/queries";
 import { useBackWithRefresh } from "@/hooks/use-back-with-refresh";
-import {
-  queryKeys,
-  invalidateAfterOrderGraphChange,
-} from "@/lib/react-query";
+import { queryKeys, invalidateAfterOrderGraphChange } from "@/lib/react-query";
 import { useAuth } from "@/contexts";
 import Navbar from "@/components/layouts/Navbar";
 import {
   ClientDateTime,
   ClientRelativeTime,
   PageContentWrapper,
+  DataSlotPulse,
 } from "@/components/shared";
 import type { InvoiceStatus } from "@/types";
 import type { Invoice } from "@/types";
@@ -364,9 +362,9 @@ export default function InvoiceDetailPage({
   if (isError) {
     return (
       <Wrapper>
-        <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4">
+        <div className="flex flex-col items-center justify-center min-h-[60vh] gap-2">
           <GlassCard variant="rose" className="max-w-md text-center">
-            <h2 className="text-2xl font-semibold text-gray-900 dark:text-white mb-2">
+            <h2 className="text-lg sm:text-xl font-semibold text-gray-700 dark:text-white mb-2">
               Invoice Not Found
             </h2>
             <p className="text-gray-600 dark:text-gray-400 mb-4">
@@ -376,7 +374,7 @@ export default function InvoiceDetailPage({
             </p>
             <Button
               onClick={() => navigateTo("/")}
-              className="rounded-xl border border-gray-300/30 bg-white/50 dark:bg-white/5 dark:border-white/10 hover:bg-gray-100/50 dark:hover:bg-white/10 text-gray-900 dark:text-white"
+              className="rounded-xl border border-gray-300/30 bg-white/50 dark:bg-white/5 dark:border-white/10 hover:bg-gray-100/50 dark:hover:bg-white/10 text-gray-700 dark:text-white"
             >
               <ArrowLeft className="h-4 w-4 mr-2" />
               Back to Home
@@ -392,9 +390,9 @@ export default function InvoiceDetailPage({
     return (
       <Wrapper>
         <PageContentWrapper>
-          <div className="max-w-9xl mx-auto space-y-6">
+          <div className="max-w-9xl mx-auto space-y-4">
             {/* Header Skeleton */}
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2">
               <div className="h-10 w-10 bg-white/50 dark:bg-white/5 rounded-xl border border-gray-300/30 dark:border-white/10 animate-pulse" />
               <div className="flex-1">
                 <div className="h-8 w-48 bg-white/50 dark:bg-white/5 rounded-lg border border-gray-300/30 dark:border-white/10 animate-pulse" />
@@ -403,7 +401,7 @@ export default function InvoiceDetailPage({
             </div>
 
             {/* Status Cards Skeleton */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
               <GlassCard variant="violet" className="animate-pulse">
                 <div className="h-4 w-28 bg-white/50 dark:bg-white/10 rounded mb-3" />
                 <div className="h-6 w-20 bg-white/50 dark:bg-white/10 rounded-full" />
@@ -417,7 +415,7 @@ export default function InvoiceDetailPage({
             {/* Invoice Information Skeleton */}
             <GlassCard variant="orange" className="animate-pulse">
               <div className="h-6 w-40 bg-white/50 dark:bg-white/10 rounded mb-4" />
-              <div className="space-y-3">
+              <div className="space-y-2">
                 {[1, 2, 3, 4, 5].map((i) => (
                   <div
                     key={i}
@@ -428,7 +426,7 @@ export default function InvoiceDetailPage({
             </GlassCard>
 
             {/* Billing Address & Totals Skeleton */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-2 sm:gap-4">
               <GlassCard variant="sky" className="animate-pulse">
                 <div className="h-6 w-36 bg-white/50 dark:bg-white/10 rounded mb-4" />
                 <div className="h-4 w-full bg-white/50 dark:bg-white/10 rounded" />
@@ -447,7 +445,7 @@ export default function InvoiceDetailPage({
             </div>
 
             {/* Action Buttons Skeleton */}
-            <div className="flex flex-col sm:flex-row gap-3">
+            <div className="flex flex-col sm:flex-row gap-2">
               {[1, 2, 3, 4, 5].map((i) => (
                 <div
                   key={i}
@@ -481,9 +479,9 @@ export default function InvoiceDetailPage({
   return (
     <Wrapper>
       <PageContentWrapper>
-        <div className="max-w-9xl mx-auto space-y-6">
+        <div className="max-w-9xl mx-auto space-y-4">
           {/* Header */}
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2">
             <Button
               variant="ghost"
               size="icon"
@@ -493,7 +491,7 @@ export default function InvoiceDetailPage({
               <ArrowLeft className="h-5 w-5" />
             </Button>
             <div className="flex-1">
-              <h1 className="text-2xl font-semibold text-gray-900 dark:text-white">
+              <h1 className="text-lg sm:text-xl font-semibold text-gray-700 dark:text-white">
                 Invoice {invoice.invoiceNumber}
               </h1>
               <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
@@ -503,7 +501,7 @@ export default function InvoiceDetailPage({
           </div>
 
           {/* Invoice Status Cards — badge style matches supplier/category detail */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
             <GlassCard variant="violet">
               <div className="">
                 <p className="text-xs uppercase tracking-[0.2em] text-gray-600 dark:text-white/60 mb-3">
@@ -536,7 +534,7 @@ export default function InvoiceDetailPage({
               </p>
               <div
                 className={cn(
-                  "text-2xl font-semibold",
+                  "text-lg sm:text-xl font-semibold",
                   invoice.amountDue > 0 && !isOverdue
                     ? "text-amber-600 dark:text-amber-400"
                     : invoice.amountDue > 0 && isOverdue
@@ -557,10 +555,10 @@ export default function InvoiceDetailPage({
 
           {/* Invoice Information */}
           <GlassCard variant="orange">
-            <div className="flex items-center gap-3 mb-2">
+            <div className="flex items-center gap-2 mb-2">
               <div
                 className={cn(
-                  "p-2.5 rounded-xl border",
+                  "p-2 rounded-xl border",
                   variantConfig.orange.iconBg,
                   "dark:border-orange-400/30 dark:bg-orange-500/20",
                 )}
@@ -568,7 +566,7 @@ export default function InvoiceDetailPage({
                 <FileText className="h-5 w-5 text-orange-600 dark:text-orange-400" />
               </div>
               <div>
-                <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+                <h3 className="text-lg font-semibold text-gray-700 dark:text-white">
                   Invoice Information
                 </h3>
                 <p className="text-xs text-gray-600 dark:text-gray-400">
@@ -579,19 +577,19 @@ export default function InvoiceDetailPage({
               </div>
             </div>
 
-            <div className="space-y-3 mt-4">
-              <div className="flex items-center gap-2 text-sm p-3 rounded-xl bg-gradient-to-r from-orange-100/50 via-orange-50/30 to-transparent dark:from-orange-500/10 dark:via-orange-500/5 dark:to-transparent border border-orange-200/30 dark:border-orange-400/10">
+            <div className="space-y-2 mt-4">
+              <div className="flex items-center gap-2 text-sm p-2 rounded-xl bg-gradient-to-r from-orange-100/50 via-orange-50/30 to-transparent dark:from-orange-500/10 dark:via-orange-500/5 dark:to-transparent border border-orange-200/30 dark:border-orange-400/10">
                 <Calendar className="h-4 w-4 text-orange-500 dark:text-orange-400" />
                 <span className="text-gray-600 dark:text-gray-400">
                   Issued:
                 </span>
-                <span className="font-medium text-gray-900 dark:text-white">
+                <span className="font-medium text-gray-700 dark:text-white">
                   <ClientDateTime date={issuedAt} />
                 </span>
               </div>
               <div
                 className={cn(
-                  "flex items-center gap-2 text-sm p-3 rounded-xl border",
+                  "flex items-center gap-2 text-sm p-2 rounded-xl border",
                   isOverdue
                     ? "bg-gradient-to-r from-rose-100/50 via-rose-50/30 to-transparent dark:from-rose-500/10 dark:via-rose-500/5 dark:to-transparent border-rose-200/30 dark:border-rose-400/10"
                     : "bg-gradient-to-r from-amber-100/50 via-amber-50/30 to-transparent dark:from-amber-500/10 dark:via-amber-500/5 dark:to-transparent border-amber-200/30 dark:border-amber-400/10",
@@ -613,7 +611,7 @@ export default function InvoiceDetailPage({
                     "font-medium",
                     isOverdue
                       ? "text-rose-600 dark:text-rose-400"
-                      : "text-gray-900 dark:text-white",
+                      : "text-gray-700 dark:text-white",
                   )}
                 >
                   <ClientDateTime date={dueDate} />
@@ -621,18 +619,18 @@ export default function InvoiceDetailPage({
                 </span>
               </div>
               {sentAt && (
-                <div className="flex items-center gap-2 text-sm p-3 rounded-xl bg-gradient-to-r from-blue-100/50 via-blue-50/30 to-transparent dark:from-blue-500/10 dark:via-blue-500/5 dark:to-transparent border border-blue-200/30 dark:border-blue-400/10">
+                <div className="flex items-center gap-2 text-sm p-2 rounded-xl bg-gradient-to-r from-blue-100/50 via-blue-50/30 to-transparent dark:from-blue-500/10 dark:via-blue-500/5 dark:to-transparent border border-blue-200/30 dark:border-blue-400/10">
                   <Send className="h-4 w-4 text-blue-500 dark:text-blue-400" />
                   <span className="text-gray-600 dark:text-gray-400">
                     Sent:
                   </span>
-                  <span className="font-medium text-gray-900 dark:text-white">
+                  <span className="font-medium text-gray-700 dark:text-white">
                     <ClientDateTime date={sentAt} />
                   </span>
                 </div>
               )}
               {paidAt && (
-                <div className="flex items-center gap-2 text-sm p-3 rounded-xl bg-gradient-to-r from-emerald-100/50 via-emerald-50/30 to-transparent dark:from-emerald-500/10 dark:via-emerald-500/5 dark:to-transparent border border-emerald-200/30 dark:border-emerald-400/10">
+                <div className="flex items-center gap-2 text-sm p-2 rounded-xl bg-gradient-to-r from-emerald-100/50 via-emerald-50/30 to-transparent dark:from-emerald-500/10 dark:via-emerald-500/5 dark:to-transparent border border-emerald-200/30 dark:border-emerald-400/10">
                   <CheckCircle className="h-4 w-4 text-emerald-500 dark:text-emerald-400" />
                   <span className="text-gray-600 dark:text-gray-400">
                     Paid:
@@ -643,18 +641,18 @@ export default function InvoiceDetailPage({
                 </div>
               )}
               {cancelledAt && (
-                <div className="flex items-center gap-2 text-sm p-3 rounded-xl bg-gradient-to-r from-gray-100/50 via-gray-50/30 to-transparent dark:from-gray-500/10 dark:via-gray-500/5 dark:to-transparent border border-gray-200/30 dark:border-gray-400/10">
+                <div className="flex items-center gap-2 text-sm p-2 rounded-xl bg-gradient-to-r from-gray-100/50 via-gray-50/30 to-transparent dark:from-gray-500/10 dark:via-gray-500/5 dark:to-transparent border border-gray-200/30 dark:border-gray-400/10">
                   <XCircle className="h-4 w-4 text-gray-500 dark:text-gray-400" />
                   <span className="text-gray-600 dark:text-gray-400">
                     Cancelled:
                   </span>
-                  <span className="font-medium text-gray-900 dark:text-white">
+                  <span className="font-medium text-gray-700 dark:text-white">
                     <ClientDateTime date={cancelledAt} />
                   </span>
                 </div>
               )}
               {invoice.orderId && (
-                <div className="flex items-center gap-2 text-sm p-3 rounded-xl bg-gradient-to-r from-violet-100/50 via-violet-50/30 to-transparent dark:from-violet-500/10 dark:via-violet-500/5 dark:to-transparent border border-violet-200/30 dark:border-violet-400/10">
+                <div className="flex items-center gap-2 text-sm p-2 rounded-xl bg-gradient-to-r from-violet-100/50 via-violet-50/30 to-transparent dark:from-violet-500/10 dark:via-violet-500/5 dark:to-transparent border border-violet-200/30 dark:border-violet-400/10">
                   <FileText className="h-4 w-4 text-violet-500 dark:text-violet-400" />
                   <span className="text-gray-600 dark:text-gray-400">
                     Related Order:
@@ -668,7 +666,7 @@ export default function InvoiceDetailPage({
                 </div>
               )}
               {invoice.paymentLink && (
-                <div className="flex items-center gap-2 text-sm p-3 rounded-xl bg-gradient-to-r from-sky-100/50 via-sky-50/30 to-transparent dark:from-sky-500/10 dark:via-sky-500/5 dark:to-transparent border border-sky-200/30 dark:border-sky-400/10">
+                <div className="flex items-center gap-2 text-sm p-2 rounded-xl bg-gradient-to-r from-sky-100/50 via-sky-50/30 to-transparent dark:from-sky-500/10 dark:via-sky-500/5 dark:to-transparent border border-sky-200/30 dark:border-sky-400/10">
                   <CreditCard className="h-4 w-4 text-sky-500 dark:text-sky-400" />
                   <span className="text-gray-600 dark:text-gray-400">
                     Payment Link:
@@ -684,11 +682,11 @@ export default function InvoiceDetailPage({
                 </div>
               )}
               {invoice.notes && (
-                <div className="p-3 rounded-xl bg-gradient-to-r from-teal-100/50 via-teal-50/30 to-transparent dark:from-teal-500/10 dark:via-teal-500/5 dark:to-transparent border border-teal-200/30 dark:border-teal-400/10">
+                <div className="p-2 rounded-xl bg-gradient-to-r from-teal-100/50 via-teal-50/30 to-transparent dark:from-teal-500/10 dark:via-teal-500/5 dark:to-transparent border border-teal-200/30 dark:border-teal-400/10">
                   <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">
                     Notes:
                   </p>
-                  <p className="text-sm text-gray-900 dark:text-white">
+                  <p className="text-sm text-gray-700 dark:text-white">
                     {invoice.notes}
                   </p>
                 </div>
@@ -703,27 +701,27 @@ export default function InvoiceDetailPage({
             (invoice.invoiceProductOwners &&
               invoice.invoiceProductOwners.length > 0)) && (
             <GlassCard variant="teal">
-              <div className="flex items-center gap-3 mb-4">
+              <div className="flex items-center gap-2 mb-4">
                 <div
                   className={cn(
-                    "p-2.5 rounded-xl border",
+                    "p-2 rounded-xl border",
                     variantConfig.teal.iconBg,
                     "dark:border-teal-400/30 dark:bg-teal-500/20",
                   )}
                 >
                   <FileText className="h-5 w-5 text-teal-600 dark:text-teal-400" />
                 </div>
-                <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+                <h3 className="text-lg font-semibold text-gray-700 dark:text-white">
                   Parties &amp; roles
                 </h3>
               </div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm">
                 {invoice.invoiceCreatedBy && (
-                  <div className="p-3 rounded-xl bg-gradient-to-r from-teal-100/50 via-teal-50/30 to-transparent dark:from-teal-500/10 dark:via-teal-500/5 dark:to-transparent border border-teal-200/30 dark:border-teal-400/10">
+                  <div className="p-2 rounded-xl bg-gradient-to-r from-teal-100/50 via-teal-50/30 to-transparent dark:from-teal-500/10 dark:via-teal-500/5 dark:to-transparent border border-teal-200/30 dark:border-teal-400/10">
                     <p className="text-gray-600 dark:text-gray-400 font-medium mb-0.5">
                       Invoice created by
                     </p>
-                    <p className="text-gray-900 dark:text-white">
+                    <p className="text-gray-700 dark:text-white">
                       {invoice.invoiceCreatedBy.name ??
                         invoice.invoiceCreatedBy.email}
                     </p>
@@ -735,11 +733,11 @@ export default function InvoiceDetailPage({
                   </div>
                 )}
                 {invoice.orderedBy && (
-                  <div className="p-3 rounded-xl bg-gradient-to-r from-teal-100/50 via-teal-50/30 to-transparent dark:from-teal-500/10 dark:via-teal-500/5 dark:to-transparent border border-teal-200/30 dark:border-teal-400/10">
+                  <div className="p-2 rounded-xl bg-gradient-to-r from-teal-100/50 via-teal-50/30 to-transparent dark:from-teal-500/10 dark:via-teal-500/5 dark:to-transparent border border-teal-200/30 dark:border-teal-400/10">
                     <p className="text-gray-600 dark:text-gray-400 font-medium mb-0.5">
                       Ordered by
                     </p>
-                    <p className="text-gray-900 dark:text-white">
+                    <p className="text-gray-700 dark:text-white">
                       {invoice.orderedBy.name ?? invoice.orderedBy.email}
                     </p>
                     {invoice.orderedBy.name && (
@@ -750,11 +748,11 @@ export default function InvoiceDetailPage({
                   </div>
                 )}
                 {invoice.client && (
-                  <div className="p-3 rounded-xl bg-gradient-to-r from-teal-100/50 via-teal-50/30 to-transparent dark:from-teal-500/10 dark:via-teal-500/5 dark:to-transparent border border-teal-200/30 dark:border-teal-400/10">
+                  <div className="p-2 rounded-xl bg-gradient-to-r from-teal-100/50 via-teal-50/30 to-transparent dark:from-teal-500/10 dark:via-teal-500/5 dark:to-transparent border border-teal-200/30 dark:border-teal-400/10">
                     <p className="text-gray-600 dark:text-gray-400 font-medium mb-0.5">
                       Customer / Bill to
                     </p>
-                    <p className="text-gray-900 dark:text-white">
+                    <p className="text-gray-700 dark:text-white">
                       {invoice.client.name ?? invoice.client.email}
                     </p>
                     {invoice.client.name && (
@@ -766,7 +764,7 @@ export default function InvoiceDetailPage({
                 )}
                 {invoice.invoiceProductOwners &&
                   invoice.invoiceProductOwners.length > 0 && (
-                    <div className="sm:col-span-2 p-3 rounded-xl bg-gradient-to-r from-teal-100/50 via-teal-50/30 to-transparent dark:from-teal-500/10 dark:via-teal-500/5 dark:to-transparent border border-teal-200/30 dark:border-teal-400/10">
+                    <div className="sm:col-span-2 p-2 rounded-xl bg-gradient-to-r from-teal-100/50 via-teal-50/30 to-transparent dark:from-teal-500/10 dark:via-teal-500/5 dark:to-transparent border border-teal-200/30 dark:border-teal-400/10">
                       <p className="text-gray-600 dark:text-gray-400 font-medium mb-2">
                         Product owner(s)
                       </p>
@@ -792,25 +790,25 @@ export default function InvoiceDetailPage({
           )}
 
           {/* Billing Address & Totals */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-2 sm:gap-4">
             {/* Billing Address */}
             {invoice.billingAddress && (
               <GlassCard variant="sky">
-                <div className="flex items-center gap-3 mb-3">
+                <div className="flex items-center gap-2 mb-3">
                   <div
                     className={cn(
-                      "p-2.5 rounded-xl border",
+                      "p-2 rounded-xl border",
                       variantConfig.sky.iconBg,
                       "dark:border-sky-400/30 dark:bg-sky-500/20",
                     )}
                   >
                     <MapPin className="h-5 w-5 text-sky-600 dark:text-sky-400" />
                   </div>
-                  <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+                  <h3 className="text-lg font-semibold text-gray-700 dark:text-white">
                     Billing Address
                   </h3>
                 </div>
-                <p className="text-sm text-gray-900 dark:text-white p-3 rounded-xl bg-gradient-to-r from-sky-100/40 via-sky-50/20 to-transparent dark:from-sky-500/10 dark:via-sky-500/5 dark:to-transparent border border-sky-200/30 dark:border-sky-400/10">
+                <p className="text-sm text-gray-700 dark:text-white p-2 rounded-xl bg-gradient-to-r from-sky-100/40 via-sky-50/20 to-transparent dark:from-sky-500/10 dark:via-sky-500/5 dark:to-transparent border border-sky-200/30 dark:border-sky-400/10">
                   {formatAddress(invoice.billingAddress)}
                 </p>
               </GlassCard>
@@ -818,17 +816,17 @@ export default function InvoiceDetailPage({
 
             {/* Invoice Totals */}
             <GlassCard variant="teal">
-              <div className="flex items-center gap-3 mb-4">
+              <div className="flex items-center gap-2 mb-4">
                 <div
                   className={cn(
-                    "p-2.5 rounded-xl border",
+                    "p-2 rounded-xl border",
                     variantConfig.teal.iconBg,
                     "dark:border-teal-400/30 dark:bg-teal-500/20",
                   )}
                 >
                   <DollarSign className="h-5 w-5 text-teal-600 dark:text-teal-400" />
                 </div>
-                <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+                <h3 className="text-lg font-semibold text-gray-700 dark:text-white">
                   Invoice Summary
                 </h3>
               </div>
@@ -838,7 +836,7 @@ export default function InvoiceDetailPage({
                   <span className="text-gray-600 dark:text-gray-400">
                     Subtotal:
                   </span>
-                  <span className="font-medium text-gray-900 dark:text-white">
+                  <span className="font-medium text-gray-700 dark:text-white">
                     ${invoice.subtotal.toFixed(2)}
                   </span>
                 </div>
@@ -847,7 +845,7 @@ export default function InvoiceDetailPage({
                     <span className="text-gray-600 dark:text-gray-400">
                       Tax:
                     </span>
-                    <span className="font-medium text-gray-900 dark:text-white">
+                    <span className="font-medium text-gray-700 dark:text-white">
                       ${invoice.tax.toFixed(2)}
                     </span>
                   </div>
@@ -857,7 +855,7 @@ export default function InvoiceDetailPage({
                     <span className="text-gray-600 dark:text-gray-400">
                       Shipping:
                     </span>
-                    <span className="font-medium text-gray-900 dark:text-white">
+                    <span className="font-medium text-gray-700 dark:text-white">
                       ${invoice.shipping.toFixed(2)}
                     </span>
                   </div>
@@ -873,8 +871,8 @@ export default function InvoiceDetailPage({
                   </div>
                 )}
                 <Separator className="my-2 bg-teal-200/50 dark:bg-teal-400/20" />
-                <div className="flex justify-between text-lg font-semibold p-3 rounded-xl bg-gradient-to-r from-blue-100/50 via-blue-50/30 to-transparent dark:from-blue-500/15 dark:via-blue-500/10 dark:to-transparent border border-blue-200/30 dark:border-blue-400/20">
-                  <span className="text-gray-900 dark:text-white">Total:</span>
+                <div className="flex justify-between text-lg font-semibold p-2 rounded-xl bg-gradient-to-r from-blue-100/50 via-blue-50/30 to-transparent dark:from-blue-500/15 dark:via-blue-500/10 dark:to-transparent border border-blue-200/30 dark:border-blue-400/20">
+                  <span className="text-gray-700 dark:text-white">Total:</span>
                   <span className="text-blue-600 dark:text-blue-400">
                     ${invoice.total.toFixed(2)}
                   </span>
@@ -892,7 +890,7 @@ export default function InvoiceDetailPage({
                     </div>
                     <div
                       className={cn(
-                        "flex justify-between text-lg font-semibold p-3 rounded-xl border",
+                        "flex justify-between text-lg font-semibold p-2 rounded-xl border",
                         invoice.amountDue > 0 && isOverdue
                           ? "bg-gradient-to-r from-rose-100/50 via-rose-50/30 to-transparent dark:from-rose-500/15 dark:via-rose-500/10 dark:to-transparent border-rose-200/30 dark:border-rose-400/20"
                           : invoice.amountDue > 0
@@ -900,7 +898,7 @@ export default function InvoiceDetailPage({
                             : "bg-gradient-to-r from-emerald-100/50 via-emerald-50/30 to-transparent dark:from-emerald-500/15 dark:via-emerald-500/10 dark:to-transparent border-emerald-200/30 dark:border-emerald-400/20",
                       )}
                     >
-                      <span className="text-gray-900 dark:text-white">
+                      <span className="text-gray-700 dark:text-white">
                         Amount Due:
                       </span>
                       <span
@@ -922,11 +920,11 @@ export default function InvoiceDetailPage({
           </div>
 
           {/* Actions — Back, Edit Invoice, Send Invoice, Delete Invoice; same layout as order detail */}
-          <div className="flex flex-col sm:flex-row flex-wrap gap-3 sm:gap-4">
+          <div className="flex flex-col sm:flex-row flex-wrap gap-2">
             <Button
               variant="outline"
               onClick={onBack}
-              className="w-full sm:w-auto gap-2 rounded-xl border border-gray-300/30 bg-white/50 dark:bg-white/5 dark:border-white/10 hover:bg-gray-100/50 dark:hover:bg-white/10 text-gray-900 dark:text-white transition-all duration-300"
+              className="w-full sm:w-auto gap-2 rounded-xl border border-gray-300/30 bg-white/50 dark:bg-white/5 dark:border-white/10 hover:bg-gray-100/50 dark:hover:bg-white/10 text-gray-700 dark:text-white transition-all duration-300"
             >
               <ArrowLeft className="h-4 w-4 shrink-0" />
               Back

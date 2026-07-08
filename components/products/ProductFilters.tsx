@@ -48,7 +48,7 @@ type FiltersAndActionsProps = {
   setSearchTerm: (term: string) => void;
   pagination: PaginationType;
   setPagination: (
-    updater: PaginationType | ((old: PaginationType) => PaginationType)
+    updater: PaginationType | ((old: PaginationType) => PaginationType),
   ) => void;
   userId: string;
 };
@@ -140,7 +140,7 @@ export default function FiltersAndActions({
       link.setAttribute("href", url);
       link.setAttribute(
         "download",
-        `stockly-products-${new Date().toISOString().split("T")[0]}.csv`
+        `stockly-products-${new Date().toISOString().split("T")[0]}.csv`,
       );
       link.style.visibility = "hidden";
       document.body.appendChild(link);
@@ -224,7 +224,7 @@ export default function FiltersAndActions({
       link.setAttribute("href", url);
       link.setAttribute(
         "download",
-        `stockly-products-${new Date().toISOString().split("T")[0]}.xlsx`
+        `stockly-products-${new Date().toISOString().split("T")[0]}.xlsx`,
       );
       link.style.visibility = "hidden";
       document.body.appendChild(link);
@@ -250,19 +250,23 @@ export default function FiltersAndActions({
     "h-10 w-full sm:w-auto flex items-center gap-2 rounded-[28px] border border-violet-400/30 dark:border-violet-400/30 bg-gradient-to-r from-violet-500/25 via-violet-500/15 to-violet-500/10 dark:from-violet-500/25 dark:via-violet-500/15 dark:to-violet-500/10 text-gray-700 dark:text-white shadow-[0_10px_30px_rgba(139,92,246,0.2)] backdrop-blur-sm transition duration-200 hover:border-violet-300/40 hover:from-violet-500/35 hover:via-violet-500/25 hover:to-violet-500/15 dark:hover:border-violet-300/40 dark:hover:from-violet-500/35 dark:hover:via-violet-500/25 dark:hover:to-violet-500/15";
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-2">
       {/* Row 1: Select Product Owner (when client) - centered */}
       {productOwnerOptions && onOwnerChange && (
-        <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-center gap-2 sm:gap-3 w-full">
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-center gap-2 sm:gap-2 w-full">
           <span className="text-sm font-medium text-gray-700 dark:text-white/80 flex items-center gap-2">
             <Users className="h-4 w-4 text-gray-600 dark:text-white/60 flex-shrink-0" />
             Select Product Owner
           </span>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="outline" className={exportButtonClass + " w-full sm:w-auto"}>
+              <Button
+                variant="outline"
+                className={exportButtonClass + " w-full sm:w-auto"}
+              >
                 {selectedOwnerId
-                  ? productOwnerOptions.find((a) => a.id === selectedOwnerId)?.name ?? "Product Owner"
+                  ? (productOwnerOptions.find((a) => a.id === selectedOwnerId)
+                      ?.name ?? "Product Owner")
                   : "Product Owner"}
                 <ChevronDown className="h-4 w-4" />
               </Button>
@@ -275,7 +279,7 @@ export default function FiltersAndActions({
                 <DropdownMenuItem
                   key={a.id}
                   onSelect={() => onOwnerChange(a.id)}
-                  className="cursor-pointer text-gray-700 dark:text-white/80 hover:text-gray-900 dark:hover:text-white focus:bg-violet-100 dark:focus:bg-white/10 focus:text-gray-900 dark:focus:text-white"
+                  className="cursor-pointer text-gray-700 dark:text-white/80 hover:text-gray-700 dark:hover:text-white focus:bg-violet-100 dark:focus:bg-white/10 focus:text-gray-700 dark:focus:text-white"
                 >
                   {a.name} ({a.email})
                 </DropdownMenuItem>
@@ -286,9 +290,9 @@ export default function FiltersAndActions({
       )}
 
       {/* Row 2: Left: Suppliers, Categories | Center: Search | Right: Status, Export */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4 flex-wrap w-full">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 flex-wrap w-full">
         {/* Left */}
-        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-4 flex-shrink-0 order-2 sm:order-1 w-full sm:w-auto">
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 flex-shrink-0 order-2 sm:order-1 w-full sm:w-auto">
           <SuppliersDropDown
             selectedSuppliers={selectedSuppliers}
             setSelectedSuppliers={setSelectedSuppliers}
@@ -309,7 +313,7 @@ export default function FiltersAndActions({
               placeholder="Search by Name or SKU..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="h-10 pl-9 pr-10 w-full rounded-[28px] bg-white/10 dark:bg-white/5 backdrop-blur-sm border border-sky-400/30 dark:border-white/20 text-gray-900 dark:text-white placeholder:text-gray-500 dark:placeholder:text-white/40 focus-visible:border-sky-400 focus-visible:ring-sky-500/50 shadow-[0_10px_30px_rgba(2,132,199,0.15)]"
+              className="h-10 pl-9 pr-10 w-full rounded-[28px] bg-white/10 dark:bg-white/5 backdrop-blur-sm border border-sky-400/30 dark:border-white/20 text-gray-700 dark:text-white placeholder:text-gray-500 dark:placeholder:text-white/40 focus-visible:border-sky-400 focus-visible:ring-sky-500/50 shadow-[0_10px_30px_rgba(2,132,199,0.15)]"
             />
             {searchTerm && (
               <Button
@@ -332,33 +336,36 @@ export default function FiltersAndActions({
           />
           {!hideImport && <ProductImportDialog />}
           <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="outline" className={exportButtonClass + " w-full sm:w-auto"}>
-                  <Download className="h-4 w-4" />
-                  Export Products
-                  <ChevronDown className="h-4 w-4" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent
-                align="end"
-                className="rounded-[28px] border border-violet-400/20 dark:border-white/10 bg-white/80 dark:bg-popover/50 backdrop-blur-sm"
+            <DropdownMenuTrigger asChild>
+              <Button
+                variant="outline"
+                className={exportButtonClass + " w-full sm:w-auto"}
               >
-                <DropdownMenuItem
-                  onClick={exportToCSV}
-                  className="cursor-pointer text-gray-700 dark:text-white/80 hover:text-gray-900 dark:hover:text-white focus:bg-violet-100 dark:focus:bg-white/10 focus:text-gray-900 dark:focus:text-white"
-                >
-                  <FiFileText className="mr-2 h-4 w-4" />
-                  Export as CSV
-                </DropdownMenuItem>
-                <DropdownMenuItem
-                  onClick={exportToExcel}
-                  className="cursor-pointer text-gray-700 dark:text-white/80 hover:text-gray-900 dark:hover:text-white focus:bg-violet-100 dark:focus:bg-white/10 focus:text-gray-900 dark:focus:text-white"
-                >
-                  <FiGrid className="mr-2 h-4 w-4" />
-                  Export as Excel
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+                <Download className="h-4 w-4" />
+                Export Products
+                <ChevronDown className="h-4 w-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent
+              align="end"
+              className="rounded-[28px] border border-violet-400/20 dark:border-white/10 bg-white/80 dark:bg-popover/50 backdrop-blur-sm"
+            >
+              <DropdownMenuItem
+                onClick={exportToCSV}
+                className="cursor-pointer text-gray-700 dark:text-white/80 hover:text-gray-700 dark:hover:text-white focus:bg-violet-100 dark:focus:bg-white/10 focus:text-gray-700 dark:focus:text-white"
+              >
+                <FiFileText className="mr-2 h-4 w-4" />
+                Export as CSV
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                onClick={exportToExcel}
+                className="cursor-pointer text-gray-700 dark:text-white/80 hover:text-gray-700 dark:hover:text-white focus:bg-violet-100 dark:focus:bg-white/10 focus:text-gray-700 dark:focus:text-white"
+              >
+                <FiGrid className="mr-2 h-4 w-4" />
+                Export as Excel
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
       </div>
 
@@ -398,7 +405,7 @@ function FilterArea({
   allSuppliers: Supplier[];
 }) {
   return (
-    <div className="flex flex-col sm:flex-row gap-3 poppins">
+    <div className="flex flex-col sm:flex-row gap-2 poppins">
       {/* Status Filter */}
       {selectedStatuses.length > 0 && (
         <div className="inline-flex items-center gap-1 px-2 py-1 text-xs border border-rose-400/30 bg-gradient-to-r from-rose-500/25 via-rose-500/10 to-rose-500/5 text-gray-700 dark:text-white sm:text-white rounded-md backdrop-blur-sm shadow-[0_10px_30px_rgba(225,29,72,0.2)]">
@@ -506,7 +513,7 @@ function FilterArea({
             setSelectedSuppliers([]);
           }}
           variant={"ghost"}
-          className="p-1 px-2 text-gray-700 dark:text-white/80 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-white/10 backdrop-blur-sm"
+          className="p-1 px-2 text-gray-700 dark:text-white/80 hover:text-gray-700 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-white/10 backdrop-blur-sm"
         >
           <span>Reset</span>
           <IoClose className="h-3 w-3 text-gray-700 dark:text-white" />

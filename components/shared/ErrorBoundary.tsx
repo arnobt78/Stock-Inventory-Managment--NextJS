@@ -45,9 +45,16 @@ export class ErrorBoundary extends Component<Props, State> {
 
   public componentDidCatch(error: Error, errorInfo: ErrorInfo) {
     // Radix Select portal teardown race — skip Sentry and crash UI (Safari + Chrome)
-    if (isRadixPortalRemoveChildError(error, errorInfo.componentStack ?? undefined)) {
+    if (
+      isRadixPortalRemoveChildError(
+        error,
+        errorInfo.componentStack ?? undefined,
+      )
+    ) {
       if (process.env.NODE_ENV === "development") {
-        logger.warn("ErrorBoundary: ignored Radix portal removeChild during navigation");
+        logger.warn(
+          "ErrorBoundary: ignored Radix portal removeChild during navigation",
+        );
       }
       return;
     }
@@ -104,7 +111,7 @@ export class ErrorBoundary extends Component<Props, State> {
         <div className="flex min-h-screen items-center justify-center p-4">
           <div className="max-w-md w-full space-y-4 text-center">
             <div className="space-y-2">
-              <h2 className="text-2xl font-semibold text-red-600">
+              <h2 className="text-lg sm:text-xl font-semibold text-red-600">
                 Something went wrong
               </h2>
               <p className="text-muted-foreground">

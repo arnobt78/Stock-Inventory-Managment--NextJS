@@ -1,37 +1,24 @@
 "use client";
 
-import React, { useLayoutEffect } from "react";
-import { useQueryClient } from "@tanstack/react-query";
+import React from "react";
 import ProductReviewList from "./ProductReviewList";
 import { PageContentWrapper } from "@/components/shared";
-import { queryKeys } from "@/lib/react-query";
 import type { ProductReview } from "@/types";
 
 export type AdminProductReviewsContentProps = {
   initialReviews?: ProductReview[];
 };
 
-/**
- * Admin Product Reviews section — list inside admin layout.
- * Matches AdminOrdersContent / AdminHistoryContent / AdminSupportTicketsContent pattern.
- */
+/** Admin Product Reviews — list inside admin layout (REQ-0021 initialData via props). */
 export default function AdminProductReviewsContent({
   initialReviews,
 }: AdminProductReviewsContentProps = {}) {
-  const queryClient = useQueryClient();
-
-  useLayoutEffect(() => {
-    if (initialReviews != null) {
-      queryClient.setQueryData(
-        queryKeys.productReviews.lists(),
-        initialReviews,
-      );
-    }
-  }, [queryClient, initialReviews]);
-
   return (
     <PageContentWrapper>
-      <ProductReviewList detailHrefBase="/admin/product-reviews" />
+      <ProductReviewList
+        detailHrefBase="/admin/product-reviews"
+        initialReviews={initialReviews}
+      />
     </PageContentWrapper>
   );
 }

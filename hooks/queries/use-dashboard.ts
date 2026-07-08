@@ -5,10 +5,11 @@
 
 import { useQuery } from "@tanstack/react-query";
 import { apiClient } from "@/lib/api";
-import { queryKeys } from "@/lib/react-query";
+import { queryKeys, withInitialData } from "@/lib/react-query";
 import { useAuth } from "@/contexts";
+import type { DashboardStats } from "@/types";
 
-export function useDashboard() {
+export function useDashboard(initialData?: DashboardStats | null) {
   const { user } = useAuth();
   const userId = user?.id ?? "";
 
@@ -19,5 +20,6 @@ export function useDashboard() {
       return response.data;
     },
     enabled: !!userId,
+    ...withInitialData(initialData ?? undefined),
   });
 }

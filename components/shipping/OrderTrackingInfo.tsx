@@ -137,7 +137,7 @@ export default function OrderTrackingInfo({
             ) : (
               <Truck className="h-5 w-5 text-primary dark:text-emerald-400" />
             )}
-            <h3 className="text-base font-semibold text-gray-900 dark:text-white">
+            <h3 className="text-base font-semibold text-gray-700 dark:text-white">
               {order.status === "delivered"
                 ? "Package Delivered"
                 : "Shipping Information"}
@@ -155,13 +155,13 @@ export default function OrderTrackingInfo({
       </div>
       <div className="space-y-4">
         {/* Tracking Number */}
-        <div className="flex items-center gap-3 p-3 rounded-xl border border-white/10 dark:border-white/10 bg-white/30 dark:bg-white/5">
+        <div className="flex items-center gap-2 p-2 rounded-xl border border-white/10 dark:border-white/10 bg-white/30 dark:bg-white/5">
           <Package className="h-5 w-5 text-gray-500 dark:text-white/60 shrink-0" />
           <div className="flex-1 min-w-0">
             <p className="text-xs text-gray-500 dark:text-white/60">
               Tracking Number
             </p>
-            <p className="font-mono font-medium text-sm text-gray-900 dark:text-white truncate">
+            <p className="font-mono font-medium text-sm text-gray-700 dark:text-white truncate">
               {order.trackingNumber}
             </p>
           </div>
@@ -170,7 +170,10 @@ export default function OrderTrackingInfo({
         {/* Track Package + Download Label PDF — same gradient shadow style as Update Order / Cancel Order */}
         <div className="flex flex-col sm:flex-row gap-2">
           {trackingUrl && (
-            <Button asChild className="flex-1 gap-2 rounded-xl border border-sky-400/30 bg-gradient-to-r from-sky-500/70 via-sky-500/50 to-sky-500/30 dark:from-sky-500/70 dark:via-sky-500/50 dark:to-sky-500/30 text-white shadow-[0_15px_35px_rgba(2,132,199,0.45)] dark:shadow-[0_15px_35px_rgba(2,132,199,0.25)] backdrop-blur-sm hover:border-sky-300/50 hover:from-sky-500/80 hover:via-sky-500/60 hover:to-sky-500/40 dark:hover:border-sky-300/50 transition-all duration-300 h-10">
+            <Button
+              asChild
+              className="flex-1 gap-2 rounded-xl border border-sky-400/30 bg-gradient-to-r from-sky-500/70 via-sky-500/50 to-sky-500/30 dark:from-sky-500/70 dark:via-sky-500/50 dark:to-sky-500/30 text-white shadow-[0_15px_35px_rgba(2,132,199,0.45)] dark:shadow-[0_15px_35px_rgba(2,132,199,0.25)] backdrop-blur-sm hover:border-sky-300/50 hover:from-sky-500/80 hover:via-sky-500/60 hover:to-sky-500/40 dark:hover:border-sky-300/50 transition-all duration-300 h-10"
+            >
               <a
                 href={trackingUrl}
                 target="_blank"
@@ -184,7 +187,10 @@ export default function OrderTrackingInfo({
             </Button>
           )}
           {order.labelUrl && (
-            <Button asChild className="flex-1 gap-2 rounded-xl border border-violet-400/30 bg-gradient-to-r from-violet-500/70 via-violet-500/50 to-violet-500/30 dark:from-violet-500/70 dark:via-violet-500/50 dark:to-violet-500/30 text-white shadow-[0_15px_35px_rgba(139,92,246,0.45)] dark:shadow-[0_15px_35px_rgba(139,92,246,0.25)] backdrop-blur-sm hover:border-violet-300/50 hover:from-violet-500/80 hover:via-violet-500/60 hover:to-violet-500/40 dark:hover:border-violet-300/50 transition-all duration-300 h-10">
+            <Button
+              asChild
+              className="flex-1 gap-2 rounded-xl border border-violet-400/30 bg-gradient-to-r from-violet-500/70 via-violet-500/50 to-violet-500/30 dark:from-violet-500/70 dark:via-violet-500/50 dark:to-violet-500/30 text-white shadow-[0_15px_35px_rgba(139,92,246,0.45)] dark:shadow-[0_15px_35px_rgba(139,92,246,0.25)] backdrop-blur-sm hover:border-violet-300/50 hover:from-violet-500/80 hover:via-violet-500/60 hover:to-violet-500/40 dark:hover:border-violet-300/50 transition-all duration-300 h-10"
+            >
               <a
                 href={order.labelUrl}
                 target="_blank"

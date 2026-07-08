@@ -33,7 +33,11 @@ const invoiceStatuses: InvoiceStatusOption[] = [
   { value: "draft", label: "Draft", icon: <FileText className="h-4 w-4" /> },
   { value: "sent", label: "Sent", icon: <Clock className="h-4 w-4" /> },
   { value: "paid", label: "Paid", icon: <CheckCircle className="h-4 w-4" /> },
-  { value: "overdue", label: "Overdue", icon: <AlertTriangle className="h-4 w-4" /> },
+  {
+    value: "overdue",
+    label: "Overdue",
+    icon: <AlertTriangle className="h-4 w-4" />,
+  },
   { value: "cancelled", label: "Cancelled", icon: <X className="h-4 w-4" /> },
 ];
 
@@ -104,7 +108,7 @@ export function InvoiceStatusDropDown({
               <CommandGroup>
                 {invoiceStatuses.map((status) => (
                   <CommandItem
-                    className="h-10 mb-2 flex items-center text-gray-700 dark:text-white/80 focus:bg-rose-100 dark:focus:bg-white/10 focus:text-gray-900 dark:focus:text-white"
+                    className="h-10 mb-2 flex items-center text-gray-700 dark:text-white/80 focus:bg-rose-100 dark:focus:bg-white/10 focus:text-gray-700 dark:focus:text-white"
                     key={status.value}
                     value={status.value}
                     onClick={() => handleCheckboxChange(status.value)}
@@ -116,7 +120,7 @@ export function InvoiceStatusDropDown({
                     />
                     <div
                       className={`flex items-center gap-1 ${returnColor(
-                        status.value
+                        status.value,
                       )} p-1 rounded-lg px-4 text-[13px]`}
                     >
                       {status.icon}
@@ -133,7 +137,7 @@ export function InvoiceStatusDropDown({
               <Separator className="bg-gray-300/50 dark:bg-white/10" />
               <Button
                 variant="ghost"
-                className="text-[12px] mb-1 text-gray-700 dark:text-white/80 hover:text-gray-900 dark:hover:text-white hover:bg-rose-100 dark:hover:bg-white/10"
+                className="text-[12px] mb-1 text-gray-700 dark:text-white/80 hover:text-gray-700 dark:hover:text-white hover:bg-rose-100 dark:hover:bg-white/10"
                 onClick={clearFilters}
               >
                 Clear Filters

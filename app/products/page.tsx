@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import { redirect } from "next/navigation";
 import { getSession } from "@/lib/auth-server";
 import ProductsPage from "@/components/Pages/ProductsPage";
@@ -8,14 +9,7 @@ import {
 } from "@/lib/server/home-data";
 import { getSupplierByUserId } from "@/prisma/supplier";
 
-/**
- * Products route — server component.
- * If user is not logged in, redirect to login.
- * Client role: ProductsPage renders ClientProductList (browse by owner).
- * Supplier role: show only products where supplierId = their linked supplier.
- * Admin/User: show their own products.
- * Client: initialOwnerId from ?ownerId= for catalog deep links.
- */
+/** REQ-0021 — session shell + Suspense-streamed products */
 export default async function ProductsRoute({
   searchParams,
 }: {
@@ -25,23 +19,60 @@ export default async function ProductsRoute({
   if (!user) {
     redirect("/login");
   }
+
   const params = await searchParams;
   const initialOwnerId = params?.ownerId ?? "";
+
+  return (
+    <Suspense
+      fallback={
+        <ProductsPage
+          userRole={user.role ?? undefined}
+          initialOwnerId={initialOwnerId}
+        />
+      }
+    >
+      <ProductsPageWithData
+        userId={user.id}
+        userRole={user.role ?? undefined}
+        initialOwnerId={initialOwnerId}
+      />
+    </Suspense>
+  );
+}
+
+async function ProductsPageWithData({
+  userId,
+  userRole,
+  initialOwnerId,
+}: {
+  userId: string;
+  userRole?: string;
+  initialOwnerId: string;
+}) {
   let initialProducts: ProductForHome[];
-  if (user.role === "client") {
+
+  if (userRole === "client") {
     initialProducts = [];
-  } else if (user.role === "supplier") {
-    const supplier = await getSupplierByUserId(user.id);
-    initialProducts = supplier
-      ? await getProductsBySupplierId(supplier.id)
-      : [];
   } else {
-    initialProducts = await getProductsForUser(user.id);
+    const [supplier, ownerProducts] = await Promise.all([
+      userRole === "supplier" ? getSupplierByUserId(userId) : Promise.resolve(null),
+      userRole !== "supplier"
+        ? getProductsForUser(userId)
+        : Promise.resolve(null as ProductForHome[] | null),
+    ]);
+    initialProducts =
+      userRole === "supplier"
+        ? supplier
+          ? await getProductsBySupplierId(supplier.id)
+          : []
+        : (ownerProducts ?? []);
   }
+
   return (
     <ProductsPage
       initialProducts={initialProducts}
-      userRole={user.role ?? undefined}
+      userRole={userRole}
       initialOwnerId={initialOwnerId}
     />
   );

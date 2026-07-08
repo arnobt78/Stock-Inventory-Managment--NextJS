@@ -104,31 +104,37 @@ export function QRCodeComponent({
     "bg-gradient-to-br from-gray-700/95 via-gray-600/90 to-gray-700/95 dark:from-white/10 dark:via-white/5 dark:to-white/5",
     "backdrop-blur-sm shadow-[0_20px_50px_rgba(0,0,0,0.15)] dark:shadow-[0_20px_50px_rgba(0,0,0,0.35)]",
     "p-4",
-    className
+    className,
   );
 
   // Don't render QR code until mounted to prevent hydration mismatch
   if (!isMounted) {
     return (
       <div className={cardClassName}>
-        <div className="pb-2 flex items-center gap-2 text-white">
+        <div className=" flex items-center gap-2 text-white">
           <QrCode className="h-4 w-4" />
           <span className="text-sm font-medium">{title}</span>
         </div>
-        <Skeleton className="w-full h-full rounded-lg bg-white/20 dark:bg-white/10" style={{ width: size, height: size }} />
+        <Skeleton
+          className="w-full h-full rounded-lg bg-white/20 dark:bg-white/10"
+          style={{ width: size, height: size }}
+        />
       </div>
     );
   }
 
   return (
     <div className={cardClassName}>
-      <div className="pb-2 flex items-center gap-2 text-white">
+      <div className=" flex items-center gap-2 text-white">
         <QrCode className="h-4 w-4" />
         <span className="text-sm font-medium">{title}</span>
       </div>
-      <div className="flex flex-col items-center gap-3 pt-0">
+      <div className="flex flex-col items-center gap-2 pt-0">
         {isLoading ? (
-          <Skeleton className="w-full h-full rounded-lg bg-white/20 dark:bg-white/10" style={{ width: size, height: size }} />
+          <Skeleton
+            className="w-full h-full rounded-lg bg-white/20 dark:bg-white/10"
+            style={{ width: size, height: size }}
+          />
         ) : (
           <Image
             src={qrCodeUrl}

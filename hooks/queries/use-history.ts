@@ -5,18 +5,17 @@
 
 import { useQuery } from "@tanstack/react-query";
 import { apiClient } from "@/lib/api";
-import { queryKeys } from "@/lib/react-query";
+import { queryKeys, withInitialData } from "@/lib/react-query";
+import type { ImportHistoryForPage } from "@/types";
 
-/**
- * Fetch all import history for the authenticated user
- */
-export function useHistory() {
+export function useHistory(initialData?: ImportHistoryForPage[]) {
   return useQuery({
     queryKey: queryKeys.history.lists(),
     queryFn: async () => {
       const response = await apiClient.importHistory.getAll();
       return response.data;
     },
+    ...withInitialData(initialData),
   });
 }
 

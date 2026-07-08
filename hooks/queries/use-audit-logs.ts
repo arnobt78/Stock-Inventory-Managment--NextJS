@@ -4,7 +4,7 @@
 
 import { useQuery } from "@tanstack/react-query";
 import { apiClient } from "@/lib/api";
-import { queryKeys } from "@/lib/react-query";
+import { queryKeys, withInitialData } from "@/lib/react-query";
 import type { AuditLog, AuditLogFilters } from "@/types";
 
 export type ActivityLogPeriod = "today" | "7days" | "month";
@@ -28,6 +28,7 @@ export function useAuditLogs(
     limit?: number;
     period?: ActivityLogPeriod;
   },
+  initialData?: AuditLogsResponse,
 ) {
   return useQuery({
     queryKey: queryKeys.auditLogs.list(
@@ -37,5 +38,6 @@ export function useAuditLogs(
       const response = await apiClient.auditLogs.getAll(filters);
       return response.data;
     },
+    ...withInitialData(initialData),
   });
 }

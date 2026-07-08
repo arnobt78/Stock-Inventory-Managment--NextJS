@@ -49,7 +49,7 @@ const getRoboHashAvatarUrl = (nameOrId: string): string => {
 
 /** Plain dropdown panel: solid background for readability in light and dark mode */
 const DROPDOWN_CONTENT_CLASS =
-  "bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white shadow-lg dark:shadow-black/30 rounded-md";
+  "bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-white shadow-lg dark:shadow-black/30 rounded-md";
 
 /** Plain dropdown item: readable text and subtle hover (no heavy gradients) */
 const DROPDOWN_ITEM_CLASS =
@@ -252,9 +252,9 @@ export default function Navbar({ children }: NavbarProps) {
         Skip to main content
       </a>
       {/* min-w-0 on flex children instead of overflow-x-hidden — hidden overflow-y would clip notification portal ancestors */}
-      <div className="mx-auto flex w-full h-full max-w-9xl min-w-0 items-center justify-between gap-2 sm:gap-4 px-2 sm:px-4 lg:px-6">
+      <div className="mx-auto flex w-full h-full max-w-9xl min-w-0 items-center justify-between gap-2 px-2 sm:px-4 lg:px-6">
         {/* Left Section - Logo and Brand */}
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2">
           <div
             role="button"
             tabIndex={0}
@@ -268,10 +268,10 @@ export default function Navbar({ children }: NavbarProps) {
               }
             }}
           >
-            <AiFillProduct className="text-2xl text-rose-600 dark:text-rose-400 transition-transform group-hover:scale-110 drop-shadow-[0_2px_8px_rgba(225,29,72,0.4)]" />
+            <AiFillProduct className="text-lg sm:text-xl text-rose-600 dark:text-rose-400 transition-transform group-hover:scale-110 drop-shadow-[0_2px_8px_rgba(225,29,72,0.4)]" />
           </div>
           <h1 className="text-lg font-semibold tracking-tight bg-gradient-to-r from-rose-600 to-gray-900 dark:from-rose-400 dark:to-gray-100 bg-clip-text text-transparent lg:text-xl transition-all duration-300 ease-in-out hover:from-rose-700 hover:to-gray-950 dark:hover:from-rose-300 dark:hover:to-gray-50 cursor-pointer">
-            Stock Inventory
+            Stockly
           </h1>
         </div>
 
@@ -295,13 +295,13 @@ export default function Navbar({ children }: NavbarProps) {
                   <DropdownMenuContent
                     align="start"
                     sideOffset={2}
-                    className="w-48 border border-white/10 dark:border-white/10 bg-gradient-to-br from-white/80 via-white/70 to-white/60 dark:from-white/10 dark:via-white/10 dark:to-white/5 backdrop-blur-sm shadow-[0_10px_30px_rgba(0,0,0,0.2)] dark:shadow-[0_10px_30px_rgba(0,0,0,0.4)] text-gray-900 dark:text-white"
+                    className="w-48 border border-white/10 dark:border-white/10 bg-gradient-to-br from-white/80 via-white/70 to-white/60 dark:from-white/10 dark:via-white/10 dark:to-white/5 backdrop-blur-sm shadow-[0_10px_30px_rgba(0,0,0,0.2)] dark:shadow-[0_10px_30px_rgba(0,0,0,0.4)] text-gray-700 dark:text-white"
                   >
                     {item.dropdownItems.map((sub) => (
                       <DropdownMenuItem
                         key={sub.path}
                         onSelect={() => handleNavigation(sub.path)}
-                        className="text-gray-700 dark:text-muted-foreground hover:text-gray-900 dark:hover:text-foreground hover:bg-gradient-to-br hover:from-sky-500/10 hover:via-sky-500/5 hover:to-sky-500/5 dark:hover:from-white/10 dark:hover:via-white/5 dark:hover:to-white/5 cursor-pointer"
+                        className="text-gray-700 dark:text-muted-foreground hover:text-gray-700 dark:hover:text-foreground hover:bg-gradient-to-br hover:from-sky-500/10 hover:via-sky-500/5 hover:to-sky-500/5 dark:hover:from-white/10 dark:hover:via-white/5 dark:hover:to-white/5 cursor-pointer"
                       >
                         {sub.label}
                       </DropdownMenuItem>
@@ -363,7 +363,7 @@ export default function Navbar({ children }: NavbarProps) {
                       priority
                     />
                   ) : (
-                    <span className="text-sm font-semibold text-gray-900 dark:text-foreground">
+                    <span className="text-sm font-semibold text-gray-700 dark:text-foreground">
                       {user?.email?.[0]?.toUpperCase() || "U"}
                     </span>
                   )}
@@ -374,9 +374,9 @@ export default function Navbar({ children }: NavbarProps) {
                 className={`w-56 ${DROPDOWN_CONTENT_CLASS}`}
               >
                 <DropdownMenuLabel className="font-normal px-3 py-2">
-                  <div className="flex flex-col space-y-1">
+                  <div className="flex flex-col ">
                     {user?.name && (
-                      <p className="text-sm leading-none text-gray-900 dark:text-white">
+                      <p className="text-sm leading-none text-gray-700 dark:text-white">
                         {user.name}
                       </p>
                     )}
@@ -451,7 +451,7 @@ export default function Navbar({ children }: NavbarProps) {
               aria-expanded={isMobileMenuOpen}
               aria-controls="mobile-menu-panel"
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-              className="h-8 w-8 sm:h-10 sm:w-10 text-gray-900 dark:text-foreground hover:bg-gradient-to-br hover:from-sky-500/10 hover:via-sky-500/5 hover:to-sky-500/5 dark:hover:from-white/10 dark:hover:via-white/5 dark:hover:to-white/5 hover:backdrop-blur-sm transition-all duration-300 ease-in-out"
+              className="h-8 w-8 sm:h-10 sm:w-10 text-gray-700 dark:text-foreground hover:bg-gradient-to-br hover:from-sky-500/10 hover:via-sky-500/5 hover:to-sky-500/5 dark:hover:from-white/10 dark:hover:via-white/5 dark:hover:to-white/5 hover:backdrop-blur-sm transition-all duration-300 ease-in-out"
             >
               {isMobileMenuOpen ? (
                 <X className="h-4 w-4 sm:h-5 sm:w-5" />
@@ -471,9 +471,9 @@ export default function Navbar({ children }: NavbarProps) {
           aria-label="Mobile navigation"
           className="xl:hidden border-t border-white/10 dark:border-white/10 bg-gradient-to-br from-white/95 via-white/90 to-white/85 dark:from-white/10 dark:via-white/10 dark:to-white/5 backdrop-blur-xl max-h-[calc(100vh-3.5rem)] overflow-y-auto"
         >
-          <div className="mx-auto w-full max-w-9xl px-2 sm:px-4 lg:px-6 sm:py-6 space-y-3">
+          <div className="mx-auto w-full max-w-9xl px-2 sm:px-4 lg:px-6 sm:py-6 space-y-2">
             {/* User Email with Avatar */}
-            <div className="flex items-center gap-3 px-2 py-2">
+            <div className="flex items-center gap-2 px-2 py-2">
               {isCheckingAuth ? (
                 <div className="h-10 w-10 rounded-full bg-gray-200 dark:bg-gray-700 animate-pulse" />
               ) : (
@@ -505,21 +505,21 @@ export default function Navbar({ children }: NavbarProps) {
             <Separator className="bg-gray-300/50 dark:bg-white/10" />
 
             {/* Navigation Items */}
-            <nav className="space-y-1">
+            <nav className="">
               {navItems.map((item) => {
                 // API dropdown (mobile: label + sub-links)
                 if (item.hasDropdown && "dropdownItems" in item) {
                   return (
-                    <div key={item.label} className="space-y-1">
+                    <div key={item.label} className="">
                       <p className="px-3 py-2 text-xs font-semibold text-gray-500 dark:text-muted-foreground uppercase tracking-wider">
                         {item.label}
                       </p>
-                      <div className="pl-4 space-y-1">
+                      <div className="pl-4 ">
                         {item.dropdownItems.map((sub) => (
                           <Button
                             key={sub.path}
                             variant="ghost"
-                            className="w-full justify-start text-gray-600 dark:text-muted-foreground hover:text-gray-900 dark:hover:text-foreground hover:bg-gradient-to-br hover:from-sky-500/10 hover:via-sky-500/5 hover:to-sky-500/5 dark:hover:from-white/10 dark:hover:via-white/5 dark:hover:to-white/5 hover:backdrop-blur-sm transition-all duration-300 ease-in-out px-3 py-2.5 h-auto min-h-[40px] text-sm"
+                            className="w-full justify-start text-gray-600 dark:text-muted-foreground hover:text-gray-700 dark:hover:text-foreground hover:bg-gradient-to-br hover:from-sky-500/10 hover:via-sky-500/5 hover:to-sky-500/5 dark:hover:from-white/10 dark:hover:via-white/5 dark:hover:to-white/5 hover:backdrop-blur-sm transition-all duration-300 ease-in-out px-3 py-2.5 h-auto min-h-[40px] text-sm"
                             onClick={() => {
                               handleNavigation(sub.path);
                             }}
@@ -536,7 +536,7 @@ export default function Navbar({ children }: NavbarProps) {
                   <Button
                     key={item.path}
                     variant="ghost"
-                    className="w-full justify-start text-gray-700 dark:text-muted-foreground hover:text-gray-900 dark:hover:text-foreground hover:bg-gradient-to-br hover:from-sky-500/10 hover:via-sky-500/5 hover:to-sky-500/5 dark:hover:from-white/10 dark:hover:via-white/5 dark:hover:to-white/5 hover:backdrop-blur-sm transition-all duration-300 ease-in-out px-3 py-3.5 h-auto min-h-[44px]"
+                    className="w-full justify-start text-gray-700 dark:text-muted-foreground hover:text-gray-700 dark:hover:text-foreground hover:bg-gradient-to-br hover:from-sky-500/10 hover:via-sky-500/5 hover:to-sky-500/5 dark:hover:from-white/10 dark:hover:via-white/5 dark:hover:to-white/5 hover:backdrop-blur-sm transition-all duration-300 ease-in-out px-3 py-3.5 h-auto min-h-[44px]"
                     onClick={() => handleNavigation(item.path)}
                   >
                     {item.label}
@@ -550,7 +550,7 @@ export default function Navbar({ children }: NavbarProps) {
             {/* Support Tickets */}
             <Button
               variant="ghost"
-              className="w-full justify-start text-gray-700 dark:text-muted-foreground hover:text-gray-900 dark:hover:text-foreground hover:bg-gradient-to-br hover:from-sky-500/10 hover:via-sky-500/5 hover:to-sky-500/5 dark:hover:from-white/10 dark:hover:via-white/5 dark:hover:to-white/5 hover:backdrop-blur-sm transition-all duration-300 ease-in-out px-3 py-3.5 h-auto min-h-[44px]"
+              className="w-full justify-start text-gray-700 dark:text-muted-foreground hover:text-gray-700 dark:hover:text-foreground hover:bg-gradient-to-br hover:from-sky-500/10 hover:via-sky-500/5 hover:to-sky-500/5 dark:hover:from-white/10 dark:hover:via-white/5 dark:hover:to-white/5 hover:backdrop-blur-sm transition-all duration-300 ease-in-out px-3 py-3.5 h-auto min-h-[44px]"
               onClick={() => {
                 router.push("/support-tickets");
                 setIsMobileMenuOpen(false);
@@ -563,7 +563,7 @@ export default function Navbar({ children }: NavbarProps) {
             {/* Email Preferences */}
             <Button
               variant="ghost"
-              className="w-full justify-start text-gray-700 dark:text-muted-foreground hover:text-gray-900 dark:hover:text-foreground hover:bg-gradient-to-br hover:from-sky-500/10 hover:via-sky-500/5 hover:to-sky-500/5 dark:hover:from-white/10 dark:hover:via-white/5 dark:hover:to-white/5 hover:backdrop-blur-sm transition-all duration-300 ease-in-out px-3 py-3.5 h-auto min-h-[44px]"
+              className="w-full justify-start text-gray-700 dark:text-muted-foreground hover:text-gray-700 dark:hover:text-foreground hover:bg-gradient-to-br hover:from-sky-500/10 hover:via-sky-500/5 hover:to-sky-500/5 dark:hover:from-white/10 dark:hover:via-white/5 dark:hover:to-white/5 hover:backdrop-blur-sm transition-all duration-300 ease-in-out px-3 py-3.5 h-auto min-h-[44px]"
               onClick={() => {
                 router.push("/settings/email-preferences");
                 setIsMobileMenuOpen(false);
@@ -589,7 +589,7 @@ export default function Navbar({ children }: NavbarProps) {
             {/* API Status */}
             <Button
               variant="ghost"
-              className="w-full justify-start text-gray-700 dark:text-muted-foreground hover:text-gray-900 dark:hover:text-foreground hover:bg-gradient-to-br hover:from-sky-500/10 hover:via-sky-500/5 hover:to-sky-500/5 dark:hover:from-white/10 dark:hover:via-white/5 dark:hover:to-white/5 hover:backdrop-blur-sm transition-all duration-300 ease-in-out px-3 py-3.5 h-auto min-h-[44px]"
+              className="w-full justify-start text-gray-700 dark:text-muted-foreground hover:text-gray-700 dark:hover:text-foreground hover:bg-gradient-to-br hover:from-sky-500/10 hover:via-sky-500/5 hover:to-sky-500/5 dark:hover:from-white/10 dark:hover:via-white/5 dark:hover:to-white/5 hover:backdrop-blur-sm transition-all duration-300 ease-in-out px-3 py-3.5 h-auto min-h-[44px]"
               onClick={() => {
                 router.push("/api-status");
                 setIsMobileMenuOpen(false);
@@ -604,7 +604,7 @@ export default function Navbar({ children }: NavbarProps) {
             {/* Logout */}
             <Button
               variant="ghost"
-              className="w-full justify-start text-gray-700 dark:text-muted-foreground hover:text-gray-900 dark:hover:text-foreground hover:bg-gradient-to-br hover:from-rose-500/10 hover:via-rose-500/5 hover:to-rose-500/5 dark:hover:from-white/10 dark:hover:via-white/5 dark:hover:to-white/5 hover:backdrop-blur-sm transition-all duration-300 ease-in-out px-3 py-3.5 h-auto min-h-[44px]"
+              className="w-full justify-start text-gray-700 dark:text-muted-foreground hover:text-gray-700 dark:hover:text-foreground hover:bg-gradient-to-br hover:from-rose-500/10 hover:via-rose-500/5 hover:to-rose-500/5 dark:hover:from-white/10 dark:hover:via-white/5 dark:hover:to-white/5 hover:backdrop-blur-sm transition-all duration-300 ease-in-out px-3 py-3.5 h-auto min-h-[44px]"
               onClick={handleLogout}
               disabled={isLoggingOut}
             >

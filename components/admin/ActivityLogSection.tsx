@@ -1,14 +1,13 @@
 "use client";
 
-import React, { useMemo, useState, useLayoutEffect } from "react";
+import React, { useMemo, useState } from "react";
 import { DeferredSelectGate } from "@/components/shared";
 import Link from "next/link";
-import { useQueryClient } from "@tanstack/react-query";
 import {
   useAuditLogs,
   type ActivityLogPeriod,
 } from "@/hooks/queries/use-audit-logs";
-import { queryKeys } from "@/lib/react-query";
+import { isDataSlotLoading } from "@/lib/react-query";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 import type { AuditLog, AuditAction } from "@/types";
@@ -38,6 +37,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { TableBodyPulseRows } from "@/components/ui/table-data-skeleton";
 
 const PERIODS: { value: ActivityLogPeriod; label: string }[] = [
   { value: "today", label: "Today" },
@@ -211,19 +211,15 @@ export default function ActivityLogSection({
   initialLogs,
   initialPeriod = "7days",
 }: ActivityLogSectionProps) {
-  const queryClient = useQueryClient();
   const [period, setPeriod] = useState<ActivityLogPeriod>(initialPeriod);
   const [searchTerm, setSearchTerm] = useState("");
-  const { data, isPending } = useAuditLogs({ period });
-
-  useLayoutEffect(() => {
-    if (initialLogs != null && initialPeriod === period) {
-      queryClient.setQueryData(
-        queryKeys.auditLogs.list({ period: initialPeriod }),
-        { logs: initialLogs, pagination: null },
-      );
-    }
-  }, [queryClient, initialLogs, initialPeriod, period]);
+  const initialAuditData =
+    initialLogs != null && period === initialPeriod
+      ? { logs: initialLogs, pagination: null }
+      : undefined;
+  const auditQuery = useAuditLogs({ period }, initialAuditData);
+  const data = auditQuery.data;
+  const dataLoading = isDataSlotLoading(auditQuery, initialAuditData);
 
   const rawLogs =
     data?.logs ?? (period === initialPeriod ? (initialLogs ?? []) : []);
@@ -348,19 +344,19 @@ export default function ActivityLogSection({
   return (
     <article
       className={cn(
-        "rounded-[20px] border p-4 sm:p-6 backdrop-blur-sm mt-8",
+        "rounded-[20px] border p-2 sm:p-4 backdrop-blur-sm mt-8",
         "bg-white/60 dark:bg-white/5",
         variantConfig.border,
         variantConfig.gradient,
         variantConfig.shadow,
       )}
     >
-      <div className="flex flex-col gap-4 mb-4">
+      <div className="flex flex-col gap-2 mb-4">
         <div className="flex flex-col">
-          <h2 className="text-xl sm:text-2xl font-semibold text-gray-900 dark:text-white pb-2">
+          <h2 className="text-lg sm:text-xl font-semibold text-gray-700 dark:text-white ">
             Activity Logs
           </h2>
-          <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400">
+          <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">
             Your actions & activities (create, update, delete). Last{" "}
             {period === "today"
               ? "24 hours"
@@ -370,28 +366,28 @@ export default function ActivityLogSection({
             .
           </p>
         </div>
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
           <div className="relative flex-1 sm:max-w-md">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-600 dark:text-white/60 z-10" />
             <Input
               placeholder="Search by user, action, entity..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="h-10 pl-9 pr-10 w-full rounded-[28px] bg-white/10 dark:bg-white/5 backdrop-blur-sm border border-sky-400/30 dark:border-white/20 text-gray-900 dark:text-white placeholder:text-gray-500 dark:placeholder:text-white/40 focus-visible:border-sky-400 focus-visible:ring-sky-500/50 shadow-[0_10px_30px_rgba(2,132,199,0.15)]"
+              className="h-10 pl-9 pr-10 w-full rounded-[28px] bg-white/10 dark:bg-white/5 backdrop-blur-sm border border-sky-400/30 dark:border-white/20 text-gray-700 dark:text-white placeholder:text-gray-500 dark:placeholder:text-white/40 focus-visible:border-sky-400 focus-visible:ring-sky-500/50 shadow-[0_10px_30px_rgba(2,132,199,0.15)]"
             />
             {searchTerm && (
               <Button
                 variant="ghost"
                 size="sm"
                 onClick={() => setSearchTerm("")}
-                className="absolute right-1 top-1/2 -translate-y-1/2 h-8 w-8 p-0 text-gray-700 dark:text-white/60 hover:text-gray-900 dark:hover:text-white hover:bg-white/10"
+                className="absolute right-1 top-1/2 -translate-y-1/2 h-8 w-8 p-0 text-gray-700 dark:text-white/60 hover:text-gray-700 dark:hover:text-white hover:bg-white/10"
               >
                 <IoClose className="h-4 w-4" />
               </Button>
             )}
           </div>
           <DeferredSelectGate
-            enabled={!isPending}
+            enabled={!dataLoading}
             placeholder={
               <div
                 className={cn(
@@ -402,7 +398,8 @@ export default function ActivityLogSection({
                 )}
                 aria-hidden
               >
-                {PERIODS.find((p) => p.value === period)?.label ?? "Last 7 days"}
+                {PERIODS.find((p) => p.value === period)?.label ??
+                  "Last 7 days"}
               </div>
             }
           >
@@ -442,17 +439,36 @@ export default function ActivityLogSection({
           </DeferredSelectGate>
         </div>
       </div>
-      {isPending && logs.length === 0 ? (
-        <div className="space-y-2">
-          {[1, 2, 3, 4].map((i) => (
-            <div
-              key={i}
-              className="h-12 rounded-xl bg-gray-200/50 dark:bg-white/10 animate-pulse"
-            />
-          ))}
+      {dataLoading && logs.length === 0 ? (
+        <div className="overflow-x-auto rounded-xl border border-violet-200/30 dark:border-white/10">
+          <Table>
+            <TableHeader>
+              {table.getHeaderGroups().map((headerGroup) => (
+                <TableRow
+                  key={headerGroup.id}
+                  className="border-violet-200/30 dark:border-white/10 bg-white/40 dark:bg-white/5 hover:bg-transparent"
+                >
+                  {headerGroup.headers.map((header) => (
+                    <TableHead
+                      key={header.id}
+                      className="font-medium text-gray-700 dark:text-gray-300"
+                    >
+                      {header.isPlaceholder
+                        ? null
+                        : flexRender(
+                            header.column.columnDef.header,
+                            header.getContext(),
+                          )}
+                    </TableHead>
+                  ))}
+                </TableRow>
+              ))}
+            </TableHeader>
+            <TableBodyPulseRows rows={6} columnCount={5} />
+          </Table>
         </div>
       ) : logs.length === 0 ? (
-        <p className="text-sm sm:text-base text-gray-500 dark:text-gray-500 py-6 text-center">
+        <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-500 py-6 text-center">
           {searchTerm.trim()
             ? "No matching activity."
             : "No activity in this period."}

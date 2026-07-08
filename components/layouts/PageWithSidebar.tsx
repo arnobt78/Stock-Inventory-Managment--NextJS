@@ -20,7 +20,7 @@ export default function PageWithSidebar({
   children,
 }: PageWithSidebarProps) {
   return (
-    <div className="flex w-full gap-0 sm:gap-4 min-h-0">
+    <div className="flex w-full gap-0 sm:gap-2 min-h-0">
       {/* Collapsed sidebar — phone only */}
       {sidebarCollapsed && (
         <aside

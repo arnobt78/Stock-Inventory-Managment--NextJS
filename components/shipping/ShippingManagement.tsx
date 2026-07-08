@@ -145,7 +145,7 @@ export default function ShippingManagement({
           </Button>
         )}
       </DialogTrigger>
-      <DialogContent className="p-4 sm:p-7 sm:px-8 poppins max-h-[90vh] overflow-y-auto flex flex-col overflow-hidden gap-8 border-emerald-400/30 dark:border-emerald-400/30 shadow-[0_30px_80px_rgba(16,185,129,0.35)] dark:shadow-[0_30px_80px_rgba(16,185,129,0.25)]">
+      <DialogContent className="p-4 sm:p-7 sm:px-8 poppins max-h-[90vh] overflow-y-auto flex flex-col overflow-hidden gap-4 sm:p-6 border-emerald-400/30 dark:border-emerald-400/30 shadow-[0_30px_80px_rgba(16,185,129,0.35)] dark:shadow-[0_30px_80px_rgba(16,185,129,0.25)]">
         <DialogHeader className="flex-shrink-0">
           <DialogTitle className="flex items-center gap-2 text-white">
             <Package className="h-5 w-5" />
@@ -159,7 +159,7 @@ export default function ShippingManagement({
           </DialogDescription>
         </DialogHeader>
 
-        <div className="flex flex-col gap-4 overflow-y-auto flex-1 pr-1 min-h-[340px]">
+        <div className="flex flex-col gap-2 overflow-y-auto flex-1 pr-1 min-h-[340px]">
           <Tabs
             value={activeTab}
             onValueChange={(v) => setActiveTab(v as "auto" | "manual")}
@@ -187,7 +187,7 @@ export default function ShippingManagement({
               value="auto"
               className="space-y-4 mt-4 flex-1 min-h-0 data-[state=inactive]:hidden"
             >
-              <div className="rounded-lg border border-amber-200 bg-amber-50 dark:bg-amber-950/30 dark:border-amber-800 p-3">
+              <div className="rounded-lg border border-amber-200 bg-amber-50 dark:bg-amber-950/30 dark:border-amber-800 p-2">
                 <div className="flex items-start gap-2">
                   <AlertTriangle className="h-4 w-4 text-amber-600 mt-0.5 shrink-0" />
                   <p className="text-xs text-amber-700 dark:text-amber-400">
@@ -237,7 +237,7 @@ export default function ShippingManagement({
                           <SelectItem
                             key={c.value}
                             value={c.value}
-                            className="cursor-pointer text-gray-900 dark:text-white focus:bg-emerald-100 dark:focus:bg-white/10 focus:text-gray-900 dark:focus:text-white"
+                            className="cursor-pointer text-gray-700 dark:text-white focus:bg-emerald-100 dark:focus:bg-white/10 focus:text-gray-700 dark:focus:text-white"
                           >
                             {c.label}
                           </SelectItem>
@@ -317,7 +317,7 @@ export default function ShippingManagement({
                           <SelectItem
                             key={c.value}
                             value={c.value}
-                            className="cursor-pointer text-gray-900 dark:text-white focus:bg-emerald-100 dark:focus:bg-white/10 focus:text-gray-900 dark:focus:text-white"
+                            className="cursor-pointer text-gray-700 dark:text-white focus:bg-emerald-100 dark:focus:bg-white/10 focus:text-gray-700 dark:focus:text-white"
                           >
                             {c.label}
                           </SelectItem>

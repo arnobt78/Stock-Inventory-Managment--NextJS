@@ -1,38 +1,25 @@
 "use client";
 
-import React, { useLayoutEffect } from "react";
-import { useQueryClient } from "@tanstack/react-query";
+import React from "react";
 import InvoiceList from "@/components/invoices/InvoiceList";
 import { PageContentWrapper } from "@/components/shared";
 import FloatingActionButtons from "@/components/shared/FloatingActionButtons";
-import { queryKeys } from "@/lib/react-query";
 import type { InvoiceForPage } from "@/lib/server/invoices-data";
 
 export type AdminPersonalInvoicesContentProps = {
   initialInvoices?: InvoiceForPage[];
 };
 
-/**
- * Admin Personal Invoices — invoices for my orders, inside admin layout.
- * Reuses InvoiceList with detail links to /admin/personal-invoices/[id].
- */
+/** Admin Personal Invoices — REQ-0021 initialData via props. */
 export default function AdminPersonalInvoicesContent({
   initialInvoices,
 }: AdminPersonalInvoicesContentProps = {}) {
-  const queryClient = useQueryClient();
-
-  useLayoutEffect(() => {
-    if (initialInvoices != null) {
-      queryClient.setQueryData(
-        queryKeys.invoices.list(undefined),
-        initialInvoices,
-      );
-    }
-  }, [queryClient, initialInvoices]);
-
   return (
     <PageContentWrapper>
-      <InvoiceList detailHrefBase="/admin/personal-invoices" />
+      <InvoiceList
+        detailHrefBase="/admin/personal-invoices"
+        initialInvoices={initialInvoices}
+      />
       <FloatingActionButtons variant="invoices" />
     </PageContentWrapper>
   );

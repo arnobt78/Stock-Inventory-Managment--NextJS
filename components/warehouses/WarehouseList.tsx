@@ -11,14 +11,14 @@ import dynamic from "next/dynamic";
 import { usePathname } from "next/navigation";
 import { PaginationType } from "@/components/shared/PaginationSelector";
 import { createWarehouseColumns } from "./WarehouseTableColumns";
-import { useAuth } from "@/contexts";
 import { useWarehouses, useDashboard } from "@/hooks/queries";
+import { isDataSlotLoading } from "@/lib/react-query";
 import WarehouseFilters from "./WarehouseFilters";
 import WarehouseDialog from "./WarehouseDialog";
 import { StatisticsCard } from "@/components/home/StatisticsCard";
-import { StatisticsCardSkeleton } from "@/components/home/StatisticsCardSkeleton";
 import { Package, Warehouse as WarehouseIcon } from "lucide-react";
 import { Warehouse } from "@/types";
+import type { WarehouseForPage } from "@/lib/server/warehouses-data";
 
 const WarehouseTable = dynamic(
   () =>
@@ -28,15 +28,21 @@ const WarehouseTable = dynamic(
   { ssr: true },
 );
 
-export default function WarehouseList() {
+export type WarehouseListProps = {
+  /** SSR-passed warehouses for first-render hydration (REQ-0021) */
+  initialWarehouses?: Warehouse[] | WarehouseForPage[];
+};
+
+export default function WarehouseList({
+  initialWarehouses,
+}: WarehouseListProps = {}) {
   const pathname = usePathname();
   const isMountedRef = useRef(false);
   const [isMounted, setIsMounted] = useState(false);
 
-  const warehousesQuery = useWarehouses();
+  const warehousesQuery = useWarehouses(initialWarehouses);
   const dashboardQuery = useDashboard();
   const allWarehouses = warehousesQuery.data ?? [];
-  const { isCheckingAuth } = useAuth();
 
   const isAdmin = pathname?.startsWith("/admin") ?? false;
   const dashboard = isAdmin ? (dashboardQuery.data ?? null) : null;
@@ -108,11 +114,17 @@ export default function WarehouseList() {
     null,
   );
 
-  const showSkeleton =
-    !isMounted || isCheckingAuth || warehousesQuery.isPending;
-  /** For /warehouses page cards: show skeleton until mounted and dashboard loaded */
-  const warehousesPageCardsLoading =
-    isUserWarehousesPage && (!isMounted || dashboardQuery.isPending);
+  // REQ-0021: shell-first — only data slots pulse
+  const tableDataLoading = isDataSlotLoading(
+    warehousesQuery,
+    initialWarehouses,
+  );
+  const userCardsDataLoading = isUserWarehousesPage
+    ? isDataSlotLoading(dashboardQuery)
+    : false;
+  const adminCardsDataLoading = isAdmin
+    ? isDataSlotLoading(dashboardQuery)
+    : false;
 
   const handleEditWarehouse = useCallback((warehouse: Warehouse) => {
     setEditingWarehouse(warehouse);
@@ -120,8 +132,6 @@ export default function WarehouseList() {
   }, []);
 
   const detailBase = pathname?.startsWith("/admin") ? "/admin" : "";
-  const showCardsSkeleton =
-    isAdmin && (showSkeleton || dashboardQuery.isPending);
   const columns = useMemo(
     () => createWarehouseColumns(handleEditWarehouse, detailBase),
     [handleEditWarehouse, detailBase],
@@ -131,10 +141,10 @@ export default function WarehouseList() {
     <div className="flex flex-col poppins">
       {/* Warehouse Management Section Header */}
       <div className="pb-6 flex flex-col items-start text-left">
-        <h2 className="text-xl sm:text-2xl font-semibold text-gray-900 dark:text-white pb-2">
+        <h2 className="text-lg sm:text-xl font-semibold text-gray-700 dark:text-white ">
           Warehouse Management
         </h2>
-        <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400">
+        <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">
           Manage warehouse locations. Add, edit, and track warehouses for
           multi-location inventory. Stock allocation and inter-warehouse
           transfers are not yet implemented—you can create and edit warehouses
@@ -145,135 +155,127 @@ export default function WarehouseList() {
 
       {/* Store-wide state cards — only on /warehouses page (user), same style as homepage/products */}
       {isUserWarehousesPage && (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 items-stretch pb-6">
-          {warehousesPageCardsLoading ? (
-            <>
-              {[1, 2, 3, 4].map((i) => (
-                <StatisticsCardSkeleton key={i} />
-              ))}
-            </>
-          ) : warehousesPageStats ? (
-            <>
-              <StatisticsCard
-                title="Total Products"
-                value={warehousesPageStats.counts.products}
-                description="Products availability"
-                icon={Package}
-                variant="rose"
-                badges={[
-                  {
-                    label: "Available",
-                    value:
-                      warehousesPageStats.productStatusBreakdown?.available ??
-                      0,
-                  },
-                  {
-                    label: "Stock low",
-                    value:
-                      warehousesPageStats.productStatusBreakdown?.stockLow ?? 0,
-                  },
-                  {
-                    label: "Stock out",
-                    value:
-                      warehousesPageStats.productStatusBreakdown?.stockOut ?? 0,
-                  },
-                ]}
-              />
-              <StatisticsCard
-                title="Total Warehouses"
-                value={
-                  warehousesPageStats.warehouseAnalytics?.totalWarehouses ?? 0
-                }
-                description="All locations"
-                icon={WarehouseIcon}
-                variant="teal"
-                badges={[
-                  {
-                    label: "Active",
-                    value:
-                      warehousesPageStats.warehouseAnalytics
-                        ?.activeWarehouses ?? 0,
-                  },
-                  {
-                    label: "Inactive",
-                    value:
-                      warehousesPageStats.warehouseAnalytics
-                        ?.inactiveWarehouses ?? 0,
-                  },
-                ]}
-              />
-              <StatisticsCard
-                title="Active Warehouses"
-                value={
-                  warehousesPageStats.warehouseAnalytics?.activeWarehouses ?? 0
-                }
-                description="Operational"
-                icon={WarehouseIcon}
-                variant="emerald"
-                badges={warehousesPageTypeBadges}
-              />
-              <StatisticsCard
-                title="Inactive Warehouses"
-                value={
-                  warehousesPageStats.warehouseAnalytics?.inactiveWarehouses ??
-                  0
-                }
-                description="Not in use"
-                icon={WarehouseIcon}
-                variant="rose"
-                badges={warehousesPageTypeBadges}
-              />
-            </>
-          ) : null}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2 items-stretch pb-6">
+          <StatisticsCard
+            title="Total Products"
+            value={warehousesPageStats?.counts.products ?? 0}
+            description="Products availability"
+            icon={Package}
+            variant="rose"
+            valueLoading={userCardsDataLoading}
+            badgeValuesLoading={userCardsDataLoading}
+            badges={[
+              {
+                label: "Available",
+                value:
+                  warehousesPageStats?.productStatusBreakdown?.available ?? 0,
+              },
+              {
+                label: "Stock low",
+                value:
+                  warehousesPageStats?.productStatusBreakdown?.stockLow ?? 0,
+              },
+              {
+                label: "Stock out",
+                value:
+                  warehousesPageStats?.productStatusBreakdown?.stockOut ?? 0,
+              },
+            ]}
+          />
+          <StatisticsCard
+            title="Total Warehouses"
+            value={
+              warehousesPageStats?.warehouseAnalytics?.totalWarehouses ?? 0
+            }
+            description="All locations"
+            icon={WarehouseIcon}
+            variant="teal"
+            valueLoading={userCardsDataLoading}
+            badgeValuesLoading={userCardsDataLoading}
+            badges={[
+              {
+                label: "Active",
+                value:
+                  warehousesPageStats?.warehouseAnalytics?.activeWarehouses ??
+                  0,
+              },
+              {
+                label: "Inactive",
+                value:
+                  warehousesPageStats?.warehouseAnalytics?.inactiveWarehouses ??
+                  0,
+              },
+            ]}
+          />
+          <StatisticsCard
+            title="Active Warehouses"
+            value={
+              warehousesPageStats?.warehouseAnalytics?.activeWarehouses ?? 0
+            }
+            description="Operational"
+            icon={WarehouseIcon}
+            variant="emerald"
+            valueLoading={userCardsDataLoading}
+            badgeValuesLoading={userCardsDataLoading}
+            badges={warehousesPageTypeBadges}
+          />
+          <StatisticsCard
+            title="Inactive Warehouses"
+            value={
+              warehousesPageStats?.warehouseAnalytics?.inactiveWarehouses ?? 0
+            }
+            description="Not in use"
+            icon={WarehouseIcon}
+            variant="rose"
+            valueLoading={userCardsDataLoading}
+            badgeValuesLoading={userCardsDataLoading}
+            badges={warehousesPageTypeBadges}
+          />
         </div>
       )}
 
       {/* Summary cards — admin only (same as dashboard Warehouse Analytics) */}
       {isAdmin && (
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pb-6 items-stretch">
-          {showCardsSkeleton ? (
-            <>
-              <StatisticsCardSkeleton />
-              <StatisticsCardSkeleton />
-              <StatisticsCardSkeleton />
-            </>
-          ) : dashboard?.warehouseAnalytics ? (
-            <>
-              <StatisticsCard
-                title="Total Warehouses"
-                value={dashboard.warehouseAnalytics.totalWarehouses}
-                description="All locations"
-                icon={WarehouseIcon}
-                variant="teal"
-                badges={[
-                  {
-                    label: "Active",
-                    value: dashboard.warehouseAnalytics.activeWarehouses,
-                  },
-                  {
-                    label: "Inactive",
-                    value: dashboard.warehouseAnalytics.inactiveWarehouses,
-                  },
-                ]}
-              />
-              <StatisticsCard
-                title="Active Warehouses"
-                value={dashboard.warehouseAnalytics.activeWarehouses}
-                description="Operational"
-                icon={WarehouseIcon}
-                variant="emerald"
-                badges={warehouseTypeBadges}
-              />
-              <StatisticsCard
-                title="Inactive Warehouses"
-                value={dashboard.warehouseAnalytics.inactiveWarehouses}
-                description="Not in use"
-                icon={WarehouseIcon}
-                variant="rose"
-                badges={warehouseTypeBadges}
-              />
-            </>
-          ) : null}
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 pb-6 items-stretch">
+          <StatisticsCard
+            title="Total Warehouses"
+            value={dashboard?.warehouseAnalytics?.totalWarehouses ?? 0}
+            description="All locations"
+            icon={WarehouseIcon}
+            variant="teal"
+            valueLoading={adminCardsDataLoading}
+            badgeValuesLoading={adminCardsDataLoading}
+            badges={[
+              {
+                label: "Active",
+                value: dashboard?.warehouseAnalytics?.activeWarehouses ?? 0,
+              },
+              {
+                label: "Inactive",
+                value: dashboard?.warehouseAnalytics?.inactiveWarehouses ?? 0,
+              },
+            ]}
+          />
+          <StatisticsCard
+            title="Active Warehouses"
+            value={dashboard?.warehouseAnalytics?.activeWarehouses ?? 0}
+            description="Operational"
+            icon={WarehouseIcon}
+            variant="emerald"
+            valueLoading={adminCardsDataLoading}
+            badgeValuesLoading={adminCardsDataLoading}
+            badges={warehouseTypeBadges}
+          />
+          <StatisticsCard
+            title="Inactive Warehouses"
+            value={dashboard?.warehouseAnalytics?.inactiveWarehouses ?? 0}
+            description="Not in use"
+            icon={WarehouseIcon}
+            variant="rose"
+            valueLoading={adminCardsDataLoading}
+            badgeValuesLoading={adminCardsDataLoading}
+            badges={warehouseTypeBadges}
+          />
         </div>
       )}
 
@@ -295,7 +297,7 @@ export default function WarehouseList() {
       <WarehouseTable
         data={allWarehouses}
         columns={columns}
-        isLoading={showSkeleton}
+        isLoading={tableDataLoading}
         searchTerm={searchTerm}
         pagination={pagination}
         setPagination={setPagination}
