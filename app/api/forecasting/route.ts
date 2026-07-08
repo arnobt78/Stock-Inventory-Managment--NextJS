@@ -11,6 +11,10 @@ import { getCache, setCache, cacheKeys } from "@/lib/cache";
 import { withRateLimit, defaultRateLimits } from "@/lib/api/rate-limit";
 import type { ForecastingSummary } from "@/types";
 import { createChatCompletion, isLlmConfigured } from "@/lib/ai";
+import { LLM_INSIGHTS_MAX_TOKENS } from "@/lib/ai/constants";
+
+/** v2 — bust cache after max_tokens increase (REQ-0019). */
+const FORECASTING_CACHE_KEY_PREFIX = "forecasting:summary:v2";
 
 /**
  * Generate AI insights from forecasting data
@@ -50,7 +54,7 @@ Provide brief, professional insights focusing on immediate actions.`;
       [{ role: "user", content: prompt }],
       {
         model: "openai/gpt-3.5-turbo",
-        max_tokens: 200,
+        max_tokens: LLM_INSIGHTS_MAX_TOKENS,
       },
     );
 
@@ -83,7 +87,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Check cache first (forecasts are expensive to compute)
-    const cacheKey = `forecasting:summary:${session.id}`;
+    const cacheKey = `${FORECASTING_CACHE_KEY_PREFIX}:${session.id}`;
     const cached = await getCache<ForecastingSummary>(cacheKey);
     if (cached) {
       return NextResponse.json(cached);

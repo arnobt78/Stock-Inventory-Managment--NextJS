@@ -13,6 +13,7 @@ import {
 } from "@/lib/api/response-helpers";
 import { logger } from "@/lib/logger";
 import { aiInsightsBodySchema } from "@/lib/validations/ai";
+import { LLM_INSIGHTS_MAX_TOKENS } from "@/lib/ai/constants";
 
 const SYSTEM_PROMPT = `You are a concise inventory advisor. Given a short summary of inventory metrics, reply with 2-4 brief, actionable recommendations (one short sentence each). Focus on reorder suggestions, low-stock attention, and value optimization. Keep the tone professional and direct. Do not use markdown or bullet symbols.`;
 
@@ -56,7 +57,7 @@ export async function POST(request: NextRequest) {
         { role: "system", content: SYSTEM_PROMPT },
         { role: "user", content: summary },
       ],
-      { max_tokens: 512, temperature: 0.5 },
+      { max_tokens: LLM_INSIGHTS_MAX_TOKENS, temperature: 0.5 },
     );
 
     if (!result.ok) {

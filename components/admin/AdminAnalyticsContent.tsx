@@ -40,12 +40,16 @@ import {
   YAxis,
 } from "recharts";
 import { ResponsiveChartContainer } from "@/components/ui/responsive-chart-container";
-import { format } from "date-fns";
+import {
+  formatStableCompactDateTime,
+  formatStableCurrency,
+} from "@/lib/date/format-stable";
 import type { DashboardStats } from "@/types";
 import ForecastingSection from "@/components/admin/ForecastingSection";
 
+/** Hydration-safe USD — en-US locale on server and client (REQ-0019). */
 function formatCurrency(value: number): string {
-  return `$${value.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+  return formatStableCurrency(value);
 }
 
 export type AdminAnalyticsContentProps = {
@@ -83,12 +87,12 @@ export default function AdminAnalyticsContent({
       `Products: ${c.products ?? 0}. Users: ${c.users ?? 0}. Suppliers: ${c.suppliers ?? 0}. Categories: ${c.categories ?? 0}.`,
       `Orders: ${c.orders ?? 0}. Invoices: ${c.invoices ?? 0}. Warehouses: ${c.warehouses ?? 0}.`,
       `Support tickets: ${c.tickets ?? 0}. Product reviews: ${c.reviews ?? 0}.`,
-      `Total revenue (orders + invoices): $${totalRev.toLocaleString()}.`,
+      `Total revenue (orders + invoices): ${formatStableCurrency(totalRev)}.`,
     ];
     const last = stats.trends?.[stats.trends.length - 1];
     if (last) {
       parts.push(
-        `Last month trend: ${last.orders} orders, $${last.revenue.toLocaleString()} revenue, ${last.products} new products, ${last.invoices} invoices.`,
+        `Last month trend: ${last.orders} orders, ${formatStableCurrency(last.revenue)} revenue, ${last.products} new products, ${last.invoices} invoices.`,
       );
     }
     return parts.join(" ");
@@ -844,7 +848,7 @@ export default function AdminAnalyticsContent({
                                 {p.totalQuantity}
                               </td>
                               <td className="py-2 text-right">
-                                ${p.totalRevenue.toLocaleString()}
+                                {formatStableCurrency(p.totalRevenue)}
                               </td>
                             </tr>
                           ))}
@@ -1209,11 +1213,11 @@ export default function AdminAnalyticsContent({
                         >
                           <span className="truncate">{o.orderNumber}</span>
                           <span className="text-muted-foreground shrink-0">
-                            ${o.total.toLocaleString()}
+                            {formatStableCurrency(o.total)}
                           </span>
                         </Link>
                         <p className="text-xs text-muted-foreground">
-                          {format(new Date(o.createdAt), "MMM d, HH:mm")} ·{" "}
+                          {formatStableCompactDateTime(o.createdAt)} ·{" "}
                           {o.status}
                         </p>
                       </li>
@@ -1254,7 +1258,7 @@ export default function AdminAnalyticsContent({
                           {t.subject}
                         </Link>
                         <p className="text-xs text-muted-foreground">
-                          {format(new Date(t.createdAt), "MMM d, HH:mm")} ·{" "}
+                          {formatStableCompactDateTime(t.createdAt)} ·{" "}
                           {t.status}
                         </p>
                       </li>
@@ -1295,7 +1299,7 @@ export default function AdminAnalyticsContent({
                           {r.productName} · {r.rating}★
                         </Link>
                         <p className="text-xs text-muted-foreground">
-                          {format(new Date(r.createdAt), "MMM d, HH:mm")} ·{" "}
+                          {formatStableCompactDateTime(r.createdAt)} ·{" "}
                           {r.status}
                         </p>
                       </li>
@@ -1336,7 +1340,7 @@ export default function AdminAnalyticsContent({
                           {im.importType} · {im.fileName}
                         </Link>
                         <p className="text-xs text-muted-foreground">
-                          {format(new Date(im.createdAt), "MMM d, HH:mm")} ·{" "}
+                          {formatStableCompactDateTime(im.createdAt)} ·{" "}
                           {im.successRows} ok, {im.failedRows} failed
                         </p>
                       </li>

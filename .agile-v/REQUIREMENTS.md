@@ -278,6 +278,29 @@ Canonical REQ source. All artifacts link via `REQ-XXXX`. Status: `done` | `verif
 
 ---
 
+## REQ-0019 — Admin dashboard AI truncation + hydration
+
+| Field | Value |
+|-------|-------|
+| **Priority** | P1 |
+| **Risk** | R2 |
+| **Status** | done |
+
+**Intent:** Fix clipped forecasting AI insights (`max_tokens: 200`) and React #418 hydration on `/admin/dashboard-overall-insights`.
+
+**Acceptance criteria**
+
+- AC1: Forecasting `generateAIInsights` uses `LLM_INSIGHTS_MAX_TOKENS` (512) — full text, no mid-sentence cut
+- AC2: POST `/api/ai/insights` shares same constant
+- AC3: Redis cache key `forecasting:summary:v2:*` busts stale truncated cache
+- AC4: `AdminAnalyticsContent` uses `formatStableCurrency` + `formatStableCompactDateTime` (UTC)
+- AC5: `app/admin/dashboard-overall-insights/page.tsx` exports `force-dynamic`
+- AC6: Tests in `lib/date/format-stable.test.ts`; Red Team pass
+
+**Artifacts:** `lib/ai/constants.ts`, `app/api/forecasting/route.ts`, `app/api/ai/insights/route.ts`, `lib/date/format-stable.ts`, `components/admin/AdminAnalyticsContent.tsx`
+
+---
+
 ## REQ-0016 — OAuth state mismatch log level
 
 | Field | Value |

@@ -3,20 +3,20 @@
 | Field | Value |
 |-------|-------|
 | **Cycle** | C1 |
-| **Phase** | `phases/04-groq-model-migration` |
-| **Infinity Loop stage** | Prove → Verify (REQ-0018 done) |
+| **Phase** | `phases/05-dashboard-ai-hydration` |
+| **Infinity Loop stage** | Prove → Verify (REQ-0019 done) |
 | **Last updated** | 2026-07-08 |
-| **Active REQ range** | REQ-0001 … REQ-0018 |
-| **Prod deploy target** | `2c1cf32` (REQ-0018) |
+| **Active REQ range** | REQ-0001 … REQ-0019 |
+| **Prod deploy target** | pending push (REQ-0019) |
 | **Human Gate 1** | APPROVED (retroactive bootstrap) |
 | **Human Gate 2** | PENDING — Sentry 24h after REQ-0018 deploy (`2c1cf32`) |
 | **Resume token** | — |
 
 ## Current focus
 
-1. **REQ-0018** — Groq model chain migration (llama deprecated Aug 2026)
-2. **REQ-0009** — hydration MONITOR only
-3. **Human Gate 2** — Sentry 24h after REQ-0018 deploy
+1. **REQ-0019** — admin dashboard AI truncation + hydration fix
+2. **REQ-0009** — Sentry 24h watch (hydration dashboard → verify post-REQ-0019)
+3. **Human Gate 2** — Sentry 24h after REQ-0019 deploy
 
 ## Session resume (every chat)
 
@@ -41,4 +41,5 @@
 | Zod + 4xx logging (REQ-0010–0013) | done, 296 tests |
 | Sentry chunk/order/oauth/radix (REQ-0014–0017) | done |
 | Groq model chain (REQ-0018) | done |
+| Admin AI + hydration (REQ-0019) | done |
 | TanStack invalidation | unchanged; 200 audit pass |

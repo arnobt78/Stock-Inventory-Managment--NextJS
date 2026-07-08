@@ -35,6 +35,9 @@
 | ART-0027 | REQ-0013 | `lib/validations/{payment,shipping,notification,system-config,ai}.ts` | API Zod sweep |
 | ART-0028 | REQ-0013 | `app/api/{payments,shipping,notifications,auth,ai}/*` | safeParse routes |
 | ART-0029 | REQ-0018 | `docs/LLM_MODEL_SELECTION.md` | Stock-inventory Groq chain section |
+| ART-0030 | REQ-0019 | `lib/ai/constants.ts` | LLM_INSIGHTS_MAX_TOKENS |
+| ART-0031 | REQ-0019 | `lib/date/format-stable.ts` | Stable currency + UTC datetime |
+| ART-0032 | REQ-0019 | `components/admin/AdminAnalyticsContent.tsx` | Hydration-safe admin dashboard |
 
 ## Tests
 
@@ -48,3 +51,4 @@
 | TC-0006 | REQ-0011 | `lib/logger.test.ts`, `lib/api/errors.test.ts` |
 | TC-0007 | REQ-0012 | `lib/validations/{category,supplier,warehouse}-api.test.ts` |
 | TC-0008 | REQ-0013 | `lib/validations/{payment,shipping,notification,system-config,ai,auth}-api.test.ts` |
+| TC-0009 | REQ-0019 | `lib/date/format-stable.test.ts` |

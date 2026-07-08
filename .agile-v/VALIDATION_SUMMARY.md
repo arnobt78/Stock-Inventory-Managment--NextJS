@@ -2,7 +2,7 @@
 
 **Generated:** 2026-07-08  
 **eval_gate_status:** PENDING (Human Gate 2)  
-**Red Team:** lint ✓ test 296 ✓ invalidate 200 ✓ build ✓
+**Red Team:** lint ✓ test 301 ✓ invalidate 200 ✓ build ✓
 
 ---
 
@@ -11,7 +11,7 @@
 | Check | Command | Result | REQ-IDs |
 |-------|---------|--------|---------|
 | Lint | `npm run lint` | PASS | ALL |
-| Unit tests | `npm run test` | PASS (296) | REQ-0018, monitoring, AI |
+| Unit tests | `npm run test` | PASS (301) | REQ-0019, REQ-0018, monitoring, AI |
 | Invalidation audit | `npm run test:invalidate` | PASS (200) | — |
 | Build | `npm run build` | PASS | ALL |
 
@@ -34,10 +34,11 @@
 |----|----------|---------|--------|
 | VS-007 | INFO | ChunkLoadError auto-reload in ErrorBoundary | PASS |
 | VS-008 | INFO | OrderDialog RHF validation logger level | PASS |
-| VS-009 | INFO | Hydration /admin/dashboard-overall-insights | MONITOR |
+| VS-009 | INFO | Hydration /admin/dashboard-overall-insights | PASS (REQ-0019 stable formatters) |
 | VS-010 | INFO | OAuth state mismatch logger.warn | PASS (296 tests) |
 | VS-011 | INFO | Radix portal removeChild scrub + ErrorBoundary | PASS |
 | VS-012 | INFO | Groq model chain migration (REQ-0018) | PASS (296 tests) |
+| VS-013 | INFO | Forecasting AI max_tokens + cache v2 (REQ-0019) | PASS |
 
 ---
 
