@@ -40,9 +40,9 @@ interface StatisticsCardProps {
    */
   title: string;
   /**
-   * Main value to display
+   * Main value to display (string, number, or hydration-safe client format node)
    */
-  value: string | number;
+  value: string | number | React.ReactNode;
   /**
    * Optional description text
    */

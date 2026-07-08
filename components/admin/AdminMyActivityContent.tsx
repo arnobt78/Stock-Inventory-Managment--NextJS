@@ -35,10 +35,11 @@ import {
 } from "@/hooks/queries";
 import { useAuth } from "@/contexts";
 import { PageContentWrapper } from "@/components/shared";
+import { ClientCurrency, ClientCompactDateTime } from "@/components/shared";
 import { StatisticsCard } from "@/components/home/StatisticsCard";
 import { StatisticsCardSkeleton } from "@/components/home/StatisticsCardSkeleton";
 import { Badge } from "@/components/ui/badge";
-import { format } from "date-fns";
+import { formatStableCurrency } from "@/lib/format";
 import { cn } from "@/lib/utils";
 import type { Order } from "@/types";
 
@@ -262,12 +263,6 @@ export default function AdminMyActivityContent() {
     return filtered.slice(0, 5);
   }, [orders, searchTerm, authUser?.name, authUser?.email]);
 
-  const formatCurrency = (value: number) =>
-    `$${value.toLocaleString(undefined, {
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2,
-    })}`;
-
   const tableSkeletonHeight = 280;
 
   return (
@@ -346,23 +341,23 @@ export default function AdminMyActivityContent() {
               />
               <StatisticsCard
                 title="Total order value"
-                value={formatCurrency(stats.totalRevenue)}
+                value={<ClientCurrency value={stats.totalRevenue} />}
                 description="Your orders history (self)"
                 icon={DollarSign}
                 variant="emerald"
                 badges={[
-                  { label: "Paid", value: formatCurrency(stats.paidAmount) },
+                  { label: "Paid", value: formatStableCurrency(stats.paidAmount) },
                   {
                     label: "Refunded",
-                    value: formatCurrency(stats.refundedAmount),
+                    value: formatStableCurrency(stats.refundedAmount),
                   },
                   {
                     label: "Cancelled",
-                    value: formatCurrency(stats.cancelledAmount),
+                    value: formatStableCurrency(stats.cancelledAmount),
                   },
                   {
                     label: "Unpaid",
-                    value: formatCurrency(stats.unpaidAmount),
+                    value: formatStableCurrency(stats.unpaidAmount),
                   },
                 ]}
               />
@@ -437,18 +432,18 @@ export default function AdminMyActivityContent() {
               />
               <StatisticsCard
                 title="Average Order Value"
-                value={formatCurrency(stats.avgOrderValue)}
+                value={<ClientCurrency value={stats.avgOrderValue} />}
                 description="Per order average (self)"
                 icon={TrendingUp}
                 variant="orange"
                 badges={[
                   {
                     label: "Paid Revenue",
-                    value: formatCurrency(stats.paidAmount),
+                    value: formatStableCurrency(stats.paidAmount),
                   },
                   {
                     label: "Outstanding",
-                    value: formatCurrency(stats.unpaidAmount),
+                    value: formatStableCurrency(stats.unpaidAmount),
                   },
                 ]}
               />
@@ -563,16 +558,13 @@ export default function AdminMyActivityContent() {
                           </Badge>
                         </TableCell>
                         <TableCell className="text-gray-800 dark:text-gray-200">
-                          ${Number(order.total).toFixed(2)}
+                          <ClientCurrency value={Number(order.total)} />
                         </TableCell>
                         <TableCell className="text-gray-800 dark:text-gray-200">
                           {order.items?.length ?? 0}
                         </TableCell>
                         <TableCell className="text-gray-600 dark:text-gray-400">
-                          {format(
-                            new Date(order.createdAt),
-                            "MMM d, yyyy 'at' h:mm a",
-                          )}
+                          <ClientCompactDateTime date={order.createdAt} />
                         </TableCell>
                         <TableCell className="text-right">
                           <Link

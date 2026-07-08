@@ -55,3 +55,11 @@ export type {
   ClientDateTimeProps,
   ClientDateProps,
 } from "./ClientDateDisplay";
+export {
+  ClientCurrency,
+  ClientCompactDateTime,
+} from "./ClientFormatDisplay";
+export type {
+  ClientCurrencyProps,
+  ClientCompactDateTimeProps,
+} from "./ClientFormatDisplay";

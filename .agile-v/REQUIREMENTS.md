@@ -301,6 +301,29 @@ Canonical REQ source. All artifacts link via `REQ-XXXX`. Status: `done` | `verif
 
 ---
 
+## REQ-0020 — Locale-aware admin formatting
+
+| Field | Value |
+|-------|-------|
+| **Priority** | P1 |
+| **Risk** | R2 |
+| **Status** | done |
+
+**Intent:** Hydration-safe first paint + browser locale/TZ after mount for global demo users on admin dashboard pages.
+
+**Acceptance criteria**
+
+- AC1: `lib/format/client-locale.ts` — `formatClientCurrency`, `formatClientCompactDateTime`, `formatClientNumber`
+- AC2: `ClientCurrency` + `ClientCompactDateTime` in `components/shared/ClientFormatDisplay.tsx`
+- AC3: `AdminMyActivityContent` — no raw `toLocaleString` / `date-fns format` in markup
+- AC4: `AdminAnalyticsContent` — `ClientCompactDateTime` for recent activity; chart tooltip uses `formatClientCurrency`
+- AC5: `app/admin/my-activity/page.tsx` exports `force-dynamic`
+- AC6: Tests in `lib/format/client-locale.test.ts`; Red Team pass
+
+**Artifacts:** `lib/format/*`, `ClientFormatDisplay.tsx`, `AdminMyActivityContent.tsx`, `AdminAnalyticsContent.tsx`, `StatisticsCard.tsx`
+
+---
+
 ## REQ-0016 — OAuth state mismatch log level
 
 | Field | Value |

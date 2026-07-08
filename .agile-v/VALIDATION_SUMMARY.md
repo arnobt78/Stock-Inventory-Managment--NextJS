@@ -2,7 +2,7 @@
 
 **Generated:** 2026-07-08  
 **eval_gate_status:** PENDING (Human Gate 2)  
-**Red Team:** lint ✓ test 301 ✓ invalidate 200 ✓ build ✓
+**Red Team:** lint ✓ test 304 ✓ invalidate 200 ✓ build ✓
 
 ---
 
@@ -11,7 +11,7 @@
 | Check | Command | Result | REQ-IDs |
 |-------|---------|--------|---------|
 | Lint | `npm run lint` | PASS | ALL |
-| Unit tests | `npm run test` | PASS (301) | REQ-0019, REQ-0018, monitoring, AI |
+| Unit tests | `npm run test` | PASS (304) | REQ-0020, REQ-0019, AI |
 | Invalidation audit | `npm run test:invalidate` | PASS (200) | — |
 | Build | `npm run build` | PASS | ALL |
 
@@ -38,7 +38,7 @@
 | VS-010 | INFO | OAuth state mismatch logger.warn | PASS (301 tests) |
 | VS-011 | INFO | Radix portal removeChild scrub + ErrorBoundary | PASS |
 | VS-012 | INFO | Groq model chain migration (REQ-0018) | PASS (301 tests) |
-| VS-013 | INFO | Forecasting AI max_tokens + cache v2 (REQ-0019) | PASS |
+| VS-014 | INFO | Locale-aware admin formatting (REQ-0020) | PASS |
 
 ---
 

@@ -41,9 +41,12 @@ import {
 } from "recharts";
 import { ResponsiveChartContainer } from "@/components/ui/responsive-chart-container";
 import {
-  formatStableCompactDateTime,
+  ClientCompactDateTime,
+} from "@/components/shared";
+import {
   formatStableCurrency,
-} from "@/lib/date/format-stable";
+  formatClientCurrency,
+} from "@/lib/format";
 import type { DashboardStats } from "@/types";
 import ForecastingSection from "@/components/admin/ForecastingSection";
 
@@ -521,7 +524,7 @@ export default function AdminAnalyticsContent({
                     }}
                     formatter={(value, name) => [
                       name === "revenue"
-                        ? `$${Number(value ?? 0).toLocaleString()}`
+                        ? formatClientCurrency(Number(value ?? 0))
                         : (value ?? 0),
                       name === "revenue"
                         ? "Order revenue (excl. cancelled)"
@@ -1217,7 +1220,7 @@ export default function AdminAnalyticsContent({
                           </span>
                         </Link>
                         <p className="text-xs text-muted-foreground">
-                          {formatStableCompactDateTime(o.createdAt)} ·{" "}
+                          <ClientCompactDateTime date={o.createdAt} /> ·{" "}
                           {o.status}
                         </p>
                       </li>
@@ -1258,7 +1261,7 @@ export default function AdminAnalyticsContent({
                           {t.subject}
                         </Link>
                         <p className="text-xs text-muted-foreground">
-                          {formatStableCompactDateTime(t.createdAt)} ·{" "}
+                          <ClientCompactDateTime date={t.createdAt} /> ·{" "}
                           {t.status}
                         </p>
                       </li>
@@ -1299,7 +1302,7 @@ export default function AdminAnalyticsContent({
                           {r.productName} · {r.rating}★
                         </Link>
                         <p className="text-xs text-muted-foreground">
-                          {formatStableCompactDateTime(r.createdAt)} ·{" "}
+                          <ClientCompactDateTime date={r.createdAt} /> ·{" "}
                           {r.status}
                         </p>
                       </li>
@@ -1340,7 +1343,7 @@ export default function AdminAnalyticsContent({
                           {im.importType} · {im.fileName}
                         </Link>
                         <p className="text-xs text-muted-foreground">
-                          {formatStableCompactDateTime(im.createdAt)} ·{" "}
+                          <ClientCompactDateTime date={im.createdAt} /> ·{" "}
                           {im.successRows} ok, {im.failedRows} failed
                         </p>
                       </li>
