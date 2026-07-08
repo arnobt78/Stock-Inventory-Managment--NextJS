@@ -7,7 +7,7 @@
 | **Infinity Loop stage** | Prove → Verify (REQ-0016/0017 done, lint+test PASS) |
 | **Last updated** | 2026-07-08 |
 | **Active REQ range** | REQ-0001 … REQ-0017 |
-| **Prod deploy target** | pending push (REQ-0016/0017); prior `f5e0461` (REQ-0014/0015) |
+| **Prod deploy target** | `20d9d49` (REQ-0016/0017); prior `f5e0461` |
 | **Human Gate 1** | APPROVED (retroactive bootstrap) |
 | **Human Gate 2** | PENDING — Sentry 24h after REQ-0016/0017 deploy |
 | **Resume token** | — |
