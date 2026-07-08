@@ -187,7 +187,7 @@ Uncomment and set in `.env` only if you need the feature:
 | **Upstash Redis** | `UPSTASH_REDIS_URL`, `UPSTASH_REDIS_TOKEN` (or `UPSTASH_REDIS_REST_URL` / `UPSTASH_REDIS_REST_TOKEN`) — Caching, rate limiting                                                                                                             |
 | **QStash**        | `QSTASH_URL`, `QSTASH_TOKEN`, `QSTASH_CURRENT_SIGNING_KEY`, `QSTASH_NEXT_SIGNING_KEY` — Background job queue (e.g. email)                                                                                                                  |
 | **OpenRouter**    | `OPENROUTER_API_KEY` — AI insights (primary LLM)                                                                                                                                                                                           |
-| **Groq**          | `GROQ_API_KEY`, optional `GROQ_MODEL` (default `llama-3.3-70b-versatile`) — fallback when OpenRouter billing/rate-limit/upstream fails                                                                                                     |
+| **Groq**          | `GROQ_API_KEY`, optional `GROQ_MODEL` (default fast-first chain: `openai/gpt-oss-20b` → `qwen/qwen3.6-27b` → `openai/gpt-oss-120b`) — fallback when OpenRouter fails |
 | **Stripe**        | `STRIPE_API_KEY`, `STRIPE_WEBHOOK_SECRET`, `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY` — Payments (checkout, webhooks)                                                                                                                            |
 | **Shippo**        | `SHIPPO_API_KEY`, and optionally `SHIPPO_FROM_NAME`, `SHIPPO_FROM_STREET1`, `SHIPPO_FROM_CITY`, `SHIPPO_FROM_STATE`, `SHIPPO_FROM_ZIP`, `SHIPPO_FROM_COUNTRY`, `SHIPPO_FROM_PHONE`, `SHIPPO_FROM_EMAIL` — Shipping labels, rates, tracking |
 | **App URL**       | `NEXT_PUBLIC_APP_URL` — Metadata and some redirects (defaults to Vercel URL if unset)                                                                                                                                                      |
@@ -271,7 +271,7 @@ NEXT_PUBLIC_API_URL="http://localhost:3000"
 
 # --- Groq (AI fallback) - https://console.groq.com ---
 # GROQ_API_KEY=
-# GROQ_MODEL=llama-3.3-70b-versatile
+# GROQ_MODEL=     # optional single-model override; omit to use code chain
 
 # --- Stripe (payments – checkout, webhooks) - https://dashboard.stripe.com/test/apikeys ---
 # STRIPE_API_KEY=sk_test_...

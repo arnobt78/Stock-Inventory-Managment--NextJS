@@ -20,7 +20,9 @@ export { createOpenRouterChatCompletion } from "./openrouter";
 export {
   createGroqChatCompletion,
   DEFAULT_GROQ_MODEL,
+  GROQ_MODEL_CHAIN,
   resolveGroqModel,
+  resolveGroqModelChain,
 } from "./groq";
 
 /** @deprecated Use ChatMessage */

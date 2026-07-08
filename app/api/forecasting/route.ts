@@ -45,7 +45,7 @@ ${urgentProducts ? `- Urgent reorder needed: ${urgentProducts}` : ""}
 Provide brief, professional insights focusing on immediate actions.`;
 
   try {
-    // model is OpenRouter-only; Groq fallback uses GROQ_MODEL / DEFAULT_GROQ_MODEL
+    // model is OpenRouter-only; Groq fallback uses GROQ_MODEL_CHAIN in lib/ai/groq.ts
     const response = await createChatCompletion(
       [{ role: "user", content: prompt }],
       {

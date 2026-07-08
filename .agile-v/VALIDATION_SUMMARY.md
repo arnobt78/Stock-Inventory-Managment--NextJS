@@ -2,7 +2,7 @@
 
 **Generated:** 2026-07-08  
 **eval_gate_status:** PENDING (Human Gate 2)  
-**Red Team:** lint ✓ test 291 ✓ invalidate 200 ✓ build ✓
+**Red Team:** lint ✓ test 296 ✓ invalidate 200 ✓ build ✓
 
 ---
 
@@ -11,7 +11,7 @@
 | Check | Command | Result | REQ-IDs |
 |-------|---------|--------|---------|
 | Lint | `npm run lint` | PASS | ALL |
-| Unit tests | `npm run test` | PASS (291) | REQ-0010–0017, monitoring tests |
+| Unit tests | `npm run test` | PASS (296) | REQ-0018, monitoring, AI |
 | Invalidation audit | `npm run test:invalidate` | PASS (200) | — |
 | Build | `npm run build` | PASS | ALL |
 
@@ -36,7 +36,8 @@
 | VS-008 | INFO | OrderDialog RHF validation logger level | PASS |
 | VS-009 | INFO | Hydration /admin/dashboard-overall-insights | MONITOR |
 | VS-010 | INFO | OAuth state mismatch logger.warn | PASS (lint + 291 tests) |
-| VS-011 | INFO | Radix portal removeChild scrub + ErrorBoundary | PASS (lint + 291 tests) |
+| VS-011 | INFO | Radix portal removeChild scrub + ErrorBoundary | PASS |
+| VS-012 | INFO | Groq model chain migration (REQ-0018) | PASS (296 tests) |
 
 ---
 

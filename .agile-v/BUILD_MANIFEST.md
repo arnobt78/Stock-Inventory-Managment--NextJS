@@ -13,7 +13,7 @@
 | ART-0005 | REQ-0001 | `components/products/ProductFormDialog.tsx` | Dialog Select gates |
 | ART-0006 | REQ-0001 | `components/invoices/InvoiceDialog.tsx` | Dialog Select gates |
 | ART-0007 | REQ-0002 | `lib/ai/openrouter.ts` | OpenRouter client |
-| ART-0008 | REQ-0005 | `lib/ai/groq.ts` | Groq client + resolveGroqModel |
+| ART-0008 | REQ-0005, REQ-0018 | `lib/ai/groq.ts` | Groq chain + resolveGroqModel + failover |
 | ART-0009 | REQ-0005 | `lib/ai/create-chat-completion.ts` | Orchestrator |
 | ART-0010 | REQ-0005 | `lib/ai/types.ts` | Shared LLM types |
 | ART-0011 | REQ-0002, REQ-0005 | `app/api/ai/insights/route.ts` | Insights API |

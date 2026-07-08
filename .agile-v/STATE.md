@@ -3,21 +3,20 @@
 | Field | Value |
 |-------|-------|
 | **Cycle** | C1 |
-| **Phase** | `phases/03-sentry-oauth-radix-removechild` |
-| **Infinity Loop stage** | Prove → Verify (REQ-0016/0017 done, lint+test PASS) |
+| **Phase** | `phases/04-groq-model-migration` |
+| **Infinity Loop stage** | Prove → Verify (REQ-0018 done) |
 | **Last updated** | 2026-07-08 |
-| **Active REQ range** | REQ-0001 … REQ-0017 |
-| **Prod deploy target** | `20d9d49` (REQ-0016/0017); prior `f5e0461` |
+| **Active REQ range** | REQ-0001 … REQ-0018 |
+| **Prod deploy target** | pending push (REQ-0018); prior `bb94e6c` |
 | **Human Gate 1** | APPROVED (retroactive bootstrap) |
 | **Human Gate 2** | PENDING — Sentry 24h after REQ-0016/0017 deploy |
 | **Resume token** | — |
 
 ## Current focus
 
-1. **REQ-0016** — OAuth state mismatch `logger.warn` (no Sentry)
-2. **REQ-0017** — Radix portal `removeChild` scrub + ErrorBoundary silent recovery
-3. **REQ-0009** — hydration MONITOR only
-4. **REQ-0001/0006** — manual removeChild nav smoke (optional)
+1. **REQ-0018** — Groq model chain migration (llama deprecated Aug 2026)
+2. **REQ-0009** — hydration MONITOR only
+3. **Human Gate 2** — Sentry 24h after REQ-0016/0017 deploy
 
 ## Session resume (every chat)
 
@@ -39,6 +38,7 @@
 |------|--------|
 | Sentry/Groq/Select (REQ-0001–0007) | code done; manual QA partial |
 | Agile V bootstrap (REQ-0008) | done |
-| Zod + 4xx logging (REQ-0010–0013) | done, 291 tests |
+| Zod + 4xx logging (REQ-0010–0013) | done, 296 tests |
 | Sentry chunk/order/oauth/radix (REQ-0014–0017) | done |
+| Groq model chain (REQ-0018) | done |
 | TanStack invalidation | unchanged; 200 audit pass |

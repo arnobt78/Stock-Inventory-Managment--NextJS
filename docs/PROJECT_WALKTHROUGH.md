@@ -139,7 +139,7 @@ Prevents `NotFoundError: removeChild` when App Router navigates between pages wh
 
 | Issue | Implementation |
 |-------|----------------|
-| OpenRouter 402 → Sentry 502 | `lib/ai/create-chat-completion.ts` (OpenRouter → Groq fallback); `lib/ai/openrouter.ts` + `lib/ai/groq.ts`; `serviceUnavailableResponse` in `lib/api/response-helpers.ts`; `app/api/ai/insights/route.ts` |
+| OpenRouter 402 → Sentry 502 | `lib/ai/create-chat-completion.ts` (OpenRouter → Groq chain in `groq.ts`); `GROQ_MODEL_CHAIN` fast-first failover (REQ-0018) |
 | OAuth `User_username_key` | `lib/auth/unique-username.ts`; `createGoogleOAuthUser` + P2002 recovery in Google callback |
 | Hydration on `/` | Root `force-dynamic` + SSR props in `app/page.tsx` (no route Suspense); `CategoryList` always mounts `CategoryFilters` (`DeferredSelectGate`) |
 | Filter/login/dialog Selects | `DeferredSelectGate` on status/view Selects, `LoginPage`, order/product/invoice/support dialogs, admin form dialogs |

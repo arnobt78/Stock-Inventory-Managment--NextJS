@@ -82,7 +82,7 @@ Canonical REQ source. All artifacts link via `REQ-XXXX`. Status: `done` | `verif
 **Acceptance criteria**
 
 - AC1: `createChatCompletion` tries OpenRouter then Groq on billing/rate_limit/upstream/not_configured
-- AC2: `GROQ_API_KEY` only required on Vercel; default model `llama-3.3-70b-versatile`
+- AC2: `GROQ_API_KEY` only required on Vercel; fast-first chain in `lib/ai/groq.ts` (REQ-0018)
 - AC3: `resolveGroqModel` ignores OpenRouter slugs (`openai/*`) for forecasting fallback
 - AC4: Production POST `/api/ai/insights` returns 200 with `provider: groq` when OpenRouter fails
 - AC5: Tests in `lib/ai/*.test.ts` (9+ cases)
@@ -253,6 +253,28 @@ Canonical REQ source. All artifacts link via `REQ-XXXX`. Status: `done` | `verif
 - AC4: No other logic changed in `OrderDialog.tsx`
 
 **Artifacts:** `components/orders/OrderDialog.tsx`
+
+---
+
+## REQ-0018 — Groq model deprecation migration
+
+| Field | Value |
+|-------|-------|
+| **Priority** | P1 |
+| **Risk** | R2 |
+| **Status** | done |
+
+**Intent:** Replace deprecated `llama-3.3-70b-versatile` (Groq shutdown Aug 16, 2026) with fast-first multi-model chain.
+
+**Acceptance criteria**
+
+- AC1: `GROQ_MODEL_CHAIN`: `openai/gpt-oss-20b` → `qwen/qwen3.6-27b` → `openai/gpt-oss-120b`
+- AC2: Deprecated llama env ids remapped to chain; `GROQ_MODEL` optional single override
+- AC3: Failover on retriable errors inside `createGroqChatCompletion`
+- AC4: `reasoning_format: "hidden"` for gpt-oss/qwen models
+- AC5: Tests in `lib/ai/groq.test.ts` + orchestrator tests updated
+
+**Artifacts:** `lib/ai/groq.ts`, `lib/ai/index.ts`, `.env.example`, `README.md`, `docs/LLM_MODEL_SELECTION.md`
 
 ---
 
