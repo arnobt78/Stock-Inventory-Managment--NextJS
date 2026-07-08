@@ -4,7 +4,7 @@
 |------|---------|---------|--------|-------|
 | 2026-05-19 | Catalog Zod + barrel export deploy | REQ-0012 | PASS (automated) | lint/test(260)/invalidate/build green |
 | 2026-05-19 | Notification bell code + prod reachability | REQ-0007 | PASS (code) | `NotificationBell` uses `DropdownMenu` portal; prod `/login` 200 after `f250980` |
-| 2026-05-19 | Sentry 24h post-deploy watch opened | REQ-0009 | PENDING | Human Gate 2 — review window starts after this deploy |
+| 2026-07-08 | REQ-0018 Groq chain deploy | REQ-0018 | PASS (automated) | lint/test(296)/invalidate/build green; prod `2c1cf32` |
 
 ## REQ-0009 checklist (24h after deploy)
 

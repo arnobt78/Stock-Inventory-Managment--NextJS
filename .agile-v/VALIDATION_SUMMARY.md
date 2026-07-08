@@ -35,7 +35,7 @@
 | VS-007 | INFO | ChunkLoadError auto-reload in ErrorBoundary | PASS |
 | VS-008 | INFO | OrderDialog RHF validation logger level | PASS |
 | VS-009 | INFO | Hydration /admin/dashboard-overall-insights | MONITOR |
-| VS-010 | INFO | OAuth state mismatch logger.warn | PASS (lint + 291 tests) |
+| VS-010 | INFO | OAuth state mismatch logger.warn | PASS (296 tests) |
 | VS-011 | INFO | Radix portal removeChild scrub + ErrorBoundary | PASS |
 | VS-012 | INFO | Groq model chain migration (REQ-0018) | PASS (296 tests) |
 
@@ -46,7 +46,8 @@
 - [x] Deploy REQ-0010–0013 (`9a2e37c`)
 - [x] Deploy REQ-0014/0015 (`f5e0461`)
 - [x] Deploy REQ-0016/0017 (`20d9d49`)
-- [ ] Confirm Vercel prod SHA
+- [x] Deploy REQ-0018 (`2c1cf32`)
+- [ ] Confirm Vercel prod SHA (`ddd416b` docs-only after REQ-0018)
 - [ ] Sentry 24h: no OAuth state error, no ErrorBoundary removeChild on admin/suppliers nav
 
 **Approver:** _pending_  

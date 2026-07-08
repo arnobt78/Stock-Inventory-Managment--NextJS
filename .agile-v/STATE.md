@@ -9,14 +9,14 @@
 | **Active REQ range** | REQ-0001 … REQ-0018 |
 | **Prod deploy target** | `2c1cf32` (REQ-0018) |
 | **Human Gate 1** | APPROVED (retroactive bootstrap) |
-| **Human Gate 2** | PENDING — Sentry 24h after REQ-0016/0017 deploy |
+| **Human Gate 2** | PENDING — Sentry 24h after REQ-0018 deploy (`2c1cf32`) |
 | **Resume token** | — |
 
 ## Current focus
 
 1. **REQ-0018** — Groq model chain migration (llama deprecated Aug 2026)
 2. **REQ-0009** — hydration MONITOR only
-3. **Human Gate 2** — Sentry 24h after REQ-0016/0017 deploy
+3. **Human Gate 2** — Sentry 24h after REQ-0018 deploy
 
 ## Session resume (every chat)
 

@@ -131,7 +131,7 @@ Prevents `NotFoundError: removeChild` when App Router navigates between pages wh
 | Payment/shipping schemas | `lib/validations/{payment,shipping}.ts` — checkout, rates, labels, tracking |
 | Notification/AI/config | `lib/validations/{notification,ai,system-config}.ts` |
 | Auth safeParse | `loginSchema` / `registerSchema` — no `.parse()` throw to 500 |
-| Tests | `lib/validations/*-api.test.ts` (284 unit tests) |
+| Tests | `lib/validations/*-api.test.ts` (296 unit tests) |
 
 **Out of scope:** webhooks (Stripe/Shippo/QStash), multipart product image upload.
 
@@ -140,6 +140,7 @@ Prevents `NotFoundError: removeChild` when App Router navigates between pages wh
 | Issue | Implementation |
 |-------|----------------|
 | OpenRouter 402 → Sentry 502 | `lib/ai/create-chat-completion.ts` (OpenRouter → Groq chain in `groq.ts`); `GROQ_MODEL_CHAIN` fast-first failover (REQ-0018) |
+| Groq chain (REQ-0018) | `lib/ai/groq.ts` — `gpt-oss-20b` → `qwen3.6-27b` → `gpt-oss-120b`; deprecated llama remap; `reasoning_format: hidden` |
 | OAuth `User_username_key` | `lib/auth/unique-username.ts`; `createGoogleOAuthUser` + P2002 recovery in Google callback |
 | Hydration on `/` | Root `force-dynamic` + SSR props in `app/page.tsx` (no route Suspense); `CategoryList` always mounts `CategoryFilters` (`DeferredSelectGate`) |
 | Filter/login/dialog Selects | `DeferredSelectGate` on status/view Selects, `LoginPage`, order/product/invoice/support dialogs, admin form dialogs |

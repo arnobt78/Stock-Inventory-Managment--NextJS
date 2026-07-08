@@ -34,6 +34,7 @@
 | ART-0026 | REQ-0012 | `docs/SENTRY_ERRORS.md` | Audit doc tracked |
 | ART-0027 | REQ-0013 | `lib/validations/{payment,shipping,notification,system-config,ai}.ts` | API Zod sweep |
 | ART-0028 | REQ-0013 | `app/api/{payments,shipping,notifications,auth,ai}/*` | safeParse routes |
+| ART-0029 | REQ-0018 | `docs/LLM_MODEL_SELECTION.md` | Stock-inventory Groq chain section |
 
 ## Tests
 
