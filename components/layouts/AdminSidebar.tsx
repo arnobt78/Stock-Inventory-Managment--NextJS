@@ -121,12 +121,14 @@ const MANAGEMENT_ITEMS: NavItem[] = [
 const MY_ACTIVITY_ITEMS: NavItem[] = [
   {
     href: "/admin/my-activity",
-    label: "My activity",
+    label: "My Activity",
     icon: UserCircle,
   },
 ];
 
-export default function AdminSidebar({ collapsed = false }: { collapsed?: boolean } = {}) {
+export default function AdminSidebar({
+  collapsed = false,
+}: { collapsed?: boolean } = {}) {
   const pathname = usePathname();
   const { user, logout } = useAuth();
   const { data: counts } = useAdminCounts();
@@ -164,7 +166,9 @@ export default function AdminSidebar({ collapsed = false }: { collapsed?: boolea
           title={collapsed ? item.label : undefined}
         >
           <Icon className="h-4 w-4 flex-shrink-0" />
-          {!collapsed && <span className="min-w-0 flex-1 truncate">{item.label}</span>}
+          {!collapsed && (
+            <span className="min-w-0 flex-1 truncate">{item.label}</span>
+          )}
           {!collapsed && showBadge && (
             <span
               className={cn(
@@ -182,7 +186,10 @@ export default function AdminSidebar({ collapsed = false }: { collapsed?: boolea
 
   if (collapsed) {
     return (
-      <nav className="flex min-h-0 flex-col items-center py-3 gap-1" aria-label="Admin navigation">
+      <nav
+        className="flex min-h-0 flex-col items-center py-3 gap-1"
+        aria-label="Admin navigation"
+      >
         {renderNavItems(MY_STORE_ITEMS)}
         <div className="w-6 border-t border-gray-200/50 dark:border-white/10 my-1" />
         {renderNavItems(MANAGEMENT_ITEMS)}
