@@ -7,7 +7,7 @@
 | **Infinity Loop stage** | Prove → Verify (REQ-0019 done) |
 | **Last updated** | 2026-07-08 |
 | **Active REQ range** | REQ-0001 … REQ-0019 |
-| **Prod deploy target** | pending push (REQ-0019) |
+| **Prod deploy target** | `4f02cf3` (REQ-0019) |
 | **Human Gate 1** | APPROVED (retroactive bootstrap) |
 | **Human Gate 2** | PENDING — Sentry 24h after REQ-0018 deploy (`2c1cf32`) |
 | **Resume token** | — |
