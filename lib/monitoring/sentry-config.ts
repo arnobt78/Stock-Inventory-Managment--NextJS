@@ -22,9 +22,83 @@ export function getTracesSampleRate(): number {
   return process.env.NODE_ENV === "production" ? 0.1 : 1;
 }
 
+/** Safari / Chrome NotFoundError text variants for DOM removeChild races */
+function isRemoveChildNotFoundMessage(text: string): boolean {
+  const lower = text.toLowerCase();
+  return (
+    lower.includes("removechild") ||
+    lower.includes("not a child") ||
+    lower.includes("can not be found here") ||
+    lower.includes("cannot be found here")
+  );
+}
+
+/**
+ * Radix Select portals to document.body; App Router navigation can tear down the portal
+ * while React is still reconciling, causing NotFoundError on removeChild (Safari + Chrome).
+ */
+export function isRadixPortalRemoveChildError(
+  error: Error,
+  componentStack?: string,
+): boolean {
+  if (error.name !== "NotFoundError") {
+    return false;
+  }
+
+  const message = error.message ?? "";
+  const stack = error.stack ?? "";
+  if (isRemoveChildNotFoundMessage(message) || isRemoveChildNotFoundMessage(stack)) {
+    return true;
+  }
+
+  if (componentStack) {
+    return (
+      componentStack.includes("SelectPortal") ||
+      componentStack.includes("SelectContent")
+    );
+  }
+
+  return false;
+}
+
+/** Sentry envelope variant — inspect exception values + React componentStack */
+export function isRadixPortalRemoveChildSentryEvent(
+  event: ErrorEvent,
+): boolean {
+  const values = event.exception?.values ?? [];
+  for (const v of values) {
+    if (v.type !== "NotFoundError" && v.type !== "Error") {
+      continue;
+    }
+    const text = typeof v.value === "string" ? v.value : "";
+    if (isRemoveChildNotFoundMessage(text)) {
+      return true;
+    }
+  }
+
+  const componentStack = (
+    event.contexts?.react as { componentStack?: string } | undefined
+  )?.componentStack;
+  if (componentStack) {
+    return (
+      componentStack.includes("SelectPortal") ||
+      componentStack.includes("SelectContent")
+    );
+  }
+
+  const serialized = JSON.stringify({
+    breadcrumbs: event.breadcrumbs,
+    contexts: event.contexts,
+    extra: event.extra,
+  });
+  return (
+    serialized.includes("SelectPortal") || serialized.includes("SelectContent")
+  );
+}
+
 /**
  * Chrome/Edge "Translate this page" mutates the DOM; React then throws NotFoundError on removeChild.
- * Drop only when translation is indicated so real Radix portal bugs still reach Sentry.
+ * Drop only when translation is indicated; Radix portal races are handled separately.
  */
 export function isBrowserTranslationRemoveChildError(
   event: ErrorEvent,
@@ -63,12 +137,15 @@ export function isBrowserTranslationRemoveChildError(
   );
 }
 
-/** Strip auth/cookies before events leave the app; drop known browser-translation DOM noise */
+/** Strip auth/cookies before events leave the app; drop known DOM noise (translate + Radix portal) */
 export function scrubSentryEvent(
   event: ErrorEvent,
   _hint?: EventHint,
 ): ErrorEvent | null {
-  if (isBrowserTranslationRemoveChildError(event)) {
+  if (
+    isBrowserTranslationRemoveChildError(event) ||
+    isRadixPortalRemoveChildSentryEvent(event)
+  ) {
     return null;
   }
 

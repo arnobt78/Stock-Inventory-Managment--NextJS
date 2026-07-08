@@ -391,6 +391,7 @@ export default function ActivityLogSection({
             )}
           </div>
           <DeferredSelectGate
+            enabled={!isPending}
             placeholder={
               <div
                 className={cn(

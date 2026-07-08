@@ -138,10 +138,11 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // Validate state (CSRF protection)
+    // Validate state (CSRF protection). Warn only — expired cookie, back-button, or
+    // interrupted OAuth are expected UX paths, not server failures (no Sentry).
     const storedState = request.cookies.get("oauth_state")?.value;
     if (!state || !storedState || state !== storedState) {
-      logger.error("OAuth state mismatch - possible CSRF attack");
+      logger.warn("OAuth state mismatch - possible CSRF attack");
       return NextResponse.redirect(
         new URL("/login?error=invalid_state", request.url)
       );

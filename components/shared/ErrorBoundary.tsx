@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { logger } from "@/lib/logger";
 import * as Sentry from "@sentry/nextjs";
 import { isSentryConfigured } from "@/lib/monitoring/sentry";
+import { isRadixPortalRemoveChildError } from "@/lib/monitoring/sentry-config";
 
 interface Props {
   children: ReactNode;
@@ -35,10 +36,22 @@ export class ErrorBoundary extends Component<Props, State> {
   };
 
   public static getDerivedStateFromError(error: Error): State {
+    // Radix Select portal removeChild during App Router nav — recover silently (REQ-0017)
+    if (isRadixPortalRemoveChildError(error)) {
+      return { hasError: false, error: null };
+    }
     return { hasError: true, error };
   }
 
   public componentDidCatch(error: Error, errorInfo: ErrorInfo) {
+    // Radix Select portal teardown race — skip Sentry and crash UI (Safari + Chrome)
+    if (isRadixPortalRemoveChildError(error, errorInfo.componentStack ?? undefined)) {
+      if (process.env.NODE_ENV === "development") {
+        logger.warn("ErrorBoundary: ignored Radix portal removeChild during navigation");
+      }
+      return;
+    }
+
     // ChunkLoadError fires when a Vercel deploy invalidates a cached JS chunk that the
     // user's stale tab still references. Silently reload once to pick up the new build.
     // A sessionStorage guard prevents an infinite reload loop if the chunk is genuinely missing.

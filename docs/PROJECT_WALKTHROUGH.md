@@ -74,7 +74,7 @@ flowchart LR
 
 **User context:** `contexts/auth-context.tsx` calls `syncSentryUserFromAuth` on session (id, email, role tag).
 
-**Browser Translate noise:** `isBrowserTranslationRemoveChildError` + `scrubSentryEvent` drop `removeChild` when `translated-ltr`/`rtl` (Chrome Translate + React). Real portal bugs without translation still report. Optional `NEXT_PUBLIC_DISABLE_BROWSER_TRANSLATE=true` → `translate="no"` on `<html>` (`app/layout.tsx`); unset = forks/users may translate. Tests: `lib/monitoring/sentry-config.test.ts`.
+**Browser Translate + Radix portal noise:** `isBrowserTranslationRemoveChildError` drops translate `removeChild`; `isRadixPortalRemoveChildSentryEvent` drops Radix `SelectPortal` nav races (Safari + Chrome). `ErrorBoundary` silent-recovers via `isRadixPortalRemoveChildError`. Optional `NEXT_PUBLIC_DISABLE_BROWSER_TRANSLATE=true` → `translate="no"` on `<html>` (`app/layout.tsx`). Tests: `lib/monitoring/sentry-config.test.ts`.
 
 **Wizard artifacts:** `.env.sentry-build-plugin` (gitignored) for local source map upload; `sentry.client.config.ts` is compatibility stub only.
 

@@ -3,20 +3,20 @@
 | Field | Value |
 |-------|-------|
 | **Cycle** | C1 |
-| **Phase** | `phases/02-sentry-chunk-order-fix` |
-| **Infinity Loop stage** | Prove → Verify (REQ-0014/0015 code done, lint+test PASS, awaiting deploy) |
-| **Last updated** | 2026-06-27 |
-| **Active REQ range** | REQ-0001 … REQ-0015 |
-| **Prod deploy target** | pending push (REQ-0014/0015); baseline `9a2e37c` |
+| **Phase** | `phases/03-sentry-oauth-radix-removechild` |
+| **Infinity Loop stage** | Prove → Verify (REQ-0016/0017 done, lint+test PASS) |
+| **Last updated** | 2026-07-08 |
+| **Active REQ range** | REQ-0001 … REQ-0017 |
+| **Prod deploy target** | pending push (REQ-0016/0017); prior `f5e0461` (REQ-0014/0015) |
 | **Human Gate 1** | APPROVED (retroactive bootstrap) |
-| **Human Gate 2** | PENDING — Sentry 24h + manual nav smoke; new REQ-0014/0015 pending automated pass |
+| **Human Gate 2** | PENDING — Sentry 24h after REQ-0016/0017 deploy |
 | **Resume token** | — |
 
 ## Current focus
 
-1. **REQ-0014** — ChunkLoadError auto-reload in `ErrorBoundary` (stale deploy chunk)
-2. **REQ-0015** — `OrderDialog` `logger.error` → `logger.warn` for RHF client-side validation callback
-3. **REQ-0009** — Sentry regression watch: hydration on `/admin/dashboard-overall-insights` MONITOR only
+1. **REQ-0016** — OAuth state mismatch `logger.warn` (no Sentry)
+2. **REQ-0017** — Radix portal `removeChild` scrub + ErrorBoundary silent recovery
+3. **REQ-0009** — hydration MONITOR only
 4. **REQ-0001/0006** — manual removeChild nav smoke (optional)
 
 ## Session resume (every chat)
@@ -39,5 +39,6 @@
 |------|--------|
 | Sentry/Groq/Select (REQ-0001–0007) | code done; manual QA partial |
 | Agile V bootstrap (REQ-0008) | done |
-| Zod + 4xx logging (REQ-0010–0013) | done, 284 tests |
+| Zod + 4xx logging (REQ-0010–0013) | done, 291 tests |
+| Sentry chunk/order/oauth/radix (REQ-0014–0017) | done |
 | TanStack invalidation | unchanged; 200 audit pass |

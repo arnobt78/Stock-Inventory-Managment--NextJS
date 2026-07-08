@@ -256,6 +256,45 @@ Canonical REQ source. All artifacts link via `REQ-XXXX`. Status: `done` | `verif
 
 ---
 
+## REQ-0016 — OAuth state mismatch log level
+
+| Field | Value |
+|-------|-------|
+| **Priority** | P2 |
+| **Risk** | R1 |
+| **Status** | done |
+
+**Intent:** Expired/missing `oauth_state` cookie on Google callback is expected UX (back-button, interrupted flow), not a server failure.
+
+**Acceptance criteria**
+
+- AC1: `logger.warn` (not `error`) on state mismatch in `app/api/auth/oauth/google/callback/route.ts`
+- AC2: Redirect to `/login?error=invalid_state` unchanged
+
+---
+
+## REQ-0017 — Radix portal removeChild (Safari + Chrome)
+
+| Field | Value |
+|-------|-------|
+| **Priority** | P1 |
+| **Risk** | R2 |
+| **Status** | done |
+
+**Intent:** Radix `SelectPortal` teardown during App Router navigation throws `NotFoundError` on `removeChild` (Safari: "can not be found here"; Chrome: "not a child"). Stop Sentry noise and silent-recover in ErrorBoundary.
+
+**Acceptance criteria**
+
+- AC1: `isRadixPortalRemoveChildError` + `isRadixPortalRemoveChildSentryEvent` in `lib/monitoring/sentry-config.ts`
+- AC2: `scrubSentryEvent` drops Radix portal removeChild events
+- AC3: `ErrorBoundary` silent recovery (no crash UI, no Sentry) via shared helper
+- AC4: `ActivityLogSection` `DeferredSelectGate` `enabled={!isPending}`
+- AC5: Tests in `lib/monitoring/sentry-config.test.ts` (Safari + Chrome + regression)
+
+**Artifacts:** `sentry-config.ts`, `ErrorBoundary.tsx`, `ActivityLogSection.tsx`
+
+---
+
 ## REQ-0013 — Remaining API Zod consistency
 
 | Field | Value |
