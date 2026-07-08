@@ -9,7 +9,7 @@
 | **Active REQ range** | REQ-0001 … REQ-0019 |
 | **Prod deploy target** | `4f02cf3` (REQ-0019) |
 | **Human Gate 1** | APPROVED (retroactive bootstrap) |
-| **Human Gate 2** | PENDING — Sentry 24h after REQ-0018 deploy (`2c1cf32`) |
+| **Human Gate 2** | PENDING — Sentry 24h after REQ-0019 deploy (`4f02cf3`) |
 | **Resume token** | — |
 
 ## Current focus
@@ -38,7 +38,7 @@
 |------|--------|
 | Sentry/Groq/Select (REQ-0001–0007) | code done; manual QA partial |
 | Agile V bootstrap (REQ-0008) | done |
-| Zod + 4xx logging (REQ-0010–0013) | done, 296 tests |
+| Zod + 4xx logging (REQ-0010–0013) | done, 301 tests |
 | Sentry chunk/order/oauth/radix (REQ-0014–0017) | done |
 | Groq model chain (REQ-0018) | done |
 | Admin AI + hydration (REQ-0019) | done |

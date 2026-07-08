@@ -4,7 +4,7 @@
 |------|---------|---------|--------|-------|
 | 2026-05-19 | Catalog Zod + barrel export deploy | REQ-0012 | PASS (automated) | lint/test(260)/invalidate/build green |
 | 2026-05-19 | Notification bell code + prod reachability | REQ-0007 | PASS (code) | `NotificationBell` uses `DropdownMenu` portal; prod `/login` 200 after `f250980` |
-| 2026-07-08 | REQ-0018 Groq chain deploy | REQ-0018 | PASS (automated) | lint/test(296)/invalidate/build green; prod `2c1cf32` |
+| 2026-07-08 | REQ-0019 dashboard AI + hydration deploy | REQ-0019 | PASS (automated) | test 301; prod `4f02cf3` |
 
 ## REQ-0009 checklist (24h after deploy)
 
