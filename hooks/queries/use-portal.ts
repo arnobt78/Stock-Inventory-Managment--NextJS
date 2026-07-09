@@ -5,7 +5,7 @@
 
 import { useQuery } from "@tanstack/react-query";
 import { apiClient } from "@/lib/api";
-import { queryKeys } from "@/lib/react-query";
+import { queryKeys, withInitialData } from "@/lib/react-query";
 import { useAuth } from "@/contexts";
 import type {
   SupplierPortalDashboard,
@@ -18,7 +18,9 @@ import type {
 /**
  * Get supplier portal dashboard (keyed by userId so supplier sees own data)
  */
-export function useSupplierPortalDashboard() {
+export function useSupplierPortalDashboard(
+  initialData?: SupplierPortalDashboard,
+) {
   const { user } = useAuth();
   const userId = user?.id ?? "";
   return useQuery({
@@ -28,13 +30,14 @@ export function useSupplierPortalDashboard() {
       return response.data;
     },
     enabled: !!userId && user?.role === "supplier",
+    staleTime: 1000 * 30,
+    ...withInitialData(initialData),
   });
 }
 
-/**
- * Get client portal dashboard (keyed by userId so client sees own data, not cached admin data)
- */
-export function useClientPortalDashboard() {
+export function useClientPortalDashboard(
+  initialData?: ClientPortalDashboard,
+) {
   const { user } = useAuth();
   const userId = user?.id ?? "";
   return useQuery({
@@ -44,13 +47,14 @@ export function useClientPortalDashboard() {
       return response.data;
     },
     enabled: !!userId && user?.role === "client",
+    staleTime: 1000 * 30,
+    ...withInitialData(initialData),
   });
 }
 
-/**
- * Get client catalog overview (keyed by userId for correct client scope)
- */
-export function useClientCatalogOverview() {
+export function useClientCatalogOverview(
+  initialData?: ClientCatalogOverview,
+) {
   const { user } = useAuth();
   const userId = user?.id ?? "";
   return useQuery({
@@ -60,31 +64,37 @@ export function useClientCatalogOverview() {
       return response.data;
     },
     enabled: !!userId && user?.role === "client",
+    staleTime: 1000 * 30,
+    ...withInitialData(initialData),
   });
 }
 
 /**
  * Get client browse meta (product owners + global stats)
  */
-export function useClientBrowseMeta() {
+export function useClientBrowseMeta(initialData?: ClientBrowseMeta) {
   return useQuery({
     queryKey: queryKeys.portal.clientBrowseMeta(),
     queryFn: async (): Promise<ClientBrowseMeta> => {
       const response = await apiClient.portal.getClientBrowseMeta();
       return response.data;
     },
-    enabled: true, // Client role check happens in component
+    staleTime: 1000 * 30,
+    ...withInitialData(initialData),
   });
 }
 
 /**
  * Get client browse products (by owner, optional supplier/category filter)
  */
-export function useClientBrowseProducts(params: {
-  ownerId: string;
-  supplierId?: string;
-  categoryId?: string;
-}) {
+export function useClientBrowseProducts(
+  params: {
+    ownerId: string;
+    supplierId?: string;
+    categoryId?: string;
+  },
+  initialData?: ClientBrowseProductsResponse,
+) {
   return useQuery({
     queryKey: queryKeys.portal.clientBrowseProducts(params),
     queryFn: async (): Promise<ClientBrowseProductsResponse> => {
@@ -92,5 +102,8 @@ export function useClientBrowseProducts(params: {
       return response.data;
     },
     enabled: !!params.ownerId,
+    staleTime: 1000 * 30,
+    placeholderData: (previousData) => previousData,
+    ...withInitialData(initialData),
   });
 }

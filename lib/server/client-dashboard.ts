@@ -73,7 +73,10 @@ export async function getClientDashboard(
     pending: orders
       .filter(
         (o) =>
-          o.paymentStatus === "pending" && o.status !== "cancelled",
+          (o.paymentStatus === "unpaid" ||
+            o.paymentStatus === "partial" ||
+            o.paymentStatus === "pending") &&
+          o.status !== "cancelled",
       )
       .reduce((sum, o) => sum + o.total, 0),
     cancelled: orders

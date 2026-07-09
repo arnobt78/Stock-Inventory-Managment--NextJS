@@ -8,6 +8,7 @@ import React, { useState, useEffect, useRef, useMemo } from "react";
 import { useUsers } from "@/hooks/queries";
 import { isDataSlotLoading } from "@/lib/react-query";
 import { PaginationType } from "@/components/shared/PaginationSelector";
+import { PageSectionHeader } from "@/components/shared";
 import { createUserManagementColumns } from "./UserManagementTableColumns";
 import UserManagementFilters from "./UserManagementFilters";
 import { UserManagementTable } from "./UserManagementTable";
@@ -71,14 +72,14 @@ export default function UserManagementList({
 
   return (
     <div className="flex flex-col poppins">
-      <div className="pb-6 flex flex-col items-start text-left">
-        <h2 className="text-lg sm:text-xl font-semibold text-gray-700 dark:text-white ">
-          User Management
-        </h2>
-        <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">
-          Manage users and roles. View and update name, role, and profile.
-        </p>
-      </div>
+      <PageSectionHeader
+        as="h2"
+        icon={Users}
+        tone="violet"
+        className="pb-6"
+        title="User Management"
+        description="Manage users and roles. View and update name, role, and profile."
+      />
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-2 pb-6 items-stretch">
         <StatisticsCard

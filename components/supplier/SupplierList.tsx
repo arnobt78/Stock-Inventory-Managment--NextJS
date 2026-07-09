@@ -18,8 +18,10 @@ import SupplierFilters from "./SupplierFilters";
 import AddSupplierDialog from "./SupplierDialog";
 import { StatisticsCard } from "@/components/home/StatisticsCard";
 import { Package, DollarSign, Truck, FolderTree } from "lucide-react";
+import { PageSectionHeader } from "@/components/shared";
 import { Supplier } from "@/types";
 import type { SupplierForHome } from "@/lib/server/home-data";
+import type { DashboardStats } from "@/types";
 
 const formatCurrency = (value: number) =>
   `$${value.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
@@ -40,6 +42,8 @@ const SupplierTable = dynamic(
 export type SupplierListProps = {
   /** SSR-passed suppliers for first-render hydration (REQ-0021) */
   initialSuppliers?: Supplier[] | SupplierForHome[];
+  /** SSR dashboard stats for /suppliers stat cards (REQ-0025 P2) */
+  initialStats?: DashboardStats;
 };
 
 /**
@@ -49,13 +53,14 @@ export type SupplierListProps = {
  */
 const SupplierList = React.memo(function SupplierList({
   initialSuppliers,
+  initialStats,
 }: SupplierListProps = {}) {
   const isMountedRef = useRef(false);
   const [isMounted, setIsMounted] = useState(false);
 
   const pathname = usePathname();
   const suppliersQuery = useSuppliers(initialSuppliers);
-  const dashboardQuery = useDashboard();
+  const dashboardQuery = useDashboard(initialStats);
   const allSuppliers = suppliersQuery.data ?? [];
   /** Show store-wide state cards only on the user suppliers page (/suppliers), not admin or homepage */
   const isUserSuppliersPage = pathname === "/suppliers";
@@ -92,7 +97,7 @@ const SupplierList = React.memo(function SupplierList({
   // REQ-0021: shell-first — only data slots pulse
   const tableDataLoading = isDataSlotLoading(suppliersQuery, initialSuppliers);
   const cardsDataLoading = isUserSuppliersPage
-    ? isDataSlotLoading(dashboardQuery)
+    ? isDataSlotLoading(dashboardQuery, initialStats)
     : false;
 
   // Create table columns with edit handler
@@ -111,16 +116,14 @@ const SupplierList = React.memo(function SupplierList({
   return (
     <div className="flex flex-col poppins">
       {/* Supplier Management Section Header — same alignment as products page */}
-      <div className="pb-6 flex flex-col items-start text-left">
-        <h2 className="text-lg sm:text-xl font-semibold text-gray-700 dark:text-white ">
-          Supplier Management
-        </h2>
-        <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">
-          Manage your supplier relationships efficiently. Track supplier
-          information, status, and maintain detailed records for better
-          inventory management and procurement planning.
-        </p>
-      </div>
+      <PageSectionHeader
+        as="h2"
+        icon={Truck}
+        tone="teal"
+        className="pb-6"
+        title="Supplier Management"
+        description="Manage your supplier relationships efficiently. Track supplier information, status, and maintain detailed records for better inventory management and procurement planning."
+      />
 
       {/* Store-wide state cards — only on /suppliers page (user), same as homepage/products */}
       {isUserSuppliersPage && (

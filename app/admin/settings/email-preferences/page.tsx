@@ -1,14 +1,17 @@
-import { Suspense } from "react";
+import { redirect } from "next/navigation";
+import { getSession } from "@/lib/auth-server";
+import { getEmailPreferencesForUser } from "@/lib/server/email-preferences-data";
 import EmailPreferencesPage from "@/components/Pages/EmailPreferencesPage";
 
-/**
- * Admin Email Preferences — same form as /settings/email-preferences but inside admin layout.
- * REQ-0021 — shell renders immediately; preferences hydrate client-side.
- */
-export default function AdminEmailPreferencesPage() {
+/** REQ-0025 — blocking SSR prefetch (no Suspense shell flash). */
+export const dynamic = "force-dynamic";
+
+export default async function AdminEmailPreferencesPage() {
+  const user = await getSession();
+  if (!user) redirect("/login");
+
+  const initialPreferences = await getEmailPreferencesForUser(user.id);
   return (
-    <Suspense fallback={<EmailPreferencesPage embedded />}>
-      <EmailPreferencesPage embedded />
-    </Suspense>
+    <EmailPreferencesPage embedded initialPreferences={initialPreferences} />
   );
 }

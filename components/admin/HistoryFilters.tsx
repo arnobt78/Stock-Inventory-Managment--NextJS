@@ -10,22 +10,8 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Search } from "lucide-react";
 import { IoClose } from "react-icons/io5";
-import { FilterDropdown } from "@/components/ui/filter-dropdown";
-import { History } from "lucide-react";
-import type { ImportHistoryForPage } from "@/types";
-
-const IMPORT_TYPE_OPTIONS = [
-  { id: "products", name: "Products" },
-  { id: "orders", name: "Orders" },
-  { id: "suppliers", name: "Suppliers" },
-  { id: "categories", name: "Categories" },
-];
-
-const STATUS_OPTIONS = [
-  { id: "processing", name: "Processing" },
-  { id: "completed", name: "Completed" },
-  { id: "failed", name: "Failed" },
-];
+import { ImportTypeDropDown } from "./ImportTypeFilter";
+import { ImportStatusDropDown } from "./ImportStatusFilter";
 
 interface HistoryFiltersProps {
   searchTerm: string;
@@ -44,11 +30,6 @@ export default function HistoryFilters({
   selectedStatuses,
   setSelectedStatuses,
 }: HistoryFiltersProps) {
-  const importTypeTriggerClass =
-    "h-10 rounded-[28px] border border-rose-400/30 dark:border-rose-400/30 bg-gradient-to-r from-rose-500/25 via-rose-500/15 to-rose-500/10 dark:from-rose-500/25 dark:via-rose-500/15 dark:to-rose-500/10 text-gray-700 dark:text-white shadow-[0_10px_30px_rgba(225,29,72,0.2)] backdrop-blur-sm transition duration-200 hover:border-rose-300/40 hover:from-rose-500/35 hover:via-rose-500/25 hover:to-rose-500/15 dark:hover:border-rose-300/40 dark:hover:from-rose-500/35 dark:hover:via-rose-500/25 dark:hover:to-rose-500/15";
-  const statusTriggerClass =
-    "h-10 rounded-[28px] border border-sky-400/30 dark:border-sky-400/30 bg-gradient-to-r from-sky-500/25 via-sky-500/15 to-sky-500/10 dark:from-sky-500/25 dark:via-sky-500/15 dark:to-sky-500/10 text-gray-700 dark:text-white shadow-[0_10px_30px_rgba(2,132,199,0.2)] backdrop-blur-sm transition duration-200 hover:border-sky-300/40 hover:from-sky-500/35 hover:via-sky-500/25 hover:to-sky-500/15 dark:hover:border-sky-300/40 dark:hover:from-sky-500/35 dark:hover:via-sky-500/25 dark:hover:to-sky-500/15";
-
   return (
     <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
       <div className="relative flex-1 sm:max-w-md">
@@ -57,7 +38,7 @@ export default function HistoryFilters({
           placeholder="Search by file name or type..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-          className="h-10 pl-9 pr-10 w-full rounded-[28px] bg-white/10 dark:bg-white/5 backdrop-blur-sm border border-sky-400/30 dark:border-white/20 text-gray-700 dark:text-white placeholder:text-gray-500 dark:placeholder:text-white/40 focus-visible:border-sky-400 focus-visible:ring-sky-500/50 shadow-[0_10px_30px_rgba(2,132,199,0.15)]"
+          className="h-10 pl-9 pr-10 w-full rounded-[28px] bg-white/10 dark:bg-white/5 backdrop-blur-md border border-sky-400/30 dark:border-white/20 text-gray-700 dark:text-white placeholder:text-gray-500 dark:placeholder:text-white/40 focus-visible:border-sky-400 focus-visible:ring-sky-500/50 shadow-[0_10px_30px_rgba(2,132,199,0.15)]"
         />
         {searchTerm && (
           <Button
@@ -71,22 +52,13 @@ export default function HistoryFilters({
         )}
       </div>
       <div className="flex items-center gap-2 flex-wrap sm:flex-nowrap">
-        <FilterDropdown
-          selectedValues={selectedImportTypes}
-          setSelectedValues={setSelectedImportTypes}
-          options={IMPORT_TYPE_OPTIONS}
-          placeholder="Filter by type..."
-          label="Import Type"
-          icon={History}
-          triggerClassName={importTypeTriggerClass}
+        <ImportTypeDropDown
+          selectedImportTypes={selectedImportTypes}
+          setSelectedImportTypes={setSelectedImportTypes}
         />
-        <FilterDropdown
-          selectedValues={selectedStatuses}
-          setSelectedValues={setSelectedStatuses}
-          options={STATUS_OPTIONS.map((s) => ({ id: s.id, name: s.name }))}
-          placeholder="Filter by status..."
-          label="Status"
-          triggerClassName={statusTriggerClass}
+        <ImportStatusDropDown
+          selectedStatuses={selectedStatuses}
+          setSelectedStatuses={setSelectedStatuses}
         />
       </div>
     </div>

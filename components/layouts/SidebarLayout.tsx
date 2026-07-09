@@ -19,7 +19,8 @@ import {
   Warehouse,
 } from "lucide-react";
 import { useAuth } from "@/contexts/auth-context";
-import { useToast } from "@/hooks/use-toast";
+import { setPostLogoutGoodbye } from "@/lib/auth/post-logout-goodbye";
+import { clearAuthToastMarkers } from "@/components/shared/AuthSessionToasts";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { cn } from "@/lib/utils";
@@ -68,26 +69,29 @@ export default function SidebarLayout({
 }: SidebarLayoutProps) {
   const pathname = usePathname();
   const router = useRouter();
-  const { user, logout, isCheckingAuth } = useAuth();
-  const { toast } = useToast();
+  const { user, isCheckingAuth } = useAuth();
   const [isLoggingOut, setIsLoggingOut] = React.useState(false);
 
   const handleLogout = async () => {
     setIsLoggingOut(true);
     try {
-      await logout();
-      toast({
-        title: "Logged out",
-        description: "You have been logged out successfully.",
-      });
+      const userName = user?.name || user?.email?.split("@")[0] || "User";
+      clearAuthToastMarkers();
+      setPostLogoutGoodbye({ userName });
+      localStorage.removeItem("isAuth");
+      localStorage.removeItem("isLoggedIn");
+      localStorage.removeItem("token");
+      localStorage.removeItem("getSession");
+      localStorage.removeItem("prevUserId");
+      localStorage.removeItem("stock-inventory-query-cache");
+      await fetch("/api/auth/logout", {
+        method: "POST",
+        credentials: "include",
+      }).catch(() => {});
       window.location.href = "/login";
       return;
     } catch {
-      toast({
-        title: "Logout failed",
-        description: "Please try again.",
-        variant: "destructive",
-      });
+      // logout redirect is best-effort
     } finally {
       setIsLoggingOut(false);
     }
@@ -113,17 +117,17 @@ export default function SidebarLayout({
         className="flex h-full w-[240px] flex-shrink-0 flex-col border-r border-gray-200/50 dark:border-white/10 bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl"
         aria-label="Sidebar navigation"
       >
-        <div className="flex flex-col gap-1 p-3">
+        <div className="flex flex-col gap-1 p-2">
           <Link
             href="/"
-            className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-semibold text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-white/10 transition-colors"
+            className="flex items-center gap-2 rounded-lg px-2 py-2 text-sm font-medium text-gray-700 dark:text-white hover:bg-gray-100 dark:hover:bg-white/10 transition-colors"
           >
             <LayoutDashboard className="h-5 w-5 text-sky-600 dark:text-sky-400" />
             {sidebarTitle}
           </Link>
           <Link
             href="/"
-            className="rounded-lg px-3 py-2 text-xs text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-white/10 transition-colors"
+            className="rounded-lg px-2 py-2 text-xs text-gray-600 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-white/10 transition-colors"
           >
             ← Back to Dashboard
           </Link>
@@ -138,10 +142,10 @@ export default function SidebarLayout({
                 key={item.path}
                 href={item.path}
                 className={cn(
-                  "flex items-center gap-2 rounded-lg px-3 py-2 text-sm transition-colors",
+                  "flex items-center gap-2 rounded-lg px-2 py-2 text-sm transition-colors",
                   isActive
                     ? "bg-sky-500/15 dark:bg-sky-500/20 text-sky-700 dark:text-sky-300 font-medium"
-                    : "text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-white/10 hover:text-gray-900 dark:hover:text-white",
+                    : "text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-white/10 hover:text-gray-700 dark:hover:text-white",
                 )}
               >
                 <Icon className="h-4 w-4 flex-shrink-0" />
@@ -151,10 +155,10 @@ export default function SidebarLayout({
           })}
         </nav>
         <Separator className="bg-gray-200/50 dark:bg-white/10" />
-        <div className="flex flex-shrink-0 flex-col gap-1 p-3">
+        <div className="flex flex-shrink-0 flex-col gap-1 p-2">
           {!isCheckingAuth && user && (
             <>
-              <div className="flex items-center gap-2 rounded-lg px-3 py-2">
+              <div className="flex items-center gap-2 rounded-lg px-2 py-2">
                 {avatarUrl ? (
                   <Image
                     src={avatarUrl}

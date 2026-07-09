@@ -65,3 +65,8 @@ export type {
 } from "./ClientFormatDisplay";
 export { DataSlotPulse } from "./DataSlotPulse";
 export type { DataSlotPulseProps, DataSlotPulseVariant } from "./DataSlotPulse";
+export { SectionCardHeader } from "./SectionCardHeader";
+export type { SectionCardHeaderProps } from "./SectionCardHeader";
+export { PageSectionHeader } from "./PageSectionHeader";
+export type { PageSectionHeaderProps } from "./PageSectionHeader";
+export { AuthSessionToasts, clearAuthToastMarkers } from "./AuthSessionToasts";

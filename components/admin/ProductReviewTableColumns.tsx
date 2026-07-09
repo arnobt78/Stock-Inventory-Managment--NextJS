@@ -7,7 +7,7 @@
 
 import React from "react";
 import { Column, ColumnDef } from "@tanstack/react-table";
-import { Badge } from "@/components/ui/badge";
+import { ReviewStatusBadge } from "@/lib/ui/semantic-badges";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -21,19 +21,6 @@ import { format } from "date-fns";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 import type { ProductReview } from "@/types";
-
-function getStatusColor(status: string): string {
-  switch (status) {
-    case "pending":
-      return "bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300";
-    case "approved":
-      return "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300";
-    case "rejected":
-      return "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300";
-    default:
-      return "bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-300";
-  }
-}
 
 /** Rating label and star color (softer, friendly look) */
 function getRatingDisplay(rating: number): {
@@ -105,7 +92,7 @@ function SortableHeader({ column, label }: SortableHeaderProps) {
       <DropdownMenuTrigger className="" asChild>
         <div
           className={cn(
-            "flex items-center select-none cursor-pointer gap-1 py-2 text-gray-700 dark:text-white",
+            "flex items-center select-none cursor-pointer gap-1 py-2 text-sm font-normal text-gray-700 dark:text-white",
             isSorted && "text-primary",
           )}
           aria-label={`Sort by ${label}`}
@@ -144,7 +131,7 @@ export function createProductReviewColumns(
         return (
           <Link
             href={productHref}
-            className="font-medium truncate max-w-[180px] block text-primary hover:text-primary/80"
+            className="font-normal truncate max-w-[180px] block text-primary hover:text-primary/80"
             title={`${r.productName}${sku}`}
           >
             {r.productName}
@@ -168,7 +155,7 @@ export function createProductReviewColumns(
         return (
           <span
             className={cn(
-              "inline-flex items-center gap-2 font-medium capitalize",
+              "inline-flex items-center gap-2 text-xs font-normal capitalize",
               textClass,
             )}
           >
@@ -192,7 +179,7 @@ export function createProductReviewColumns(
       header: "Comment",
       cell: ({ row }) => (
         <span
-          className="text-sm text-muted-foreground truncate max-w-[200px] block"
+          className="text-muted-foreground truncate max-w-[200px] block"
           title={row.original.comment}
         >
           {row.original.comment}
@@ -204,7 +191,7 @@ export function createProductReviewColumns(
       header: ({ column }) => <SortableHeader column={column} label="Status" />,
       cell: ({ row }) => {
         const s = row.original.status;
-        return <Badge className={getStatusColor(s)}>{s}</Badge>;
+        return <ReviewStatusBadge status={s} />;
       },
     },
     {
@@ -220,7 +207,7 @@ export function createProductReviewColumns(
         const email = r.reviewerEmail ?? "—";
         return (
           <div className="flex flex-col min-w-0 max-w-[180px]">
-            <span className="font-medium text-sm truncate" title={String(name)}>
+            <span className=" truncate" title={String(name)}>
               {name}
             </span>
             <span
@@ -246,7 +233,7 @@ export function createProductReviewColumns(
           ? format(new Date(r.updatedAt), "MMM d, yyyy 'at' hh:mm a")
           : "—";
         return (
-          <div className="flex flex-col text-sm whitespace-nowrap">
+          <div className="flex flex-col whitespace-nowrap">
             <span className="text-muted-foreground">Created: {created}</span>
             <span className="text-muted-foreground mt-0.5">
               Updated: {updated}

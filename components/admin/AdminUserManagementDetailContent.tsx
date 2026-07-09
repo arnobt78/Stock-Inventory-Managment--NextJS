@@ -39,10 +39,17 @@ import {
 } from "lucide-react";
 import { useUser, useUpdateUser, useDeleteUser } from "@/hooks/queries";
 import { useAuth } from "@/contexts";
-import { DeferredSelectGate, PageContentWrapper } from "@/components/shared";
+import {
+  DeferredSelectGate,
+  PageContentWrapper,
+  DataSlotPulse,
+} from "@/components/shared";
+import { isDataSlotLoading } from "@/lib/react-query";
 import { format } from "date-fns";
 import type { UserForAdmin, UserRole } from "@/types";
+import type { UserDetailForPage } from "@/hooks/queries/use-user-management";
 import { cn } from "@/lib/utils";
+import { UserRoleBadge, userRoleBadgeClass } from "@/lib/ui/semantic-badges";
 
 type CardVariant = "violet" | "sky" | "emerald" | "amber" | "rose" | "blue";
 
@@ -124,7 +131,7 @@ function GlassCard({
   return (
     <article
       className={cn(
-        "group rounded-[20px] border p-4 sm:p-5 backdrop-blur-sm transition-all duration-300 bg-white/60 dark:bg-white/5",
+        "group rounded-[20px] border p-4 sm:p-5 backdrop-blur-md transition-all duration-300 bg-white/60 dark:bg-white/5",
         config.border,
         config.gradient,
         config.shadow,
@@ -158,27 +165,21 @@ const ROLE_OPTIONS: { value: UserRole; label: string }[] = [
   { value: "retailer", label: "Retailer" },
 ];
 
-function getRoleColor(role: string | null): string {
-  switch (role ?? "") {
-    case "admin":
-      return "bg-violet-100 text-violet-800 dark:bg-violet-900/30 dark:text-violet-300";
-    case "supplier":
-      return "bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-300";
-    case "client":
-      return "bg-sky-100 text-sky-800 dark:bg-sky-900/30 dark:text-sky-300";
-    case "retailer":
-      return "bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300";
-    default:
-      return "bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-300";
-  }
-}
+export type AdminUserManagementDetailContentProps = {
+  initialUser?: UserDetailForPage;
+};
 
-export default function AdminUserManagementDetailContent() {
+export default function AdminUserManagementDetailContent({
+  initialUser,
+}: AdminUserManagementDetailContentProps = {}) {
   const params = useParams();
   const router = useRouter();
   const { user: currentUser } = useAuth();
   const id = params?.id as string;
-  const { data: user, isLoading, isError, error } = useUser(id);
+  const userQuery = useUser(id, initialUser);
+  const user = userQuery.data;
+  const dataLoading = isDataSlotLoading(userQuery, initialUser);
+  const { isError, error } = userQuery;
   const updateMutation = useUpdateUser();
   const deleteMutation = useDeleteUser();
   const isOwner = currentUser?.id != null && currentUser.id === id;
@@ -226,7 +227,7 @@ export default function AdminUserManagementDetailContent() {
     });
   }, [id, deleteMutation, router]);
 
-  if (isError || (!isLoading && !user)) {
+  if (isError) {
     return (
       <PageContentWrapper>
         <div className="space-y-4">
@@ -248,21 +249,39 @@ export default function AdminUserManagementDetailContent() {
     );
   }
 
-  if (isLoading || !user) {
+  if (!dataLoading && !user) {
     return (
       <PageContentWrapper>
-        <div className="flex items-center justify-center min-h-[200px]">
-          <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+        <div className="space-y-4">
+          <Button variant="ghost" size="sm" asChild>
+            <Link href="/admin/user-management" className="gap-2">
+              <ArrowLeft className="h-4 w-4" />
+              Back to User Management
+            </Link>
+          </Button>
+          <GlassCard variant="violet">
+            <div className="py-8 text-center">
+              <p className="text-muted-foreground">
+                The user you are looking for does not exist or was removed.
+              </p>
+            </div>
+          </GlassCard>
         </div>
       </PageContentWrapper>
     );
   }
 
-  const u = user as UserForAdmin;
+  const u = user as UserForAdmin | undefined;
   const isUpdating = updateMutation.isPending;
   const isDeleting = deleteMutation.isPending;
-  const nameValue = nameTouched ? name : u.name;
-  const overview = u.overview;
+  const nameValue = nameTouched ? name : (u?.name ?? "");
+  const overview = u?.overview;
+  const actionsDisabled = dataLoading || !user;
+  const isProtectedResolved =
+    !dataLoading && u
+      ? PROTECTED_EMAILS.includes((u.email ?? "").toLowerCase())
+      : false;
+  const canDeleteResolved = !dataLoading && isOwner && !isProtectedResolved;
 
   return (
     <PageContentWrapper>
@@ -274,11 +293,17 @@ export default function AdminUserManagementDetailContent() {
             </Link>
           </Button>
           <div>
-            <h1 className="text-lg sm:text-xl font-semibold text-gray-700 dark:text-white">
+            <h1 className="text-lg sm:text-xl font-medium text-gray-700 dark:text-white">
               User Details
             </h1>
             <p className="text-sm text-gray-600 dark:text-gray-400">
-              {u.name} · {u.email}
+              {dataLoading ? (
+                <DataSlotPulse variant="text-sm" className="w-48" />
+              ) : (
+                <>
+                  {u!.name} · {u!.email}
+                </>
+              )}
             </p>
           </div>
         </div>
@@ -295,7 +320,7 @@ export default function AdminUserManagementDetailContent() {
               <User className="h-5 w-5 text-violet-600 dark:text-violet-400" />
             </div>
             <div>
-              <h3 className="text-lg font-semibold text-gray-700 dark:text-white">
+              <h3 className="text-lg font-medium text-gray-700 dark:text-white">
                 Profile
               </h3>
               <p className="text-xs text-gray-600 dark:text-gray-400">
@@ -311,7 +336,11 @@ export default function AdminUserManagementDetailContent() {
                     Email
                   </Label>
                   <p className="font-medium mt-1 text-gray-700 dark:text-white">
-                    {u.email}
+                    {dataLoading ? (
+                      <DataSlotPulse variant="text-md" className="w-48" />
+                    ) : (
+                      u!.email
+                    )}
                   </p>
                 </div>
                 <div>
@@ -319,7 +348,11 @@ export default function AdminUserManagementDetailContent() {
                     Username
                   </Label>
                   <p className="font-medium mt-1 text-gray-700 dark:text-white">
-                    {getDisplayUsername(u)}
+                    {dataLoading ? (
+                      <DataSlotPulse variant="text-sm" className="w-32" />
+                    ) : (
+                      getDisplayUsername(u!)
+                    )}
                   </p>
                 </div>
                 <div>
@@ -327,7 +360,11 @@ export default function AdminUserManagementDetailContent() {
                     Joined
                   </Label>
                   <p className="font-medium mt-1 text-gray-700 dark:text-white">
-                    {format(new Date(u.createdAt), "MMMM d, yyyy 'at' h:mm a")}
+                    {dataLoading ? (
+                      <DataSlotPulse variant="date" />
+                    ) : (
+                      format(new Date(u!.createdAt), "MMMM d, yyyy 'at' h:mm a")
+                    )}
                   </p>
                 </div>
                 <div>
@@ -335,12 +372,13 @@ export default function AdminUserManagementDetailContent() {
                     Last Updated
                   </Label>
                   <p className="font-medium mt-1 text-gray-700 dark:text-white">
-                    {u.updatedAt
-                      ? format(
-                          new Date(u.updatedAt),
-                          "MMMM d, yyyy 'at' h:mm a",
-                        )
-                      : "—"}
+                    {dataLoading ? (
+                      <DataSlotPulse variant="date" />
+                    ) : u!.updatedAt ? (
+                      format(new Date(u!.updatedAt), "MMMM d, yyyy 'at' h:mm a")
+                    ) : (
+                      "—"
+                    )}
                   </p>
                 </div>
               </div>
@@ -352,9 +390,13 @@ export default function AdminUserManagementDetailContent() {
                   >
                     Name
                   </Label>
-                  {isProtected ? (
+                  {isProtectedResolved ? (
                     <p className="font-medium mt-1 text-gray-700 dark:text-white">
-                      {u.name ?? "—"}
+                      {dataLoading ? (
+                        <DataSlotPulse variant="text-md" className="w-32" />
+                      ) : (
+                        (u!.name ?? "—")
+                      )}
                     </p>
                   ) : (
                     <div className="flex gap-2 mt-1">
@@ -365,7 +407,7 @@ export default function AdminUserManagementDetailContent() {
                           setName(e.target.value);
                           setNameTouched(true);
                         }}
-                        disabled={isUpdating}
+                        disabled={isUpdating || actionsDisabled}
                         className="rounded-[28px] border-violet-200/50 dark:border-white/10"
                       />
                       {nameTouched && (
@@ -391,58 +433,57 @@ export default function AdminUserManagementDetailContent() {
                   >
                     Role
                   </Label>
-                  <DeferredSelectGate
-                    placeholder={
-                      <div
-                        id="um-role"
-                        className={cn(
-                          "w-[140px] h-9 rounded-[28px] mt-1 border flex items-center px-2 text-sm",
-                          getRoleColor(u.role),
-                        )}
-                        aria-hidden
-                      >
-                        {u.role
-                          ? (ROLE_OPTIONS.find((o) => o.value === u.role)
-                              ?.label ?? u.role)
-                          : "(none)"}
-                      </div>
-                    }
-                  >
-                    {({ selectRemountKey }) => (
-                      <Select
-                        key={selectRemountKey}
-                        value={u.role ?? "null"}
-                        onValueChange={handleRoleChange}
-                        disabled={isUpdating || isProtected}
-                      >
-                        <SelectTrigger
-                          id="um-role"
-                          className={cn(
-                            "w-[140px] rounded-[28px] mt-1",
-                            getRoleColor(u.role),
-                          )}
+                  {dataLoading ? (
+                    <DataSlotPulse
+                      variant="badge"
+                      className="h-9 w-[140px] rounded-[28px] mt-1"
+                    />
+                  ) : (
+                    <DeferredSelectGate
+                      placeholder={
+                        <div id="um-role" className="mt-1" aria-hidden>
+                          <UserRoleBadge role={u!.role ?? "user"} />
+                        </div>
+                      }
+                    >
+                      {({ selectRemountKey }) => (
+                        <Select
+                          key={selectRemountKey}
+                          value={u!.role ?? "null"}
+                          onValueChange={handleRoleChange}
+                          disabled={
+                            isUpdating || isProtectedResolved || actionsDisabled
+                          }
                         >
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {ROLE_OPTIONS.map((opt) => (
-                            <SelectItem key={opt.value} value={opt.value}>
-                              {opt.label}
-                            </SelectItem>
-                          ))}
-                          <SelectItem value="null">(none)</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    )}
-                  </DeferredSelectGate>
+                          <SelectTrigger
+                            id="um-role"
+                            className={cn(
+                              "w-auto min-w-[140px] rounded-full mt-1 h-auto py-1 px-2",
+                              userRoleBadgeClass(u!.role),
+                            )}
+                          >
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {ROLE_OPTIONS.map((opt) => (
+                              <SelectItem key={opt.value} value={opt.value}>
+                                {opt.label}
+                              </SelectItem>
+                            ))}
+                            <SelectItem value="null">(none)</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      )}
+                    </DeferredSelectGate>
+                  )}
                 </div>
               </div>
             </div>
           </div>
         </GlassCard>
 
-        {/* Overview */}
-        {overview && (
+        {/* Overview — shell visible while loading (REQ-0023) */}
+        {(dataLoading || overview) && (
           <GlassCard variant="sky">
             <div className="flex items-center gap-2 mb-4">
               <div
@@ -455,7 +496,7 @@ export default function AdminUserManagementDetailContent() {
                 <DollarSign className="h-5 w-5 text-sky-600 dark:text-sky-400" />
               </div>
               <div>
-                <h3 className="text-lg font-semibold text-gray-700 dark:text-white">
+                <h3 className="text-lg font-medium text-gray-700 dark:text-white">
                   Overview
                 </h3>
                 <p className="text-xs text-gray-600 dark:text-gray-400">
@@ -473,8 +514,12 @@ export default function AdminUserManagementDetailContent() {
               >
                 <ShoppingCart className="h-5 w-5 text-sky-600 dark:text-sky-400" />
                 <div>
-                  <p className="text-lg sm:text-xl font-semibold text-gray-700 dark:text-white">
-                    {overview.orderCount}
+                  <p className="text-lg sm:text-xl font-medium text-gray-700 dark:text-white">
+                    {dataLoading ? (
+                      <DataSlotPulse variant="metric" />
+                    ) : (
+                      overview!.orderCount
+                    )}
                   </p>
                   <p className="text-xs text-gray-600 dark:text-gray-400">
                     Orders
@@ -487,8 +532,12 @@ export default function AdminUserManagementDetailContent() {
               >
                 <FileText className="h-5 w-5 text-sky-600 dark:text-sky-400" />
                 <div>
-                  <p className="text-lg sm:text-xl font-semibold text-gray-700 dark:text-white">
-                    {overview.invoiceCount}
+                  <p className="text-lg sm:text-xl font-medium text-gray-700 dark:text-white">
+                    {dataLoading ? (
+                      <DataSlotPulse variant="metric" />
+                    ) : (
+                      overview!.invoiceCount
+                    )}
                   </p>
                   <p className="text-xs text-gray-600 dark:text-gray-400">
                     Invoices
@@ -498,8 +547,12 @@ export default function AdminUserManagementDetailContent() {
               <div className="flex items-center gap-2 p-2 rounded-xl border border-violet-200/40 dark:border-white/10 bg-white/30 dark:bg-white/5">
                 <DollarSign className="h-5 w-5 text-violet-600 dark:text-violet-400" />
                 <div>
-                  <p className="text-lg sm:text-xl font-semibold text-gray-700 dark:text-white">
-                    ${(overview.totalRevenue ?? 0).toLocaleString()}
+                  <p className="text-lg sm:text-xl font-medium text-gray-700 dark:text-white">
+                    {dataLoading ? (
+                      <DataSlotPulse variant="currency" />
+                    ) : (
+                      `$${(overview!.totalRevenue ?? 0).toLocaleString()}`
+                    )}
                   </p>
                   <p className="text-xs text-gray-600 dark:text-gray-400">
                     Total Revenue
@@ -509,8 +562,12 @@ export default function AdminUserManagementDetailContent() {
               <div className="flex items-center gap-2 p-2 rounded-xl border border-emerald-200/40 dark:border-white/10 bg-white/30 dark:bg-white/5">
                 <DollarSign className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
                 <div>
-                  <p className="text-lg sm:text-xl font-semibold text-gray-700 dark:text-white">
-                    ${overview.totalSpent.toLocaleString()}
+                  <p className="text-lg sm:text-xl font-medium text-gray-700 dark:text-white">
+                    {dataLoading ? (
+                      <DataSlotPulse variant="currency" />
+                    ) : (
+                      `$${overview!.totalSpent.toLocaleString()}`
+                    )}
                   </p>
                   <p className="text-xs text-gray-600 dark:text-gray-400">
                     Total Spent
@@ -520,8 +577,12 @@ export default function AdminUserManagementDetailContent() {
               <div className="flex items-center gap-2 p-2 rounded-xl border border-amber-200/40 dark:border-white/10 bg-white/30 dark:bg-white/5">
                 <DollarSign className="h-5 w-5 text-amber-600 dark:text-amber-400" />
                 <div>
-                  <p className="text-lg sm:text-xl font-semibold text-gray-700 dark:text-white">
-                    ${overview.totalDue.toLocaleString()}
+                  <p className="text-lg sm:text-xl font-medium text-gray-700 dark:text-white">
+                    {dataLoading ? (
+                      <DataSlotPulse variant="currency" />
+                    ) : (
+                      `$${overview!.totalDue.toLocaleString()}`
+                    )}
                   </p>
                   <p className="text-xs text-gray-600 dark:text-gray-400">
                     Total Due
@@ -536,8 +597,12 @@ export default function AdminUserManagementDetailContent() {
               >
                 <Package className="h-5 w-5 text-violet-600 dark:text-violet-400" />
                 <div>
-                  <p className="text-xl font-semibold text-gray-700 dark:text-white">
-                    {overview.productCount}
+                  <p className="text-xl font-medium text-gray-700 dark:text-white">
+                    {dataLoading ? (
+                      <DataSlotPulse variant="metric" />
+                    ) : (
+                      overview!.productCount
+                    )}
                   </p>
                   <p className="text-xs text-gray-600 dark:text-gray-400">
                     Products
@@ -550,8 +615,12 @@ export default function AdminUserManagementDetailContent() {
               >
                 <Truck className="h-5 w-5 text-violet-600 dark:text-violet-400" />
                 <div>
-                  <p className="text-xl font-semibold text-gray-700 dark:text-white">
-                    {overview.supplierCount}
+                  <p className="text-xl font-medium text-gray-700 dark:text-white">
+                    {dataLoading ? (
+                      <DataSlotPulse variant="metric" />
+                    ) : (
+                      overview!.supplierCount
+                    )}
                   </p>
                   <p className="text-xs text-gray-600 dark:text-gray-400">
                     Suppliers
@@ -564,8 +633,12 @@ export default function AdminUserManagementDetailContent() {
               >
                 <Tag className="h-5 w-5 text-violet-600 dark:text-violet-400" />
                 <div>
-                  <p className="text-xl font-semibold text-gray-700 dark:text-white">
-                    {overview.categoryCount}
+                  <p className="text-xl font-medium text-gray-700 dark:text-white">
+                    {dataLoading ? (
+                      <DataSlotPulse variant="metric" />
+                    ) : (
+                      overview!.categoryCount
+                    )}
                   </p>
                   <p className="text-xs text-gray-600 dark:text-gray-400">
                     Categories
@@ -578,8 +651,12 @@ export default function AdminUserManagementDetailContent() {
               >
                 <Building2 className="h-5 w-5 text-violet-600 dark:text-violet-400" />
                 <div>
-                  <p className="text-xl font-semibold text-gray-700 dark:text-white">
-                    {overview.warehouseCount}
+                  <p className="text-xl font-medium text-gray-700 dark:text-white">
+                    {dataLoading ? (
+                      <DataSlotPulse variant="metric" />
+                    ) : (
+                      overview!.warehouseCount
+                    )}
                   </p>
                   <p className="text-xs text-gray-600 dark:text-gray-400">
                     Warehouses
@@ -602,7 +679,7 @@ export default function AdminUserManagementDetailContent() {
               <Trash2 className="h-5 w-5 text-rose-600 dark:text-rose-400" />
             </div>
             <div>
-              <h3 className="text-lg font-semibold text-rose-600 dark:text-rose-400">
+              <h3 className="text-lg font-medium text-rose-600 dark:text-rose-400">
                 Danger Zone
               </h3>
               <p className="text-xs text-gray-600 dark:text-gray-400">
@@ -616,7 +693,7 @@ export default function AdminUserManagementDetailContent() {
               <Button
                 variant="destructive"
                 className="gap-2"
-                disabled={!canDelete || isDeleting || isUpdating}
+                disabled={!canDeleteResolved || isDeleting || isUpdating}
               >
                 {isDeleting ? (
                   <Loader2 className="h-4 w-4 animate-spin" />
@@ -631,8 +708,8 @@ export default function AdminUserManagementDetailContent() {
                 <AlertDialogTitle>Delete user?</AlertDialogTitle>
                 <AlertDialogDescription>
                   Are you sure you want to delete{" "}
-                  <span className="font-semibold">{u.name}</span> ({u.email})?
-                  This action cannot be undone.
+                  <span className="font-medium">{u?.name ?? "—"}</span> (
+                  {u?.email ?? "—"})? This action cannot be undone.
                 </AlertDialogDescription>
               </AlertDialogHeader>
               <AlertDialogFooter>

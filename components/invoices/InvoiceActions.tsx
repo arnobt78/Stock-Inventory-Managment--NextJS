@@ -33,7 +33,11 @@ interface InvoiceActionsProps {
  * Provides view, edit, delete, and send actions for invoice table rows
  * Matches OrderActions/ProductActions pattern
  */
-export default function InvoiceActions({ invoice, onEdit, detailHrefBase }: InvoiceActionsProps) {
+export default function InvoiceActions({
+  invoice,
+  onEdit,
+  detailHrefBase,
+}: InvoiceActionsProps) {
   const deleteInvoiceMutation = useDeleteInvoice();
   const sendInvoiceMutation = useSendInvoice();
   const isDeleting = deleteInvoiceMutation.isPending;
@@ -74,79 +78,89 @@ export default function InvoiceActions({ invoice, onEdit, detailHrefBase }: Invo
 
   return (
     <>
-    <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <Button variant="ghost" className="h-8 w-8 p-0">
-          <span className="sr-only">Open menu</span>
-          <MoreVertical className="h-4 w-4 text-gray-600 dark:text-gray-300" />
-        </Button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent
-        align="end"
-        className="border border-white/10 bg-gradient-to-br from-white/5 via-white/5 to-white/5 backdrop-blur-sm shadow-lg"
-      >
-        <DropdownMenuItem asChild>
-          <Link href={detailHrefBase ? `${detailHrefBase}/${invoice.id}` : `/invoices/${invoice.id}`} className="flex items-center gap-2">
-            <Eye className="h-4 w-4" />
-            View Details
-          </Link>
-        </DropdownMenuItem>
-        <DropdownMenuItem onClick={handleEditInvoice} className="flex items-center gap-2">
-          <Edit className="h-4 w-4" />
-          Edit Invoice
-        </DropdownMenuItem>
-        {invoice.status === "draft" && (
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button variant="ghost" className="h-8 w-8 p-0">
+            <span className="sr-only">Open menu</span>
+            <MoreVertical className="h-4 w-4 text-gray-600 dark:text-gray-300" />
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent
+          align="end"
+          className="border border-white/10 bg-gradient-to-br from-white/5 via-white/5 to-white/5 backdrop-blur-md shadow-lg"
+        >
+          <DropdownMenuItem asChild>
+            <Link
+              href={
+                detailHrefBase
+                  ? `${detailHrefBase}/${invoice.id}`
+                  : `/invoices/${invoice.id}`
+              }
+              className="flex items-center gap-2"
+            >
+              <Eye className="h-4 w-4" />
+              View Details
+            </Link>
+          </DropdownMenuItem>
           <DropdownMenuItem
-            onClick={() => setSendDialogOpen(true)}
-            disabled={isSending}
+            onClick={handleEditInvoice}
             className="flex items-center gap-2"
           >
-            <Send className="h-4 w-4" />
-            {isSending ? "Sending..." : "Send Invoice"}
+            <Edit className="h-4 w-4" />
+            Edit Invoice
           </DropdownMenuItem>
-        )}
-        {invoice.status !== "cancelled" && (
-          <>
-            <DropdownMenuSeparator />
+          {invoice.status === "draft" && (
             <DropdownMenuItem
-              className="text-red-600 dark:text-red-400"
-              onClick={() => setDeleteDialogOpen(true)}
-              disabled={isDeleting}
+              onClick={() => setSendDialogOpen(true)}
+              disabled={isSending}
+              className="flex items-center gap-2"
             >
-              <Trash2 className="h-4 w-4" />
-              {isDeleting ? "Deleting..." : "Delete Invoice"}
+              <Send className="h-4 w-4" />
+              {isSending ? "Sending..." : "Send Invoice"}
             </DropdownMenuItem>
-          </>
-        )}
-      </DropdownMenuContent>
-    </DropdownMenu>
+          )}
+          {invoice.status !== "cancelled" && (
+            <>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem
+                className="text-red-600 dark:text-red-400"
+                onClick={() => setDeleteDialogOpen(true)}
+                disabled={isDeleting}
+              >
+                <Trash2 className="h-4 w-4" />
+                {isDeleting ? "Deleting..." : "Delete Invoice"}
+              </DropdownMenuItem>
+            </>
+          )}
+        </DropdownMenuContent>
+      </DropdownMenu>
 
-    {/* Delete Confirmation Dialog */}
-    <AlertDialogWrapper
-      open={deleteDialogOpen}
-      onOpenChange={setDeleteDialogOpen}
-      title="Delete Invoice"
-      description={`Are you sure you want to delete invoice ${invoice.invoiceNumber}? This action cannot be undone.`}
-      actionLabel="Delete"
-      actionLoadingLabel="Deleting..."
-      isLoading={isDeleting}
-      onAction={handleDeleteInvoice}
-      onCancel={() => setDeleteDialogOpen(false)}
-    />
+      {/* Delete Confirmation Dialog */}
+      <AlertDialogWrapper
+        open={deleteDialogOpen}
+        onOpenChange={setDeleteDialogOpen}
+        title="Delete Invoice"
+        description={`Are you sure you want to delete invoice ${invoice.invoiceNumber}? This action cannot be undone.`}
+        actionLabel="Delete"
+        actionLoadingLabel="Deleting..."
+        isLoading={isDeleting}
+        onAction={handleDeleteInvoice}
+        onCancel={() => setDeleteDialogOpen(false)}
+      />
 
-    {/* Send Confirmation Dialog */}
-    <AlertDialogWrapper
-      open={sendDialogOpen}
-      onOpenChange={setSendDialogOpen}
-      title="Send Invoice"
-      description={`Are you sure you want to send invoice ${invoice.invoiceNumber} via email?`}
-      actionLabel="Send"
-      actionLoadingLabel="Sending..."
-      isLoading={isSending}
-      onAction={handleSendInvoice}
-      onCancel={() => setSendDialogOpen(false)}
-      actionVariant="default"
-    />
+      {/* Send Confirmation Dialog */}
+      <AlertDialogWrapper
+        open={sendDialogOpen}
+        onOpenChange={setSendDialogOpen}
+        title="Send Invoice"
+        description={`Are you sure you want to send invoice ${invoice.invoiceNumber} via email?`}
+        actionLabel="Send"
+        actionLoadingLabel="Sending..."
+        isLoading={isSending}
+        onAction={handleSendInvoice}
+        onCancel={() => setSendDialogOpen(false)}
+        actionVariant="default"
+      />
     </>
   );
 }

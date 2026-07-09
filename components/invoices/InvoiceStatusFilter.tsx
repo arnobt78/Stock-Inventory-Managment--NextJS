@@ -4,7 +4,7 @@
  */
 
 import React from "react";
-import { FileText, Clock, CheckCircle, AlertTriangle, X } from "lucide-react";
+import { FileText } from "lucide-react";
 import {
   Popover,
   PopoverTrigger,
@@ -21,24 +21,20 @@ import {
 } from "@/components/ui/command";
 import { Separator } from "@/components/ui/separator";
 import { Checkbox } from "@/components/ui/checkbox";
+import { InvoiceStatusBadge } from "@/lib/ui/semantic-badges";
 import type { InvoiceStatus } from "@/types";
 
 type InvoiceStatusOption = {
   value: InvoiceStatus;
   label: string;
-  icon: React.ReactNode;
 };
 
 const invoiceStatuses: InvoiceStatusOption[] = [
-  { value: "draft", label: "Draft", icon: <FileText className="h-4 w-4" /> },
-  { value: "sent", label: "Sent", icon: <Clock className="h-4 w-4" /> },
-  { value: "paid", label: "Paid", icon: <CheckCircle className="h-4 w-4" /> },
-  {
-    value: "overdue",
-    label: "Overdue",
-    icon: <AlertTriangle className="h-4 w-4" />,
-  },
-  { value: "cancelled", label: "Cancelled", icon: <X className="h-4 w-4" /> },
+  { value: "draft", label: "Draft" },
+  { value: "sent", label: "Sent" },
+  { value: "paid", label: "Paid" },
+  { value: "overdue", label: "Overdue" },
+  { value: "cancelled", label: "Cancelled" },
 ];
 
 type InvoiceStatusDropDownProps = {
@@ -51,23 +47,6 @@ export function InvoiceStatusDropDown({
   setSelectedStatuses,
 }: InvoiceStatusDropDownProps) {
   const [open, setOpen] = React.useState(false);
-
-  function returnColor(status: string) {
-    switch (status) {
-      case "draft":
-        return "text-gray-600 bg-gray-100";
-      case "sent":
-        return "text-blue-600 bg-blue-100";
-      case "paid":
-        return "text-green-600 bg-green-100";
-      case "overdue":
-        return "text-red-600 bg-red-100";
-      case "cancelled":
-        return "text-gray-600 bg-gray-100";
-      default:
-        return "";
-    }
-  }
 
   function handleCheckboxChange(value: string) {
     setSelectedStatuses((prev) => {
@@ -88,14 +67,14 @@ export function InvoiceStatusDropDown({
         <PopoverTrigger asChild>
           <Button
             variant="secondary"
-            className="h-10 rounded-[28px] border border-rose-400/30 dark:border-rose-400/30 bg-gradient-to-r from-rose-500/25 via-rose-500/15 to-rose-500/10 dark:from-rose-500/25 dark:via-rose-500/15 dark:to-rose-500/10 text-gray-700 dark:text-white shadow-[0_10px_30px_rgba(225,29,72,0.2)] backdrop-blur-sm transition duration-200 hover:border-rose-300/40 hover:from-rose-500/35 hover:via-rose-500/25 hover:to-rose-500/15 dark:hover:border-rose-300/40 dark:hover:from-rose-500/35 dark:hover:via-rose-500/25 dark:hover:to-rose-500/15"
+            className="h-10 rounded-[28px] border border-rose-400/30 dark:border-rose-400/30 bg-gradient-to-r from-rose-500/25 via-rose-500/15 to-rose-500/10 dark:from-rose-500/25 dark:via-rose-500/15 dark:to-rose-500/10 text-gray-700 dark:text-white shadow-[0_10px_30px_rgba(225,29,72,0.2)] backdrop-blur-md transition duration-200 hover:border-rose-300/40 hover:from-rose-500/35 hover:via-rose-500/25 hover:to-rose-500/15 dark:hover:border-rose-300/40 dark:hover:from-rose-500/35 dark:hover:via-rose-500/25 dark:hover:to-rose-500/15"
           >
             <FileText className="h-4 w-4 mr-1" />
             Status
           </Button>
         </PopoverTrigger>
         <PopoverContent
-          className="p-0 w-48 poppins rounded-[28px] border border-rose-400/20 dark:border-white/10 bg-white/80 dark:bg-popover/50 backdrop-blur-sm shadow-[0_10px_30px_rgba(225,29,72,0.15)] [&_[cmdk-input-wrapper]]:border-b [&_[cmdk-input-wrapper]]:border-gray-300/50 [&_[cmdk-input-wrapper]]:dark:border-white/10 [&_[cmdk-input-wrapper]]:bg-white/10 [&_[cmdk-input-wrapper]]:dark:bg-white/5 [&_[cmdk-input-wrapper]]:backdrop-blur-sm"
+          className="p-0 w-48 poppins rounded-[28px] border border-rose-400/20 dark:border-white/10 bg-white/80 dark:bg-popover/50 backdrop-blur-md shadow-[0_10px_30px_rgba(225,29,72,0.15)] [&_[cmdk-input-wrapper]]:border-b [&_[cmdk-input-wrapper]]:border-gray-300/50 [&_[cmdk-input-wrapper]]:dark:border-white/10 [&_[cmdk-input-wrapper]]:bg-white/10 [&_[cmdk-input-wrapper]]:dark:bg-white/5 [&_[cmdk-input-wrapper]]:backdrop-blur-md"
           side="bottom"
           align="center"
         >
@@ -116,16 +95,12 @@ export function InvoiceStatusDropDown({
                     <Checkbox
                       checked={selectedStatuses.includes(status.value)}
                       onCheckedChange={() => handleCheckboxChange(status.value)}
-                      className="size-4 rounded-[4px] mr-2 border-white/20 bg-white/5 backdrop-blur-sm focus:ring-rose-500/50 focus:ring-2"
+                      className="size-4 rounded-[4px] mr-2 border-white/20 bg-white/5 backdrop-blur-md focus:ring-rose-500/50 focus:ring-2"
                     />
-                    <div
-                      className={`flex items-center gap-1 ${returnColor(
-                        status.value,
-                      )} p-1 rounded-lg px-4 text-[13px]`}
-                    >
-                      {status.icon}
-                      {status.label}
-                    </div>
+                    <InvoiceStatusBadge
+                      status={status.value}
+                      label={status.label}
+                    />
                   </CommandItem>
                 ))}
               </CommandGroup>

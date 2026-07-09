@@ -17,35 +17,9 @@ import {
 import { updateProductReviewSchema } from "@/lib/validations";
 import { withRateLimit, defaultRateLimits } from "@/lib/api/rate-limit";
 import { createAuditLog } from "@/prisma/audit-log";
-import type { ProductReview, UpdateProductReviewInput } from "@/types";
-
-function transform(
-  r: Awaited<ReturnType<typeof getProductReviewById>> & {},
-  reviewer?: { name: string | null; email: string } | null,
-): ProductReview & { reviewerName?: string | null; reviewerEmail?: string } {
-  const base: ProductReview = {
-    id: r.id,
-    productId: r.productId,
-    userId: r.userId,
-    orderId: r.orderId,
-    orderItemId: r.orderItemId ?? null,
-    productName: r.productName,
-    productSku: r.productSku,
-    rating: r.rating,
-    comment: r.comment,
-    status: r.status as ProductReview["status"],
-    createdAt: r.createdAt.toISOString(),
-    updatedAt: r.updatedAt?.toISOString() ?? null,
-  };
-  if (reviewer) {
-    return {
-      ...base,
-      reviewerName: reviewer.name,
-      reviewerEmail: reviewer.email,
-    };
-  }
-  return base;
-}
+import type { UpdateProductReviewInput } from "@/types";
+import { getProductReviewDetailForPage } from "@/lib/server/product-review-detail-data";
+import { transformProductReviewDetail } from "@/lib/product-reviews/transform-product-review-detail";
 
 /**
  * GET /api/product-reviews/:id
@@ -68,34 +42,31 @@ export async function GET(
     }
 
     const { id } = await params;
-    const record = await getProductReviewById(id);
-    if (!record) {
+    const detail = await getProductReviewDetailForPage(
+      { id: session.id, role: session.role },
+      id,
+    );
+    if (!detail) {
+      const record = await getProductReviewById(id);
+      if (!record) {
+        return NextResponse.json(
+          { error: "Product review not found" },
+          { status: 404 },
+        );
+      }
+      if (session.role === "admin") {
+        return NextResponse.json(
+          { error: "You can only view reviews for your own products." },
+          { status: 403 },
+        );
+      }
       return NextResponse.json(
         { error: "Product review not found" },
         { status: 404 },
       );
     }
 
-    // Admin may only view reviews for products they own (product.userId === session.id).
-    if (session.role === "admin") {
-      const product = await prisma.product.findUnique({
-        where: { id: record.productId },
-        select: { userId: true },
-      });
-      if (product?.userId !== session.id) {
-        return NextResponse.json(
-          { error: "You can only view reviews for your own products." },
-          { status: 403 },
-        );
-      }
-    }
-
-    const reviewer = await prisma.user.findUnique({
-      where: { id: record.userId },
-      select: { name: true, email: true },
-    });
-
-    return NextResponse.json(transform(record, reviewer));
+    return NextResponse.json(detail);
   } catch (error) {
     logger.error("Error fetching product review:", error);
     return NextResponse.json(
@@ -197,7 +168,7 @@ export async function PUT(
       where: { id: updated.userId },
       select: { name: true, email: true },
     });
-    return NextResponse.json(transform(updated, reviewer));
+    return NextResponse.json(transformProductReviewDetail(updated, reviewer));
   } catch (error) {
     logger.error("Error updating product review:", error);
     return NextResponse.json(

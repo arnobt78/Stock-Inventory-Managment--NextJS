@@ -24,7 +24,7 @@ export function useHistory(initialData?: ImportHistoryForPage[]) {
  *
  * @param id - Import history record ID
  */
-export function useHistoryItem(id: string) {
+export function useHistoryItem(id: string, initialData?: ImportHistoryForPage) {
   return useQuery({
     queryKey: queryKeys.history.detail(id),
     queryFn: async () => {
@@ -32,5 +32,6 @@ export function useHistoryItem(id: string) {
       return response.data;
     },
     enabled: !!id,
+    ...withInitialData(initialData),
   });
 }

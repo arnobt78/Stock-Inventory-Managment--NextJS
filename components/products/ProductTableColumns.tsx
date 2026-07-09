@@ -15,6 +15,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { QRCodeHover } from "@/components/ui/qr-code-hover";
+import { ProductStockFromQuantityBadge } from "@/lib/ui/semantic-badges";
 import { AlertTriangle, ArrowUpDown } from "lucide-react";
 import { IoMdArrowDown, IoMdArrowUp } from "react-icons/io";
 
@@ -42,7 +43,7 @@ const SortableHeader: React.FC<SortableHeaderProps> = ({ column, label }) => {
     <DropdownMenu>
       <DropdownMenuTrigger className="" asChild>
         <div
-          className={`flex items-center select-none cursor-pointer gap-1 py-2 ${
+          className={`flex items-center select-none cursor-pointer gap-1 py-2 text-sm font-normal text-gray-700 dark:text-white ${
             isSorted && "text-primary"
           }`}
           aria-label={`Sort by ${label}`}
@@ -79,50 +80,50 @@ export function createProductColumns(
   const forSupplier = options?.forSupplier === true;
   return [
     {
-      id: "image",
-      header: "Image",
-      cell: ({ row }) => {
-        const imageUrl = row.original.imageUrl;
-        if (!imageUrl) {
-          return (
-            <div className="w-12 h-12 rounded-lg bg-gray-200 dark:bg-gray-700 flex items-center justify-center">
-              <span className="text-xs text-gray-500 dark:text-gray-400">
-                No Image
-              </span>
-            </div>
-          );
-        }
-        return (
-          <Image
-            src={imageUrl}
-            alt={row.original.name}
-            width={48}
-            height={48}
-            className="w-12 h-12 object-cover rounded-lg border border-rose-400/30"
-            unoptimized={imageUrl.includes("ik.imagekit.io")} // ImageKit handles optimization
-          />
-        );
-      },
-    },
-
-    {
+      id: "product",
       accessorKey: "name",
+      header: ({ column }) => (
+        <SortableHeader column={column} label="Product & SKU" />
+      ),
       cell: ({ row }) => {
         const product = row.original;
+        const imageUrl = product.imageUrl;
         return (
-          <Link
-            href={detailHref(detailBase, "products", product.id)}
-            className="font-semibold text-sky-600 dark:text-sky-400 hover:text-sky-500 dark:hover:text-sky-300"
-          >
-            {product.name}
-          </Link>
+          <div className="flex items-center gap-3 min-w-0 max-w-[220px]">
+            {imageUrl ? (
+              <Image
+                src={imageUrl}
+                alt={product.name}
+                width={48}
+                height={48}
+                className="h-12 w-12 shrink-0 object-cover rounded-lg border border-rose-400/30"
+                unoptimized={imageUrl.includes("ik.imagekit.io")}
+              />
+            ) : (
+              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-gray-200 dark:bg-gray-700">
+                <span className="text-[10px] text-gray-500 dark:text-gray-400">
+                  No Img
+                </span>
+              </div>
+            )}
+            <div className="flex min-w-0 flex-col gap-0.5">
+              <Link
+                href={detailHref(detailBase, "products", product.id)}
+                className="truncate font-normal text-sky-600 dark:text-sky-400 hover:text-sky-500 dark:hover:text-sky-300"
+                title={product.name}
+              >
+                {product.name}
+              </Link>
+              <span
+                className="truncate text-muted-foreground"
+                title={product.sku}
+              >
+                {product.sku}
+              </span>
+            </div>
+          </div>
         );
       },
-      header: ({ column }) => <SortableHeader column={column} label="Name" />,
-    },
-    {
-      accessorKey: "sku",
-      header: ({ column }) => <SortableHeader column={column} label="SKU" />,
     },
     {
       accessorKey: "quantity",
@@ -137,11 +138,7 @@ export function createProductColumns(
         return (
           <div className="flex flex-col">
             <div className="flex items-center gap-2">
-              <span
-                className={isLowStock || isOutOfStock ? "font-semibold" : ""}
-              >
-                {available}
-              </span>
+              <span>{available}</span>
               {isLowStock && (
                 <AlertTriangle className="h-4 w-4 text-orange-500" />
               )}
@@ -150,11 +147,24 @@ export function createProductColumns(
               )}
             </div>
             {reserved > 0 && (
-              <span className="text-xs text-muted-foreground">
+              <span className="text-muted-foreground">
                 {reserved} reserved
               </span>
             )}
           </div>
+        );
+      },
+    },
+    {
+      accessorKey: "status",
+      header: ({ column }) => <SortableHeader column={column} label="Status" />,
+      cell: ({ row }) => {
+        const quantity = row.original.quantity;
+        const reserved = row.original.reservedQuantity ?? 0;
+        const available = quantity - reserved;
+
+        return (
+          <ProductStockFromQuantityBadge available={available} />
         );
       },
     },
@@ -203,11 +213,11 @@ export function createProductColumns(
         );
 
         // Color coding: red if expired, orange if expiring within 7 days, green otherwise
-        let dateClass = "text-gray-700 dark:text-white";
+        let dateClass = "";
         if (daysUntilExpiry < 0) {
-          dateClass = "text-red-600 dark:text-red-400 font-semibold";
+          dateClass = "text-red-600 dark:text-red-400";
         } else if (daysUntilExpiry <= 7) {
-          dateClass = "text-orange-600 dark:text-orange-400 font-semibold";
+          dateClass = "text-orange-600 dark:text-orange-400";
         }
 
         return (
@@ -217,34 +227,6 @@ export function createProductColumns(
               month: "short",
               day: "numeric",
             })}
-          </span>
-        );
-      },
-    },
-    {
-      accessorKey: "status",
-      header: ({ column }) => <SortableHeader column={column} label="Status" />,
-      cell: ({ row }) => {
-        const quantity = row.original.quantity;
-        let status = "";
-        let colorClass = "";
-
-        if (quantity > 20) {
-          status = "Available";
-          colorClass = "bg-green-100 text-green-600";
-        } else if (quantity > 0 && quantity <= 20) {
-          status = "Stock Low";
-          colorClass = "bg-orange-100 text-orange-600";
-        } else {
-          status = "Stock Out";
-          colorClass = "bg-red-100 text-red-600";
-        }
-
-        return (
-          <span
-            className={`px-3 py-[2px] rounded-full font-medium ${colorClass} flex gap-1 items-center w-fit`}
-          >
-            {status}
           </span>
         );
       },
@@ -262,7 +244,7 @@ export function createProductColumns(
           return (
             <Link
               href={detailHref(detailBase, "categories", product.categoryId)}
-              className="font-semibold text-sky-600 dark:text-sky-400 hover:text-sky-500 dark:hover:text-sky-300"
+              className="font-normal text-sky-600 dark:text-sky-400 hover:text-sky-500 dark:hover:text-sky-300"
             >
               {categoryName}
             </Link>
@@ -283,7 +265,7 @@ export function createProductColumns(
               return (
                 <Link
                   href={detailHref(detailBase, "products", product.id)}
-                  className="font-semibold text-sky-600 dark:text-sky-400 hover:text-sky-500 dark:hover:text-sky-300"
+                  className="font-normal text-sky-600 dark:text-sky-400 hover:text-sky-500 dark:hover:text-sky-300"
                 >
                   {name}
                 </Link>
@@ -309,7 +291,7 @@ export function createProductColumns(
                       "suppliers",
                       product.supplierId,
                     )}
-                    className="font-semibold text-sky-600 dark:text-sky-400 hover:text-sky-500 dark:hover:text-sky-300"
+                    className="font-normal text-sky-600 dark:text-sky-400 hover:text-sky-500 dark:hover:text-sky-300"
                   >
                     {supplierName}
                   </Link>

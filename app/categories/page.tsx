@@ -1,24 +1,24 @@
-import { Suspense } from "react";
 import { redirect } from "next/navigation";
 import { getSession } from "@/lib/auth-server";
 import CategoriesPage from "@/components/Pages/CategoriesPage";
 import { getCategoriesForUser } from "@/lib/server/home-data";
+import { prefetchListPageStats } from "@/lib/server/list-page-stats";
 
-/** REQ-0021 — session shell + Suspense-streamed categories */
+/** REQ-0025 — blocking SSR prefetch (no Suspense shell flash). */
+export const dynamic = "force-dynamic";
+
 export default async function CategoriesRoute() {
   const user = await getSession();
-  if (!user) {
-    redirect("/login");
-  }
+  if (!user) redirect("/login");
 
+  const [initialCategories, listStats] = await Promise.all([
+    getCategoriesForUser(user.id),
+    prefetchListPageStats(user),
+  ]);
   return (
-    <Suspense fallback={<CategoriesPage />}>
-      <CategoriesPageWithData userId={user.id} />
-    </Suspense>
+    <CategoriesPage
+      initialCategories={initialCategories}
+      initialStats={listStats.initialStats}
+    />
   );
-}
-
-async function CategoriesPageWithData({ userId }: { userId: string }) {
-  const initialCategories = await getCategoriesForUser(userId);
-  return <CategoriesPage initialCategories={initialCategories} />;
 }

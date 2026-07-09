@@ -39,7 +39,7 @@ export function useProducts(initialData?: Product[] | ProductForHome[]) {
  * Fetch single product by ID
  * Query hook for getting a single product with all related data
  */
-export function useProduct(productId: string) {
+export function useProduct(productId: string, initialData?: Product) {
   return useQuery<Product>({
     queryKey: queryKeys.products.detail(productId),
     queryFn: async () => {
@@ -47,6 +47,7 @@ export function useProduct(productId: string) {
       return response.data;
     },
     enabled: !!productId,
+    ...withInitialData(initialData),
     // Archived/deleted product: no retry on 404 (cancelOrRemoveDetailQuery avoids refetch when possible)
     retry: (failureCount, error) => {
       if (isAxiosError(error) && error.response?.status === 404) return false;

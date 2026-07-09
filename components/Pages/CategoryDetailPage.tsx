@@ -17,14 +17,11 @@ import {
   ShoppingCart,
   User,
   Mail,
-  CheckCircle2,
-  XCircle,
   Edit,
   Copy,
   Trash2,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import {
   useCategory,
@@ -40,7 +37,12 @@ import {
   ClientRelativeTime,
   PageContentWrapper,
   DataSlotPulse,
+  PageSectionHeader,
 } from "@/components/shared";
+import {
+  ActiveInactiveBadge,
+  OrderStatusBadge,
+} from "@/lib/ui/semantic-badges";
 import CategoryDialog from "@/components/category/CategoryDialog";
 import { AlertDialogWrapper } from "@/components/dialogs";
 import type { Category } from "@/types";
@@ -160,7 +162,7 @@ function GlassCard({
   return (
     <article
       className={cn(
-        "group rounded-[20px] border p-4 sm:p-5 backdrop-blur-sm transition-all duration-300",
+        "group rounded-[20px] border p-4 sm:p-5 backdrop-blur-md transition-all duration-300",
         "bg-white/60 dark:bg-white/5",
         config.border,
         config.gradient,
@@ -174,10 +176,14 @@ function GlassCard({
   );
 }
 
-export type CategoryDetailPageProps = { embedInAdmin?: boolean };
+export type CategoryDetailPageProps = {
+  embedInAdmin?: boolean;
+  initialCategory?: Category;
+};
 
 export default function CategoryDetailPage({
   embedInAdmin,
+  initialCategory,
 }: CategoryDetailPageProps = {}) {
   const params = useParams();
   const router = useRouter();
@@ -188,9 +194,9 @@ export default function CategoryDetailPage({
   const PageWrapper = embedInAdmin ? React.Fragment : Navbar;
 
   // Fetch category details
-  const categoryQuery = useCategory(categoryId);
+  const categoryQuery = useCategory(categoryId, initialCategory);
   const category = categoryQuery.data;
-  const dataLoading = isDataSlotLoading(categoryQuery);
+  const dataLoading = isDataSlotLoading(categoryQuery, initialCategory);
   const createCategoryMutation = useCreateCategory();
   const deleteCategoryMutation = useDeleteCategory();
   const [editDialogOpen, setEditDialogOpen] = useState(false);
@@ -200,6 +206,8 @@ export default function CategoryDetailPage({
   const isCopying = createCategoryMutation.isPending;
   const isDeleting = deleteCategoryMutation.isPending;
   const isClientRole = user?.role === "client";
+  const isSupplierRole = user?.role === "supplier";
+  const disableCrud = isClientRole || isSupplierRole;
 
   // Edit: open category dialog with current category (same as CategoryActions via onEdit)
   const handleEditCategory = () => {
@@ -239,7 +247,7 @@ export default function CategoryDetailPage({
         setDeleteDialogOpen(false);
       },
     });
-  };// Redirect if not authenticated
+  }; // Redirect if not authenticated
   useEffect(() => {
     if (!isCheckingAuth && !user) {
       router.push("/login");
@@ -252,7 +260,7 @@ export default function CategoryDetailPage({
       <PageWrapper>
         <div className="flex flex-col items-center justify-center min-h-[60vh] gap-2">
           <GlassCard variant="rose" className="max-w-md text-center">
-            <h2 className="text-lg sm:text-xl font-semibold text-gray-700 dark:text-white mb-2">
+            <h2 className="text-lg sm:text-xl font-medium text-gray-700 dark:text-white mb-2">
               Category Not Found
             </h2>
             <p className="text-gray-600 dark:text-gray-400 mb-4">
@@ -279,7 +287,7 @@ export default function CategoryDetailPage({
       <PageWrapper>
         <div className="flex flex-col items-center justify-center min-h-[60vh] gap-2">
           <GlassCard variant="rose" className="max-w-md text-center">
-            <h2 className="text-lg sm:text-xl font-semibold text-gray-700 dark:text-white mb-2">
+            <h2 className="text-lg sm:text-xl font-medium text-gray-700 dark:text-white mb-2">
               Category Not Found
             </h2>
             <p className="text-gray-600 dark:text-gray-400 mb-4">
@@ -299,7 +307,9 @@ export default function CategoryDetailPage({
   }
 
   // Format dates — shell visible while loading; pulse individual slots (REQ-0021)
-  const createdAt = category?.createdAt ? new Date(category.createdAt) : new Date();
+  const createdAt = category?.createdAt
+    ? new Date(category.createdAt)
+    : new Date();
   const updatedAt = category?.updatedAt ? new Date(category.updatedAt) : null;
 
   // Category statistics
@@ -315,29 +325,27 @@ export default function CategoryDetailPage({
     <PageWrapper>
       <PageContentWrapper>
         <div className="max-w-9xl mx-auto space-y-4">
-          {/* Header */}
-          <div className="flex items-center gap-2">
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={handleBack}
-              className="h-10 w-10 rounded-xl border border-gray-300/30 bg-white/50 dark:bg-white/5 dark:border-white/10 hover:bg-gray-100/50 dark:hover:bg-white/10"
-            >
-              <ArrowLeft className="h-5 w-5" />
-            </Button>
-            <div className="flex-1">
-              <h1 className="text-lg sm:text-xl font-semibold text-gray-700 dark:text-white">
-                {dataLoading ? (
-                  <DataSlotPulse variant="text-lg" />
-                ) : (
-                  category?.name
-                )}
-              </h1>
-              <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
-                <ClientRelativeTime date={createdAt} prefix="Created " />
-              </p>
-            </div>
-          </div>
+          <PageSectionHeader
+            as="h1"
+            tone="amber"
+            icon={Tag}
+            leading={
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={handleBack}
+                className="h-10 w-10 shrink-0 self-center rounded-xl border border-gray-300/30 bg-white/50 dark:bg-white/5 dark:border-white/10 hover:bg-gray-100/50 dark:hover:bg-white/10"
+              >
+                <ArrowLeft className="h-5 w-5" />
+              </Button>
+            }
+            title={
+              dataLoading ? <DataSlotPulse variant="text-lg" /> : category?.name
+            }
+            description={
+              <ClientRelativeTime date={createdAt} prefix="Created " />
+            }
+          />
 
           {/* Category Status Card — same style as supplier detail page */}
           <GlassCard variant="emerald">
@@ -345,30 +353,14 @@ export default function CategoryDetailPage({
               <p className="text-xs uppercase tracking-[0.2em] text-gray-600 dark:text-white/60 mb-3">
                 Status
               </p>
-              <Badge
-                className={cn(
-                  "text-sm border",
-                  dataLoading
-                    ? "bg-muted/50 border-border"
-                    : category?.status
-                      ? "bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 border-emerald-400/30"
-                      : "bg-rose-500/20 text-rose-700 dark:text-rose-300 border-rose-400/30",
-                )}
-              >
-                {dataLoading ? (
-                  <DataSlotPulse variant="badge" />
-                ) : category?.status ? (
-                  <span className="flex items-center gap-2">
-                    <CheckCircle2 className="h-3 w-3" />
-                    Active
-                  </span>
-                ) : (
-                  <span className="flex items-center gap-2">
-                    <XCircle className="h-3 w-3" />
-                    Inactive
-                  </span>
-                )}
-              </Badge>
+              {dataLoading ? (
+                <DataSlotPulse variant="badge" />
+              ) : (
+                <ActiveInactiveBadge
+                  active={Boolean(category?.status)}
+                  className="text-sm"
+                />
+              )}
             </div>
           </GlassCard>
 
@@ -386,7 +378,7 @@ export default function CategoryDetailPage({
                 >
                   <Tag className="h-5 w-5 text-orange-600 dark:text-orange-400" />
                 </div>
-                <h3 className="text-lg font-semibold text-gray-700 dark:text-white">
+                <h3 className="text-lg font-medium text-gray-700 dark:text-white">
                   Category Information
                 </h3>
               </div>
@@ -513,7 +505,7 @@ export default function CategoryDetailPage({
                   <BarChart3 className="h-5 w-5 text-teal-600 dark:text-teal-400" />
                 </div>
                 <div>
-                  <h3 className="text-lg font-semibold text-gray-700 dark:text-white">
+                  <h3 className="text-lg font-medium text-gray-700 dark:text-white">
                     Statistics
                   </h3>
                   <p className="text-xs text-gray-600 dark:text-gray-400">
@@ -527,7 +519,7 @@ export default function CategoryDetailPage({
                   <span className="text-sm text-gray-600 dark:text-gray-400">
                     Total Products:
                   </span>
-                  <span className="text-lg font-semibold text-sky-600 dark:text-sky-400">
+                  <span className="text-lg font-medium text-sky-600 dark:text-sky-400">
                     {stats.totalProducts}
                   </span>
                 </div>
@@ -536,7 +528,7 @@ export default function CategoryDetailPage({
                   <span className="text-sm text-gray-600 dark:text-gray-400">
                     Total Quantity Sold:
                   </span>
-                  <span className="text-lg font-semibold text-violet-600 dark:text-violet-400">
+                  <span className="text-lg font-medium text-violet-600 dark:text-violet-400">
                     {stats.totalQuantitySold}
                   </span>
                 </div>
@@ -545,7 +537,7 @@ export default function CategoryDetailPage({
                   <span className="text-sm text-gray-600 dark:text-gray-400">
                     Total Revenue:
                   </span>
-                  <span className="text-lg font-semibold text-emerald-600 dark:text-emerald-400">
+                  <span className="text-lg font-medium text-emerald-600 dark:text-emerald-400">
                     ${stats.totalRevenue.toFixed(2)}
                   </span>
                 </div>
@@ -554,7 +546,7 @@ export default function CategoryDetailPage({
                   <span className="text-sm text-gray-600 dark:text-gray-400">
                     Orders Containing Products:
                   </span>
-                  <span className="text-lg font-semibold text-amber-600 dark:text-amber-400">
+                  <span className="text-lg font-medium text-amber-600 dark:text-amber-400">
                     {stats.uniqueOrders}
                   </span>
                 </div>
@@ -565,7 +557,7 @@ export default function CategoryDetailPage({
                   <span className="text-sm text-gray-600 dark:text-gray-400">
                     Current Stock Value:
                   </span>
-                  <span className="text-lg font-semibold text-blue-600 dark:text-blue-400">
+                  <span className="text-lg font-medium text-blue-600 dark:text-blue-400">
                     ${stats.totalValue.toFixed(2)}
                   </span>
                 </div>
@@ -574,147 +566,139 @@ export default function CategoryDetailPage({
           </div>
 
           {/* Products in this Category */}
-          {!dataLoading && category?.products && category.products.length > 0 && (
-            <GlassCard variant="sky">
-              <div className="flex items-center gap-2 mb-2">
-                <div
-                  className={cn(
-                    "p-2 rounded-xl border",
-                    variantConfig.sky.iconBg,
-                    "dark:border-sky-400/30 dark:bg-sky-500/20",
-                  )}
-                >
-                  <Package className="h-5 w-5 text-sky-600 dark:text-sky-400" />
-                </div>
-                <div>
-                  <h3 className="text-lg font-semibold text-gray-700 dark:text-white">
-                    Products in this Category
-                  </h3>
-                  <p className="text-xs text-gray-600 dark:text-gray-400">
-                    {category.products.length} product
-                    {category.products.length !== 1 ? "s" : ""} in this category
-                  </p>
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2 mt-4">
-                {category.products.map((product) => (
-                  <Link
-                    key={product.id}
-                    href={`/products/${product.id}`}
-                    className="flex items-center gap-2 p-4 rounded-xl border border-sky-200/40 dark:border-sky-400/20 bg-gradient-to-r from-sky-100/40 via-sky-50/20 to-transparent dark:from-sky-500/10 dark:via-sky-500/5 dark:to-transparent hover:border-sky-300/60 dark:hover:border-sky-400/40 hover:from-sky-100/60 dark:hover:from-sky-500/20 transition-all duration-300"
-                  >
-                    {product.imageUrl && (
-                      <div className="relative w-16 h-16 rounded-xl overflow-hidden bg-white/50 dark:bg-white/5 border border-sky-200/30 dark:border-sky-400/20 flex-shrink-0">
-                        <Image
-                          src={product.imageUrl ?? ""}
-                          width={64}
-                          height={64}
-                          alt={product.name}
-                          className="w-full h-full object-contain"
-                        />
-                      </div>
+          {!dataLoading &&
+            category?.products &&
+            category.products.length > 0 && (
+              <GlassCard variant="sky">
+                <div className="flex items-center gap-2 mb-2">
+                  <div
+                    className={cn(
+                      "p-2 rounded-xl border",
+                      variantConfig.sky.iconBg,
+                      "dark:border-sky-400/30 dark:bg-sky-500/20",
                     )}
-                    <div className="flex-1 min-w-0">
-                      <h4 className="font-medium text-gray-700 dark:text-white truncate">
-                        {product.name}
-                      </h4>
-                      <p className="text-sm text-gray-600 dark:text-gray-400">
-                        SKU: {product.sku}
-                      </p>
-                      <p className="text-sm text-gray-600 dark:text-gray-400">
-                        Stock: {product.quantity} • $
-                        {(product.price ?? 0).toFixed(2)}
-                      </p>
-                    </div>
-                  </Link>
-                ))}
-              </div>
-            </GlassCard>
-          )}
+                  >
+                    <Package className="h-5 w-5 text-sky-600 dark:text-sky-400" />
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-medium text-gray-700 dark:text-white">
+                      Products in this Category
+                    </h3>
+                    <p className="text-xs text-gray-600 dark:text-gray-400">
+                      {category.products.length} product
+                      {category.products.length !== 1 ? "s" : ""} in this
+                      category
+                    </p>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2 mt-4">
+                  {category.products.map((product) => (
+                    <Link
+                      key={product.id}
+                      href={`/products/${product.id}`}
+                      className="flex items-center gap-2 p-4 rounded-xl border border-sky-200/40 dark:border-sky-400/20 bg-gradient-to-r from-sky-100/40 via-sky-50/20 to-transparent dark:from-sky-500/10 dark:via-sky-500/5 dark:to-transparent hover:border-sky-300/60 dark:hover:border-sky-400/40 hover:from-sky-100/60 dark:hover:from-sky-500/20 transition-all duration-300"
+                    >
+                      {product.imageUrl && (
+                        <div className="relative w-16 h-16 rounded-xl overflow-hidden bg-white/50 dark:bg-white/5 border border-sky-200/30 dark:border-sky-400/20 flex-shrink-0">
+                          <Image
+                            src={product.imageUrl ?? ""}
+                            width={64}
+                            height={64}
+                            alt={product.name}
+                            className="w-full h-full object-contain"
+                          />
+                        </div>
+                      )}
+                      <div className="flex-1 min-w-0">
+                        <h4 className="font-medium text-gray-700 dark:text-white truncate">
+                          {product.name}
+                        </h4>
+                        <p className="text-sm text-gray-600 dark:text-gray-400">
+                          SKU: {product.sku}
+                        </p>
+                        <p className="text-sm text-gray-600 dark:text-gray-400">
+                          Stock: {product.quantity} • $
+                          {(product.price ?? 0).toFixed(2)}
+                        </p>
+                      </div>
+                    </Link>
+                  ))}
+                </div>
+              </GlassCard>
+            )}
 
           {/* Recent Orders */}
-          {!dataLoading && category?.recentOrders && category.recentOrders.length > 0 && (
-            <GlassCard variant="violet">
-              <div className="flex items-center gap-2 mb-2">
-                <div
-                  className={cn(
-                    "p-2 rounded-xl border",
-                    variantConfig.violet.iconBg,
-                    "dark:border-violet-400/30 dark:bg-violet-500/20",
-                  )}
-                >
-                  <ShoppingCart className="h-5 w-5 text-violet-600 dark:text-violet-400" />
-                </div>
-                <div>
-                  <h3 className="text-lg font-semibold text-gray-700 dark:text-white">
-                    Recent Orders
-                  </h3>
-                  <p className="text-xs text-gray-600 dark:text-gray-400">
-                    Latest orders containing products in this category
-                  </p>
-                </div>
-              </div>
-
-              <div className="space-y-2 mt-4">
-                {category.recentOrders.map((order) => (
-                  <Link
-                    key={order.id}
-                    href={`/orders/${order.orderId}`}
-                    className="flex flex-col sm:flex-row sm:items-center justify-between p-4 rounded-xl border border-violet-200/40 dark:border-violet-400/20 bg-gradient-to-r from-violet-100/40 via-violet-50/20 to-transparent dark:from-violet-500/10 dark:via-violet-500/5 dark:to-transparent hover:border-violet-300/60 dark:hover:border-violet-400/40 hover:from-violet-100/60 dark:hover:from-violet-500/20 transition-all duration-300"
+          {!dataLoading &&
+            category?.recentOrders &&
+            category.recentOrders.length > 0 && (
+              <GlassCard variant="violet">
+                <div className="flex items-center gap-2 mb-2">
+                  <div
+                    className={cn(
+                      "p-2 rounded-xl border",
+                      variantConfig.violet.iconBg,
+                      "dark:border-violet-400/30 dark:bg-violet-500/20",
+                    )}
                   >
-                    <div className="flex-1">
-                      <h4 className="font-medium text-gray-700 dark:text-white">
-                        Order {order.orderNumber}
-                      </h4>
-                      <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
-                        Product: {order.productName} (SKU: {order.productSku})
-                      </p>
-                      <p className="text-sm text-gray-600 dark:text-gray-400">
-                        Quantity: {order.quantity} × ${order.price.toFixed(2)} •
-                        Date: <ClientDate date={order.orderDate} />
-                      </p>
-                    </div>
-                    <div className="text-left sm:text-right mt-3 sm:mt-0">
-                      {/* Sale price style: crossed-out subtotal + actual proportional amount */}
-                      <p className="font-semibold text-gray-700 dark:text-white">
-                        {typeof order.proportionalAmount === "number" &&
-                        order.proportionalAmount !== order.subtotal ? (
-                          <>
-                            <span className="text-gray-500 dark:text-white/50 line-through mr-2">
-                              ${order.subtotal.toFixed(2)}
-                            </span>
-                            <span className="text-rose-600 dark:text-rose-400">
-                              ${order.proportionalAmount.toFixed(2)}
-                            </span>
-                          </>
-                        ) : (
-                          `$${order.subtotal.toFixed(2)}`
-                        )}
-                      </p>
-                      <Badge
-                        className={cn(
-                          "text-xs mt-1 border",
-                          order.orderStatus === "cancelled" &&
-                            "bg-rose-500/20 text-rose-700 dark:text-rose-300 border-rose-400/30",
-                          order.orderStatus === "delivered" &&
-                            "bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 border-emerald-400/30",
-                          order.orderStatus !== "cancelled" &&
-                            order.orderStatus !== "delivered" &&
-                            "bg-blue-500/20 text-blue-700 dark:text-blue-300 border-blue-400/30",
-                        )}
-                      >
-                        {order.orderStatus
-                          ? order.orderStatus.charAt(0).toUpperCase() +
-                            order.orderStatus.slice(1).toLowerCase()
-                          : ""}
-                      </Badge>
-                    </div>
-                  </Link>
-                ))}
-              </div>
-            </GlassCard>
-          )}
+                    <ShoppingCart className="h-5 w-5 text-violet-600 dark:text-violet-400" />
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-medium text-gray-700 dark:text-white">
+                      Recent Orders
+                    </h3>
+                    <p className="text-xs text-gray-600 dark:text-gray-400">
+                      Latest orders containing products in this category
+                    </p>
+                  </div>
+                </div>
+
+                <div className="space-y-2 mt-4">
+                  {category.recentOrders.map((order) => (
+                    <Link
+                      key={order.id}
+                      href={`/orders/${order.orderId}`}
+                      className="flex flex-col sm:flex-row sm:items-center justify-between p-4 rounded-xl border border-violet-200/40 dark:border-violet-400/20 bg-gradient-to-r from-violet-100/40 via-violet-50/20 to-transparent dark:from-violet-500/10 dark:via-violet-500/5 dark:to-transparent hover:border-violet-300/60 dark:hover:border-violet-400/40 hover:from-violet-100/60 dark:hover:from-violet-500/20 transition-all duration-300"
+                    >
+                      <div className="flex-1">
+                        <h4 className="font-medium text-gray-700 dark:text-white">
+                          Order {order.orderNumber}
+                        </h4>
+                        <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                          Product: {order.productName} (SKU: {order.productSku})
+                        </p>
+                        <p className="text-sm text-gray-600 dark:text-gray-400">
+                          Quantity: {order.quantity} × ${order.price.toFixed(2)}{" "}
+                          • Date: <ClientDate date={order.orderDate} />
+                        </p>
+                      </div>
+                      <div className="text-left sm:text-right mt-3 sm:mt-0">
+                        {/* Sale price style: crossed-out subtotal + actual proportional amount */}
+                        <p className="font-medium text-gray-700 dark:text-white">
+                          {typeof order.proportionalAmount === "number" &&
+                          order.proportionalAmount !== order.subtotal ? (
+                            <>
+                              <span className="text-gray-500 dark:text-white/50 line-through mr-2">
+                                ${order.subtotal.toFixed(2)}
+                              </span>
+                              <span className="text-rose-600 dark:text-rose-400">
+                                ${order.proportionalAmount.toFixed(2)}
+                              </span>
+                            </>
+                          ) : (
+                            `$${order.subtotal.toFixed(2)}`
+                          )}
+                        </p>
+                        <OrderStatusBadge
+                          status={order.orderStatus ?? "pending"}
+                          className="mt-1"
+                        />
+                      </div>
+                    </Link>
+                  ))}
+                </div>
+              </GlassCard>
+            )}
 
           {/* Actions — Back, Edit, Duplicate, Delete; responsive (stack on small, row on larger) */}
           <div className="flex flex-col sm:flex-row flex-wrap gap-2">
@@ -728,24 +712,24 @@ export default function CategoryDetailPage({
             </Button>
             <Button
               onClick={handleEditCategory}
-              disabled={isClientRole}
-              className="w-full sm:w-auto gap-2 rounded-xl border border-blue-400/30 bg-gradient-to-r from-blue-500/70 via-blue-500/50 to-blue-500/30 text-white shadow-[0_10px_25px_rgba(59,130,246,0.35)] backdrop-blur-sm hover:border-blue-300/50 hover:from-blue-500/80 hover:via-blue-500/60 hover:to-blue-500/40 transition-all duration-300 disabled:opacity-50"
+              disabled={disableCrud}
+              className="w-full sm:w-auto gap-2 rounded-xl border border-blue-400/30 bg-gradient-to-r from-blue-500/70 via-blue-500/50 to-blue-500/30 text-white shadow-[0_10px_25px_rgba(59,130,246,0.35)] backdrop-blur-md hover:border-blue-300/50 hover:from-blue-500/80 hover:via-blue-500/60 hover:to-blue-500/40 transition-all duration-300 disabled:opacity-50"
             >
               <Edit className="h-4 w-4 shrink-0" />
               Edit Category
             </Button>
             <Button
               onClick={handleDuplicateCategory}
-              disabled={isCopying || isClientRole}
-              className="w-full sm:w-auto gap-2 rounded-xl border border-violet-400/30 bg-gradient-to-r from-violet-500/70 via-violet-500/50 to-violet-500/30 text-white shadow-[0_10px_25px_rgba(139,92,246,0.35)] backdrop-blur-sm hover:border-violet-300/50 hover:from-violet-500/80 hover:via-violet-500/60 hover:to-violet-500/40 transition-all duration-300 disabled:opacity-50"
+              disabled={isCopying || disableCrud}
+              className="w-full sm:w-auto gap-2 rounded-xl border border-violet-400/30 bg-gradient-to-r from-violet-500/70 via-violet-500/50 to-violet-500/30 text-white shadow-[0_10px_25px_rgba(139,92,246,0.35)] backdrop-blur-md hover:border-violet-300/50 hover:from-violet-500/80 hover:via-violet-500/60 hover:to-violet-500/40 transition-all duration-300 disabled:opacity-50"
             >
               <Copy className="h-4 w-4 shrink-0" />
               {isCopying ? "Duplicating..." : "Create Duplicate"}
             </Button>
             <Button
               onClick={() => setDeleteDialogOpen(true)}
-              disabled={isDeleting || isClientRole}
-              className="w-full sm:w-auto gap-2 rounded-xl border border-rose-400/30 bg-gradient-to-r from-rose-500/70 via-rose-500/50 to-rose-500/30 text-white shadow-[0_10px_25px_rgba(225,29,72,0.35)] backdrop-blur-sm hover:border-rose-300/50 hover:from-rose-500/80 hover:via-rose-500/60 hover:to-rose-500/40 transition-all duration-300 disabled:opacity-50"
+              disabled={isDeleting || disableCrud}
+              className="w-full sm:w-auto gap-2 rounded-xl border border-rose-400/30 bg-gradient-to-r from-rose-500/70 via-rose-500/50 to-rose-500/30 text-white shadow-[0_10px_25px_rgba(225,29,72,0.35)] backdrop-blur-md hover:border-rose-300/50 hover:from-rose-500/80 hover:via-rose-500/60 hover:to-rose-500/40 transition-all duration-300 disabled:opacity-50"
             >
               <Trash2 className="h-4 w-4 shrink-0" />
               {isDeleting ? "Deleting..." : "Delete Category"}

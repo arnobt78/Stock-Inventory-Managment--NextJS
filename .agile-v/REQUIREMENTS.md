@@ -325,6 +325,199 @@ Canonical REQ source. All artifacts link via `REQ-XXXX`. Status: `done` | `verif
 
 ---
 
+## REQ-0022 — Tier-3 user detail shell-first gap closure
+
+| Field | Value |
+|-------|-------|
+| **Priority** | P1 |
+| **Risk** | R2 |
+| **Status** | done |
+| **Parent** | REQ-0021 |
+
+**Intent:** Close remaining REQ-0021 gaps: user-facing Order/Invoice detail pages use shell-first + `DataSlotPulse` (no full-page skeleton gate); remove dead `StatisticsCardSkeleton`.
+
+**Acceptance criteria**
+
+- AC1: `OrderDetailPage` — shell always visible; `isDataSlotLoading` + pulse on dynamic slots only
+- AC2: `InvoiceDetailPage` — same pattern; `embedInAdmin` / `backHref` preserved
+- AC3: `StatisticsCardSkeleton.tsx` deleted; barrel export removed
+- AC4: Admin list wrappers verified (`initial*` pass-through)
+- AC5: Red Team pass (lint, test, test:invalidate, build)
+
+**Artifacts:** `components/Pages/OrderDetailPage.tsx`, `components/Pages/InvoiceDetailPage.tsx`, `components/home/index.ts`
+
+---
+
+## REQ-0023 — Admin detail shell-first gap closure
+
+| Field | Value |
+|-------|-------|
+| **Priority** | P1 |
+| **Risk** | R2 |
+| **Status** | done |
+| **Parent** | REQ-0021 / REQ-0022 |
+
+**Intent:** Migrate all 5 `Admin*DetailContent` components from full-page `Loader2` spinner gates to shell-first + `DataSlotPulse` (matching REQ-0022 user detail pattern).
+
+**Acceptance criteria**
+
+- AC1: `AdminHistoryDetailContent` — shell-first + pulse on dynamic slots
+- AC2: `AdminProductReviewDetailContent` — same pattern
+- AC3: `AdminSupportTicketDetailContent` — ticket shell-first; replies pulse independently
+- AC4: `AdminUserManagementDetailContent` — same pattern
+- AC5: `AdminOrderDetailContent` — mirror OrderDetailPage pulse map + admin controls
+- AC6: Red Team pass (lint, test, test:invalidate, build)
+
+**Artifacts:** `components/admin/Admin*DetailContent.tsx` (5 files)
+
+---
+
+## REQ-0024 — Shell-first consistency, detail SSR prefetch, order detail DRY
+
+| Field | Value |
+|-------|-------|
+| **Priority** | P1 |
+| **Risk** | R2 |
+| **Status** | done |
+| **Parent** | REQ-0021 / REQ-0022 / REQ-0023 |
+
+**Intent:** Close deferred gaps: admin settings shell-first + SSR; detail-route SSR prefetch (role-scoped); Order detail DRY via shared subcomponents.
+
+**Acceptance criteria**
+
+- AC1: `SystemConfigSettings` + `app/admin/settings/page.tsx` — SSR shell + `initialData` + `DataSlotPulse` on field values
+- AC2: Shared transform extractors for order/invoice (and other detail entities)
+- AC3: `lib/server/*-detail-data.ts` role-scoped helpers + `initialData` on singular detail hooks
+- AC4: Suspense + `*WithData` on detail `page.tsx` routes (tiers 1–3)
+- AC5: `components/orders/detail/*` shared sections; slim orchestrators
+- AC6: Red Team pass (lint, test, test:invalidate, build)
+
+**Artifacts:** `lib/server/*-detail-data.ts`, `lib/orders/transform-order-detail.ts`, `components/orders/detail/*`, detail `page.tsx` routes, `SystemConfigSettings.tsx`
+
+---
+
+## REQ-0025 — Blocking SSR prefetch, no shell flash, warm cache
+
+| Field | Value |
+|-------|-------|
+| **Priority** | P1 |
+| **Risk** | R2 |
+| **Status** | done |
+| **Parent** | REQ-0021 / REQ-0024 |
+
+**Intent:** Eliminate Suspense fallback skeleton flash on refresh; remove RSC+client double-fetch; SSR all list/detail/portal gaps; warm TanStack cache after login.
+
+**Acceptance criteria**
+
+- AC1: All `app/**/page.tsx` use blocking `await` in default export + `export const dynamic = "force-dynamic"` (no `<Suspense>` fallback shells)
+- AC2: `withInitialData()` + `refetchOnMount: false` when `initialData` present
+- AC3: Admin combined orders/invoices SSR both legs + dashboard stats; admin layout SSR `getAdminCounts`
+- AC4: Forecasting, email preferences, client/supplier portals, my-activity SSR prefetch
+- AC5: `RouteWarmPrefetch` role-scoped `queryClient.prefetchQuery` after auth
+- AC6: Product review hooks lazy until dropdown open (no table N+1)
+- AC7: Red Team pass (lint, test 311, test:invalidate 200, build)
+
+**Artifacts:** `lib/react-query/ssr-query-options.ts`, `warm-route-prefetch.ts`, `lib/server/forecasting-data.ts`, `lib/server/email-preferences-data.ts`, `components/providers/RouteWarmPrefetch.tsx`, all `app/**/page.tsx`
+
+---
+
+## REQ-0026 — P3 SSR gaps: secondary detail data, client browse, ghost fetches
+
+| Field | Value |
+|-------|-------|
+| **Priority** | P3 |
+| **Risk** | R2 |
+| **Status** | done |
+| **Parent** | REQ-0025 |
+
+**Intent:** Close P3 performance gaps: stop ghost list-page API fetches, SSR secondary detail data (reviews, stock, order eligibility batch), SSR client browse/catalog, defer RouteWarmPrefetch, tune notifications, remove dev instrumentation.
+
+**Acceptance criteria**
+
+- AC1: `useClientOrders` / `useClientInvoices` / `useDashboard` gated by `enabled` in OrderList/InvoiceList — no admin client-orders on user `/orders`
+- AC2: Warehouse detail SSR stock allocations; product detail SSR reviews + eligibility; order detail batch review context (no N+1)
+- AC3: Client `/products` SSR browse meta + default owner products; `/client` SSR catalog overview
+- AC4: Portal hooks `staleTime` + supplier list pages pass `initialSupplierPortal`; soft nav skips redundant refetch
+- AC5: `RouteWarmPrefetch` deferred after first paint; client warm keys added
+- AC6: Notifications tuned when SSR seed present; list fetch gated when dropdown closed
+- AC7: Portal charts use `DeferredChartSection`; SessionPerfLogger removed
+- AC8: Client owner dropdown — `ProductOwnerSelect` (searchable Command); browse-meta filters to product owners only; `placeholderData` on owner switch
+- AC9: Red Team pass (lint, test, test:invalidate, build)
+
+**Artifacts:** `lib/server/*-data.ts`, `OrderList.tsx`, `InvoiceList.tsx`, `ClientProductList.tsx`, `ProductOwnerSelect.tsx`, detail `page.tsx`, `RouteWarmPrefetch.tsx`, `use-notifications.ts`, portal pages
+
+---
+
+## REQ-0027 — C2 perf polish (backlog)
+
+| Field | Value |
+|-------|-------|
+| **Priority** | P3 |
+| **Risk** | R1 |
+| **Status** | done |
+| **Parent** | REQ-0026 |
+
+**Intent:** Post-REQ-0026 polish — shareable client owner deep links; trim login API storm.
+
+**Acceptance criteria**
+
+- AC1: Client owner switch syncs `?ownerId=` via `history.replaceState` (no RSC refetch)
+- AC2: `client-orders` / `client-invoices` warm-prefetch deferred until `/` or `/admin` visit
+- AC3: Unit tests for `getProductOwnerAdminsForBrowse`, `resolveDefaultBrowseOwnerId`, `replaceShallowSearchParam`
+- AC4: Red Team pass (lint, test, test:invalidate, build)
+
+**Artifacts:** `lib/navigation/shallow-search-param.ts`, `ProductsPage.tsx`, `RouteWarmPrefetch.tsx`, `warm-route-prefetch.ts`
+
+---
+
+## REQ-0028 — UI consistency (scrollbar, login, tables)
+
+| Field | Value |
+|-------|-------|
+| **Priority** | P2 |
+| **Risk** | R1 |
+| **Status** | done |
+| **Parent** | REQ-0027 |
+
+**Intent:** Stable scrollbar gutter; login form values persist during redirect; unified font-normal table/filter typography.
+
+**Acceptance criteria**
+
+- AC1: `scrollbar-gutter: stable` + thin transparent-track scrollbar in `globals.css`
+- AC2: Login keeps email/password/role visible during "Loading Dashboard…"; welcome toast on destination dashboard
+- AC3: Table headers `font-medium`; data `font-normal`; secondary cols `text-xs`; primary cols `text-sm`; `text-gray-700 dark:text-white`
+- AC4: Filter triggers + menu items `font-normal`
+- AC5: Red Team pass
+
+**Artifacts:** `globals.css`, `LoginPage.tsx`, `post-login-welcome.ts`, `table.tsx`, `badge.tsx`, `*TableColumns.tsx`, `pagination-select-styles.ts`
+
+---
+
+## REQ-0029 — Supplier read-only catalog entity detail access
+
+| Field | Value |
+|-------|-------|
+| **Priority** | P1 |
+| **Risk** | R2 |
+| **Status** | done |
+| **Parent** | REQ-0024 / REQ-0025 |
+
+**Intent:** Suppliers can open category/supplier detail pages linked from their products (read-only, product-scoped) without 404; role-scoped Redis cache prevents cross-role payload leak.
+
+**Acceptance criteria**
+
+- AC1: Supplier with assigned product in category X opens `/categories/X` (SSR + GET API) — read-only, only supplier's products in that category
+- AC2: Supplier opens `/suppliers/{ownEntityId}` — read-only, products scoped to own `supplierId`
+- AC3: Unrelated category/supplier IDs return 404 for supplier
+- AC4: Admin/client/retailer behavior unchanged
+- AC5: Redis detail keys scoped for supplier (`categories:detail:{id}:supplier:{entityId}`)
+- AC6: Category/supplier detail pages disable Edit/Duplicate/Delete for supplier + client
+- AC7: Red Team pass
+
+**Artifacts:** `lib/server/catalog-entity-access.ts`, `lib/server/category-detail-data.ts`, `lib/server/supplier-detail-data.ts`, `lib/cache/cache-utils.ts`, `CategoryDetailPage.tsx`, `SupplierDetailPage.tsx`, `lib/server/catalog-entity-access.test.ts`
+
+---
+
 ## REQ-0020 — Locale-aware admin formatting
 
 | Field | Value |

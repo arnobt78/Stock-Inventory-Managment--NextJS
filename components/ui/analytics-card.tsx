@@ -124,7 +124,7 @@ export function AnalyticsCard({
   return (
     <article
       className={cn(
-        "group rounded-[20px] border min-h-[140px] h-full p-4 sm:p-5 backdrop-blur-sm transition",
+        "group rounded-[20px] border min-h-[140px] h-full p-4 sm:p-5 backdrop-blur-md transition",
         config.border,
         config.gradient,
         config.shadow,
@@ -141,12 +141,8 @@ export function AnalyticsCard({
             <Icon className={cn("h-5 w-5", iconColor)} />
           </div>
         </div>
-        <p className="text-lg sm:text-xl font-semibold text-gray-700 dark:text-white">
-          {valueLoading ? (
-            <DataSlotPulse variant="metric" />
-          ) : (
-            value
-          )}
+        <p className="text-lg sm:text-xl font-medium text-gray-700 dark:text-white">
+          {valueLoading ? <DataSlotPulse variant="metric" /> : value}
         </p>
         {description && (
           <p className="mt-2 text-sm text-gray-600 dark:text-white/70">

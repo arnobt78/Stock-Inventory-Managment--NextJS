@@ -40,7 +40,7 @@ export default function BusinessInsightsSidebar({
   if (collapsed) {
     return (
       <nav
-        className="flex min-h-0 flex-col items-center py-3 gap-1"
+        className="flex min-h-0 flex-col items-center px-2 gap-1"
         aria-label="Insights sections"
       >
         {TAB_ITEMS.map((item) => {
@@ -74,7 +74,7 @@ export default function BusinessInsightsSidebar({
       aria-label="Insights sections"
     >
       {/* Grouped header — same style as AdminSidebar */}
-      <p className="px-3 pt-2  text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+      <p className="px-2 pt-2  text-xs font-medium uppercase tracking-wider text-muted-foreground">
         Insights
       </p>
       {TAB_ITEMS.map((item) => {

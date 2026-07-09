@@ -239,13 +239,13 @@ export default function AddProductDialog({
     <Dialog open={openProductDialog} onOpenChange={handleOpenChange}>
       <DialogTrigger asChild>
         {children || (
-          <Button className="h-10 font-semibold inline-flex items-center justify-center rounded-xl border border-rose-400/30 dark:border-rose-400/30 bg-gradient-to-r from-rose-500/40 via-rose-500/30 to-rose-500/20 dark:from-rose-500/40 dark:via-rose-500/30 dark:to-rose-500/20 text-white shadow-[0_15px_35px_rgba(225,29,72,0.35)] backdrop-blur-sm transition duration-200 hover:border-rose-300/50 hover:from-rose-500/50 hover:via-rose-500/40 hover:to-rose-500/30 dark:hover:border-rose-300/50 dark:hover:from-rose-500/50 dark:hover:via-rose-500/40 dark:hover:to-rose-500/30">
+          <Button className="h-10 font-medium inline-flex items-center justify-center rounded-xl border border-rose-400/30 dark:border-rose-400/30 bg-gradient-to-r from-rose-500/40 via-rose-500/30 to-rose-500/20 dark:from-rose-500/40 dark:via-rose-500/30 dark:to-rose-500/20 text-white shadow-[0_15px_35px_rgba(225,29,72,0.35)] backdrop-blur-md transition duration-200 hover:border-rose-300/50 hover:from-rose-500/50 hover:via-rose-500/40 hover:to-rose-500/30 dark:hover:border-rose-300/50 dark:hover:from-rose-500/50 dark:hover:via-rose-500/40 dark:hover:to-rose-500/30">
             +Add Product
           </Button>
         )}
       </DialogTrigger>
       <DialogContent
-        className="p-4 sm:p-7 sm:px-8 poppins max-h-[90vh] overflow-y-auto border-rose-400/30 dark:border-rose-400/30 shadow-[0_30px_80px_rgba(225,29,72,0.35)] dark:shadow-[0_30px_80px_rgba(225,29,72,0.25)]"
+        className="p-2 sm:p-4 sm:px-8 poppins max-h-[90vh] overflow-y-auto border-rose-400/30 dark:border-rose-400/30 shadow-[0_30px_80px_rgba(225,29,72,0.35)] dark:shadow-[0_30px_80px_rgba(225,29,72,0.25)]"
         onOpenAutoFocus={(e) => e.preventDefault()}
       >
         <DialogHeader>
@@ -276,7 +276,7 @@ export default function AddProductDialog({
                   enabled={openProductDialog}
                   placeholder={
                     <div
-                      className="flex h-11 w-full items-center rounded-md border border-rose-400/30 bg-white/10 px-3 text-sm text-white/60"
+                      className="flex h-11 w-full items-center rounded-md border border-rose-400/30 bg-white/10 px-2 text-sm text-white/60"
                       aria-hidden
                     >
                       {activeCategories.find((c) => c.id === selectedCategory)
@@ -293,11 +293,11 @@ export default function AddProductDialog({
                         setCategoryError("");
                       }}
                     >
-                      <SelectTrigger className="h-11 w-full border-rose-400/30 dark:border-white/20 bg-white/10 dark:bg-white/5 backdrop-blur-sm text-white placeholder:text-white/40 focus:border-rose-400 focus:ring-rose-500/50 shadow-[0_10px_30px_rgba(225,29,72,0.15)]">
+                      <SelectTrigger className="h-11 w-full border-rose-400/30 dark:border-white/20 bg-white/10 dark:bg-white/5 backdrop-blur-md text-white placeholder:text-white/40 focus:border-rose-400 focus:ring-rose-500/50 shadow-[0_10px_30px_rgba(225,29,72,0.15)]">
                         <SelectValue placeholder="Select Category" />
                       </SelectTrigger>
                       <SelectContent
-                        className="border-rose-400/20 dark:border-white/10 bg-white/80 dark:bg-popover/50 backdrop-blur-sm z-[100]"
+                        className="border-rose-400/20 dark:border-white/10 bg-white/80 dark:bg-popover/50 backdrop-blur-md z-[100]"
                         position="popper"
                         sideOffset={5}
                         align="start"
@@ -327,7 +327,7 @@ export default function AddProductDialog({
                   enabled={openProductDialog}
                   placeholder={
                     <div
-                      className="flex h-11 w-full items-center rounded-md border border-rose-400/30 bg-white/10 px-3 text-sm text-white/60"
+                      className="flex h-11 w-full items-center rounded-md border border-rose-400/30 bg-white/10 px-2 text-sm text-white/60"
                       aria-hidden
                     >
                       {activeSuppliers.find((s) => s.id === selectedSupplier)
@@ -344,11 +344,11 @@ export default function AddProductDialog({
                         setSupplierError("");
                       }}
                     >
-                      <SelectTrigger className="h-11 w-full border-rose-400/30 dark:border-white/20 bg-white/10 dark:bg-white/5 backdrop-blur-sm text-white placeholder:text-white/40 focus:border-rose-400 focus:ring-rose-500/50 shadow-[0_10px_30px_rgba(225,29,72,0.15)]">
+                      <SelectTrigger className="h-11 w-full border-rose-400/30 dark:border-white/20 bg-white/10 dark:bg-white/5 backdrop-blur-md text-white placeholder:text-white/40 focus:border-rose-400 focus:ring-rose-500/50 shadow-[0_10px_30px_rgba(225,29,72,0.15)]">
                         <SelectValue placeholder="Select Supplier" />
                       </SelectTrigger>
                       <SelectContent
-                        className="border-rose-400/20 dark:border-white/10 bg-white/80 dark:bg-popover/50 backdrop-blur-sm z-[100]"
+                        className="border-rose-400/20 dark:border-white/10 bg-white/80 dark:bg-popover/50 backdrop-blur-md z-[100]"
                         position="popper"
                         sideOffset={5}
                         align="start"
@@ -376,14 +376,14 @@ export default function AddProductDialog({
                 <Button
                   ref={dialogCloseRef}
                   variant="secondary"
-                  className="h-11 w-full sm:w-auto px-11 inline-flex items-center justify-center rounded-xl border border-white/10 bg-gradient-to-r from-gray-400/40 via-gray-300/30 to-gray-400/40 dark:bg-background/50 backdrop-blur-sm shadow-[0_15px_35px_rgba(0,0,0,0.3)] dark:shadow-[0_15px_35px_rgba(255,255,255,0.25)] transition duration-200 hover:bg-gradient-to-r hover:from-gray-400/60 hover:via-gray-300/50 hover:to-gray-400/60 dark:hover:bg-accent/50 hover:border-white/20 dark:hover:border-white/20 hover:shadow-[0_20px_45px_rgba(0,0,0,0.5)] dark:hover:shadow-[0_20px_45px_rgba(255,255,255,0.4)]"
+                  className="h-11 w-full sm:w-auto px-11 inline-flex items-center justify-center rounded-xl border border-white/10 bg-gradient-to-r from-gray-400/40 via-gray-300/30 to-gray-400/40 dark:bg-background/50 backdrop-blur-md shadow-[0_15px_35px_rgba(0,0,0,0.3)] dark:shadow-[0_15px_35px_rgba(255,255,255,0.25)] transition duration-200 hover:bg-gradient-to-r hover:from-gray-400/60 hover:via-gray-300/50 hover:to-gray-400/60 dark:hover:bg-accent/50 hover:border-white/20 dark:hover:border-white/20 hover:shadow-[0_20px_45px_rgba(0,0,0,0.5)] dark:hover:shadow-[0_20px_45px_rgba(255,255,255,0.4)]"
                 >
                   Cancel
                 </Button>
               </DialogClose>
               <Button
                 type="submit"
-                className="h-11 w-full sm:w-auto px-11 inline-flex items-center justify-center rounded-xl border border-rose-400/30 dark:border-rose-400/30 bg-gradient-to-r from-rose-500/70 via-rose-500/50 to-rose-500/30 dark:from-rose-500/70 dark:via-rose-500/50 dark:to-rose-500/30 text-white shadow-[0_15px_35px_rgba(225,29,72,0.45)] backdrop-blur-sm transition duration-200 hover:border-rose-300/40 hover:from-rose-500/80 hover:via-rose-500/60 hover:to-rose-500/40 dark:hover:border-rose-300/40 dark:hover:from-rose-500/80 dark:hover:via-rose-500/60 dark:hover:to-rose-500/40 hover:shadow-[0_20px_45px_rgba(225,29,72,0.6)]"
+                className="h-11 w-full sm:w-auto px-11 inline-flex items-center justify-center rounded-xl border border-rose-400/30 dark:border-rose-400/30 bg-gradient-to-r from-rose-500/70 via-rose-500/50 to-rose-500/30 dark:from-rose-500/70 dark:via-rose-500/50 dark:to-rose-500/30 text-white shadow-[0_15px_35px_rgba(225,29,72,0.45)] backdrop-blur-md transition duration-200 hover:border-rose-300/40 hover:from-rose-500/80 hover:via-rose-500/60 hover:to-rose-500/40 dark:hover:border-rose-300/40 dark:hover:from-rose-500/80 dark:hover:via-rose-500/60 dark:hover:to-rose-500/40 hover:shadow-[0_20px_45px_rgba(225,29,72,0.6)]"
                 disabled={isSubmitting}
               >
                 {isSubmitting

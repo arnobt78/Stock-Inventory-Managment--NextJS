@@ -34,7 +34,7 @@ export default function Footer() {
           </div>
 
           {/* Right Section - Navigation Links */}
-          <nav className="flex items-center gap-2 sm:gap-2 sm:gap-4">
+          <nav className="flex items-center gap-2 sm:gap-4">
             {footerLinks.map((link) => (
               <Link
                 key={link.label}

@@ -72,7 +72,7 @@ export default function SupportTicketsPageContent({
         <div className="flex flex-col poppins">
           <div className="pb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
             <div>
-              <h1 className="text-lg sm:text-xl font-semibold text-gray-700 dark:text-white flex items-center gap-2">
+              <h1 className="text-lg sm:text-xl font-medium text-gray-700 dark:text-white flex items-center gap-2">
                 <div
                   className={cn(
                     "p-2 rounded-xl border",
@@ -97,7 +97,7 @@ export default function SupportTicketsPageContent({
                     className={cn(
                       "h-10 rounded-[28px] border border-sky-400/30 dark:border-sky-400/30",
                       "bg-gradient-to-r from-sky-500/50 via-sky-500/40 to-sky-500/30 dark:from-sky-500/50 dark:via-sky-500/40 dark:to-sky-500/30",
-                      "text-white shadow-[0_10px_30px_rgba(2,132,199,0.3)] backdrop-blur-sm",
+                      "text-white shadow-[0_10px_30px_rgba(2,132,199,0.3)] backdrop-blur-md",
                       "hover:border-sky-300/50 hover:from-sky-500/60 hover:via-sky-500/50 hover:to-sky-500/40",
                       "gap-2",
                     )}

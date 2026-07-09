@@ -6,7 +6,6 @@
 
 import React from "react";
 import { Column, ColumnDef } from "@tanstack/react-table";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -20,23 +19,8 @@ import { IoMdArrowDown, IoMdArrowUp } from "react-icons/io";
 import { format } from "date-fns";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
+import { UserRoleBadge } from "@/lib/ui/semantic-badges";
 import type { UserForAdmin } from "@/types";
-
-function getRoleColor(role: string | null): string {
-  switch (role ?? "") {
-    case "admin":
-      return "bg-violet-100 text-violet-800 dark:bg-violet-900/30 dark:text-violet-300";
-    case "supplier":
-      return "bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-300";
-    case "client":
-      return "bg-sky-100 text-sky-800 dark:bg-sky-900/30 dark:text-sky-300";
-    case "retailer":
-      return "bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300";
-    case "user":
-    default:
-      return "bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-300";
-  }
-}
 
 type SortableHeaderProps = {
   column: Column<UserForAdmin, unknown>;
@@ -57,7 +41,7 @@ function SortableHeader({ column, label }: SortableHeaderProps) {
       <DropdownMenuTrigger className="" asChild>
         <div
           className={cn(
-            "flex items-center select-none cursor-pointer gap-1 py-2 text-gray-700 dark:text-white",
+            "flex items-center select-none cursor-pointer gap-1 py-2 text-sm font-normal text-gray-700 dark:text-white",
             isSorted && "text-primary",
           )}
           aria-label={`Sort by ${label}`}
@@ -109,7 +93,7 @@ export function createUserManagementColumns(
         return (
           <Link
             href={href}
-            className="font-medium truncate max-w-[140px] block text-sky-600 dark:text-sky-400 hover:text-sky-500 dark:hover:text-sky-300"
+            className="font-normal truncate max-w-[140px] block text-sky-600 dark:text-sky-400 hover:text-sky-500 dark:hover:text-sky-300"
             title={u.name}
           >
             {u.name}
@@ -122,7 +106,7 @@ export function createUserManagementColumns(
       header: ({ column }) => <SortableHeader column={column} label="Email" />,
       cell: ({ row }) => (
         <span
-          className="text-sm truncate max-w-[180px] block"
+          className="truncate max-w-[180px] block"
           title={row.original.email}
         >
           {row.original.email}
@@ -137,7 +121,7 @@ export function createUserManagementColumns(
         return (
           <span
             className={cn(
-              "text-sm truncate max-w-[100px] block",
+              "truncate max-w-[100px] block",
               display === "—" && "text-muted-foreground",
             )}
             title={display}
@@ -150,16 +134,15 @@ export function createUserManagementColumns(
     {
       accessorKey: "role",
       header: ({ column }) => <SortableHeader column={column} label="Role" />,
-      cell: ({ row }) => {
-        const r = row.original.role ?? "user";
-        return <Badge className={getRoleColor(r)}>{r}</Badge>;
-      },
+      cell: ({ row }) => (
+        <UserRoleBadge role={row.original.role ?? "user"} />
+      ),
     },
     {
       accessorKey: "createdAt",
       header: ({ column }) => <SortableHeader column={column} label="Joined" />,
       cell: ({ getValue }) => (
-        <span className="text-sm">
+        <span>
           {format(new Date(getValue<string>()), "MMM dd, yyyy")}
         </span>
       ),

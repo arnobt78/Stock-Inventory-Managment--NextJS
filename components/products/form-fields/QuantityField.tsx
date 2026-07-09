@@ -16,19 +16,19 @@ export default function Quantity() {
         {`Quantity`}
       </Label>
       <Input
-        {...register("quantity", { 
+        {...register("quantity", {
           valueAsNumber: true,
           setValueAs: (value: string) => {
             if (value === "" || value === null || value === undefined) {
               return "" as unknown as number;
             }
             const num = Number(value);
-            return isNaN(num) ? "" as unknown as number : num;
-          }
+            return isNaN(num) ? ("" as unknown as number) : num;
+          },
         })}
         type="text"
         id="quantity"
-        className="h-11 bg-white/10 dark:bg-white/5 backdrop-blur-sm border border-rose-400/30 dark:border-white/20 text-white placeholder:text-white/40 focus-visible:border-rose-400 focus-visible:ring-rose-500/50 shadow-[0_10px_30px_rgba(225,29,72,0.15)]"
+        className="h-11 bg-white/10 dark:bg-white/5 backdrop-blur-md border border-rose-400/30 dark:border-white/20 text-white placeholder:text-white/40 focus-visible:border-rose-400 focus-visible:ring-rose-500/50 shadow-[0_10px_30px_rgba(225,29,72,0.15)]"
         placeholder="10"
       />
       {errors.quantity && (

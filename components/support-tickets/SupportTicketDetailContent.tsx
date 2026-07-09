@@ -11,7 +11,7 @@ import {
   useSupportTicketReplies,
   useCreateSupportTicketReply,
 } from "@/hooks/queries";
-import { queryKeys } from "@/lib/react-query";
+import { isDataSlotLoading, queryKeys } from "@/lib/react-query";
 import {
   MessageSquare,
   ArrowLeft,
@@ -23,9 +23,12 @@ import {
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { Textarea } from "@/components/ui/textarea";
-import type { SupportTicket } from "@/types";
+import {
+  TicketStatusBadge,
+  TicketPriorityBadge,
+} from "@/lib/ui/semantic-badges";
+import type { SupportTicket, SupportTicketReply } from "@/types";
 
 const variantConfig = {
   border: "border-sky-400/20",
@@ -36,27 +39,15 @@ const variantConfig = {
     "border-sky-300/30 bg-sky-100/50 dark:border-sky-400/30 dark:bg-sky-500/20",
 };
 
-function statusColor(status: string): string {
-  switch (status) {
-    case "open":
-      return "bg-sky-100 text-sky-800 dark:bg-sky-900/30 dark:text-sky-300";
-    case "in_progress":
-      return "bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300";
-    case "resolved":
-      return "bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-300";
-    case "closed":
-      return "bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300";
-    default:
-      return "bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300";
-  }
-}
-
 export type SupportTicketDetailContentProps = {
   initialTicket: SupportTicket;
+  /** SSR replies for first paint (REQ-0025 P2) */
+  initialReplies?: SupportTicketReply[];
 };
 
 export default function SupportTicketDetailContent({
   initialTicket,
+  initialReplies,
 }: SupportTicketDetailContentProps) {
   const queryClient = useQueryClient();
   const [replyBody, setReplyBody] = useState("");
@@ -68,8 +59,9 @@ export default function SupportTicketDetailContent({
       initialTicket,
     );
   }, [queryClient, initialTicket]);
-  const { data: replies = [], isLoading: repliesLoading } =
-    useSupportTicketReplies(ticket.id);
+  const repliesQuery = useSupportTicketReplies(ticket.id, initialReplies);
+  const replies = repliesQuery.data ?? initialReplies ?? [];
+  const repliesLoading = isDataSlotLoading(repliesQuery, initialReplies);
   const createReply = useCreateSupportTicketReply(ticket.id);
 
   const handleSubmitReply = (e: React.FormEvent) => {
@@ -92,9 +84,9 @@ export default function SupportTicketDetailContent({
               href="/support-tickets"
               className={cn(
                 "inline-flex items-center gap-2 rounded-xl border border-sky-400/30 dark:border-sky-400/30",
-                "bg-white/60 dark:bg-white/5 backdrop-blur-sm",
+                "bg-white/60 dark:bg-white/5 backdrop-blur-md",
                 "hover:bg-white/80 dark:hover:bg-white/10",
-                "text-gray-700 dark:text-gray-300 text-sm font-medium px-3 py-2",
+                "text-gray-700 dark:text-gray-300 text-sm font-medium px-2 py-2",
               )}
             >
               <ArrowLeft className="h-4 w-4" />
@@ -104,7 +96,7 @@ export default function SupportTicketDetailContent({
 
           <article
             className={cn(
-              "rounded-[20px] border p-2 sm:p-4 backdrop-blur-sm",
+              "rounded-[20px] border p-2 sm:p-4 backdrop-blur-md",
               "bg-white/60 dark:bg-white/5",
               variantConfig.border,
               variantConfig.gradient,
@@ -126,24 +118,12 @@ export default function SupportTicketDetailContent({
                     {ticket.ticketNumber}
                   </p>
                 )}
-                <h1 className="text-xl font-semibold text-gray-700 dark:text-white">
+                <h1 className="text-xl font-medium text-gray-700 dark:text-white">
                   {ticket.subject}
                 </h1>
                 <div className="flex flex-wrap items-center gap-2 mt-2">
-                  <Badge
-                    className={cn(
-                      "rounded-full text-xs font-medium border border-sky-300/30 shadow-[0_4px_12px_rgba(2,132,199,0.2)]",
-                      statusColor(ticket.status),
-                    )}
-                  >
-                    {ticket.status.replace("_", " ")}
-                  </Badge>
-                  <Badge
-                    variant="secondary"
-                    className="rounded-full text-xs border border-sky-300/30 shadow-[0_4px_12px_rgba(2,132,199,0.15)]"
-                  >
-                    {ticket.priority}
-                  </Badge>
+                  <TicketStatusBadge status={ticket.status} size="detail" />
+                  <TicketPriorityBadge status={ticket.priority} size="detail" />
                   <span className="text-xs text-gray-500 dark:text-gray-500">
                     {format(
                       new Date(ticket.createdAt),
@@ -200,14 +180,14 @@ export default function SupportTicketDetailContent({
 
           <section
             className={cn(
-              "rounded-[20px] border p-2 sm:p-4 backdrop-blur-sm",
+              "rounded-[20px] border p-2 sm:p-4 backdrop-blur-md",
               "bg-white/60 dark:bg-white/5",
               variantConfig.border,
               variantConfig.gradient,
               variantConfig.shadow,
             )}
           >
-            <h2 className="text-lg font-semibold text-gray-700 dark:text-white mb-4">
+            <h2 className="text-lg font-medium text-gray-700 dark:text-white mb-4">
               Replies
             </h2>
             {repliesLoading ? (

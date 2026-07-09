@@ -4,19 +4,18 @@
 
 import { useQuery } from "@tanstack/react-query";
 import { apiClient } from "@/lib/api";
-import { queryKeys } from "@/lib/react-query";
+import { queryKeys, withInitialData } from "@/lib/react-query";
 import type { ForecastingSummary } from "@/types";
 
-/**
- * Get demand forecasting summary
- */
-export function useForecastingSummary() {
+/** Demand forecast summary — SSR initialData avoids skeleton on dashboard refresh. */
+export function useForecastingSummary(initialData?: ForecastingSummary) {
   return useQuery({
     queryKey: queryKeys.forecasting.summary(),
     queryFn: async (): Promise<ForecastingSummary> => {
       const response = await apiClient.forecasting.getSummary();
       return response.data;
     },
-    gcTime: 1000 * 60 * 30, // 30 minutes
+    gcTime: 1000 * 60 * 30,
+    ...withInitialData(initialData),
   });
 }

@@ -12,7 +12,7 @@ import {
 } from "@/hooks/queries";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
-import type { ProductReview } from "@/types";
+import type { ProductReview, ReviewEligibilitySlot } from "@/types";
 import WriteEditReviewDialog from "./WriteEditReviewDialog";
 import {
   DropdownMenu,
@@ -47,6 +47,13 @@ export type ProductReviewsSectionProps = {
   /** Optional: show compact (e.g. inside order item row) */
   compact?: boolean;
   variant?: "amber" | "violet" | "sky";
+  /** REQ-0026 — SSR-passed reviews; skips client fetch on first paint */
+  initialReviews?: ProductReview[];
+  /** REQ-0026 — SSR-passed eligibility for this product/order */
+  initialEligibility?: {
+    eligible: boolean;
+    slots: ReviewEligibilitySlot[];
+  };
 };
 
 const variantConfig = {
@@ -86,6 +93,8 @@ export default function ProductReviewsSection({
   orderId,
   compact = false,
   variant = "amber",
+  initialReviews,
+  initialEligibility,
 }: ProductReviewsSectionProps) {
   const { user } = useAuth();
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -95,10 +104,15 @@ export default function ProductReviewsSection({
 
   const { data: reviews = [], isLoading: reviewsLoading } = useReviewsByProduct(
     productId,
-    { status: "all" },
+    {
+      status: "all",
+      initialData: initialReviews,
+    },
   );
   const { data: eligibility, isLoading: eligibilityLoading } =
-    useReviewEligibility(productId, orderId);
+    useReviewEligibility(productId, orderId, {
+      initialData: initialEligibility,
+    });
   const deleteReview = useDeleteProductReview();
 
   const approvedReviews = reviews.filter((r) => r.status === "approved");
@@ -192,7 +206,7 @@ export default function ProductReviewsSection({
   return (
     <article
       className={cn(
-        "rounded-[20px] border p-4 sm:p-5 backdrop-blur-sm",
+        "rounded-[20px] border p-4 sm:p-5 backdrop-blur-md",
         "bg-white/60 dark:bg-white/5",
         config.border,
         config.gradient,
@@ -204,7 +218,7 @@ export default function ProductReviewsSection({
           <div className={cn("p-2 rounded-xl border", config.iconBg)}>
             <Star className="h-5 w-5 text-amber-500" />
           </div>
-          <h3 className="text-lg font-semibold text-gray-700 dark:text-white">
+          <h3 className="text-lg font-medium text-gray-700 dark:text-white">
             Reviews
           </h3>
         </div>

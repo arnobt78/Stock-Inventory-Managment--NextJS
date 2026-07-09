@@ -187,7 +187,7 @@ export async function getDashboardForAdmin(userId: string): Promise<DashboardSta
       where: {
         ...whereStoreOrders,
         status: { not: "cancelled" },
-        paymentStatus: { in: ["unpaid", "partial"] },
+        paymentStatus: { in: ["unpaid", "partial", "pending"] },
       },
       _sum: { total: true },
     }),

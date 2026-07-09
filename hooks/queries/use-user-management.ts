@@ -13,9 +13,12 @@ import {
 import { useToast } from "@/hooks/use-toast";
 import type {
   UserForAdmin,
+  UserOverview,
   UpdateUserAdminInput,
   CreateUserAdminInput,
 } from "@/types";
+
+export type UserDetailForPage = UserForAdmin & { overview?: UserOverview };
 
 export function useUsers(initialData?: UserForAdmin[]) {
   return useQuery({
@@ -28,7 +31,7 @@ export function useUsers(initialData?: UserForAdmin[]) {
   });
 }
 
-export function useUser(id: string) {
+export function useUser(id: string, initialData?: UserDetailForPage) {
   return useQuery({
     queryKey: queryKeys.userManagement.detail(id),
     queryFn: async () => {
@@ -36,6 +39,7 @@ export function useUser(id: string) {
       return response.data;
     },
     enabled: !!id,
+    ...withInitialData(initialData),
   });
 }
 

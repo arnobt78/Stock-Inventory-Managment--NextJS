@@ -44,6 +44,33 @@
 | ART-0037 | REQ-0021 | `components/ui/table-data-skeleton.tsx` | TableBodyPulseRows |
 | ART-0038 | REQ-0021 | `app/**/page.tsx` (tier 1+2) | Suspense shell + streamed data |
 | ART-0039 | REQ-0021 | `hooks/queries/*` | initialData on list/dashboard hooks |
+| ART-0040 | REQ-0022 | `components/Pages/OrderDetailPage.tsx` | Shell-first detail; DataSlotPulse |
+| ART-0041 | REQ-0022 | `components/Pages/InvoiceDetailPage.tsx` | Shell-first detail; embedInAdmin preserved |
+| ART-0042 | REQ-0022 | `components/home/index.ts` | Removed dead StatisticsCardSkeleton export |
+| ART-0043 | REQ-0023 | `components/admin/AdminHistoryDetailContent.tsx` | Shell-first + DataSlotPulse |
+| ART-0044 | REQ-0023 | `components/admin/AdminProductReviewDetailContent.tsx` | Shell-first + status/rating pulse |
+| ART-0045 | REQ-0023 | `components/admin/AdminSupportTicketDetailContent.tsx` | Ticket shell; replies pulse independently |
+| ART-0046 | REQ-0023 | `components/admin/AdminUserManagementDetailContent.tsx` | Shell-first profile + overview metrics |
+| ART-0047 | REQ-0023 | `components/admin/AdminOrderDetailContent.tsx` | Mirror OrderDetailPage pulse map + admin controls |
+| ART-0048 | REQ-0024 | `lib/server/system-config-data.ts`, `app/admin/settings/page.tsx` | Admin settings SSR shell-first |
+| ART-0049 | REQ-0024 | `lib/orders/transform-order-detail.ts`, `lib/invoices/transform-invoice-detail.ts` | Shared detail transforms |
+| ART-0050 | REQ-0024 | `lib/server/*-detail-data.ts` (10 helpers) | Role-scoped SSR prefetch |
+| ART-0051 | REQ-0024 | `app/**/[id]/page.tsx` (18 routes) | Suspense + initial* props |
+| ART-0052 | REQ-0024 | `components/orders/detail/*` | Shared order detail sections |
+| ART-0053 | REQ-0026 | `lib/server/{warehouse-stock,product-reviews-detail,order-review-context,client-catalog,client-browse}-data.ts` | P3 SSR server helpers |
+| ART-0054 | REQ-0026 | `OrderList.tsx`, `InvoiceList.tsx`, `ProductList.tsx` | Ghost fetch `enabled` gates |
+| ART-0055 | REQ-0026 | `ClientProductList.tsx`, `app/products/page.tsx`, `app/client/page.tsx` | Client browse/catalog SSR |
+| ART-0056 | REQ-0026 | `RouteWarmPrefetch.tsx`, `warm-route-prefetch.ts` | Deferred warm prefetch + client keys |
+| ART-0057 | REQ-0026 | `use-notifications.ts`, `NotificationBell.tsx` | Notification refetch tuning |
+| ART-0058 | REQ-0026 | `components/products/ProductOwnerSelect.tsx` | Searchable owner picker |
+| ART-0059 | REQ-0026 | `getProductOwnerAdminsForBrowse` in `client-browse-data.ts` | Owners-with-products filter |
+| ART-0060 | REQ-0026 | `components/ui/deferred-chart-section.tsx` | Portal chart mount gate |
+| ART-0061 | REQ-0027 | `lib/navigation/shallow-search-param.ts` | Shallow ?ownerId= without RSC |
+| ART-0062 | REQ-0027 | `warmAdminClientPortalLists` in `warm-route-prefetch.ts` | Deferred admin client-list warm |
+| ART-0063 | REQ-0029 | `lib/server/catalog-entity-access.ts` | Supplier category/supplier access gates |
+| ART-0064 | REQ-0029 | `lib/server/category-detail-data.ts`, `lib/server/supplier-detail-data.ts` | Supplier read-only detail branches |
+| ART-0065 | REQ-0029 | `lib/cache/cache-utils.ts` | Role-scoped detail cache keys |
+| ART-0066 | REQ-0029 | `CategoryDetailPage.tsx`, `SupplierDetailPage.tsx` | disableCrud for supplier + client |
 
 ## Tests
 
@@ -59,3 +86,6 @@
 | TC-0008 | REQ-0013 | `lib/validations/{payment,shipping,notification,system-config,ai,auth}-api.test.ts` |
 | TC-0009 | REQ-0019 | `lib/date/format-stable.test.ts` |
 | TC-0010 | REQ-0020 | `lib/format/client-locale.test.ts` |
+| TC-0011 | REQ-0027 | `lib/server/client-browse-data.test.ts` |
+| TC-0012 | REQ-0027 | `lib/navigation/shallow-search-param.test.ts` |
+| TC-0013 | REQ-0029 | `lib/server/catalog-entity-access.test.ts` |

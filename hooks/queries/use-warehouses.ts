@@ -36,7 +36,7 @@ export function useWarehouses(initialData?: Warehouse[] | WarehouseForPage[]) {
 /**
  * Fetch single warehouse by ID
  */
-export function useWarehouse(warehouseId: string) {
+export function useWarehouse(warehouseId: string, initialData?: Warehouse) {
   return useQuery({
     queryKey: queryKeys.warehouses.detail(warehouseId),
     queryFn: async () => {
@@ -44,6 +44,7 @@ export function useWarehouse(warehouseId: string) {
       return response.data;
     },
     enabled: !!warehouseId,
+    ...withInitialData(initialData),
   });
 }
 

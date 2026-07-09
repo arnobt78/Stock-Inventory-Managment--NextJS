@@ -102,7 +102,7 @@ export function QRCodeComponent({
   const cardClassName = cn(
     "w-fit rounded-xl border border-white/20 dark:border-white/10",
     "bg-gradient-to-br from-gray-700/95 via-gray-600/90 to-gray-700/95 dark:from-white/10 dark:via-white/5 dark:to-white/5",
-    "backdrop-blur-sm shadow-[0_20px_50px_rgba(0,0,0,0.15)] dark:shadow-[0_20px_50px_rgba(0,0,0,0.35)]",
+    "backdrop-blur-md shadow-[0_20px_50px_rgba(0,0,0,0.15)] dark:shadow-[0_20px_50px_rgba(0,0,0,0.35)]",
     "p-4",
     className,
   );

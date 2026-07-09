@@ -3,6 +3,7 @@ import { getSession } from "@/lib/auth-server";
 import { getSupportTicketById } from "@/prisma/support-ticket";
 import { prisma } from "@/prisma/client";
 import SupportTicketDetailContent from "@/components/support-tickets/SupportTicketDetailContent";
+import { getSupportTicketRepliesForPage } from "@/lib/server/support-ticket-replies-data";
 import type { SupportTicket } from "@/types";
 
 type Props = { params: Promise<{ id: string }> };
@@ -69,5 +70,12 @@ export default async function SupportTicketDetailRoute({ params }: Props) {
     assignedToEmail: assignedTo?.email ?? null,
   };
 
-  return <SupportTicketDetailContent initialTicket={ticket} />;
+  const initialReplies = await getSupportTicketRepliesForPage(id);
+
+  return (
+    <SupportTicketDetailContent
+      initialTicket={ticket}
+      initialReplies={initialReplies}
+    />
+  );
 }

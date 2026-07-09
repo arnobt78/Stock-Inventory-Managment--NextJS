@@ -1306,10 +1306,41 @@ class ApiClient {
         statusText: response.statusText,
       };
     },
-    getClientInvoices: async (): Promise<ApiResponse<Invoice[]>> => {
-      const response = await this.client.get<Invoice[]>(
-        API_ENDPOINTS.admin.clientInvoices,
-      );
+    getClientInvoices: async (
+      filters?: InvoiceFilters,
+    ): Promise<ApiResponse<Invoice[]>> => {
+      const params = new URLSearchParams();
+      if (filters?.searchTerm) {
+        params.append("searchTerm", filters.searchTerm);
+      }
+      if (filters?.status && filters.status.length > 0) {
+        filters.status.forEach((status) => params.append("status", status));
+      }
+      if (filters?.orderId) {
+        params.append("orderId", filters.orderId);
+      }
+      if (filters?.clientId) {
+        params.append("clientId", filters.clientId);
+      }
+      if (filters?.startDate) {
+        params.append("startDate", filters.startDate);
+      }
+      if (filters?.endDate) {
+        params.append("endDate", filters.endDate);
+      }
+      if (filters?.dueDateStart) {
+        params.append("dueDateStart", filters.dueDateStart);
+      }
+      if (filters?.dueDateEnd) {
+        params.append("dueDateEnd", filters.dueDateEnd);
+      }
+
+      const queryString = params.toString();
+      const url = queryString
+        ? `${API_ENDPOINTS.admin.clientInvoices}?${queryString}`
+        : API_ENDPOINTS.admin.clientInvoices;
+
+      const response = await this.client.get<Invoice[]>(url);
       return {
         data: response.data,
         status: response.status,
@@ -1472,6 +1503,9 @@ class ApiClient {
       }
       if (filters?.dueDateEnd) {
         params.append("dueDateEnd", filters.dueDateEnd);
+      }
+      if (filters?.scope) {
+        params.append("scope", filters.scope);
       }
 
       const queryString = params.toString();

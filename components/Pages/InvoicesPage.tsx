@@ -11,9 +11,14 @@ import InvoiceList from "@/components/invoices/InvoiceList";
 import { PageContentWrapper } from "@/components/shared";
 import FloatingActionButtons from "@/components/shared/FloatingActionButtons";
 import type { InvoiceForPage } from "@/lib/server/invoices-data";
+import type { DashboardStats, ClientPortalDashboard } from "@/types";
 
 export type InvoicesPageProps = {
   initialInvoices?: InvoiceForPage[];
+  /** SSR dashboard stats for admin/user /invoices cards (REQ-0025) */
+  initialStats?: DashboardStats;
+  /** SSR client portal for client /invoices cards */
+  initialClientPortal?: ClientPortalDashboard;
 };
 
 /**
@@ -22,11 +27,17 @@ export type InvoicesPageProps = {
  */
 export default function InvoicesPage({
   initialInvoices,
+  initialStats,
+  initialClientPortal,
 }: InvoicesPageProps = {}) {
   return (
     <Navbar>
       <PageContentWrapper>
-        <InvoiceList initialInvoices={initialInvoices} />
+        <InvoiceList
+          initialInvoices={initialInvoices}
+          initialStats={initialStats}
+          initialClientPortal={initialClientPortal}
+        />
         <FloatingActionButtons variant="invoices" />
       </PageContentWrapper>
     </Navbar>

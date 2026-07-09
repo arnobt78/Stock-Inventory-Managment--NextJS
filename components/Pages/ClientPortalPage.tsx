@@ -8,7 +8,6 @@
 import React from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import {
   Table,
   TableBody,
@@ -44,110 +43,50 @@ import {
   YAxis,
 } from "recharts";
 import { ResponsiveChartContainer } from "@/components/ui/responsive-chart-container";
+import { DeferredChartSection } from "@/components/ui/deferred-chart-section";
 import Navbar from "@/components/layouts/Navbar";
-import { PageContentWrapper, DataSlotPulse } from "@/components/shared";
+import {
+  PageContentWrapper,
+  DataSlotPulse,
+  SectionCardHeader,
+} from "@/components/shared";
+import {
+  ActiveInactiveBadge,
+  InvoiceStatusBadge,
+  OrderStatusBadge,
+  ProductStockStatusBadge,
+} from "@/lib/ui/semantic-badges";
 import { StatisticsCard } from "@/components/home/StatisticsCard";
 import { isDataSlotLoading } from "@/lib/react-query";
 import { cn } from "@/lib/utils";
+import type { ClientPortalDashboard, ClientCatalogOverview } from "@/types";
 
-/** Catalog badge: Active = green (success), Inactive = secondary (gray) — matches admin/user style */
-function CatalogStatusBadge({ status }: { status: string }) {
-  const isActive = status === "Active";
-  return (
-    <Badge
-      variant={isActive ? "default" : "secondary"}
-      className={cn(
-        isActive &&
-          "border-transparent bg-emerald-600 text-white hover:bg-emerald-700 dark:bg-emerald-600 dark:hover:bg-emerald-700",
-      )}
-    >
-      {status}
-    </Badge>
-  );
+/** Normalize catalog product status label → semantic badge key */
+function productStatusKey(status: string): string {
+  const n = (status || "").toLowerCase().replace(/\s+/g, "_");
+  if (n === "stock_low" || n === "low_stock") return "stock_low";
+  if (n === "stock_out" || n === "out_of_stock") return "stock_out";
+  return "available";
 }
 
-/** Product status in catalog: Available = green, Stock Low = amber, Stock Out = red — matches admin/product table */
-function ProductStatusBadge({ status }: { status: string }) {
-  const normalized = (status || "").toLowerCase().replace(/\s+/g, "_");
-  const style =
-    normalized === "available"
-      ? "bg-emerald-100 text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-300 border-emerald-300/30"
-      : normalized === "stock_low"
-        ? "bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-300 border-amber-300/30"
-        : normalized === "stock_out"
-          ? "bg-red-100 text-red-800 dark:bg-red-900/40 dark:text-red-300 border-red-300/30"
-          : "bg-muted text-muted-foreground";
-  return (
-    <Badge variant="outline" className={style}>
-      {status || "—"}
-    </Badge>
-  );
-}
-
-/** Order status badge colors — match admin/OrderTableColumns (soft bg + text) */
-const ORDER_STATUS_STYLE: Record<string, string> = {
-  pending:
-    "bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300 border-amber-300/30",
-  confirmed:
-    "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300 border-blue-300/30",
-  processing:
-    "bg-violet-100 text-violet-800 dark:bg-violet-900/30 dark:text-violet-300 border-violet-300/30",
-  shipped:
-    "bg-indigo-100 text-indigo-800 dark:bg-indigo-900/30 dark:text-indigo-300 border-indigo-300/30",
-  delivered:
-    "bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-300 border-emerald-300/30",
-  cancelled:
-    "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300 border-red-300/30",
+export type ClientPortalPageProps = {
+  /** REQ-0025 — SSR-passed client dashboard */
+  initialDashboard?: ClientPortalDashboard;
+  /** REQ-0026 — SSR catalog overview */
+  initialCatalog?: ClientCatalogOverview;
 };
 
-/**
- * Get order status badge variant (matches admin order table colors)
- */
-function getOrderStatusBadge(status: string) {
-  const style =
-    ORDER_STATUS_STYLE[status] ??
-    "bg-muted text-muted-foreground border-border";
-  return (
-    <Badge variant="outline" className={style}>
-      {status ? status.charAt(0).toUpperCase() + status.slice(1) : "—"}
-    </Badge>
-  );
-}
-
-/** Invoice status badge colors — match admin/InvoiceTableColumns */
-const INVOICE_STATUS_STYLE: Record<string, string> = {
-  draft:
-    "bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-300 border-gray-300/30",
-  sent: "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300 border-blue-300/30",
-  paid: "bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-300 border-emerald-300/30",
-  overdue:
-    "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300 border-red-300/30",
-  cancelled:
-    "bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-300 border-gray-300/30",
-};
-
-/**
- * Get invoice status badge variant (matches admin invoice table colors)
- */
-function getInvoiceStatusBadge(status: string) {
-  const style =
-    INVOICE_STATUS_STYLE[status] ??
-    "bg-muted text-muted-foreground border-border";
-  return (
-    <Badge variant="outline" className={style}>
-      {status ? status.charAt(0).toUpperCase() + status.slice(1) : "—"}
-    </Badge>
-  );
-}
-
-export default function ClientPortalPage() {
+export default function ClientPortalPage({
+  initialDashboard,
+  initialCatalog,
+}: ClientPortalPageProps = {}) {
   const { isCheckingAuth } = useAuth();
-  const dashboardQuery = useClientPortalDashboard();
-  const catalogQuery = useClientCatalogOverview();
-  const dashboard = dashboardQuery.data;
-  const catalog = catalogQuery.data;
-  const dashboardLoading = isDataSlotLoading(dashboardQuery);
-  const catalogLoading = isDataSlotLoading(catalogQuery);
+  const dashboardQuery = useClientPortalDashboard(initialDashboard);
+  const catalogQuery = useClientCatalogOverview(initialCatalog);
+  const dashboard = dashboardQuery.data ?? initialDashboard;
+  const catalog = catalogQuery.data ?? initialCatalog;
+  const dashboardLoading = isDataSlotLoading(dashboardQuery, initialDashboard);
+  const catalogLoading = isDataSlotLoading(catalogQuery, initialCatalog);
   const showError =
     !dashboardLoading &&
     !isCheckingAuth &&
@@ -158,12 +97,12 @@ export default function ClientPortalPage() {
       <Navbar>
         <PageContentWrapper>
           <div className="space-y-4">
-            <h1 className="text-lg sm:text-xl font-semibold text-primary">
+            <h1 className="text-lg sm:text-xl font-medium text-primary">
               Client Portal
             </h1>
             <article
               className={cn(
-                "rounded-[28px] border border-white/10 dark:border-white/20 p-2 sm:p-4 backdrop-blur-sm bg-white/60 dark:bg-white/5 shadow-[0_15px_40px_rgba(0,0,0,0.08)] dark:shadow-[0_30px_80px_rgba(255,255,255,0.08)]",
+                "rounded-[28px] border border-white/10 dark:border-white/20 p-2 sm:p-4 backdrop-blur-md bg-white/60 dark:bg-white/5 shadow-[0_15px_40px_rgba(0,0,0,0.08)] dark:shadow-[0_30px_80px_rgba(255,255,255,0.08)]",
               )}
             >
               <p className="text-muted-foreground text-center">
@@ -186,7 +125,7 @@ export default function ClientPortalPage() {
       <PageContentWrapper>
         <div className="space-y-4">
           <div className="">
-            <h1 className="text-lg sm:text-xl font-semibold text-gray-700 dark:text-white">
+            <h1 className="text-lg sm:text-xl font-medium text-gray-700 dark:text-white">
               Client Portal
             </h1>
             <p className="text-xs sm:text-sm text-muted-foreground">
@@ -258,10 +197,13 @@ export default function ClientPortalPage() {
             />
             <StatisticsCard
               title="Total Spent"
-              value={`$${(dashboard?.totalSpent ?? 0).toLocaleString(undefined, {
-                minimumFractionDigits: 2,
-                maximumFractionDigits: 2,
-              })}`}
+              value={`$${(dashboard?.totalSpent ?? 0).toLocaleString(
+                undefined,
+                {
+                  minimumFractionDigits: 2,
+                  maximumFractionDigits: 2,
+                },
+              )}`}
               description="Total order value"
               icon={DollarSign}
               variant="emerald"
@@ -318,7 +260,8 @@ export default function ClientPortalPage() {
                       {
                         label: "Avg/Order",
                         value: `$${(
-                          (dashboard?.totalSpent ?? 0) / (dashboard?.totalOrders ?? 1)
+                          (dashboard?.totalSpent ?? 0) /
+                          (dashboard?.totalOrders ?? 1)
                         ).toLocaleString(undefined, {
                           minimumFractionDigits: 2,
                           maximumFractionDigits: 2,
@@ -330,10 +273,13 @@ export default function ClientPortalPage() {
             />
             <StatisticsCard
               title="Outstanding"
-              value={`$${(dashboard?.outstandingAmount ?? 0).toLocaleString(undefined, {
-                minimumFractionDigits: 2,
-                maximumFractionDigits: 2,
-              })}`}
+              value={`$${(dashboard?.outstandingAmount ?? 0).toLocaleString(
+                undefined,
+                {
+                  minimumFractionDigits: 2,
+                  maximumFractionDigits: 2,
+                },
+              )}`}
               description="Unpaid invoice balance"
               icon={AlertCircle}
               variant="rose"
@@ -369,7 +315,7 @@ export default function ClientPortalPage() {
 
           <article
             className={cn(
-              "rounded-[28px] border border-emerald-400/20 dark:border-emerald-400/30 p-2 sm:p-4 backdrop-blur-sm transition-all",
+              "rounded-[28px] border border-emerald-400/20 dark:border-emerald-400/30 p-2 sm:p-4 backdrop-blur-md transition-all",
               "bg-white/60 dark:bg-white/5",
               "bg-gradient-to-br from-emerald-500/15 via-emerald-500/5 to-transparent dark:from-emerald-500/25 dark:via-emerald-500/10 dark:to-emerald-500/5",
               "shadow-[0_15px_40px_rgba(16,185,129,0.15)] dark:shadow-[0_30px_80px_rgba(16,185,129,0.25)]",
@@ -377,7 +323,7 @@ export default function ClientPortalPage() {
             )}
           >
             <div className="mb-4">
-              <h3 className="flex items-center gap-2 text-lg font-semibold text-gray-700 dark:text-white">
+              <h3 className="flex items-center gap-2 text-lg font-medium text-gray-700 dark:text-white">
                 <TrendingUp className="h-5 w-5 text-emerald-500 dark:text-emerald-400" />
                 Monthly Spending
               </h3>
@@ -385,9 +331,15 @@ export default function ClientPortalPage() {
                 Your spending over the last 6 months (grouped by month)
               </p>
             </div>
-            {dashboardLoading ? (
-              <DataSlotPulse variant="chart" className="min-h-[240px]" />
-            ) : (dashboard?.monthlySpending.length ?? 0) > 0 ? (
+            <DeferredChartSection
+              loading={dashboardLoading}
+              hasData={(dashboard?.monthlySpending.length ?? 0) > 0}
+              emptyMessage={
+                <p className="text-muted-foreground text-center py-8">
+                  No spending data yet
+                </p>
+              }
+            >
               <ResponsiveChartContainer>
                 <AreaChart
                   data={dashboard!.monthlySpending}
@@ -410,18 +362,14 @@ export default function ClientPortalPage() {
                   />
                 </AreaChart>
               </ResponsiveChartContainer>
-            ) : (
-              <p className="text-muted-foreground text-center py-8">
-                No spending data yet
-              </p>
-            )}
+            </DeferredChartSection>
           </article>
 
           {/* Catalog — glassmorphic */}
           <article
             id="catalog"
             className={cn(
-              "rounded-[28px] border border-sky-400/20 dark:border-sky-400/30 p-2 sm:p-4 backdrop-blur-sm transition-all",
+              "rounded-[28px] border border-sky-400/20 dark:border-sky-400/30 p-2 sm:p-4 backdrop-blur-md transition-all",
               "bg-white/60 dark:bg-white/5",
               "bg-gradient-to-br from-sky-500/15 via-sky-500/5 to-transparent dark:from-sky-500/25 dark:via-sky-500/10 dark:to-sky-500/5",
               "shadow-[0_15px_40px_rgba(2,132,199,0.15)] dark:shadow-[0_30px_80px_rgba(2,132,199,0.25)]",
@@ -429,7 +377,7 @@ export default function ClientPortalPage() {
             )}
           >
             <div className="mb-6">
-              <h3 className="flex items-center gap-2 text-lg font-semibold text-gray-700 dark:text-white">
+              <h3 className="flex items-center gap-2 text-lg font-medium text-gray-700 dark:text-white">
                 <Store className="h-5 w-5 text-sky-500 dark:text-sky-400" />
                 Catalog — What&apos;s available
               </h3>
@@ -451,7 +399,9 @@ export default function ClientPortalPage() {
                           <TableRow>
                             <TableHead>Name</TableHead>
                             <TableHead>Status</TableHead>
-                            <TableHead className="text-right">Products</TableHead>
+                            <TableHead className="text-right">
+                              Products
+                            </TableHead>
                           </TableRow>
                         </TableHeader>
                         <TableBodyPulseRows rows={5} columnCount={3} />
@@ -470,7 +420,9 @@ export default function ClientPortalPage() {
                             <TableHead>Name</TableHead>
                             <TableHead>Status</TableHead>
                             <TableHead>Product Owner</TableHead>
-                            <TableHead className="text-right">Products</TableHead>
+                            <TableHead className="text-right">
+                              Products
+                            </TableHead>
                           </TableRow>
                         </TableHeader>
                         <TableBodyPulseRows rows={5} columnCount={4} />
@@ -535,7 +487,7 @@ export default function ClientPortalPage() {
                           ) : (
                             catalog.suppliers.map((s) => (
                               <TableRow key={s.id}>
-                                <TableCell className="font-medium">
+                                <TableCell className="font-normal">
                                   <Link
                                     href={`/suppliers/${s.id}`}
                                     className="text-sky-600 dark:text-sky-400 hover:text-sky-500 dark:hover:text-sky-300"
@@ -544,7 +496,9 @@ export default function ClientPortalPage() {
                                   </Link>
                                 </TableCell>
                                 <TableCell>
-                                  <CatalogStatusBadge status={s.status} />
+                                  <ActiveInactiveBadge
+                                    active={s.status === "Active"}
+                                  />
                                 </TableCell>
                                 <TableCell className="text-right">
                                   {s.productCount}
@@ -586,7 +540,7 @@ export default function ClientPortalPage() {
                           ) : (
                             catalog.categories.map((c) => (
                               <TableRow key={c.id}>
-                                <TableCell className="font-medium">
+                                <TableCell className="font-normal">
                                   <Link
                                     href={`/categories/${c.id}`}
                                     className="text-sky-600 dark:text-sky-400 hover:text-sky-500 dark:hover:text-sky-300"
@@ -595,7 +549,9 @@ export default function ClientPortalPage() {
                                   </Link>
                                 </TableCell>
                                 <TableCell>
-                                  <CatalogStatusBadge status={c.status} />
+                                  <ActiveInactiveBadge
+                                    active={c.status === "Active"}
+                                  />
                                 </TableCell>
                                 <TableCell>
                                   {c.categoryCreatorId ? (
@@ -650,7 +606,7 @@ export default function ClientPortalPage() {
                           ) : (
                             catalog.products.map((p) => (
                               <TableRow key={p.id}>
-                                <TableCell className="font-medium">
+                                <TableCell className="font-normal">
                                   <Link
                                     href={`/products/${p.id}`}
                                     className="text-sky-600 dark:text-sky-400 hover:text-sky-500 dark:hover:text-sky-300"
@@ -693,7 +649,10 @@ export default function ClientPortalPage() {
                                   ${p.price.toFixed(2)}
                                 </TableCell>
                                 <TableCell>
-                                  <ProductStatusBadge status={p.status} />
+                                  <ProductStockStatusBadge
+                                    status={productStatusKey(p.status)}
+                                    label={p.status || "—"}
+                                  />
                                 </TableCell>
                               </TableRow>
                             ))
@@ -711,22 +670,20 @@ export default function ClientPortalPage() {
             {/* Recent Orders — glassmorphic */}
             <article
               className={cn(
-                "rounded-[28px] border border-sky-400/20 dark:border-sky-400/30 p-2 sm:p-4 backdrop-blur-sm transition-all",
+                "rounded-[28px] border border-sky-400/20 dark:border-sky-400/30 p-2 sm:p-4 backdrop-blur-md transition-all",
                 "bg-white/60 dark:bg-white/5",
                 "bg-gradient-to-br from-sky-500/15 via-sky-500/5 to-transparent dark:from-sky-500/25 dark:via-sky-500/10 dark:to-sky-500/5",
                 "shadow-[0_15px_40px_rgba(2,132,199,0.15)] dark:shadow-[0_30px_80px_rgba(2,132,199,0.25)]",
                 "hover:border-sky-300/40",
               )}
             >
-              <div className="mb-4">
-                <h3 className="flex items-center gap-2 text-lg font-semibold text-gray-700 dark:text-white">
-                  <ShoppingCart className="h-5 w-5 text-sky-500 dark:text-sky-400" />
-                  Recent Orders
-                </h3>
-                <p className="text-sm text-gray-600 dark:text-white/70 mt-1">
-                  Your latest orders
-                </p>
-              </div>
+              <SectionCardHeader
+                className="mb-4"
+                icon={ShoppingCart}
+                tone="sky"
+                title="Recent Orders"
+                description="Your latest orders"
+              />
               <div>
                 {dashboardLoading ? (
                   <Table>
@@ -771,7 +728,7 @@ export default function ClientPortalPage() {
                               ${order.total.toFixed(2)}
                             </TableCell>
                             <TableCell>
-                              {getOrderStatusBadge(order.status)}
+                              <OrderStatusBadge status={order.status} />
                             </TableCell>
                           </TableRow>
                         ))}
@@ -795,22 +752,20 @@ export default function ClientPortalPage() {
             {/* Recent Invoices — glassmorphic */}
             <article
               className={cn(
-                "rounded-[28px] border border-violet-400/20 dark:border-violet-400/30 p-2 sm:p-4 backdrop-blur-sm transition-all",
+                "rounded-[28px] border border-violet-400/20 dark:border-violet-400/30 p-2 sm:p-4 backdrop-blur-md transition-all",
                 "bg-white/60 dark:bg-white/5",
                 "bg-gradient-to-br from-violet-500/15 via-violet-500/5 to-transparent dark:from-violet-500/25 dark:via-violet-500/10 dark:to-violet-500/5",
                 "shadow-[0_15px_40px_rgba(139,92,246,0.15)] dark:shadow-[0_30px_80px_rgba(139,92,246,0.25)]",
                 "hover:border-violet-300/40",
               )}
             >
-              <div className="mb-4">
-                <h3 className="flex items-center gap-2 text-lg font-semibold text-gray-700 dark:text-white">
-                  <FileText className="h-5 w-5 text-violet-500 dark:text-violet-400" />
-                  Recent Invoices
-                </h3>
-                <p className="text-sm text-gray-600 dark:text-white/70 mt-1">
-                  Your latest invoices
-                </p>
-              </div>
+              <SectionCardHeader
+                className="mb-4"
+                icon={FileText}
+                tone="violet"
+                title="Recent Invoices"
+                description="Your latest invoices"
+              />
               <div>
                 {dashboardLoading ? (
                   <Table>
@@ -838,27 +793,29 @@ export default function ClientPortalPage() {
                         </TableRow>
                       </TableHeader>
                       <TableBody>
-                        {dashboard!.recentInvoices.slice(0, 5).map((invoice) => (
-                          <TableRow key={invoice.id}>
-                            <TableCell>
-                              <Link
-                                href={`/invoices/${invoice.id}`}
-                                className="text-sky-600 dark:text-sky-400 hover:text-sky-500 dark:hover:text-sky-300"
-                              >
-                                {invoice.invoiceNumber}
-                              </Link>
-                              <p className="text-xs text-muted-foreground">
-                                Total: ${invoice.total.toFixed(2)}
-                              </p>
-                            </TableCell>
-                            <TableCell className="text-right font-semibold">
-                              ${invoice.amountDue.toFixed(2)}
-                            </TableCell>
-                            <TableCell>
-                              {getInvoiceStatusBadge(invoice.status)}
-                            </TableCell>
-                          </TableRow>
-                        ))}
+                        {dashboard!.recentInvoices
+                          .slice(0, 5)
+                          .map((invoice) => (
+                            <TableRow key={invoice.id}>
+                              <TableCell>
+                                <Link
+                                  href={`/invoices/${invoice.id}`}
+                                  className="text-sky-600 dark:text-sky-400 hover:text-sky-500 dark:hover:text-sky-300"
+                                >
+                                  {invoice.invoiceNumber}
+                                </Link>
+                                <p className="text-xs text-muted-foreground">
+                                  Total: ${invoice.total.toFixed(2)}
+                                </p>
+                              </TableCell>
+                              <TableCell className="text-right font-normal">
+                                ${invoice.amountDue.toFixed(2)}
+                              </TableCell>
+                              <TableCell>
+                                <InvoiceStatusBadge status={invoice.status} />
+                              </TableCell>
+                            </TableRow>
+                          ))}
                       </TableBody>
                     </Table>
                   </div>
@@ -880,14 +837,14 @@ export default function ClientPortalPage() {
           {/* Quick Links — glassmorphic */}
           <article
             className={cn(
-              "rounded-[28px] border border-violet-400/20 dark:border-violet-400/30 p-2 sm:p-4 backdrop-blur-sm transition-all",
+              "rounded-[28px] border border-violet-400/20 dark:border-violet-400/30 p-2 sm:p-4 backdrop-blur-md transition-all",
               "bg-white/60 dark:bg-white/5",
               "bg-gradient-to-br from-violet-500/15 via-violet-500/5 to-transparent dark:from-violet-500/25 dark:via-violet-500/10 dark:to-violet-500/5",
               "shadow-[0_15px_40px_rgba(139,92,246,0.15)] dark:shadow-[0_30px_80px_rgba(139,92,246,0.25)]",
               "hover:border-violet-300/40",
             )}
           >
-            <h3 className="text-lg font-semibold text-gray-700 dark:text-white mb-4">
+            <h3 className="text-lg font-medium text-gray-700 dark:text-white mb-4">
               Quick Links
             </h3>
             <div className="flex flex-wrap gap-2">

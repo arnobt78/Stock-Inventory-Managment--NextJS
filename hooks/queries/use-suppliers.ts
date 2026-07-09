@@ -38,7 +38,7 @@ export function useSuppliers(initialData?: Supplier[] | SupplierForHome[]) {
  * Fetch single supplier by ID
  * Query hook for getting a single supplier with all related data
  */
-export function useSupplier(supplierId: string) {
+export function useSupplier(supplierId: string, initialData?: Supplier) {
   return useQuery<Supplier>({
     queryKey: queryKeys.suppliers.detail(supplierId),
     queryFn: async () => {
@@ -47,6 +47,7 @@ export function useSupplier(supplierId: string) {
     },
     // Only fetch if supplierId is provided
     enabled: !!supplierId,
+    ...withInitialData(initialData),
   });
 }
 

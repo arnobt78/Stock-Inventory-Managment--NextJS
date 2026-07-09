@@ -5,7 +5,7 @@
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { apiClient, getErrorMessage } from "@/lib/api";
-import { queryKeys } from "@/lib/react-query";
+import { queryKeys, withInitialData } from "@/lib/react-query";
 import { useToast } from "@/hooks/use-toast";
 import type {
   Notification,
@@ -17,7 +17,13 @@ import type {
  * Fetch all notifications for the authenticated user
  * @param filters - Optional filters for notifications
  */
-export function useNotifications(filters?: NotificationFilters) {
+export function useNotifications(
+  filters?: NotificationFilters,
+  initialData?: Notification[],
+  options?: { enabled?: boolean },
+) {
+  const hasSeed = initialData !== undefined;
+  const enabled = options?.enabled ?? true;
   return useQuery<Notification[], Error>({
     queryKey: queryKeys.notifications.list(
       filters as Record<string, unknown> | undefined
@@ -26,9 +32,11 @@ export function useNotifications(filters?: NotificationFilters) {
       const response = await apiClient.notifications.getAll(filters);
       return response.data;
     },
-    // Show cached data immediately when navigating; refetch in background
-    staleTime: 1000 * 30, // 30s - avoids 429 when switching pages quickly
-    refetchInterval: 1000 * 60, // Refetch every minute for real-time feel
+    enabled,
+    staleTime: hasSeed ? 1000 * 60 : 1000 * 30,
+    refetchInterval: hasSeed ? false : 1000 * 60,
+    refetchIntervalInBackground: false,
+    ...withInitialData(initialData),
   });
 }
 
@@ -36,16 +44,18 @@ export function useNotifications(filters?: NotificationFilters) {
  * Fetch unread notification count
  * Used for badge display
  */
-export function useUnreadNotificationCount() {
+export function useUnreadNotificationCount(initialData?: number) {
+  const hasSeed = initialData !== undefined;
   return useQuery<number, Error>({
     queryKey: queryKeys.notifications.unreadCount(),
     queryFn: async () => {
       const response = await apiClient.notifications.getUnreadCount();
       return response.data.count;
     },
-    // Show cached count when navigating; refetch in background
-    staleTime: 1000 * 30, // 30s - avoids 429 when switching pages quickly
-    refetchInterval: 1000 * 60, // Refetch every minute for real-time feel
+    staleTime: hasSeed ? 1000 * 60 : 1000 * 30,
+    refetchInterval: 1000 * 60,
+    refetchIntervalInBackground: false,
+    ...withInitialData(initialData),
   });
 }
 

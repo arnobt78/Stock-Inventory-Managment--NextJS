@@ -2,10 +2,19 @@
 
 import React from "react";
 import Link from "next/link";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { OrderStatusBadge, InvoiceStatusBadge } from "@/lib/ui/semantic-badges";
+import {
+  CARD_LIST_DIVIDE_CLASS,
+  CARD_LIST_ROW_CLASS,
+  CARD_LIST_META_CLASS,
+} from "@/lib/ui/card-list-styles";
 import { AnalyticsCard } from "@/components/ui/analytics-card";
-import { PageContentWrapper, DataSlotPulse } from "@/components/shared";
+import {
+  PageContentWrapper,
+  PageSectionHeader,
+  DataSlotPulse,
+} from "@/components/shared";
 import { useClientPortal } from "@/hooks/queries";
 import { isDataSlotLoading } from "@/lib/react-query";
 import {
@@ -99,7 +108,7 @@ function GlassCard({
   return (
     <article
       className={cn(
-        "group rounded-[20px] border p-4 sm:p-5 backdrop-blur-sm transition-all duration-300 bg-white/60 dark:bg-white/5",
+        "group rounded-[20px] border p-4 sm:p-5 backdrop-blur-md transition-all duration-300 bg-white/60 dark:bg-white/5",
         config.border,
         config.gradient,
         config.shadow,
@@ -116,26 +125,6 @@ export type AdminClientPortalContentProps = {
   initialStats?: ClientPortalStats | null;
 };
 
-function getStatusColor(status: string): string {
-  switch (status) {
-    case "pending":
-      return "bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300";
-    case "confirmed":
-    case "paid":
-      return "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300";
-    case "processing":
-    case "sent":
-      return "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300";
-    case "completed":
-      return "bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-300";
-    case "cancelled":
-    case "overdue":
-      return "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300";
-    default:
-      return "bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-300";
-  }
-}
-
 export default function AdminClientPortalContent({
   initialStats,
 }: AdminClientPortalContentProps = {}) {
@@ -146,14 +135,13 @@ export default function AdminClientPortalContent({
   return (
     <PageContentWrapper>
       <div className="mx-auto space-y-4">
-        <div className="space-y-2">
-          <h1 className="text-lg sm:text-xl font-semibold text-gray-700 dark:text-white">
-            Client Portal
-          </h1>
-          <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">
-            Overview of client users, their orders, invoices, and activity.
-          </p>
-        </div>
+        <PageSectionHeader
+          as="h1"
+          icon={Users}
+          tone="violet"
+          title="Client Portal"
+          description="Overview of client users, their orders, invoices, and activity."
+        />
 
         {/* Summary cards */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-2 items-stretch">
@@ -206,7 +194,7 @@ export default function AdminClientPortalContent({
                 <ShoppingCart className="h-5 w-5 text-sky-600 dark:text-sky-400" />
               </div>
               <div>
-                <h3 className="text-md sm:text-lg font-semibold text-gray-700 dark:text-white">
+                <h3 className="text-md sm:text-lg font-medium text-gray-700 dark:text-white">
                   Recent Client Orders
                 </h3>
                 <p className="text-xs text-gray-600 dark:text-gray-400">
@@ -228,29 +216,24 @@ export default function AdminClientPortalContent({
                 No client orders yet.
               </p>
             ) : (
-              <ul className="divide-y divide-sky-200/40 dark:divide-white/10">
+              <ul className={CARD_LIST_DIVIDE_CLASS}>
                 {(stats?.recentOrders ?? []).map((o) => (
-                  <li
-                    key={o.id}
-                    className="py-3 flex items-center justify-between gap-2"
-                  >
+                  <li key={o.id} className={CARD_LIST_ROW_CLASS}>
                     <div className="min-w-0">
                       <Link
                         href={`/admin/orders/${o.id}`}
-                        className="font-medium text-sm text-sky-600 dark:text-sky-400 hover:text-sky-500 dark:hover:text-sky-300 truncate block"
+                        className="font-normal text-xs text-sky-600 dark:text-sky-400 hover:text-sky-500 dark:hover:text-sky-300 truncate block"
                       >
                         {o.orderNumber}
                       </Link>
-                      <span className="text-xs text-muted-foreground truncate block">
+                      <span className={CARD_LIST_META_CLASS}>
                         {o.clientName} ·{" "}
                         {format(new Date(o.createdAt), "MMM d, yyyy")}
                       </span>
                     </div>
                     <div className="flex items-center gap-2 flex-shrink-0">
-                      <Badge className={getStatusColor(o.status)}>
-                        {o.status}
-                      </Badge>
-                      <span className="text-sm font-medium text-gray-700 dark:text-white">
+                      <OrderStatusBadge status={o.status} />
+                      <span className="text-xs font-normal text-gray-700 dark:text-white">
                         ${o.total.toLocaleString()}
                       </span>
                     </div>
@@ -285,7 +268,7 @@ export default function AdminClientPortalContent({
                 <FileText className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
               </div>
               <div>
-                <h3 className="text-md sm:text-lg font-semibold text-gray-700 dark:text-white">
+                <h3 className="text-md sm:text-lg font-medium text-gray-700 dark:text-white">
                   Recent Client Invoices
                 </h3>
                 <p className="text-xs text-gray-600 dark:text-gray-400">
@@ -307,29 +290,24 @@ export default function AdminClientPortalContent({
                 No client invoices yet.
               </p>
             ) : (
-              <ul className="divide-y divide-emerald-200/40 dark:divide-white/10">
+              <ul className={CARD_LIST_DIVIDE_CLASS}>
                 {(stats?.recentInvoices ?? []).map((i) => (
-                  <li
-                    key={i.id}
-                    className="py-3 flex items-center justify-between gap-2"
-                  >
+                  <li key={i.id} className={CARD_LIST_ROW_CLASS}>
                     <div className="min-w-0">
                       <Link
                         href={`/admin/invoices/${i.id}`}
-                        className="font-medium text-sm text-sky-600 dark:text-sky-400 hover:text-sky-500 dark:hover:text-sky-300 truncate block"
+                        className="font-normal text-xs text-sky-600 dark:text-sky-400 hover:text-sky-500 dark:hover:text-sky-300 truncate block"
                       >
                         {i.invoiceNumber}
                       </Link>
-                      <span className="text-xs text-muted-foreground truncate block">
+                      <span className={CARD_LIST_META_CLASS}>
                         {i.clientName} ·{" "}
                         {format(new Date(i.createdAt), "MMM d, yyyy")}
                       </span>
                     </div>
                     <div className="flex items-center gap-2 flex-shrink-0">
-                      <Badge className={getStatusColor(i.status)}>
-                        {i.status}
-                      </Badge>
-                      <span className="text-sm font-medium text-gray-700 dark:text-white">
+                      <InvoiceStatusBadge status={i.status} />
+                      <span className="text-xs font-normal text-gray-700 dark:text-white">
                         ${i.total.toLocaleString()}
                       </span>
                     </div>
@@ -365,7 +343,7 @@ export default function AdminClientPortalContent({
               <Users className="h-5 w-5 text-violet-600 dark:text-violet-400" />
             </div>
             <div>
-              <h3 className="text-md sm:text-lg font-semibold text-gray-700 dark:text-white">
+              <h3 className="text-md sm:text-lg font-medium text-gray-700 dark:text-white">
                 Clients
               </h3>
               <p className="text-xs text-gray-600 dark:text-gray-400">

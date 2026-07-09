@@ -11,43 +11,40 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { ArrowLeft, FileText, Loader2, AlertCircle } from "lucide-react";
+import { ArrowLeft, FileText, AlertCircle } from "lucide-react";
 import { useHistoryItem } from "@/hooks/queries";
-import { PageContentWrapper } from "@/components/shared";
+import { PageContentWrapper, DataSlotPulse } from "@/components/shared";
+import { isDataSlotLoading } from "@/lib/react-query";
 import { format } from "date-fns";
+import {
+  ImportStatusBadge,
+  ImportTypeBadge,
+  formatSemanticLabel,
+} from "@/lib/ui/semantic-badges";
 import type { ImportHistoryForPage } from "@/types";
-
-function getStatusVariant(
-  status: string,
-): "default" | "secondary" | "destructive" | "outline" {
-  switch (status) {
-    case "completed":
-      return "secondary";
-    case "failed":
-      return "destructive";
-    default:
-      return "outline";
-  }
-}
 
 export type AdminHistoryDetailContentProps = {
   /** Back link target (e.g. "/admin/activity-history") */
   backHref?: string;
+  initialRecord?: ImportHistoryForPage;
 };
 
 /**
  * Admin History Detail — view a single import history record.
- * Read-only; matches AdminOrderDetailPage layout pattern.
+ * Shell-first: layout always visible; pulse dynamic slots only (REQ-0023).
  */
 export default function AdminHistoryDetailContent({
   backHref = "/admin/activity-history",
+  initialRecord,
 }: AdminHistoryDetailContentProps = {}) {
   const params = useParams();
   const id = params?.id as string;
-  const { data: record, isLoading, isError, error } = useHistoryItem(id);
+  const recordQuery = useHistoryItem(id, initialRecord);
+  const record = recordQuery.data;
+  const dataLoading = isDataSlotLoading(recordQuery, initialRecord);
+  const { isError, error } = recordQuery;
 
-  if (isError || (!isLoading && !record)) {
+  if (isError) {
     return (
       <PageContentWrapper>
         <div className="space-y-4">
@@ -69,18 +66,31 @@ export default function AdminHistoryDetailContent({
     );
   }
 
-  if (isLoading || !record) {
+  if (!dataLoading && !record) {
     return (
       <PageContentWrapper>
-        <div className="flex items-center justify-center min-h-[200px]">
-          <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+        <div className="space-y-4">
+          <Button variant="ghost" size="sm" asChild>
+            <Link href={backHref} className="gap-2">
+              <ArrowLeft className="h-4 w-4" />
+              Back to History
+            </Link>
+          </Button>
+          <Card>
+            <CardContent className="py-8 text-center">
+              <p className="text-muted-foreground">
+                The import record you are looking for does not exist or was
+                removed.
+              </p>
+            </CardContent>
+          </Card>
         </div>
       </PageContentWrapper>
     );
   }
 
-  const r = record as ImportHistoryForPage;
-  const hasErrors = r.errors != null && r.errors.length > 0;
+  const r = record as ImportHistoryForPage | undefined;
+  const hasErrors = !dataLoading && r?.errors != null && r.errors.length > 0;
 
   return (
     <PageContentWrapper>
@@ -92,11 +102,18 @@ export default function AdminHistoryDetailContent({
             </Link>
           </Button>
           <div>
-            <h1 className="text-lg sm:text-xl font-semibold text-foreground">
+            <h1 className="text-lg sm:text-xl font-medium text-foreground">
               Import History Details
             </h1>
             <p className="text-sm text-muted-foreground">
-              View import run: {r.importType} — {r.fileName}
+              View import run:{" "}
+              {dataLoading ? (
+                <DataSlotPulse variant="text-sm" className="w-48" />
+              ) : (
+                <>
+                  {r!.importType} — {r!.fileName}
+                </>
+              )}
             </p>
           </div>
         </div>
@@ -105,48 +122,83 @@ export default function AdminHistoryDetailContent({
           <CardContent className="p-2 sm:p-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-2 sm:gap-4">
               <div>
-                <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
+                <h2 className="text-lg font-medium mb-4 flex items-center gap-2">
                   <FileText className="h-5 w-5" />
                   Import Information
                 </h2>
                 <dl className="space-y-2 text-sm">
                   <div>
                     <dt className="text-muted-foreground">Import Type</dt>
-                    <dd className="capitalize font-medium">{r.importType}</dd>
+                    <dd className="mt-1">
+                      {dataLoading ? (
+                        <DataSlotPulse
+                          variant="badge"
+                          className="h-6 w-24 rounded-full"
+                        />
+                      ) : (
+                        <ImportTypeBadge
+                          status={r!.importType}
+                          label={formatSemanticLabel(r!.importType)}
+                          size="detail"
+                        />
+                      )}
+                    </dd>
                   </div>
                   <div>
                     <dt className="text-muted-foreground">File Name</dt>
                     <dd className="font-mono text-xs break-all">
-                      {r.fileName}
+                      {dataLoading ? (
+                        <DataSlotPulse variant="text-md" className="w-full" />
+                      ) : (
+                        r!.fileName
+                      )}
                     </dd>
                   </div>
                   <div>
                     <dt className="text-muted-foreground">File Size</dt>
-                    <dd>{(r.fileSize / 1024).toFixed(2)} KB</dd>
+                    <dd>
+                      {dataLoading ? (
+                        <DataSlotPulse variant="text-sm" className="w-16" />
+                      ) : (
+                        `${(r!.fileSize / 1024).toFixed(2)} KB`
+                      )}
+                    </dd>
                   </div>
                   <div>
                     <dt className="text-muted-foreground">Status</dt>
                     <dd className="mt-1">
-                      <Badge variant={getStatusVariant(r.status)}>
-                        {r.status}
-                      </Badge>
+                      {dataLoading ? (
+                        <DataSlotPulse
+                          variant="badge"
+                          className="h-6 w-20 rounded-full"
+                        />
+                      ) : (
+                        <ImportStatusBadge
+                          status={r!.status}
+                          size="detail"
+                        />
+                      )}
                     </dd>
                   </div>
                   <div>
                     <dt className="text-muted-foreground">Date</dt>
                     <dd>
-                      {format(
-                        new Date(r.createdAt),
-                        "MMMM d, yyyy 'at' h:mm a",
+                      {dataLoading ? (
+                        <DataSlotPulse variant="date" />
+                      ) : (
+                        format(
+                          new Date(r!.createdAt),
+                          "MMMM d, yyyy 'at' h:mm a",
+                        )
                       )}
                     </dd>
                   </div>
-                  {r.completedAt && (
+                  {!dataLoading && r!.completedAt && (
                     <div>
                       <dt className="text-muted-foreground">Completed</dt>
                       <dd>
                         {format(
-                          new Date(r.completedAt),
+                          new Date(r!.completedAt),
                           "MMMM d, yyyy 'at' h:mm a",
                         )}
                       </dd>
@@ -155,22 +207,36 @@ export default function AdminHistoryDetailContent({
                 </dl>
               </div>
               <div>
-                <h2 className="text-lg font-semibold mb-4">Row Summary</h2>
+                <h2 className="text-lg font-medium mb-4">Row Summary</h2>
                 <dl className="space-y-2 text-sm">
                   <div>
                     <dt className="text-muted-foreground">Total Rows</dt>
-                    <dd className="font-semibold">{r.totalRows}</dd>
+                    <dd className="font-medium">
+                      {dataLoading ? (
+                        <DataSlotPulse variant="metric" />
+                      ) : (
+                        r!.totalRows
+                      )}
+                    </dd>
                   </div>
                   <div>
                     <dt className="text-muted-foreground">Successful</dt>
-                    <dd className="text-green-600 dark:text-green-400 font-semibold">
-                      {r.successRows}
+                    <dd className="text-green-600 dark:text-green-400 font-medium">
+                      {dataLoading ? (
+                        <DataSlotPulse variant="metric" />
+                      ) : (
+                        r!.successRows
+                      )}
                     </dd>
                   </div>
                   <div>
                     <dt className="text-muted-foreground">Failed</dt>
-                    <dd className="text-red-600 dark:text-red-400 font-semibold">
-                      {r.failedRows}
+                    <dd className="text-red-600 dark:text-red-400 font-medium">
+                      {dataLoading ? (
+                        <DataSlotPulse variant="metric" />
+                      ) : (
+                        r!.failedRows
+                      )}
                     </dd>
                   </div>
                 </dl>
@@ -179,7 +245,7 @@ export default function AdminHistoryDetailContent({
           </CardContent>
         </Card>
 
-        {hasErrors && (
+        {hasErrors && r && (
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">

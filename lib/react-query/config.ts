@@ -117,6 +117,8 @@ export const queryKeys = {
   clientInvoices: {
     all: ["clientInvoices"] as const,
     lists: () => [...queryKeys.clientInvoices.all, "list"] as const,
+    list: (filters?: Record<string, unknown>) =>
+      [...queryKeys.clientInvoices.lists(), filters] as const,
     details: () => [...queryKeys.clientInvoices.all, "detail"] as const,
     detail: (id: string) =>
       [...queryKeys.clientInvoices.details(), id] as const,

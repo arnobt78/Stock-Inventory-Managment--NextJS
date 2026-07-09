@@ -6,16 +6,24 @@ import PageWithSidebar from "@/components/layouts/PageWithSidebar";
 import AdminSidebar from "@/components/layouts/AdminSidebar";
 import { PageContentWrapper } from "@/components/shared";
 
+import type { AdminCounts } from "@/types";
+
 /**
  * Admin layout: Navbar + left AdminSidebar + scrollable content.
- * Used by app/admin/layout.tsx so all /admin/* routes share the same sidebar.
+ * initialCounts from app/admin/layout.tsx SSR (REQ-0025).
  */
-export default function AdminLayout({ children }: { children: ReactNode }) {
+export default function AdminLayout({
+  children,
+  initialCounts,
+}: {
+  children: ReactNode;
+  initialCounts?: AdminCounts;
+}) {
   return (
     <Navbar>
       <PageWithSidebar
-        sidebarContent={<AdminSidebar />}
-        sidebarCollapsed={<AdminSidebar collapsed />}
+        sidebarContent={<AdminSidebar initialCounts={initialCounts} />}
+        sidebarCollapsed={<AdminSidebar collapsed initialCounts={initialCounts} />}
       >
         <div className="min-w-0 flex-1 px-1 sm:px-0">{children}</div>
       </PageWithSidebar>

@@ -13,7 +13,6 @@ import {
   MapPin,
   Tag,
   CheckCircle2,
-  XCircle,
   Edit,
   Trash2,
   Package,
@@ -23,7 +22,10 @@ import {
   Boxes,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
+import {
+  ActiveInactiveBadge,
+  WarehouseTypeBadge,
+} from "@/lib/ui/semantic-badges";
 import {
   useWarehouse,
   useDeleteWarehouse,
@@ -37,10 +39,11 @@ import {
   ClientRelativeTime,
   PageContentWrapper,
   DataSlotPulse,
+  PageSectionHeader,
 } from "@/components/shared";
 import WarehouseDialog from "@/components/warehouses/WarehouseDialog";
 import { AlertDialogWrapper } from "@/components/dialogs";
-import type { Warehouse as WarehouseType } from "@/types";
+import type { Warehouse as WarehouseType, StockAllocation } from "@/types";
 import { isDataSlotLoading } from "@/lib/react-query";
 import { cn } from "@/lib/utils";
 
@@ -166,7 +169,7 @@ function GlassCard({
   return (
     <article
       className={cn(
-        "group rounded-[20px] border p-4 sm:p-5 backdrop-blur-sm transition-all duration-300",
+        "group rounded-[20px] border p-4 sm:p-5 backdrop-blur-md transition-all duration-300",
         "bg-white/60 dark:bg-white/5",
         config.border,
         config.gradient,
@@ -180,38 +183,17 @@ function GlassCard({
   );
 }
 
-/** Badge classes for Warehouse Status (Active/Inactive) — distinct colors for light and dark mode */
-function getWarehouseStatusBadgeClasses(active: boolean): string {
-  return active
-    ? "bg-emerald-100 text-emerald-800 dark:bg-emerald-900/50 dark:text-emerald-200 border border-emerald-300/40"
-    : "bg-rose-100 text-rose-800 dark:bg-rose-900/50 dark:text-rose-200 border border-rose-300/40";
-}
-
-/** Badge classes for Warehouse Type — distinct colors per type, light and dark mode */
-function getWarehouseTypeBadgeClasses(type: string): string {
-  const t = (type || "").toLowerCase();
-  switch (t) {
-    case "main":
-      return "bg-blue-100 text-blue-800 dark:bg-blue-900/50 dark:text-blue-200 border border-blue-300/40";
-    case "secondary":
-      return "bg-slate-100 text-slate-800 dark:bg-slate-700/50 dark:text-slate-200 border border-slate-300/40";
-    case "storage":
-      return "bg-amber-100 text-amber-800 dark:bg-amber-900/50 dark:text-amber-200 border border-amber-300/40";
-    case "distribution":
-      return "bg-violet-100 text-violet-800 dark:bg-violet-900/50 dark:text-violet-200 border border-violet-300/40";
-    case "retail":
-      return "bg-sky-100 text-sky-800 dark:bg-sky-900/50 dark:text-sky-200 border border-sky-300/40";
-    case "other":
-      return "bg-gray-100 text-gray-700 dark:bg-gray-700/50 dark:text-gray-200 border border-gray-300/40";
-    default:
-      return "bg-blue-100 text-blue-800 dark:bg-blue-900/50 dark:text-blue-200 border border-blue-300/40";
-  }
-}
-
-export type WarehouseDetailPageProps = { embedInAdmin?: boolean };
+export type WarehouseDetailPageProps = {
+  embedInAdmin?: boolean;
+  initialWarehouse?: WarehouseType;
+  /** REQ-0026 — SSR stock allocations for warehouse detail */
+  initialStockAllocations?: StockAllocation[];
+};
 
 export default function WarehouseDetailPage({
   embedInAdmin,
+  initialWarehouse,
+  initialStockAllocations,
 }: WarehouseDetailPageProps = {}) {
   const params = useParams();
   const router = useRouter();
@@ -223,11 +205,12 @@ export default function WarehouseDetailPage({
 
   const warehousesListHref = embedInAdmin ? "/admin/warehouses" : "/warehouses";
 
-  const warehouseQuery = useWarehouse(warehouseId);
+  const warehouseQuery = useWarehouse(warehouseId, initialWarehouse);
   const warehouse = warehouseQuery.data;
-  const dataLoading = isDataSlotLoading(warehouseQuery);
-  const { data: stockAllocations, isLoading: isLoadingStock } =
-    useStockByWarehouse(warehouseId);
+  const dataLoading = isDataSlotLoading(warehouseQuery, initialWarehouse);
+  const stockQuery = useStockByWarehouse(warehouseId, initialStockAllocations);
+  const stockAllocations = stockQuery.data;
+  const isLoadingStock = isDataSlotLoading(stockQuery, initialStockAllocations);
   const deleteWarehouseMutation = useDeleteWarehouse();
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [editingWarehouse, setEditingWarehouse] =
@@ -266,7 +249,7 @@ export default function WarehouseDetailPage({
       <PageWrapper>
         <div className="flex flex-col items-center justify-center min-h-[60vh] gap-2">
           <GlassCard variant="rose" className="max-w-md text-center">
-            <h2 className="text-lg sm:text-xl font-semibold text-gray-700 dark:text-white mb-2">
+            <h2 className="text-lg sm:text-xl font-medium text-gray-700 dark:text-white mb-2">
               Warehouse Not Found
             </h2>
             <p className="text-gray-600 dark:text-gray-400 mb-4">
@@ -287,12 +270,11 @@ export default function WarehouseDetailPage({
     );
   }
 
-  const createdAt =
-    warehouse?.createdAt
-      ? typeof warehouse?.createdAt === "string"
-        ? new Date(warehouse?.createdAt)
-        : warehouse?.createdAt
-      : new Date();
+  const createdAt = warehouse?.createdAt
+    ? typeof warehouse?.createdAt === "string"
+      ? new Date(warehouse?.createdAt)
+      : warehouse?.createdAt
+    : new Date();
   const updatedAt = warehouse?.updatedAt
     ? typeof warehouse?.updatedAt === "string"
       ? new Date(warehouse?.updatedAt)
@@ -319,51 +301,36 @@ export default function WarehouseDetailPage({
     <PageWrapper>
       <PageContentWrapper>
         <div className="max-w-9xl mx-auto space-y-4">
-          {/* Header */}
-          <div className="flex flex-col sm:flex-row sm:items-center gap-2">
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => navigateTo(warehousesListHref)}
-              aria-label="Back to Warehouses"
-              className="h-10 w-10 rounded-xl border border-gray-300/30 bg-white/50 dark:bg-white/5 dark:border-white/10 hover:bg-gray-100/50 dark:hover:bg-white/10"
-            >
-              <ArrowLeft className="h-5 w-5" />
-            </Button>
-            <div className="flex-1">
-              <h1 className="text-lg sm:text-xl font-semibold text-gray-700 dark:text-white">
-                {warehouse?.name}
-              </h1>
-              <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
-                <ClientRelativeTime date={createdAt} prefix="Created " />
-              </p>
-            </div>
-          </div>
+          <PageSectionHeader
+            as="h1"
+            tone="violet"
+            icon={Warehouse}
+            leading={
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => navigateTo(warehousesListHref)}
+                aria-label="Back to Warehouses"
+                className="h-10 w-10 shrink-0 self-center rounded-xl border border-gray-300/30 bg-white/50 dark:bg-white/5 dark:border-white/10 hover:bg-gray-100/50 dark:hover:bg-white/10"
+              >
+                <ArrowLeft className="h-5 w-5" />
+              </Button>
+            }
+            title={warehouse?.name}
+            description={
+              <ClientRelativeTime date={createdAt} prefix="Created " />
+            }
+          />
 
           {/* Status Card */}
           <GlassCard variant={warehouse?.status ? "emerald" : "rose"}>
             <p className="text-xs uppercase tracking-[0.25em] text-gray-600 dark:text-white/60 mb-3">
               Warehouse Status
             </p>
-            <Badge
-              variant="outline"
-              className={cn(
-                "text-sm px-3 py-1.5 rounded-full flex items-center gap-2 w-fit font-medium",
-                getWarehouseStatusBadgeClasses(Boolean(warehouse?.status)),
-              )}
-            >
-              {warehouse?.status ? (
-                <>
-                  <CheckCircle2 className="h-4 w-4" />
-                  Active
-                </>
-              ) : (
-                <>
-                  <XCircle className="h-4 w-4" />
-                  Inactive
-                </>
-              )}
-            </Badge>
+            <ActiveInactiveBadge
+              active={Boolean(warehouse?.status)}
+              className="text-sm"
+            />
           </GlassCard>
 
           {/* Stock Summary Statistics */}
@@ -379,7 +346,7 @@ export default function WarehouseDetailPage({
                 >
                   <Boxes className="h-5 w-5 text-sky-600 dark:text-sky-400" />
                 </div>
-                <p className="text-lg sm:text-xl font-semibold text-gray-700 dark:text-white">
+                <p className="text-lg sm:text-xl font-medium text-gray-700 dark:text-white">
                   {stockSummary.totalProducts}
                 </p>
                 <p className="text-xs text-gray-600 dark:text-gray-400">
@@ -396,7 +363,7 @@ export default function WarehouseDetailPage({
                 >
                   <Package className="h-5 w-5 text-violet-600 dark:text-violet-400" />
                 </div>
-                <p className="text-lg sm:text-xl font-semibold text-gray-700 dark:text-white">
+                <p className="text-lg sm:text-xl font-medium text-gray-700 dark:text-white">
                   {stockSummary.totalQuantity}
                 </p>
                 <p className="text-xs text-gray-600 dark:text-gray-400">
@@ -413,7 +380,7 @@ export default function WarehouseDetailPage({
                 >
                   <CheckCircle2 className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
                 </div>
-                <p className="text-lg sm:text-xl font-semibold text-emerald-600 dark:text-emerald-400">
+                <p className="text-lg sm:text-xl font-medium text-emerald-600 dark:text-emerald-400">
                   {stockSummary.availableQuantity}
                 </p>
                 <p className="text-xs text-gray-600 dark:text-gray-400">
@@ -430,7 +397,7 @@ export default function WarehouseDetailPage({
                 >
                   <Clock className="h-5 w-5 text-amber-600 dark:text-amber-400" />
                 </div>
-                <p className="text-lg sm:text-xl font-semibold text-amber-600 dark:text-amber-400">
+                <p className="text-lg sm:text-xl font-medium text-amber-600 dark:text-amber-400">
                   {stockSummary.reservedQuantity}
                 </p>
                 <p className="text-xs text-gray-600 dark:text-gray-400">
@@ -453,7 +420,7 @@ export default function WarehouseDetailPage({
                 >
                   <Building2 className="h-5 w-5 text-cyan-600 dark:text-cyan-400" />
                 </div>
-                <h3 className="text-lg font-semibold text-gray-700 dark:text-white">
+                <h3 className="text-lg font-medium text-gray-700 dark:text-white">
                   Warehouse Information
                 </h3>
               </div>
@@ -491,15 +458,10 @@ export default function WarehouseDetailPage({
                     <span className="text-gray-600 dark:text-gray-400">
                       Type:
                     </span>
-                    <Badge
-                      variant="outline"
-                      className={cn(
-                        "capitalize font-medium text-sm px-3 py-1 rounded-full",
-                        getWarehouseTypeBadgeClasses(warehouse?.type),
-                      )}
-                    >
-                      {warehouse?.type}
-                    </Badge>
+                    <WarehouseTypeBadge
+                      type={warehouse?.type ?? ""}
+                      className="text-sm"
+                    />
                   </div>
                 )}
 
@@ -540,7 +502,7 @@ export default function WarehouseDetailPage({
                   <Package className="h-5 w-5 text-violet-600 dark:text-violet-400" />
                 </div>
                 <div>
-                  <h3 className="text-lg font-semibold text-gray-700 dark:text-white">
+                  <h3 className="text-lg font-medium text-gray-700 dark:text-white">
                     Stock in Warehouse
                   </h3>
                   <p className="text-xs text-gray-600 dark:text-gray-400">
@@ -593,7 +555,7 @@ export default function WarehouseDetailPage({
                             )}
                           </div>
                           <div className="text-right ml-4">
-                            <p className="font-semibold text-sm text-emerald-600 dark:text-emerald-400">
+                            <p className="font-medium text-sm text-emerald-600 dark:text-emerald-400">
                               {allocation.quantity -
                                 allocation.reservedQuantity}{" "}
                               <span className="text-gray-500 dark:text-gray-400 font-normal">
@@ -645,7 +607,7 @@ export default function WarehouseDetailPage({
             </Button>
             <Button
               onClick={handleEdit}
-              className="w-full sm:w-auto gap-2 rounded-xl border border-blue-400/30 bg-gradient-to-r from-blue-500/70 via-blue-500/50 to-blue-500/30 text-white shadow-[0_10px_25px_rgba(59,130,246,0.35)] backdrop-blur-sm hover:border-blue-300/50 hover:from-blue-500/80 hover:via-blue-500/60 hover:to-blue-500/40 transition-all duration-300"
+              className="w-full sm:w-auto gap-2 rounded-xl border border-blue-400/30 bg-gradient-to-r from-blue-500/70 via-blue-500/50 to-blue-500/30 text-white shadow-[0_10px_25px_rgba(59,130,246,0.35)] backdrop-blur-md hover:border-blue-300/50 hover:from-blue-500/80 hover:via-blue-500/60 hover:to-blue-500/40 transition-all duration-300"
             >
               <Edit className="h-4 w-4 shrink-0" />
               Edit Warehouse
@@ -653,7 +615,7 @@ export default function WarehouseDetailPage({
             <Button
               onClick={() => setDeleteDialogOpen(true)}
               disabled={isDeleting}
-              className="w-full sm:w-auto gap-2 rounded-xl border border-rose-400/30 bg-gradient-to-r from-rose-500/70 via-rose-500/50 to-rose-500/30 text-white shadow-[0_10px_25px_rgba(225,29,72,0.35)] backdrop-blur-sm hover:border-rose-300/50 hover:from-rose-500/80 hover:via-rose-500/60 hover:to-rose-500/40 transition-all duration-300 disabled:opacity-50"
+              className="w-full sm:w-auto gap-2 rounded-xl border border-rose-400/30 bg-gradient-to-r from-rose-500/70 via-rose-500/50 to-rose-500/30 text-white shadow-[0_10px_25px_rgba(225,29,72,0.35)] backdrop-blur-md hover:border-rose-300/50 hover:from-rose-500/80 hover:via-rose-500/60 hover:to-rose-500/40 transition-all duration-300 disabled:opacity-50"
             >
               <Trash2 className="h-4 w-4 shrink-0" />
               {isDeleting ? "Deleting..." : "Delete Warehouse"}

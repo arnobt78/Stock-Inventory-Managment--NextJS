@@ -1,11 +1,11 @@
 import { redirect } from "next/navigation";
 import { getSession } from "@/lib/auth-server";
+import { getAdminCounts } from "@/lib/server/admin-counts";
 import AdminLayout from "@/components/layouts/AdminLayout";
 
-/**
- * Admin layout — all /admin/* routes share Navbar + AdminSidebar.
- * Requires authenticated user.
- */
+/** Admin layout — SSR sidebar counts so badges render without client fetch flash (REQ-0025). */
+export const dynamic = "force-dynamic";
+
 export default async function AdminRouteLayout({
   children,
 }: {
@@ -15,5 +15,6 @@ export default async function AdminRouteLayout({
   if (!user) {
     redirect("/login");
   }
-  return <AdminLayout>{children}</AdminLayout>;
+  const initialCounts = await getAdminCounts(user.id);
+  return <AdminLayout initialCounts={initialCounts}>{children}</AdminLayout>;
 }

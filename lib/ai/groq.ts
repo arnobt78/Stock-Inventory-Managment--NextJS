@@ -33,9 +33,9 @@ const DEPRECATED_GROQ_MODELS = new Set([
 
 const RETRIABLE_HTTP_STATUSES = new Set([408, 429, 502, 503, 504]);
 
-/** OpenRouter-only ids (forecasting passes openai/gpt-3.5-turbo) — not Groq models. */
+/** OpenRouter-only ids (forecasting passes openai/gpt-2.5-turbo) — not Groq models. */
 const OPENROUTER_ONLY_MODEL_IDS = new Set([
-  "openai/gpt-3.5-turbo",
+  "openai/gpt-2.5-turbo",
   "openai/gpt-4o-mini",
   "openai/gpt-4o",
 ]);

@@ -16,27 +16,11 @@ import {
 import { updateUserAdminSchema } from "@/lib/validations";
 import { withRateLimit, defaultRateLimits } from "@/lib/api/rate-limit";
 import { createAuditLog } from "@/prisma/audit-log";
-import { prisma } from "@/prisma/client";
-import type {
-  UserForAdmin,
-  UserOverview,
-  UpdateUserAdminInput,
-} from "@/types";
-
-function transform(
-  r: Awaited<ReturnType<typeof getUserById>> & {},
-): UserForAdmin {
-  return {
-    id: r.id,
-    email: r.email,
-    name: r.name,
-    username: r.username,
-    role: r.role as UserForAdmin["role"],
-    image: r.image,
-    createdAt: r.createdAt.toISOString(),
-    updatedAt: r.updatedAt?.toISOString() ?? null,
-  };
-}
+import type { UpdateUserAdminInput } from "@/types";
+import {
+  getUserDetailForPage,
+  transformUserForAdmin,
+} from "@/lib/server/user-detail-data";
 
 /**
  * GET /api/users/:id
@@ -61,109 +45,15 @@ export async function GET(
     }
 
     const { id } = await params;
-    const record = await getUserById(id);
-    if (!record) {
+    const detail = await getUserDetailForPage(
+      { id: session.id, role: session.role },
+      id,
+    );
+    if (!detail) {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
 
-    // Spent: orders where this user is the client (clientId = id) OR creator with no client set (userId = id, clientId null)
-    const ordersForSpent = prisma.order.findMany({
-      where: {
-        OR: [{ clientId: id }, { userId: id, clientId: null }],
-      },
-      select: { total: true },
-    });
-    // Due: invoices where this user is the client (clientId = id) OR creator with no client set (userId = id, clientId null)
-    const invoicesForDue = prisma.invoice.findMany({
-      where: {
-        OR: [{ clientId: id }, { userId: id, clientId: null }],
-      },
-      select: { amountDue: true },
-    });
-
-    const [
-      orderCountAsCreator,
-      orderCountAsClient,
-      invoiceCountAsCreator,
-      invoiceCountAsClient,
-      ordersAsCreator,
-      ordersAsClient,
-      invoicesAsClient,
-      ordersForSpentResult,
-      invoicesForDueResult,
-      productCount,
-      supplierCount,
-      categoryCount,
-      warehouseCount,
-      suppliersForUser,
-    ] = await Promise.all([
-      prisma.order.count({ where: { userId: id } }),
-      prisma.order.count({ where: { clientId: id } }),
-      prisma.invoice.count({ where: { userId: id } }),
-      prisma.invoice.count({ where: { clientId: id } }),
-      prisma.order.findMany({
-        where: { userId: id },
-        select: { total: true },
-      }),
-      prisma.order.findMany({
-        where: { clientId: id },
-        select: { total: true },
-      }),
-      prisma.invoice.findMany({
-        where: { clientId: id },
-        select: { total: true, amountDue: true },
-      }),
-      ordersForSpent,
-      invoicesForDue,
-      prisma.product.count({ where: { userId: id } }),
-      prisma.supplier.count({ where: { userId: id } }),
-      prisma.category.count({ where: { userId: id } }),
-      prisma.warehouse.count({ where: { userId: id } }),
-      prisma.supplier.findMany({
-        where: { userId: id },
-        select: { id: true },
-      }),
-    ]);
-
-    const supplierIds = suppliersForUser.map((s) => s.id);
-    const supplierOrderItems =
-      supplierIds.length > 0
-        ? await prisma.orderItem.findMany({
-            where: { product: { supplierId: { in: supplierIds } } },
-            select: { subtotal: true },
-          })
-        : [];
-
-    const revenueFromOrdersCreated = ordersAsCreator.reduce(
-      (s, o) => s + (o.total ?? 0),
-      0,
-    );
-    const supplierRevenue = supplierOrderItems.reduce(
-      (s, i) => s + (i.subtotal ?? 0),
-      0,
-    );
-    const totalRevenue = revenueFromOrdersCreated + supplierRevenue;
-    const totalSpent = ordersForSpentResult.reduce(
-      (s, o) => s + (o.total ?? 0),
-      0,
-    );
-    const totalDue = invoicesForDueResult.reduce(
-      (s, i) => s + (i.amountDue ?? 0),
-      0,
-    );
-    const overview: UserOverview = {
-      orderCount: orderCountAsCreator + orderCountAsClient,
-      invoiceCount: invoiceCountAsCreator + invoiceCountAsClient,
-      totalRevenue,
-      totalSpent,
-      totalDue,
-      productCount,
-      supplierCount,
-      categoryCount,
-      warehouseCount,
-    };
-
-    return NextResponse.json({ ...transform(record), overview });
+    return NextResponse.json(detail);
   } catch (error) {
     logger.error("Error fetching user:", error);
     return NextResponse.json(
@@ -230,7 +120,7 @@ export async function PUT(
     const { invalidateAllServerCaches } = await import("@/lib/cache");
     await invalidateAllServerCaches().catch(() => {});
 
-    return NextResponse.json(transform(updated));
+    return NextResponse.json(transformUserForAdmin(updated));
   } catch (error) {
     logger.error("Error updating user:", error);
     return NextResponse.json(
@@ -290,7 +180,7 @@ export async function DELETE(
     const { invalidateAllServerCaches } = await import("@/lib/cache");
     await invalidateAllServerCaches().catch(() => {});
 
-    return NextResponse.json(transform(deleted));
+    return NextResponse.json(transformUserForAdmin(deleted));
   } catch (error) {
     logger.error("Error deleting user:", error);
     return NextResponse.json(

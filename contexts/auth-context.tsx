@@ -25,15 +25,21 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 /**
  * Wraps the app in layout; children get access to useAuth() for user, isLoggedIn, logout, checkSession.
  */
-export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
+export type AuthProviderProps = {
+  children: React.ReactNode;
+  /** SSR session from root layout — navbar avatar + role on first paint (REQ-0025). */
+  initialUser?: User | null;
+};
+
+export const AuthProvider: React.FC<AuthProviderProps> = ({
   children,
+  initialUser = null,
 }) => {
   const queryClient = useQueryClient();
-  // Initialize with false to prevent hydration mismatch
-  // Will be updated from localStorage after mount
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [user, setUser] = useState<User | null>(null);
-  const [isCheckingAuth, setIsCheckingAuth] = useState(true);
+  // SSR user from layout when logged in; otherwise hydrate from localStorage after mount.
+  const [isLoggedIn, setIsLoggedIn] = useState(!!initialUser);
+  const [user, setUser] = useState<User | null>(initialUser);
+  const [isCheckingAuth, setIsCheckingAuth] = useState(!initialUser);
   const [mounted, setMounted] = useState(false);
 
   /**
@@ -62,6 +68,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     const cachedIsLoggedIn = localStorage.getItem("isLoggedIn") === "true";
     const cachedSession = localStorage.getItem("getSession");
 
+    // SSR initialUser already set — skip localStorage overwrite on first mount.
+    if (initialUser) {
+      return;
+    }
+
     if (cachedIsLoggedIn && cachedSession) {
       try {
         const parsed = JSON.parse(cachedSession);
@@ -77,7 +88,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
         // Invalid cached data, will check session from server
       }
     }
-  }, []);
+  }, [initialUser]);
 
   /**
    * Check if user has an active session
@@ -89,7 +100,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
       // If localStorage already has a cached session (e.g. we just logged in),
       // skip the blocking isCheckingAuth state so the UI renders instantly
       // from cached data while we validate in the background.
-      const hasCachedSession = localStorage.getItem("isLoggedIn") === "true";
+      const hasCachedSession =
+        !!initialUser || localStorage.getItem("isLoggedIn") === "true";
       if (!hasCachedSession) {
         setIsCheckingAuth(true);
       }
@@ -124,7 +136,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     } finally {
       setIsCheckingAuth(false);
     }
-  }, [clearAuthData, queryClient]);
+  }, [clearAuthData, queryClient, initialUser]);
 
   /**
    * Force refresh session (useful after OAuth redirect)

@@ -9,9 +9,13 @@ import { queryKeys, withInitialData } from "@/lib/react-query";
 import { useAuth } from "@/contexts";
 import type { DashboardStats } from "@/types";
 
-export function useDashboard(initialData?: DashboardStats | null) {
+export function useDashboard(
+  initialData?: DashboardStats | null,
+  options?: { enabled?: boolean },
+) {
   const { user } = useAuth();
   const userId = user?.id ?? "";
+  const enabled = options?.enabled ?? true;
 
   return useQuery({
     queryKey: queryKeys.dashboard.overview(userId),
@@ -19,7 +23,7 @@ export function useDashboard(initialData?: DashboardStats | null) {
       const response = await apiClient.dashboard.getOverview();
       return response.data;
     },
-    enabled: !!userId,
+    enabled: !!userId && enabled,
     ...withInitialData(initialData ?? undefined),
   });
 }

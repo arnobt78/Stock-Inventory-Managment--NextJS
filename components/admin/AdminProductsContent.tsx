@@ -7,9 +7,12 @@ import FloatingActionButtons from "@/components/shared/FloatingActionButtons";
 import { useProducts } from "@/hooks/queries";
 import { useAuth } from "@/contexts";
 import type { ProductForHome } from "@/lib/server/home-data";
+import type { DashboardStats, SupplierPortalDashboard } from "@/types";
 
 export type AdminProductsContentProps = {
   initialProducts?: ProductForHome[];
+  initialStats?: DashboardStats;
+  initialSupplierPortal?: SupplierPortalDashboard | null;
 };
 
 /**
@@ -18,13 +21,19 @@ export type AdminProductsContentProps = {
  */
 export default function AdminProductsContent({
   initialProducts,
+  initialStats,
+  initialSupplierPortal,
 }: AdminProductsContentProps = {}) {
   const { data: allProducts = [] } = useProducts(initialProducts);
   const { user } = useAuth();
 
   return (
     <PageContentWrapper>
-      <ProductList initialProducts={initialProducts} />
+      <ProductList
+        initialProducts={initialProducts}
+        initialStats={initialStats}
+        initialSupplierPortal={initialSupplierPortal}
+      />
       <FloatingActionButtons
         variant="products"
         allProducts={allProducts}

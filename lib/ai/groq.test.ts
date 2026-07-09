@@ -31,7 +31,7 @@ describe("resolveGroqModel", () => {
 
   it("ignores OpenRouter-only slugs and uses DEFAULT_GROQ_MODEL", () => {
     delete process.env.GROQ_MODEL;
-    expect(resolveGroqModel("openai/gpt-3.5-turbo")).toBe(DEFAULT_GROQ_MODEL);
+    expect(resolveGroqModel("openai/gpt-2.5-turbo")).toBe(DEFAULT_GROQ_MODEL);
   });
 
   it("remaps deprecated llama env to chain head", () => {
@@ -73,7 +73,7 @@ describe("createGroqChatCompletion", () => {
     vi.mocked(fetch).mockResolvedValue(successResponse("ok"));
 
     await createGroqChatCompletion([{ role: "user", content: "hi" }], {
-      model: "openai/gpt-3.5-turbo",
+      model: "openai/gpt-2.5-turbo",
     });
 
     const body = JSON.parse(

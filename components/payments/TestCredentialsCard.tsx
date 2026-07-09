@@ -39,7 +39,7 @@ function CopyableField({ label, value, className }: CopyableFieldProps) {
   return (
     <div
       className={cn(
-        "flex items-center justify-between px-4 py-3 rounded-lg border border-border/50 bg-muted/30 cursor-pointer hover:bg-muted/50 transition-colors",
+        "flex items-center justify-between px-2 sm:px-4 rounded-lg border border-border/50 bg-muted/30 cursor-pointer hover:bg-muted/50 transition-colors",
         "dark:border-amber-500/40 dark:bg-amber-950/40 dark:hover:bg-amber-900/40",
         className,
       )}
@@ -73,7 +73,7 @@ export default function TestCredentialsCard() {
     <Card className="border-amber-500/30 bg-amber-50/50 dark:bg-amber-950/20">
       <CardHeader className="pb-3 pt-4 px-4 space-y-2">
         <div className="flex items-center gap-2 flex-wrap">
-          <CardTitle className="text-base font-semibold text-amber-700 dark:text-amber-400">
+          <CardTitle className="text-base font-medium text-amber-700 dark:text-amber-400">
             Note: Test Credentials
           </CardTitle>
           <Badge

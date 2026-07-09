@@ -55,14 +55,14 @@ export function SuppliersDropDown({
         <PopoverTrigger asChild>
           <Button
             variant={"secondary"}
-            className="h-10 w-full sm:w-auto rounded-[28px] border border-emerald-400/30 dark:border-emerald-400/30 bg-gradient-to-r from-emerald-500/25 via-emerald-500/15 to-emerald-500/10 dark:from-emerald-500/25 dark:via-emerald-500/15 dark:to-emerald-500/10 text-gray-700 dark:text-white shadow-[0_10px_30px_rgba(16,185,129,0.2)] backdrop-blur-sm transition duration-200 hover:border-emerald-300/40 hover:from-emerald-500/35 hover:via-emerald-500/25 hover:to-emerald-500/15 dark:hover:border-emerald-300/40 dark:hover:from-emerald-500/35 dark:hover:via-emerald-500/25 dark:hover:to-emerald-500/15"
+            className="h-10 w-full sm:w-auto rounded-[28px] border border-emerald-400/30 dark:border-emerald-400/30 bg-gradient-to-r from-emerald-500/25 via-emerald-500/15 to-emerald-500/10 dark:from-emerald-500/25 dark:via-emerald-500/15 dark:to-emerald-500/10 text-gray-700 dark:text-white shadow-[0_10px_30px_rgba(16,185,129,0.2)] backdrop-blur-md transition duration-200 hover:border-emerald-300/40 hover:from-emerald-500/35 hover:via-emerald-500/25 hover:to-emerald-500/15 dark:hover:border-emerald-300/40 dark:hover:from-emerald-500/35 dark:hover:via-emerald-500/25 dark:hover:to-emerald-500/15"
           >
             <LuGitPullRequestDraft />
             Suppliers
           </Button>
         </PopoverTrigger>
         <PopoverContent
-          className="p-0 w-56 poppins rounded-[28px] border border-emerald-400/20 dark:border-white/10 bg-white/80 dark:bg-popover/50 backdrop-blur-sm shadow-[0_10px_30px_rgba(16,185,129,0.15)] [&_[cmdk-input-wrapper]]:border-b [&_[cmdk-input-wrapper]]:border-gray-300/50 [&_[cmdk-input-wrapper]]:dark:border-white/10 [&_[cmdk-input-wrapper]]:bg-white/10 [&_[cmdk-input-wrapper]]:dark:bg-white/5 [&_[cmdk-input-wrapper]]:backdrop-blur-sm"
+          className="p-0 w-56 poppins rounded-[28px] border border-emerald-400/20 dark:border-white/10 bg-white/80 dark:bg-popover/50 backdrop-blur-md shadow-[0_10px_30px_rgba(16,185,129,0.15)] [&_[cmdk-input-wrapper]]:border-b [&_[cmdk-input-wrapper]]:border-gray-300/50 [&_[cmdk-input-wrapper]]:dark:border-white/10 [&_[cmdk-input-wrapper]]:bg-white/10 [&_[cmdk-input-wrapper]]:dark:bg-white/5 [&_[cmdk-input-wrapper]]:backdrop-blur-md"
           side="bottom"
           align="end"
         >
@@ -84,10 +84,10 @@ export function SuppliersDropDown({
                     <Checkbox
                       checked={selectedSuppliers.includes(supplier.id)} // Use supplier ID
                       onClick={() => handleCheckboxChange(supplier.id)} // Pass supplier ID
-                      className="size-4 rounded-[4px] border-white/20 bg-white/5 backdrop-blur-sm focus:ring-emerald-500/50 focus:ring-2"
+                      className="size-4 rounded-[4px] border-white/20 bg-white/5 backdrop-blur-md focus:ring-emerald-500/50 focus:ring-2"
                     />
                     <div
-                      className={`flex items-center gap-1 p-1 rounded-lg px-3 text-[14px]`}
+                      className={`flex items-center gap-1 p-1 rounded-lg px-2 text-[14px]`}
                     >
                       {supplier.name}
                     </div>

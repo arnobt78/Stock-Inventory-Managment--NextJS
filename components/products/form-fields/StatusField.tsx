@@ -49,7 +49,7 @@ export default function Status({
             <TabsTrigger
               key={status.value}
               className={`h-8 ${getStatusClass(status.value)} ${
-                selectedTab === status.value ? "font-semibold" : ""
+                selectedTab === status.value ? "font-medium" : ""
               }`}
               value={status.value}
             >

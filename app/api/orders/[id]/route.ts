@@ -22,6 +22,7 @@ import { withRateLimit, defaultRateLimits } from "@/lib/api/rate-limit";
 import { sendOrderStatusUpdate } from "@/lib/email/notifications";
 import { createOrderNotification } from "@/lib/notifications/in-app";
 import { createAuditLog } from "@/prisma/audit-log";
+import { getOrderDetailForPage } from "@/lib/server/order-detail-data";
 
 /**
  * GET /api/orders/:id
@@ -47,131 +48,14 @@ export async function GET(
     }
 
     const { id } = await params;
-    const userId = session.id;
-    const isClient = session.role === "client";
-    const isSupplier = session.role === "supplier";
+    const transformedOrder = await getOrderDetailForPage(
+      { id: session.id, role: session.role },
+      id,
+    );
 
-    const isAdmin = session.role === "admin";
-    let order: Awaited<ReturnType<typeof getOrderById>> | null;
-    if (isAdmin) {
-      order = await getOrderByIdForAdmin(id);
-    } else if (isClient) {
-      order = await getOrderByIdForClient(id, userId);
-    } else if (isSupplier) {
-      const supplier = await getSupplierByUserId(userId);
-      order =
-        supplier ? await getOrderByIdForSupplier(id, supplier.id) : null;
-    } else {
-      order = await getOrderById(id, userId);
-      // Allow product owner to view order (admin "Client Orders" detail)
-      if (!order) {
-        order = await getOrderByIdForProductOwner(id, userId);
-      }
-    }
-
-    if (!order) {
+    if (!transformedOrder) {
       return NextResponse.json({ error: "Order not found" }, { status: 404 });
     }
-
-    const placedBy =
-      order.userId != null
-        ? await prisma.user.findUnique({
-            where: { id: order.userId },
-            select: { name: true, email: true },
-          })
-        : null;
-    const placedByName = placedBy?.name ?? placedBy?.email ?? null;
-    const placedByEmail = placedBy?.email ?? null;
-
-    const productOwnerIds = [
-      ...new Set(
-        (order.items || [])
-          .map(
-            (item: { product?: { userId?: string } }) =>
-              item.product?.userId as string | undefined,
-          )
-          .filter(Boolean),
-      ),
-    ] as string[];
-    const productOwnerUsers =
-      productOwnerIds.length > 0
-        ? await prisma.user.findMany({
-            where: { id: { in: productOwnerIds } },
-            select: { id: true, name: true, email: true },
-          })
-        : [];
-    const orderProductOwners = productOwnerUsers.map((u) => ({
-      userId: u.id,
-      name: u.name ?? null,
-      email: u.email,
-    }));
-
-    const invoiceForOrder = await prisma.invoice.findUnique({
-      where: { orderId: id },
-      select: { id: true, invoiceNumber: true },
-    });
-
-    // Transform order for response
-    const transformedOrder = {
-      id: order.id,
-      orderNumber: order.orderNumber,
-      userId: order.userId,
-      clientId: order.clientId,
-      status: order.status,
-      paymentStatus: order.paymentStatus,
-      subtotal: order.subtotal,
-      tax: order.tax,
-      shipping: order.shipping,
-      discount: order.discount,
-      total: order.total,
-      shippingAddress: order.shippingAddress,
-      billingAddress: order.billingAddress,
-      notes: order.notes,
-      trackingNumber: order.trackingNumber,
-      trackingCarrier: order.trackingCarrier ?? null,
-      trackingUrl: order.trackingUrl,
-      labelUrl: order.labelUrl ?? null,
-      estimatedDelivery: order.estimatedDelivery?.toISOString() || null,
-      shippedAt: order.shippedAt?.toISOString() || null,
-      deliveredAt: order.deliveredAt?.toISOString() || null,
-      cancelledAt: order.cancelledAt?.toISOString() || null,
-      createdAt: order.createdAt.toISOString(),
-      updatedAt: order.updatedAt?.toISOString() || null,
-      createdBy: order.createdBy,
-      updatedBy: order.updatedBy,
-      placedByName,
-      placedByEmail,
-      orderProductOwners,
-      invoiceForOrder: invoiceForOrder
-        ? { id: invoiceForOrder.id, invoiceNumber: invoiceForOrder.invoiceNumber }
-        : null,
-      items: (order.items || []).map(
-        (item: {
-          id: string;
-          orderId: string;
-          productId: string;
-          productName: string;
-          sku: string | null;
-          quantity: number;
-          price: number;
-          subtotal: number;
-          createdAt: Date;
-          product?: { categoryId?: string | null; supplierId?: string | null };
-        }) => ({
-          id: item.id,
-          orderId: item.orderId,
-          productId: item.productId,
-          productName: item.productName,
-          sku: item.sku,
-          quantity: item.quantity,
-          price: item.price,
-          subtotal: item.subtotal,
-          createdAt: item.createdAt.toISOString(),
-          categoryId: item.product?.categoryId ?? null,
-          supplierId: item.product?.supplierId ?? null,
-        }),
-      ),
-    };
 
     return NextResponse.json(transformedOrder);
   } catch (error) {

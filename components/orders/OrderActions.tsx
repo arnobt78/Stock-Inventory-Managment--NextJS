@@ -79,7 +79,7 @@ export default function OrderActions({
       </DropdownMenuTrigger>
       <DropdownMenuContent
         align="end"
-        className="border border-white/10 bg-gradient-to-br from-white/5 via-white/5 to-white/5 backdrop-blur-sm shadow-lg"
+        className="border border-white/10 bg-gradient-to-br from-white/5 via-white/5 to-white/5 backdrop-blur-md shadow-lg"
       >
         <DropdownMenuItem asChild>
           <Link
@@ -118,7 +118,11 @@ export default function OrderActions({
             </Link>
           </DropdownMenuItem>
         ) : (
-          <DropdownMenuItem disabled className="flex items-center gap-2 text-muted-foreground" title="Available after order is paid">
+          <DropdownMenuItem
+            disabled
+            className="flex items-center gap-2 text-muted-foreground"
+            title="Available after order is paid"
+          >
             <Star className="h-4 w-4" />
             Write / Edit review
           </DropdownMenuItem>

@@ -4,7 +4,7 @@ import Link from "next/link";
 import { Warehouse } from "@/types";
 import { Column, ColumnDef } from "@tanstack/react-table";
 import WarehouseActions from "./WarehouseActions";
-import { Badge } from "@/components/ui/badge";
+import { ActiveInactiveBadge } from "@/lib/ui/semantic-badges";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -32,7 +32,7 @@ const SortableHeader: React.FC<SortableHeaderProps> = ({ column, label }) => {
     <DropdownMenu>
       <DropdownMenuTrigger className="" asChild>
         <div
-          className={`flex items-center select-none cursor-pointer gap-1 py-2 text-gray-700 dark:text-white ${
+          className={`flex items-center select-none cursor-pointer gap-1 py-2 text-sm font-normal text-gray-700 dark:text-white ${
             isSorted && "text-primary"
           }`}
           aria-label={`Sort by ${label}`}
@@ -78,7 +78,7 @@ export const createWarehouseColumns = (
       return (
         <Link
           href={href}
-          className="font-semibold text-sky-600 dark:text-sky-400 hover:text-sky-500 dark:hover:text-sky-300"
+          className="font-normal text-sky-600 dark:text-sky-400 hover:text-sky-500 dark:hover:text-sky-300"
         >
           {w.name}
         </Link>
@@ -115,18 +115,7 @@ export const createWarehouseColumns = (
     header: ({ column }) => <SortableHeader column={column} label="Status" />,
     cell: ({ row }) => {
       const status = row.original.status ?? true;
-      return (
-        <Badge
-          variant={status ? "default" : "secondary"}
-          className={
-            status
-              ? "bg-green-100 text-green-600 dark:bg-green-900/30 dark:text-green-400"
-              : "bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400"
-          }
-        >
-          {status ? "Active" : "Inactive"}
-        </Badge>
-      );
+      return <ActiveInactiveBadge active={status} />;
     },
     size: 10,
   },

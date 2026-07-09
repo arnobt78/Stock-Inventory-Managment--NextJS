@@ -9,6 +9,7 @@ import React, { useState, useEffect, useRef, useMemo } from "react";
 import { useProductReviews, useDashboard } from "@/hooks/queries";
 import { isDataSlotLoading } from "@/lib/react-query";
 import { PaginationType } from "@/components/shared/PaginationSelector";
+import { PageSectionHeader } from "@/components/shared";
 import { createProductReviewColumns } from "./ProductReviewTableColumns";
 import ProductReviewFilters from "./ProductReviewFilters";
 import { ProductReviewTable } from "./ProductReviewTable";
@@ -17,21 +18,25 @@ import { Button } from "@/components/ui/button";
 import { Star } from "lucide-react";
 import { StatisticsCard } from "@/components/home/StatisticsCard";
 import type { ProductReview } from "@/types";
+import type { DashboardStats } from "@/types";
 
 export type ProductReviewListProps = {
   detailHrefBase?: string;
   /** SSR-passed reviews for first-render hydration (REQ-0021) */
   initialReviews?: ProductReview[];
+  /** SSR dashboard stats for review stat cards (REQ-0025 P2) */
+  initialStats?: DashboardStats;
 };
 
 export default function ProductReviewList({
   detailHrefBase,
   initialReviews,
+  initialStats,
 }: ProductReviewListProps = {}) {
   const isMountedRef = useRef(false);
   const [isMounted, setIsMounted] = useState(false);
   const reviewsQuery = useProductReviews(initialReviews);
-  const dashboardQuery = useDashboard();
+  const dashboardQuery = useDashboard(initialStats);
   const dashboard = dashboardQuery.data ?? null;
 
   const allReviews = reviewsQuery.data ?? initialReviews ?? [];
@@ -85,21 +90,20 @@ export default function ProductReviewList({
   );
 
   // REQ-0021: shell-first — only data slots pulse
-  const dashboardCardsLoading = isDataSlotLoading(dashboardQuery);
+  const dashboardCardsLoading = isDataSlotLoading(dashboardQuery, initialStats);
   const reviewsCardsLoading = isDataSlotLoading(reviewsQuery, initialReviews);
   const tableDataLoading = isDataSlotLoading(reviewsQuery, initialReviews);
 
   return (
     <div className="flex flex-col poppins">
-      <div className="pb-6 flex flex-col items-start text-left">
-        <h2 className="text-lg sm:text-xl font-semibold text-gray-700 dark:text-white ">
-          Store Product Reviews (your products)
-        </h2>
-        <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">
-          Manage and moderate product reviews. Approve or reject, view by
-          product, rating, and status. Add reviews for products.
-        </p>
-      </div>
+      <PageSectionHeader
+        as="h2"
+        icon={Star}
+        tone="amber"
+        className="pb-6"
+        title="Store Product Reviews (your products)"
+        description="Manage and moderate product reviews. Approve or reject, view by product, rating, and status. Add reviews for products."
+      />
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-2 pb-6 items-stretch">
         <StatisticsCard

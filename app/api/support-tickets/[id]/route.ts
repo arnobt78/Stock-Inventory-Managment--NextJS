@@ -18,38 +18,9 @@ import { withRateLimit, defaultRateLimits } from "@/lib/api/rate-limit";
 import { createSupportTicketRepliedNotification } from "@/lib/notifications/in-app";
 import { createAuditLog } from "@/prisma/audit-log";
 import { prisma } from "@/prisma/client";
-import type { SupportTicket, UpdateSupportTicketInput } from "@/types";
-
-function baseTransform(
-  r: Awaited<ReturnType<typeof getSupportTicketById>> & {},
-  opts?: {
-    creator?: { name: string | null; email: string } | null;
-    assignedTo?: { name: string | null; email: string } | null;
-  },
-): SupportTicket {
-  const created = new Date(r.createdAt);
-  const ticketNumber = `TKT-${created.toISOString().slice(0, 10).replace(/-/g, "")}-${r.id.slice(-6)}`;
-  return {
-    id: r.id,
-    subject: r.subject,
-    description: r.description,
-    status: r.status as SupportTicket["status"],
-    priority: r.priority as SupportTicket["priority"],
-    userId: r.userId,
-    assignedToId: r.assignedToId,
-    productId: r.productId,
-    orderId: r.orderId,
-    supplierId: r.supplierId,
-    notes: r.notes,
-    createdAt: r.createdAt.toISOString(),
-    updatedAt: r.updatedAt?.toISOString() ?? null,
-    ticketNumber,
-    creatorName: opts?.creator?.name ?? undefined,
-    creatorEmail: opts?.creator?.email ?? undefined,
-    assignedToName: opts?.assignedTo?.name ?? undefined,
-    assignedToEmail: opts?.assignedTo?.email ?? undefined,
-  };
-}
+import type { UpdateSupportTicketInput } from "@/types";
+import { getSupportTicketDetailForPage } from "@/lib/server/support-ticket-detail-data";
+import { transformSupportTicketDetail } from "@/lib/support-tickets/transform-support-ticket-detail";
 
 /**
  * GET /api/support-tickets/:id
@@ -71,38 +42,22 @@ export async function GET(
     }
 
     const { id } = await params;
-    const record = await getSupportTicketById(id);
-    if (!record) {
-      return NextResponse.json(
-        { error: "Support ticket not found" },
-        { status: 404 },
-      );
-    }
-    const isCreator = record.userId === session.id;
-    const isAssignee = record.assignedToId === session.id;
-    // Only ticket creator or assigned-to (product owner) can view; admins only see if they are the assignee
-    if (!isCreator && !isAssignee) {
+    const detail = await getSupportTicketDetailForPage(
+      { id: session.id, role: session.role },
+      id,
+    );
+    if (!detail) {
+      const record = await getSupportTicketById(id);
+      if (!record) {
+        return NextResponse.json(
+          { error: "Support ticket not found" },
+          { status: 404 },
+        );
+      }
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 
-    const [creator, assignedTo] = await Promise.all([
-      prisma.user.findUnique({
-        where: { id: record.userId },
-        select: { name: true, email: true },
-      }),
-      record.assignedToId
-        ? prisma.user.findUnique({
-            where: { id: record.assignedToId },
-            select: { name: true, email: true },
-          })
-        : null,
-    ]);
-    return NextResponse.json(
-      baseTransform(record, {
-        creator: creator ?? null,
-        assignedTo: assignedTo ?? null,
-      }),
-    );
+    return NextResponse.json(detail);
   } catch (error) {
     logger.error("Error fetching support ticket:", error);
     return NextResponse.json(
@@ -222,7 +177,7 @@ export async function PUT(
         : null,
     ]);
     return NextResponse.json(
-      baseTransform(updated, {
+      transformSupportTicketDetail(updated, {
         creator: creator ?? null,
         assignedTo: assignedTo ?? null,
       }),

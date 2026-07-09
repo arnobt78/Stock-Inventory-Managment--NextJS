@@ -96,7 +96,7 @@ export default function WriteEditReviewDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent
         className={cn(
-          "p-4 sm:p-7 sm:px-8 poppins max-h-[90vh] overflow-y-auto",
+          "p-4 p-2 sm:p-4 sm:px-8 poppins max-h-[90vh] overflow-y-auto",
           "bg-gradient-to-br from-slate-800/98 to-slate-900/98 dark:from-slate-800/98 dark:to-slate-900/98",
           "border-amber-400/30 dark:border-amber-400/30",
           "shadow-[0_25px_60px_rgba(245,158,11,0.25)] dark:shadow-[0_25px_60px_rgba(245,158,11,0.2)]",
@@ -165,7 +165,7 @@ export default function WriteEditReviewDialog({
               variant="secondary"
               onClick={() => onOpenChange(false)}
               disabled={isPending}
-              className="h-11 rounded-xl border border-white/20 bg-white/15 text-white hover:bg-white/25 backdrop-blur-sm"
+              className="h-11 rounded-xl border border-white/20 bg-white/15 text-white hover:bg-white/25 backdrop-blur-md"
             >
               Cancel
             </Button>
@@ -174,7 +174,7 @@ export default function WriteEditReviewDialog({
               disabled={isPending || !comment.trim()}
               className={cn(
                 "h-11 rounded-xl border border-amber-400/30 bg-gradient-to-r from-amber-500/70 via-amber-500/50 to-amber-500/30 text-white",
-                "shadow-[0_15px_35px_rgba(245,158,11,0.4)] backdrop-blur-sm transition duration-200",
+                "shadow-[0_15px_35px_rgba(245,158,11,0.4)] backdrop-blur-md transition duration-200",
                 "hover:border-amber-300/40 hover:from-amber-500/80 hover:via-amber-500/60 hover:to-amber-500/40 hover:shadow-[0_20px_45px_rgba(245,158,11,0.5)] disabled:opacity-50",
               )}
             >

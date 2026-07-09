@@ -18,7 +18,15 @@ import {
 } from "@/hooks/queries";
 import { useAuth } from "@/contexts";
 import { logger } from "@/lib/logger";
-import { MoreVertical, Eye, Edit, Trash2, Copy, Star, Pencil } from "lucide-react";
+import {
+  MoreVertical,
+  Eye,
+  Edit,
+  Trash2,
+  Copy,
+  Star,
+  Pencil,
+} from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
 import { AlertDialogWrapper } from "@/components/dialogs";
@@ -33,7 +41,10 @@ interface ProductsDropDownProps {
   detailBase?: string;
 }
 
-export default function ProductsDropDown({ row, detailBase = "" }: ProductsDropDownProps) {
+export default function ProductsDropDown({
+  row,
+  detailBase = "",
+}: ProductsDropDownProps) {
   // Keep UI state in Zustand (setSelectedProduct, setOpenProductDialog)
   const { setSelectedProduct, setOpenProductDialog } = useProductStore();
   const { user } = useAuth();
@@ -47,13 +58,21 @@ export default function ProductsDropDown({ row, detailBase = "" }: ProductsDropD
   // Alert dialog state
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [reviewDialogOpen, setReviewDialogOpen] = useState(false);
-  const [editingReview, setEditingReview] = useState<ProductReview | null>(null);
+  const [editingReview, setEditingReview] = useState<ProductReview | null>(
+    null,
+  );
   const [deleteReviewId, setDeleteReviewId] = useState<string | null>(null);
+  const [menuOpen, setMenuOpen] = useState(false);
 
   const productId = row.original.id;
   const productName = row.original.name;
-  const { data: eligibility } = useReviewEligibility(productId);
-  const { data: reviews = [] } = useReviewsByProduct(productId, { status: "all" });
+  const { data: eligibility } = useReviewEligibility(productId, undefined, {
+    enabled: menuOpen,
+  });
+  const { data: reviews = [] } = useReviewsByProduct(productId, {
+    status: "all",
+    enabled: menuOpen,
+  });
   const deleteReviewMutation = useDeleteProductReview();
 
   const eligible = eligibility?.eligible ?? false;
@@ -147,104 +166,125 @@ export default function ProductsDropDown({ row, detailBase = "" }: ProductsDropD
 
   return (
     <>
-    <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <Button variant="ghost" className="h-8 w-8 p-0">
-          <span className="sr-only">Open menu</span>
-          <MoreVertical className="h-4 w-4 text-gray-600 dark:text-gray-300" />
-        </Button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent
-        align="end"
-        className="border border-white/10 bg-gradient-to-br from-white/5 via-white/5 to-white/5 backdrop-blur-sm shadow-lg"
-      >
-        <DropdownMenuItem asChild>
-          <Link href={detailBase ? `${detailBase}/products/${row.original.id}` : `/products/${row.original.id}`} className="flex items-center gap-2">
-            <Eye className="h-4 w-4" />
-            View Details
-          </Link>
-        </DropdownMenuItem>
-        <DropdownMenuItem onClick={handleCopyProduct} disabled={isCopying || isSupplierRole || isClientRole} className="flex items-center gap-2">
-          <Copy className="h-4 w-4" />
-          {isCopying ? "Duplicating..." : "Create Duplicate"}
-        </DropdownMenuItem>
-        <DropdownMenuItem onClick={handleEditProduct} disabled={isSupplierRole || isClientRole} className="flex items-center gap-2">
-          <Edit className="h-4 w-4" />
-          Edit Product
-        </DropdownMenuItem>
-        <DropdownMenuItem
-          onClick={() => setDeleteDialogOpen(true)}
-          disabled={isDeleting || isSupplierRole || isClientRole}
-          className="flex items-center gap-2 text-red-600 dark:text-red-400"
+      <DropdownMenu open={menuOpen} onOpenChange={setMenuOpen}>
+        <DropdownMenuTrigger asChild>
+          <Button variant="ghost" className="h-8 w-8 p-0">
+            <span className="sr-only">Open menu</span>
+            <MoreVertical className="h-4 w-4 text-gray-600 dark:text-gray-300" />
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent
+          align="end"
+          className="border border-white/10 bg-gradient-to-br from-white/5 via-white/5 to-white/5 backdrop-blur-md shadow-lg"
         >
-          <Trash2 className="h-4 w-4" />
-          {isDeleting ? "Deleting..." : "Delete Product"}
-        </DropdownMenuItem>
-        <DropdownMenuSeparator />
-        <DropdownMenuItem
-          onClick={handleOpenWriteReview}
-          disabled={!canWriteReview}
-          className="flex items-center gap-2"
-          title={canWriteReview ? undefined : "Purchase this product to write a review"}
-        >
-          <Star className="h-4 w-4" />
-          Write review
-        </DropdownMenuItem>
-        <DropdownMenuItem
-          onClick={handleOpenEditReview}
-          disabled={!canEditOrDeleteReview}
-          className="flex items-center gap-2"
-        >
-          <Pencil className="h-4 w-4" />
-          Edit review
-        </DropdownMenuItem>
-        <DropdownMenuItem
-          onClick={() => myReviews[0] && setDeleteReviewId(myReviews[0].id)}
-          disabled={!canEditOrDeleteReview}
-          className="flex items-center gap-2 text-red-600 dark:text-red-400"
-        >
-          <Trash2 className="h-4 w-4" />
-          Delete review
-        </DropdownMenuItem>
-      </DropdownMenuContent>
-    </DropdownMenu>
+          <DropdownMenuItem asChild>
+            <Link
+              href={
+                detailBase
+                  ? `${detailBase}/products/${row.original.id}`
+                  : `/products/${row.original.id}`
+              }
+              className="flex items-center gap-2"
+            >
+              <Eye className="h-4 w-4" />
+              View Details
+            </Link>
+          </DropdownMenuItem>
+          <DropdownMenuItem
+            onClick={handleCopyProduct}
+            disabled={isCopying || isSupplierRole || isClientRole}
+            className="flex items-center gap-2"
+          >
+            <Copy className="h-4 w-4" />
+            {isCopying ? "Duplicating..." : "Create Duplicate"}
+          </DropdownMenuItem>
+          <DropdownMenuItem
+            onClick={handleEditProduct}
+            disabled={isSupplierRole || isClientRole}
+            className="flex items-center gap-2"
+          >
+            <Edit className="h-4 w-4" />
+            Edit Product
+          </DropdownMenuItem>
+          <DropdownMenuItem
+            onClick={() => setDeleteDialogOpen(true)}
+            disabled={isDeleting || isSupplierRole || isClientRole}
+            className="flex items-center gap-2 text-red-600 dark:text-red-400"
+          >
+            <Trash2 className="h-4 w-4" />
+            {isDeleting ? "Deleting..." : "Delete Product"}
+          </DropdownMenuItem>
+          <DropdownMenuSeparator />
+          <DropdownMenuItem
+            onClick={handleOpenWriteReview}
+            disabled={!canWriteReview}
+            className="flex items-center gap-2"
+            title={
+              canWriteReview
+                ? undefined
+                : "Purchase this product to write a review"
+            }
+          >
+            <Star className="h-4 w-4" />
+            Write review
+          </DropdownMenuItem>
+          <DropdownMenuItem
+            onClick={handleOpenEditReview}
+            disabled={!canEditOrDeleteReview}
+            className="flex items-center gap-2"
+          >
+            <Pencil className="h-4 w-4" />
+            Edit review
+          </DropdownMenuItem>
+          <DropdownMenuItem
+            onClick={() => myReviews[0] && setDeleteReviewId(myReviews[0].id)}
+            disabled={!canEditOrDeleteReview}
+            className="flex items-center gap-2 text-red-600 dark:text-red-400"
+          >
+            <Trash2 className="h-4 w-4" />
+            Delete review
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
 
-    {/* Write / Edit Review Dialog */}
-    <WriteEditReviewDialog
-      open={reviewDialogOpen}
-      onOpenChange={handleReviewDialogClose}
-      productId={productId}
-      productName={productName}
-      orderId={editingReview ? undefined : firstSlot?.orderId}
-      orderItemId={editingReview ? undefined : firstSlot?.orderItemId ?? undefined}
-      existingReview={editingReview}
-    />
+      {/* Write / Edit Review Dialog */}
+      <WriteEditReviewDialog
+        open={reviewDialogOpen}
+        onOpenChange={handleReviewDialogClose}
+        productId={productId}
+        productName={productName}
+        orderId={editingReview ? undefined : firstSlot?.orderId}
+        orderItemId={
+          editingReview ? undefined : (firstSlot?.orderItemId ?? undefined)
+        }
+        existingReview={editingReview}
+      />
 
-    {/* Delete Review Confirmation */}
-    <AlertDialogWrapper
-      open={!!deleteReviewId}
-      onOpenChange={(open) => !open && setDeleteReviewId(null)}
-      title="Delete review"
-      description="Are you sure you want to delete this review? This cannot be undone."
-      actionLabel="Delete"
-      actionLoadingLabel="Deleting..."
-      isLoading={deleteReviewMutation.isPending}
-      onAction={handleConfirmDeleteReview}
-      onCancel={() => setDeleteReviewId(null)}
-    />
+      {/* Delete Review Confirmation */}
+      <AlertDialogWrapper
+        open={!!deleteReviewId}
+        onOpenChange={(open) => !open && setDeleteReviewId(null)}
+        title="Delete review"
+        description="Are you sure you want to delete this review? This cannot be undone."
+        actionLabel="Delete"
+        actionLoadingLabel="Deleting..."
+        isLoading={deleteReviewMutation.isPending}
+        onAction={handleConfirmDeleteReview}
+        onCancel={() => setDeleteReviewId(null)}
+      />
 
-    {/* Delete Confirmation Dialog */}
-    <AlertDialogWrapper
-      open={deleteDialogOpen}
-      onOpenChange={setDeleteDialogOpen}
-      title="Delete Product"
-      description={`Are you sure you want to delete "${row.original.name}"? This action cannot be undone.`}
-      actionLabel="Delete"
-      actionLoadingLabel="Deleting..."
-      isLoading={isDeleting}
-      onAction={handleConfirmDeleteProduct}
-      onCancel={() => setDeleteDialogOpen(false)}
-    />
-  </>
+      {/* Delete Confirmation Dialog */}
+      <AlertDialogWrapper
+        open={deleteDialogOpen}
+        onOpenChange={setDeleteDialogOpen}
+        title="Delete Product"
+        description={`Are you sure you want to delete "${row.original.name}"? This action cannot be undone.`}
+        actionLabel="Delete"
+        actionLoadingLabel="Deleting..."
+        isLoading={isDeleting}
+        onAction={handleConfirmDeleteProduct}
+        onCancel={() => setDeleteDialogOpen(false)}
+      />
+    </>
   );
 }

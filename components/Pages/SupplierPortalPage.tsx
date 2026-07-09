@@ -8,7 +8,6 @@
 import React from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import {
   Table,
   TableBody,
@@ -37,45 +36,34 @@ import {
   YAxis,
 } from "recharts";
 import { ResponsiveChartContainer } from "@/components/ui/responsive-chart-container";
+import { DeferredChartSection } from "@/components/ui/deferred-chart-section";
 import Navbar from "@/components/layouts/Navbar";
-import { PageContentWrapper, DataSlotPulse } from "@/components/shared";
+import {
+  PageContentWrapper,
+  DataSlotPulse,
+  SectionCardHeader,
+} from "@/components/shared";
+import {
+  OrderStatusBadge,
+  ProductStockFromQuantityBadge,
+} from "@/lib/ui/semantic-badges";
 import { StatisticsCard } from "@/components/home/StatisticsCard";
 import { isDataSlotLoading } from "@/lib/react-query";
 import { cn } from "@/lib/utils";
+import type { SupplierPortalDashboard } from "@/types";
 
-/**
- * Get order status badge with distinct colors (matches order table/detail)
- */
-function getStatusBadge(status: string) {
-  const statusStyles: Record<string, string> = {
-    pending:
-      "bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-300 border-amber-300/30",
-    confirmed:
-      "bg-blue-100 text-blue-800 dark:bg-blue-900/40 dark:text-blue-300 border-blue-300/30",
-    processing:
-      "bg-violet-100 text-violet-800 dark:bg-violet-900/40 dark:text-violet-300 border-violet-300/30",
-    shipped:
-      "bg-indigo-100 text-indigo-800 dark:bg-indigo-900/40 dark:text-indigo-300 border-indigo-300/30",
-    delivered:
-      "bg-emerald-100 text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-300 border-emerald-300/30",
-    cancelled:
-      "bg-red-100 text-red-800 dark:bg-red-900/40 dark:text-red-300 border-red-300/30",
-  };
-  const className =
-    statusStyles[status] ??
-    "bg-gray-100 text-gray-800 dark:bg-gray-900/40 dark:text-gray-300 border-gray-300/30";
-  return (
-    <Badge variant="outline" className={className}>
-      {status.charAt(0).toUpperCase() + status.slice(1)}
-    </Badge>
-  );
-}
+export type SupplierPortalPageProps = {
+  /** REQ-0025 — SSR-passed supplier dashboard */
+  initialDashboard?: SupplierPortalDashboard;
+};
 
-export default function SupplierPortalPage() {
+export default function SupplierPortalPage({
+  initialDashboard,
+}: SupplierPortalPageProps = {}) {
   const { isCheckingAuth } = useAuth();
-  const dashboardQuery = useSupplierPortalDashboard();
-  const dashboard = dashboardQuery.data;
-  const dataLoading = isDataSlotLoading(dashboardQuery);
+  const dashboardQuery = useSupplierPortalDashboard(initialDashboard);
+  const dashboard = dashboardQuery.data ?? initialDashboard;
+  const dataLoading = isDataSlotLoading(dashboardQuery, initialDashboard);
   const showError =
     !dataLoading && !isCheckingAuth && (dashboardQuery.isError || !dashboard);
 
@@ -84,12 +72,12 @@ export default function SupplierPortalPage() {
       <Navbar>
         <PageContentWrapper>
           <div className="space-y-4">
-            <h1 className="text-lg sm:text-xl font-semibold text-primary">
+            <h1 className="text-lg sm:text-xl font-medium text-primary">
               Supplier Portal
             </h1>
             <article
               className={cn(
-                "rounded-[28px] border border-white/10 dark:border-white/20 p-2 sm:p-4 backdrop-blur-sm bg-white/60 dark:bg-white/5 shadow-[0_15px_40px_rgba(0,0,0,0.08)] dark:shadow-[0_30px_80px_rgba(255,255,255,0.08)]",
+                "rounded-[28px] border border-white/10 dark:border-white/20 p-2 sm:p-4 backdrop-blur-md bg-white/60 dark:bg-white/5 shadow-[0_15px_40px_rgba(0,0,0,0.08)] dark:shadow-[0_30px_80px_rgba(255,255,255,0.08)]",
               )}
             >
               <p className="text-muted-foreground text-center">
@@ -114,7 +102,7 @@ export default function SupplierPortalPage() {
       <PageContentWrapper>
         <div className="space-y-4">
           <div className="">
-            <h1 className="text-lg sm:text-xl font-semibold text-gray-700 dark:text-white">
+            <h1 className="text-lg sm:text-xl font-medium text-gray-700 dark:text-white">
               Supplier Portal
             </h1>
             <p className="text-xs sm:text-sm text-muted-foreground">
@@ -236,7 +224,9 @@ export default function SupplierPortalPage() {
                 {
                   label: "Paid",
                   value: `$${(
-                    dashboard?.revenueBreakdown?.paid ?? dashboard?.paidRevenue ?? 0
+                    dashboard?.revenueBreakdown?.paid ??
+                    dashboard?.paidRevenue ??
+                    0
                   ).toLocaleString(undefined, {
                     minimumFractionDigits: 2,
                     maximumFractionDigits: 2,
@@ -296,7 +286,7 @@ export default function SupplierPortalPage() {
           {/* Revenue Chart — glassmorphic card */}
           <article
             className={cn(
-              "rounded-[28px] border border-emerald-400/20 dark:border-emerald-400/30 p-2 sm:p-4 backdrop-blur-sm transition-all",
+              "rounded-[28px] border border-emerald-400/20 dark:border-emerald-400/30 p-2 sm:p-4 backdrop-blur-md transition-all",
               "bg-white/60 dark:bg-white/5",
               "bg-gradient-to-br from-emerald-500/15 via-emerald-500/5 to-transparent dark:from-emerald-500/25 dark:via-emerald-500/10 dark:to-emerald-500/5",
               "shadow-[0_15px_40px_rgba(16,185,129,0.15)] dark:shadow-[0_30px_80px_rgba(16,185,129,0.25)]",
@@ -304,7 +294,7 @@ export default function SupplierPortalPage() {
             )}
           >
             <div className="mb-4">
-              <h3 className="flex items-center gap-2 text-lg font-semibold text-gray-700 dark:text-white">
+              <h3 className="flex items-center gap-2 text-lg font-medium text-gray-700 dark:text-white">
                 <TrendingUp className="h-5 w-5 text-emerald-500 dark:text-emerald-400" />
                 Monthly Revenue
               </h3>
@@ -313,9 +303,15 @@ export default function SupplierPortalPage() {
                 month)
               </p>
             </div>
-            {dataLoading ? (
-              <DataSlotPulse variant="chart" className="min-h-[240px]" />
-            ) : (dashboard?.monthlyRevenue.length ?? 0) > 0 ? (
+            <DeferredChartSection
+              loading={dataLoading}
+              hasData={(dashboard?.monthlyRevenue.length ?? 0) > 0}
+              emptyMessage={
+                <p className="text-muted-foreground text-center py-8">
+                  No revenue data yet
+                </p>
+              }
+            >
               <ResponsiveChartContainer>
                 <AreaChart
                   data={dashboard!.monthlyRevenue}
@@ -338,33 +334,27 @@ export default function SupplierPortalPage() {
                   />
                 </AreaChart>
               </ResponsiveChartContainer>
-            ) : (
-              <p className="text-muted-foreground text-center py-8">
-                No revenue data yet
-              </p>
-            )}
+            </DeferredChartSection>
           </article>
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-2 sm:gap-4">
             {/* Recent Orders — glassmorphic */}
             <article
               className={cn(
-                "rounded-[28px] border border-sky-400/20 dark:border-sky-400/30 p-2 sm:p-4 backdrop-blur-sm transition-all",
+                "rounded-[28px] border border-sky-400/20 dark:border-sky-400/30 p-2 sm:p-4 backdrop-blur-md transition-all",
                 "bg-white/60 dark:bg-white/5",
                 "bg-gradient-to-br from-sky-500/15 via-sky-500/5 to-transparent dark:from-sky-500/25 dark:via-sky-500/10 dark:to-sky-500/5",
                 "shadow-[0_15px_40px_rgba(2,132,199,0.15)] dark:shadow-[0_30px_80px_rgba(2,132,199,0.25)]",
                 "hover:border-sky-300/40",
               )}
             >
-              <div className="mb-4">
-                <h3 className="flex items-center gap-2 text-lg font-semibold text-gray-700 dark:text-white">
-                  <ShoppingCart className="h-5 w-5 text-sky-500 dark:text-sky-400" />
-                  Recent Orders
-                </h3>
-                <p className="text-sm text-gray-600 dark:text-white/70 mt-1">
-                  Orders containing your products
-                </p>
-              </div>
+              <SectionCardHeader
+                className="mb-4"
+                icon={ShoppingCart}
+                tone="sky"
+                title="Recent Orders"
+                description="Orders containing your products"
+              />
               <div>
                 {dataLoading ? (
                   <Table>
@@ -406,7 +396,7 @@ export default function SupplierPortalPage() {
                               ${order.total.toFixed(2)}
                             </TableCell>
                             <TableCell>
-                              {getStatusBadge(order.status)}
+                              <OrderStatusBadge status={order.status} />
                             </TableCell>
                           </TableRow>
                         ))}
@@ -421,23 +411,20 @@ export default function SupplierPortalPage() {
             <article
               id="products"
               className={cn(
-                "rounded-[28px] border border-amber-400/20 dark:border-amber-400/30 p-2 sm:p-4 backdrop-blur-sm transition-all",
+                "rounded-[28px] border border-amber-400/20 dark:border-amber-400/30 p-2 sm:p-4 backdrop-blur-md transition-all",
                 "bg-white/60 dark:bg-white/5",
                 "bg-gradient-to-br from-amber-500/15 via-amber-500/5 to-transparent dark:from-amber-500/25 dark:via-amber-500/10 dark:to-amber-500/5",
                 "shadow-[0_15px_40px_rgba(245,158,11,0.15)] dark:shadow-[0_30px_80px_rgba(245,158,11,0.2)]",
                 "hover:border-amber-300/40",
               )}
             >
-              <div className="mb-4">
-                <h3 className="flex items-center gap-2 text-lg font-semibold text-gray-700 dark:text-white">
-                  <AlertTriangle className="h-5 w-5 text-amber-500 dark:text-amber-400" />
-                  Low Stock Products
-                </h3>
-                <p className="text-sm text-gray-600 dark:text-white/70 mt-1">
-                  Products with 20 or fewer available units (same threshold as
-                  product owner)
-                </p>
-              </div>
+              <SectionCardHeader
+                className="mb-4"
+                icon={AlertTriangle}
+                tone="amber"
+                title="Low Stock Products"
+                description="Products with 20 or fewer available units (same threshold as product owner)"
+              />
               <div>
                 {dataLoading ? (
                   <Table>
@@ -482,19 +469,13 @@ export default function SupplierPortalPage() {
                                   {product.sku}
                                 </p>
                               </TableCell>
-                              <TableCell className="text-right font-semibold text-red-600">
+                              <TableCell className="text-right font-normal text-red-600">
                                 {product.quantity}
                               </TableCell>
                               <TableCell>
-                                <Badge
-                                  variant={
-                                    product.quantity === 0
-                                      ? "destructive"
-                                      : "secondary"
-                                  }
-                                >
-                                  {product.status}
-                                </Badge>
+                                <ProductStockFromQuantityBadge
+                                  available={product.quantity}
+                                />
                               </TableCell>
                             </TableRow>
                           ))}
@@ -509,14 +490,14 @@ export default function SupplierPortalPage() {
           {/* Quick Links — glassmorphic */}
           <article
             className={cn(
-              "rounded-[28px] border border-violet-400/20 dark:border-violet-400/30 p-2 sm:p-4 backdrop-blur-sm transition-all",
+              "rounded-[28px] border border-violet-400/20 dark:border-violet-400/30 p-2 sm:p-4 backdrop-blur-md transition-all",
               "bg-white/60 dark:bg-white/5",
               "bg-gradient-to-br from-violet-500/15 via-violet-500/5 to-transparent dark:from-violet-500/25 dark:via-violet-500/10 dark:to-violet-500/5",
               "shadow-[0_15px_40px_rgba(139,92,246,0.15)] dark:shadow-[0_30px_80px_rgba(139,92,246,0.25)]",
               "hover:border-violet-300/40",
             )}
           >
-            <h3 className="text-lg font-semibold text-gray-700 dark:text-white mb-4">
+            <h3 className="text-lg font-medium text-gray-700 dark:text-white mb-4">
               Quick Links
             </h3>
             <div className="flex flex-wrap gap-2">

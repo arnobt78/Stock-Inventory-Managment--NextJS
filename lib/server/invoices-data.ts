@@ -7,7 +7,10 @@
 import { getCache, setCache, cacheKeys } from "@/lib/cache";
 import { getInvoicesByUser, getInvoicesByClientId, getInvoicesByOrderIds } from "@/prisma/invoice";
 import { getOrdersContainingProductOwnerProducts } from "@/prisma/order";
+import { fetchOrderUserIdMap } from "@/lib/invoices/enrich-order-user-ids";
+import { getStoreOrderIds } from "@/lib/invoices/store-order-ids";
 import { prisma } from "@/prisma/client";
+import type { InvoiceFilters } from "@/types/invoice";
 
 /** Invoice shape returned by invoices API GET (dates as ISO strings) */
 export type InvoiceForPage = {
@@ -46,25 +49,17 @@ export type InvoiceForPage = {
   issuedByName?: string | null;
   /** Invoice creator/issuer email */
   issuedByEmail?: string | null;
+  /** User who placed the linked order (for admin self/client source tagging) */
+  orderUserId?: string | null;
 };
 
-/**
- * Fetch invoices for the given user (no filters — default list view).
- * Uses the same cache key as GET /api/invoices with empty filters so Redis is shared.
- */
-export async function getInvoicesForUser(
-  userId: string
+async function transformInvoicesForList(
+  invoices: Awaited<ReturnType<typeof getInvoicesByUser>>,
 ): Promise<InvoiceForPage[]> {
-  const filters = {};
-  const cacheKey = cacheKeys.invoices.list(filters);
-  const cached = await getCache<InvoiceForPage[]>(cacheKey);
-  if (cached) {
-    return cached;
-  }
+  const orderUserIdMap = await fetchOrderUserIdMap(
+    invoices.map((inv) => inv.orderId),
+  );
 
-  const invoices = await getInvoicesByUser(userId, undefined);
-
-  // Resolve client names for admin display
   const clientIds = [...new Set(invoices.map((inv) => inv.clientId).filter(Boolean))] as string[];
   const clients = clientIds.length > 0
     ? await prisma.user.findMany({
@@ -74,7 +69,7 @@ export async function getInvoicesForUser(
     : [];
   const clientMap = new Map(clients.map((c) => [c.id, { name: c.name, email: c.email }]));
 
-  const transformed: InvoiceForPage[] = invoices.map((invoice) => {
+  return invoices.map((invoice) => {
     const clientInfo = invoice.clientId ? clientMap.get(invoice.clientId) : undefined;
     return {
       id: invoice.id,
@@ -104,8 +99,47 @@ export async function getInvoicesForUser(
       updatedBy: invoice.updatedBy,
       clientName: clientInfo?.name ?? clientInfo?.email ?? null,
       clientEmail: clientInfo?.email ?? null,
+      orderUserId: orderUserIdMap.get(invoice.orderId) ?? null,
     };
   });
+}
+
+/**
+ * Fetch invoices for the given user (no filters — default list view).
+ * Uses the same cache key as GET /api/invoices with empty filters so Redis is shared.
+ */
+export async function getInvoicesForUser(
+  userId: string
+): Promise<InvoiceForPage[]> {
+  const filters = {};
+  const cacheKey = cacheKeys.invoices.list({ userId, scope: "issuer" });
+  const cached = await getCache<InvoiceForPage[]>(cacheKey);
+  if (cached) {
+    return cached;
+  }
+
+  const invoices = await getInvoicesByUser(userId, undefined);
+
+  const transformed = await transformInvoicesForList(invoices);
+
+  await setCache(cacheKey, transformed, 300);
+  return transformed;
+}
+
+/**
+ * Fetch all store-wide invoices (self + client orders) for admin/user /invoices page.
+ * Matches dashboard invoice card counts.
+ */
+export async function getStoreInvoicesForAdmin(
+  userId: string,
+): Promise<InvoiceForPage[]> {
+  const cacheKey = cacheKeys.invoices.list({ userId, scope: "store" });
+  const cached = await getCache<InvoiceForPage[]>(cacheKey);
+  if (cached) return cached;
+
+  const storeOrderIds = await getStoreOrderIds(userId);
+  const invoices = await getInvoicesByOrderIds(storeOrderIds);
+  const transformed = await transformInvoicesForList(invoices);
 
   await setCache(cacheKey, transformed, 300);
   return transformed;
@@ -169,6 +203,7 @@ export async function getInvoicesForClientId(
     const productOwnerId = orderProductOwnerMap.get(invoice.orderId);
     const issuerId = productOwnerId ?? invoice.createdBy ?? invoice.userId;
     const issuer = userMap.get(issuerId);
+    const order = orders.find((o) => o.id === invoice.orderId);
     return {
       id: invoice.id,
       invoiceNumber: invoice.invoiceNumber,
@@ -197,6 +232,7 @@ export async function getInvoicesForClientId(
       updatedBy: invoice.updatedBy,
       issuedByName: issuer?.name ?? issuer?.email ?? null,
       issuedByEmail: issuer?.email ?? null,
+      orderUserId: order?.userId ?? null,
     };
   });
 
@@ -210,9 +246,12 @@ export async function getInvoicesForClientId(
  */
 export async function getClientInvoicesForProductOwner(
   productOwnerUserId: string,
+  filters?: InvoiceFilters,
 ): Promise<InvoiceForPage[]> {
+  const { scope: _scope, ...cacheFilters } = filters ?? {};
   const cacheKey = cacheKeys.invoices.list({
     productOwnerId: productOwnerUserId,
+    ...(Object.keys(cacheFilters).length > 0 ? cacheFilters : {}),
   });
   const cached = await getCache<InvoiceForPage[]>(cacheKey);
   if (cached) return cached;
@@ -221,7 +260,7 @@ export async function getClientInvoicesForProductOwner(
     productOwnerUserId,
   );
   const orderIds = orders.map((o) => o.id);
-  const invoices = await getInvoicesByOrderIds(orderIds);
+  const invoices = await getInvoicesByOrderIds(orderIds, cacheFilters);
 
   const userIds = [...new Set(orders.map((o) => o.userId))];
   const users =
@@ -234,12 +273,14 @@ export async function getClientInvoicesForProductOwner(
   const userMap = new Map(users.map((u) => [u.id, u]));
 
   const orderCustomerDisplay = new Map<string, string>();
+  const orderUserIdMap = new Map<string, string>();
   for (const order of orders) {
     const addr = order.shippingAddress as { name?: string; email?: string } | null | undefined;
     const name = addr?.name ?? addr?.email ?? null;
     const u = userMap.get(order.userId);
     const placedByName = u?.name ?? u?.email ?? null;
     orderCustomerDisplay.set(order.id, name ?? placedByName ?? "Client");
+    orderUserIdMap.set(order.id, order.userId);
   }
 
   const transformed: InvoiceForPage[] = invoices.map((invoice) => ({
@@ -269,6 +310,7 @@ export async function getClientInvoicesForProductOwner(
     createdBy: invoice.createdBy,
     updatedBy: invoice.updatedBy,
     customerDisplay: orderCustomerDisplay.get(invoice.orderId) ?? null,
+    orderUserId: orderUserIdMap.get(invoice.orderId) ?? null,
   }));
 
   await setCache(cacheKey, transformed, 300);

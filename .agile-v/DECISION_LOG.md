@@ -30,3 +30,21 @@ Format: `TIMESTAMP | AGENT | DECISION | RATIONALE | REQ-ID`
 2026-07-08T00:00:00Z | build-agent | Locale-aware ClientCurrency/ClientCompactDateTime | Stable SSR + browser locale after mount for global demo | REQ-0020
 2026-07-08T00:00:00Z | build-agent | Shell-first nav + DataSlotPulse | Suspense shell in page.tsx; initialData hooks; table headers always visible | REQ-0021
 2026-07-08T00:00:00Z | red-team | REQ-0021 automated gates | lint ✓ test 310 ✓ invalidate 200 ✓ build ✓ | REQ-0021
+2026-07-08T00:00:00Z | build-agent | Tier-3 detail shell-first gap closure | OrderDetailPage + InvoiceDetailPage isDataSlotLoading; delete StatisticsCardSkeleton | REQ-0022
+2026-07-08T00:00:00Z | build-agent | Admin detail shell-first gap closure | 5 Admin*DetailContent: isDataSlotLoading + DataSlotPulse; dual replies pulse on support ticket | REQ-0023
+2026-07-08T00:00:00Z | build-agent | REQ-0024 settings SSR + detail prefetch + order DRY | SystemConfig shell-first; lib/server detail helpers; components/orders/detail | REQ-0024
+2026-07-08T00:00:00Z | red-team | REQ-0024 automated gates | lint ✓ test 311 ✓ invalidate 200 ✓ build ✓ | REQ-0024
+2026-07-08T00:00:00Z | build-agent | REQ-0026 P3 SSR gaps | Ghost fetches gated; detail secondary SSR; client browse/catalog; defer warm prefetch | REQ-0026
+2026-07-08T00:00:00Z | red-team | REQ-0026 automated gates | lint ✓ test 311 ✓ invalidate 200 ✓ build ✓ | REQ-0026
+2026-07-08T20:00:00Z | build-agent | ProductOwnerSelect + product-owner filter | Plain DropdownMenu rendered all admin users; hang on open; filter to owners with products | REQ-0026
+2026-07-08T20:00:00Z | red-team | Client owner dropdown manual QA | Debug logs: 7 owners, openPaintMs 27–48ms; owner switch browse-products 250–380ms | REQ-0026
+2026-07-08T20:00:00Z | requirement-architect | REQ-0027 backlog | URL ownerId sync + narrow admin warm-prefetch deferred to C2 | REQ-0027
+2026-07-09T00:00:00Z | build-agent | Shallow ownerId URL via history.replaceState | Avoid RSC refetch on client owner switch; TanStack holds data | REQ-0027
+2026-07-09T00:00:00Z | build-agent | warmAdminClientPortalLists on / or /admin | Defer client-orders/invoices warm from login idle callback | REQ-0027
+2026-07-09T00:00:00Z | red-team | REQ-0027 automated gates | lint ✓ test 318 ✓ invalidate 200 ✓ build ✓ | REQ-0027
+2026-07-09T15:00:00Z | build-agent | Invoice glass badges + list data fixes | payment pending→unpaid; INVOICE_STATUS glass; cache userId scope; store-wide /invoices list; orderUserId Self/Client tags | REQ-0028
+2026-07-09T16:00:00Z | build-agent | Invoice warm-prefetch + store-scope Prisma filters | Role-scoped TanStack keys; applyInvoiceFiltersToWhere on getInvoicesByOrderIds | REQ-0028
+2026-07-09T17:00:00Z | build-agent | GLASS_BADGE_CLASS dark mode tokens | dark:border/bg-gradient/text/shadow on all 15 hues for table/dashboard readability | REQ-0028
+2026-07-09T17:50:00Z | build-agent | Ticket/review glass badges + colored filters | TICKET_STATUS/PRIORITY + REVIEW_STATUS → GLASS; badge filter dropdowns; detail pages use semantic badges | REQ-0028
+2026-07-09T18:00:00Z | build-agent | Admin user-mgmt + activity-history glass badges | USER_ROLE/IMPORT/AUDIT → GLASS; ImportTypeBadge; colored role/import filters | REQ-0028
+2026-07-09T18:20:00Z | build-agent | Supplier catalog detail Option B | Read-only category/supplier detail via assigned-product gate; role-scoped Redis cache; disableCrud on detail pages | REQ-0029

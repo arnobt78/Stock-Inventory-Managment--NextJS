@@ -5,7 +5,7 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { ChartCard } from "@/components/ui/chart-card";
 import { StatisticsCard } from "@/components/home/StatisticsCard";
-import { PageContentWrapper } from "@/components/shared";
+import { PageContentWrapper, PageSectionHeader } from "@/components/shared";
 import { useDashboard } from "@/hooks/queries";
 import { isDataSlotLoading } from "@/lib/react-query";
 import { useToast } from "@/hooks/use-toast";
@@ -37,10 +37,22 @@ import {
   YAxis,
 } from "recharts";
 import { ResponsiveChartContainer } from "@/components/ui/responsive-chart-container";
+import { DeferredChartSection } from "@/components/ui/deferred-chart-section";
 import { ClientCompactDateTime } from "@/components/shared";
 import { formatStableCurrency, formatClientCurrency } from "@/lib/format";
 import type { DashboardStats } from "@/types";
 import ForecastingSection from "@/components/admin/ForecastingSection";
+import {
+  OrderStatusBadge,
+  TicketStatusBadge,
+  ReviewStatusBadge,
+  ImportStatusBadge,
+} from "@/lib/ui/semantic-badges";
+import {
+  CARD_LIST_DIVIDE_CLASS,
+  CARD_LIST_ROW_CLASS,
+  CARD_LIST_META_CLASS,
+} from "@/lib/ui/card-list-styles";
 
 /** Hydration-safe USD — en-US locale on server and client (REQ-0019). */
 function formatCurrency(value: number): string {
@@ -49,10 +61,12 @@ function formatCurrency(value: number): string {
 
 export type AdminAnalyticsContentProps = {
   initialStats?: DashboardStats | null;
+  initialForecasting?: import("@/types").ForecastingSummary;
 };
 
 export default function AdminAnalyticsContent({
   initialStats,
+  initialForecasting,
 }: AdminAnalyticsContentProps = {}) {
   const { toast } = useToast();
   const dashboardQuery = useDashboard(initialStats ?? undefined);
@@ -141,17 +155,13 @@ export default function AdminAnalyticsContent({
   return (
     <PageContentWrapper>
       <div className="space-y-4">
-        <div className="flex flex-col items-start text-left ">
-          <h1 className="text-lg sm:text-xl font-semibold text-gray-700 dark:text-white ">
-            Store Analytics &amp; Dashboard (self + client + supplier + other
-            users)
-          </h1>
-          <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">
-            Overview, statistics, trends, and AI-powered insights across
-            products, users, suppliers, categories, orders, invoices,
-            warehouses, tickets, and reviews. Store-wide metrics.
-          </p>
-        </div>
+        <PageSectionHeader
+          as="h1"
+          icon={BarChart3}
+          tone="violet"
+          title="Store Analytics &amp; Dashboard (self + client + supplier + other users)"
+          description="Overview, statistics, trends, and AI-powered insights across products, users, suppliers, categories, orders, invoices, warehouses, tickets, and reviews. Store-wide metrics."
+        />
 
         {/* Overview cards — REQ-0021 shell-first: titles/icons always visible */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 items-stretch">
@@ -484,6 +494,10 @@ export default function AdminAnalyticsContent({
               icon={BarChart3}
               description="Last 12 months. Revenue = order totals (excl. cancelled)."
             >
+              <DeferredChartSection
+                loading={dataLoading}
+                hasData={(stats.trends?.length ?? 0) > 0}
+              >
               <ResponsiveChartContainer>
                 <AreaChart data={stats.trends}>
                   <CartesianGrid
@@ -541,6 +555,7 @@ export default function AdminAnalyticsContent({
                   />
                 </AreaChart>
               </ResponsiveChartContainer>
+              </DeferredChartSection>
             </ChartCard>
             <ChartCard
               variant="violet"
@@ -548,6 +563,10 @@ export default function AdminAnalyticsContent({
               icon={TrendingUp}
               description="Last 12 months"
             >
+              <DeferredChartSection
+                loading={dataLoading}
+                hasData={(stats.trends?.length ?? 0) > 0}
+              >
               <ResponsiveChartContainer>
                 <BarChart
                   data={stats.trends}
@@ -587,6 +606,7 @@ export default function AdminAnalyticsContent({
                   />
                 </BarChart>
               </ResponsiveChartContainer>
+              </DeferredChartSection>
             </ChartCard>
           </div>
         )}
@@ -594,7 +614,7 @@ export default function AdminAnalyticsContent({
         {/* Order Analytics section */}
         {stats && stats.orderAnalytics && (
           <div className="space-y-4">
-            <h2 className="text-lg sm:text-xl font-semibold text-gray-700 dark:text-white flex items-center gap-2">
+            <h2 className="text-lg sm:text-xl font-medium text-gray-700 dark:text-white flex items-center gap-2">
               <ShoppingCart className="h-5 w-5 text-sky-600" />
               Order Analytics
             </h2>
@@ -721,6 +741,7 @@ export default function AdminAnalyticsContent({
                 icon={BarChart3}
                 description="Store-wide"
               >
+                <DeferredChartSection loading={dataLoading} hasData={!!stats}>
                 <ResponsiveChartContainer>
                   <BarChart
                     data={[
@@ -790,6 +811,7 @@ export default function AdminAnalyticsContent({
                     <Bar dataKey="count" radius={[0, 4, 4, 0]} />
                   </BarChart>
                 </ResponsiveChartContainer>
+                </DeferredChartSection>
               </ChartCard>
 
               {/* Top Products by Orders — Orders = order lines; Revenue = sum of line subtotals (qty × price) */}
@@ -858,7 +880,7 @@ export default function AdminAnalyticsContent({
         {/* Invoice Analytics section */}
         {stats && stats.invoiceAnalytics && (
           <div className="space-y-4">
-            <h2 className="text-xl font-semibold text-gray-700 dark:text-white flex items-center gap-2">
+            <h2 className="text-lg sm:text-xl font-medium text-gray-700 dark:text-white flex items-center gap-2">
               <FileText className="h-5 w-5 text-amber-600" />
               Invoice Analytics
             </h2>
@@ -986,6 +1008,7 @@ export default function AdminAnalyticsContent({
               icon={FileText}
               description="Store-wide"
             >
+              <DeferredChartSection loading={dataLoading} hasData={!!stats}>
               <ResponsiveChartContainer>
                 <BarChart
                   data={[
@@ -1047,6 +1070,7 @@ export default function AdminAnalyticsContent({
                   <Bar dataKey="count" radius={[0, 4, 4, 0]} />
                 </BarChart>
               </ResponsiveChartContainer>
+              </DeferredChartSection>
             </ChartCard>
           </div>
         )}
@@ -1079,7 +1103,7 @@ export default function AdminAnalyticsContent({
             }));
             return (
               <div className="space-y-4">
-                <h2 className="text-xl font-semibold text-gray-700 dark:text-white flex items-center gap-2">
+                <h2 className="text-lg sm:text-xl font-medium text-gray-700 dark:text-white flex items-center gap-2">
                   <Warehouse className="h-5 w-5 text-amber-500" />
                   Warehouse Analytics
                 </h2>
@@ -1129,6 +1153,12 @@ export default function AdminAnalyticsContent({
                     icon={Warehouse}
                     description="Store-wide"
                   >
+                    <DeferredChartSection
+                      loading={dataLoading}
+                      hasData={
+                        stats.warehouseAnalytics.typeDistribution.length > 0
+                      }
+                    >
                     <ResponsiveChartContainer>
                       <BarChart
                         data={stats.warehouseAnalytics.typeDistribution.map(
@@ -1169,6 +1199,7 @@ export default function AdminAnalyticsContent({
                         <Bar dataKey="count" radius={[0, 4, 4, 0]} />
                       </BarChart>
                     </ResponsiveChartContainer>
+                    </DeferredChartSection>
                   </ChartCard>
                 )}
               </div>
@@ -1198,22 +1229,26 @@ export default function AdminAnalyticsContent({
                 {stats.recent.orders.length === 0 ? (
                   <p className="text-sm text-muted-foreground">No orders yet</p>
                 ) : (
-                  <ul className="space-y-2">
+                  <ul className={CARD_LIST_DIVIDE_CLASS}>
                     {stats.recent.orders.slice(0, 5).map((o) => (
-                      <li key={o.id}>
-                        <Link
-                          href={`/admin/orders/${o.id}`}
-                          className="text-sm font-medium text-sky-600 dark:text-sky-400 hover:text-sky-500 dark:hover:text-sky-300 flex items-center justify-between gap-2"
-                        >
-                          <span className="truncate">{o.orderNumber}</span>
-                          <span className="text-muted-foreground shrink-0">
+                      <li key={o.id} className={CARD_LIST_ROW_CLASS}>
+                        <div className="min-w-0 flex-1">
+                          <Link
+                            href={`/admin/orders/${o.id}`}
+                            className="text-xs font-normal text-sky-600 dark:text-sky-400 hover:text-sky-500 dark:hover:text-sky-300 truncate block"
+                          >
+                            {o.orderNumber}
+                          </Link>
+                          <p className={CARD_LIST_META_CLASS}>
+                            <ClientCompactDateTime date={o.createdAt} />
+                          </p>
+                        </div>
+                        <div className="flex items-center gap-2 shrink-0">
+                          <OrderStatusBadge status={o.status} />
+                          <span className="text-xs text-gray-700 dark:text-white">
                             {formatStableCurrency(o.total)}
                           </span>
-                        </Link>
-                        <p className="text-xs text-muted-foreground">
-                          <ClientCompactDateTime date={o.createdAt} /> ·{" "}
-                          {o.status}
-                        </p>
+                        </div>
                       </li>
                     ))}
                   </ul>
@@ -1242,19 +1277,21 @@ export default function AdminAnalyticsContent({
                     No tickets yet
                   </p>
                 ) : (
-                  <ul className="space-y-2">
+                  <ul className={CARD_LIST_DIVIDE_CLASS}>
                     {stats.recent.tickets.slice(0, 5).map((t) => (
-                      <li key={t.id}>
-                        <Link
-                          href={`/admin/support-tickets/${t.id}`}
-                          className="text-sm font-medium text-sky-600 dark:text-sky-400 hover:text-sky-500 dark:hover:text-sky-300 block truncate"
-                        >
-                          {t.subject}
-                        </Link>
-                        <p className="text-xs text-muted-foreground">
-                          <ClientCompactDateTime date={t.createdAt} /> ·{" "}
-                          {t.status}
-                        </p>
+                      <li key={t.id} className={CARD_LIST_ROW_CLASS}>
+                        <div className="min-w-0 flex-1">
+                          <Link
+                            href={`/admin/support-tickets/${t.id}`}
+                            className="text-xs font-normal text-sky-600 dark:text-sky-400 hover:text-sky-500 dark:hover:text-sky-300 truncate block"
+                          >
+                            {t.subject}
+                          </Link>
+                          <p className={CARD_LIST_META_CLASS}>
+                            <ClientCompactDateTime date={t.createdAt} />
+                          </p>
+                        </div>
+                        <TicketStatusBadge status={t.status} />
                       </li>
                     ))}
                   </ul>
@@ -1283,19 +1320,21 @@ export default function AdminAnalyticsContent({
                     No reviews yet
                   </p>
                 ) : (
-                  <ul className="space-y-2">
+                  <ul className={CARD_LIST_DIVIDE_CLASS}>
                     {stats.recent.reviews.slice(0, 5).map((r) => (
-                      <li key={r.id}>
-                        <Link
-                          href={`/admin/product-reviews/${r.id}`}
-                          className="text-sm font-medium text-sky-600 dark:text-sky-400 hover:text-sky-500 dark:hover:text-sky-300 block truncate"
-                        >
-                          {r.productName} · {r.rating}★
-                        </Link>
-                        <p className="text-xs text-muted-foreground">
-                          <ClientCompactDateTime date={r.createdAt} /> ·{" "}
-                          {r.status}
-                        </p>
+                      <li key={r.id} className={CARD_LIST_ROW_CLASS}>
+                        <div className="min-w-0 flex-1">
+                          <Link
+                            href={`/admin/product-reviews/${r.id}`}
+                            className="text-xs font-normal text-sky-600 dark:text-sky-400 hover:text-sky-500 dark:hover:text-sky-300 truncate block"
+                          >
+                            {r.productName} · {r.rating}★
+                          </Link>
+                          <p className={CARD_LIST_META_CLASS}>
+                            <ClientCompactDateTime date={r.createdAt} />
+                          </p>
+                        </div>
+                        <ReviewStatusBadge status={r.status} />
                       </li>
                     ))}
                   </ul>
@@ -1324,19 +1363,22 @@ export default function AdminAnalyticsContent({
                     No imports yet
                   </p>
                 ) : (
-                  <ul className="space-y-2">
+                  <ul className={CARD_LIST_DIVIDE_CLASS}>
                     {stats.recent.imports.slice(0, 5).map((im) => (
-                      <li key={im.id}>
-                        <Link
-                          href={`/admin/activity-history/${im.id}`}
-                          className="text-sm font-medium text-sky-600 dark:text-sky-400 hover:text-sky-500 dark:hover:text-sky-300 block truncate"
-                        >
-                          {im.importType} · {im.fileName}
-                        </Link>
-                        <p className="text-xs text-muted-foreground">
-                          <ClientCompactDateTime date={im.createdAt} /> ·{" "}
-                          {im.successRows} ok, {im.failedRows} failed
-                        </p>
+                      <li key={im.id} className={CARD_LIST_ROW_CLASS}>
+                        <div className="min-w-0 flex-1">
+                          <Link
+                            href={`/admin/activity-history/${im.id}`}
+                            className="text-xs font-normal text-sky-600 dark:text-sky-400 hover:text-sky-500 dark:hover:text-sky-300 truncate block"
+                          >
+                            {im.importType} · {im.fileName}
+                          </Link>
+                          <p className={CARD_LIST_META_CLASS}>
+                            <ClientCompactDateTime date={im.createdAt} /> ·{" "}
+                            {im.successRows} ok, {im.failedRows} failed
+                          </p>
+                        </div>
+                        <ImportStatusBadge status={im.status} />
                       </li>
                     ))}
                   </ul>
@@ -1390,17 +1432,17 @@ export default function AdminAnalyticsContent({
             )}
           </div>
         </ChartCard>
-      </div>
 
-      {/* Demand Forecasting Section */}
-      <ChartCard
-        variant="emerald"
-        title="Demand Forecasting &amp; Predictions"
-        icon={TrendingUp}
-        description="Store-wide"
-      >
-        <ForecastingSection />
-      </ChartCard>
+        {/* Demand Forecasting Section — inside space-y-4 for gap after AI insights */}
+        <ChartCard
+          variant="emerald"
+          title="Demand Forecasting &amp; Predictions"
+          icon={TrendingUp}
+          description="Store-wide"
+        >
+          <ForecastingSection initialForecasting={initialForecasting} />
+        </ChartCard>
+      </div>
     </PageContentWrapper>
   );
 }

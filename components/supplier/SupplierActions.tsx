@@ -31,7 +31,11 @@ interface SupplierActionsProps {
  * Supplier Actions Component
  * Provides edit and delete actions for supplier table rows
  */
-export default function SupplierActions({ row, onEdit, onBeforeNavigate }: SupplierActionsProps) {
+export default function SupplierActions({
+  row,
+  onEdit,
+  onBeforeNavigate,
+}: SupplierActionsProps) {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const { user } = useAuth();
   const router = useRouter();
@@ -101,31 +105,45 @@ export default function SupplierActions({ row, onEdit, onBeforeNavigate }: Suppl
         <DropdownMenuTrigger asChild>
           <Button variant="ghost" className="h-8 w-8 p-0">
             <span className="sr-only">Open menu</span>
-           <MoreVertical className="h-4 w-4 text-gray-600 dark:text-gray-300" />
+            <MoreVertical className="h-4 w-4 text-gray-600 dark:text-gray-300" />
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent
           align="end"
-          className="border border-white/10 bg-gradient-to-br from-white/5 via-white/5 to-white/5 backdrop-blur-sm shadow-lg"
+          className="border border-white/10 bg-gradient-to-br from-white/5 via-white/5 to-white/5 backdrop-blur-md shadow-lg"
         >
           {onBeforeNavigate ? (
-            <DropdownMenuItem onClick={handleViewDetails} className="flex items-center gap-2">
+            <DropdownMenuItem
+              onClick={handleViewDetails}
+              className="flex items-center gap-2"
+            >
               <Eye className="h-4 w-4" />
               View Details
             </DropdownMenuItem>
           ) : (
             <DropdownMenuItem asChild>
-              <Link href={`/suppliers/${row.original.id}`} className="flex items-center gap-2">
+              <Link
+                href={`/suppliers/${row.original.id}`}
+                className="flex items-center gap-2"
+              >
                 <Eye className="h-4 w-4" />
                 View Details
               </Link>
             </DropdownMenuItem>
           )}
-          <DropdownMenuItem onClick={handleCopySupplier} disabled={isCopying || isGlobalDemo} className="flex items-center gap-2">
+          <DropdownMenuItem
+            onClick={handleCopySupplier}
+            disabled={isCopying || isGlobalDemo}
+            className="flex items-center gap-2"
+          >
             <Copy className="h-4 w-4" />
             {isCopying ? "Duplicating..." : "Create Duplicate"}
           </DropdownMenuItem>
-          <DropdownMenuItem onClick={handleEditSupplier} disabled={isGlobalDemo} className="flex items-center gap-2">
+          <DropdownMenuItem
+            onClick={handleEditSupplier}
+            disabled={isGlobalDemo}
+            className="flex items-center gap-2"
+          >
             <Edit className="h-4 w-4" />
             Edit Supplier
           </DropdownMenuItem>

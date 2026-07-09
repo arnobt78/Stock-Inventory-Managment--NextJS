@@ -1,0 +1,513 @@
+/**
+ * Semantic status badges — glassmorphic icons + gradient glow for tables, lists, detail pages.
+ * Exclude StatisticsCard summary badges (those keep outline style).
+ */
+
+import React from "react";
+import {
+  AlertCircle,
+  AlertTriangle,
+  Ban,
+  Building,
+  Building2,
+  CheckCircle,
+  CircleDollarSign,
+  Clock,
+  Download,
+  FileText,
+  FolderTree,
+  Loader2,
+  LogIn,
+  LogOut,
+  MessageSquare,
+  Package,
+  Pencil,
+  Plus,
+  RotateCcw,
+  Send,
+  Settings,
+  Shield,
+  ShoppingBag,
+  ShoppingCart,
+  Store,
+  Truck,
+  Upload,
+  User,
+  XCircle,
+  type LucideIcon,
+} from "lucide-react";
+import {
+  GLASS_BADGE_CLASS,
+  OPAQUE_BADGE_CLASS,
+} from "@/lib/ui/glass-badge-styles";
+import { cn } from "@/lib/utils";
+
+/** Human-readable label: snake_case / lowercase → Title case */
+export function formatSemanticLabel(value: string): string {
+  if (!value) return "—";
+  return value
+    .replace(/_/g, " ")
+    .split(" ")
+    .map((w) => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase())
+    .join(" ");
+}
+
+type BadgeTone = {
+  className: string;
+  icon: LucideIcon;
+};
+
+function normalizeKey(value: string): string {
+  return (value || "").toLowerCase().replace(/\s+/g, "_");
+}
+
+const ORDER_STATUS: Record<string, BadgeTone> = {
+  pending: { className: GLASS_BADGE_CLASS.orange, icon: Clock },
+  confirmed: { className: GLASS_BADGE_CLASS.sky, icon: CheckCircle },
+  processing: { className: GLASS_BADGE_CLASS.yellow, icon: Loader2 },
+  shipped: { className: GLASS_BADGE_CLASS.purple, icon: Truck },
+  delivered: { className: GLASS_BADGE_CLASS.emerald, icon: CheckCircle },
+  cancelled: { className: GLASS_BADGE_CLASS.rose, icon: XCircle },
+};
+
+const PAYMENT_STATUS: Record<string, BadgeTone> = {
+  paid: { className: GLASS_BADGE_CLASS.emerald, icon: CheckCircle },
+  unpaid: { className: GLASS_BADGE_CLASS.slate, icon: AlertCircle },
+  /** Legacy checkout value — display as Unpaid with orange (order-pending hue) */
+  pending: { className: GLASS_BADGE_CLASS.orange, icon: AlertCircle },
+  partial: { className: GLASS_BADGE_CLASS.orange, icon: CircleDollarSign },
+  refunded: { className: GLASS_BADGE_CLASS.violet, icon: RotateCcw },
+};
+
+const PRODUCT_STOCK_STATUS: Record<string, BadgeTone> = {
+  available: { className: GLASS_BADGE_CLASS.emerald, icon: CheckCircle },
+  in_stock: { className: GLASS_BADGE_CLASS.emerald, icon: CheckCircle },
+  stock_low: { className: GLASS_BADGE_CLASS.orange, icon: AlertTriangle },
+  low_stock: { className: GLASS_BADGE_CLASS.orange, icon: AlertTriangle },
+  stock_out: { className: GLASS_BADGE_CLASS.red, icon: XCircle },
+  out_of_stock: { className: GLASS_BADGE_CLASS.red, icon: XCircle },
+};
+
+const ACTIVE_INACTIVE: Record<string, BadgeTone> = {
+  active: { className: GLASS_BADGE_CLASS.emerald, icon: CheckCircle },
+  inactive: { className: GLASS_BADGE_CLASS.slate, icon: Ban },
+};
+
+const WAREHOUSE_TYPE: Record<string, BadgeTone> = {
+  main: { className: OPAQUE_BADGE_CLASS.blue, icon: Building },
+  secondary: { className: OPAQUE_BADGE_CLASS.teal, icon: Building2 },
+  storage: { className: OPAQUE_BADGE_CLASS.amber, icon: Building2 },
+  distribution: { className: OPAQUE_BADGE_CLASS.violet, icon: Truck },
+  retail: { className: OPAQUE_BADGE_CLASS.sky, icon: Building },
+  other: { className: OPAQUE_BADGE_CLASS.gray, icon: Building },
+};
+
+const TICKET_PRIORITY: Record<string, BadgeTone> = {
+  low: { className: GLASS_BADGE_CLASS.gray, icon: Clock },
+  medium: { className: GLASS_BADGE_CLASS.blue, icon: AlertCircle },
+  high: { className: GLASS_BADGE_CLASS.orange, icon: AlertTriangle },
+  urgent: { className: GLASS_BADGE_CLASS.red, icon: XCircle },
+};
+
+const TICKET_STATUS: Record<string, BadgeTone> = {
+  open: { className: GLASS_BADGE_CLASS.amber, icon: MessageSquare },
+  in_progress: { className: GLASS_BADGE_CLASS.blue, icon: Loader2 },
+  resolved: { className: GLASS_BADGE_CLASS.emerald, icon: CheckCircle },
+  closed: { className: GLASS_BADGE_CLASS.gray, icon: XCircle },
+};
+
+const REVIEW_STATUS: Record<string, BadgeTone> = {
+  pending: { className: GLASS_BADGE_CLASS.amber, icon: Clock },
+  approved: { className: GLASS_BADGE_CLASS.emerald, icon: CheckCircle },
+  rejected: { className: GLASS_BADGE_CLASS.red, icon: XCircle },
+};
+
+const INVOICE_STATUS: Record<string, BadgeTone> = {
+  draft: { className: GLASS_BADGE_CLASS.slate, icon: FileText },
+  sent: { className: GLASS_BADGE_CLASS.sky, icon: FileText },
+  paid: { className: GLASS_BADGE_CLASS.emerald, icon: CheckCircle },
+  overdue: { className: GLASS_BADGE_CLASS.rose, icon: AlertCircle },
+  cancelled: { className: GLASS_BADGE_CLASS.orange, icon: XCircle },
+};
+
+const USER_ROLE: Record<string, BadgeTone> = {
+  admin: { className: GLASS_BADGE_CLASS.violet, icon: Shield },
+  supplier: { className: GLASS_BADGE_CLASS.emerald, icon: Store },
+  client: { className: GLASS_BADGE_CLASS.sky, icon: ShoppingBag },
+  retailer: { className: GLASS_BADGE_CLASS.amber, icon: Store },
+  user: { className: GLASS_BADGE_CLASS.gray, icon: User },
+};
+
+const AUDIT_ACTION: Record<string, BadgeTone> = {
+  create: { className: GLASS_BADGE_CLASS.emerald, icon: Plus },
+  update: { className: GLASS_BADGE_CLASS.blue, icon: Pencil },
+  delete: { className: GLASS_BADGE_CLASS.red, icon: XCircle },
+  login: { className: GLASS_BADGE_CLASS.purple, icon: LogIn },
+  logout: { className: GLASS_BADGE_CLASS.gray, icon: LogOut },
+  view: { className: GLASS_BADGE_CLASS.cyan, icon: AlertCircle },
+  export: { className: GLASS_BADGE_CLASS.yellow, icon: Download },
+  import: { className: GLASS_BADGE_CLASS.orange, icon: Upload },
+  send: { className: GLASS_BADGE_CLASS.indigo, icon: Send },
+  payment: { className: GLASS_BADGE_CLASS.emerald, icon: CircleDollarSign },
+  ship: { className: GLASS_BADGE_CLASS.sky, icon: Truck },
+  settings_change: { className: GLASS_BADGE_CLASS.amber, icon: Settings },
+};
+
+const IMPORT_STATUS: Record<string, BadgeTone> = {
+  completed: { className: GLASS_BADGE_CLASS.emerald, icon: CheckCircle },
+  failed: { className: GLASS_BADGE_CLASS.red, icon: XCircle },
+  processing: { className: GLASS_BADGE_CLASS.amber, icon: Loader2 },
+};
+
+const IMPORT_TYPE: Record<string, BadgeTone> = {
+  products: { className: GLASS_BADGE_CLASS.emerald, icon: Package },
+  orders: { className: GLASS_BADGE_CLASS.violet, icon: ShoppingCart },
+  suppliers: { className: GLASS_BADGE_CLASS.teal, icon: Truck },
+  categories: { className: GLASS_BADGE_CLASS.amber, icon: FolderTree },
+};
+
+const DEFAULT_TONE: BadgeTone = {
+  className: OPAQUE_BADGE_CLASS.gray,
+  icon: Clock,
+};
+
+function resolveTone(
+  map: Record<string, BadgeTone>,
+  status: string,
+): BadgeTone {
+  return map[normalizeKey(status)] ?? DEFAULT_TONE;
+}
+
+export type SemanticBadgeProps = {
+  status: string;
+  className?: string;
+  /** Override display label (defaults to formatSemanticLabel) */
+  label?: string;
+  /** `compact` = tables/portal rows; `detail` = entity detail cards */
+  size?: "compact" | "detail";
+};
+
+const BADGE_SIZE_CLASS = {
+  compact: "text-[10px] py-0.5 gap-1 [&_svg]:h-3 [&_svg]:w-3",
+  detail: "text-xs py-0.5 gap-1 [&_svg]:h-3.5 [&_svg]:w-3.5",
+} as const;
+
+function SemanticBadgeBase({
+  tone,
+  label,
+  className,
+  spinIcon,
+  size = "compact",
+}: {
+  tone: BadgeTone;
+  label: string;
+  className?: string;
+  spinIcon?: boolean;
+  size?: "compact" | "detail";
+}) {
+  const Icon = tone.icon;
+  return (
+    <span
+      className={cn(
+        "relative isolate inline-flex shrink-0 items-center rounded-full border px-2 font-normal transition-opacity hover:opacity-95",
+        tone.className,
+        BADGE_SIZE_CLASS[size],
+        className,
+      )}
+    >
+      <Icon
+        className={cn("shrink-0", spinIcon && "animate-spin")}
+        aria-hidden
+      />
+      <span>{label}</span>
+    </span>
+  );
+}
+
+export function OrderStatusBadge({
+  status,
+  className,
+  label,
+  size,
+}: SemanticBadgeProps) {
+  const tone = resolveTone(ORDER_STATUS, status);
+  return (
+    <SemanticBadgeBase
+      tone={tone}
+      label={label ?? formatSemanticLabel(status)}
+      className={className}
+      spinIcon={normalizeKey(status) === "processing"}
+      size={size}
+    />
+  );
+}
+
+function resolveUserRoleTone(role: string | null | undefined): BadgeTone {
+  const key = normalizeKey(role ?? "user");
+  return USER_ROLE[key] ?? USER_ROLE.user ?? DEFAULT_TONE;
+}
+
+/** User role badge — admin, supplier, client, etc. */
+export function UserRoleBadge({
+  role,
+  className,
+  size,
+}: {
+  role: string | null | undefined;
+  className?: string;
+  size?: "compact" | "detail";
+}) {
+  const tone = resolveUserRoleTone(role);
+  const label = formatSemanticLabel(role ?? "user");
+  return (
+    <SemanticBadgeBase
+      tone={tone}
+      label={label}
+      className={className}
+      size={size}
+    />
+  );
+}
+
+/** Role chip surface classes for select triggers (same tones as UserRoleBadge). */
+export function userRoleBadgeClass(role: string | null | undefined): string {
+  return resolveUserRoleTone(role).className;
+}
+
+/** Audit log action badge — create, update, delete, etc. */
+export function AuditActionBadge({
+  action,
+  className,
+  size,
+}: {
+  action: string;
+  className?: string;
+  size?: "compact" | "detail";
+}) {
+  const tone = resolveTone(AUDIT_ACTION, action);
+  return (
+    <SemanticBadgeBase
+      tone={tone}
+      label={formatSemanticLabel(action)}
+      className={className}
+      size={size}
+    />
+  );
+}
+
+export function PaymentStatusBadge({
+  status,
+  className,
+  label,
+  size,
+}: SemanticBadgeProps) {
+  const key = normalizeKey(status);
+  const tone = resolveTone(PAYMENT_STATUS, status);
+  const displayLabel =
+    label ??
+    (key === "pending" ? "Unpaid" : formatSemanticLabel(status));
+  return (
+    <SemanticBadgeBase
+      tone={tone}
+      label={displayLabel}
+      className={className}
+      size={size}
+    />
+  );
+}
+
+export function ProductStockStatusBadge({
+  status,
+  className,
+  label,
+  size,
+}: SemanticBadgeProps) {
+  const tone = resolveTone(PRODUCT_STOCK_STATUS, status);
+  return (
+    <SemanticBadgeBase
+      tone={tone}
+      label={label ?? formatSemanticLabel(status)}
+      className={className}
+      size={size}
+    />
+  );
+}
+
+/** Active / inactive entity status (category, supplier, warehouse, etc.) */
+export function ActiveInactiveBadge({
+  active,
+  className,
+  size,
+}: {
+  active: boolean;
+  className?: string;
+  size?: "compact" | "detail";
+}) {
+  const tone = resolveTone(
+    ACTIVE_INACTIVE,
+    active ? "active" : "inactive",
+  );
+  return (
+    <SemanticBadgeBase
+      tone={tone}
+      label={active ? "Active" : "Inactive"}
+      className={className}
+      size={size}
+    />
+  );
+}
+
+/** Warehouse type label (main, secondary, distribution) */
+export function WarehouseTypeBadge({
+  type,
+  className,
+  size,
+}: {
+  type: string;
+  className?: string;
+  size?: "compact" | "detail";
+}) {
+  const tone = resolveTone(WAREHOUSE_TYPE, type);
+  return (
+    <SemanticBadgeBase
+      tone={tone}
+      label={formatSemanticLabel(type)}
+      className={className}
+      size={size}
+    />
+  );
+}
+
+export function TicketPriorityBadge({
+  status,
+  className,
+  label,
+  size,
+}: SemanticBadgeProps) {
+  const tone = resolveTone(TICKET_PRIORITY, status);
+  return (
+    <SemanticBadgeBase
+      tone={tone}
+      label={label ?? formatSemanticLabel(status)}
+      className={className}
+      size={size}
+    />
+  );
+}
+
+export function TicketStatusBadge({
+  status,
+  className,
+  label,
+  size,
+}: SemanticBadgeProps) {
+  const tone = resolveTone(TICKET_STATUS, status);
+  return (
+    <SemanticBadgeBase
+      tone={tone}
+      label={label ?? formatSemanticLabel(status)}
+      className={className}
+      spinIcon={normalizeKey(status) === "in_progress"}
+      size={size}
+    />
+  );
+}
+
+export function ReviewStatusBadge({
+  status,
+  className,
+  label,
+  size,
+}: SemanticBadgeProps) {
+  const tone = resolveTone(REVIEW_STATUS, status);
+  return (
+    <SemanticBadgeBase
+      tone={tone}
+      label={label ?? formatSemanticLabel(status)}
+      className={className}
+      size={size}
+    />
+  );
+}
+
+export function InvoiceStatusBadge({
+  status,
+  className,
+  label,
+  size,
+}: SemanticBadgeProps) {
+  const tone = resolveTone(INVOICE_STATUS, status);
+  return (
+    <SemanticBadgeBase
+      tone={tone}
+      label={label ?? formatSemanticLabel(status)}
+      className={className}
+      size={size}
+    />
+  );
+}
+
+export function ImportStatusBadge({
+  status,
+  className,
+  label,
+  size,
+}: SemanticBadgeProps) {
+  const tone = resolveTone(IMPORT_STATUS, status);
+  return (
+    <SemanticBadgeBase
+      tone={tone}
+      label={label ?? formatSemanticLabel(status)}
+      className={className}
+      spinIcon={normalizeKey(status) === "processing"}
+      size={size}
+    />
+  );
+}
+
+/** Bulk import type badge — products, orders, suppliers, categories */
+export function ImportTypeBadge({
+  status,
+  className,
+  label,
+  size,
+}: SemanticBadgeProps) {
+  const tone = resolveTone(IMPORT_TYPE, status);
+  return (
+    <SemanticBadgeBase
+      tone={tone}
+      label={label ?? formatSemanticLabel(status)}
+      className={className}
+      size={size}
+    />
+  );
+}
+
+/** Product table stock label from available quantity */
+export function productStockLabelFromAvailable(available: number): string {
+  if (available > 20) return "Available";
+  if (available > 0) return "Stock Low";
+  return "Stock Out";
+}
+
+export function ProductStockFromQuantityBadge({
+  available,
+  className,
+  size,
+}: {
+  available: number;
+  className?: string;
+  size?: "compact" | "detail";
+}) {
+  const label = productStockLabelFromAvailable(available);
+  const key =
+    available > 20 ? "available" : available > 0 ? "stock_low" : "stock_out";
+  return (
+    <ProductStockStatusBadge
+      status={key}
+      label={label}
+      className={className}
+      size={size}
+    />
+  );
+}

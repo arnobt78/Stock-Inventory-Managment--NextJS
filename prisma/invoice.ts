@@ -8,6 +8,55 @@ import type { Prisma } from "@prisma/client";
 import type { CreateInvoiceInput, UpdateInvoiceInput, InvoiceFilters } from "@/types/invoice";
 import { logger } from "@/lib/logger";
 
+/** Shared Prisma where clauses for invoice list filters (issuer, client, store-by-orderIds). */
+function applyInvoiceFiltersToWhere(
+  base: Prisma.InvoiceWhereInput,
+  filters?: InvoiceFilters,
+): Prisma.InvoiceWhereInput {
+  const where: Prisma.InvoiceWhereInput = { ...base };
+
+  if (filters?.searchTerm) {
+    where.OR = [
+      { invoiceNumber: { contains: filters.searchTerm, mode: "insensitive" } },
+      { notes: { contains: filters.searchTerm, mode: "insensitive" } },
+    ];
+  }
+
+  if (filters?.status && filters.status.length > 0) {
+    where.status = { in: filters.status };
+  }
+
+  if (filters?.orderId) {
+    where.orderId = filters.orderId;
+  }
+
+  if (filters?.clientId) {
+    where.clientId = filters.clientId;
+  }
+
+  if (filters?.startDate || filters?.endDate) {
+    where.createdAt = {};
+    if (filters.startDate) {
+      where.createdAt.gte = new Date(filters.startDate);
+    }
+    if (filters.endDate) {
+      where.createdAt.lte = new Date(filters.endDate);
+    }
+  }
+
+  if (filters?.dueDateStart || filters?.dueDateEnd) {
+    where.dueDate = {};
+    if (filters.dueDateStart) {
+      where.dueDate.gte = new Date(filters.dueDateStart);
+    }
+    if (filters.dueDateEnd) {
+      where.dueDate.lte = new Date(filters.dueDateEnd);
+    }
+  }
+
+  return where;
+}
+
 /**
  * Generate a unique invoice number
  * Format: INV-YYYYMMDD-HHMMSS-XXXX (e.g., INV-20240116-143022-1234)
@@ -247,54 +296,7 @@ export async function getInvoicesByUser(
   userId: string,
   filters?: InvoiceFilters
 ): Promise<Prisma.InvoiceGetPayload<Record<string, never>>[]> {
-  const where: Prisma.InvoiceWhereInput = {
-    userId,
-  };
-
-  // Filter by search term (searches invoice number and notes)
-  if (filters?.searchTerm) {
-    where.OR = [
-      { invoiceNumber: { contains: filters.searchTerm, mode: "insensitive" } },
-      { notes: { contains: filters.searchTerm, mode: "insensitive" } },
-    ];
-  }
-
-  // Filter by status
-  if (filters?.status && filters.status.length > 0) {
-    where.status = { in: filters.status };
-  }
-
-  // Filter by order ID
-  if (filters?.orderId) {
-    where.orderId = filters.orderId;
-  }
-
-  // Filter by client ID
-  if (filters?.clientId) {
-    where.clientId = filters.clientId;
-  }
-
-  // Filter by date range
-  if (filters?.startDate || filters?.endDate) {
-    where.createdAt = {};
-    if (filters.startDate) {
-      where.createdAt.gte = new Date(filters.startDate);
-    }
-    if (filters.endDate) {
-      where.createdAt.lte = new Date(filters.endDate);
-    }
-  }
-
-  // Filter by due date range
-  if (filters?.dueDateStart || filters?.dueDateEnd) {
-    where.dueDate = {};
-    if (filters.dueDateStart) {
-      where.dueDate.gte = new Date(filters.dueDateStart);
-    }
-    if (filters.dueDateEnd) {
-      where.dueDate.lte = new Date(filters.dueDateEnd);
-    }
-  }
+  const where = applyInvoiceFiltersToWhere({ userId }, filters);
 
   return prisma.invoice.findMany({
     where,
@@ -312,40 +314,7 @@ export async function getInvoicesByClientId(
   clientUserId: string,
   filters?: InvoiceFilters
 ): Promise<Prisma.InvoiceGetPayload<Record<string, never>>[]> {
-  const where: Prisma.InvoiceWhereInput = {
-    clientId: clientUserId,
-  };
-
-  if (filters?.searchTerm) {
-    where.OR = [
-      { invoiceNumber: { contains: filters.searchTerm, mode: "insensitive" } },
-      { notes: { contains: filters.searchTerm, mode: "insensitive" } },
-    ];
-  }
-  if (filters?.status && filters.status.length > 0) {
-    where.status = { in: filters.status };
-  }
-  if (filters?.orderId) {
-    where.orderId = filters.orderId;
-  }
-  if (filters?.startDate || filters?.endDate) {
-    where.createdAt = {};
-    if (filters.startDate) {
-      where.createdAt.gte = new Date(filters.startDate);
-    }
-    if (filters.endDate) {
-      where.createdAt.lte = new Date(filters.endDate);
-    }
-  }
-  if (filters?.dueDateStart || filters?.dueDateEnd) {
-    where.dueDate = {};
-    if (filters.dueDateStart) {
-      where.dueDate.gte = new Date(filters.dueDateStart);
-    }
-    if (filters.dueDateEnd) {
-      where.dueDate.lte = new Date(filters.dueDateEnd);
-    }
-  }
+  const where = applyInvoiceFiltersToWhere({ clientId: clientUserId }, filters);
 
   return prisma.invoice.findMany({
     where,
@@ -354,14 +323,21 @@ export async function getInvoicesByClientId(
 }
 
 /**
- * Get invoices by order IDs (for product owner: invoices for "client orders").
+ * Get invoices by order IDs (for product owner: invoices for store / client orders).
  */
 export async function getInvoicesByOrderIds(
   orderIds: string[],
+  filters?: InvoiceFilters,
 ): Promise<Prisma.InvoiceGetPayload<Record<string, never>>[]> {
   if (orderIds.length === 0) return [];
+
+  const where = applyInvoiceFiltersToWhere(
+    { orderId: { in: orderIds } },
+    filters,
+  );
+
   return prisma.invoice.findMany({
-    where: { orderId: { in: orderIds } },
+    where,
     orderBy: { createdAt: "desc" },
   });
 }

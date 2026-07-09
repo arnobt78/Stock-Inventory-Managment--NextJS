@@ -6,12 +6,14 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getSessionFromRequest } from "@/utils/auth";
 import { logger } from "@/lib/logger";
-import { createInvoice, getInvoicesByUser, getInvoicesByClientId } from "@/prisma/invoice";
+import { createInvoice, getInvoicesByUser, getInvoicesByClientId, getInvoicesByOrderIds } from "@/prisma/invoice";
 import { createInvoiceSchema } from "@/lib/validations";
 import { getCache, setCache, cacheKeys } from "@/lib/cache";
 import { createAuditLog } from "@/prisma/audit-log";
 import { withRateLimit, defaultRateLimits } from "@/lib/api/rate-limit";
 import { prisma } from "@/prisma/client";
+import { fetchOrderUserIdMap } from "@/lib/invoices/enrich-order-user-ids";
+import { getStoreOrderIds } from "@/lib/invoices/store-order-ids";
 import type { CreateInvoiceInput, InvoiceFilters } from "@/types";
 
 /**
@@ -54,10 +56,15 @@ export async function GET(request: NextRequest) {
       dueDateEnd: searchParams.get("dueDateEnd") || undefined,
     };
 
-    // Check cache first (client list uses separate cache key)
+    const listScope =
+      !isClient && searchParams.get("scope") === "store" ? "store" : "issuer";
+
+    // Check cache first (scoped per user / role)
     const cacheKey = cacheKeys.invoices.list({
       ...(filters as Record<string, unknown>),
-      ...(isClient ? { byClient: true, userId } : {}),
+      ...(isClient
+        ? { byClient: true, userId }
+        : { userId, scope: listScope }),
     });
     const cachedInvoices = await getCache(cacheKey);
 
@@ -66,10 +73,12 @@ export async function GET(request: NextRequest) {
       return NextResponse.json(cachedInvoices);
     }
 
-    // Fetch invoices: client sees only their own (clientId = userId), admin/user see created by them
+    // Fetch invoices: client sees their own; admin/user see issuer or store-wide list
     const invoices = isClient
       ? await getInvoicesByClientId(userId, filters)
-      : await getInvoicesByUser(userId, filters);
+      : listScope === "store"
+        ? await getInvoicesByOrderIds(await getStoreOrderIds(userId), filters)
+        : await getInvoicesByUser(userId, filters);
 
     // For client role, resolve the actual issuer (product owner) from order items
     let issuerMap = new Map<string, { name: string | null; email: string }>();
@@ -114,6 +123,7 @@ export async function GET(request: NextRequest) {
 
     // For admin/user role, resolve the client name/email for each invoice
     let clientMap = new Map<string, { name: string | null; email: string }>();
+    let orderUserIdMap = new Map<string, string>();
     if (!isClient && invoices.length > 0) {
       const clientIds = [...new Set(invoices.map((inv) => inv.clientId).filter(Boolean))] as string[];
       if (clientIds.length > 0) {
@@ -123,6 +133,9 @@ export async function GET(request: NextRequest) {
         });
         clientMap = new Map(clients.map((c) => [c.id, { name: c.name, email: c.email }]));
       }
+      orderUserIdMap = await fetchOrderUserIdMap(
+        invoices.map((inv) => inv.orderId),
+      );
     }
 
     // Transform invoices for response (convert Dates to ISO strings)
@@ -157,6 +170,9 @@ export async function GET(request: NextRequest) {
         updatedBy: invoice.updatedBy,
         ...(issuer ? { issuedByName: issuer.name ?? issuer.email, issuedByEmail: issuer.email } : {}),
         ...(clientInfo ? { clientName: clientInfo.name ?? clientInfo.email, clientEmail: clientInfo.email } : {}),
+        ...(!isClient
+          ? { orderUserId: orderUserIdMap.get(invoice.orderId) ?? null }
+          : {}),
       };
     });
 

@@ -77,6 +77,53 @@
   body {
     @apply text-foreground;
   }
+
+  /*
+   * Scroll lives on #main-content / sidebars — NOT html/body.
+   * scrollbar-gutter: stable on the scroll container prevents content width shift when scrollbar appears.
+   */
+  #main-content,
+  aside.overflow-y-auto {
+    scrollbar-gutter: stable;
+  }
+
+  #main-content,
+  aside.overflow-y-auto,
+  .overflow-y-auto,
+  .overflow-auto {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(100, 116, 139, 0.45) transparent;
+  }
+
+  #main-content::-webkit-scrollbar,
+  aside.overflow-y-auto::-webkit-scrollbar,
+  .overflow-y-auto::-webkit-scrollbar,
+  .overflow-auto::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  #main-content::-webkit-scrollbar-track,
+  aside.overflow-y-auto::-webkit-scrollbar-track,
+  .overflow-y-auto::-webkit-scrollbar-track,
+  .overflow-auto::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  #main-content::-webkit-scrollbar-thumb,
+  aside.overflow-y-auto::-webkit-scrollbar-thumb,
+  .overflow-y-auto::-webkit-scrollbar-thumb,
+  .overflow-auto::-webkit-scrollbar-thumb {
+    background-color: rgba(100, 116, 139, 0.45);
+    border-radius: 9999px;
+  }
+
+  .dark #main-content::-webkit-scrollbar-thumb,
+  .dark aside.overflow-y-auto::-webkit-scrollbar-thumb,
+  .dark .overflow-y-auto::-webkit-scrollbar-thumb,
+  .dark .overflow-auto::-webkit-scrollbar-thumb {
+    background-color: rgba(148, 163, 184, 0.4);
+  }
 }
 
 @keyframes spin {

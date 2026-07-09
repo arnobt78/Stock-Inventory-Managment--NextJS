@@ -18,15 +18,16 @@ import {
   ShoppingCart,
   User,
   Mail,
-  CheckCircle2,
-  XCircle,
   FileText,
   Edit,
   Copy,
   Trash2,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
+import {
+  ActiveInactiveBadge,
+  OrderStatusBadge,
+} from "@/lib/ui/semantic-badges";
 import { Separator } from "@/components/ui/separator";
 import {
   useSupplier,
@@ -42,6 +43,7 @@ import {
   ClientRelativeTime,
   PageContentWrapper,
   DataSlotPulse,
+  PageSectionHeader,
 } from "@/components/shared";
 import SupplierDialog from "@/components/supplier/SupplierDialog";
 import { AlertDialogWrapper } from "@/components/dialogs";
@@ -162,7 +164,7 @@ function GlassCard({
   return (
     <article
       className={cn(
-        "rounded-[20px] border backdrop-blur-sm transition overflow-hidden",
+        "rounded-[20px] border backdrop-blur-md transition overflow-hidden",
         config.border,
         config.gradient,
         config.shadow,
@@ -175,10 +177,14 @@ function GlassCard({
   );
 }
 
-export type SupplierDetailPageProps = { embedInAdmin?: boolean };
+export type SupplierDetailPageProps = {
+  embedInAdmin?: boolean;
+  initialSupplier?: Supplier;
+};
 
 export default function SupplierDetailPage({
   embedInAdmin,
+  initialSupplier,
 }: SupplierDetailPageProps = {}) {
   const params = useParams();
   const router = useRouter();
@@ -189,9 +195,9 @@ export default function SupplierDetailPage({
   const PageWrapper = embedInAdmin ? React.Fragment : Navbar;
 
   // Fetch supplier details
-  const supplierQuery = useSupplier(supplierId);
+  const supplierQuery = useSupplier(supplierId, initialSupplier);
   const supplier = supplierQuery.data;
-  const dataLoading = isDataSlotLoading(supplierQuery);
+  const dataLoading = isDataSlotLoading(supplierQuery, initialSupplier);
   const createSupplierMutation = useCreateSupplier();
   const deleteSupplierMutation = useDeleteSupplier();
   const [editDialogOpen, setEditDialogOpen] = useState(false);
@@ -201,6 +207,9 @@ export default function SupplierDetailPage({
   const isCopying = createSupplierMutation.isPending;
   const isDeleting = deleteSupplierMutation.isPending;
   const isGlobalDemo = Boolean(supplier?.isGlobalDemo);
+  const isClientRole = user?.role === "client";
+  const isSupplierRole = user?.role === "supplier";
+  const disableCrud = isClientRole || isSupplierRole;
 
   // Edit: open supplier dialog with current supplier (same as SupplierActions via onEdit)
   const handleEditSupplier = () => {
@@ -240,7 +249,7 @@ export default function SupplierDetailPage({
         setDeleteDialogOpen(false);
       },
     });
-  };// Redirect if not authenticated
+  }; // Redirect if not authenticated
   useEffect(() => {
     if (!isCheckingAuth && !user) {
       router.push("/login");
@@ -253,7 +262,7 @@ export default function SupplierDetailPage({
       <PageWrapper>
         <div className="flex flex-col items-center justify-center min-h-[60vh] gap-2">
           <div className="text-center">
-            <h2 className="text-lg sm:text-xl font-semibold text-gray-700 dark:text-white mb-2">
+            <h2 className="text-lg sm:text-xl font-medium text-gray-700 dark:text-white mb-2">
               Supplier Not Found
             </h2>
             <p className="text-gray-600 dark:text-gray-400 mb-4">
@@ -271,10 +280,10 @@ export default function SupplierDetailPage({
     );
   }
 
-
-
   // Format dates
-  const createdAt = supplier?.createdAt ? new Date(supplier?.createdAt) : new Date();
+  const createdAt = supplier?.createdAt
+    ? new Date(supplier?.createdAt)
+    : new Date();
   const updatedAt = supplier?.updatedAt ? new Date(supplier?.updatedAt) : null;
 
   // Supplier statistics
@@ -291,24 +300,25 @@ export default function SupplierDetailPage({
       <PageContentWrapper>
         <div className="max-w-9xl mx-auto space-y-4">
           {/* Header */}
-          <div className="flex items-center gap-2">
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={handleBack}
-              className="h-10 w-10 rounded-xl border border-gray-300/30 bg-white/50 dark:bg-white/5 dark:border-white/10 hover:bg-gray-100/50 dark:hover:bg-white/10"
-            >
-              <ArrowLeft className="h-5 w-5" />
-            </Button>
-            <div className="flex-1">
-              <h1 className="text-lg sm:text-xl font-semibold text-gray-700 dark:text-white">
-                {supplier?.name}
-              </h1>
-              <p className="text-sm text-gray-600 dark:text-white/60 mt-1">
-                <ClientRelativeTime date={createdAt} prefix="Created " />
-              </p>
-            </div>
-          </div>
+          <PageSectionHeader
+            as="h1"
+            tone="teal"
+            icon={Truck}
+            leading={
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={handleBack}
+                className="h-10 w-10 shrink-0 self-center rounded-xl border border-gray-300/30 bg-white/50 dark:bg-white/5 dark:border-white/10 hover:bg-gray-100/50 dark:hover:bg-white/10"
+              >
+                <ArrowLeft className="h-5 w-5" />
+              </Button>
+            }
+            title={supplier?.name}
+            description={
+              <ClientRelativeTime date={createdAt} prefix="Created " />
+            }
+          />
 
           {/* Supplier Status Card */}
           <GlassCard variant="emerald">
@@ -316,26 +326,10 @@ export default function SupplierDetailPage({
               <p className="text-xs uppercase tracking-[0.2em] text-gray-600 dark:text-white/60 mb-3">
                 Status
               </p>
-              <Badge
-                className={cn(
-                  "text-sm border",
-                  supplier?.status
-                    ? "bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 border-emerald-400/30"
-                    : "bg-rose-500/20 text-rose-700 dark:text-rose-300 border-rose-400/30",
-                )}
-              >
-                {supplier?.status ? (
-                  <span className="flex items-center gap-2">
-                    <CheckCircle2 className="h-3 w-3" />
-                    Active
-                  </span>
-                ) : (
-                  <span className="flex items-center gap-2">
-                    <XCircle className="h-3 w-3" />
-                    Inactive
-                  </span>
-                )}
-              </Badge>
+              <ActiveInactiveBadge
+                active={Boolean(supplier?.status)}
+                className="text-sm"
+              />
             </div>
           </GlassCard>
 
@@ -348,7 +342,7 @@ export default function SupplierDetailPage({
                   <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-orange-300/30 bg-orange-100/50 dark:border-white/15 dark:bg-white/10">
                     <Truck className="h-4 w-4 text-gray-700 dark:text-white" />
                   </div>
-                  <h3 className="text-lg font-semibold text-gray-700 dark:text-white">
+                  <h3 className="text-lg font-medium text-gray-700 dark:text-white">
                     Supplier Information
                   </h3>
                 </div>
@@ -364,7 +358,7 @@ export default function SupplierDetailPage({
                   </div>
 
                   {supplier?.description && (
-                    <div className="pt-3 mt-3 border-t border-orange-400/20">
+                    <div className="pt-2 mt-3 border-t border-orange-400/20">
                       <p className="text-sm text-gray-600 dark:text-white/60 mb-1">
                         Description:
                       </p>
@@ -375,7 +369,7 @@ export default function SupplierDetailPage({
                   )}
 
                   {supplier?.notes && (
-                    <div className="pt-3 mt-3 border-t border-orange-400/20">
+                    <div className="pt-2 mt-3 border-t border-orange-400/20">
                       <p className="text-sm text-gray-600 dark:text-white/60 mb-1">
                         Notes:
                       </p>
@@ -409,7 +403,7 @@ export default function SupplierDetailPage({
 
                   {/* Creator Information */}
                   {supplier?.creator && (
-                    <div className="pt-3 mt-3 border-t border-orange-400/20">
+                    <div className="pt-2 mt-3 border-t border-orange-400/20">
                       <div className="flex items-center gap-2 text-sm">
                         <User className="h-4 w-4 text-gray-500 dark:text-white/50" />
                         <span className="text-gray-600 dark:text-white/60">
@@ -433,7 +427,7 @@ export default function SupplierDetailPage({
 
                   {/* Updater Information */}
                   {supplier?.updater && (
-                    <div className="pt-3 mt-3 border-t border-orange-400/20">
+                    <div className="pt-2 mt-3 border-t border-orange-400/20">
                       <div className="flex items-center gap-2 text-sm">
                         <User className="h-4 w-4 text-gray-500 dark:text-white/50" />
                         <span className="text-gray-600 dark:text-white/60">
@@ -466,7 +460,7 @@ export default function SupplierDetailPage({
                     <BarChart3 className="h-4 w-4 text-gray-700 dark:text-white" />
                   </div>
                   <div>
-                    <h3 className="text-lg font-semibold text-gray-700 dark:text-white">
+                    <h3 className="text-lg font-medium text-gray-700 dark:text-white">
                       Statistics
                     </h3>
                     <p className="text-xs text-gray-600 dark:text-white/60">
@@ -479,7 +473,7 @@ export default function SupplierDetailPage({
                     <span className="text-sm text-gray-600 dark:text-white/70">
                       Total Products:
                     </span>
-                    <span className="text-lg font-semibold text-gray-700 dark:text-white">
+                    <span className="text-lg font-medium text-gray-700 dark:text-white">
                       {stats.totalProducts}
                     </span>
                   </div>
@@ -488,7 +482,7 @@ export default function SupplierDetailPage({
                     <span className="text-sm text-gray-600 dark:text-white/70">
                       Total Quantity Sold:
                     </span>
-                    <span className="text-lg font-semibold text-gray-700 dark:text-white">
+                    <span className="text-lg font-medium text-gray-700 dark:text-white">
                       {stats.totalQuantitySold}
                     </span>
                   </div>
@@ -497,7 +491,7 @@ export default function SupplierDetailPage({
                     <span className="text-sm text-gray-600 dark:text-white/70">
                       Total Revenue:
                     </span>
-                    <span className="text-lg font-semibold text-emerald-600 dark:text-emerald-400">
+                    <span className="text-lg font-medium text-emerald-600 dark:text-emerald-400">
                       ${stats.totalRevenue.toFixed(2)}
                     </span>
                   </div>
@@ -506,7 +500,7 @@ export default function SupplierDetailPage({
                     <span className="text-sm text-gray-600 dark:text-white/70">
                       Orders Containing Products:
                     </span>
-                    <span className="text-lg font-semibold text-gray-700 dark:text-white">
+                    <span className="text-lg font-medium text-gray-700 dark:text-white">
                       {stats.uniqueOrders}
                     </span>
                   </div>
@@ -515,7 +509,7 @@ export default function SupplierDetailPage({
                     <span className="text-sm text-gray-600 dark:text-white/70">
                       Current Stock Value:
                     </span>
-                    <span className="text-lg font-semibold text-blue-600 dark:text-blue-400">
+                    <span className="text-lg font-medium text-blue-600 dark:text-blue-400">
                       ${stats.totalValue.toFixed(2)}
                     </span>
                   </div>
@@ -533,7 +527,7 @@ export default function SupplierDetailPage({
                     <Package className="h-4 w-4 text-gray-700 dark:text-white" />
                   </div>
                   <div>
-                    <h3 className="text-lg font-semibold text-gray-700 dark:text-white">
+                    <h3 className="text-lg font-medium text-gray-700 dark:text-white">
                       Products from this Supplier
                     </h3>
                     <p className="text-xs text-gray-600 dark:text-white/60">
@@ -551,7 +545,7 @@ export default function SupplierDetailPage({
                           ? `/admin/products/${product.id}`
                           : `/products/${product.id}`
                       }
-                      className="flex items-center gap-2 p-4 rounded-xl border border-gray-300/20 dark:border-white/10 bg-white/30 dark:bg-white/5 hover:bg-white/50 dark:hover:bg-white/10 backdrop-blur-sm transition-colors"
+                      className="flex items-center gap-2 p-4 rounded-xl border border-gray-300/20 dark:border-white/10 bg-white/30 dark:bg-white/5 hover:bg-white/50 dark:hover:bg-white/10 backdrop-blur-md transition-colors"
                     >
                       {product.imageUrl && (
                         <div className="relative w-16 h-16 rounded-xl overflow-hidden bg-white/50 dark:bg-white/5 border border-gray-300/20 dark:border-white/10 flex-shrink-0">
@@ -592,7 +586,7 @@ export default function SupplierDetailPage({
                     <ShoppingCart className="h-4 w-4 text-gray-700 dark:text-white" />
                   </div>
                   <div>
-                    <h3 className="text-lg font-semibold text-gray-700 dark:text-white">
+                    <h3 className="text-lg font-medium text-gray-700 dark:text-white">
                       Recent Orders
                     </h3>
                     <p className="text-xs text-gray-600 dark:text-white/60">
@@ -609,7 +603,7 @@ export default function SupplierDetailPage({
                           ? `/admin/orders/${order.orderId}`
                           : `/orders/${order.orderId}`
                       }
-                      className="flex flex-col sm:flex-row sm:items-center justify-between p-4 rounded-xl border border-gray-300/20 dark:border-white/10 bg-white/30 dark:bg-white/5 hover:bg-white/50 dark:hover:bg-white/10 backdrop-blur-sm transition-colors gap-2"
+                      className="flex flex-col sm:flex-row sm:items-center justify-between p-4 rounded-xl border border-gray-300/20 dark:border-white/10 bg-white/30 dark:bg-white/5 hover:bg-white/50 dark:hover:bg-white/10 backdrop-blur-md transition-colors gap-2"
                     >
                       <div className="flex-1">
                         <h4 className="font-medium text-gray-700 dark:text-white">
@@ -625,7 +619,7 @@ export default function SupplierDetailPage({
                       </div>
                       <div className="text-left sm:text-right">
                         {/* Sale price style: crossed-out subtotal + actual proportional amount */}
-                        <p className="font-semibold text-gray-700 dark:text-white">
+                        <p className="font-medium text-gray-700 dark:text-white">
                           {typeof order.proportionalAmount === "number" &&
                           order.proportionalAmount !== order.subtotal ? (
                             <>
@@ -640,23 +634,10 @@ export default function SupplierDetailPage({
                             `$${order.subtotal.toFixed(2)}`
                           )}
                         </p>
-                        <Badge
-                          className={cn(
-                            "text-xs mt-1 border",
-                            order.orderStatus === "cancelled" &&
-                              "bg-rose-500/20 text-rose-700 dark:text-rose-300 border-rose-400/30",
-                            order.orderStatus === "delivered" &&
-                              "bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 border-emerald-400/30",
-                            order.orderStatus !== "cancelled" &&
-                              order.orderStatus !== "delivered" &&
-                              "bg-blue-500/20 text-blue-700 dark:text-blue-300 border-blue-400/30",
-                          )}
-                        >
-                          {order.orderStatus
-                            ? order.orderStatus.charAt(0).toUpperCase() +
-                              order.orderStatus.slice(1).toLowerCase()
-                            : ""}
-                        </Badge>
+                        <OrderStatusBadge
+                          status={order.orderStatus ?? "pending"}
+                          className="mt-1"
+                        />
                       </div>
                     </Link>
                   ))}
@@ -678,7 +659,7 @@ export default function SupplierDetailPage({
             <Button
               variant="outline"
               onClick={handleEditSupplier}
-              disabled={isGlobalDemo}
+              disabled={disableCrud || isGlobalDemo}
               className="w-full sm:w-auto gap-2 rounded-xl border-blue-400/30 bg-gradient-to-r from-blue-500/20 via-blue-500/10 to-transparent hover:from-blue-500/30 shadow-[0_5px_20px_rgba(59,130,246,0.15)]"
             >
               <Edit className="h-4 w-4 shrink-0" />
@@ -687,7 +668,7 @@ export default function SupplierDetailPage({
             <Button
               variant="outline"
               onClick={handleDuplicateSupplier}
-              disabled={isCopying || isGlobalDemo}
+              disabled={isCopying || disableCrud || isGlobalDemo}
               className="w-full sm:w-auto gap-2 rounded-xl border-violet-400/30 bg-gradient-to-r from-violet-500/20 via-violet-500/10 to-transparent hover:from-violet-500/30 shadow-[0_5px_20px_rgba(139,92,246,0.15)]"
             >
               <Copy className="h-4 w-4 shrink-0" />
@@ -695,7 +676,7 @@ export default function SupplierDetailPage({
             </Button>
             <Button
               onClick={() => setDeleteDialogOpen(true)}
-              disabled={isDeleting || isGlobalDemo}
+              disabled={isDeleting || disableCrud || isGlobalDemo}
               className="w-full sm:w-auto gap-2 rounded-xl border border-rose-400/30 bg-gradient-to-r from-rose-500/20 via-rose-500/10 to-transparent text-white dark:text-white0 hover:from-rose-500/30 shadow-[0_5px_20px_rgba(225,29,72,0.15)]"
             >
               <Trash2 className="h-4 w-4 shrink-0" />

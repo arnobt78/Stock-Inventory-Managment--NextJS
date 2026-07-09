@@ -15,6 +15,7 @@ export type ProductForHome = {
   sku: string;
   price: number;
   quantity: number;
+  reservedQuantity: number;
   status: string;
   categoryId: string;
   supplierId: string;
@@ -68,7 +69,10 @@ export type SupplierForHome = {
 export async function getProductsForUser(userId: string): Promise<ProductForHome[]> {
   const cacheKey = cacheKeys.products.list({ userId });
   const cached = await getCache<ProductForHome[]>(cacheKey);
-  if (cached) {
+  if (
+    cached &&
+    cached.every((p) => typeof p.reservedQuantity === "number")
+  ) {
     return cached;
   }
 
@@ -100,6 +104,7 @@ export async function getProductsForUser(userId: string): Promise<ProductForHome
     sku: product.sku,
     price: Number(product.price),
     quantity: Number(product.quantity),
+    reservedQuantity: Number(product.reservedQuantity ?? 0),
     status: product.status,
     categoryId: product.categoryId,
     supplierId: product.supplierId,
@@ -130,7 +135,10 @@ export async function getProductsBySupplierId(
 ): Promise<ProductForHome[]> {
   const cacheKey = cacheKeys.products.list({ supplierId });
   const cached = await getCache<ProductForHome[]>(cacheKey);
-  if (cached) {
+  if (
+    cached &&
+    cached.every((p) => typeof p.reservedQuantity === "number")
+  ) {
     return cached;
   }
 
@@ -170,6 +178,7 @@ export async function getProductsBySupplierId(
     sku: product.sku,
     price: Number(product.price),
     quantity: Number(product.quantity),
+    reservedQuantity: Number(product.reservedQuantity ?? 0),
     status: product.status,
     categoryId: product.categoryId,
     supplierId: product.supplierId,

@@ -9,11 +9,17 @@ import { Poppins } from "next/font/google";
 import localFont from "next/font/local";
 import React from "react";
 import { AuthProvider } from "@/contexts";
+import { ShellSsrProvider } from "@/contexts/shell-ssr-context";
+import { getSession } from "@/lib/auth-server";
+import { mapSessionToAppUser } from "@/lib/auth/map-session-user";
+import { getShellNotificationsForUser } from "@/lib/server/notifications-data";
 import { QueryProvider } from "@/lib/react-query";
 import "./globals.css";
 import { ThemeProvider } from "@/components/providers/ThemeProvider";
 import { ErrorBoundary } from "@/components/shared/ErrorBoundary";
+import { AuthSessionToasts } from "@/components/shared/AuthSessionToasts";
 import { SuppressApiErrorOverlay } from "@/components/shared/SuppressApiErrorOverlay";
+import { RouteWarmPrefetch } from "@/components/providers/RouteWarmPrefetch";
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -112,11 +118,17 @@ export const metadata = {
 const disableBrowserTranslate =
   process.env.NEXT_PUBLIC_DISABLE_BROWSER_TRANSLATE === "true";
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const session = await getSession();
+  const initialUser = session ? mapSessionToAppUser(session) : null;
+  const shellNotifications = session
+    ? await getShellNotificationsForUser(session.id)
+    : null;
+
   return (
     <html
       lang="en"
@@ -132,7 +144,16 @@ export default function RootLayout({
       >
         <ErrorBoundary>
           <QueryProvider>
-            <AuthProvider>
+            <AuthProvider initialUser={initialUser}>
+              <ShellSsrProvider
+                value={
+                  shellNotifications ?? {
+                    initialNotifications: undefined,
+                    initialUnreadCount: undefined,
+                  }
+                }
+              >
+              <RouteWarmPrefetch />
               <SuppressApiErrorOverlay />
               <ThemeProvider
                 attribute="class"
@@ -146,7 +167,9 @@ export default function RootLayout({
                   </KeyboardShortcutsProvider>
                 </TooltipProvider>
               </ThemeProvider>
+              <AuthSessionToasts />
               <Toaster />
+              </ShellSsrProvider>
             </AuthProvider>
           </QueryProvider>
         </ErrorBoundary>

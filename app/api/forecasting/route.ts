@@ -53,7 +53,7 @@ Provide brief, professional insights focusing on immediate actions.`;
     const response = await createChatCompletion(
       [{ role: "user", content: prompt }],
       {
-        model: "openai/gpt-3.5-turbo",
+        model: "openai/gpt-2.5-turbo",
         max_tokens: LLM_INSIGHTS_MAX_TOKENS,
       },
     );

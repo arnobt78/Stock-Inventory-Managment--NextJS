@@ -1,15 +1,36 @@
-import { redirect } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { getSession } from "@/lib/auth-server";
+import { getProductDetailForPage } from "@/lib/server/product-detail-data";
+import {
+  getReviewsForProductPage,
+  getReviewEligibilityForProduct,
+} from "@/lib/server/product-reviews-detail-data";
 import ProductDetailPage from "@/components/Pages/ProductDetailPage";
+import type { Product } from "@/types";
 
-/**
- * Admin product detail — same ProductDetailPage under admin layout.
- * Back button will go to previous page (e.g. /admin/products or /admin/supplier-portal).
- */
-export default async function AdminProductDetailPage() {
+type Props = { params: Promise<{ id: string }> };
+
+/** REQ-0025 — blocking SSR detail prefetch (no Suspense shell flash). */
+export const dynamic = "force-dynamic";
+
+export default async function AdminProductDetailPage({ params }: Props) {
   const user = await getSession();
-  if (!user) {
-    redirect("/login");
-  }
-  return <ProductDetailPage embedInAdmin />;
+  if (!user) redirect("/login");
+  const { id } = await params;
+
+  const [initialProduct, initialReviews, initialEligibility] = await Promise.all([
+    getProductDetailForPage({ id: user.id, role: user.role }, id),
+    getReviewsForProductPage(id, "all"),
+    getReviewEligibilityForProduct(user.id, id),
+  ]);
+  if (!initialProduct) notFound();
+
+  return (
+    <ProductDetailPage
+      embedInAdmin
+      initialProduct={initialProduct as unknown as Product}
+      initialReviews={initialReviews}
+      initialEligibility={initialEligibility}
+    />
+  );
 }

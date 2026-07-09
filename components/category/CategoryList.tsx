@@ -12,8 +12,10 @@ import CategoryFilters from "./CategoryFilters";
 import AddCategoryDialog from "./CategoryDialog";
 import { StatisticsCard } from "@/components/home/StatisticsCard";
 import { Package, DollarSign, Truck, FolderTree } from "lucide-react";
+import { PageSectionHeader } from "@/components/shared";
 import { Category } from "@/types";
 import type { CategoryForHome } from "@/lib/server/home-data";
+import type { DashboardStats } from "@/types";
 
 const formatCurrency = (value: number) =>
   `$${value.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
@@ -29,21 +31,24 @@ const CategoryTable = dynamic(
 export type CategoryListProps = {
   /** SSR-passed categories for first-render hydration (REQ-0021) */
   initialCategories?: Category[] | CategoryForHome[];
+  /** SSR dashboard stats for /categories stat cards (REQ-0025 P2) */
+  initialStats?: DashboardStats;
 };
 
 const CategoryList = React.memo(function CategoryList({
   initialCategories,
+  initialStats,
 }: CategoryListProps = {}) {
   const pathname = usePathname();
   const categoriesQuery = useCategories(initialCategories);
-  const dashboardQuery = useDashboard();
+  const dashboardQuery = useDashboard(initialStats);
   const allCategories = categoriesQuery.data ?? [];
   const isUserCategoriesPage = pathname === "/categories";
   const categoriesPageStats = isUserCategoriesPage
     ? (dashboardQuery.data ?? null)
     : null;
   const cardsDataLoading = isUserCategoriesPage
-    ? isDataSlotLoading(dashboardQuery)
+    ? isDataSlotLoading(dashboardQuery, initialStats)
     : false;
   const tableDataLoading = isDataSlotLoading(
     categoriesQuery,
@@ -75,16 +80,14 @@ const CategoryList = React.memo(function CategoryList({
 
   return (
     <div className="flex flex-col poppins">
-      <div className="pb-6 flex flex-col items-start text-left">
-        <h2 className="text-lg sm:text-xl font-semibold text-gray-700 dark:text-white ">
-          Category Management
-        </h2>
-        <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">
-          Organize your inventory with a comprehensive category system. Create,
-          manage, and maintain product categories to streamline your inventory
-          organization and improve product discoverability.
-        </p>
-      </div>
+      <PageSectionHeader
+        as="h2"
+        icon={FolderTree}
+        tone="amber"
+        className="pb-6"
+        title="Category Management"
+        description="Organize your inventory with a comprehensive category system. Create, manage, and maintain product categories to streamline your inventory organization and improve product discoverability."
+      />
 
       {isUserCategoriesPage && (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2 items-stretch pb-6">

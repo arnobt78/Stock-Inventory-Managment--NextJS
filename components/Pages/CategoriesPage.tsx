@@ -11,9 +11,11 @@ import CategoryList from "@/components/category/CategoryList";
 import FloatingActionButtons from "@/components/shared/FloatingActionButtons";
 import { PageContentWrapper } from "@/components/shared";
 import type { CategoryForHome } from "@/lib/server/home-data";
+import type { DashboardStats } from "@/types";
 
 export type CategoriesPageProps = {
   initialCategories?: CategoryForHome[];
+  initialStats?: DashboardStats;
 };
 
 /**
@@ -22,11 +24,15 @@ export type CategoriesPageProps = {
  */
 export default function CategoriesPage({
   initialCategories,
+  initialStats,
 }: CategoriesPageProps = {}) {
   return (
     <Navbar>
       <PageContentWrapper>
-        <CategoryList initialCategories={initialCategories} />
+        <CategoryList
+          initialCategories={initialCategories}
+          initialStats={initialStats}
+        />
         <FloatingActionButtons variant="categories" />
       </PageContentWrapper>
     </Navbar>

@@ -17,7 +17,7 @@ import {
   Package,
   Users,
   Truck,
-  Warehouse,
+  Warehouse as WarehouseIcon,
   TrendingUp,
   Search,
   Eye,
@@ -33,84 +33,75 @@ import {
   useCategories,
   useUsers,
 } from "@/hooks/queries";
+import { cn } from "@/lib/utils";
 import { isAnyDataSlotLoading, isDataSlotLoading } from "@/lib/react-query";
 import { useAuth } from "@/contexts";
 import { PageContentWrapper } from "@/components/shared";
 import { ClientCurrency, ClientCompactDateTime } from "@/components/shared";
+import { formatStableCurrency } from "@/lib/format";
 import { StatisticsCard } from "@/components/home/StatisticsCard";
 import { TableBodyPulseRows } from "@/components/ui/table-data-skeleton";
-import { Badge } from "@/components/ui/badge";
-import { formatStableCurrency } from "@/lib/format";
-import { cn } from "@/lib/utils";
-import type { Order } from "@/types";
+import { OrderStatusBadge, PaymentStatusBadge } from "@/lib/ui/semantic-badges";
+import type { UserForAdmin } from "@/types";
+import type {
+  ProductForHome,
+  CategoryForHome,
+  SupplierForHome,
+} from "@/lib/server/home-data";
+import type { OrderForPage } from "@/lib/server/orders-data";
+import type { WarehouseForPage } from "@/lib/server/warehouses-data";
+import type { InvoiceForPage } from "@/lib/server/invoices-data";
 
-function getStatusBadgeClass(status: string): string {
-  const s = (status || "").toLowerCase();
-  switch (s) {
-    case "pending":
-      return "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300";
-    case "confirmed":
-      return "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300";
-    case "processing":
-      return "bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300";
-    case "shipped":
-      return "bg-indigo-100 text-indigo-800 dark:bg-indigo-900/30 dark:text-indigo-300";
-    case "delivered":
-      return "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300";
-    case "cancelled":
-      return "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300";
-    default:
-      return "bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-300";
-  }
-}
+export type AdminMyActivityContentProps = {
+  initialOrders?: OrderForPage[];
+  initialProducts?: ProductForHome[];
+  initialSuppliers?: SupplierForHome[];
+  initialWarehouses?: WarehouseForPage[];
+  initialInvoices?: InvoiceForPage[];
+  initialCategories?: CategoryForHome[];
+  initialUsers?: UserForAdmin[];
+};
 
-function getPaymentBadgeClass(status: string): string {
-  const s = (status || "").toLowerCase();
-  switch (s) {
-    case "paid":
-      return "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300";
-    case "unpaid":
-      return "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300";
-    case "partial":
-      return "bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-300";
-    case "refunded":
-      return "bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-300";
-    default:
-      return "bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-300";
-  }
-}
-
-export default function AdminMyActivityContent() {
+/** REQ-0025 — SSR initialData via props (blocking prefetch in page.tsx). */
+export default function AdminMyActivityContent({
+  initialOrders,
+  initialProducts,
+  initialSuppliers,
+  initialWarehouses,
+  initialInvoices,
+  initialCategories,
+  initialUsers,
+}: AdminMyActivityContentProps = {}) {
   const [searchTerm, setSearchTerm] = useState("");
   const { user: authUser } = useAuth();
 
-  const ordersQuery = useOrders();
-  const productsQuery = useProducts();
-  const suppliersQuery = useSuppliers();
-  const warehousesQuery = useWarehouses();
-  const invoicesQuery = useInvoices();
-  const categoriesQuery = useCategories();
-  const usersQuery = useUsers();
+  const ordersQuery = useOrders(initialOrders);
+  const productsQuery = useProducts(initialProducts);
+  const suppliersQuery = useSuppliers(initialSuppliers);
+  const warehousesQuery = useWarehouses(initialWarehouses);
+  const invoicesQuery = useInvoices(undefined, initialInvoices);
+  const categoriesQuery = useCategories(initialCategories);
+  const usersQuery = useUsers(initialUsers);
 
-  const orders = ordersQuery.data ?? [];
-  const products = productsQuery.data ?? [];
-  const suppliers = suppliersQuery.data ?? [];
-  const warehouses = warehousesQuery.data ?? [];
-  const invoices = invoicesQuery.data ?? [];
-  const categories = categoriesQuery.data ?? [];
-  const users = usersQuery.data ?? [];
+  const orders = ordersQuery.data ?? initialOrders ?? [];
+  const products = productsQuery.data ?? initialProducts ?? [];
+  const suppliers = suppliersQuery.data ?? initialSuppliers ?? [];
+  const warehouses = warehousesQuery.data ?? initialWarehouses ?? [];
+  const invoices = invoicesQuery.data ?? initialInvoices ?? [];
+  const categories = categoriesQuery.data ?? initialCategories ?? [];
+  const users = usersQuery.data ?? initialUsers ?? [];
 
   // REQ-0021: shell-first — headers/cards stay visible; values pulse
   const cardsDataLoading = isAnyDataSlotLoading([
-    { query: ordersQuery },
-    { query: productsQuery },
-    { query: suppliersQuery },
-    { query: warehousesQuery },
-    { query: invoicesQuery },
-    { query: categoriesQuery },
-    { query: usersQuery },
+    { query: ordersQuery, serverInitial: initialOrders },
+    { query: productsQuery, serverInitial: initialProducts },
+    { query: suppliersQuery, serverInitial: initialSuppliers },
+    { query: warehousesQuery, serverInitial: initialWarehouses },
+    { query: invoicesQuery, serverInitial: initialInvoices },
+    { query: categoriesQuery, serverInitial: initialCategories },
+    { query: usersQuery, serverInitial: initialUsers },
   ]);
-  const ordersTableLoading = isDataSlotLoading(ordersQuery);
+  const ordersTableLoading = isDataSlotLoading(ordersQuery, initialOrders);
 
   const stats = useMemo(() => {
     const totalOrders = orders.length;
@@ -261,7 +252,7 @@ export default function AdminMyActivityContent() {
     <PageContentWrapper>
       <div className="space-y-4">
         <div className="flex flex-col items-start text-left ">
-          <h1 className="text-lg sm:text-xl font-semibold text-gray-700 dark:text-white ">
+          <h1 className="text-lg sm:text-xl font-medium text-gray-700 dark:text-white ">
             My Activity (self-only as user)
           </h1>
           <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">
@@ -375,7 +366,7 @@ export default function AdminMyActivityContent() {
             title="Total Warehouses"
             value={stats.totalWarehouses}
             description="Storage locations"
-            icon={Warehouse}
+            icon={WarehouseIcon}
             variant="blue"
             valueLoading={cardsDataLoading}
             badgeValuesLoading={cardsDataLoading}
@@ -437,12 +428,12 @@ export default function AdminMyActivityContent() {
             "rounded-[28px] border border-teal-400/30 dark:border-teal-400/30",
             "bg-gradient-to-br from-teal-500/25 via-teal-500/10 to-teal-500/5 dark:from-teal-500/25 dark:via-teal-500/10 dark:to-teal-500/5",
             "shadow-[0_30px_80px_rgba(20,184,166,0.35)] dark:shadow-[0_30px_80px_rgba(20,184,166,0.25)]",
-            "p-2 sm:p-4 backdrop-blur-sm overflow-hidden",
+            "p-2 sm:p-4 backdrop-blur-md overflow-hidden",
           )}
         >
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-4">
             <div>
-              <h2 className="text-md sm:text-lg font-semibold text-gray-700 dark:text-white">
+              <h2 className="text-md sm:text-lg font-medium text-gray-700 dark:text-white">
                 Recent Orders
               </h2>
               <p className="text-sm text-gray-600 dark:text-gray-400">
@@ -458,7 +449,7 @@ export default function AdminMyActivityContent() {
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className={cn(
                   "h-10 pl-9 pr-4 w-full rounded-[28px]",
-                  "bg-white/10 dark:bg-white/5 backdrop-blur-sm",
+                  "bg-white/10 dark:bg-white/5 backdrop-blur-md",
                   "border border-sky-400/30 dark:border-white/20",
                   "text-gray-700 dark:text-white placeholder:text-gray-500 dark:placeholder:text-white/40",
                   "focus-visible:border-sky-400 focus-visible:ring-sky-500/50",
@@ -516,32 +507,12 @@ export default function AdminMyActivityContent() {
                         {order.id.slice(0, 8)}…
                       </TableCell>
                       <TableCell>
-                        <Badge
-                          variant="secondary"
-                          className={cn(
-                            "text-xs font-medium",
-                            getStatusBadgeClass(order.status ?? ""),
-                          )}
-                        >
-                          {order.status
-                            ? order.status.charAt(0).toUpperCase() +
-                              order.status.slice(1).toLowerCase()
-                            : "—"}
-                        </Badge>
+                        <OrderStatusBadge status={order.status ?? ""} />
                       </TableCell>
                       <TableCell>
-                        <Badge
-                          variant="secondary"
-                          className={cn(
-                            "text-xs font-medium",
-                            getPaymentBadgeClass(order.paymentStatus ?? ""),
-                          )}
-                        >
-                          {order.paymentStatus
-                            ? order.paymentStatus.charAt(0).toUpperCase() +
-                              order.paymentStatus.slice(1).toLowerCase()
-                            : "—"}
-                        </Badge>
+                        <PaymentStatusBadge
+                          status={order.paymentStatus ?? ""}
+                        />
                       </TableCell>
                       <TableCell className="text-gray-800 dark:text-gray-200">
                         <ClientCurrency value={Number(order.total)} />

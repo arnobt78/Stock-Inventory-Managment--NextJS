@@ -1,24 +1,24 @@
-import { Suspense } from "react";
 import { redirect } from "next/navigation";
 import { getSession } from "@/lib/auth-server";
 import SuppliersPage from "@/components/Pages/SuppliersPage";
 import { getSuppliersForUser } from "@/lib/server/home-data";
+import { prefetchListPageStats } from "@/lib/server/list-page-stats";
 
-/** REQ-0021 — session shell + Suspense-streamed suppliers */
+/** REQ-0025 — blocking SSR prefetch (no Suspense shell flash). */
+export const dynamic = "force-dynamic";
+
 export default async function SuppliersRoute() {
   const user = await getSession();
-  if (!user) {
-    redirect("/login");
-  }
+  if (!user) redirect("/login");
 
+  const [initialSuppliers, listStats] = await Promise.all([
+    getSuppliersForUser(user.id),
+    prefetchListPageStats(user),
+  ]);
   return (
-    <Suspense fallback={<SuppliersPage />}>
-      <SuppliersPageWithData userId={user.id} />
-    </Suspense>
+    <SuppliersPage
+      initialSuppliers={initialSuppliers}
+      initialStats={listStats.initialStats}
+    />
   );
-}
-
-async function SuppliersPageWithData({ userId }: { userId: string }) {
-  const initialSuppliers = await getSuppliersForUser(userId);
-  return <SuppliersPage initialSuppliers={initialSuppliers} />;
 }

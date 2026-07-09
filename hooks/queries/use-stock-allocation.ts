@@ -4,7 +4,7 @@
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { apiClient, getErrorMessage } from "@/lib/api";
-import { invalidateAfterStockChange, queryKeys } from "@/lib/react-query";
+import { invalidateAfterStockChange, queryKeys, withInitialData } from "@/lib/react-query";
 import { useToast } from "@/hooks/use-toast";
 import type {
   StockAllocation,
@@ -41,7 +41,10 @@ export function useWarehouseStockSummary() {
 /**
  * Get stock allocations for a specific warehouse
  */
-export function useStockByWarehouse(warehouseId: string) {
+export function useStockByWarehouse(
+  warehouseId: string,
+  initialData?: StockAllocation[],
+) {
   return useQuery({
     queryKey: queryKeys.stockAllocation.byWarehouse(warehouseId),
     queryFn: async () => {
@@ -50,6 +53,7 @@ export function useStockByWarehouse(warehouseId: string) {
       return response.data;
     },
     enabled: !!warehouseId,
+    ...withInitialData(initialData),
   });
 }
 

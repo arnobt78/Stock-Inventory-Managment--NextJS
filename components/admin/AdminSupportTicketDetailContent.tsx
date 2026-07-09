@@ -47,14 +47,24 @@ import {
   useSupportTicketReplies,
   useCreateSupportTicketReply,
 } from "@/hooks/queries";
-import { DeferredSelectGate, PageContentWrapper } from "@/components/shared";
+import {
+  DeferredSelectGate,
+  PageContentWrapper,
+  DataSlotPulse,
+} from "@/components/shared";
+import { isDataSlotLoading } from "@/lib/react-query";
 import { format } from "date-fns";
 import type {
   SupportTicket,
   SupportTicketStatus,
   SupportTicketPriority,
+  SupportTicketReply,
 } from "@/types";
 import { cn } from "@/lib/utils";
+import {
+  TicketStatusBadge,
+  TicketPriorityBadge,
+} from "@/lib/ui/semantic-badges";
 
 const STATUS_OPTIONS: { value: SupportTicketStatus; label: string }[] = [
   { value: "open", label: "Open" },
@@ -70,19 +80,6 @@ const PRIORITY_OPTIONS: { value: SupportTicketPriority; label: string }[] = [
   { value: "urgent", label: "Urgent" },
 ];
 
-function getStatusVariant(
-  status: string,
-): "default" | "secondary" | "destructive" | "outline" {
-  switch (status) {
-    case "resolved":
-      return "secondary";
-    case "closed":
-      return "secondary";
-    default:
-      return "outline";
-  }
-}
-
 const variantConfig = {
   border: "border-violet-400/20",
   gradient:
@@ -91,45 +88,28 @@ const variantConfig = {
     "shadow-[0_15px_40px_rgba(139,92,246,0.15)] dark:shadow-[0_15px_40px_rgba(139,92,246,0.1)]",
 };
 
-function statusBadgeColor(status: string): string {
-  switch (status) {
-    case "open":
-      return "bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300 border-amber-300/30 shadow-[0_4px_12px_rgba(245,158,11,0.2)]";
-    case "in_progress":
-      return "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300 border-blue-300/30 shadow-[0_4px_12px_rgba(59,130,246,0.2)]";
-    case "resolved":
-      return "bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-300 border-emerald-300/30 shadow-[0_4px_12px_rgba(16,185,129,0.2)]";
-    case "closed":
-      return "bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300 border-gray-300/30 shadow-[0_4px_12px_rgba(107,114,128,0.2)]";
-    default:
-      return "bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300 border-gray-300/30";
-  }
-}
+export type AdminSupportTicketDetailContentProps = {
+  initialTicket?: SupportTicket;
+  /** SSR replies for first paint (REQ-0025 P2) */
+  initialReplies?: SupportTicketReply[];
+};
 
-function priorityBadgeColor(priority: string): string {
-  switch (priority) {
-    case "urgent":
-      return "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300 border-red-300/30 shadow-[0_4px_12px_rgba(239,68,68,0.2)]";
-    case "high":
-      return "bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-300 border-orange-300/30 shadow-[0_4px_12px_rgba(249,115,22,0.2)]";
-    case "medium":
-      return "bg-sky-100 text-sky-800 dark:bg-sky-900/30 dark:text-sky-300 border-sky-300/30 shadow-[0_4px_12px_rgba(2,132,199,0.2)]";
-    case "low":
-      return "bg-slate-100 text-slate-800 dark:bg-slate-900/30 dark:text-slate-300 border-slate-300/30 shadow-[0_4px_12px_rgba(100,116,139,0.2)]";
-    default:
-      return "bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300 border-gray-300/30";
-  }
-}
-
-export default function AdminSupportTicketDetailContent() {
+export default function AdminSupportTicketDetailContent({
+  initialTicket,
+  initialReplies,
+}: AdminSupportTicketDetailContentProps = {}) {
   const params = useParams();
   const router = useRouter();
   const id = params?.id as string;
-  const { data: ticket, isLoading, isError, error } = useSupportTicket(id);
+  const ticketQuery = useSupportTicket(id, initialTicket);
+  const ticket = ticketQuery.data;
+  const dataLoading = isDataSlotLoading(ticketQuery, initialTicket);
+  const { isError, error } = ticketQuery;
   const updateMutation = useUpdateSupportTicket();
   const deleteMutation = useDeleteSupportTicket();
-  const { data: replies = [], isLoading: repliesLoading } =
-    useSupportTicketReplies(id);
+  const repliesQuery = useSupportTicketReplies(id, initialReplies);
+  const replies = repliesQuery.data ?? initialReplies ?? [];
+  const repliesLoading = isDataSlotLoading(repliesQuery, initialReplies);
   const createReply = useCreateSupportTicketReply(id);
 
   const [notes, setNotes] = useState("");
@@ -187,7 +167,7 @@ export default function AdminSupportTicketDetailContent() {
     );
   };
 
-  if (isError || (!isLoading && !ticket)) {
+  if (isError) {
     return (
       <PageContentWrapper>
         <div className="space-y-4">
@@ -209,20 +189,33 @@ export default function AdminSupportTicketDetailContent() {
     );
   }
 
-  if (isLoading || !ticket) {
+  if (!dataLoading && !ticket) {
     return (
       <PageContentWrapper>
-        <div className="flex items-center justify-center min-h-[200px]">
-          <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+        <div className="space-y-4">
+          <Button variant="ghost" size="sm" asChild>
+            <Link href="/admin/support-tickets" className="gap-2">
+              <ArrowLeft className="h-4 w-4" />
+              Back to Support Tickets
+            </Link>
+          </Button>
+          <Card>
+            <CardContent className="py-8 text-center">
+              <p className="text-muted-foreground">
+                The ticket you are looking for does not exist or was removed.
+              </p>
+            </CardContent>
+          </Card>
         </div>
       </PageContentWrapper>
     );
   }
 
-  const t = ticket as SupportTicket;
+  const t = ticket as SupportTicket | undefined;
   const isUpdating = updateMutation.isPending;
   const isDeleting = deleteMutation.isPending;
-  const notesValue = notesTouched ? notes : (t.notes ?? "");
+  const notesValue = notesTouched ? notes : (t?.notes ?? "");
+  const actionsDisabled = dataLoading || !ticket;
 
   return (
     <PageContentWrapper>
@@ -234,16 +227,22 @@ export default function AdminSupportTicketDetailContent() {
             </Link>
           </Button>
           <div>
-            <h1 className="text-lg sm:text-xl font-semibold text-foreground">
+            <h1 className="text-lg sm:text-xl font-medium text-foreground">
               Support Ticket Details
             </h1>
-            <p className="text-sm text-muted-foreground">{t.subject}</p>
+            <p className="text-sm text-muted-foreground">
+              {dataLoading ? (
+                <DataSlotPulse variant="text-md" className="w-64" />
+              ) : (
+                t!.subject
+              )}
+            </p>
           </div>
         </div>
 
         <Card
           className={cn(
-            "rounded-[20px] border backdrop-blur-sm",
+            "rounded-[20px] border backdrop-blur-md",
             variantConfig.border,
             variantConfig.gradient,
             variantConfig.shadow,
@@ -252,59 +251,75 @@ export default function AdminSupportTicketDetailContent() {
           <CardContent className="p-2 sm:p-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-2 sm:gap-4">
               <div>
-                <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
+                <h2 className="text-lg font-medium mb-4 flex items-center gap-2">
                   <MessageSquare className="h-5 w-5" />
                   Ticket Information
                 </h2>
                 <dl className="space-y-2 text-sm">
-                  {t.ticketNumber && (
+                  {!dataLoading && t!.ticketNumber && (
                     <div>
                       <dt className="text-muted-foreground">Ticket number</dt>
                       <dd className="font-mono text-xs text-foreground">
-                        {t.ticketNumber}
+                        {t!.ticketNumber}
                       </dd>
                     </div>
                   )}
                   <div>
                     <dt className="text-muted-foreground">Subject</dt>
-                    <dd className="font-medium">{t.subject}</dd>
+                    <dd className="font-medium">
+                      {dataLoading ? (
+                        <DataSlotPulse variant="text-md" className="w-48" />
+                      ) : (
+                        t!.subject
+                      )}
+                    </dd>
                   </div>
                   <div>
                     <dt className="text-muted-foreground">Creator</dt>
                     <dd className="flex flex-col gap-0.5">
-                      <Link
-                        href={`/admin/user-management/${t.userId}`}
-                        className="font-medium text-sky-600 dark:text-sky-400 hover:text-sky-500 dark:hover:text-sky-300 inline-flex items-center gap-1"
-                      >
-                        <User className="h-3.5 w-3.5" />
-                        {t.creatorName ?? t.userId}
-                      </Link>
-                      {t.creatorEmail && (
-                        <span className="text-muted-foreground text-xs inline-flex items-center gap-1">
-                          <Mail className="h-3 w-3" />
-                          {t.creatorEmail}
-                        </span>
+                      {dataLoading ? (
+                        <DataSlotPulse variant="text-md" className="w-36" />
+                      ) : (
+                        <>
+                          <Link
+                            href={`/admin/user-management/${t!.userId}`}
+                            className="font-medium text-sky-600 dark:text-sky-400 hover:text-sky-500 dark:hover:text-sky-300 inline-flex items-center gap-1"
+                          >
+                            <User className="h-3.5 w-3.5" />
+                            {t!.creatorName ?? t!.userId}
+                          </Link>
+                          {t!.creatorEmail && (
+                            <span className="text-muted-foreground text-xs inline-flex items-center gap-1">
+                              <Mail className="h-3 w-3" />
+                              {t!.creatorEmail}
+                            </span>
+                          )}
+                          <span className="font-mono text-xs text-muted-foreground">
+                            ID: {t!.userId}
+                          </span>
+                        </>
                       )}
-                      <span className="font-mono text-xs text-muted-foreground">
-                        ID: {t.userId}
-                      </span>
                     </dd>
                   </div>
                   <div>
                     <dt className="text-muted-foreground">Created</dt>
                     <dd>
-                      {format(
-                        new Date(t.createdAt),
-                        "MMMM d, yyyy 'at' h:mm a",
+                      {dataLoading ? (
+                        <DataSlotPulse variant="date" />
+                      ) : (
+                        format(
+                          new Date(t!.createdAt),
+                          "MMMM d, yyyy 'at' h:mm a",
+                        )
                       )}
                     </dd>
                   </div>
-                  {t.updatedAt && (
+                  {!dataLoading && t!.updatedAt && (
                     <div>
                       <dt className="text-muted-foreground">Updated</dt>
                       <dd>
                         {format(
-                          new Date(t.updatedAt),
+                          new Date(t!.updatedAt),
                           "MMMM d, yyyy 'at' h:mm a",
                         )}
                       </dd>
@@ -313,108 +328,127 @@ export default function AdminSupportTicketDetailContent() {
                   <div>
                     <dt className="text-muted-foreground">Status</dt>
                     <dd className="mt-1 flex flex-wrap items-center gap-2">
-                      <span
-                        className={cn(
-                          "inline-flex rounded-full border px-2.5 py-0.5 text-xs font-medium",
-                          statusBadgeColor(t.status),
-                        )}
-                      >
-                        {t.status.replace("_", " ")}
-                      </span>
-                      <DeferredSelectGate
-                        placeholder={
-                          <div
-                            className="w-[160px] h-9 rounded-md border border-border flex items-center px-2 text-sm"
-                            aria-hidden
-                          >
-                            {STATUS_OPTIONS.find((o) => o.value === t.status)
-                              ?.label ?? t.status}
-                          </div>
-                        }
-                      >
-                        {({ selectRemountKey }) => (
-                          <Select
-                            key={selectRemountKey}
-                            value={t.status}
-                            onValueChange={(v) =>
-                              handleStatusChange(v as SupportTicketStatus)
-                            }
-                            disabled={isUpdating}
-                          >
-                            <SelectTrigger
-                              className={cn(
-                                "w-[160px]",
-                                getStatusVariant(t.status) === "destructive" &&
-                                  "border-destructive text-destructive",
-                              )}
+                      {dataLoading ? (
+                        <DataSlotPulse
+                          variant="badge"
+                          className="h-6 w-20 rounded-full"
+                        />
+                      ) : (
+                        <TicketStatusBadge
+                          status={t!.status}
+                          size="detail"
+                        />
+                      )}
+                      {!dataLoading && (
+                        <DeferredSelectGate
+                          placeholder={
+                            <div
+                              className="w-[160px] h-9 rounded-md border border-border flex items-center px-2 text-sm"
+                              aria-hidden
                             >
-                              <SelectValue />
-                            </SelectTrigger>
-                            <SelectContent>
-                              {STATUS_OPTIONS.map((opt) => (
-                                <SelectItem key={opt.value} value={opt.value}>
-                                  {opt.label}
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                        )}
-                      </DeferredSelectGate>
+                              {STATUS_OPTIONS.find((o) => o.value === t!.status)
+                                ?.label ?? t!.status}
+                            </div>
+                          }
+                        >
+                          {({ selectRemountKey }) => (
+                            <Select
+                              key={selectRemountKey}
+                              value={t!.status}
+                              onValueChange={(v) =>
+                                handleStatusChange(v as SupportTicketStatus)
+                              }
+                              disabled={isUpdating || actionsDisabled}
+                            >
+                              <SelectTrigger className="w-[160px]">
+                                <SelectValue />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {STATUS_OPTIONS.map((opt) => (
+                                  <SelectItem key={opt.value} value={opt.value}>
+                                    <TicketStatusBadge
+                                      status={opt.value}
+                                      label={opt.label}
+                                      size="detail"
+                                    />
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          )}
+                        </DeferredSelectGate>
+                      )}
                     </dd>
                   </div>
                   <div>
                     <dt className="text-muted-foreground">Priority</dt>
                     <dd className="mt-1 flex flex-wrap items-center gap-2">
-                      <span
-                        className={cn(
-                          "inline-flex rounded-full border px-2.5 py-0.5 text-xs font-medium",
-                          priorityBadgeColor(t.priority),
-                        )}
-                      >
-                        {t.priority}
-                      </span>
-                      <DeferredSelectGate
-                        placeholder={
-                          <div
-                            className="w-[140px] h-9 rounded-md border border-border flex items-center px-2 text-sm"
-                            aria-hidden
-                          >
-                            {PRIORITY_OPTIONS.find(
-                              (o) => o.value === t.priority,
-                            )?.label ?? t.priority}
-                          </div>
-                        }
-                      >
-                        {({ selectRemountKey }) => (
-                          <Select
-                            key={selectRemountKey}
-                            value={t.priority}
-                            onValueChange={(v) =>
-                              handlePriorityChange(v as SupportTicketPriority)
-                            }
-                            disabled={isUpdating}
-                          >
-                            <SelectTrigger className="w-[140px]">
-                              <SelectValue />
-                            </SelectTrigger>
-                            <SelectContent>
-                              {PRIORITY_OPTIONS.map((opt) => (
-                                <SelectItem key={opt.value} value={opt.value}>
-                                  {opt.label}
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                        )}
-                      </DeferredSelectGate>
+                      {dataLoading ? (
+                        <DataSlotPulse
+                          variant="badge"
+                          className="h-6 w-16 rounded-full"
+                        />
+                      ) : (
+                        <TicketPriorityBadge
+                          status={t!.priority}
+                          size="detail"
+                        />
+                      )}
+                      {!dataLoading && (
+                        <DeferredSelectGate
+                          placeholder={
+                            <div
+                              className="w-[140px] h-9 rounded-md border border-border flex items-center px-2 text-sm"
+                              aria-hidden
+                            >
+                              {PRIORITY_OPTIONS.find(
+                                (o) => o.value === t!.priority,
+                              )?.label ?? t!.priority}
+                            </div>
+                          }
+                        >
+                          {({ selectRemountKey }) => (
+                            <Select
+                              key={selectRemountKey}
+                              value={t!.priority}
+                              onValueChange={(v) =>
+                                handlePriorityChange(v as SupportTicketPriority)
+                              }
+                              disabled={isUpdating || actionsDisabled}
+                            >
+                              <SelectTrigger className="w-[140px]">
+                                <SelectValue />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {PRIORITY_OPTIONS.map((opt) => (
+                                  <SelectItem key={opt.value} value={opt.value}>
+                                    <TicketPriorityBadge
+                                      status={opt.value}
+                                      label={opt.label}
+                                      size="detail"
+                                    />
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          )}
+                        </DeferredSelectGate>
+                      )}
                     </dd>
                   </div>
                 </dl>
               </div>
               <div>
-                <h2 className="text-lg font-semibold mb-4">Description</h2>
+                <h2 className="text-lg font-medium mb-4">Description</h2>
                 <p className="text-sm text-muted-foreground whitespace-pre-wrap rounded-lg border border-border/50 bg-muted/30 p-4">
-                  {t.description}
+                  {dataLoading ? (
+                    <DataSlotPulse
+                      variant="text-md"
+                      className="w-full min-h-[4rem]"
+                    />
+                  ) : (
+                    t!.description
+                  )}
                 </p>
               </div>
             </div>
@@ -423,7 +457,7 @@ export default function AdminSupportTicketDetailContent() {
 
         <Card
           className={cn(
-            "rounded-[20px] border backdrop-blur-sm",
+            "rounded-[20px] border backdrop-blur-md",
             variantConfig.border,
             variantConfig.gradient,
             variantConfig.shadow,
@@ -438,7 +472,17 @@ export default function AdminSupportTicketDetailContent() {
           </CardHeader>
           <CardContent className="space-y-2">
             {repliesLoading ? (
-              <div className="h-16 rounded-xl bg-muted/30 animate-pulse" />
+              <ul className="space-y-2 mb-4">
+                {[1, 2].map((i) => (
+                  <li
+                    key={i}
+                    className="rounded-xl border border-border/50 bg-muted/20 p-4"
+                  >
+                    <DataSlotPulse variant="text-md" className="w-full mb-2" />
+                    <DataSlotPulse variant="text-sm" className="w-32" />
+                  </li>
+                ))}
+              </ul>
             ) : replies.length === 0 ? (
               <p className="text-sm text-muted-foreground py-2">
                 No replies yet. Add a reply below.
@@ -501,7 +545,7 @@ export default function AdminSupportTicketDetailContent() {
                 placeholder="Write a reply to the user..."
                 value={replyBody}
                 onChange={(e) => setReplyBody(e.target.value)}
-                disabled={createReply.isPending}
+                disabled={createReply.isPending || actionsDisabled}
                 className="min-h-[100px] rounded-xl resize-none"
               />
               <Button
@@ -524,7 +568,7 @@ export default function AdminSupportTicketDetailContent() {
 
         <Card
           className={cn(
-            "rounded-[20px] border backdrop-blur-sm",
+            "rounded-[20px] border backdrop-blur-md",
             variantConfig.border,
             variantConfig.gradient,
             variantConfig.shadow,
@@ -544,7 +588,7 @@ export default function AdminSupportTicketDetailContent() {
                 setNotes(e.target.value);
                 setNotesTouched(true);
               }}
-              disabled={isUpdating}
+              disabled={isUpdating || actionsDisabled}
               className="min-h-[100px] rounded-2xl resize-none"
             />
             {notesTouched && (
@@ -560,7 +604,7 @@ export default function AdminSupportTicketDetailContent() {
 
         <Card
           className={cn(
-            "rounded-[20px] border backdrop-blur-sm",
+            "rounded-[20px] border backdrop-blur-md",
             variantConfig.border,
             variantConfig.gradient,
             variantConfig.shadow,
@@ -577,7 +621,7 @@ export default function AdminSupportTicketDetailContent() {
               <AlertDialogTrigger asChild>
                 <Button
                   variant="destructive"
-                  disabled={isDeleting}
+                  disabled={isDeleting || actionsDisabled}
                   className="gap-2"
                 >
                   <Trash2 className="h-4 w-4" />
@@ -598,7 +642,7 @@ export default function AdminSupportTicketDetailContent() {
                   </AlertDialogCancel>
                   <AlertDialogAction
                     onClick={handleDelete}
-                    disabled={isDeleting}
+                    disabled={isDeleting || actionsDisabled}
                     className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
                   >
                     {isDeleting ? "Deleting..." : "Delete"}

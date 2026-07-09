@@ -41,7 +41,7 @@ export function useSupportTickets(
   });
 }
 
-export function useSupportTicket(id: string) {
+export function useSupportTicket(id: string, initialData?: SupportTicket) {
   return useQuery({
     queryKey: queryKeys.supportTickets.detail(id),
     queryFn: async () => {
@@ -49,6 +49,7 @@ export function useSupportTicket(id: string) {
       return response.data;
     },
     enabled: !!id,
+    ...withInitialData(initialData),
   });
 }
 
@@ -116,7 +117,10 @@ export function useUpdateSupportTicket() {
   });
 }
 
-export function useSupportTicketReplies(ticketId: string) {
+export function useSupportTicketReplies(
+  ticketId: string,
+  initialData?: SupportTicketReply[],
+) {
   return useQuery({
     queryKey: [...queryKeys.supportTickets.detail(ticketId), "replies"],
     queryFn: async () => {
@@ -124,6 +128,7 @@ export function useSupportTicketReplies(ticketId: string) {
       return response.data;
     },
     enabled: !!ticketId,
+    ...withInitialData(initialData),
   });
 }
 

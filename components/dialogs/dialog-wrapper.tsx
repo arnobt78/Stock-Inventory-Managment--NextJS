@@ -26,11 +26,10 @@ import * as DialogPrimitive from "@radix-ui/react-dialog";
 /**
  * Dialog Wrapper Props
  */
-export interface DialogWrapperProps
-  extends Omit<
-    React.ComponentPropsWithoutRef<typeof DialogPrimitive.Root>,
-    "children"
-  > {
+export interface DialogWrapperProps extends Omit<
+  React.ComponentPropsWithoutRef<typeof DialogPrimitive.Root>,
+  "children"
+> {
   /**
    * Dialog trigger element (button, link, etc.)
    */
@@ -104,8 +103,8 @@ export function DialogWrapper({
       {trigger && <DialogTrigger asChild>{trigger}</DialogTrigger>}
       <DialogContent
         className={cn(
-          "p-4 sm:p-7 sm:px-8 poppins max-h-[90vh] overflow-y-auto",
-          contentClassName
+          "p-2 sm:p-4 sm:px-8 poppins max-h-[90vh] overflow-y-auto",
+          contentClassName,
         )}
       >
         <DialogHeader>

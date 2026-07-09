@@ -176,7 +176,7 @@ export function StatisticsCard({
   return (
     <article
       className={cn(
-        "group rounded-[28px] border min-h-[210px] h-full flex flex-col p-2 sm:p-4 backdrop-blur-sm transition min-w-0 overflow-visible",
+        "group rounded-[28px] border min-h-[210px] h-full flex flex-col p-2 sm:p-4 backdrop-blur-md transition min-w-0 overflow-visible",
         config.border,
         config.gradient,
         config.shadow,
@@ -194,7 +194,7 @@ export function StatisticsCard({
             <Icon className="h-5 w-5 text-gray-700 dark:text-white" />
           </div>
         </div>
-        <p className="text-lg sm:text-xl font-semibold text-gray-700 dark:text-white">
+        <p className="text-lg sm:text-xl font-medium text-gray-700 dark:text-white">
           {displayValue}
         </p>
         {description && (
@@ -208,9 +208,9 @@ export function StatisticsCard({
               <Badge
                 key={index}
                 variant={badge.variant || "outline"}
-                className="text-xs border-gray-300/50 bg-gray-100/80 text-gray-800 backdrop-blur-sm shadow-[0_10px_30px_rgba(0,0,0,0.1)] dark:border-white/10 dark:bg-white/5 dark:text-white/80"
+                className="text-xs border-gray-300/50 bg-gray-100/80 text-gray-800 backdrop-blur-md shadow-[0_10px_30px_rgba(0,0,0,0.1)] dark:border-white/10 dark:bg-white/5 dark:text-white/80"
               >
-                <span className="font-medium">{badge.label}:</span>{" "}
+                <span className="font-normal">{badge.label}:</span>{" "}
                 <span className="ml-1">
                   {badgeValuesLoading ? (
                     <DataSlotPulse variant="badge" />

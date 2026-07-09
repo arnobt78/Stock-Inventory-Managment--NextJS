@@ -107,7 +107,7 @@ describe("createChatCompletion orchestrator", () => {
       );
 
     await createChatCompletion([{ role: "user", content: "hi" }], {
-      model: "openai/gpt-3.5-turbo",
+      model: "openai/gpt-2.5-turbo",
       max_tokens: 200,
     });
 

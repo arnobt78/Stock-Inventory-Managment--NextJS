@@ -1,15 +1,15 @@
 import { redirect } from "next/navigation";
 import { getSession } from "@/lib/auth-server";
+import { getEmailPreferencesForUser } from "@/lib/server/email-preferences-data";
 import EmailPreferencesPage from "@/components/Pages/EmailPreferencesPage";
 
-/**
- * Email Preferences route — server component.
- * If user is not logged in, redirect to login. Otherwise render EmailPreferencesPage.
- */
+/** REQ-0025 — blocking SSR prefetch (no Suspense shell flash). */
+export const dynamic = "force-dynamic";
+
 export default async function EmailPreferencesRoute() {
   const user = await getSession();
-  if (!user) {
-    redirect("/login");
-  }
-  return <EmailPreferencesPage />;
+  if (!user) redirect("/login");
+
+  const initialPreferences = await getEmailPreferencesForUser(user.id);
+  return <EmailPreferencesPage initialPreferences={initialPreferences} />;
 }

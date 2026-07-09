@@ -49,6 +49,7 @@ import {
   YAxis,
 } from "recharts";
 import { ResponsiveChartContainer } from "@/components/ui/responsive-chart-container";
+import { DeferredChartSection } from "@/components/ui/deferred-chart-section";
 import { useAuth } from "@/contexts";
 import Navbar from "@/components/layouts/Navbar";
 import PageWithSidebar from "@/components/layouts/PageWithSidebar";
@@ -79,7 +80,9 @@ export default function BusinessInsightPage({
 }: BusinessInsightPageProps = {}) {
   const productsQuery = useProducts(initialProducts as Product[] | undefined);
   const ordersQuery = useOrders(initialOrders as Order[] | undefined);
-  const allProducts = (productsQuery.data ?? initialProducts ?? []) as Product[];
+  const allProducts = (productsQuery.data ??
+    initialProducts ??
+    []) as Product[];
   const allOrders = (ordersQuery.data ?? initialOrders ?? []) as Order[];
   const productsLoading = isDataSlotLoading(productsQuery, initialProducts);
   const ordersLoading = isDataSlotLoading(ordersQuery, initialOrders);
@@ -808,7 +811,7 @@ export default function BusinessInsightPage({
           {/* Header */}
           <div className="pb-6 flex flex-col sm:flex-row items-start justify-between gap-2">
             <div className="flex flex-col">
-              <h1 className="text-lg sm:text-xl font-semibold text-gray-700 dark:text-white ">
+              <h1 className="text-lg sm:text-xl font-medium text-gray-700 dark:text-white ">
                 Product Inventory Business Insights
               </h1>
               <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">
@@ -828,7 +831,7 @@ export default function BusinessInsightPage({
 
           {/* Date Range Filter */}
           <div className="pb-6">
-            <div className="rounded-[16px] border border-violet-400/20 bg-gradient-to-r from-violet-500/10 via-violet-500/5 to-transparent p-4 backdrop-blur-sm shadow-[0_10px_30px_rgba(139,92,246,0.1)]">
+            <div className="rounded-[16px] border border-violet-400/20 bg-gradient-to-r from-violet-500/10 via-violet-500/5 to-transparent p-4 backdrop-blur-md shadow-[0_10px_30px_rgba(139,92,246,0.1)]">
               <div className="flex flex-col sm:flex-row sm:items-center gap-2">
                 <div className="flex items-center gap-2">
                   <div className="flex h-8 w-8 items-center justify-center rounded-lg border border-violet-300/30 bg-violet-100/50 dark:border-white/15 dark:bg-white/10">
@@ -856,7 +859,7 @@ export default function BusinessInsightPage({
                           startDate: e.target.value,
                         }))
                       }
-                      className="flex-1 sm:flex-none px-3 py-2 text-sm rounded-xl border border-gray-300/30 bg-white/50 dark:bg-white/5 dark:border-white/10 text-gray-700 dark:text-white backdrop-blur-sm focus:outline-none focus:ring-2 focus:ring-violet-400/50 focus:border-transparent transition"
+                      className="flex-1 sm:flex-none px-2 py-2 text-sm rounded-xl border border-gray-300/30 bg-white/50 dark:bg-white/5 dark:border-white/10 text-gray-700 dark:text-white backdrop-blur-md focus:outline-none focus:ring-2 focus:ring-violet-400/50 focus:border-transparent transition"
                       max={dateRange.endDate || undefined}
                     />
                   </div>
@@ -877,7 +880,7 @@ export default function BusinessInsightPage({
                           endDate: e.target.value,
                         }))
                       }
-                      className="flex-1 sm:flex-none px-3 py-2 text-sm rounded-xl border border-gray-300/30 bg-white/50 dark:bg-white/5 dark:border-white/10 text-gray-700 dark:text-white backdrop-blur-sm focus:outline-none focus:ring-2 focus:ring-violet-400/50 focus:border-transparent transition"
+                      className="flex-1 sm:flex-none px-2 py-2 text-sm rounded-xl border border-gray-300/30 bg-white/50 dark:bg-white/5 dark:border-white/10 text-gray-700 dark:text-white backdrop-blur-md focus:outline-none focus:ring-2 focus:ring-violet-400/50 focus:border-transparent transition"
                       min={dateRange.startDate || undefined}
                     />
                   </div>
@@ -969,9 +972,11 @@ export default function BusinessInsightPage({
                       icon={PieChartIcon}
                       variant="violet"
                     >
-                      {dataLoading ? (
-                        <DataSlotPulse variant="chart" className="min-h-[300px]" />
-                      ) : (
+                      <DeferredChartSection
+                        loading={dataLoading}
+                        hasData={analyticsData.categoryDistribution.length > 0}
+                        pulseClassName="min-h-[300px]"
+                      >
                         <ResponsiveChartContainer>
                           <PieChart>
                             <Pie
@@ -1014,7 +1019,7 @@ export default function BusinessInsightPage({
                             <Tooltip />
                           </PieChart>
                         </ResponsiveChartContainer>
-                      )}
+                      </DeferredChartSection>
                     </ChartCard>
 
                     <ChartCard
@@ -1022,9 +1027,11 @@ export default function BusinessInsightPage({
                       icon={TrendingUp}
                       variant="sky"
                     >
-                      {dataLoading ? (
-                        <DataSlotPulse variant="chart" className="min-h-[300px]" />
-                      ) : (
+                      <DeferredChartSection
+                        loading={dataLoading}
+                        hasData={analyticsData.monthlyTrend.length > 0}
+                        pulseClassName="min-h-[300px]"
+                      >
                         <ResponsiveChartContainer>
                           <AreaChart data={analyticsData.monthlyTrend}>
                             <CartesianGrid strokeDasharray="3 3" />
@@ -1039,7 +1046,7 @@ export default function BusinessInsightPage({
                             />
                           </AreaChart>
                         </ResponsiveChartContainer>
-                      )}
+                      </DeferredChartSection>
                     </ChartCard>
                   </div>
                   {!dataLoading && !ordersLoading && allOrders.length > 0 && (
@@ -1049,42 +1056,54 @@ export default function BusinessInsightPage({
                         icon={DollarSign}
                         variant="emerald"
                       >
-                        <ResponsiveChartContainer>
-                          <AreaChart data={orderTrendByMonth}>
-                            <CartesianGrid strokeDasharray="3 3" />
-                            <XAxis dataKey="month" />
-                            <YAxis />
-                            <Tooltip
-                              formatter={(value) => [
-                                value != null
-                                  ? `$${Number(value).toLocaleString()}`
-                                  : "$0",
-                                "Revenue",
-                              ]}
-                            />
-                            <Area
-                              type="monotone"
-                              dataKey="totalValue"
-                              stroke="#00C49F"
-                              fill="#00C49F"
-                            />
-                          </AreaChart>
-                        </ResponsiveChartContainer>
+                        <DeferredChartSection
+                          loading={dataLoading || ordersLoading}
+                          hasData={orderTrendByMonth.length > 0}
+                          pulseClassName="min-h-[300px]"
+                        >
+                          <ResponsiveChartContainer>
+                            <AreaChart data={orderTrendByMonth}>
+                              <CartesianGrid strokeDasharray="3 3" />
+                              <XAxis dataKey="month" />
+                              <YAxis />
+                              <Tooltip
+                                formatter={(value) => [
+                                  value != null
+                                    ? `$${Number(value).toLocaleString()}`
+                                    : "$0",
+                                  "Revenue",
+                                ]}
+                              />
+                              <Area
+                                type="monotone"
+                                dataKey="totalValue"
+                                stroke="#00C49F"
+                                fill="#00C49F"
+                              />
+                            </AreaChart>
+                          </ResponsiveChartContainer>
+                        </DeferredChartSection>
                       </ChartCard>
                       <ChartCard
                         title="Order Count by Month"
                         icon={ShoppingCart}
                         variant="amber"
                       >
-                        <ResponsiveChartContainer>
-                          <BarChart data={orderTrendByMonth}>
-                            <CartesianGrid strokeDasharray="3 3" />
-                            <XAxis dataKey="month" />
-                            <YAxis />
-                            <Tooltip />
-                            <Bar dataKey="orderCount" fill="#8884D8" />
-                          </BarChart>
-                        </ResponsiveChartContainer>
+                        <DeferredChartSection
+                          loading={dataLoading || ordersLoading}
+                          hasData={orderTrendByMonth.length > 0}
+                          pulseClassName="min-h-[300px]"
+                        >
+                          <ResponsiveChartContainer>
+                            <BarChart data={orderTrendByMonth}>
+                              <CartesianGrid strokeDasharray="3 3" />
+                              <XAxis dataKey="month" />
+                              <YAxis />
+                              <Tooltip />
+                              <Bar dataKey="orderCount" fill="#8884D8" />
+                            </BarChart>
+                          </ResponsiveChartContainer>
+                        </DeferredChartSection>
                       </ChartCard>
                     </div>
                   )}
@@ -1098,15 +1117,21 @@ export default function BusinessInsightPage({
                       icon={Activity}
                       variant="blue"
                     >
-                      <ResponsiveChartContainer>
-                        <BarChart data={analyticsData.statusDistribution}>
-                          <CartesianGrid strokeDasharray="3 3" />
-                          <XAxis dataKey="name" />
-                          <YAxis />
-                          <Tooltip />
-                          <Bar dataKey="value" fill="#8884d8" />
-                        </BarChart>
-                      </ResponsiveChartContainer>
+                      <DeferredChartSection
+                        loading={dataLoading}
+                        hasData={analyticsData.statusDistribution.length > 0}
+                        pulseClassName="min-h-[300px]"
+                      >
+                        <ResponsiveChartContainer>
+                          <BarChart data={analyticsData.statusDistribution}>
+                            <CartesianGrid strokeDasharray="3 3" />
+                            <XAxis dataKey="name" />
+                            <YAxis />
+                            <Tooltip />
+                            <Bar dataKey="value" fill="#8884d8" />
+                          </BarChart>
+                        </ResponsiveChartContainer>
+                      </DeferredChartSection>
                     </ChartCard>
 
                     {/* Price Range Distribution */}
@@ -1115,15 +1140,23 @@ export default function BusinessInsightPage({
                       icon={BarChart3}
                       variant="teal"
                     >
-                      <ResponsiveChartContainer>
-                        <BarChart data={analyticsData.priceRangeDistribution}>
-                          <CartesianGrid strokeDasharray="3 3" />
-                          <XAxis dataKey="name" />
-                          <YAxis />
-                          <Tooltip />
-                          <Bar dataKey="value" fill="#00C49F" />
-                        </BarChart>
-                      </ResponsiveChartContainer>
+                      <DeferredChartSection
+                        loading={dataLoading}
+                        hasData={
+                          analyticsData.priceRangeDistribution.length > 0
+                        }
+                        pulseClassName="min-h-[300px]"
+                      >
+                        <ResponsiveChartContainer>
+                          <BarChart data={analyticsData.priceRangeDistribution}>
+                            <CartesianGrid strokeDasharray="3 3" />
+                            <XAxis dataKey="name" />
+                            <YAxis />
+                            <Tooltip />
+                            <Bar dataKey="value" fill="#00C49F" />
+                          </BarChart>
+                        </ResponsiveChartContainer>
+                      </DeferredChartSection>
                     </ChartCard>
 
                     {/* Category Performance (by value) */}
@@ -1132,25 +1165,31 @@ export default function BusinessInsightPage({
                       icon={PieChartIcon}
                       variant="amber"
                     >
-                      <ResponsiveChartContainer>
-                        <BarChart
-                          data={analyticsData.categoryDistribution}
-                          margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
-                        >
-                          <CartesianGrid strokeDasharray="3 3" />
-                          <XAxis dataKey="name" />
-                          <YAxis />
-                          <Tooltip
-                            formatter={(value) => [
-                              value != null
-                                ? `$${Number(value).toLocaleString()}`
-                                : "$0",
-                              "Value",
-                            ]}
-                          />
-                          <Bar dataKey="totalValue" fill="#FFBB28" />
-                        </BarChart>
-                      </ResponsiveChartContainer>
+                      <DeferredChartSection
+                        loading={dataLoading}
+                        hasData={analyticsData.categoryDistribution.length > 0}
+                        pulseClassName="min-h-[300px]"
+                      >
+                        <ResponsiveChartContainer>
+                          <BarChart
+                            data={analyticsData.categoryDistribution}
+                            margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
+                          >
+                            <CartesianGrid strokeDasharray="3 3" />
+                            <XAxis dataKey="name" />
+                            <YAxis />
+                            <Tooltip
+                              formatter={(value) => [
+                                value != null
+                                  ? `$${Number(value).toLocaleString()}`
+                                  : "$0",
+                                "Value",
+                              ]}
+                            />
+                            <Bar dataKey="totalValue" fill="#FFBB28" />
+                          </BarChart>
+                        </ResponsiveChartContainer>
+                      </DeferredChartSection>
                     </ChartCard>
 
                     {/* Supplier Performance (by value) */}
@@ -1159,25 +1198,31 @@ export default function BusinessInsightPage({
                       icon={Users}
                       variant="orange"
                     >
-                      <ResponsiveChartContainer>
-                        <BarChart
-                          data={analyticsData.supplierDistribution}
-                          margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
-                        >
-                          <CartesianGrid strokeDasharray="3 3" />
-                          <XAxis dataKey="name" />
-                          <YAxis />
-                          <Tooltip
-                            formatter={(value) => [
-                              value != null
-                                ? `$${Number(value).toLocaleString()}`
-                                : "$0",
-                              "Value",
-                            ]}
-                          />
-                          <Bar dataKey="totalValue" fill="#FF8042" />
-                        </BarChart>
-                      </ResponsiveChartContainer>
+                      <DeferredChartSection
+                        loading={dataLoading}
+                        hasData={analyticsData.supplierDistribution.length > 0}
+                        pulseClassName="min-h-[300px]"
+                      >
+                        <ResponsiveChartContainer>
+                          <BarChart
+                            data={analyticsData.supplierDistribution}
+                            margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
+                          >
+                            <CartesianGrid strokeDasharray="3 3" />
+                            <XAxis dataKey="name" />
+                            <YAxis />
+                            <Tooltip
+                              formatter={(value) => [
+                                value != null
+                                  ? `$${Number(value).toLocaleString()}`
+                                  : "$0",
+                                "Value",
+                              ]}
+                            />
+                            <Bar dataKey="totalValue" fill="#FF8042" />
+                          </BarChart>
+                        </ResponsiveChartContainer>
+                      </DeferredChartSection>
                     </ChartCard>
                   </div>
                 </TabsContent>
@@ -1190,26 +1235,32 @@ export default function BusinessInsightPage({
                       icon={TrendingUp}
                       variant="emerald"
                     >
-                      <ResponsiveChartContainer>
-                        <BarChart
-                          data={analyticsData.topProducts}
-                          margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
-                        >
-                          <CartesianGrid strokeDasharray="3 3" />
-                          <XAxis dataKey="name" />
-                          <YAxis />
-                          <Tooltip
-                            formatter={(value) => [
-                              value
-                                ? `$${Number(value).toLocaleString()}`
-                                : "$0",
-                              "Value",
-                            ]}
-                            labelFormatter={(label) => `Product: ${label}`}
-                          />
-                          <Bar dataKey="value" fill="#FFBB28" />
-                        </BarChart>
-                      </ResponsiveChartContainer>
+                      <DeferredChartSection
+                        loading={dataLoading}
+                        hasData={analyticsData.topProducts.length > 0}
+                        pulseClassName="min-h-[300px]"
+                      >
+                        <ResponsiveChartContainer>
+                          <BarChart
+                            data={analyticsData.topProducts}
+                            margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
+                          >
+                            <CartesianGrid strokeDasharray="3 3" />
+                            <XAxis dataKey="name" />
+                            <YAxis />
+                            <Tooltip
+                              formatter={(value) => [
+                                value
+                                  ? `$${Number(value).toLocaleString()}`
+                                  : "$0",
+                                "Value",
+                              ]}
+                              labelFormatter={(label) => `Product: ${label}`}
+                            />
+                            <Bar dataKey="value" fill="#FFBB28" />
+                          </BarChart>
+                        </ResponsiveChartContainer>
+                      </DeferredChartSection>
                     </ChartCard>
 
                     {/* Monthly Product Addition Trend */}
@@ -1218,20 +1269,26 @@ export default function BusinessInsightPage({
                       icon={TrendingDown}
                       variant="rose"
                     >
-                      <ResponsiveChartContainer>
-                        <LineChart data={analyticsData.monthlyTrend}>
-                          <CartesianGrid strokeDasharray="3 3" />
-                          <XAxis dataKey="month" />
-                          <YAxis />
-                          <Tooltip />
-                          <Line
-                            type="monotone"
-                            dataKey="monthlyAdded"
-                            stroke="#FF8042"
-                            strokeWidth={2}
-                          />
-                        </LineChart>
-                      </ResponsiveChartContainer>
+                      <DeferredChartSection
+                        loading={dataLoading}
+                        hasData={analyticsData.monthlyTrend.length > 0}
+                        pulseClassName="min-h-[300px]"
+                      >
+                        <ResponsiveChartContainer>
+                          <LineChart data={analyticsData.monthlyTrend}>
+                            <CartesianGrid strokeDasharray="3 3" />
+                            <XAxis dataKey="month" />
+                            <YAxis />
+                            <Tooltip />
+                            <Line
+                              type="monotone"
+                              dataKey="monthlyAdded"
+                              stroke="#FF8042"
+                              strokeWidth={2}
+                            />
+                          </LineChart>
+                        </ResponsiveChartContainer>
+                      </DeferredChartSection>
                     </ChartCard>
                   </div>
                 </TabsContent>
@@ -1250,11 +1307,11 @@ export default function BusinessInsightPage({
                             (product, index) => (
                               <div
                                 key={index}
-                                className="rounded-xl border border-amber-400/30 bg-gradient-to-br from-amber-500/15 via-amber-500/5 to-transparent p-4 backdrop-blur-sm"
+                                className="rounded-xl border border-amber-400/30 bg-gradient-to-br from-amber-500/15 via-amber-500/5 to-transparent p-4 backdrop-blur-md"
                               >
                                 <div className="flex items-center justify-between">
                                   <div>
-                                    <h4 className="font-semibold text-sm text-gray-700 dark:text-white">
+                                    <h4 className="font-medium text-sm text-gray-700 dark:text-white">
                                       {product.name}
                                     </h4>
                                     <p className="text-xs text-gray-600 dark:text-white/60">
@@ -1290,12 +1347,12 @@ export default function BusinessInsightPage({
           {/* Additional Insights */}
           <div className="pb-6 grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-4 gap-2">
             {/* Quick Insights Card */}
-            <article className="rounded-[20px] border border-sky-400/20 bg-gradient-to-br from-sky-500/15 via-sky-500/5 to-transparent p-4 sm:p-5 backdrop-blur-sm shadow-[0_15px_40px_rgba(2,132,199,0.15)] dark:shadow-[0_15px_40px_rgba(2,132,199,0.1)] transition hover:border-sky-300/40">
+            <article className="rounded-[20px] border border-sky-400/20 bg-gradient-to-br from-sky-500/15 via-sky-500/5 to-transparent p-4 sm:p-5 backdrop-blur-md shadow-[0_15px_40px_rgba(2,132,199,0.15)] dark:shadow-[0_15px_40px_rgba(2,132,199,0.1)] transition hover:border-sky-300/40">
               <div className="flex items-center gap-2 mb-4">
                 <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-sky-300/30 bg-sky-100/50 dark:border-white/15 dark:bg-white/10">
                   <Eye className="h-4 w-4 text-gray-700 dark:text-white" />
                 </div>
-                <h3 className="text-base sm:text-lg font-semibold text-gray-700 dark:text-white">
+                <h3 className="text-base sm:text-lg font-medium text-gray-700 dark:text-white">
                   Quick Insights
                 </h3>
               </div>
@@ -1304,7 +1361,7 @@ export default function BusinessInsightPage({
                   <span className="text-sm text-gray-600 dark:text-white/70">
                     Average Price
                   </span>
-                  <span className="font-semibold text-gray-700 dark:text-white">
+                  <span className="font-medium text-gray-700 dark:text-white">
                     {dataLoading ? (
                       <DataSlotPulse variant="currency" />
                     ) : (
@@ -1316,7 +1373,7 @@ export default function BusinessInsightPage({
                   <span className="text-sm text-gray-600 dark:text-white/70">
                     Total Quantity
                   </span>
-                  <span className="font-semibold text-gray-700 dark:text-white">
+                  <span className="font-medium text-gray-700 dark:text-white">
                     {dataLoading ? (
                       <DataSlotPulse variant="metric" />
                     ) : (
@@ -1328,7 +1385,7 @@ export default function BusinessInsightPage({
                   <span className="text-sm text-gray-600 dark:text-white/70">
                     Stock Utilization
                   </span>
-                  <span className="font-semibold text-gray-700 dark:text-white">
+                  <span className="font-medium text-gray-700 dark:text-white">
                     {dataLoading ? (
                       <DataSlotPulse variant="metric" />
                     ) : (
@@ -1340,12 +1397,12 @@ export default function BusinessInsightPage({
             </article>
 
             {/* Performance Card */}
-            <article className="rounded-[20px] border border-emerald-400/20 bg-gradient-to-br from-emerald-500/15 via-emerald-500/5 to-transparent p-4 sm:p-5 backdrop-blur-sm shadow-[0_15px_40px_rgba(16,185,129,0.15)] dark:shadow-[0_15px_40px_rgba(16,185,129,0.1)] transition hover:border-emerald-300/40">
+            <article className="rounded-[20px] border border-emerald-400/20 bg-gradient-to-br from-emerald-500/15 via-emerald-500/5 to-transparent p-4 sm:p-5 backdrop-blur-md shadow-[0_15px_40px_rgba(16,185,129,0.15)] dark:shadow-[0_15px_40px_rgba(16,185,129,0.1)] transition hover:border-emerald-300/40">
               <div className="flex items-center gap-2 mb-4">
                 <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-emerald-300/30 bg-emerald-100/50 dark:border-white/15 dark:bg-white/10">
                   <Users className="h-4 w-4 text-gray-700 dark:text-white" />
                 </div>
-                <h3 className="text-base sm:text-lg font-semibold text-gray-700 dark:text-white">
+                <h3 className="text-base sm:text-lg font-medium text-gray-700 dark:text-white">
                   Performance
                 </h3>
               </div>
@@ -1374,7 +1431,7 @@ export default function BusinessInsightPage({
                   <span className="text-sm text-gray-600 dark:text-white/70">
                     Stock Coverage
                   </span>
-                  <span className="text-xs sm:text-sm font-semibold text-gray-700 dark:text-white">
+                  <span className="text-xs sm:text-sm font-medium text-gray-700 dark:text-white">
                     {dataLoading ? (
                       <DataSlotPulse variant="text-sm" />
                     ) : (
@@ -1386,7 +1443,7 @@ export default function BusinessInsightPage({
                   <span className="text-sm text-gray-600 dark:text-white/70">
                     Value Density
                   </span>
-                  <span className="text-xs sm:text-sm font-semibold text-gray-700 dark:text-white">
+                  <span className="text-xs sm:text-sm font-medium text-gray-700 dark:text-white">
                     {dataLoading ? (
                       <DataSlotPulse variant="currency" />
                     ) : (
@@ -1398,12 +1455,12 @@ export default function BusinessInsightPage({
             </article>
 
             {/* QR Code Card */}
-            <article className="rounded-[20px] border border-violet-400/20 bg-gradient-to-br from-violet-500/15 via-violet-500/5 to-transparent p-4 sm:p-5 backdrop-blur-sm shadow-[0_15px_40px_rgba(139,92,246,0.15)] dark:shadow-[0_15px_40px_rgba(139,92,246,0.1)] transition hover:border-violet-300/40">
+            <article className="rounded-[20px] border border-violet-400/20 bg-gradient-to-br from-violet-500/15 via-violet-500/5 to-transparent p-4 sm:p-5 backdrop-blur-md shadow-[0_15px_40px_rgba(139,92,246,0.15)] dark:shadow-[0_15px_40px_rgba(139,92,246,0.1)] transition hover:border-violet-300/40">
               <div className="flex items-center gap-2 mb-4">
                 <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-violet-300/30 bg-violet-100/50 dark:border-white/15 dark:bg-white/10">
                   <QrCode className="h-4 w-4 text-gray-700 dark:text-white" />
                 </div>
-                <h3 className="text-base sm:text-lg font-semibold text-gray-700 dark:text-white">
+                <h3 className="text-base sm:text-lg font-medium text-gray-700 dark:text-white">
                   Quick QR Code
                 </h3>
               </div>
@@ -1416,12 +1473,12 @@ export default function BusinessInsightPage({
             </article>
 
             {/* AI Insights Card */}
-            <article className="rounded-[20px] border border-amber-400/20 bg-gradient-to-br from-amber-500/15 via-amber-500/5 to-transparent p-4 sm:p-5 backdrop-blur-sm shadow-[0_15px_40px_rgba(245,158,11,0.12)] dark:shadow-[0_15px_40px_rgba(245,158,11,0.08)] transition hover:border-amber-300/40">
+            <article className="rounded-[20px] border border-amber-400/20 bg-gradient-to-br from-amber-500/15 via-amber-500/5 to-transparent p-4 sm:p-5 backdrop-blur-md shadow-[0_15px_40px_rgba(245,158,11,0.12)] dark:shadow-[0_15px_40px_rgba(245,158,11,0.08)] transition hover:border-amber-300/40">
               <div className="flex items-center gap-2 mb-4">
                 <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-amber-300/30 bg-amber-100/50 dark:border-white/15 dark:bg-white/10">
                   <Sparkles className="h-4 w-4 text-gray-700 dark:text-white" />
                 </div>
-                <h3 className="text-base sm:text-lg font-semibold text-gray-700 dark:text-white">
+                <h3 className="text-base sm:text-lg font-medium text-gray-700 dark:text-white">
                   AI Insights
                 </h3>
               </div>

@@ -4,26 +4,25 @@
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { apiClient, getErrorMessage } from "@/lib/api";
-import { queryKeys } from "@/lib/react-query";
+import { queryKeys, withInitialData } from "@/lib/react-query";
 import { invalidateAllRelatedQueries } from "@/lib/react-query/invalidate-all";
 import { useToast } from "@/hooks/use-toast";
 import type { SystemConfig, UpdateSystemConfigInput } from "@/types";
+import type { SystemConfigForPage } from "@/lib/server/system-config-data";
 
-interface SystemConfigResponse {
-  configs: SystemConfig[];
-  categories: Record<string, string>;
-}
+export type SystemConfigResponse = SystemConfigForPage;
 
 /**
  * Get all system configurations
  */
-export function useSystemConfigs() {
+export function useSystemConfigs(initialData?: SystemConfigResponse) {
   return useQuery({
     queryKey: queryKeys.systemConfig.all(),
     queryFn: async (): Promise<SystemConfigResponse> => {
       const response = await apiClient.systemConfig.getAll();
       return response.data;
     },
+    ...withInitialData(initialData),
   });
 }
 

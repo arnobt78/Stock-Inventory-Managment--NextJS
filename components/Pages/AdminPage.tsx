@@ -25,7 +25,7 @@ import { PageContentWrapper } from "@/components/shared";
 import { HelpTooltip } from "@/components/shared";
 
 const linkCardClass =
-  "block border border-white/10 dark:border-white/10 bg-gradient-to-br from-white/80 via-white/70 to-white/60 dark:from-white/10 dark:via-white/10 dark:to-white/5 backdrop-blur-sm shadow-[0_10px_30px_rgba(0,0,0,0.08)] dark:shadow-[0_10px_30px_rgba(0,0,0,0.25)] rounded-lg transition-all duration-200 hover:border-sky-400/40 dark:hover:border-sky-400/30 hover:from-sky-500/10 hover:via-sky-500/5 hover:to-sky-500/5 dark:hover:from-sky-500/20 dark:hover:via-sky-500/10 dark:hover:to-sky-500/5 hover:shadow-[0_10px_30px_rgba(2,132,199,0.2)] dark:hover:shadow-[0_10px_30px_rgba(2,132,199,0.2)]";
+  "block border border-white/10 dark:border-white/10 bg-gradient-to-br from-white/80 via-white/70 to-white/60 dark:from-white/10 dark:via-white/10 dark:to-white/5 backdrop-blur-md shadow-[0_10px_30px_rgba(0,0,0,0.08)] dark:shadow-[0_10px_30px_rgba(0,0,0,0.25)] rounded-lg transition-all duration-200 hover:border-sky-400/40 dark:hover:border-sky-400/30 hover:from-sky-500/10 hover:via-sky-500/5 hover:to-sky-500/5 dark:hover:from-sky-500/20 dark:hover:via-sky-500/10 dark:hover:to-sky-500/5 hover:shadow-[0_10px_30px_rgba(2,132,199,0.2)] dark:hover:shadow-[0_10px_30px_rgba(2,132,199,0.2)]";
 
 const disabledCardClass =
   "border border-white/10 dark:border-white/10 bg-gradient-to-br from-white/60 via-white/50 to-white/40 dark:from-white/5 dark:via-white/5 dark:to-white/5 rounded-lg opacity-75";
@@ -41,7 +41,7 @@ export default function AdminPage() {
           <div className="space-y-4">
             <div className="space-y-2">
               <div className="flex items-center gap-2">
-                <h1 className="text-lg sm:text-xl font-semibold text-primary">
+                <h1 className="text-lg sm:text-xl font-medium text-primary">
                   Admin
                 </h1>
                 <HelpTooltip

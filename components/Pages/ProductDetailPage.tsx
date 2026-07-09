@@ -28,7 +28,10 @@ import {
   Trash2,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
+import {
+  OrderStatusBadge,
+  ProductStockStatusBadge,
+} from "@/lib/ui/semantic-badges";
 import { Separator } from "@/components/ui/separator";
 import {
   useProduct,
@@ -46,9 +49,11 @@ import {
   ClientRelativeTime,
   PageContentWrapper,
   DataSlotPulse,
+  PageSectionHeader,
 } from "@/components/shared";
 import { isDataSlotLoading } from "@/lib/react-query";
-import type { Product, ProductStatus } from "@/types";
+import type { Product, ProductStatus, ProductReview } from "@/types";
+import type { ReviewEligibilityResult } from "@/lib/server/product-reviews-detail-data";
 import { cn } from "@/lib/utils";
 import Image from "next/image";
 import ProductFormDialog from "@/components/products/ProductFormDialog";
@@ -167,7 +172,7 @@ function GlassCard({
   return (
     <article
       className={cn(
-        "rounded-[20px] border backdrop-blur-sm transition overflow-hidden",
+        "rounded-[20px] border backdrop-blur-md transition overflow-hidden",
         config.border,
         config.gradient,
         config.shadow,
@@ -180,28 +185,19 @@ function GlassCard({
   );
 }
 
-/**
- * Get status badge variant based on product status
- */
-function getStatusBadgeVariant(
-  status?: ProductStatus,
-): "default" | "secondary" | "destructive" | "outline" {
-  switch (status) {
-    case "Available":
-      return "default";
-    case "Stock Low":
-      return "secondary";
-    case "Stock Out":
-      return "destructive";
-    default:
-      return "outline";
-  }
-}
-
-export type ProductDetailPageProps = { embedInAdmin?: boolean };
+export type ProductDetailPageProps = {
+  embedInAdmin?: boolean;
+  initialProduct?: Product;
+  /** REQ-0026 — SSR reviews for product detail */
+  initialReviews?: ProductReview[];
+  initialEligibility?: ReviewEligibilityResult;
+};
 
 export default function ProductDetailPage({
   embedInAdmin,
+  initialProduct,
+  initialReviews,
+  initialEligibility,
 }: ProductDetailPageProps = {}) {
   const params = useParams();
   const router = useRouter();
@@ -212,9 +208,9 @@ export default function ProductDetailPage({
   const PageWrapper = embedInAdmin ? React.Fragment : Navbar;
 
   // Fetch product details
-  const productQuery = useProduct(productId);
+  const productQuery = useProduct(productId, initialProduct);
   const product = productQuery.data;
-  const dataLoading = isDataSlotLoading(productQuery);
+  const dataLoading = isDataSlotLoading(productQuery, initialProduct);
   const { data: allProducts = [] } = useProducts();
   const { setSelectedProduct, setOpenProductDialog } = useProductStore();
   const createProductMutation = useCreateProduct();
@@ -280,7 +276,7 @@ export default function ProductDetailPage({
         setDeleteDialogOpen(false);
       },
     });
-  };// Redirect if not authenticated
+  }; // Redirect if not authenticated
   useEffect(() => {
     if (!isCheckingAuth && !user) {
       router.push("/login");
@@ -293,7 +289,7 @@ export default function ProductDetailPage({
       <PageWrapper>
         <div className="flex flex-col items-center justify-center min-h-[60vh] gap-2">
           <div className="text-center">
-            <h2 className="text-lg sm:text-xl font-semibold text-gray-700 dark:text-white mb-2">
+            <h2 className="text-lg sm:text-xl font-medium text-gray-700 dark:text-white mb-2">
               Product Not Found
             </h2>
             <p className="text-gray-600 dark:text-gray-400 mb-4">
@@ -311,10 +307,10 @@ export default function ProductDetailPage({
     );
   }
 
-
-
   // Format dates — REQ-0021 shell-first
-  const createdAt = product?.createdAt ? new Date(product?.createdAt) : new Date();
+  const createdAt = product?.createdAt
+    ? new Date(product?.createdAt)
+    : new Date();
   const updatedAt = product?.updatedAt ? new Date(product?.updatedAt) : null;
   const expirationDate = product?.expirationDate
     ? new Date(product?.expirationDate)
@@ -333,29 +329,34 @@ export default function ProductDetailPage({
       <PageContentWrapper>
         <div className="max-w-9xl mx-auto space-y-4">
           {/* Header */}
-          <div className="flex items-center gap-2">
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={handleBack}
-              className="h-10 w-10 rounded-xl border border-gray-300/30 bg-white/50 dark:bg-white/5 dark:border-white/10 hover:bg-gray-100/50 dark:hover:bg-white/10"
-            >
-              <ArrowLeft className="h-5 w-5" />
-            </Button>
-            <div className="flex-1 min-w-0">
-              <h1 className="text-lg sm:text-xl font-semibold text-gray-700 dark:text-white truncate">
-                {dataLoading ? (
-                  <DataSlotPulse variant="text-lg" className="w-48" />
-                ) : (
-                  product!.name
-                )}
-              </h1>
-              <p className="text-sm text-gray-600 dark:text-white/60 mt-1">
+          <PageSectionHeader
+            as="h1"
+            tone="rose"
+            icon={Package}
+            leading={
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={handleBack}
+                className="h-10 w-10 shrink-0 self-center rounded-xl border border-gray-300/30 bg-white/50 dark:bg-white/5 dark:border-white/10 hover:bg-gray-100/50 dark:hover:bg-white/10"
+              >
+                <ArrowLeft className="h-5 w-5" />
+              </Button>
+            }
+            title={
+              dataLoading ? (
+                <DataSlotPulse variant="text-lg" className="w-48" />
+              ) : (
+                product!.name
+              )
+            }
+            description={
+              <>
                 SKU: {product?.sku} • Created{" "}
                 <ClientRelativeTime date={createdAt} />
-              </p>
-            </div>
-          </div>
+              </>
+            }
+          />
 
           {/* Product Image and QR Code */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-2 sm:gap-4">
@@ -366,7 +367,7 @@ export default function ProductDetailPage({
                   <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-sky-300/30 bg-sky-100/50 dark:border-white/15 dark:bg-white/10">
                     <ImageIcon className="h-4 w-4 text-gray-700 dark:text-white" />
                   </div>
-                  <h3 className="text-lg font-semibold text-gray-700 dark:text-white">
+                  <h3 className="text-lg font-medium text-gray-700 dark:text-white">
                     Product Image
                   </h3>
                 </div>
@@ -397,7 +398,7 @@ export default function ProductDetailPage({
                   <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-violet-300/30 bg-violet-100/50 dark:border-white/15 dark:bg-white/10">
                     <QrCode className="h-4 w-4 text-gray-700 dark:text-white" />
                   </div>
-                  <h3 className="text-lg font-semibold text-gray-700 dark:text-white">
+                  <h3 className="text-lg font-medium text-gray-700 dark:text-white">
                     QR Code / Barcode
                   </h3>
                 </div>
@@ -429,21 +430,12 @@ export default function ProductDetailPage({
                 <p className="text-xs uppercase tracking-[0.2em] text-gray-600 dark:text-white/60 mb-3">
                   Status
                 </p>
-                <Badge
-                  className={cn(
-                    "text-sm border",
-                    product?.status === "Available" &&
-                      "bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 border-emerald-400/30",
-                    product?.status === "Stock Low" &&
-                      "bg-amber-500/20 text-amber-700 dark:text-amber-300 border-amber-400/30",
-                    product?.status === "Stock Out" &&
-                      "bg-rose-500/20 text-rose-700 dark:text-rose-300 border-rose-400/30",
-                    !product?.status &&
-                      "bg-gray-500/20 text-gray-700 dark:text-gray-300 border-gray-400/30",
-                  )}
-                >
-                  {product?.status || "N/A"}
-                </Badge>
+                <ProductStockStatusBadge
+                  status={product?.status ?? "available"}
+                  label={product?.status || "N/A"}
+                  size="detail"
+                  className="text-sm"
+                />
               </div>
             </GlassCard>
 
@@ -452,7 +444,7 @@ export default function ProductDetailPage({
                 <p className="text-xs uppercase tracking-[0.2em] text-gray-600 dark:text-white/60 mb-3">
                   Stock
                 </p>
-                <p className="text-lg sm:text-xl font-semibold text-gray-700 dark:text-white">
+                <p className="text-lg sm:text-xl font-medium text-gray-700 dark:text-white">
                   {(product?.quantity ?? 0) - (product?.reservedQuantity ?? 0)}
                   <span className="text-sm font-normal text-gray-600 dark:text-white/60 ml-1">
                     available
@@ -472,7 +464,7 @@ export default function ProductDetailPage({
                 <p className="text-xs uppercase tracking-[0.2em] text-gray-600 dark:text-white/60 mb-3">
                   Price
                 </p>
-                <p className="text-lg sm:text-xl font-semibold text-gray-700 dark:text-white">
+                <p className="text-lg sm:text-xl font-medium text-gray-700 dark:text-white">
                   ${product?.price.toFixed(2)}
                 </p>
               </div>
@@ -488,7 +480,7 @@ export default function ProductDetailPage({
                   <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-teal-300/30 bg-teal-100/50 dark:border-white/15 dark:bg-white/10">
                     <Package className="h-4 w-4 text-gray-700 dark:text-white" />
                   </div>
-                  <h3 className="text-lg font-semibold text-gray-700 dark:text-white">
+                  <h3 className="text-lg font-medium text-gray-700 dark:text-white">
                     Product Information
                   </h3>
                 </div>
@@ -503,43 +495,45 @@ export default function ProductDetailPage({
                     </span>
                   </div>
 
-                  {product?.category && typeof product?.category === "object" && (
-                    <div className="flex items-center gap-2 text-sm">
-                      <Tag className="h-4 w-4 text-gray-500 dark:text-white/50" />
-                      <span className="text-gray-600 dark:text-white/60">
-                        Category:
-                      </span>
-                      <Link
-                        href={
-                          embedInAdmin
-                            ? `/admin/categories/${product?.category.id}`
-                            : `/categories/${product?.category.id}`
-                        }
-                        className="font-medium text-sky-600 dark:text-sky-400 hover:text-sky-500 dark:hover:text-sky-300"
-                      >
-                        {product?.category.name}
-                      </Link>
-                    </div>
-                  )}
+                  {product?.category &&
+                    typeof product?.category === "object" && (
+                      <div className="flex items-center gap-2 text-sm">
+                        <Tag className="h-4 w-4 text-gray-500 dark:text-white/50" />
+                        <span className="text-gray-600 dark:text-white/60">
+                          Category:
+                        </span>
+                        <Link
+                          href={
+                            embedInAdmin
+                              ? `/admin/categories/${product?.category.id}`
+                              : `/categories/${product?.category.id}`
+                          }
+                          className="font-medium text-sky-600 dark:text-sky-400 hover:text-sky-500 dark:hover:text-sky-300"
+                        >
+                          {product?.category.name}
+                        </Link>
+                      </div>
+                    )}
 
-                  {product?.supplier && typeof product?.supplier === "object" && (
-                    <div className="flex items-center gap-2 text-sm">
-                      <Truck className="h-4 w-4 text-gray-500 dark:text-white/50" />
-                      <span className="text-gray-600 dark:text-white/60">
-                        Supplier:
-                      </span>
-                      <Link
-                        href={
-                          embedInAdmin
-                            ? `/admin/suppliers/${product?.supplier.id}`
-                            : `/suppliers/${product?.supplier.id}`
-                        }
-                        className="font-medium text-sky-600 dark:text-sky-400 hover:text-sky-500 dark:hover:text-sky-300"
-                      >
-                        {product?.supplier.name}
-                      </Link>
-                    </div>
-                  )}
+                  {product?.supplier &&
+                    typeof product?.supplier === "object" && (
+                      <div className="flex items-center gap-2 text-sm">
+                        <Truck className="h-4 w-4 text-gray-500 dark:text-white/50" />
+                        <span className="text-gray-600 dark:text-white/60">
+                          Supplier:
+                        </span>
+                        <Link
+                          href={
+                            embedInAdmin
+                              ? `/admin/suppliers/${product?.supplier.id}`
+                              : `/suppliers/${product?.supplier.id}`
+                          }
+                          className="font-medium text-sky-600 dark:text-sky-400 hover:text-sky-500 dark:hover:text-sky-300"
+                        >
+                          {product?.supplier.name}
+                        </Link>
+                      </div>
+                    )}
 
                   <div className="flex items-center gap-2 text-sm">
                     <Calendar className="h-4 w-4 text-gray-500 dark:text-white/50" />
@@ -577,7 +571,7 @@ export default function ProductDetailPage({
 
                   {/* Creator Information */}
                   {product?.creator && (
-                    <div className="pt-3 mt-3 border-t border-teal-400/20">
+                    <div className="pt-2 mt-3 border-t border-teal-400/20">
                       <div className="flex items-center gap-2 text-sm">
                         <User className="h-4 w-4 text-gray-500 dark:text-white/50" />
                         <span className="text-gray-600 dark:text-white/60">
@@ -601,7 +595,7 @@ export default function ProductDetailPage({
 
                   {/* Updater Information */}
                   {product?.updater && (
-                    <div className="pt-3 mt-3 border-t border-teal-400/20">
+                    <div className="pt-2 mt-3 border-t border-teal-400/20">
                       <div className="flex items-center gap-2 text-sm">
                         <User className="h-4 w-4 text-gray-500 dark:text-white/50" />
                         <span className="text-gray-600 dark:text-white/60">
@@ -634,7 +628,7 @@ export default function ProductDetailPage({
                     <BarChart3 className="h-4 w-4 text-gray-700 dark:text-white" />
                   </div>
                   <div>
-                    <h3 className="text-lg font-semibold text-gray-700 dark:text-white">
+                    <h3 className="text-lg font-medium text-gray-700 dark:text-white">
                       Sales Statistics
                     </h3>
                     <p className="text-xs text-gray-600 dark:text-white/60">
@@ -647,7 +641,7 @@ export default function ProductDetailPage({
                     <span className="text-sm text-gray-600 dark:text-white/70">
                       Total Quantity Sold:
                     </span>
-                    <span className="text-lg font-semibold text-gray-700 dark:text-white">
+                    <span className="text-lg font-medium text-gray-700 dark:text-white">
                       {stats.totalQuantitySold}
                     </span>
                   </div>
@@ -656,7 +650,7 @@ export default function ProductDetailPage({
                     <span className="text-sm text-gray-600 dark:text-white/70">
                       Total Revenue:
                     </span>
-                    <span className="text-lg font-semibold text-emerald-600 dark:text-emerald-400">
+                    <span className="text-lg font-medium text-emerald-600 dark:text-emerald-400">
                       ${stats.totalRevenue.toFixed(2)}
                     </span>
                   </div>
@@ -665,7 +659,7 @@ export default function ProductDetailPage({
                     <span className="text-sm text-gray-600 dark:text-white/70">
                       Orders Containing This Product:
                     </span>
-                    <span className="text-lg font-semibold text-gray-700 dark:text-white">
+                    <span className="text-lg font-medium text-gray-700 dark:text-white">
                       {stats.uniqueOrders}
                     </span>
                   </div>
@@ -674,7 +668,7 @@ export default function ProductDetailPage({
                     <span className="text-sm text-gray-600 dark:text-white/70">
                       Current Stock Value:
                     </span>
-                    <span className="text-lg font-semibold text-blue-600 dark:text-blue-400">
+                    <span className="text-lg font-medium text-blue-600 dark:text-blue-400">
                       ${(stats.totalValue ?? 0).toFixed(2)}
                     </span>
                   </div>
@@ -692,7 +686,7 @@ export default function ProductDetailPage({
                     <ShoppingCart className="h-4 w-4 text-gray-700 dark:text-white" />
                   </div>
                   <div>
-                    <h3 className="text-lg font-semibold text-gray-700 dark:text-white">
+                    <h3 className="text-lg font-medium text-gray-700 dark:text-white">
                       Recent Orders
                     </h3>
                     <p className="text-xs text-gray-600 dark:text-white/60">
@@ -709,7 +703,7 @@ export default function ProductDetailPage({
                           ? `/admin/orders/${order.orderId}`
                           : `/orders/${order.orderId}`
                       }
-                      className="flex flex-col sm:flex-row sm:items-center justify-between p-4 rounded-xl border border-gray-300/20 dark:border-white/10 bg-white/30 dark:bg-white/5 hover:bg-white/50 dark:hover:bg-white/10 backdrop-blur-sm transition-colors gap-2"
+                      className="flex flex-col sm:flex-row sm:items-center justify-between p-4 rounded-xl border border-gray-300/20 dark:border-white/10 bg-white/30 dark:bg-white/5 hover:bg-white/50 dark:hover:bg-white/10 backdrop-blur-md transition-colors gap-2"
                     >
                       <div className="flex-1">
                         <h4 className="font-medium text-gray-700 dark:text-white">
@@ -722,7 +716,7 @@ export default function ProductDetailPage({
                       </div>
                       <div className="text-left sm:text-right">
                         {/* Sale price style: crossed-out subtotal + actual proportional amount */}
-                        <p className="font-semibold text-gray-700 dark:text-white">
+                        <p className="font-medium text-gray-700 dark:text-white">
                           {typeof order.proportionalAmount === "number" &&
                           order.proportionalAmount !== order.subtotal ? (
                             <>
@@ -737,23 +731,10 @@ export default function ProductDetailPage({
                             `$${order.subtotal.toFixed(2)}`
                           )}
                         </p>
-                        <Badge
-                          className={cn(
-                            "text-xs mt-1 border",
-                            order.orderStatus === "cancelled" &&
-                              "bg-rose-500/20 text-rose-700 dark:text-rose-300 border-rose-400/30",
-                            order.orderStatus === "delivered" &&
-                              "bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 border-emerald-400/30",
-                            order.orderStatus !== "cancelled" &&
-                              order.orderStatus !== "delivered" &&
-                              "bg-blue-500/20 text-blue-700 dark:text-blue-300 border-blue-400/30",
-                          )}
-                        >
-                          {order.orderStatus
-                            ? order.orderStatus.charAt(0).toUpperCase() +
-                              order.orderStatus.slice(1).toLowerCase()
-                            : ""}
-                        </Badge>
+                        <OrderStatusBadge
+                          status={order.orderStatus ?? "pending"}
+                          className="mt-1"
+                        />
                       </div>
                     </Link>
                   ))}
@@ -768,6 +749,8 @@ export default function ProductDetailPage({
               productId={product.id}
               productName={product.name ?? ""}
               variant="amber"
+              initialReviews={initialReviews}
+              initialEligibility={initialEligibility}
             />
           ) : dataLoading ? (
             <DataSlotPulse variant="chart" className="min-h-[120px]" />

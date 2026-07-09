@@ -111,16 +111,25 @@ function MetricValue({
   return <>{children}</>;
 }
 
-export default function ForecastingSection() {
-  const forecastingQuery = useForecastingSummary();
-  const summary = forecastingQuery.data;
-  const dataLoading = isDataSlotLoading(forecastingQuery);
+import type { ForecastingSummary } from "@/types";
+
+export type ForecastingSectionProps = {
+  /** SSR-passed forecast summary (REQ-0025) */
+  initialForecasting?: ForecastingSummary;
+};
+
+export default function ForecastingSection({
+  initialForecasting,
+}: ForecastingSectionProps = {}) {
+  const forecastingQuery = useForecastingSummary(initialForecasting);
+  const summary = forecastingQuery.data ?? initialForecasting;
+  const dataLoading = isDataSlotLoading(forecastingQuery, initialForecasting);
 
   if (!dataLoading && (forecastingQuery.isError || !summary)) {
     return (
       <Card>
         <CardContent className="pt-6">
-          <p className="text-muted-foreground text-center">
+          <p className="text-muted-foreground text-center text-gray-700 dark:text-white">
             Failed to load forecasting data
           </p>
         </CardContent>
@@ -129,7 +138,8 @@ export default function ForecastingSection() {
   }
 
   const urgentProducts =
-    summary?.forecasts.filter((f) => f.reorderRecommendation === "urgent") ?? [];
+    summary?.forecasts.filter((f) => f.reorderRecommendation === "urgent") ??
+    [];
   const soonProducts =
     summary?.forecasts.filter((f) => f.reorderRecommendation === "soon") ?? [];
 
@@ -138,14 +148,14 @@ export default function ForecastingSection() {
       <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
         <Card>
           <CardHeader className="">
-            <CardTitle className="text-sm font-medium text-muted-foreground">
+            <CardTitle className="text-sm font-normal text-gray-700 dark:text-white">
               Products Analyzed
             </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="flex items-center gap-2">
               <Package className="h-5 w-5 text-blue-500" />
-              <span className="text-lg sm:text-xl font-semibold">
+              <span className="text-lg sm:text-xl font-medium">
                 <MetricValue loading={dataLoading}>
                   {summary?.totalProducts ?? 0}
                 </MetricValue>
@@ -156,14 +166,14 @@ export default function ForecastingSection() {
 
         <Card>
           <CardHeader className="">
-            <CardTitle className="text-sm font-medium text-muted-foreground">
+            <CardTitle className="text-sm font-normal text-gray-700 dark:text-white">
               At Risk of Stockout
             </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="flex items-center gap-2">
               <AlertTriangle className="h-5 w-5 text-red-500" />
-              <span className="text-lg sm:text-xl font-semibold">
+              <span className="text-lg sm:text-xl font-medium">
                 <MetricValue loading={dataLoading}>
                   {summary?.productsAtRisk ?? 0}
                 </MetricValue>
@@ -174,14 +184,14 @@ export default function ForecastingSection() {
 
         <Card>
           <CardHeader className="">
-            <CardTitle className="text-sm font-medium text-muted-foreground">
+            <CardTitle className="text-sm font-normal text-gray-700 dark:text-white">
               Overstocked
             </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="flex items-center gap-2">
               <TrendingDown className="h-5 w-5 text-orange-500" />
-              <span className="text-lg sm:text-xl font-semibold">
+              <span className="text-lg sm:text-xl font-medium">
                 <MetricValue loading={dataLoading}>
                   {summary?.productsOverstocked ?? 0}
                 </MetricValue>
@@ -192,14 +202,14 @@ export default function ForecastingSection() {
 
         <Card>
           <CardHeader className="">
-            <CardTitle className="text-sm font-medium text-muted-foreground">
+            <CardTitle className="text-sm font-normal text-gray-700 dark:text-white">
               Anomalies Detected
             </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="flex items-center gap-2">
               <AlertCircle className="h-5 w-5 text-purple-500" />
-              <span className="text-lg sm:text-xl font-semibold">
+              <span className="text-lg sm:text-xl font-medium">
                 <MetricValue loading={dataLoading}>
                   {summary?.anomaliesDetected ?? 0}
                 </MetricValue>
@@ -257,7 +267,9 @@ export default function ForecastingSection() {
                     <TableHead className="text-right">Available</TableHead>
                     <TableHead className="text-right">Daily Sales</TableHead>
                     <TableHead className="text-right">Days Left</TableHead>
-                    <TableHead className="text-right">Suggested Order</TableHead>
+                    <TableHead className="text-right">
+                      Suggested Order
+                    </TableHead>
                     <TableHead>Status</TableHead>
                   </TableRow>
                 </TableHeader>
@@ -440,8 +452,10 @@ export default function ForecastingSection() {
 
       <Card>
         <CardHeader>
-          <CardTitle>All Product Forecasts</CardTitle>
-          <CardDescription>
+          <CardTitle className="text-gray-700 dark:text-white">
+            All Product Forecasts
+          </CardTitle>
+          <CardDescription className="text-gray-700 dark:text-white/80">
             Demand predictions and stock levels for all products (sorted by
             urgency)
           </CardDescription>
@@ -464,48 +478,48 @@ export default function ForecastingSection() {
               {dataLoading ? (
                 <TableBodyPulseRows rows={10} columnCount={8} />
               ) : (
-              <TableBody>
-                {(summary?.forecasts ?? []).slice(0, 20).map((forecast) => (
-                  <TableRow key={forecast.productId}>
-                    <TableCell>
-                      <div>
-                        <p className="font-medium">{forecast.productName}</p>
-                        <p className="text-xs text-muted-foreground">
-                          {forecast.sku}
-                        </p>
-                      </div>
-                    </TableCell>
-                    <TableCell className="text-right">
-                      {forecast.currentStock}
-                    </TableCell>
-                    <TableCell className="text-right">
-                      {forecast.availableStock}
-                    </TableCell>
-                    <TableCell className="text-right">
-                      {forecast.averageDailySales.toFixed(1)}
-                    </TableCell>
-                    <TableCell className="text-right">
-                      {forecast.predictedDailySales.toFixed(1)}
-                    </TableCell>
-                    <TableCell className="text-right">
-                      {forecast.daysUntilStockout ?? "∞"}
-                    </TableCell>
-                    <TableCell className="text-right">
-                      {forecast.confidenceScore}%
-                    </TableCell>
-                    <TableCell>
-                      <Badge
-                        variant="outline"
-                        className={getStatusBadgeClassName(
-                          forecast.reorderRecommendation,
-                        )}
-                      >
-                        {forecast.reorderRecommendation}
-                      </Badge>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
+                <TableBody>
+                  {(summary?.forecasts ?? []).slice(0, 20).map((forecast) => (
+                    <TableRow key={forecast.productId}>
+                      <TableCell>
+                        <div>
+                          <p className="font-medium">{forecast.productName}</p>
+                          <p className="text-xs text-muted-foreground">
+                            {forecast.sku}
+                          </p>
+                        </div>
+                      </TableCell>
+                      <TableCell className="text-right">
+                        {forecast.currentStock}
+                      </TableCell>
+                      <TableCell className="text-right">
+                        {forecast.availableStock}
+                      </TableCell>
+                      <TableCell className="text-right">
+                        {forecast.averageDailySales.toFixed(1)}
+                      </TableCell>
+                      <TableCell className="text-right">
+                        {forecast.predictedDailySales.toFixed(1)}
+                      </TableCell>
+                      <TableCell className="text-right">
+                        {forecast.daysUntilStockout ?? "∞"}
+                      </TableCell>
+                      <TableCell className="text-right">
+                        {forecast.confidenceScore}%
+                      </TableCell>
+                      <TableCell>
+                        <Badge
+                          variant="outline"
+                          className={getStatusBadgeClassName(
+                            forecast.reorderRecommendation,
+                          )}
+                        >
+                          {forecast.reorderRecommendation}
+                        </Badge>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
               )}
             </Table>
           </div>

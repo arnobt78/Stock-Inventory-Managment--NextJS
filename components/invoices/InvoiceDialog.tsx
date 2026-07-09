@@ -115,11 +115,14 @@ export default function InvoiceDialog({
 
   const pathname = usePathname();
   const isAdminInvoicesPage = pathname?.startsWith("/admin/invoices");
-
-  // Fetch orders for selection
-  const { data: selfOrders = [] } = useOrders();
   const isAdmin = user?.role === "admin";
-  const { data: clientOrders = [] } = useClientOrders();
+  const needsClientOrdersLeg = isAdmin && isAdminInvoicesPage;
+
+  // Fetch orders only when dialog is open — avoids background admin/client-orders API calls
+  const { data: selfOrders = [] } = useOrders(undefined, { enabled: open });
+  const { data: clientOrders = [] } = useClientOrders(undefined, {
+    enabled: open && needsClientOrdersLeg,
+  });
 
   // /admin/invoices: show self + client orders with placer name
   // /invoices: show only self orders (product owner's own)
@@ -466,7 +469,7 @@ export default function InvoiceDialog({
     <Dialog open={open} onOpenChange={setOpen}>
       {children && <DialogTrigger asChild>{children}</DialogTrigger>}
       <DialogContent
-        className="p-4 sm:p-7 sm:px-8 poppins max-h-[90vh] overflow-y-auto border-indigo-400/30 dark:border-indigo-400/30 shadow-[0_30px_80px_rgba(99,102,241,0.45)] dark:shadow-[0_30px_80px_rgba(99,102,241,0.25)]"
+        className="p-2 sm:p-4 sm:px-8 poppins max-h-[90vh] overflow-y-auto border-indigo-400/30 dark:border-indigo-400/30 shadow-[0_30px_80px_rgba(99,102,241,0.45)] dark:shadow-[0_30px_80px_rgba(99,102,241,0.25)]"
         onOpenAutoFocus={(e) => e.preventDefault()}
       >
         <DialogHeader>
@@ -496,7 +499,7 @@ export default function InvoiceDialog({
                     enabled={open}
                     placeholder={
                       <div
-                        className="flex h-11 w-full items-center rounded-md border border-indigo-400/30 bg-white/10 px-3 text-sm text-white/60 capitalize"
+                        className="flex h-11 w-full items-center rounded-md border border-indigo-400/30 bg-white/10 px-2 text-sm text-white/60 capitalize"
                         aria-hidden
                       >
                         {editWatch("status") || editingInvoice.status}
@@ -517,11 +520,11 @@ export default function InvoiceDialog({
                           )
                         }
                       >
-                        <SelectTrigger className="h-11 w-full border-indigo-400/30 dark:border-white/20 bg-white/10 dark:bg-white/5 backdrop-blur-sm text-white placeholder:text-white/40 focus:border-indigo-400 focus:ring-indigo-500/50 shadow-[0_10px_30px_rgba(99,102,241,0.15)]">
+                        <SelectTrigger className="h-11 w-full border-indigo-400/30 dark:border-white/20 bg-white/10 dark:bg-white/5 backdrop-blur-md text-white placeholder:text-white/40 focus:border-indigo-400 focus:ring-indigo-500/50 shadow-[0_10px_30px_rgba(99,102,241,0.15)]">
                           <SelectValue placeholder="Select Status" />
                         </SelectTrigger>
                         <SelectContent
-                          className="border-indigo-400/20 dark:border-white/10 bg-white/80 dark:bg-popover/50 backdrop-blur-sm z-[100]"
+                          className="border-indigo-400/20 dark:border-white/10 bg-white/80 dark:bg-popover/50 backdrop-blur-md z-[100]"
                           position="popper"
                           sideOffset={5}
                           align="start"
@@ -544,7 +547,7 @@ export default function InvoiceDialog({
                   placeholder="0.00"
                   allowNegative={false}
                   labelClassName="text-white/80"
-                  inputClassName="h-11 border-indigo-400/30 dark:border-white/20 bg-white/10 dark:bg-white/5 backdrop-blur-sm text-white placeholder:text-white/40 focus-visible:border-indigo-400 focus-visible:ring-indigo-500/50 shadow-[0_10px_30px_rgba(99,102,241,0.15)]"
+                  inputClassName="h-11 border-indigo-400/30 dark:border-white/20 bg-white/10 dark:bg-white/5 backdrop-blur-md text-white placeholder:text-white/40 focus-visible:border-indigo-400 focus-visible:ring-indigo-500/50 shadow-[0_10px_30px_rgba(99,102,241,0.15)]"
                 />
 
                 {/* Order Pricing Summary (read-only — values come from the order) */}
@@ -573,7 +576,7 @@ export default function InvoiceDialog({
                       </span>
                     </div>
                   )}
-                  <div className="flex justify-between text-base font-semibold text-white pt-2 border-t border-indigo-400/20">
+                  <div className="flex justify-between text-base font-medium text-white pt-2 border-t border-indigo-400/20">
                     <span>Total:</span>
                     <span>{fmt(editingInvoice.total ?? 0)}</span>
                   </div>
@@ -585,7 +588,7 @@ export default function InvoiceDialog({
                   label="Due Date"
                   type="date"
                   labelClassName="text-white/80"
-                  inputClassName="border-indigo-400/30 dark:border-white/20 bg-white/10 dark:bg-white/5 backdrop-blur-sm text-white placeholder:text-white/40 focus-visible:border-indigo-400 focus-visible:ring-indigo-500/50 shadow-[0_10px_30px_rgba(99,102,241,0.15)]"
+                  inputClassName="border-indigo-400/30 dark:border-white/20 bg-white/10 dark:bg-white/5 backdrop-blur-md text-white placeholder:text-white/40 focus-visible:border-indigo-400 focus-visible:ring-indigo-500/50 shadow-[0_10px_30px_rgba(99,102,241,0.15)]"
                 />
 
                 {/* Sent At */}
@@ -597,7 +600,7 @@ export default function InvoiceDialog({
                     label="Sent At"
                     type="date"
                     labelClassName="text-white/80"
-                    inputClassName="border-indigo-400/30 dark:border-white/20 bg-white/10 dark:bg-white/5 backdrop-blur-sm text-white placeholder:text-white/40 focus-visible:border-indigo-400 focus-visible:ring-indigo-500/50 shadow-[0_10px_30px_rgba(99,102,241,0.15)]"
+                    inputClassName="border-indigo-400/30 dark:border-white/20 bg-white/10 dark:bg-white/5 backdrop-blur-md text-white placeholder:text-white/40 focus-visible:border-indigo-400 focus-visible:ring-indigo-500/50 shadow-[0_10px_30px_rgba(99,102,241,0.15)]"
                   />
                 ) : null}
 
@@ -608,7 +611,7 @@ export default function InvoiceDialog({
                     label="Paid At"
                     type="date"
                     labelClassName="text-white/80"
-                    inputClassName="border-indigo-400/30 dark:border-white/20 bg-white/10 dark:bg-white/5 backdrop-blur-sm text-white placeholder:text-white/40 focus-visible:border-indigo-400 focus-visible:ring-indigo-500/50 shadow-[0_10px_30px_rgba(99,102,241,0.15)]"
+                    inputClassName="border-indigo-400/30 dark:border-white/20 bg-white/10 dark:bg-white/5 backdrop-blur-md text-white placeholder:text-white/40 focus-visible:border-indigo-400 focus-visible:ring-indigo-500/50 shadow-[0_10px_30px_rgba(99,102,241,0.15)]"
                   />
                 ) : null}
 
@@ -619,7 +622,7 @@ export default function InvoiceDialog({
                     label="Cancelled At"
                     type="date"
                     labelClassName="text-white/80"
-                    inputClassName="border-indigo-400/30 dark:border-white/20 bg-white/10 dark:bg-white/5 backdrop-blur-sm text-white placeholder:text-white/40 focus-visible:border-indigo-400 focus-visible:ring-indigo-500/50 shadow-[0_10px_30px_rgba(99,102,241,0.15)]"
+                    inputClassName="border-indigo-400/30 dark:border-white/20 bg-white/10 dark:bg-white/5 backdrop-blur-md text-white placeholder:text-white/40 focus-visible:border-indigo-400 focus-visible:ring-indigo-500/50 shadow-[0_10px_30px_rgba(99,102,241,0.15)]"
                   />
                 ) : null}
 
@@ -631,7 +634,7 @@ export default function InvoiceDialog({
                   type="url"
                   labelClassName="text-white/80"
                   className="sm:col-span-2"
-                  inputClassName="border-indigo-400/30 dark:border-white/20 bg-white/10 dark:bg-white/5 backdrop-blur-sm text-white placeholder:text-white/40 focus-visible:border-indigo-400 focus-visible:ring-indigo-500/50 shadow-[0_10px_30px_rgba(99,102,241,0.15)]"
+                  inputClassName="border-indigo-400/30 dark:border-white/20 bg-white/10 dark:bg-white/5 backdrop-blur-md text-white placeholder:text-white/40 focus-visible:border-indigo-400 focus-visible:ring-indigo-500/50 shadow-[0_10px_30px_rgba(99,102,241,0.15)]"
                 />
 
                 {/* Notes */}
@@ -641,7 +644,7 @@ export default function InvoiceDialog({
                     label="Notes"
                     placeholder="Enter invoice notes..."
                     labelClassName="text-white/80"
-                    inputClassName="border-indigo-400/30 dark:border-white/20 bg-white/10 dark:bg-white/5 backdrop-blur-sm text-white placeholder:text-white/40 focus-visible:border-indigo-400 focus-visible:ring-indigo-500/50 shadow-[0_10px_30px_rgba(99,102,241,0.15)]"
+                    inputClassName="border-indigo-400/30 dark:border-white/20 bg-white/10 dark:bg-white/5 backdrop-blur-md text-white placeholder:text-white/40 focus-visible:border-indigo-400 focus-visible:ring-indigo-500/50 shadow-[0_10px_30px_rgba(99,102,241,0.15)]"
                   />
                 </div>
               </div>
@@ -650,13 +653,13 @@ export default function InvoiceDialog({
                 <Button
                   onClick={handleCancelEdit}
                   variant="secondary"
-                  className="h-11 w-full sm:w-auto px-11 inline-flex items-center justify-center rounded-xl border border-white/10 bg-gradient-to-r from-gray-400/40 via-gray-300/30 to-gray-400/40 dark:bg-background/50 backdrop-blur-sm shadow-[0_15px_35px_rgba(0,0,0,0.3)] dark:shadow-[0_15px_35px_rgba(255,255,255,0.25)] transition duration-200 hover:bg-gradient-to-r hover:from-gray-400/60 hover:via-gray-300/50 hover:to-gray-400/60 dark:hover:bg-accent/50 hover:border-white/20 dark:hover:border-white/20 hover:shadow-[0_20px_45px_rgba(0,0,0,0.5)] dark:hover:shadow-[0_20px_45px_rgba(255,255,255,0.4)]"
+                  className="h-11 w-full sm:w-auto px-11 inline-flex items-center justify-center rounded-xl border border-white/10 bg-gradient-to-r from-gray-400/40 via-gray-300/30 to-gray-400/40 dark:bg-background/50 backdrop-blur-md shadow-[0_15px_35px_rgba(0,0,0,0.3)] dark:shadow-[0_15px_35px_rgba(255,255,255,0.25)] transition duration-200 hover:bg-gradient-to-r hover:from-gray-400/60 hover:via-gray-300/50 hover:to-gray-400/60 dark:hover:bg-accent/50 hover:border-white/20 dark:hover:border-white/20 hover:shadow-[0_20px_45px_rgba(0,0,0,0.5)] dark:hover:shadow-[0_20px_45px_rgba(255,255,255,0.4)]"
                 >
                   Cancel
                 </Button>
                 <Button
                   type="submit"
-                  className="h-11 w-full sm:w-auto px-11 inline-flex items-center justify-center rounded-xl border border-indigo-400/30 dark:border-indigo-400/30 bg-gradient-to-r from-indigo-500/70 via-indigo-500/50 to-indigo-500/30 text-white shadow-[0_15px_35px_rgba(99,102,241,0.45)] backdrop-blur-sm transition duration-200 hover:border-indigo-300/40 hover:from-indigo-500/80 hover:via-indigo-500/60 hover:to-indigo-500/40 hover:shadow-[0_20px_45px_rgba(99,102,241,0.6)]"
+                  className="h-11 w-full sm:w-auto px-11 inline-flex items-center justify-center rounded-xl border border-indigo-400/30 dark:border-indigo-400/30 bg-gradient-to-r from-indigo-500/70 via-indigo-500/50 to-indigo-500/30 text-white shadow-[0_15px_35px_rgba(99,102,241,0.45)] backdrop-blur-md transition duration-200 hover:border-indigo-300/40 hover:from-indigo-500/80 hover:via-indigo-500/60 hover:to-indigo-500/40 hover:shadow-[0_20px_45px_rgba(99,102,241,0.6)]"
                   disabled={isUpdating}
                 >
                   {isUpdating ? "Updating..." : "Update Invoice"}
@@ -680,7 +683,7 @@ export default function InvoiceDialog({
                   enabled={open}
                   placeholder={
                     <div
-                      className="flex h-11 w-full items-center rounded-md border border-white/20 bg-white/10 px-3 text-sm text-white/60"
+                      className="flex h-11 w-full items-center rounded-md border border-white/20 bg-white/10 px-2 text-sm text-white/60"
                       aria-hidden
                     >
                       {selectedOrder?.orderNumber ?? "Select an order..."}
@@ -695,11 +698,11 @@ export default function InvoiceDialog({
                     >
                       <SelectTrigger
                         id="order-select"
-                        className="w-full bg-white/10 backdrop-blur-sm border border-white/20 text-white placeholder:text-white/40 focus-visible:border-indigo-400 focus-visible:ring-indigo-500/50 shadow-[0_10px_30px_rgba(99,102,241,0.15)]"
+                        className="w-full bg-white/10 backdrop-blur-md border border-white/20 text-white placeholder:text-white/40 focus-visible:border-indigo-400 focus-visible:ring-indigo-500/50 shadow-[0_10px_30px_rgba(99,102,241,0.15)]"
                       >
                         <SelectValue placeholder="Select an order..." />
                       </SelectTrigger>
-                      <SelectContent className="bg-white/80 dark:bg-popover/50 backdrop-blur-sm">
+                      <SelectContent className="bg-white/80 dark:bg-popover/50 backdrop-blur-md">
                         {availableOrders.map((order) => {
                           const placer =
                             order.placedByName || order.placedByEmail || null;
@@ -739,7 +742,7 @@ export default function InvoiceDialog({
                     type="date"
                     value={dueDate}
                     onChange={(e) => setDueDate(e.target.value)}
-                    className="w-full bg-white/10 backdrop-blur-sm border border-white/20 text-white placeholder:text-white/40 focus-visible:border-indigo-400 focus-visible:ring-indigo-500/50 shadow-[0_10px_30px_rgba(99,102,241,0.15)] pr-10"
+                    className="w-full bg-white/10 backdrop-blur-md border border-white/20 text-white placeholder:text-white/40 focus-visible:border-indigo-400 focus-visible:ring-indigo-500/50 shadow-[0_10px_30px_rgba(99,102,241,0.15)] pr-10"
                     min={new Date().toISOString().split("T")[0]}
                   />
                   <CalendarIcon className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-white dark:text-white/40 pointer-events-none" />
@@ -773,7 +776,7 @@ export default function InvoiceDialog({
                       </span>
                     </div>
                   )}
-                  <div className="flex justify-between text-base font-semibold text-white pt-2 border-t border-indigo-400/20">
+                  <div className="flex justify-between text-base font-medium text-white pt-2 border-t border-indigo-400/20">
                     <span>Invoice Total:</span>
                     <span>{fmt(selectedOrder.total ?? 0)}</span>
                   </div>
@@ -798,7 +801,7 @@ export default function InvoiceDialog({
                   onChange={(e) => setNotes(e.target.value)}
                   placeholder="Add any additional notes for this invoice..."
                   rows={3}
-                  className="w-full bg-white/10 backdrop-blur-sm border border-white/20 text-white placeholder:text-white/40 focus-visible:border-indigo-400 focus-visible:ring-indigo-500/50 shadow-[0_10px_30px_rgba(99,102,241,0.15)]"
+                  className="w-full bg-white/10 backdrop-blur-md border border-white/20 text-white placeholder:text-white/40 focus-visible:border-indigo-400 focus-visible:ring-indigo-500/50 shadow-[0_10px_30px_rgba(99,102,241,0.15)]"
                 />
               </div>
             </div>
@@ -808,13 +811,13 @@ export default function InvoiceDialog({
                 type="button"
                 onClick={handleCancel}
                 variant="secondary"
-                className="h-11 w-full sm:w-auto px-11 inline-flex items-center justify-center rounded-xl border border-white/10 bg-gradient-to-r from-gray-400/40 via-gray-300/30 to-gray-400/40 dark:bg-background/50 backdrop-blur-sm shadow-[0_15px_35px_rgba(0,0,0,0.3)] dark:shadow-[0_15px_35px_rgba(255,255,255,0.25)] transition duration-200 hover:bg-gradient-to-r hover:from-gray-400/60 hover:via-gray-300/50 hover:to-gray-400/60 dark:hover:bg-accent/50 hover:border-white/20 dark:hover:border-white/20 hover:shadow-[0_20px_45px_rgba(0,0,0,0.5)] dark:hover:shadow-[0_20px_45px_rgba(255,255,255,0.4)]"
+                className="h-11 w-full sm:w-auto px-11 inline-flex items-center justify-center rounded-xl border border-white/10 bg-gradient-to-r from-gray-400/40 via-gray-300/30 to-gray-400/40 dark:bg-background/50 backdrop-blur-md shadow-[0_15px_35px_rgba(0,0,0,0.3)] dark:shadow-[0_15px_35px_rgba(255,255,255,0.25)] transition duration-200 hover:bg-gradient-to-r hover:from-gray-400/60 hover:via-gray-300/50 hover:to-gray-400/60 dark:hover:bg-accent/50 hover:border-white/20 dark:hover:border-white/20 hover:shadow-[0_20px_45px_rgba(0,0,0,0.5)] dark:hover:shadow-[0_20px_45px_rgba(255,255,255,0.4)]"
               >
                 Cancel
               </Button>
               <Button
                 type="submit"
-                className="h-11 w-full sm:w-auto px-11 inline-flex items-center justify-center rounded-xl border border-indigo-400/30 bg-gradient-to-r from-indigo-500/70 via-indigo-500/50 to-indigo-500/30 text-white shadow-[0_15px_35px_rgba(99,102,241,0.45)] backdrop-blur-sm transition duration-200 hover:border-indigo-300/40 hover:from-indigo-500/80 hover:via-indigo-500/60 hover:to-indigo-500/40 hover:shadow-[0_20px_45px_rgba(99,102,241,0.6)]"
+                className="h-11 w-full sm:w-auto px-11 inline-flex items-center justify-center rounded-xl border border-indigo-400/30 bg-gradient-to-r from-indigo-500/70 via-indigo-500/50 to-indigo-500/30 text-white shadow-[0_15px_35px_rgba(99,102,241,0.45)] backdrop-blur-md transition duration-200 hover:border-indigo-300/40 hover:from-indigo-500/80 hover:via-indigo-500/60 hover:to-indigo-500/40 hover:shadow-[0_20px_45px_rgba(99,102,241,0.6)]"
                 disabled={isCreating || !selectedOrderId || !dueDate}
               >
                 <FileText className="h-4 w-4 mr-2" />

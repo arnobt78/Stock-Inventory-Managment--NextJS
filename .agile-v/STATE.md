@@ -4,18 +4,19 @@
 |-------|-------|
 | **Cycle** | C1 |
 | **Phase** | `phases/07-shell-first-navigation` |
-| **Infinity Loop stage** | Verify (REQ-0021 done) |
-| **Last updated** | 2026-07-08 |
-| **Active REQ range** | REQ-0001 … REQ-0021 |
-| **Prod deploy target** | `733681a` (REQ-0021) |
+| **Infinity Loop stage** | Verify (REQ-0027 done) |
+| **Last updated** | 2026-07-09 |
+| **Active REQ range** | REQ-0001 … REQ-0029 |
+| **Prod deploy target** | pending (REQ-0026 + REQ-0027 + REQ-0029) |
 | **Human Gate 1** | APPROVED (retroactive bootstrap) |
 | **Human Gate 2** | PENDING — Sentry 24h after REQ-0020 deploy |
 | **Resume token** | — |
 
 ## Current focus
 
-1. **REQ-0021** — shell-first navigation + data-slot pulse skeletons (done)
-2. **Human Gate 2** — Sentry 24h after REQ-0021 deploy
+1. **REQ-0029** — done (supplier read-only category/supplier detail — Option B)
+2. **REQ-0028** — done (scrollbar gutter, login form persist, table typography)
+3. **Commit + deploy** — pending user
 
 ## Session resume (every chat)
 
@@ -43,4 +44,9 @@
 | Admin AI + hydration (REQ-0019) | done |
 | Locale-aware admin format (REQ-0020) | done |
 | Shell-first nav + data-slot pulse (REQ-0021) | done |
+| Tier-3 detail shell-first gap (REQ-0022) | done |
+| Admin detail shell-first gap (REQ-0023) | done |
+| Shell-first consistency + detail SSR + order DRY (REQ-0024) | done |
 | TanStack invalidation | unchanged; 200 audit pass |
+| Client owner dropdown | ProductOwnerSelect + product-owner filter; QA PASS |
+| REQ-0027 perf polish | shallow ?ownerId= sync; admin client-list warm on / or /admin only |

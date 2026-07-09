@@ -9,89 +9,21 @@ import React from "react";
 import { Column, ColumnDef } from "@tanstack/react-table";
 import { Order } from "@/types";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import {
-  Package,
-  Truck,
-  CheckCircle,
-  XCircle,
-  Clock,
-  ArrowUpDown,
-} from "lucide-react";
+  OrderStatusBadge,
+  PaymentStatusBadge,
+} from "@/lib/ui/semantic-badges";
+import { ArrowUpDown } from "lucide-react";
 import { IoMdArrowDown, IoMdArrowUp } from "react-icons/io";
 import { format } from "date-fns";
 import Link from "next/link";
 import OrderActions from "./OrderActions";
-
-/**
- * Get order status badge color
- */
-function getStatusColor(status: string): string {
-  switch (status) {
-    case "pending":
-      return "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300";
-    case "confirmed":
-      return "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300";
-    case "processing":
-      return "bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300";
-    case "shipped":
-      return "bg-indigo-100 text-indigo-800 dark:bg-indigo-900/30 dark:text-indigo-300";
-    case "delivered":
-      return "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300";
-    case "cancelled":
-      return "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300";
-    default:
-      return "bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-300";
-  }
-}
-
-/**
- * Get payment status badge color
- */
-function getPaymentStatusColor(status: string): string {
-  switch (status) {
-    case "paid":
-      return "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300";
-    case "unpaid":
-      return "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300";
-    case "partial":
-      return "bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-300";
-    case "refunded":
-      return "bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-300";
-    default:
-      return "bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-300";
-  }
-}
-
-/**
- * Get status icon
- */
-function getStatusIcon(status: string) {
-  switch (status) {
-    case "pending":
-      return <Clock className="h-3 w-3" />;
-    case "confirmed":
-      return <CheckCircle className="h-3 w-3" />;
-    case "processing":
-      return <Package className="h-3 w-3" />;
-    case "shipped":
-      return <Truck className="h-3 w-3" />;
-    case "delivered":
-      return <CheckCircle className="h-3 w-3" />;
-    case "cancelled":
-      return <XCircle className="h-3 w-3" />;
-    default:
-      return null;
-  }
-}
 
 /**
  * Sortable Header Props
@@ -119,7 +51,7 @@ const SortableHeader: React.FC<SortableHeaderProps> = ({ column, label }) => {
     <DropdownMenu>
       <DropdownMenuTrigger className="" asChild>
         <div
-          className={`flex items-center select-none cursor-pointer gap-1 py-2 text-gray-700 dark:text-white ${
+          className={`flex items-center select-none cursor-pointer gap-1 py-2 text-sm font-normal text-gray-700 dark:text-white ${
             isSorted && "text-primary"
           }`}
           aria-label={`Sort by ${label}`}
@@ -188,7 +120,7 @@ export const createOrderColumns = (
         <div className="flex flex-col gap-0.5">
           <Link
             href={href}
-            className="font-semibold text-sky-600 dark:text-sky-400 hover:text-sky-500 dark:hover:text-sky-300"
+            className="font-normal text-sky-600 dark:text-sky-400 hover:text-sky-500 dark:hover:text-sky-300"
           >
             {order.orderNumber}
           </Link>
@@ -231,14 +163,7 @@ export const createOrderColumns = (
     header: ({ column }) => <SortableHeader column={column} label="Status" />,
     cell: ({ row }) => {
       const status = row.original.status;
-      return (
-        <Badge className={getStatusColor(status)}>
-          <span className="flex items-center gap-1">
-            {getStatusIcon(status)}
-            {status.charAt(0).toUpperCase() + status.slice(1)}
-          </span>
-        </Badge>
-      );
+      return <OrderStatusBadge status={status} />;
     },
   },
   {
@@ -246,11 +171,7 @@ export const createOrderColumns = (
     header: ({ column }) => <SortableHeader column={column} label="Payment" />,
     cell: ({ row }) => {
       const paymentStatus = row.original.paymentStatus;
-      return (
-        <Badge className={getPaymentStatusColor(paymentStatus)}>
-          {paymentStatus.charAt(0).toUpperCase() + paymentStatus.slice(1)}
-        </Badge>
-      );
+      return <PaymentStatusBadge status={paymentStatus} />;
     },
   },
   {
@@ -258,7 +179,7 @@ export const createOrderColumns = (
     header: ({ column }) => <SortableHeader column={column} label="Total" />,
     cell: ({ getValue }) => {
       const total = getValue<number>();
-      return <span className="font-semibold">${total.toFixed(2)}</span>;
+      return <span>${total.toFixed(2)}</span>;
     },
   },
   {
@@ -280,7 +201,7 @@ export const createOrderColumns = (
     cell: ({ getValue }) => {
       const date = getValue<Date>();
       return (
-        <span className="text-sm">
+        <span>
           {format(new Date(date), "MMM dd, yyyy")}
         </span>
       );

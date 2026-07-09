@@ -10,7 +10,7 @@ import {
 import { isDataSlotLoading } from "@/lib/react-query";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
-import type { AuditLog, AuditAction } from "@/types";
+import type { AuditLog } from "@/types";
 import {
   Select,
   SelectContent,
@@ -18,7 +18,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Badge } from "@/components/ui/badge";
+import { AuditActionBadge } from "@/lib/ui/semantic-badges";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Search } from "lucide-react";
@@ -44,27 +44,6 @@ const PERIODS: { value: ActivityLogPeriod; label: string }[] = [
   { value: "7days", label: "Last 7 days" },
   { value: "month", label: "Last month" },
 ];
-
-const actionColors: Record<AuditAction, string> = {
-  create:
-    "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400",
-  update: "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400",
-  delete: "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400",
-  login:
-    "bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400",
-  logout: "bg-gray-100 text-gray-700 dark:bg-gray-900/30 dark:text-gray-400",
-  view: "bg-cyan-100 text-cyan-700 dark:bg-cyan-900/30 dark:text-cyan-400",
-  export:
-    "bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400",
-  import:
-    "bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400",
-  send: "bg-indigo-100 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-400",
-  payment:
-    "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400",
-  ship: "bg-sky-100 text-sky-700 dark:bg-sky-900/30 dark:text-sky-400",
-  settings_change:
-    "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400",
-};
 
 const variantConfig = {
   border: "border-violet-400/20",
@@ -166,7 +145,7 @@ function getActivityDetails(log: AuditLog): React.ReactNode {
   }
 
   return (
-    <span className="whitespace-pre-line text-sm text-gray-700 dark:text-gray-300">
+    <span className="whitespace-pre-line text-gray-700 dark:text-gray-300">
       {lines.join("\n")}
     </span>
   );
@@ -258,11 +237,11 @@ export default function ActivityLogSection({
           const email = log.user?.email ?? "—";
           return (
             <div className="flex flex-col min-w-0">
-              <span className="font-medium text-gray-800 dark:text-gray-200">
+              <span className="font-normal text-gray-800 dark:text-gray-200">
                 {name}
               </span>
               <span
-                className="text-sm text-gray-600 dark:text-gray-400 truncate max-w-[200px]"
+                className="truncate max-w-[200px] text-muted-foreground"
                 title={email}
               >
                 {email}
@@ -274,23 +253,7 @@ export default function ActivityLogSection({
       {
         id: "action",
         header: "Action",
-        cell: ({ row }) => {
-          const action = row.original.action as AuditAction;
-          const label =
-            action.charAt(0).toUpperCase() +
-            (action?.slice(1) ?? "").replace(/_/g, " ");
-          const colorClass =
-            actionColors[action] ??
-            "bg-gray-100 text-gray-700 dark:bg-gray-900/30 dark:text-gray-400";
-          return (
-            <Badge
-              variant="secondary"
-              className={cn("font-medium", colorClass)}
-            >
-              {label}
-            </Badge>
-          );
-        },
+        cell: ({ row }) => <AuditActionBadge action={row.original.action} />,
       },
       {
         id: "entity",
@@ -301,7 +264,7 @@ export default function ActivityLogSection({
           return link ? (
             <Link
               href={link}
-              className="text-sky-600 dark:text-sky-400 hover:text-sky-500 dark:hover:text-sky-300"
+              className="font-normal text-sky-600 dark:text-sky-400 hover:text-sky-500 dark:hover:text-sky-300"
             >
               {log.entityType} {log.entityId?.slice(-6)}
             </Link>
@@ -344,7 +307,7 @@ export default function ActivityLogSection({
   return (
     <article
       className={cn(
-        "rounded-[20px] border p-2 sm:p-4 backdrop-blur-sm mt-8",
+        "rounded-[20px] border p-2 sm:p-4 backdrop-blur-md mt-8",
         "bg-white/60 dark:bg-white/5",
         variantConfig.border,
         variantConfig.gradient,
@@ -353,7 +316,7 @@ export default function ActivityLogSection({
     >
       <div className="flex flex-col gap-2 mb-4">
         <div className="flex flex-col">
-          <h2 className="text-lg sm:text-xl font-semibold text-gray-700 dark:text-white ">
+          <h2 className="text-lg sm:text-xl font-medium text-gray-700 dark:text-white ">
             Activity Logs
           </h2>
           <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">
@@ -373,7 +336,7 @@ export default function ActivityLogSection({
               placeholder="Search by user, action, entity..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="h-10 pl-9 pr-10 w-full rounded-[28px] bg-white/10 dark:bg-white/5 backdrop-blur-sm border border-sky-400/30 dark:border-white/20 text-gray-700 dark:text-white placeholder:text-gray-500 dark:placeholder:text-white/40 focus-visible:border-sky-400 focus-visible:ring-sky-500/50 shadow-[0_10px_30px_rgba(2,132,199,0.15)]"
+              className="h-10 pl-9 pr-10 w-full rounded-[28px] bg-white/10 dark:bg-white/5 backdrop-blur-md border border-sky-400/30 dark:border-white/20 text-gray-700 dark:text-white placeholder:text-gray-500 dark:placeholder:text-white/40 focus-visible:border-sky-400 focus-visible:ring-sky-500/50 shadow-[0_10px_30px_rgba(2,132,199,0.15)]"
             />
             {searchTerm && (
               <Button
@@ -393,8 +356,8 @@ export default function ActivityLogSection({
                 className={cn(
                   "w-full sm:w-[180px] h-10 rounded-[28px] border border-sky-400/30 dark:border-sky-400/30",
                   "bg-gradient-to-r from-sky-500/25 via-sky-500/15 to-sky-500/10 dark:from-sky-500/25 dark:via-sky-500/15 dark:to-sky-500/10",
-                  "text-gray-700 dark:text-white shadow-[0_10px_30px_rgba(2,132,199,0.2)] backdrop-blur-sm",
-                  "flex items-center px-3 text-sm",
+                  "text-gray-700 dark:text-white shadow-[0_10px_30px_rgba(2,132,199,0.2)] backdrop-blur-md",
+                  "flex items-center px-2 text-sm",
                 )}
                 aria-hidden
               >
@@ -413,7 +376,7 @@ export default function ActivityLogSection({
                   className={cn(
                     "w-full sm:w-[180px] h-10 rounded-[28px] border border-sky-400/30 dark:border-sky-400/30",
                     "bg-gradient-to-r from-sky-500/25 via-sky-500/15 to-sky-500/10 dark:from-sky-500/25 dark:via-sky-500/15 dark:to-sky-500/10",
-                    "text-gray-700 dark:text-white shadow-[0_10px_30px_rgba(2,132,199,0.2)] backdrop-blur-sm",
+                    "text-gray-700 dark:text-white shadow-[0_10px_30px_rgba(2,132,199,0.2)] backdrop-blur-md",
                     "transition duration-200 hover:border-sky-300/40 hover:from-sky-500/35 hover:via-sky-500/25 hover:to-sky-500/15",
                     "dark:hover:border-sky-300/40 dark:hover:from-sky-500/35 dark:hover:via-sky-500/25 dark:hover:to-sky-500/15",
                   )}
@@ -449,10 +412,7 @@ export default function ActivityLogSection({
                   className="border-violet-200/30 dark:border-white/10 bg-white/40 dark:bg-white/5 hover:bg-transparent"
                 >
                   {headerGroup.headers.map((header) => (
-                    <TableHead
-                      key={header.id}
-                      className="font-medium text-gray-700 dark:text-gray-300"
-                    >
+                    <TableHead key={header.id}>
                       {header.isPlaceholder
                         ? null
                         : flexRender(
@@ -483,10 +443,7 @@ export default function ActivityLogSection({
                   className="border-violet-200/30 dark:border-white/10 bg-white/40 dark:bg-white/5 hover:bg-transparent"
                 >
                   {headerGroup.headers.map((header) => (
-                    <TableHead
-                      key={header.id}
-                      className="font-medium text-gray-700 dark:text-gray-300"
-                    >
+                    <TableHead key={header.id}>
                       {header.isPlaceholder
                         ? null
                         : flexRender(
@@ -505,7 +462,7 @@ export default function ActivityLogSection({
                   className="border-violet-100/30 dark:border-white/5 hover:bg-white/30 dark:hover:bg-white/5"
                 >
                   {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id} className="py-2.5 px-2">
+                    <TableCell key={cell.id} className="px-2 py-2">
                       {flexRender(
                         cell.column.columnDef.cell,
                         cell.getContext(),

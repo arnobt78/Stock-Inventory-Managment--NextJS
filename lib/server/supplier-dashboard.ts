@@ -152,7 +152,10 @@ export async function getSupplierDashboard(
     pending: orders
       .filter(
         (o) =>
-          o.paymentStatus === "pending" && o.status !== "cancelled",
+          (o.paymentStatus === "unpaid" ||
+            o.paymentStatus === "partial" ||
+            o.paymentStatus === "pending") &&
+          o.status !== "cancelled",
       )
       .reduce((sum, o) => sum + getSupplierShare(o), 0),
   };

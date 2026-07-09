@@ -4,4 +4,5 @@
  */
 
 export { AuthProvider, useAuth } from "./auth-context";
+export { ShellSsrProvider, useShellSsr } from "./shell-ssr-context";
 

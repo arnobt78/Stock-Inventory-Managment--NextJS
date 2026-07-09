@@ -7,7 +7,11 @@
 
 import React from "react";
 import { Column, ColumnDef } from "@tanstack/react-table";
-import { Badge } from "@/components/ui/badge";
+import {
+  ImportStatusBadge,
+  ImportTypeBadge,
+  formatSemanticLabel,
+} from "@/lib/ui/semantic-badges";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -15,38 +19,12 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { ArrowUpDown, CheckCircle, XCircle, Loader2, Eye } from "lucide-react";
+import { ArrowUpDown, Eye } from "lucide-react";
 import { IoMdArrowDown, IoMdArrowUp } from "react-icons/io";
 import { format } from "date-fns";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 import type { ImportHistoryForPage } from "@/types";
-
-function getStatusColor(status: string): string {
-  switch (status) {
-    case "completed":
-      return "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300";
-    case "failed":
-      return "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300";
-    case "processing":
-      return "bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300";
-    default:
-      return "bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-300";
-  }
-}
-
-function getStatusIcon(status: string) {
-  switch (status) {
-    case "completed":
-      return <CheckCircle className="h-3 w-3" />;
-    case "failed":
-      return <XCircle className="h-3 w-3" />;
-    case "processing":
-      return <Loader2 className="h-3 w-3 animate-spin" />;
-    default:
-      return null;
-  }
-}
 
 type SortableHeaderProps = {
   column: Column<ImportHistoryForPage, unknown>;
@@ -67,7 +45,7 @@ function SortableHeader({ column, label }: SortableHeaderProps) {
       <DropdownMenuTrigger className="" asChild>
         <div
           className={cn(
-            "flex items-center select-none cursor-pointer gap-1 py-2 text-gray-700 dark:text-white",
+            "flex items-center select-none cursor-pointer gap-1 py-2 text-sm font-normal text-gray-700 dark:text-white",
             isSorted && "text-primary",
           )}
           aria-label={`Sort by ${label}`}
@@ -101,7 +79,7 @@ export function createHistoryColumns(
       ),
       cell: ({ getValue }) => {
         const v = getValue<string>();
-        return <span className="capitalize font-medium">{v}</span>;
+        return <ImportTypeBadge status={v} label={formatSemanticLabel(v)} />;
       },
     },
     {
@@ -111,7 +89,7 @@ export function createHistoryColumns(
       ),
       cell: ({ getValue }) => (
         <span
-          className="font-mono text-sm truncate max-w-[180px] block"
+          className="font-mono truncate max-w-[180px] block"
           title={getValue<string>()}
         >
           {getValue<string>()}
@@ -122,7 +100,7 @@ export function createHistoryColumns(
       accessorKey: "createdAt",
       header: ({ column }) => <SortableHeader column={column} label="Date" />,
       cell: ({ getValue }) => (
-        <span className="text-sm">
+        <span>
           {format(new Date(getValue<string>()), "MMM dd, yyyy HH:mm")}
         </span>
       ),
@@ -133,12 +111,7 @@ export function createHistoryColumns(
       cell: ({ row }) => {
         const status = row.original.status;
         return (
-          <Badge className={getStatusColor(status)}>
-            <span className="flex items-center gap-1">
-              {getStatusIcon(status)}
-              {status}
-            </span>
-          </Badge>
+          <ImportStatusBadge status={status} />
         );
       },
     },
@@ -148,14 +121,14 @@ export function createHistoryColumns(
         <SortableHeader column={column} label="Total Rows" />
       ),
       cell: ({ getValue }) => (
-        <span className="font-medium">{getValue<number>()}</span>
+        <span>{getValue<number>()}</span>
       ),
     },
     {
       id: "successRows",
       header: "Success",
       cell: ({ row }) => (
-        <span className="text-green-600 dark:text-green-400 font-medium">
+        <span className="text-green-600 dark:text-green-400">
           {row.original.successRows}
         </span>
       ),
@@ -164,7 +137,7 @@ export function createHistoryColumns(
       id: "failedRows",
       header: "Failed",
       cell: ({ row }) => (
-        <span className="text-red-600 dark:text-red-400 font-medium">
+        <span className="text-red-600 dark:text-red-400">
           {row.original.failedRows}
         </span>
       ),

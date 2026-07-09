@@ -6,7 +6,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getSessionFromRequest } from "@/utils/auth";
 import { logger } from "@/lib/logger";
-import { prisma } from "@/prisma/client";
+import { getWarehouseDetailForPage } from "@/lib/server/warehouse-detail-data";
 
 /**
  * GET /api/warehouses/:id
@@ -23,12 +23,10 @@ export async function GET(
     }
 
     const { id } = await params;
-    const userId = session.id;
-    const isAdmin = session.role === "admin";
-
-    const warehouse = await prisma.warehouse.findFirst({
-      where: isAdmin ? { id } : { id, userId },
-    });
+    const warehouse = await getWarehouseDetailForPage(
+      { id: session.id, role: session.role },
+      id,
+    );
 
     if (!warehouse) {
       return NextResponse.json(

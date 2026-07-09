@@ -197,7 +197,9 @@ export const cacheKeys = {
       const filterStr = filters ? JSON.stringify(filters) : "default";
       return `categories:list:${filterStr}`;
     },
-    detail: (id: string) => `categories:detail:${id}`,
+    /** Optional scope suffix (e.g. supplier:{entityId}) for role-scoped detail payloads. REQ-0029 */
+    detail: (id: string, scope?: string) =>
+      scope ? `categories:detail:${id}:${scope}` : `categories:detail:${id}`,
     pattern: "categories:*",
   },
 
@@ -210,7 +212,9 @@ export const cacheKeys = {
       const filterStr = filters ? JSON.stringify(filters) : "default";
       return `suppliers:list:${filterStr}`;
     },
-    detail: (id: string) => `suppliers:detail:${id}`,
+    /** Optional scope suffix (e.g. supplier:{entityId}) for role-scoped detail payloads. REQ-0029 */
+    detail: (id: string, scope?: string) =>
+      scope ? `suppliers:detail:${id}:${scope}` : `suppliers:detail:${id}`,
     pattern: "suppliers:*",
   },
 

@@ -66,7 +66,7 @@ export default function Supplier({
                       className="size-4 rounded-[4px]"
                     />
                     <div
-                      className={`flex items-center gap-1 p-1 rounded-lg px-3  text-[14px]`}
+                      className={`flex items-center gap-1 p-1 rounded-lg px-2  text-[14px]`}
                     >
                       {supplier.name}
                     </div>

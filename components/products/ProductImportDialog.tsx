@@ -183,14 +183,14 @@ export function ProductImportDialog({
       <DialogTrigger asChild>
         <Button
           variant="secondary"
-          className="h-10 rounded-[28px] border border-amber-400/30 dark:border-amber-400/30 bg-gradient-to-r from-amber-500/30 via-amber-500/15 to-amber-500/5 dark:from-amber-500/30 dark:via-amber-500/15 dark:to-amber-500/5 text-gray-700 dark:text-white shadow-[0_10px_30px_rgba(245,158,11,0.2)] backdrop-blur-sm transition duration-200 hover:border-amber-300/60 hover:from-amber-500/35 hover:via-amber-500/25 hover:to-amber-500/15 dark:hover:border-amber-300/60 dark:hover:from-amber-500/35 dark:hover:via-amber-500/25 dark:hover:to-amber-500/15"
+          className="h-10 rounded-[28px] border border-amber-400/30 dark:border-amber-400/30 bg-gradient-to-r from-amber-500/30 via-amber-500/15 to-amber-500/5 dark:from-amber-500/30 dark:via-amber-500/15 dark:to-amber-500/5 text-gray-700 dark:text-white shadow-[0_10px_30px_rgba(245,158,11,0.2)] backdrop-blur-md transition duration-200 hover:border-amber-300/60 hover:from-amber-500/35 hover:via-amber-500/25 hover:to-amber-500/15 dark:hover:border-amber-300/60 dark:hover:from-amber-500/35 dark:hover:via-amber-500/25 dark:hover:to-amber-500/15"
         >
           <Upload className="h-4 w-4" />
           Import Products
         </Button>
       </DialogTrigger>
       <DialogContent
-        className="p-4 sm:p-7 sm:px-8 poppins max-h-[90vh] overflow-y-auto border-amber-400/30 dark:border-amber-400/30 shadow-[0_30px_80px_rgba(245,158,11,0.45)] dark:shadow-[0_30px_80px_rgba(245,158,11,0.25)]"
+        className="p-4 p-2 sm:p-4 sm:px-8 poppins max-h-[90vh] overflow-y-auto border-amber-400/30 dark:border-amber-400/30 shadow-[0_30px_80px_rgba(245,158,11,0.45)] dark:shadow-[0_30px_80px_rgba(245,158,11,0.25)]"
         onOpenAutoFocus={(e) => e.preventDefault()}
       >
         <DialogHeader>
@@ -209,7 +209,7 @@ export function ProductImportDialog({
           <div className="flex flex-col gap-2">
             <label
               htmlFor="file-upload"
-              className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-amber-400/30 dark:border-amber-400/30 rounded-xl cursor-pointer bg-white/10 dark:bg-white/5 backdrop-blur-sm hover:bg-white/20 dark:hover:bg-white/10 transition-colors shadow-[0_10px_30px_rgba(245,158,11,0.15)]"
+              className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-amber-400/30 dark:border-amber-400/30 rounded-xl cursor-pointer bg-white/10 dark:bg-white/5 backdrop-blur-md hover:bg-white/20 dark:hover:bg-white/10 transition-colors shadow-[0_10px_30px_rgba(245,158,11,0.15)]"
             >
               <div className="flex flex-col items-center justify-center pt-5 pb-6">
                 {isImporting ? (
@@ -218,7 +218,7 @@ export function ProductImportDialog({
                   <Upload className="w-8 h-8 mb-2 text-amber-400" />
                 )}
                 <p className="mb-2 text-sm text-white/80">
-                  <span className="font-semibold">
+                  <span className="font-medium">
                     {isImporting ? "Importing..." : "Click to upload"}
                   </span>{" "}
                   or drag and drop
@@ -242,7 +242,7 @@ export function ProductImportDialog({
           {/* Import Result */}
           {importResult && (
             <div
-              className={`p-4 rounded-xl border backdrop-blur-sm ${
+              className={`p-4 rounded-xl border backdrop-blur-md ${
                 importResult.success && importResult.failedRows === 0
                   ? "bg-emerald-500/10 border-emerald-400/30 shadow-[0_10px_30px_rgba(16,185,129,0.15)]"
                   : "bg-amber-500/10 border-amber-400/30 shadow-[0_10px_30px_rgba(245,158,11,0.15)]"
@@ -251,11 +251,14 @@ export function ProductImportDialog({
               <div className="space-y-2">
                 <div className="flex items-center gap-2 text-white">
                   <FileText className="h-4 w-4" />
-                  <span className="font-semibold">Import Summary</span>
+                  <span className="font-medium">Import Summary</span>
                 </div>
                 <div className="text-sm  text-white/80">
                   <p>
-                    Total Rows: <strong className="text-white">{importResult.totalRows}</strong>
+                    Total Rows:{" "}
+                    <strong className="text-white">
+                      {importResult.totalRows}
+                    </strong>
                   </p>
                   <p className="text-emerald-400">
                     Successful: <strong>{importResult.successRows}</strong>
@@ -268,13 +271,12 @@ export function ProductImportDialog({
                 </div>
                 {importResult.errors && importResult.errors.length > 0 && (
                   <div className="mt-2 max-h-32 overflow-y-auto">
-                    <p className="text-xs font-semibold mb-1 text-white/70">Errors:</p>
+                    <p className="text-xs font-medium mb-1 text-white/70">
+                      Errors:
+                    </p>
                     <ul className="text-xs  list-disc list-inside">
                       {importResult.errors.slice(0, 5).map((error, index) => (
-                        <li
-                          key={index}
-                          className="text-red-400"
-                        >
+                        <li key={index} className="text-red-400">
                           Row {error.rowNumber}: {error.message}
                         </li>
                       ))}
@@ -295,7 +297,7 @@ export function ProductImportDialog({
           <Button
             onClick={() => handleOpenChange(false)}
             disabled={isImporting}
-            className="h-11 w-full sm:w-auto px-11 inline-flex items-center justify-center rounded-xl border border-white/10 bg-gradient-to-r from-gray-400/40 via-gray-300/30 to-gray-400/40 dark:bg-background/50 backdrop-blur-sm shadow-[0_15px_35px_rgba(0,0,0,0.3)] dark:shadow-[0_15px_35px_rgba(255,255,255,0.25)] transition duration-200 hover:bg-gradient-to-r hover:from-gray-400/60 hover:via-gray-300/50 hover:to-gray-400/60 dark:hover:bg-accent/50 hover:border-white/20 dark:hover:border-white/20 hover:shadow-[0_20px_45px_rgba(0,0,0,0.5)] dark:hover:shadow-[0_20px_45px_rgba(255,255,255,0.4)] text-white"
+            className="h-11 w-full sm:w-auto px-11 inline-flex items-center justify-center rounded-xl border border-white/10 bg-gradient-to-r from-gray-400/40 via-gray-300/30 to-gray-400/40 dark:bg-background/50 backdrop-blur-md shadow-[0_15px_35px_rgba(0,0,0,0.3)] dark:shadow-[0_15px_35px_rgba(255,255,255,0.25)] transition duration-200 hover:bg-gradient-to-r hover:from-gray-400/60 hover:via-gray-300/50 hover:to-gray-400/60 dark:hover:bg-accent/50 hover:border-white/20 dark:hover:border-white/20 hover:shadow-[0_20px_45px_rgba(0,0,0,0.5)] dark:hover:shadow-[0_20px_45px_rgba(255,255,255,0.4)] text-white"
           >
             {importResult ? "Close" : "Cancel"}
           </Button>

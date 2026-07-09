@@ -1,19 +1,16 @@
 import { redirect } from "next/navigation";
 import { getSession } from "@/lib/auth-server";
+import { getSupplierDashboard } from "@/lib/server/supplier-dashboard";
 import SupplierPortalPage from "@/components/Pages/SupplierPortalPage";
 
-/**
- * Supplier Portal route — server component.
- * Only users with role="supplier" or "admin" can access this page.
- */
+/** REQ-0025 — blocking SSR prefetch (no Suspense shell flash). */
+export const dynamic = "force-dynamic";
+
 export default async function SupplierPortalRoute() {
   const user = await getSession();
-  if (!user) {
-    redirect("/login");
-  }
-  // Allow supplier and admin roles
-  if (user.role !== "supplier" && user.role !== "admin") {
-    redirect("/");
-  }
-  return <SupplierPortalPage />;
+  if (!user) redirect("/login");
+  if (user.role !== "supplier" && user.role !== "admin") redirect("/");
+
+  const initialDashboard = await getSupplierDashboard(user.id);
+  return <SupplierPortalPage initialDashboard={initialDashboard ?? undefined} />;
 }

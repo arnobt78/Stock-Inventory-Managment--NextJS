@@ -2,10 +2,23 @@
 
 import React from "react";
 import Link from "next/link";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import {
+  OrderStatusBadge,
+  PaymentStatusBadge,
+  ProductStockStatusBadge,
+} from "@/lib/ui/semantic-badges";
+import {
+  CARD_LIST_DIVIDE_CLASS,
+  CARD_LIST_ROW_CLASS,
+  CARD_LIST_META_CLASS,
+} from "@/lib/ui/card-list-styles";
 import { AnalyticsCard } from "@/components/ui/analytics-card";
-import { PageContentWrapper, DataSlotPulse } from "@/components/shared";
+import {
+  PageContentWrapper,
+  PageSectionHeader,
+  DataSlotPulse,
+} from "@/components/shared";
 import { useSupplierPortal } from "@/hooks/queries";
 import { isDataSlotLoading } from "@/lib/react-query";
 import {
@@ -99,7 +112,7 @@ function GlassCard({
   return (
     <article
       className={cn(
-        "group rounded-[20px] border p-4 sm:p-5 backdrop-blur-sm transition-all duration-300 bg-white/60 dark:bg-white/5",
+        "group rounded-[20px] border p-4 sm:p-5 backdrop-blur-md transition-all duration-300 bg-white/60 dark:bg-white/5",
         config.border,
         config.gradient,
         config.shadow,
@@ -116,28 +129,6 @@ export type AdminSupplierPortalContentProps = {
   initialStats?: SupplierPortalStats | null;
 };
 
-function getStatusColor(status: string): string {
-  switch (status) {
-    case "in_stock":
-      return "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300";
-    case "low_stock":
-      return "bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300";
-    case "out_of_stock":
-      return "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300";
-    case "pending":
-      return "bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300";
-    case "confirmed":
-    case "completed":
-      return "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300";
-    case "processing":
-      return "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300";
-    case "cancelled":
-      return "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300";
-    default:
-      return "bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-300";
-  }
-}
-
 export default function AdminSupplierPortalContent({
   initialStats,
 }: AdminSupplierPortalContentProps = {}) {
@@ -148,14 +139,13 @@ export default function AdminSupplierPortalContent({
   return (
     <PageContentWrapper>
       <div className="mx-auto space-y-4">
-        <div className="space-y-2">
-          <h1 className="text-lg sm:text-xl font-semibold text-gray-700 dark:text-white">
-            Supplier Portal
-          </h1>
-          <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">
-            Overview of supplier entities, their products, orders, and activity.
-          </p>
-        </div>
+        <PageSectionHeader
+          as="h1"
+          icon={Truck}
+          tone="teal"
+          title="Supplier Portal"
+          description="Overview of supplier entities, their products, orders, and activity."
+        />
 
         {/* Summary cards */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-2 items-stretch">
@@ -208,7 +198,7 @@ export default function AdminSupplierPortalContent({
                 <Package className="h-5 w-5 text-sky-600 dark:text-sky-400" />
               </div>
               <div>
-                <h3 className="text-md sm:text-lg font-semibold text-gray-700 dark:text-white">
+                <h3 className="text-md sm:text-lg font-medium text-gray-700 dark:text-white">
                   Recent Supplier Products
                 </h3>
                 <p className="text-xs text-gray-600 dark:text-gray-400">
@@ -230,28 +220,23 @@ export default function AdminSupplierPortalContent({
                 No supplier products yet.
               </p>
             ) : (
-              <ul className="divide-y divide-sky-200/40 dark:divide-white/10">
+              <ul className={CARD_LIST_DIVIDE_CLASS}>
                 {(stats?.recentProducts ?? []).map((p) => (
-                  <li
-                    key={p.id}
-                    className="py-3 flex items-center justify-between gap-2"
-                  >
+                  <li key={p.id} className={CARD_LIST_ROW_CLASS}>
                     <div className="min-w-0">
                       <Link
                         href={`/admin/products/${p.id}`}
-                        className="font-medium text-sm text-sky-600 dark:text-sky-400 hover:text-sky-500 dark:hover:text-sky-300 truncate block"
+                        className="font-normal text-xs text-sky-600 dark:text-sky-400 hover:text-sky-500 dark:hover:text-sky-300 truncate block"
                       >
                         {p.name}
                       </Link>
-                      <span className="text-xs text-muted-foreground truncate block">
+                      <span className={CARD_LIST_META_CLASS}>
                         {p.supplierName} · {p.sku ?? "—"}
                       </span>
                     </div>
                     <div className="flex items-center gap-2 flex-shrink-0">
-                      <Badge className={getStatusColor(p.status)}>
-                        {p.status.replace("_", " ")}
-                      </Badge>
-                      <span className="text-sm font-medium text-gray-700 dark:text-white">
+                      <ProductStockStatusBadge status={p.status} />
+                      <span className="text-xs font-normal text-gray-700 dark:text-white">
                         ${p.price.toLocaleString()}
                       </span>
                     </div>
@@ -286,7 +271,7 @@ export default function AdminSupplierPortalContent({
                 <ShoppingCart className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
               </div>
               <div>
-                <h3 className="text-md sm:text-lg font-semibold text-gray-700 dark:text-white">
+                <h3 className="text-md sm:text-lg font-medium text-gray-700 dark:text-white">
                   Recent Supplier Orders
                 </h3>
                 <p className="text-xs text-gray-600 dark:text-gray-400">
@@ -308,29 +293,24 @@ export default function AdminSupplierPortalContent({
                 No supplier orders yet.
               </p>
             ) : (
-              <ul className="divide-y divide-emerald-200/40 dark:divide-white/10">
+              <ul className={CARD_LIST_DIVIDE_CLASS}>
                 {(stats?.recentOrders ?? []).map((o) => (
-                  <li
-                    key={o.id}
-                    className="py-3 flex items-center justify-between gap-2"
-                  >
+                  <li key={o.id} className={CARD_LIST_ROW_CLASS}>
                     <div className="min-w-0">
                       <Link
                         href={`/admin/orders/${o.id}`}
-                        className="font-medium text-sm text-sky-600 dark:text-sky-400 hover:text-sky-500 dark:hover:text-sky-300 truncate block"
+                        className="font-normal text-xs text-sky-600 dark:text-sky-400 hover:text-sky-500 dark:hover:text-sky-300 truncate block"
                       >
                         {o.orderNumber}
                       </Link>
-                      <span className="text-xs text-muted-foreground truncate block">
+                      <span className={CARD_LIST_META_CLASS}>
                         {o.supplierName} ·{" "}
                         {format(new Date(o.createdAt), "MMM d, yyyy")}
                       </span>
                     </div>
                     <div className="flex items-center gap-2 flex-shrink-0">
-                      <Badge className={getStatusColor(o.status)}>
-                        {o.status}
-                      </Badge>
-                      <span className="text-sm font-medium text-gray-700 dark:text-white">
+                      <OrderStatusBadge status={o.status} />
+                      <span className="text-xs font-normal text-gray-700 dark:text-white">
                         ${o.total.toLocaleString()}
                       </span>
                     </div>
@@ -366,7 +346,7 @@ export default function AdminSupplierPortalContent({
               <Truck className="h-5 w-5 text-violet-600 dark:text-violet-400" />
             </div>
             <div>
-              <h3 className="text-md sm:text-lg font-semibold text-gray-700 dark:text-white">
+              <h3 className="text-md sm:text-lg font-medium text-gray-700 dark:text-white">
                 Suppliers
               </h3>
               <p className="text-xs text-gray-600 dark:text-gray-400">
@@ -392,23 +372,23 @@ export default function AdminSupplierPortalContent({
               <table className="min-w-full text-sm">
                 <thead>
                   <tr className="border-b border-violet-200/40 dark:border-white/10 text-left text-gray-600 dark:text-gray-400">
-                    <th className="py-3 pr-4 font-medium">Name</th>
-                    <th className="py-3 pr-4 hidden sm:table-cell font-medium">
+                    <th className="px-2 pr-4 font-medium">Name</th>
+                    <th className="px-2 pr-4 hidden sm:table-cell font-medium">
                       Email
                     </th>
-                    <th className="py-3 pr-4 text-right font-medium">
+                    <th className="px-2 pr-4 text-right font-medium">
                       Products
                     </th>
-                    <th className="py-3 pr-4 text-right font-medium">Orders</th>
-                    <th className="py-3 text-right font-medium">
+                    <th className="px-2 pr-4 text-right font-medium">Orders</th>
+                    <th className="px-2 text-right font-medium">
                       Inventory Value
                     </th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-violet-200/40 dark:divide-white/10">
+                <tbody className="divide-y divide-border dark:divide-white/10">
                   {(stats?.suppliers ?? []).map((s) => (
                     <tr key={s.id}>
-                      <td className="py-3 pr-4">
+                      <td className="py-2 px-2 pr-4">
                         <Link
                           href={`/admin/suppliers/${s.id}`}
                           className="font-medium text-sky-600 dark:text-sky-400 hover:text-sky-500 dark:hover:text-sky-300"
@@ -416,16 +396,16 @@ export default function AdminSupplierPortalContent({
                           {s.name}
                         </Link>
                       </td>
-                      <td className="py-3 pr-4 hidden sm:table-cell text-muted-foreground truncate max-w-[200px]">
+                      <td className="py-2 px-2 pr-4 hidden sm:table-cell text-gray-700 dark:text-white truncate max-w-[200px]">
                         {s.email}
                       </td>
-                      <td className="py-3 pr-4 text-right text-gray-700 dark:text-white">
+                      <td className="py-2 px-2 pr-4 text-right text-gray-700 dark:text-white">
                         {s.productCount}
                       </td>
-                      <td className="py-3 pr-4 text-right text-gray-700 dark:text-white">
+                      <td className="py-2 px-2 pr-4 text-right text-gray-700 dark:text-white">
                         {s.orderCount}
                       </td>
-                      <td className="py-3 text-right font-medium text-gray-700 dark:text-white">
+                      <td className="py-2 px-2 text-right font-normal text-gray-700 dark:text-white">
                         ${s.totalValue.toLocaleString()}
                       </td>
                     </tr>

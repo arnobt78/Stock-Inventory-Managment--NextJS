@@ -9,6 +9,7 @@ import React from "react";
 import { Column, ColumnDef } from "@tanstack/react-table";
 import { Invoice } from "@/types";
 import { Badge } from "@/components/ui/badge";
+import { InvoiceStatusBadge } from "@/lib/ui/semantic-badges";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -17,56 +18,12 @@ import {
 } from "@/components/ui/dropdown-menu";
 import {
   FileText,
-  CheckCircle,
-  XCircle,
-  Clock,
-  AlertTriangle,
   ArrowUpDown,
 } from "lucide-react";
 import { IoMdArrowDown, IoMdArrowUp } from "react-icons/io";
 import { format } from "date-fns";
 import Link from "next/link";
 import InvoiceActions from "./InvoiceActions";
-
-/**
- * Get invoice status badge color
- */
-function getStatusColor(status: string): string {
-  switch (status) {
-    case "draft":
-      return "bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-300";
-    case "sent":
-      return "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300";
-    case "paid":
-      return "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300";
-    case "overdue":
-      return "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300";
-    case "cancelled":
-      return "bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-300";
-    default:
-      return "bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-300";
-  }
-}
-
-/**
- * Get status icon
- */
-function getStatusIcon(status: string) {
-  switch (status) {
-    case "draft":
-      return <FileText className="h-3 w-3" />;
-    case "sent":
-      return <Clock className="h-3 w-3" />;
-    case "paid":
-      return <CheckCircle className="h-3 w-3" />;
-    case "overdue":
-      return <AlertTriangle className="h-3 w-3" />;
-    case "cancelled":
-      return <XCircle className="h-3 w-3" />;
-    default:
-      return null;
-  }
-}
 
 /**
  * Sortable Header Props
@@ -94,7 +51,7 @@ const SortableHeader: React.FC<SortableHeaderProps> = ({ column, label }) => {
     <DropdownMenu>
       <DropdownMenuTrigger className="" asChild>
         <div
-          className={`flex items-center select-none cursor-pointer gap-1 py-2 text-gray-700 dark:text-white ${
+          className={`flex items-center select-none cursor-pointer gap-1 py-2 text-sm font-normal text-gray-700 dark:text-white ${
             isSorted && "text-primary"
           }`}
           aria-label={`Sort by ${label}`}
@@ -161,7 +118,7 @@ export const createInvoiceColumns = (
           <div className="flex flex-col gap-0.5">
             <Link
               href={invoiceHref(invoice.id)}
-              className="font-semibold text-sky-600 dark:text-sky-400 hover:text-sky-500 dark:hover:text-sky-300"
+              className="font-normal text-sky-600 dark:text-sky-400 hover:text-sky-500 dark:hover:text-sky-300"
             >
               {invoice.invoiceNumber}
             </Link>
@@ -199,14 +156,7 @@ export const createInvoiceColumns = (
       header: ({ column }) => <SortableHeader column={column} label="Status" />,
       cell: ({ row }) => {
         const status = row.original.status;
-        return (
-          <Badge className={getStatusColor(status)}>
-            <span className="flex items-center gap-1">
-              {getStatusIcon(status)}
-              {status.charAt(0).toUpperCase() + status.slice(1)}
-            </span>
-          </Badge>
-        );
+        return <InvoiceStatusBadge status={status} />;
       },
     },
     {
@@ -214,7 +164,7 @@ export const createInvoiceColumns = (
       header: ({ column }) => <SortableHeader column={column} label="Total" />,
       cell: ({ getValue }) => {
         const total = getValue<number>();
-        return <span className="font-semibold">${total.toFixed(2)}</span>;
+        return <span>${total.toFixed(2)}</span>;
       },
     },
     {
@@ -226,7 +176,7 @@ export const createInvoiceColumns = (
         const amountDue = getValue<number>();
         return (
           <span
-            className={`font-semibold ${amountDue > 0 ? "text-red-600 dark:text-red-400" : "text-green-600 dark:text-green-400"}`}
+            className={`font-normal ${amountDue > 0 ? "text-red-600 dark:text-red-400" : "text-green-600 dark:text-green-400"}`}
           >
             ${amountDue.toFixed(2)}
           </span>
@@ -248,7 +198,7 @@ export const createInvoiceColumns = (
 
         return (
           <span
-            className={`text-sm ${isOverdue ? "text-red-600 dark:text-red-400" : ""}`}
+            className={isOverdue ? "text-red-600 dark:text-red-400" : undefined}
           >
             {format(new Date(date), "MMM dd, yyyy")}
           </span>
@@ -263,7 +213,7 @@ export const createInvoiceColumns = (
       cell: ({ getValue }) => {
         const date = getValue<Date>();
         return (
-          <span className="text-sm">
+          <span>
             {format(new Date(date), "MMM dd, yyyy")}
           </span>
         );

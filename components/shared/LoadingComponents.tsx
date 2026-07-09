@@ -48,7 +48,10 @@ export function CardSkeleton({ count = 3 }: { count?: number }) {
   return (
     <div className="grid gap-2 md:grid-cols-2 lg:grid-cols-3">
       {Array.from({ length: count }).map((_, i) => (
-        <div key={`card-${i}`} className="rounded-lg border p-6 space-y-2">
+        <div
+          key={`card-${i}`}
+          className="rounded-lg border p-2 sm:p-4 space-y-2"
+        >
           <Skeleton className="h-4 w-1/3" />
           <Skeleton className="h-8 w-2/3" />
           <Skeleton className="h-3 w-1/2" />
@@ -108,7 +111,7 @@ export function ListSkeleton({ items = 5 }: { items?: number }) {
  */
 export function PageSkeleton() {
   return (
-    <div className="space-y-4 p-6">
+    <div className="space-y-4 p-2 sm:p-4">
       <div className="space-y-2">
         <Skeleton className="h-8 w-1/3" />
         <Skeleton className="h-4 w-1/2" />

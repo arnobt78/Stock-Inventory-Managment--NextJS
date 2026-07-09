@@ -9,6 +9,8 @@ import React, { useState, useEffect, useRef, useMemo } from "react";
 import { useHistory } from "@/hooks/queries";
 import { isDataSlotLoading } from "@/lib/react-query";
 import { PaginationType } from "@/components/shared/PaginationSelector";
+import { PageSectionHeader } from "@/components/shared";
+import { Upload } from "lucide-react";
 import { createHistoryColumns } from "./HistoryTableColumns";
 import HistoryFilters from "./HistoryFilters";
 import { HistoryTable } from "./HistoryTable";
@@ -47,16 +49,14 @@ export default function HistoryList({
 
   return (
     <div className="flex flex-col poppins">
-      <div className="pb-6 flex flex-col items-start text-left">
-        <h2 className="text-lg sm:text-xl font-semibold text-gray-700 dark:text-white ">
-          Import History
-        </h2>
-        <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">
-          Bulk import runs (CSV/Excel). Data appears here when you use Import
-          for products, orders, suppliers, or categories. View details,
-          success/failed rows, and error logs.
-        </p>
-      </div>
+      <PageSectionHeader
+        as="h2"
+        icon={Upload}
+        tone="blue"
+        className="pb-6"
+        title="Import History"
+        description="Bulk import runs (CSV/Excel). Data appears here when you use Import for products, orders, suppliers, or categories. View details, success/failed rows, and error logs."
+      />
 
       <div className="pb-6 flex justify-start">
         <div className="w-full max-w-9xl">

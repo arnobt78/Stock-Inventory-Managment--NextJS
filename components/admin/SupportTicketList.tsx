@@ -12,6 +12,7 @@ import {
 } from "@/hooks/queries";
 import { isDataSlotLoading } from "@/lib/react-query";
 import { PaginationType } from "@/components/shared/PaginationSelector";
+import { PageSectionHeader } from "@/components/shared";
 import { createSupportTicketColumns } from "./SupportTicketTableColumns";
 import SupportTicketFilters from "./SupportTicketFilters";
 import { SupportTicketTable } from "./SupportTicketTable";
@@ -79,15 +80,14 @@ export default function SupportTicketList({
 
   return (
     <div className="flex flex-col poppins">
-      <div className="pb-6 flex flex-col items-start text-left">
-        <h2 className="text-lg sm:text-xl font-semibold text-gray-700 dark:text-white ">
-          Store Support Tickets (assigned to you)
-        </h2>
-        <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">
-          Manage customer support tickets. Create, view, update status and
-          priority, and add internal notes.
-        </p>
-      </div>
+      <PageSectionHeader
+        as="h2"
+        icon={MessageSquare}
+        tone="violet"
+        className="pb-6"
+        title="Store Support Tickets (assigned to you)"
+        description="Manage customer support tickets. Create, view, update status and priority, and add internal notes."
+      />
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-2 pb-6 items-stretch">
         <StatisticsCard

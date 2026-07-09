@@ -269,7 +269,7 @@ export async function POST(request: NextRequest) {
       await prisma.order.update({
         where: { id },
         data: {
-          paymentStatus: "pending",
+          paymentStatus: "unpaid",
           updatedAt: new Date(),
         },
       });

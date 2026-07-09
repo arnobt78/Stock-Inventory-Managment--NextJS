@@ -1,9 +1,29 @@
+import { notFound, redirect } from "next/navigation";
+import { getSession } from "@/lib/auth-server";
+import { getSupportTicketDetailForPage } from "@/lib/server/support-ticket-detail-data";
+import { getSupportTicketRepliesForPage } from "@/lib/server/support-ticket-replies-data";
 import AdminSupportTicketDetailContent from "@/components/admin/AdminSupportTicketDetailContent";
 
-/**
- * Admin support ticket detail — view and manage a single ticket.
- * Layout (Navbar + AdminSidebar) from app/admin/layout.tsx.
- */
-export default function AdminSupportTicketDetailPage() {
-  return <AdminSupportTicketDetailContent />;
+type Props = { params: Promise<{ id: string }> };
+
+/** REQ-0025 — blocking SSR detail prefetch (no Suspense shell flash). */
+export const dynamic = "force-dynamic";
+
+export default async function AdminSupportTicketDetailPage({ params }: Props) {
+  const user = await getSession();
+  if (!user) redirect("/login");
+  const { id } = await params;
+
+  const [initialTicket, initialReplies] = await Promise.all([
+    getSupportTicketDetailForPage({ id: user.id, role: user.role }, id),
+    getSupportTicketRepliesForPage(id),
+  ]);
+  if (!initialTicket) notFound();
+
+  return (
+    <AdminSupportTicketDetailContent
+      initialTicket={initialTicket}
+      initialReplies={initialReplies}
+    />
+  );
 }

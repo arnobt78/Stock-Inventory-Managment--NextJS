@@ -53,6 +53,8 @@ export interface Invoice {
   issuedByName?: string | null;
   /** Invoice issuer/creator email (for client list table) */
   issuedByEmail?: string | null;
+  /** User who placed the linked order (for admin self/client source tagging) */
+  orderUserId?: string | null;
   /** Who created the invoice (for detail Parties section) */
   invoiceCreatedBy?: { name: string | null; email: string } | null;
   /** Who placed the order (for detail Parties section) */
@@ -108,4 +110,6 @@ export interface InvoiceFilters {
   endDate?: string; // ISO string
   dueDateStart?: string; // ISO string
   dueDateEnd?: string; // ISO string
+  /** API-only: `store` = all invoices for store orders (admin /invoices); default `issuer` */
+  scope?: "issuer" | "store";
 }

@@ -36,10 +36,12 @@ import {
   Clock,
   Package,
 } from "lucide-react";
+import { PageSectionHeader } from "@/components/shared";
 import type { Order } from "@/types";
 import type { OrderForPage } from "@/lib/server/orders-data";
 import type { OrderWithSource } from "./OrderTableColumns";
 import type { OrderSourceFilterValue } from "./OrderSourceFilter";
+import type { DashboardStats, ClientPortalDashboard, SupplierPortalDashboard } from "@/types";
 
 const formatCurrency = (value: number) =>
   `$${value.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
@@ -63,6 +65,14 @@ export type OrderListProps = {
   dataSource?: "orders" | "clientOrders" | "adminCombined";
   /** SSR-passed orders for first-render hydration (REQ-0021) */
   initialOrders?: Order[] | OrderForPage[];
+  /** SSR client-leg orders for adminCombined (REQ-0025) */
+  initialClientOrders?: Order[] | OrderForPage[];
+  /** SSR dashboard stats for header cards (REQ-0025) */
+  initialStats?: DashboardStats | null;
+  /** SSR client portal for client /orders cards */
+  initialClientPortal?: ClientPortalDashboard;
+  /** SSR supplier portal for supplier /orders cards */
+  initialSupplierPortal?: SupplierPortalDashboard | null;
 };
 
 const OrderList = React.memo(
@@ -70,6 +80,10 @@ const OrderList = React.memo(
     detailHrefBase,
     dataSource = "orders",
     initialOrders,
+    initialClientOrders,
+    initialStats,
+    initialClientPortal,
+    initialSupplierPortal,
   }: OrderListProps = {}) => {
     // Track if component has mounted on client to prevent hydration mismatch
     const isMountedRef = useRef(false);
@@ -77,15 +91,32 @@ const OrderList = React.memo(
 
     const pathname = usePathname();
     const { user } = useAuth();
+    const role = user?.role;
+
+    const enableClientOrders =
+      dataSource === "clientOrders" || dataSource === "adminCombined";
+    const enableDashboard =
+      (pathname === "/orders" &&
+        role !== "client" &&
+        role !== "supplier") ||
+      dataSource === "adminCombined";
+    const enableClientPortal = pathname === "/orders" && role === "client";
+    const enableSupplierPortal = pathname === "/orders" && role === "supplier";
+
     const ordersQueryDefault = useOrders(
-      dataSource === "orders" ? initialOrders : undefined,
-    );
-    const ordersQueryClient = useClientOrders(
-      dataSource === "clientOrders"
-        ? (initialOrders as Order[] | undefined)
+      dataSource === "orders" || dataSource === "adminCombined"
+        ? initialOrders
         : undefined,
     );
-    const dashboardQuery = useDashboard();
+    const ordersQueryClient = useClientOrders(
+      dataSource === "clientOrders" || dataSource === "adminCombined"
+        ? (initialClientOrders as Order[] | undefined)
+        : undefined,
+      { enabled: enableClientOrders },
+    );
+    const dashboardQuery = useDashboard(initialStats ?? undefined, {
+      enabled: enableDashboard,
+    });
     const dashboard =
       dataSource === "adminCombined" ? (dashboardQuery.data ?? null) : null;
     /** Show store-wide state cards only for admin/user on /orders (not for client/supplier) */
@@ -99,8 +130,12 @@ const OrderList = React.memo(
     /** Supplier on /orders: show supplier-specific header and state cards */
     const isSupplierOrdersPage =
       pathname === "/orders" && user?.role === "supplier";
-    const portalDashboardQuery = useClientPortalDashboard();
-    const supplierPortalQuery = useSupplierPortalDashboard();
+    const portalDashboardQuery = useClientPortalDashboard(
+      enableClientPortal ? initialClientPortal : undefined,
+    );
+    const supplierPortalQuery = useSupplierPortalDashboard(
+      enableSupplierPortal ? (initialSupplierPortal ?? undefined) : undefined,
+    );
     const clientPortalDashboard = isClientOrdersPage
       ? (portalDashboardQuery.data ?? null)
       : null;
@@ -205,13 +240,24 @@ const OrderList = React.memo(
     const tableDataLoading =
       dataSource === "adminCombined"
         ? isDataSlotLoading(ordersQueryDefault, initialOrders) ||
-          isDataSlotLoading(ordersQueryClient)
+          (enableClientOrders
+            ? isDataSlotLoading(ordersQueryClient, initialClientOrders)
+            : false)
         : dataSource === "clientOrders"
-          ? isDataSlotLoading(ordersQueryClient, initialOrders)
+          ? isDataSlotLoading(ordersQueryClient, initialClientOrders)
           : isDataSlotLoading(ordersQuery, initialOrders);
-    const dashboardCardsLoading = isDataSlotLoading(dashboardQuery);
-    const clientPortalCardsLoading = isDataSlotLoading(portalDashboardQuery);
-    const supplierPortalCardsLoading = isDataSlotLoading(supplierPortalQuery);
+    const dashboardCardsLoading = enableDashboard
+      ? isDataSlotLoading(dashboardQuery, initialStats ?? undefined)
+      : false;
+    const clientPortalCardsLoading = enableClientPortal
+      ? isDataSlotLoading(portalDashboardQuery, initialClientPortal)
+      : false;
+    const supplierPortalCardsLoading = enableSupplierPortal
+      ? isDataSlotLoading(
+          supplierPortalQuery,
+          initialSupplierPortal ?? undefined,
+        )
+      : false;
     const supplierPortal = supplierPortalQuery.data;
     const supplierNonCancelledOrders = Math.max(
       0,
@@ -231,9 +277,13 @@ const OrderList = React.memo(
     return (
       <div className="flex flex-col poppins">
         {/* Order Management Section Header */}
-        <div className="pb-6 flex flex-col items-start text-left">
-          <h2 className="text-lg sm:text-xl font-semibold text-gray-700 dark:text-white ">
-            {isAdminCombined
+        <PageSectionHeader
+          as="h2"
+          icon={ShoppingCart}
+          tone="sky"
+          className="pb-6"
+          title={
+            isAdminCombined
               ? "Store Orders Management (self + client)"
               : isClientOrders
                 ? "Client Orders"
@@ -241,10 +291,10 @@ const OrderList = React.memo(
                   ? "Your Orders"
                   : isSupplierOrdersPage
                     ? "Orders (Your Products)"
-                    : "Order Management"}
-          </h2>
-          <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">
-            {isAdminCombined
+                    : "Order Management"
+          }
+          description={
+            isAdminCombined
               ? "Orders placed by you and by clients. Filter by order type, status, and payment."
               : isClientOrders
                 ? "Orders placed by clients that include your products. View details, update status, and manage shipping."
@@ -252,9 +302,9 @@ const OrderList = React.memo(
                   ? "View and track all your orders here. Check status, payment, and shipping—open an order for full details."
                   : isSupplierOrdersPage
                     ? "Orders that contain your products. Track status, payments, and invoices created by the product owner."
-                    : "Manage client orders, track order status, monitor payments, and handle shipping. View order history, update statuses, and process cancellations."}
-          </p>
-        </div>
+                    : "Manage client orders, track order status, monitor payments, and handle shipping. View order history, update statuses, and process cancellations."
+          }
+        />
 
         {/* Store-wide state cards — only on /orders page (user), same as homepage */}
         {isUserOrdersPage && (

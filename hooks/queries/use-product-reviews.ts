@@ -29,7 +29,7 @@ export function useProductReviews(initialData?: ProductReview[]) {
   });
 }
 
-export function useProductReview(id: string) {
+export function useProductReview(id: string, initialData?: ProductReview) {
   return useQuery({
     queryKey: queryKeys.productReviews.detail(id),
     queryFn: async () => {
@@ -37,14 +37,20 @@ export function useProductReview(id: string) {
       return response.data;
     },
     enabled: !!id,
+    ...withInitialData(initialData),
   });
 }
 
 export function useReviewsByProduct(
   productId: string,
-  options?: { status?: "approved" | "pending" | "all" },
+  options?: {
+    status?: "approved" | "pending" | "all";
+    enabled?: boolean;
+    initialData?: ProductReview[];
+  },
 ) {
   const status = options?.status ?? "approved";
+  const enabled = options?.enabled ?? true;
   return useQuery({
     queryKey: queryKeys.productReviews.byProduct(productId, status),
     queryFn: async () => {
@@ -54,11 +60,20 @@ export function useReviewsByProduct(
       );
       return response.data;
     },
-    enabled: !!productId,
+    enabled: !!productId && enabled,
+    ...withInitialData(options?.initialData),
   });
 }
 
-export function useReviewEligibility(productId: string, orderId?: string) {
+export function useReviewEligibility(
+  productId: string,
+  orderId?: string,
+  options?: {
+    enabled?: boolean;
+    initialData?: { eligible: boolean; slots: { orderId: string; orderItemId?: string }[] };
+  },
+) {
+  const enabled = options?.enabled ?? true;
   return useQuery({
     queryKey: queryKeys.productReviews.eligibility(productId, orderId),
     queryFn: async () => {
@@ -68,7 +83,8 @@ export function useReviewEligibility(productId: string, orderId?: string) {
       );
       return response.data;
     },
-    enabled: !!productId,
+    enabled: !!productId && enabled,
+    ...withInitialData(options?.initialData),
   });
 }
 

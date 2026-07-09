@@ -1,24 +1,24 @@
-import { Suspense } from "react";
 import { redirect } from "next/navigation";
 import { getSession } from "@/lib/auth-server";
 import WarehousesPage from "@/components/Pages/WarehousesPage";
 import { getWarehousesForUser } from "@/lib/server/warehouses-data";
+import { prefetchListPageStats } from "@/lib/server/list-page-stats";
 
-/** REQ-0021 — session shell + Suspense-streamed warehouses */
+/** REQ-0025 — blocking SSR prefetch (no Suspense shell flash). */
+export const dynamic = "force-dynamic";
+
 export default async function WarehousesRoute() {
   const user = await getSession();
-  if (!user) {
-    redirect("/login");
-  }
+  if (!user) redirect("/login");
 
+  const [initialWarehouses, listStats] = await Promise.all([
+    getWarehousesForUser(user.id),
+    prefetchListPageStats(user),
+  ]);
   return (
-    <Suspense fallback={<WarehousesPage />}>
-      <WarehousesPageWithData userId={user.id} />
-    </Suspense>
+    <WarehousesPage
+      initialWarehouses={initialWarehouses}
+      initialStats={listStats.initialStats}
+    />
   );
-}
-
-async function WarehousesPageWithData({ userId }: { userId: string }) {
-  const initialWarehouses = await getWarehousesForUser(userId);
-  return <WarehousesPage initialWarehouses={initialWarehouses} />;
 }

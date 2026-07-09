@@ -18,8 +18,10 @@ import { isDataSlotLoading } from "@/lib/react-query";
 import ProductFilters from "./ProductFilters";
 import { StatisticsCard } from "@/components/home/StatisticsCard";
 import { Package, DollarSign, Truck, FolderTree } from "lucide-react";
+import { PageSectionHeader } from "@/components/shared";
 import type { Product } from "@/types";
 import type { ProductForHome } from "@/lib/server/home-data";
+import type { DashboardStats, SupplierPortalDashboard } from "@/types";
 
 const ProductTable = dynamic(
   () =>
@@ -35,10 +37,16 @@ const ProductTable = dynamic(
 export type ProductListProps = {
   /** SSR-passed products for first-render hydration (REQ-0021) */
   initialProducts?: Product[] | ProductForHome[];
+  /** SSR dashboard stats for stat cards (REQ-0025 P2) */
+  initialStats?: DashboardStats;
+  /** SSR supplier portal stats for supplier /products cards */
+  initialSupplierPortal?: SupplierPortalDashboard | null;
 };
 
 const ProductList = React.memo(function ProductList({
   initialProducts,
+  initialStats,
+  initialSupplierPortal,
 }: ProductListProps = {}) {
   const pathname = usePathname();
   const { user } = useAuth();
@@ -50,14 +58,20 @@ const ProductList = React.memo(function ProductList({
     user?.role !== "supplier";
   /** Show state cards on admin products page (/admin/products), same style as admin/orders */
   const isAdminProductsPage = pathname === "/admin/products";
+  /** Supplier on /products: show Product Owner column instead of Supplier, and supplier header */
+  const isSupplierProductsPage =
+    pathname === "/products" && user?.role === "supplier";
+  const enableDashboard = isUserProductsPage || isAdminProductsPage;
 
   // Use TanStack Query for data fetching
   const productsQuery = useProducts(initialProducts);
   const categoriesQuery = useCategories();
   const suppliersQuery = useSuppliers();
   const ordersQuery = useOrders();
-  const dashboardQuery = useDashboard();
-  const supplierPortalQuery = useSupplierPortalDashboard();
+  const dashboardQuery = useDashboard(initialStats, { enabled: enableDashboard });
+  const supplierPortalQuery = useSupplierPortalDashboard(
+    isSupplierProductsPage ? (initialSupplierPortal ?? undefined) : undefined,
+  );
 
   const allProducts = productsQuery.data ?? [];
   const allCategories = categoriesQuery.data ?? [];
@@ -70,9 +84,6 @@ const ProductList = React.memo(function ProductList({
     : null;
 
   const detailBase = isAdminProducts ? "/admin" : "";
-  /** Supplier on /products: show Product Owner column instead of Supplier, and supplier header */
-  const isSupplierProductsPage =
-    pathname === "/products" && user?.role === "supplier";
   const columns = useMemo(
     () =>
       createProductColumns(detailBase, {
@@ -83,8 +94,15 @@ const ProductList = React.memo(function ProductList({
 
   // REQ-0021: shell-first — only data slots pulse
   const tableDataLoading = isDataSlotLoading(productsQuery, initialProducts);
-  const dashboardCardsLoading = isDataSlotLoading(dashboardQuery);
-  const supplierCardsLoading = isDataSlotLoading(supplierPortalQuery);
+  const dashboardCardsLoading = enableDashboard
+    ? isDataSlotLoading(dashboardQuery, initialStats)
+    : false;
+  const supplierCardsLoading = isSupplierProductsPage
+    ? isDataSlotLoading(
+        supplierPortalQuery,
+        initialSupplierPortal ?? undefined,
+      )
+    : false;
   const supplierPortal = supplierPortalQuery.data;
   const [searchTerm, setSearchTerm] = useState("");
   const [pagination, setPagination] = useState<PaginationType>({
@@ -192,18 +210,20 @@ const ProductList = React.memo(function ProductList({
   return (
     <div className="flex flex-col poppins">
       {/* Product Inventory Section Header — supplier sees own products + Product Owner; admin/user sees full copy */}
-      <div className="pb-6 flex flex-col items-start text-left">
-        <h2 className="text-lg sm:text-xl font-semibold text-gray-700 dark:text-white ">
-          {isSupplierProductsPage
-            ? "My Products"
-            : "Product Inventory Management"}
-        </h2>
-        <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">
-          {isSupplierProductsPage
+      <PageSectionHeader
+        as="h2"
+        icon={Package}
+        tone="rose"
+        className="pb-6"
+        title={
+          isSupplierProductsPage ? "My Products" : "Product Inventory Management"
+        }
+        description={
+          isSupplierProductsPage
             ? "Products supplied by you. View stock, categories, and which store owner manages each product. Use filters and search to find items quickly."
-            : "Efficiently manage your product catalog with advanced filtering, search capabilities, and real-time stock tracking. Monitor inventory levels, organize by categories and suppliers, and maintain optimal stock control."}
-        </p>
-      </div>
+            : "Efficiently manage your product catalog with advanced filtering, search capabilities, and real-time stock tracking. Monitor inventory levels, organize by categories and suppliers, and maintain optimal stock control."
+        }
+      />
 
       {/* Supplier /products page state cards — 4 per row */}
       {isSupplierProductsPage && (

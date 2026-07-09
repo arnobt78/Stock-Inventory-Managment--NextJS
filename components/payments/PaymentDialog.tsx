@@ -86,7 +86,7 @@ export default function PaymentDialog({
         <div className="flex flex-col gap-2 sm:gap-4 overflow-y-auto min-h-0 flex-1 w-full">
           <div className="pr-4 sm:pr-8 flex flex-col gap-2 sm:gap-4">
             {/* Order/Invoice Summary */}
-            <div className="rounded-lg border border-sky-400/30 dark:border-white/20 bg-white/10 dark:bg-white/5 backdrop-blur-sm p-4 space-y-2 flex-shrink-0 shadow-[0_10px_30px_rgba(2,132,199,0.15)] dark:shadow-[0_10px_30px_rgba(2,132,199,0.1)]">
+            <div className="rounded-lg border border-sky-400/30 dark:border-white/20 bg-white/10 dark:bg-white/5 backdrop-blur-md p-4 space-y-2 flex-shrink-0 shadow-[0_10px_30px_rgba(2,132,199,0.15)] dark:shadow-[0_10px_30px_rgba(2,132,199,0.1)]">
               <div className="flex items-center justify-between">
                 <span className="text-sm font-medium text-white">
                   {type === "order" ? "Order" : "Invoice"} Summary
@@ -107,7 +107,7 @@ export default function PaymentDialog({
                     >
                       <span className="flex items-center gap-2 min-w-0">
                         {item.quantity != null && (
-                          <span className="px-1.5 py-0.5 rounded bg-primary/10 text-white text-xs font-medium shrink-0">
+                          <span className="px-1 py-0.5 rounded bg-primary/10 text-white text-xs font-medium shrink-0">
                             {item.quantity}
                           </span>
                         )}
@@ -165,8 +165,8 @@ export default function PaymentDialog({
               <Separator className="my-3" />
 
               <div className="flex items-center justify-between pt-1">
-                <span className="font-semibold text-white">Total</span>
-                <span className="text-xl font-semibold text-white">
+                <span className="font-medium text-white">Total</span>
+                <span className="text-xl font-medium text-white">
                   ${amount.toFixed(2)}
                 </span>
               </div>
@@ -186,7 +186,7 @@ export default function PaymentDialog({
               <Button
                 onClick={handlePayment}
                 disabled={isLoading}
-                className="h-11 w-full sm:w-auto px-11 inline-flex items-center justify-center rounded-xl border border-sky-400/30 dark:border-sky-400/30 bg-gradient-to-r from-sky-500/70 via-sky-500/50 to-sky-500/30 dark:from-sky-500/70 dark:via-sky-500/50 dark:to-sky-500/30 text-white shadow-[0_15px_35px_rgba(2,132,199,0.45)] dark:shadow-[0_15px_35px_rgba(2,132,199,0.25)] backdrop-blur-sm transition duration-200 hover:border-sky-300/40 hover:from-sky-500/80 hover:via-sky-500/60 hover:to-sky-500/40 dark:hover:border-sky-300/40 dark:hover:from-sky-500/80 dark:hover:via-sky-500/60 dark:hover:to-sky-500/40 hover:shadow-[0_20px_45px_rgba(2,132,199,0.6)] dark:hover:shadow-[0_20px_45px_rgba(2,132,199,0.35)] focus-visible:ring-sky-500/50"
+                className="h-11 w-full sm:w-auto px-11 inline-flex items-center justify-center rounded-xl border border-sky-400/30 dark:border-sky-400/30 bg-gradient-to-r from-sky-500/70 via-sky-500/50 to-sky-500/30 dark:from-sky-500/70 dark:via-sky-500/50 dark:to-sky-500/30 text-white shadow-[0_15px_35px_rgba(2,132,199,0.45)] dark:shadow-[0_15px_35px_rgba(2,132,199,0.25)] backdrop-blur-md transition duration-200 hover:border-sky-300/40 hover:from-sky-500/80 hover:via-sky-500/60 hover:to-sky-500/40 dark:hover:border-sky-300/40 dark:hover:from-sky-500/80 dark:hover:via-sky-500/60 dark:hover:to-sky-500/40 hover:shadow-[0_20px_45px_rgba(2,132,199,0.6)] dark:hover:shadow-[0_20px_45px_rgba(2,132,199,0.35)] focus-visible:ring-sky-500/50"
               >
                 {isLoading ? (
                   <>

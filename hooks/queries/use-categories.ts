@@ -38,7 +38,7 @@ export function useCategories(initialData?: Category[] | CategoryForHome[]) {
  * Fetch single category by ID
  * Query hook for getting a single category with all related data
  */
-export function useCategory(categoryId: string) {
+export function useCategory(categoryId: string, initialData?: Category) {
   return useQuery<Category>({
     queryKey: queryKeys.categories.detail(categoryId),
     queryFn: async () => {
@@ -47,6 +47,7 @@ export function useCategory(categoryId: string) {
     },
     // Only fetch if categoryId is provided
     enabled: !!categoryId,
+    ...withInitialData(initialData),
   });
 }
 

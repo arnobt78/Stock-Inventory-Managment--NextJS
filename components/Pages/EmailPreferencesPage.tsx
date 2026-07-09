@@ -164,7 +164,7 @@ export default function EmailPreferencesPage({
       <div className="mx-auto">
         <div className="space-y-4">
           <div className="space-y-2">
-            <h1 className="text-lg sm:text-xl font-semibold text-gray-700 dark:text-white">
+            <h1 className="text-lg sm:text-xl font-medium text-gray-700 dark:text-white">
               Email Preferences
             </h1>
             <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">
@@ -207,7 +207,7 @@ export default function EmailPreferencesPage({
                         <div className="flex-1 min-w-0">
                           <Label
                             htmlFor={item.key}
-                            className="text-xs sm:text-sm font-semibold text-gray-700 dark:text-white cursor-pointer"
+                            className="text-xs sm:text-sm font-medium text-gray-700 dark:text-white cursor-pointer"
                           >
                             {item.label}
                           </Label>
@@ -223,7 +223,9 @@ export default function EmailPreferencesPage({
                           id={item.key}
                           checked={isEnabled}
                           onCheckedChange={() => handleToggle(item.key)}
-                          disabled={updateMutation.isPending || !localPreferences}
+                          disabled={
+                            updateMutation.isPending || !localPreferences
+                          }
                           className="shrink-0"
                         />
                       )}
@@ -256,7 +258,7 @@ export default function EmailPreferencesPage({
 
           <Card>
             <CardHeader>
-              <CardTitle className="text-xs sm:text-sm font-semibold text-gray-700 dark:text-white">
+              <CardTitle className="text-xs sm:text-sm font-medium text-gray-700 dark:text-white">
                 About Email Preferences
               </CardTitle>
             </CardHeader>

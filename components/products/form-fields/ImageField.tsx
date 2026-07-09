@@ -35,7 +35,7 @@ export default function ImageField() {
    * Handle image file selection and upload
    */
   const handleImageSelect = async (
-    event: React.ChangeEvent<HTMLInputElement>
+    event: React.ChangeEvent<HTMLInputElement>,
   ) => {
     const file = event.target.files?.[0];
     if (!file) return;
@@ -138,16 +138,8 @@ export default function ImageField() {
       </Label>
 
       {/* Hidden input for form registration */}
-      <Input
-        {...register("imageUrl")}
-        type="hidden"
-        id="imageUrl"
-      />
-      <Input
-        {...register("imageFileId")}
-        type="hidden"
-        id="imageFileId"
-      />
+      <Input {...register("imageUrl")} type="hidden" id="imageUrl" />
+      <Input {...register("imageFileId")} type="hidden" id="imageFileId" />
 
       {/* Image Preview */}
       {imageUrl && (
@@ -180,7 +172,7 @@ export default function ImageField() {
             variant="secondary"
             onClick={() => fileInputRef.current?.click()}
             disabled={isUploading}
-            className="h-10 rounded-md border border-rose-400/30 dark:border-rose-400/30 bg-gradient-to-r from-rose-500/30 via-rose-500/20 to-rose-500/15 dark:from-rose-500/30 dark:via-rose-500/20 dark:to-rose-500/15 text-gray-700 dark:text-white shadow-[0_10px_30px_rgba(225,29,72,0.2)] backdrop-blur-sm transition duration-200 hover:border-rose-300/40 hover:from-rose-500/40 hover:via-rose-500/30 hover:to-rose-500/20 dark:hover:border-rose-300/40 dark:hover:from-rose-500/40 dark:hover:via-rose-500/30 dark:hover:to-rose-500/20 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="h-10 rounded-md border border-rose-400/30 dark:border-rose-400/30 bg-gradient-to-r from-rose-500/30 via-rose-500/20 to-rose-500/15 dark:from-rose-500/30 dark:via-rose-500/20 dark:to-rose-500/15 text-gray-700 dark:text-white shadow-[0_10px_30px_rgba(225,29,72,0.2)] backdrop-blur-md transition duration-200 hover:border-rose-300/40 hover:from-rose-500/40 hover:via-rose-500/30 hover:to-rose-500/20 dark:hover:border-rose-300/40 dark:hover:from-rose-500/40 dark:hover:via-rose-500/30 dark:hover:to-rose-500/20 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {isUploading ? (
               <>

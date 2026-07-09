@@ -22,6 +22,8 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/contexts";
+import { setPostLogoutGoodbye } from "@/lib/auth/post-logout-goodbye";
+import { clearAuthToastMarkers } from "@/components/shared/AuthSessionToasts";
 import { Button } from "@/components/ui/button";
 import { useAdminCounts } from "@/hooks/queries";
 import { isDataSlotLoading } from "@/lib/react-query";
@@ -128,23 +130,42 @@ const MY_ACTIVITY_ITEMS: NavItem[] = [
   },
 ];
 
+import type { AdminCounts } from "@/types";
+
 export default function AdminSidebar({
   collapsed = false,
-}: { collapsed?: boolean } = {}) {
+  initialCounts,
+}: {
+  collapsed?: boolean;
+  /** SSR-passed sidebar badge counts (REQ-0025) */
+  initialCounts?: AdminCounts;
+} = {}) {
   const pathname = usePathname();
-  const { user, logout } = useAuth();
-  const countsQuery = useAdminCounts();
-  const counts = countsQuery.data;
-  const countsLoading = isDataSlotLoading(countsQuery);
+  const { user } = useAuth();
+  const countsQuery = useAdminCounts(initialCounts);
+  const counts = countsQuery.data ?? initialCounts;
+  const countsLoading = isDataSlotLoading(countsQuery, initialCounts);
 
   const handleLogout = async () => {
-    await logout();
+    const userName = user?.name || user?.email?.split("@")[0] || "User";
+    clearAuthToastMarkers();
+    setPostLogoutGoodbye({ userName });
+    localStorage.removeItem("isAuth");
+    localStorage.removeItem("isLoggedIn");
+    localStorage.removeItem("token");
+    localStorage.removeItem("getSession");
+    localStorage.removeItem("prevUserId");
+    localStorage.removeItem("stock-inventory-query-cache");
+    await fetch("/api/auth/logout", {
+      method: "POST",
+      credentials: "include",
+    }).catch(() => {});
     window.location.href = "/login";
   };
 
   const linkClass = (href: string, isSub = false) =>
     cn(
-      "flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium transition-colors",
+      "flex items-center gap-2 rounded-lg px-2 py-2 text-sm font-medium transition-colors",
       isSub && !collapsed ? "pl-8" : "",
       collapsed ? "justify-center px-0 w-9 h-9 mx-auto" : "",
       pathname === href || (href !== "/admin" && pathname.startsWith(href))
@@ -176,7 +197,7 @@ export default function AdminSidebar({
           {!collapsed && showBadge && (
             <span
               className={cn(
-                "flex-shrink-0 rounded-full px-1.5 py-0.5 text-xs font-medium min-w-[1.25rem] text-center",
+                "flex-shrink-0 rounded-full px-1 py-0.5 text-xs font-medium min-w-[1.25rem] text-center",
                 "bg-muted text-muted-foreground",
               )}
               aria-label={
@@ -190,7 +211,11 @@ export default function AdminSidebar({
               {countsLoading ? (
                 <DataSlotPulse variant="badge" className="mx-auto" />
               ) : count !== undefined && count > 0 ? (
-                count > 99 ? "99+" : count
+                count > 99 ? (
+                  "99+"
+                ) : (
+                  count
+                )
               ) : null}
             </span>
           )}
@@ -201,7 +226,7 @@ export default function AdminSidebar({
   if (collapsed) {
     return (
       <nav
-        className="flex min-h-0 flex-col items-center py-3 gap-1"
+        className="flex min-h-0 flex-col items-center px-2 gap-1"
         aria-label="Admin navigation"
       >
         {renderNavItems(MY_STORE_ITEMS)}
@@ -224,25 +249,25 @@ export default function AdminSidebar({
   return (
     <nav className="flex min-h-0 flex-col p-2 gap-1">
       {/* My Store */}
-      <p className="px-3 pt-2  text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+      <p className="px-2 pt-2  text-xs font-medium uppercase tracking-wider text-muted-foreground">
         My Store
       </p>
       {renderNavItems(MY_STORE_ITEMS)}
 
       {/* Product & System Management */}
-      <p className="px-3 pt-3  text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+      <p className="px-2 pt-2  text-xs font-medium uppercase tracking-wider text-muted-foreground">
         Product & System Management
       </p>
       {renderNavItems(MANAGEMENT_ITEMS)}
 
       {/* My Activity */}
-      <p className="px-3 pt-3  text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+      <p className="px-2 pt-2  text-xs font-medium uppercase tracking-wider text-muted-foreground">
         Personal activity
       </p>
       {renderNavItems(MY_ACTIVITY_ITEMS)}
 
       {/* System Settings */}
-      <p className="px-3 pt-3  text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+      <p className="px-2 pt-2  text-xs font-medium uppercase tracking-wider text-muted-foreground">
         System Settings
       </p>
       <Link
@@ -258,7 +283,7 @@ export default function AdminSidebar({
 
       {/* User login info */}
       {/* {user && (
-        <div className="rounded-lg px-3 py-2 border border-gray-200/50 dark:border-white/10 bg-gray-50/50 dark:bg-white/5">
+        <div className="rounded-lg px-2 py-2 border border-gray-200/50 dark:border-white/10 bg-gray-50/50 dark:bg-white/5">
           <div className="flex items-center gap-2 text-sm text-muted-foreground">
             <User className="h-4 w-4 flex-shrink-0" />
             <div className="min-w-0 truncate">

@@ -17,8 +17,10 @@ import WarehouseFilters from "./WarehouseFilters";
 import WarehouseDialog from "./WarehouseDialog";
 import { StatisticsCard } from "@/components/home/StatisticsCard";
 import { Package, Warehouse as WarehouseIcon } from "lucide-react";
+import { PageSectionHeader } from "@/components/shared";
 import { Warehouse } from "@/types";
 import type { WarehouseForPage } from "@/lib/server/warehouses-data";
+import type { DashboardStats } from "@/types";
 
 const WarehouseTable = dynamic(
   () =>
@@ -31,17 +33,20 @@ const WarehouseTable = dynamic(
 export type WarehouseListProps = {
   /** SSR-passed warehouses for first-render hydration (REQ-0021) */
   initialWarehouses?: Warehouse[] | WarehouseForPage[];
+  /** SSR dashboard stats for warehouse stat cards (REQ-0025 P2) */
+  initialStats?: DashboardStats;
 };
 
 export default function WarehouseList({
   initialWarehouses,
+  initialStats,
 }: WarehouseListProps = {}) {
   const pathname = usePathname();
   const isMountedRef = useRef(false);
   const [isMounted, setIsMounted] = useState(false);
 
   const warehousesQuery = useWarehouses(initialWarehouses);
-  const dashboardQuery = useDashboard();
+  const dashboardQuery = useDashboard(initialStats);
   const allWarehouses = warehousesQuery.data ?? [];
 
   const isAdmin = pathname?.startsWith("/admin") ?? false;
@@ -120,10 +125,10 @@ export default function WarehouseList({
     initialWarehouses,
   );
   const userCardsDataLoading = isUserWarehousesPage
-    ? isDataSlotLoading(dashboardQuery)
+    ? isDataSlotLoading(dashboardQuery, initialStats)
     : false;
   const adminCardsDataLoading = isAdmin
-    ? isDataSlotLoading(dashboardQuery)
+    ? isDataSlotLoading(dashboardQuery, initialStats)
     : false;
 
   const handleEditWarehouse = useCallback((warehouse: Warehouse) => {
@@ -140,18 +145,14 @@ export default function WarehouseList({
   return (
     <div className="flex flex-col poppins">
       {/* Warehouse Management Section Header */}
-      <div className="pb-6 flex flex-col items-start text-left">
-        <h2 className="text-lg sm:text-xl font-semibold text-gray-700 dark:text-white ">
-          Warehouse Management
-        </h2>
-        <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">
-          Manage warehouse locations. Add, edit, and track warehouses for
-          multi-location inventory. Stock allocation and inter-warehouse
-          transfers are not yet implemented—you can create and edit warehouses
-          now; assigning stock to locations and moving stock between warehouses
-          will be available in a future update.
-        </p>
-      </div>
+      <PageSectionHeader
+        as="h2"
+        icon={WarehouseIcon}
+        tone="violet"
+        className="pb-6"
+        title="Warehouse Management"
+        description="Manage warehouse locations. Add, edit, and track warehouses for multi-location inventory. Stock allocation and inter-warehouse transfers are not yet implemented—you can create and edit warehouses now; assigning stock to locations and moving stock between warehouses will be available in a future update."
+      />
 
       {/* Store-wide state cards — only on /warehouses page (user), same style as homepage/products */}
       {isUserWarehousesPage && (

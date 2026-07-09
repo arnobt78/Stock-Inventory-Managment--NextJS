@@ -120,7 +120,7 @@ export function FilterDropdown({
         setSelectedValues((prev) => (prev.includes(value) ? [] : [value]));
       }
     },
-    [multiple, setSelectedValues]
+    [multiple, setSelectedValues],
   );
 
   /**
@@ -134,10 +134,7 @@ export function FilterDropdown({
     <div className={`flex items-center space-x-4 poppins ${className}`}>
       <Popover open={open} onOpenChange={setOpen}>
         <PopoverTrigger asChild>
-          <Button
-            variant={"secondary"}
-            className={triggerClassName ?? "h-10"}
-          >
+          <Button variant={"secondary"} className={triggerClassName ?? "h-10"}>
             {Icon && <Icon />}
             {label}
           </Button>
@@ -157,7 +154,7 @@ export function FilterDropdown({
                       onClick={() => handleCheckboxChange(option.id)}
                       className="size-4 rounded-[4px]"
                     />
-                    <div className="flex items-center gap-1 p-1 rounded-lg px-3 text-[14px]">
+                    <div className="flex items-center gap-1 p-1 rounded-lg px-2 text-[14px]">
                       {option.name}
                     </div>
                   </CommandItem>
@@ -180,4 +177,3 @@ export function FilterDropdown({
     </div>
   );
 }
-

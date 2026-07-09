@@ -6,7 +6,13 @@ import { PaginationType } from "@/components/shared/PaginationSelector";
 import { columns } from "./ProductTableColumns";
 import { useClientBrowseMeta, useClientBrowseProducts } from "@/hooks/queries";
 import { isDataSlotLoading } from "@/lib/react-query";
-import type { Product, Category, Supplier } from "@/types";
+import type {
+  Product,
+  Category,
+  Supplier,
+  ClientBrowseMeta,
+  ClientBrowseProductsResponse,
+} from "@/types";
 import { StatisticsCard } from "@/components/home/StatisticsCard";
 import { Users, Truck, FolderTree, Warehouse } from "lucide-react";
 import ProductFilters from "./ProductFilters";
@@ -23,20 +29,28 @@ export type ClientProductListProps = {
   /** Controlled: parent owns selectedOwnerId */
   selectedOwnerId?: string;
   onOwnerChange?: (ownerId: string) => void;
+  /** REQ-0026 — SSR browse meta + default owner products */
+  initialBrowseMeta?: ClientBrowseMeta;
+  initialBrowseProducts?: ClientBrowseProductsResponse;
+  initialOwnerId?: string;
 };
 
 export default function ClientProductList({
   selectedOwnerId: controlledOwnerId,
   onOwnerChange,
+  initialBrowseMeta,
+  initialBrowseProducts,
+  initialOwnerId = "",
 }: ClientProductListProps = {}) {
-  const [internalOwnerId, setInternalOwnerId] = useState<string>("");
+  const [internalOwnerId, setInternalOwnerId] = useState<string>(initialOwnerId);
   const selectedOwnerId = controlledOwnerId ?? internalOwnerId;
   const setSelectedOwnerId = onOwnerChange ?? setInternalOwnerId;
 
-  const metaQuery = useClientBrowseMeta();
-  const productsQuery = useClientBrowseProducts({
-    ownerId: selectedOwnerId,
-  });
+  const metaQuery = useClientBrowseMeta(initialBrowseMeta);
+  const productsQuery = useClientBrowseProducts(
+    { ownerId: selectedOwnerId },
+    selectedOwnerId === initialOwnerId ? initialBrowseProducts : undefined,
+  );
 
   const meta = metaQuery.data;
   const productsData = productsQuery.data;
@@ -137,7 +151,7 @@ export default function ClientProductList({
 
       {/* Product Inventory Section — client-facing copy */}
       <div className="pb-6 flex flex-col items-start text-left">
-        <h2 className="text-lg sm:text-xl font-semibold text-gray-700 dark:text-white ">
+        <h2 className="text-lg sm:text-xl font-medium text-gray-700 dark:text-white ">
           Browse & Purchase Products
         </h2>
         <p className="text-base text-gray-600 dark:text-gray-400">

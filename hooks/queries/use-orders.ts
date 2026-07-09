@@ -19,13 +19,18 @@ import type { OrderForPage } from "@/lib/server/orders-data";
  * Fetch all orders
  * Query hook for getting the list of all orders
  */
-export function useOrders(initialData?: Order[] | OrderForPage[]) {
+export function useOrders(
+  initialData?: Order[] | OrderForPage[],
+  options?: { enabled?: boolean },
+) {
+  const enabled = options?.enabled ?? true;
   return useQuery<Order[]>({
     queryKey: queryKeys.orders.lists(),
     queryFn: async () => {
       const response = await apiClient.orders.getAll();
       return response.data;
     },
+    enabled,
     ...withInitialData(initialData as Order[] | undefined),
   });
 }
@@ -34,13 +39,18 @@ export function useOrders(initialData?: Order[] | OrderForPage[]) {
  * Fetch client orders (orders that contain products owned by the current user).
  * Used on admin "Client Orders" page. Detail uses same useOrder(id) — GET /api/orders/:id allows product owner.
  */
-export function useClientOrders(initialData?: Order[]) {
+export function useClientOrders(
+  initialData?: Order[],
+  options?: { enabled?: boolean },
+) {
+  const enabled = options?.enabled ?? true;
   return useQuery({
     queryKey: queryKeys.clientOrders.lists(),
     queryFn: async () => {
       const response = await apiClient.admin.getClientOrders();
       return response.data;
     },
+    enabled,
     ...withInitialData(initialData),
   });
 }
@@ -51,7 +61,7 @@ export function useClientOrders(initialData?: Order[]) {
  *
  * @param orderId - Order ID
  */
-export function useOrder(orderId: string) {
+export function useOrder(orderId: string, initialData?: Order) {
   return useQuery({
     queryKey: queryKeys.orders.detail(orderId),
     queryFn: async () => {
@@ -59,6 +69,7 @@ export function useOrder(orderId: string) {
       return response.data;
     },
     enabled: !!orderId, // Only fetch if orderId is provided
+    ...withInitialData(initialData),
   });
 }
 

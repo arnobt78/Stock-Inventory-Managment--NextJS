@@ -123,7 +123,7 @@ export default function SupportTicketDialog({
       {trigger && <DialogTrigger asChild>{trigger}</DialogTrigger>}
       <DialogContent
         className={cn(
-          "p-4 sm:p-7 sm:px-8 poppins max-h-[90vh] overflow-y-auto",
+          "p-4 p-2 sm:p-4 sm:px-8 poppins max-h-[90vh] overflow-y-auto",
           "bg-gradient-to-br from-slate-800/98 to-slate-900/98 dark:from-slate-800/98 dark:to-slate-900/98",
           borderClass,
           shadowClass,
@@ -194,7 +194,7 @@ export default function SupportTicketDialog({
                 placeholder={
                   <div
                     className={cn(
-                      "flex h-11 w-full items-center rounded-xl px-3 text-sm text-white/60",
+                      "flex h-11 w-full items-center rounded-xl px-2 text-sm text-white/60",
                       inputClass,
                     )}
                     aria-hidden
@@ -222,7 +222,7 @@ export default function SupportTicketDialog({
                       <SelectValue placeholder="Select product owner (optional)" />
                     </SelectTrigger>
                     <SelectContent
-                      className="rounded-xl border-sky-400/20 dark:border-white/10 bg-white/95 dark:bg-popover/95 backdrop-blur-sm"
+                      className="rounded-xl border-sky-400/20 dark:border-white/10 bg-white/95 dark:bg-popover/95 backdrop-blur-md"
                       position="popper"
                       sideOffset={5}
                     >
@@ -256,7 +256,7 @@ export default function SupportTicketDialog({
               placeholder={
                 <div
                   className={cn(
-                    "flex h-11 w-full items-center rounded-xl px-3 text-sm text-white/60",
+                    "flex h-11 w-full items-center rounded-xl px-2 text-sm text-white/60",
                     inputClass,
                   )}
                   aria-hidden
@@ -303,7 +303,7 @@ export default function SupportTicketDialog({
               <Button
                 type="button"
                 variant="secondary"
-                className="h-11 rounded-xl border border-white/20 bg-white/15 text-white hover:bg-white/25 backdrop-blur-sm"
+                className="h-11 rounded-xl border border-white/20 bg-white/15 text-white hover:bg-white/25 backdrop-blur-md"
                 disabled={isPending}
               >
                 Cancel
@@ -315,7 +315,7 @@ export default function SupportTicketDialog({
               className={cn(
                 "h-11 rounded-xl",
                 submitButtonClass,
-                "backdrop-blur-sm transition duration-200 disabled:opacity-50",
+                "backdrop-blur-md transition duration-200 disabled:opacity-50",
               )}
             >
               {isPending ? (

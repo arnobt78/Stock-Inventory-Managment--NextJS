@@ -1,6 +1,6 @@
 /**
  * System Configuration Settings Component
- * Admin interface for managing system settings
+ * REQ-0024: shell-first — action bar + category cards always visible; field values pulse while loading.
  */
 
 "use client";
@@ -19,15 +19,18 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
+import { DataSlotPulse } from "@/components/shared";
 import { useSystemConfigs, useUpdateSystemConfigs } from "@/hooks/queries";
+import { isDataSlotLoading } from "@/lib/react-query";
 import type {
   SystemConfig,
   ConfigCategory,
   UpdateSystemConfigInput,
 } from "@/types";
+import { CATEGORY_LABELS } from "@/types";
+import type { SystemConfigForPage } from "@/lib/server/system-config-data";
 import { cn } from "@/lib/utils";
 
-// Icons for categories
 const categoryIcons: Record<ConfigCategory, string> = {
   general: "🏢",
   email: "📧",
@@ -37,14 +40,25 @@ const categoryIcons: Record<ConfigCategory, string> = {
   inventory: "📦",
 };
 
-export default function SystemConfigSettings() {
-  const { data, isLoading, refetch } = useSystemConfigs();
+const ALL_CATEGORIES = Object.keys(CATEGORY_LABELS) as ConfigCategory[];
+
+type SystemConfigSettingsProps = {
+  initialConfigs?: SystemConfigForPage | null;
+};
+
+export default function SystemConfigSettings({
+  initialConfigs,
+}: SystemConfigSettingsProps) {
+  const configsQuery = useSystemConfigs(initialConfigs ?? undefined);
+  const data = configsQuery.data ?? initialConfigs ?? null;
+  const dataLoading = isDataSlotLoading(configsQuery, initialConfigs);
   const updateMutation = useUpdateSystemConfigs();
 
   const [editedValues, setEditedValues] = useState<Record<string, string>>({});
   const [hasChanges, setHasChanges] = useState(false);
 
-  // Initialize edited values when data loads
+  const actionsDisabled = dataLoading || !data?.configs;
+
   useEffect(() => {
     if (data?.configs) {
       const initialValues: Record<string, string> = {};
@@ -55,7 +69,6 @@ export default function SystemConfigSettings() {
     }
   }, [data?.configs]);
 
-  // Check for changes
   useEffect(() => {
     if (data?.configs) {
       const changed = data.configs.some(
@@ -94,54 +107,33 @@ export default function SystemConfigSettings() {
     }
   };
 
-  // Group configs by category; data?.configs in deps for initial load when data is undefined
-  // eslint-disable-next-line react-hooks/preserve-manual-memoization -- optional chaining in deps is intentional
-  const groupedConfigs = React.useMemo(() => {
-    if (!data?.configs) return {};
+  const groupedConfigs = data?.configs
+    ? data.configs.reduce(
+        (acc, config) => {
+          const category = config.category;
+          if (!acc[category]) {
+            acc[category] = [];
+          }
+          acc[category].push(config);
+          return acc;
+        },
+        {} as Record<ConfigCategory, SystemConfig[]>,
+      )
+    : ({} as Record<ConfigCategory, SystemConfig[]>);
 
-    return data.configs.reduce(
-      (acc, config) => {
-        const category = config.category;
-        if (!acc[category]) {
-          acc[category] = [];
-        }
-        acc[category].push(config);
-        return acc;
-      },
-      {} as Record<ConfigCategory, SystemConfig[]>,
-    );
-  }, [data?.configs]);
-
-  if (isLoading) {
-    return (
-      <div className="space-y-4">
-        {[1, 2, 3].map((i) => (
-          <Card key={i} className="animate-pulse">
-            <CardHeader>
-              <div className="h-6 w-40 bg-muted rounded" />
-              <div className="h-4 w-60 bg-muted rounded" />
-            </CardHeader>
-            <CardContent className="space-y-4">
-              {[1, 2].map((j) => (
-                <div key={j} className="h-10 bg-muted rounded" />
-              ))}
-            </CardContent>
-          </Card>
-        ))}
-      </div>
-    );
-  }
+  const categoriesToRender = dataLoading
+    ? ALL_CATEGORIES
+    : (Object.keys(groupedConfigs) as ConfigCategory[]);
 
   return (
     <div className="space-y-4">
-      {/* Actions */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           <Button
             variant="outline"
             size="sm"
-            onClick={() => refetch()}
-            disabled={updateMutation.isPending}
+            onClick={() => configsQuery.refetch()}
+            disabled={actionsDisabled || updateMutation.isPending}
           >
             <RefreshCw className="h-4 w-4 mr-2" />
             Refresh
@@ -153,7 +145,7 @@ export default function SystemConfigSettings() {
               variant="outline"
               size="sm"
               onClick={handleReset}
-              disabled={updateMutation.isPending}
+              disabled={actionsDisabled || updateMutation.isPending}
             >
               Reset
             </Button>
@@ -161,7 +153,7 @@ export default function SystemConfigSettings() {
           <Button
             size="sm"
             onClick={handleSave}
-            disabled={!hasChanges || updateMutation.isPending}
+            disabled={!hasChanges || actionsDisabled || updateMutation.isPending}
           >
             <Save className="h-4 w-4 mr-2" />
             {updateMutation.isPending ? "Saving..." : "Save Changes"}
@@ -169,38 +161,53 @@ export default function SystemConfigSettings() {
         </div>
       </div>
 
-      {/* Config Categories */}
-      {(
-        Object.entries(groupedConfigs) as [ConfigCategory, SystemConfig[]][]
-      ).map(([category, configs]) => (
-        <Card key={category}>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <span>{categoryIcons[category as ConfigCategory] || "⚙️"}</span>
-              {data?.categories?.[category] || category}
-            </CardTitle>
-            <CardDescription>
-              Configure {category.toLowerCase()} settings for your application
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            {configs.map((config, index) => (
-              <React.Fragment key={config.key}>
-                {index > 0 && <Separator />}
-                <ConfigField
-                  config={config}
-                  value={editedValues[config.key] ?? config.value}
-                  onChange={(value) => handleValueChange(config.key, value)}
-                  isChanged={editedValues[config.key] !== config.value}
-                />
-              </React.Fragment>
-            ))}
-          </CardContent>
-        </Card>
-      ))}
+      {categoriesToRender.map((category) => {
+        const configs = groupedConfigs[category] ?? [];
+        const categoryLabel =
+          data?.categories?.[category] ?? CATEGORY_LABELS[category] ?? category;
 
-      {/* Empty state */}
-      {Object.keys(groupedConfigs).length === 0 && (
+        return (
+          <Card key={category}>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <span>{categoryIcons[category] || "⚙️"}</span>
+                {categoryLabel}
+              </CardTitle>
+              <CardDescription>
+                Configure {category.toLowerCase()} settings for your application
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {dataLoading ? (
+                <>
+                  <ConfigFieldPulse />
+                  <Separator />
+                  <ConfigFieldPulse />
+                </>
+              ) : configs.length === 0 ? (
+                <p className="text-sm text-muted-foreground">
+                  No settings in this category.
+                </p>
+              ) : (
+                configs.map((config, index) => (
+                  <React.Fragment key={config.key}>
+                    {index > 0 && <Separator />}
+                    <ConfigField
+                      config={config}
+                      value={editedValues[config.key] ?? config.value}
+                      onChange={(value) => handleValueChange(config.key, value)}
+                      isChanged={editedValues[config.key] !== config.value}
+                      disabled={updateMutation.isPending}
+                    />
+                  </React.Fragment>
+                ))
+              )}
+            </CardContent>
+          </Card>
+        );
+      })}
+
+      {!dataLoading && categoriesToRender.length === 0 && (
         <Card>
           <CardContent className="py-10 text-center">
             <p className="text-muted-foreground">
@@ -213,14 +220,31 @@ export default function SystemConfigSettings() {
   );
 }
 
+function ConfigFieldPulse() {
+  return (
+    <div className="space-y-2">
+      <DataSlotPulse variant="text-md" className="w-40" />
+      <DataSlotPulse variant="text-sm" className="w-64" />
+      <DataSlotPulse variant="text-md" className="max-w-xs h-10" />
+    </div>
+  );
+}
+
 interface ConfigFieldProps {
   config: SystemConfig;
   value: string;
   onChange: (value: string) => void;
   isChanged: boolean;
+  disabled?: boolean;
 }
 
-function ConfigField({ config, value, onChange, isChanged }: ConfigFieldProps) {
+function ConfigField({
+  config,
+  value,
+  onChange,
+  isChanged,
+  disabled,
+}: ConfigFieldProps) {
   if (config.type === "boolean") {
     return (
       <div className="flex items-center justify-between">
@@ -242,6 +266,7 @@ function ConfigField({ config, value, onChange, isChanged }: ConfigFieldProps) {
           id={config.key}
           checked={value === "true"}
           onCheckedChange={(checked) => onChange(checked ? "true" : "false")}
+          disabled={disabled}
         />
       </div>
     );
@@ -266,12 +291,12 @@ function ConfigField({ config, value, onChange, isChanged }: ConfigFieldProps) {
           value={value}
           onChange={(e) => onChange(e.target.value)}
           className="max-w-xs"
+          disabled={disabled}
         />
       </div>
     );
   }
 
-  // Default: string
   return (
     <div className="space-y-2">
       <Label
@@ -290,6 +315,7 @@ function ConfigField({ config, value, onChange, isChanged }: ConfigFieldProps) {
         value={value}
         onChange={(e) => onChange(e.target.value)}
         className="max-w-md"
+        disabled={disabled}
       />
     </div>
   );

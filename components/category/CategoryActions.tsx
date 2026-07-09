@@ -95,19 +95,29 @@ export default function CategoryActions({ row, onEdit }: CategoryActionsProps) {
         </DropdownMenuTrigger>
         <DropdownMenuContent
           align="end"
-          className="border border-white/10 bg-gradient-to-br from-white/5 via-white/5 to-white/5 backdrop-blur-sm shadow-lg"
+          className="border border-white/10 bg-gradient-to-br from-white/5 via-white/5 to-white/5 backdrop-blur-md shadow-lg"
         >
           <DropdownMenuItem asChild>
-            <Link href={`/categories/${row.original.id}`} className="flex items-center gap-2">
+            <Link
+              href={`/categories/${row.original.id}`}
+              className="flex items-center gap-2"
+            >
               <Eye className="h-4 w-4" />
               View Details
             </Link>
           </DropdownMenuItem>
-          <DropdownMenuItem onClick={handleCopyCategory} disabled={isCopying} className="flex items-center gap-2">
+          <DropdownMenuItem
+            onClick={handleCopyCategory}
+            disabled={isCopying}
+            className="flex items-center gap-2"
+          >
             <Copy className="h-4 w-4" />
             {isCopying ? "Duplicating..." : "Create Duplicate"}
           </DropdownMenuItem>
-          <DropdownMenuItem onClick={handleEditCategory} className="flex items-center gap-2">
+          <DropdownMenuItem
+            onClick={handleEditCategory}
+            className="flex items-center gap-2"
+          >
             <Edit className="h-4 w-4" />
             Edit Category
           </DropdownMenuItem>

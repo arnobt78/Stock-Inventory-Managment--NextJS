@@ -138,7 +138,7 @@ export default function AdminDashboardOverview({
     <PageContentWrapper>
       <div className="space-y-4">
         <div className="space-y-2">
-          <h1 className="text-lg sm:text-xl font-semibold text-gray-700 dark:text-white">
+          <h1 className="text-lg sm:text-xl font-medium text-gray-700 dark:text-white">
             {title}
           </h1>
           <p className="text-xs sm:text-sm text-muted-foreground">{subtitle}</p>
@@ -153,7 +153,7 @@ export default function AdminDashboardOverview({
               <ShoppingCart className="h-4 w-4 text-blue-600 dark:text-blue-400" />
             </CardHeader>
             <CardContent>
-              <div className="text-lg sm:text-xl font-semibold">
+              <div className="text-lg sm:text-xl font-medium">
                 {metricsLoading ? (
                   <DataSlotPulse variant="metric" />
                 ) : (
@@ -171,7 +171,7 @@ export default function AdminDashboardOverview({
               <DollarSign className="h-4 w-4 text-green-600 dark:text-green-400" />
             </CardHeader>
             <CardContent>
-              <div className="text-lg sm:text-xl font-semibold">
+              <div className="text-lg sm:text-xl font-medium">
                 {metricsLoading ? (
                   <DataSlotPulse variant="currency" />
                 ) : (
@@ -195,7 +195,7 @@ export default function AdminDashboardOverview({
               <Package className="h-4 w-4 text-purple-600 dark:text-purple-400" />
             </CardHeader>
             <CardContent>
-              <div className="text-lg sm:text-xl font-semibold">
+              <div className="text-lg sm:text-xl font-medium">
                 {metricsLoading ? (
                   <DataSlotPulse variant="metric" />
                 ) : (
@@ -213,7 +213,7 @@ export default function AdminDashboardOverview({
               <Users className="h-4 w-4 text-orange-600 dark:text-orange-400" />
             </CardHeader>
             <CardContent>
-              <div className="text-lg sm:text-xl font-semibold">
+              <div className="text-lg sm:text-xl font-medium">
                 {metricsLoading ? (
                   <DataSlotPulse variant="metric" />
                 ) : (
@@ -231,7 +231,7 @@ export default function AdminDashboardOverview({
               <Truck className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
             </CardHeader>
             <CardContent>
-              <div className="text-lg sm:text-xl font-semibold">
+              <div className="text-lg sm:text-xl font-medium">
                 {metricsLoading ? (
                   <DataSlotPulse variant="metric" />
                 ) : (
@@ -249,7 +249,7 @@ export default function AdminDashboardOverview({
               <Warehouse className="h-4 w-4 text-amber-600 dark:text-amber-400" />
             </CardHeader>
             <CardContent>
-              <div className="text-lg sm:text-xl font-semibold">
+              <div className="text-lg sm:text-xl font-medium">
                 {metricsLoading ? (
                   <DataSlotPulse variant="metric" />
                 ) : (
@@ -271,7 +271,7 @@ export default function AdminDashboardOverview({
               <TrendingUp className="h-4 w-4 text-purple-600 dark:text-purple-400" />
             </CardHeader>
             <CardContent>
-              <div className="text-lg sm:text-xl font-semibold">
+              <div className="text-lg sm:text-xl font-medium">
                 {metricsLoading ? (
                   <DataSlotPulse variant="currency" />
                 ) : (

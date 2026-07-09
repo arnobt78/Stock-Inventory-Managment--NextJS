@@ -18,6 +18,7 @@ import { updateInvoiceSchema } from "@/lib/validations";
 import { withRateLimit, defaultRateLimits } from "@/lib/api/rate-limit";
 import { createAuditLog } from "@/prisma/audit-log";
 import type { UpdateInvoiceInput } from "@/types";
+import { getInvoiceDetailForPage } from "@/lib/server/invoice-detail-data";
 
 /**
  * GET /api/invoices/:id
@@ -43,130 +44,14 @@ export async function GET(
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const userId = session.id;
-    const isAdmin = session.role === "admin";
-    const isClient = session.role === "client";
+    const transformedInvoice = await getInvoiceDetailForPage(
+      { id: session.id, role: session.role },
+      invoiceId,
+    );
 
-    let invoice: Awaited<ReturnType<typeof getInvoiceById>> | null;
-    if (isAdmin) {
-      invoice = await prisma.invoice.findUnique({ where: { id: invoiceId } });
-    } else if (isClient) {
-      // Client can view invoices where they are the customer (clientId)
-      invoice = await prisma.invoice.findFirst({
-        where: { id: invoiceId, clientId: userId },
-      });
-    } else {
-      invoice = await getInvoiceById(invoiceId, userId);
-      if (!invoice) {
-        invoice = await getInvoiceByIdForProductOwner(invoiceId, userId);
-      }
-    }
-
-    if (!invoice) {
+    if (!transformedInvoice) {
       return NextResponse.json({ error: "Invoice not found" }, { status: 404 });
     }
-
-    const order = await prisma.order.findUnique({
-      where: { id: invoice.orderId },
-      include: {
-        items: {
-          include: {
-            product: { select: { userId: true } },
-          },
-        },
-      },
-    });
-
-    const partyUserIds = [
-      invoice.userId,
-      invoice.createdBy,
-      invoice.clientId,
-      order?.userId,
-      ...(order?.items ?? [])
-        .map((item: { product?: { userId?: string } }) => item.product?.userId)
-        .filter(Boolean),
-    ].filter(Boolean) as string[];
-    const uniqueIds = [...new Set(partyUserIds)];
-    const partyUsers =
-      uniqueIds.length > 0
-        ? await prisma.user.findMany({
-            where: { id: { in: uniqueIds } },
-            select: { id: true, name: true, email: true },
-          })
-        : [];
-    const userMap = new Map(partyUsers.map((u) => [u.id, u]));
-
-    // Resolve the actual invoice issuer: product owner from order items > createdBy > userId
-    const issuerProductOwnerIds = [
-      ...new Set(
-        (order?.items ?? [])
-          .map((item: { product?: { userId?: string } }) => item.product?.userId)
-          .filter(Boolean),
-      ),
-    ] as string[];
-    const resolvedIssuerId = issuerProductOwnerIds[0] ?? invoice.createdBy ?? invoice.userId;
-    const invoiceCreatedBy = userMap.get(resolvedIssuerId)
-      ? {
-          name: userMap.get(resolvedIssuerId)!.name ?? null,
-          email: userMap.get(resolvedIssuerId)!.email,
-        }
-      : null;
-    const orderedBy = order && userMap.get(order.userId)
-      ? {
-          name: userMap.get(order.userId)!.name ?? null,
-          email: userMap.get(order.userId)!.email,
-        }
-      : null;
-    const client = invoice.clientId && userMap.get(invoice.clientId)
-      ? {
-          name: userMap.get(invoice.clientId)!.name ?? null,
-          email: userMap.get(invoice.clientId)!.email,
-        }
-      : null;
-    const productOwnerIds = [
-      ...new Set(
-        (order?.items ?? [])
-          .map((item: { product?: { userId?: string } }) => item.product?.userId)
-          .filter(Boolean),
-      ),
-    ] as string[];
-    const invoiceProductOwners = productOwnerIds.map((id) => {
-      const u = userMap.get(id);
-      return u ? { userId: u.id, name: u.name ?? null, email: u.email } : null;
-    }).filter(Boolean) as { userId: string; name: string | null; email: string }[];
-
-    // Transform invoice for response
-    const transformedInvoice = {
-      id: invoice.id,
-      invoiceNumber: invoice.invoiceNumber,
-      orderId: invoice.orderId,
-      userId: invoice.userId,
-      clientId: invoice.clientId,
-      status: invoice.status,
-      subtotal: invoice.subtotal,
-      tax: invoice.tax,
-      shipping: invoice.shipping ?? null,
-      discount: invoice.discount,
-      total: invoice.total,
-      amountPaid: invoice.amountPaid,
-      amountDue: invoice.amountDue,
-      dueDate: invoice.dueDate.toISOString(),
-      issuedAt: invoice.issuedAt.toISOString(),
-      sentAt: invoice.sentAt?.toISOString() || null,
-      paidAt: invoice.paidAt?.toISOString() || null,
-      cancelledAt: invoice.cancelledAt?.toISOString() || null,
-      paymentLink: invoice.paymentLink,
-      notes: invoice.notes,
-      billingAddress: invoice.billingAddress,
-      createdAt: invoice.createdAt.toISOString(),
-      updatedAt: invoice.updatedAt?.toISOString() || null,
-      createdBy: invoice.createdBy,
-      updatedBy: invoice.updatedBy,
-      invoiceCreatedBy,
-      orderedBy,
-      client,
-      invoiceProductOwners,
-    };
 
     return NextResponse.json(transformedInvoice);
   } catch (error) {

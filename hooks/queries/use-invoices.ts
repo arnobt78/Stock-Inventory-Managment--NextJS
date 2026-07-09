@@ -44,13 +44,25 @@ export function useInvoices(
  * Fetch client invoices (invoices for orders that contain products owned by the current user).
  * Used on admin "Client Invoices" page.
  */
-export function useClientInvoices(initialData?: Invoice[]) {
+export function useClientInvoices(
+  filters?: InvoiceFilters,
+  initialData?: Invoice[],
+  options?: { enabled?: boolean },
+) {
+  const enabled = options?.enabled ?? true;
+  const { scope: _scope, ...clientFilters } = filters ?? {};
+  const queryFilters =
+    Object.keys(clientFilters).length > 0 ? clientFilters : undefined;
+
   return useQuery<Invoice[], Error>({
-    queryKey: queryKeys.clientInvoices.lists(),
+    queryKey: queryKeys.clientInvoices.list(
+      queryFilters as Record<string, unknown> | undefined,
+    ),
     queryFn: async () => {
-      const response = await apiClient.admin.getClientInvoices();
+      const response = await apiClient.admin.getClientInvoices(queryFilters);
       return response.data;
     },
+    enabled,
     ...withInitialData(initialData),
   });
 }
@@ -59,7 +71,7 @@ export function useClientInvoices(initialData?: Invoice[]) {
  * Fetch a single invoice by ID
  * @param id - The ID of the invoice to fetch
  */
-export function useInvoice(id: string) {
+export function useInvoice(id: string, initialData?: Invoice) {
   return useQuery<Invoice, Error>({
     queryKey: queryKeys.invoices.detail(id),
     queryFn: async () => {
@@ -67,6 +79,7 @@ export function useInvoice(id: string) {
       return response.data;
     },
     enabled: !!id, // Only run query if ID is available
+    ...withInitialData(initialData),
   });
 }
 
