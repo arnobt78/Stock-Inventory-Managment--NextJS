@@ -44,6 +44,7 @@ next-env.d.ts
 .netlify
 .vscode
 .cursorignore
+.cursor/debug*.log
 
 BREVO_INTEGRATION_GUIDE.md
 DROPDOWN_TEST_CREDENTIALS_DOCS.md
