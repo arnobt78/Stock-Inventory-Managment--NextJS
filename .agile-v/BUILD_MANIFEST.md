@@ -109,6 +109,10 @@
 | ART-0102 | REQ-0043 | Product/Order/Invoice/Review/Ticket/History/User Filters | chip row + Reset |
 | ART-0103 | REQ-0044 | `typography-scale.ts` | PAGE/CARD/SUBTITLE/STAT tokens |
 | ART-0104 | REQ-0044 | PageSectionHeader, SectionCardHeader, dialog, ~45 files | responsive typography sweep |
+| ART-0105 | REQ-0045 | `filter-command-item.tsx` | whole-row cmdk filter toggle |
+| ART-0106 | REQ-0045 | `*StatusFilter.tsx`, `filter-dropdown.tsx`, Category/Supplier/Import/User filters | migrate to FilterCommandCheckboxItem |
+| ART-0107 | REQ-0045 | `InvoiceList.tsx`, `InvoiceTable.tsx`, `invoice-list-filters.ts` | client-side status filter; API search+scope only |
+| ART-0108 | REQ-0045 | `shell-layout-styles.ts`, Home/MyActivity/Email/Analytics pages | header spacing + icons |
 
 ## Tests
 

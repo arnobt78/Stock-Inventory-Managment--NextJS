@@ -10,6 +10,7 @@ import {
   SECTION_HEADER_ICON_TONE,
   type SectionHeaderTone,
 } from "@/lib/ui/section-header-tones";
+import { PAGE_SECTION_HEADER_SPACING_CLASS } from "@/lib/ui/shell-layout-styles";
 import { TYPO_PAGE_HEADER, TYPO_SUBTITLE } from "@/lib/ui/typography-scale";
 
 export type PageSectionHeaderProps = {
@@ -39,6 +40,7 @@ export function PageSectionHeader({
     <div
       className={cn(
         "flex items-stretch gap-2 sm:gap-3 text-left",
+        PAGE_SECTION_HEADER_SPACING_CLASS,
         className,
       )}
     >

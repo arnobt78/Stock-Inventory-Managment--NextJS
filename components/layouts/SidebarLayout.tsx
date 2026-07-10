@@ -114,7 +114,7 @@ export default function SidebarLayout({
         <div className="flex flex-col gap-1 p-2">
           <Link
             href="/"
-            className="flex items-center gap-2 rounded-lg px-2 py-2 text-sm font-medium text-gray-700 dark:text-white hover:bg-gray-100 dark:hover:bg-white/10 transition-colors"
+            className="flex items-center gap-2 rounded-lg px-2 py-2 text-sm font-normal text-gray-700 dark:text-white hover:bg-gray-100 dark:hover:bg-white/10 transition-colors"
           >
             <LayoutDashboard className="h-5 w-5 text-sky-600 dark:text-sky-400" />
             {sidebarTitle}

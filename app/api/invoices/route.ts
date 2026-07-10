@@ -69,7 +69,6 @@ export async function GET(request: NextRequest) {
     const cachedInvoices = await getCache(cacheKey);
 
     if (cachedInvoices) {
-      logger.info("Cache hit for invoices", { userId, filters });
       return NextResponse.json(cachedInvoices);
     }
 
@@ -178,8 +177,6 @@ export async function GET(request: NextRequest) {
 
     // Cache the result for 5 minutes
     await setCache(cacheKey, transformedInvoices, 300);
-
-    logger.info("Fetched invoices from DB and cached", { userId, filters });
 
     return NextResponse.json(transformedInvoices);
   } catch (error) {

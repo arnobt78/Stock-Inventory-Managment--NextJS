@@ -7,7 +7,6 @@ import {
   CommandEmpty,
   CommandGroup,
   CommandInput,
-  CommandItem,
   CommandList,
 } from "@/components/ui/command";
 import {
@@ -16,7 +15,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { Truck } from "lucide-react";
-import { Checkbox } from "@/components/ui/checkbox";
+import { FilterCommandCheckboxItem } from "@/lib/ui/filter-command-item";
 import { Separator } from "@/components/ui/separator";
 import { useSuppliers } from "@/hooks/queries";
 
@@ -36,13 +35,10 @@ export function SuppliersDropDown({
   const { data: suppliersFromHook = [] } = useSuppliers();
   const suppliers = suppliersOverride ?? suppliersFromHook;
 
-  function handleCheckboxChange(value: string) {
-    setSelectedSuppliers((prev) => {
-      const updatedSuppliers = prev.includes(value)
-        ? prev.filter((supplier) => supplier !== value)
-        : [...prev, value];
-      return updatedSuppliers;
-    });
+  function handleToggle(value: string) {
+    setSelectedSuppliers((prev) =>
+      prev.includes(value) ? prev.filter((id) => id !== value) : [...prev, value],
+    );
   }
 
   function clearFilters() {
@@ -77,21 +73,19 @@ export function SuppliersDropDown({
               </CommandEmpty>
               <CommandGroup>
                 {suppliers.map((supplier) => (
-                  <CommandItem
-                    className="h-9 text-gray-700 dark:text-white/80 focus:bg-emerald-100 dark:focus:bg-white/10 focus:text-gray-700 dark:focus:text-white"
+                  <FilterCommandCheckboxItem
                     key={supplier.id}
+                    value={supplier.name}
+                    toggleValue={supplier.id}
+                    checked={selectedSuppliers.includes(supplier.id)}
+                    onToggle={handleToggle}
+                    className="h-9 focus:bg-emerald-100 dark:focus:bg-white/10"
+                    checkboxClassName="focus:ring-emerald-500/50"
                   >
-                    <Checkbox
-                      checked={selectedSuppliers.includes(supplier.id)} // Use supplier ID
-                      onClick={() => handleCheckboxChange(supplier.id)} // Pass supplier ID
-                      className="size-4 rounded-[4px] border-white/20 bg-white/5 backdrop-blur-md focus:ring-emerald-500/50 focus:ring-2"
-                    />
-                    <div
-                      className={`flex items-center gap-1 p-1 rounded-lg px-2 text-[14px]`}
-                    >
+                    <div className="flex items-center gap-1 p-1 rounded-lg px-2 text-[14px]">
                       {supplier.name}
                     </div>
-                  </CommandItem>
+                  </FilterCommandCheckboxItem>
                 ))}
               </CommandGroup>
             </CommandList>

@@ -124,19 +124,17 @@ const InvoiceList = React.memo(
       () =>
         buildInvoiceListFilters({
           searchTerm: debouncedSearchTerm,
-          selectedStatuses,
           scope: useStoreInvoiceScope ? "store" : undefined,
         }),
-      [debouncedSearchTerm, selectedStatuses, useStoreInvoiceScope],
+      [debouncedSearchTerm, useStoreInvoiceScope],
     );
 
     const clientApiFilters = useMemo(
       () =>
         buildInvoiceListFilters({
           searchTerm: debouncedSearchTerm,
-          selectedStatuses,
         }),
-      [debouncedSearchTerm, selectedStatuses],
+      [debouncedSearchTerm],
     );
 
     const useDefaultInvoiceFilters = isDefaultInvoiceListFilters(apiFilters);
@@ -876,6 +874,7 @@ const InvoiceList = React.memo(
           isLoading={tableDataLoading}
           pagination={pagination}
           setPagination={setPagination}
+          selectedStatuses={selectedStatuses}
         />
 
         {/* Defer Dialog until mount to avoid Radix aria-controls hydration mismatch */}

@@ -15,12 +15,11 @@ import {
   Command,
   CommandList,
   CommandGroup,
-  CommandItem,
   CommandInput,
   CommandEmpty,
 } from "@/components/ui/command";
 import { Separator } from "@/components/ui/separator";
-import { Checkbox } from "@/components/ui/checkbox";
+import { FilterCommandCheckboxItem } from "@/lib/ui/filter-command-item";
 import { ProductStockStatusBadge } from "@/lib/ui/semantic-badges";
 import type { ProductStatus } from "@/types";
 
@@ -46,13 +45,12 @@ export function StatusDropDown({
 }: StatusDropDownProps) {
   const [open, setOpen] = React.useState(false);
 
-  function handleCheckboxChange(value: string) {
-    setSelectedStatuses((prev) => {
-      const updatedStatuses = prev.includes(value)
+  function handleToggle(value: string) {
+    setSelectedStatuses((prev) =>
+      prev.includes(value)
         ? prev.filter((status) => status !== value)
-        : [...prev, value];
-      return updatedStatuses;
-    });
+        : [...prev, value],
+    );
   }
 
   function clearFilters() {
@@ -84,22 +82,18 @@ export function StatusDropDown({
             <CommandList>
               <CommandGroup>
                 {productStatuses.map((status) => (
-                  <CommandItem
-                    className="h-10 mb-2 flex items-center text-gray-700 dark:text-white/80 focus:bg-rose-100 dark:focus:bg-white/10 focus:text-gray-700 dark:focus:text-white"
+                  <FilterCommandCheckboxItem
                     key={status.value}
-                    value={status.value}
-                    onClick={() => handleCheckboxChange(status.value)}
+                    value={status.label}
+                    toggleValue={status.value}
+                    checked={selectedStatuses.includes(status.value)}
+                    onToggle={handleToggle}
                   >
-                    <Checkbox
-                      checked={selectedStatuses.includes(status.value)}
-                      onCheckedChange={() => handleCheckboxChange(status.value)}
-                      className="size-4 rounded-[4px] mr-2 border-white/20 bg-white/5 backdrop-blur-md focus:ring-rose-500/50 focus:ring-2"
-                    />
                     <ProductStockStatusBadge
                       status={status.value}
                       label={status.label}
                     />
-                  </CommandItem>
+                  </FilterCommandCheckboxItem>
                 ))}
               </CommandGroup>
             </CommandList>

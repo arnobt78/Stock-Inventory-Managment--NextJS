@@ -15,12 +15,11 @@ import {
   Command,
   CommandList,
   CommandGroup,
-  CommandItem,
   CommandInput,
   CommandEmpty,
 } from "@/components/ui/command";
 import { Separator } from "@/components/ui/separator";
-import { Checkbox } from "@/components/ui/checkbox";
+import { FilterCommandCheckboxItem } from "@/lib/ui/filter-command-item";
 import { ImportTypeBadge } from "@/lib/ui/semantic-badges";
 import type { ImportHistoryType } from "@/types";
 
@@ -42,13 +41,10 @@ export function ImportTypeDropDown({
 }: ImportTypeDropDownProps) {
   const [open, setOpen] = React.useState(false);
 
-  function handleCheckboxChange(value: string) {
-    setSelectedImportTypes((prev) => {
-      const updated = prev.includes(value)
-        ? prev.filter((t) => t !== value)
-        : [...prev, value];
-      return updated;
-    });
+  function handleToggle(value: string) {
+    setSelectedImportTypes((prev) =>
+      prev.includes(value) ? prev.filter((t) => t !== value) : [...prev, value],
+    );
   }
 
   function clearFilters() {
@@ -80,19 +76,15 @@ export function ImportTypeDropDown({
             <CommandList>
               <CommandGroup>
                 {importTypes.map((type) => (
-                  <CommandItem
-                    className="h-10 mb-2 flex items-center text-gray-700 dark:text-white/80 focus:bg-rose-100 dark:focus:bg-white/10 focus:text-gray-700 dark:focus:text-white"
+                  <FilterCommandCheckboxItem
                     key={type.value}
-                    value={type.value}
-                    onClick={() => handleCheckboxChange(type.value)}
+                    value={type.label}
+                    toggleValue={type.value}
+                    checked={selectedImportTypes.includes(type.value)}
+                    onToggle={handleToggle}
                   >
-                    <Checkbox
-                      checked={selectedImportTypes.includes(type.value)}
-                      onCheckedChange={() => handleCheckboxChange(type.value)}
-                      className="size-4 rounded-[4px] mr-2 border-white/20 bg-white/5 backdrop-blur-md focus:ring-rose-500/50 focus:ring-2"
-                    />
                     <ImportTypeBadge status={type.value} label={type.label} />
-                  </CommandItem>
+                  </FilterCommandCheckboxItem>
                 ))}
               </CommandGroup>
             </CommandList>

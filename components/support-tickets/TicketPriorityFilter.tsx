@@ -15,12 +15,11 @@ import {
   Command,
   CommandList,
   CommandGroup,
-  CommandItem,
   CommandInput,
   CommandEmpty,
 } from "@/components/ui/command";
 import { Separator } from "@/components/ui/separator";
-import { Checkbox } from "@/components/ui/checkbox";
+import { FilterCommandCheckboxItem } from "@/lib/ui/filter-command-item";
 import { TicketPriorityBadge } from "@/lib/ui/semantic-badges";
 import type { SupportTicketPriority } from "@/types";
 
@@ -47,13 +46,10 @@ export function TicketPriorityDropDown({
 }: TicketPriorityDropDownProps) {
   const [open, setOpen] = React.useState(false);
 
-  function handleCheckboxChange(value: string) {
-    setSelectedPriorities((prev) => {
-      const updated = prev.includes(value)
-        ? prev.filter((p) => p !== value)
-        : [...prev, value];
-      return updated;
-    });
+  function handleToggle(value: string) {
+    setSelectedPriorities((prev) =>
+      prev.includes(value) ? prev.filter((p) => p !== value) : [...prev, value],
+    );
   }
 
   function clearFilters() {
@@ -85,24 +81,20 @@ export function TicketPriorityDropDown({
             <CommandList>
               <CommandGroup>
                 {ticketPriorities.map((priority) => (
-                  <CommandItem
-                    className="h-10 mb-2 flex items-center text-gray-700 dark:text-white/80 focus:bg-sky-100 dark:focus:bg-white/10 focus:text-gray-700 dark:focus:text-white"
+                  <FilterCommandCheckboxItem
                     key={priority.value}
-                    value={priority.value}
-                    onClick={() => handleCheckboxChange(priority.value)}
+                    value={priority.label}
+                    toggleValue={priority.value}
+                    checked={selectedPriorities.includes(priority.value)}
+                    onToggle={handleToggle}
+                    className="focus:bg-sky-100 dark:focus:bg-white/10"
+                    checkboxClassName="focus:ring-sky-500/50"
                   >
-                    <Checkbox
-                      checked={selectedPriorities.includes(priority.value)}
-                      onCheckedChange={() =>
-                        handleCheckboxChange(priority.value)
-                      }
-                      className="size-4 rounded-[4px] mr-2 border-white/20 bg-white/5 backdrop-blur-md focus:ring-sky-500/50 focus:ring-2"
-                    />
                     <TicketPriorityBadge
                       status={priority.value}
                       label={priority.label}
                     />
-                  </CommandItem>
+                  </FilterCommandCheckboxItem>
                 ))}
               </CommandGroup>
             </CommandList>

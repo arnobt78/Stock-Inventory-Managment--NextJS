@@ -5,7 +5,7 @@
 
 "use client";
 
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import {
   ColumnDef,
   flexRender,
@@ -41,6 +41,7 @@ interface InvoiceTableProps {
   setPagination: (
     updater: PaginationType | ((old: PaginationType) => PaginationType),
   ) => void;
+  selectedStatuses: string[];
 }
 
 export const InvoiceTable = React.memo(function InvoiceTable({
@@ -49,13 +50,22 @@ export const InvoiceTable = React.memo(function InvoiceTable({
   isLoading,
   pagination,
   setPagination,
+  selectedStatuses,
 }: InvoiceTableProps) {
   const [sorting, setSorting] = useState<SortingState>([]);
 
-  useClampPaginationIndex(data.length, pagination, setPagination);
+  const filteredData = useMemo(() => {
+    if (selectedStatuses.length === 0) return data;
+    return data.filter(
+      (invoice) =>
+        selectedStatuses.includes(invoice.status),
+    );
+  }, [data, selectedStatuses]);
+
+  useClampPaginationIndex(filteredData.length, pagination, setPagination);
 
   const table = useReactTable({
-    data: data || [],
+    data: filteredData || [],
     columns,
     state: {
       pagination,

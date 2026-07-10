@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { useAuth } from "@/contexts";
 import Navbar from "@/components/layouts/Navbar";
-import { PageContentWrapper, DataSlotPulse } from "@/components/shared";
+import { PageContentWrapper, DataSlotPulse, PageSectionHeader } from "@/components/shared";
 import {
   Card,
   CardContent,
@@ -161,19 +161,16 @@ export default function EmailPreferencesPage({
 
   const content = (
     <PageContentWrapper>
-      <div className="mx-auto">
-        <div className="space-y-4">
-          <div className="space-y-2">
-            <h1 className="text-sm sm:text-base font-medium text-gray-700 dark:text-white">
-              Email Preferences
-            </h1>
-            <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">
-              Manage your email notification preferences. Choose which types of
-              emails you want to receive.
-            </p>
-          </div>
+        <div className="flex flex-col gap-4">
+        <PageSectionHeader
+          as="h1"
+          icon={Mail}
+          tone="sky"
+          title="Email Preferences"
+          description="Manage your email notification preferences. Choose which types of emails you want to receive."
+        />
 
-          <Card>
+        <Card>
             <CardHeader>
               <CardTitle className="text-sm sm:text-base flex items-center gap-2">
                 <Mail className="h-5 w-5" />
@@ -282,7 +279,6 @@ export default function EmailPreferencesPage({
               </div>
             </CardContent>
           </Card>
-        </div>
       </div>
     </PageContentWrapper>
   );

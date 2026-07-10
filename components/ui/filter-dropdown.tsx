@@ -11,7 +11,6 @@ import {
   CommandEmpty,
   CommandGroup,
   CommandInput,
-  CommandItem,
   CommandList,
 } from "@/components/ui/command";
 import {
@@ -20,7 +19,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { LuGitPullRequestDraft } from "react-icons/lu";
-import { Checkbox } from "@/components/ui/checkbox";
+import { FilterCommandCheckboxItem } from "@/lib/ui/filter-command-item";
 import { Separator } from "@/components/ui/separator";
 import { LucideIcon } from "lucide-react";
 
@@ -106,17 +105,15 @@ export function FilterDropdown({
   /**
    * Handle checkbox change for filter selection
    */
-  const handleCheckboxChange = React.useCallback(
+  const handleToggle = React.useCallback(
     (value: string) => {
       if (multiple) {
-        setSelectedValues((prev) => {
-          const updated = prev.includes(value)
+        setSelectedValues((prev) =>
+          prev.includes(value)
             ? prev.filter((item) => item !== value)
-            : [...prev, value];
-          return updated;
-        });
+            : [...prev, value],
+        );
       } else {
-        // Single selection mode
         setSelectedValues((prev) => (prev.includes(value) ? [] : [value]));
       }
     },
@@ -148,16 +145,19 @@ export function FilterDropdown({
               </CommandEmpty>
               <CommandGroup>
                 {filteredOptions.map((option) => (
-                  <CommandItem className="h-9" key={option.id}>
-                    <Checkbox
-                      checked={selectedValues.includes(option.id)}
-                      onClick={() => handleCheckboxChange(option.id)}
-                      className="size-4 rounded-[4px]"
-                    />
+                  <FilterCommandCheckboxItem
+                    key={option.id}
+                    value={option.name}
+                    toggleValue={option.id}
+                    checked={selectedValues.includes(option.id)}
+                    onToggle={handleToggle}
+                    className="h-9"
+                    checkboxClassName="size-4 rounded-[4px]"
+                  >
                     <div className="flex items-center gap-1 p-1 rounded-lg px-2 text-[14px]">
                       {option.name}
                     </div>
-                  </CommandItem>
+                  </FilterCommandCheckboxItem>
                 ))}
               </CommandGroup>
             </CommandList>

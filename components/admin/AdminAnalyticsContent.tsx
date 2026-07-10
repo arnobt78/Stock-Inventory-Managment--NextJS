@@ -154,17 +154,17 @@ export default function AdminAnalyticsContent({
 
   return (
     <PageContentWrapper>
-      <div className="space-y-4">
+      <div className="flex flex-col">
         <PageSectionHeader
           as="h1"
           icon={BarChart3}
           tone="violet"
-          title="Store Analytics &amp; Dashboard (self + client + supplier + other users)"
+          title="Store Analytics & Dashboard (self + client + supplier + other users)"
           description="Overview, statistics, trends, and AI-powered insights across products, users, suppliers, categories, orders, invoices, warehouses, tickets, and reviews. Store-wide metrics."
         />
 
         {/* Overview cards — REQ-0021 shell-first: titles/icons always visible */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 items-stretch">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 items-stretch pb-6">
           <StatisticsCard
             title="Total Products"
             value={stats?.counts?.products ?? 0}

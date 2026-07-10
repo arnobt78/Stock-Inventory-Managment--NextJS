@@ -6,7 +6,8 @@ import type { InvoiceFilters, InvoiceStatus } from "@/types";
 
 export function buildInvoiceListFilters(options: {
   searchTerm: string;
-  selectedStatuses: string[];
+  /** Optional — status chips filter client-side on list pages (REQ-0045). */
+  selectedStatuses?: string[];
   scope?: "store";
 }): InvoiceFilters | undefined {
   const filters: InvoiceFilters = {};
@@ -20,8 +21,9 @@ export function buildInvoiceListFilters(options: {
     filters.searchTerm = term;
   }
 
-  if (options.selectedStatuses.length > 0) {
-    filters.status = options.selectedStatuses as InvoiceStatus[];
+  const statuses = options.selectedStatuses ?? [];
+  if (statuses.length > 0) {
+    filters.status = statuses as InvoiceStatus[];
   }
 
   if (Object.keys(filters).length === 0) {

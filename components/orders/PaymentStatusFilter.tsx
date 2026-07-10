@@ -15,12 +15,11 @@ import {
   Command,
   CommandList,
   CommandGroup,
-  CommandItem,
   CommandInput,
   CommandEmpty,
 } from "@/components/ui/command";
 import { Separator } from "@/components/ui/separator";
-import { Checkbox } from "@/components/ui/checkbox";
+import { FilterCommandCheckboxItem } from "@/lib/ui/filter-command-item";
 import { PaymentStatusBadge } from "@/lib/ui/semantic-badges";
 import type { PaymentStatus } from "@/types";
 
@@ -47,13 +46,12 @@ export function PaymentStatusDropDown({
 }: PaymentStatusDropDownProps) {
   const [open, setOpen] = React.useState(false);
 
-  function handleCheckboxChange(value: string) {
-    setSelectedPaymentStatuses((prev) => {
-      const updatedStatuses = prev.includes(value)
+  function handleToggle(value: string) {
+    setSelectedPaymentStatuses((prev) =>
+      prev.includes(value)
         ? prev.filter((status) => status !== value)
-        : [...prev, value];
-      return updatedStatuses;
-    });
+        : [...prev, value],
+    );
   }
 
   function clearFilters() {
@@ -85,22 +83,20 @@ export function PaymentStatusDropDown({
             <CommandList>
               <CommandGroup>
                 {paymentStatuses.map((status) => (
-                  <CommandItem
-                    className="h-10 mb-2 flex items-center text-gray-700 dark:text-white/80 focus:bg-amber-100 dark:focus:bg-white/10 focus:text-gray-700 dark:focus:text-white"
+                  <FilterCommandCheckboxItem
                     key={status.value}
-                    value={status.value}
-                    onClick={() => handleCheckboxChange(status.value)}
+                    value={status.label}
+                    toggleValue={status.value}
+                    checked={selectedPaymentStatuses.includes(status.value)}
+                    onToggle={handleToggle}
+                    className="focus:bg-amber-100 dark:focus:bg-white/10"
+                    checkboxClassName="focus:ring-amber-500/50"
                   >
-                    <Checkbox
-                      checked={selectedPaymentStatuses.includes(status.value)}
-                      onCheckedChange={() => handleCheckboxChange(status.value)}
-                      className="size-4 rounded-[4px] mr-2 border-white/20 bg-white/5 backdrop-blur-md focus:ring-amber-500/50 focus:ring-2"
-                    />
                     <PaymentStatusBadge
                       status={status.value}
                       label={status.label}
                     />
-                  </CommandItem>
+                  </FilterCommandCheckboxItem>
                 ))}
               </CommandGroup>
             </CommandList>

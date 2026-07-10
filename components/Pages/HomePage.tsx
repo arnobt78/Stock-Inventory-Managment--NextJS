@@ -15,6 +15,7 @@ import { StatisticsSection } from "@/components/home/StatisticsSection";
 import Navbar from "@/components/layouts/Navbar";
 import { PageContentWrapper } from "@/components/shared";
 import FloatingActionButtons from "@/components/shared/FloatingActionButtons";
+import { PageSectionHeader } from "@/components/shared";
 import { useProducts } from "@/hooks/queries";
 import type {
   ProductForHome,
@@ -22,6 +23,7 @@ import type {
   SupplierForHome,
 } from "@/lib/server/home-data";
 import type { DashboardStats } from "@/types";
+import { LayoutDashboard } from "lucide-react";
 
 export type HomePageProps = {
   initialProducts?: ProductForHome[];
@@ -111,24 +113,27 @@ export default function HomePage({
   return (
     <Navbar>
       <PageContentWrapper>
-        <div className="pb-6 flex flex-col items-start text-left">
-          <h2 className="text-sm sm:text-base font-medium text-gray-700 dark:text-white ">
-            Store Overview
-          </h2>
-          <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">
-            The cards below show your store-wide metrics as the store owner,
-            including your own activity and activity from clients and others.
-            Numbers update automatically when you or others make changes. For
-            your personal orders, products, and activity only, visit{" "}
-            <Link
-              href="/admin/my-activity"
-              className="font-medium text-sky-600 hover:text-sky-800"
-            >
-              My Activities
-            </Link>
-            .
-          </p>
-        </div>
+        <PageSectionHeader
+          as="h2"
+          icon={LayoutDashboard}
+          tone="sky"
+          title="Store Overview"
+          description={
+            <>
+              The cards below show your store-wide metrics as the store owner,
+              including your own activity and activity from clients and others.
+              Numbers update automatically when you or others make changes. For
+              your personal orders, products, and activity only, visit{" "}
+              <Link
+                href="/admin/my-activity"
+                className="font-medium text-sky-600 hover:text-sky-800 dark:text-sky-400 dark:hover:text-sky-300"
+              >
+                My Activities
+              </Link>
+              .
+            </>
+          }
+        />
 
         <div id="statistics" className="pb-6 scroll-mt-20">
           <StatisticsSection initialStats={initialStats} />

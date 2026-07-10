@@ -7,7 +7,6 @@ import {
   CommandEmpty,
   CommandGroup,
   CommandInput,
-  CommandItem,
   CommandList,
 } from "@/components/ui/command";
 import {
@@ -16,7 +15,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { FolderTree } from "lucide-react";
-import { Checkbox } from "@/components/ui/checkbox";
+import { FilterCommandCheckboxItem } from "@/lib/ui/filter-command-item";
 import { Separator } from "@/components/ui/separator";
 import { useCategories } from "@/hooks/queries";
 import { useAuth } from "@/contexts";
@@ -42,13 +41,10 @@ export function CategoryDropDown({
     return categories.filter((category) => category.userId === user?.id);
   }, [categories, user, categoriesOverride]);
 
-  function handleCheckboxChange(value: string) {
-    setSelectedCategory((prev) => {
-      const updatedCategories = prev.includes(value)
-        ? prev.filter((category) => category !== value)
-        : [...prev, value];
-      return updatedCategories;
-    });
+  function handleToggle(value: string) {
+    setSelectedCategory((prev) =>
+      prev.includes(value) ? prev.filter((id) => id !== value) : [...prev, value],
+    );
   }
 
   function clearFilters() {
@@ -83,21 +79,19 @@ export function CategoryDropDown({
               </CommandEmpty>
               <CommandGroup>
                 {userCategories.map((category) => (
-                  <CommandItem
-                    className="h-9 text-gray-700 dark:text-white/80 focus:bg-sky-100 dark:focus:bg-white/10 focus:text-gray-700 dark:focus:text-white"
+                  <FilterCommandCheckboxItem
                     key={category.id}
+                    value={category.name}
+                    toggleValue={category.id}
+                    checked={selectedCategory.includes(category.id)}
+                    onToggle={handleToggle}
+                    className="h-9 focus:bg-sky-100 dark:focus:bg-white/10"
+                    checkboxClassName="accent-sky-500 focus:ring-sky-500/50"
                   >
-                    <Checkbox
-                      checked={selectedCategory.includes(category.id)} // Use category ID
-                      onClick={() => handleCheckboxChange(category.id)} // Pass category ID
-                      className="size-4 rounded-[4px] border-white/20 bg-white/5 backdrop-blur-md accent-sky-500 focus:ring-sky-500/50 focus:ring-2"
-                    />
-                    <div
-                      className={`flex items-center gap-1 p-1 rounded-lg px-2 text-[14px]`}
-                    >
+                    <div className="flex items-center gap-1 p-1 rounded-lg px-2 text-[14px]">
                       {category.name}
                     </div>
-                  </CommandItem>
+                  </FilterCommandCheckboxItem>
                 ))}
               </CommandGroup>
             </CommandList>

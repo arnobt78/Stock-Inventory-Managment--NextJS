@@ -88,3 +88,6 @@ Format: `TIMESTAMP | AGENT | DECISION | RATIONALE | REQ-ID`
 2026-07-10T15:12:00Z | build-agent | REQ-0044 text-xl sweep | Navbar/AuthBrandHeader lg:text-xl removed; PaymentDialog title+total → card/stat tier | REQ-0044
 2026-07-10T15:15:00Z | build-agent | REQ-0044 bare text-lg | brand/AdminPage/PaymentDialog/misc → responsive pairs only | REQ-0044
 2026-07-10T15:18:00Z | red-team | REQ-0044 final audit | lint ✓ test 343 ✓ invalidate 202 ✓ build ✓; zero text-xl; no TanStack/SSR delta | REQ-0044
+2026-07-10T16:00:00Z | build-agent | FilterCommandCheckboxItem | cmdk onSelect only; checkbox visual — fixes hang + whole-row click | REQ-0045
+2026-07-10T16:02:00Z | build-agent | Invoice status client-side | match OrderList; API search+scope only — no query key churn | REQ-0045
+2026-07-10T16:04:00Z | red-team | REQ-0045 gates | lint ✓ test 343 ✓ invalidate 202 ✓ build ✓; no TanStack/invalidation delta | REQ-0045

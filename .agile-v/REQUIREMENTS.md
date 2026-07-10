@@ -892,6 +892,31 @@ Canonical REQ source. All artifacts link via `REQ-XXXX`. Status: `done` | `verif
 
 ---
 
+## REQ-0045 — Filter row UX + invoice status perf + page header spacing
+
+| Field | Value |
+|-------|-------|
+| **Priority** | P1 |
+| **Risk** | R2 |
+| **Status** | done |
+| **Cycle** | C2 |
+| **Parent** | REQ-0043 |
+
+**Intent:** Whole-row clickable multi-select filter rows (no cmdk+Checkbox double-toggle hang); invoice status filters client-side like orders; consistent `pb-6` page header / stats grid spacing; quieter invoice list API logs.
+
+**Acceptance criteria**
+
+- AC1: `FilterCommandCheckboxItem` — `CommandItem.onSelect` only; checkbox `pointer-events-none`
+- AC2: All multi-select `*Filter*.tsx` + `filter-dropdown.tsx` use shared row component
+- AC3: Invoice status client-side in `InvoiceTable`/`InvoiceFilters`; API filters search+scope only
+- AC4: `PAGE_SECTION_HEADER_SPACING_CLASS` / `PAGE_STATS_GRID_CLASS` on list pages
+- AC5: Home, My Activity, Email Preferences, Analytics headers use `PageSectionHeader` + icons
+- AC6: No TanStack invalidation / SSR / mutation changes; Red Team pass
+
+**Artifacts:** `filter-command-item.tsx`, `invoice-list-filters.ts`, `InvoiceList.tsx`, `InvoiceTable.tsx`, `*StatusFilter.tsx`, `shell-layout-styles.ts`, header pages
+
+---
+
 ## REQ-0020 — Locale-aware admin formatting
 
 | Field | Value |

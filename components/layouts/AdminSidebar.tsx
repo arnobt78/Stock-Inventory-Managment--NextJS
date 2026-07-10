@@ -165,7 +165,7 @@ export default function AdminSidebar({
 
   const linkClass = (href: string, isSub = false) =>
     cn(
-      "flex items-center gap-2 rounded-lg px-2 py-2 text-sm font-medium transition-colors",
+      "flex items-center gap-2 rounded-lg px-2 py-2 text-sm font-normal transition-colors",
       isSub && !collapsed ? "pl-8" : "",
       collapsed ? "justify-center px-0 w-9 h-9 mx-auto" : "",
       pathname === href || (href !== "/admin" && pathname.startsWith(href))
@@ -249,25 +249,25 @@ export default function AdminSidebar({
   return (
     <nav className="flex min-h-0 flex-col p-2 gap-1">
       {/* My Store */}
-      <p className="px-2 pt-2  text-xs font-medium uppercase tracking-wider text-muted-foreground">
+      <p className="px-2 pt-2  text-xs font-normal uppercase tracking-wider text-muted-foreground">
         My Store
       </p>
       {renderNavItems(MY_STORE_ITEMS)}
 
       {/* Product & System Management */}
-      <p className="px-2 pt-2  text-xs font-medium uppercase tracking-wider text-muted-foreground">
+      <p className="px-2 pt-2  text-xs font-normal uppercase tracking-wider text-muted-foreground">
         Product & System Management
       </p>
       {renderNavItems(MANAGEMENT_ITEMS)}
 
       {/* My Activity */}
-      <p className="px-2 pt-2  text-xs font-medium uppercase tracking-wider text-muted-foreground">
+      <p className="px-2 pt-2  text-xs font-normal uppercase tracking-wider text-muted-foreground">
         Personal activity
       </p>
       {renderNavItems(MY_ACTIVITY_ITEMS)}
 
       {/* System Settings */}
-      <p className="px-2 pt-2  text-xs font-medium uppercase tracking-wider text-muted-foreground">
+      <p className="px-2 pt-2  text-xs font-normal uppercase tracking-wider text-muted-foreground">
         System Settings
       </p>
       <Link
@@ -287,7 +287,7 @@ export default function AdminSidebar({
           <div className="flex items-center gap-2 text-sm text-muted-foreground">
             <User className="h-4 w-4 flex-shrink-0" />
             <div className="min-w-0 truncate">
-              <p className="font-medium text-foreground truncate">
+              <p className="font-normal text-foreground truncate">
                 {user.name || "User"}
               </p>
               <p className="text-xs truncate">{user.email}</p>

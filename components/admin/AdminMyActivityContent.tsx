@@ -23,6 +23,7 @@ import {
   Eye,
   FileText,
   FolderTree,
+  UserRound,
 } from "lucide-react";
 import {
   useOrders,
@@ -36,7 +37,7 @@ import {
 import { cn } from "@/lib/utils";
 import { isAnyDataSlotLoading, isDataSlotLoading } from "@/lib/react-query";
 import { useAuth } from "@/contexts";
-import { PageContentWrapper } from "@/components/shared";
+import { PageContentWrapper, PageSectionHeader } from "@/components/shared";
 import { ClientCurrency, ClientCompactDateTime } from "@/components/shared";
 import { formatStableCurrency } from "@/lib/format";
 import { StatisticsCard } from "@/components/home/StatisticsCard";
@@ -250,21 +251,16 @@ export default function AdminMyActivityContent({
 
   return (
     <PageContentWrapper>
-      <div className="space-y-4">
-        <div className="flex flex-col items-start text-left ">
-          <h1 className="text-sm sm:text-base font-medium text-gray-700 dark:text-white ">
-            My Activity (self-only as user)
-          </h1>
-          <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">
-            Your orders, products, and key metrics as the store owner as you
-            placed order, created products, invoices, and more. This is
-            self-only data. This is different from the Store Analytics &
-            Dashboard, which is the overall store metrics as the store owner &
-            other users.
-          </p>
-        </div>
+      <div className="flex flex-col">
+        <PageSectionHeader
+          as="h1"
+          icon={UserRound}
+          tone="sky"
+          title="My Activity (self-only as user)"
+          description="Your orders, products, and key metrics as the store owner as you placed order, created products, invoices, and more. This is self-only data. This is different from the Store Analytics & Dashboard, which is the overall store metrics as the store owner & other users."
+        />
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2 items-stretch">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2 items-stretch pb-6">
           <StatisticsCard
             title="Total Orders"
             value={stats.totalOrders}

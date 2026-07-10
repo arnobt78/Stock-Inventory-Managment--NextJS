@@ -74,8 +74,8 @@ export default function BusinessInsightsSidebar({
       aria-label="Insights sections"
     >
       {/* Grouped header — same style as AdminSidebar */}
-      <p className="px-2 pt-2  text-xs font-medium uppercase tracking-wider text-muted-foreground">
-        Insights
+      <p className="px-2 pt-2  text-xs font-normal uppercase tracking-wider text-muted-foreground">
+        Product & Business Insights
       </p>
       {TAB_ITEMS.map((item) => {
         const Icon = item.icon;
@@ -86,7 +86,7 @@ export default function BusinessInsightsSidebar({
             type="button"
             onClick={() => onValueChange(item.value)}
             className={cn(
-              "flex items-center gap-2 rounded-lg pl-8 pr-3 py-2 text-left text-sm font-medium transition-colors w-full",
+              "flex items-center gap-2 rounded-lg pl-8 pr-3 py-2 text-left text-sm font-normal transition-colors w-full",
               isActive
                 ? "bg-sky-500/15 dark:bg-sky-500/20 text-sky-700 dark:text-sky-300"
                 : "text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-white/10",

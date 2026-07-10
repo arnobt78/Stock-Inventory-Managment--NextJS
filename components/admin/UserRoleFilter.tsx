@@ -15,12 +15,11 @@ import {
   Command,
   CommandList,
   CommandGroup,
-  CommandItem,
   CommandInput,
   CommandEmpty,
 } from "@/components/ui/command";
 import { Separator } from "@/components/ui/separator";
-import { Checkbox } from "@/components/ui/checkbox";
+import { FilterCommandCheckboxItem } from "@/lib/ui/filter-command-item";
 import { UserRoleBadge } from "@/lib/ui/semantic-badges";
 import type { UserRole } from "@/types";
 
@@ -43,13 +42,10 @@ export function UserRoleDropDown({
 }: UserRoleDropDownProps) {
   const [open, setOpen] = React.useState(false);
 
-  function handleCheckboxChange(value: string) {
-    setSelectedRoles((prev) => {
-      const updated = prev.includes(value)
-        ? prev.filter((r) => r !== value)
-        : [...prev, value];
-      return updated;
-    });
+  function handleToggle(value: string) {
+    setSelectedRoles((prev) =>
+      prev.includes(value) ? prev.filter((r) => r !== value) : [...prev, value],
+    );
   }
 
   function clearFilters() {
@@ -81,19 +77,15 @@ export function UserRoleDropDown({
             <CommandList>
               <CommandGroup>
                 {USER_ROLE_FILTER_OPTIONS.map((role) => (
-                  <CommandItem
-                    className="h-10 mb-2 flex items-center text-gray-700 dark:text-white/80 focus:bg-rose-100 dark:focus:bg-white/10 focus:text-gray-700 dark:focus:text-white"
+                  <FilterCommandCheckboxItem
                     key={role.value}
-                    value={role.value}
-                    onClick={() => handleCheckboxChange(role.value)}
+                    value={role.label}
+                    toggleValue={role.value}
+                    checked={selectedRoles.includes(role.value)}
+                    onToggle={handleToggle}
                   >
-                    <Checkbox
-                      checked={selectedRoles.includes(role.value)}
-                      onCheckedChange={() => handleCheckboxChange(role.value)}
-                      className="size-4 rounded-[4px] mr-2 border-white/20 bg-white/5 backdrop-blur-md focus:ring-rose-500/50 focus:ring-2"
-                    />
                     <UserRoleBadge role={role.value} />
-                  </CommandItem>
+                  </FilterCommandCheckboxItem>
                 ))}
               </CommandGroup>
             </CommandList>

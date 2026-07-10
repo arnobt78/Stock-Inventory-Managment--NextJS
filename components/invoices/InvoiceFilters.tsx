@@ -61,8 +61,13 @@ export default function InvoiceFilters({
 }: InvoiceFiltersProps) {
   const { toast } = useToast();
 
-  /** Export uses API-filtered rows from the parent list. */
-  const filteredInvoices = allInvoices;
+  /** Client-side status filter — search is API-scoped via parent list data. */
+  const filteredInvoices = useMemo(() => {
+    if (selectedStatuses.length === 0) return allInvoices;
+    return allInvoices.filter((invoice) =>
+      selectedStatuses.includes(invoice.status),
+    );
+  }, [allInvoices, selectedStatuses]);
 
   /**
    * Export filtered invoices to CSV

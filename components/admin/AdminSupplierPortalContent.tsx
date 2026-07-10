@@ -138,7 +138,7 @@ export default function AdminSupplierPortalContent({
 
   return (
     <PageContentWrapper>
-      <div className="mx-auto space-y-4">
+      <div className="flex flex-col">
         <PageSectionHeader
           as="h1"
           icon={Truck}
@@ -148,7 +148,7 @@ export default function AdminSupplierPortalContent({
         />
 
         {/* Summary cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-2 items-stretch">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-2 items-stretch pb-6">
           <AnalyticsCard
             title="Suppliers"
             value={stats?.counts?.suppliers ?? 0}
