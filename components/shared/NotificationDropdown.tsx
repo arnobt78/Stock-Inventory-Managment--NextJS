@@ -138,7 +138,7 @@ export function NotificationDropdown({
     <div className="w-full overflow-hidden rounded-lg">
       {/* Header */}
       <div className="flex items-center justify-between p-4 border-b border-rose-400/20 dark:border-white/10">
-        <h3 className="text-lg font-medium text-gray-700 dark:text-white">
+        <h3 className="text-sm sm:text-base font-medium text-gray-700 dark:text-white">
           Notifications
         </h3>
         {hasUnread && (

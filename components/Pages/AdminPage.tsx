@@ -49,7 +49,7 @@ export default function AdminPage() {
                   ariaLabel="Admin hub help"
                 />
               </div>
-              <p className="text-lg text-muted-foreground">
+              <p className="text-xs sm:text-sm text-muted-foreground">
                 System administration, health, and settings
               </p>
             </div>
@@ -60,7 +60,7 @@ export default function AdminPage() {
                   <CardHeader className="">
                     <div className="flex items-center gap-2">
                       <FiActivity className="h-5 w-5 text-sky-600 dark:text-sky-400" />
-                      <CardTitle className="text-lg">
+                      <CardTitle className="text-sm sm:text-base">
                         API & Project Status
                       </CardTitle>
                     </div>
@@ -79,7 +79,7 @@ export default function AdminPage() {
                   <CardHeader className="">
                     <div className="flex items-center gap-2">
                       <FiFileText className="h-5 w-5 text-sky-600 dark:text-sky-400" />
-                      <CardTitle className="text-lg">API Docs</CardTitle>
+                      <CardTitle className="text-sm sm:text-base">API Docs</CardTitle>
                     </div>
                     <CardDescription>
                       OpenAPI spec, code examples, auth and rate limits
@@ -99,7 +99,7 @@ export default function AdminPage() {
                   <CardHeader className="">
                     <div className="flex items-center gap-2">
                       <FiSettings className="h-5 w-5 text-sky-600 dark:text-sky-400" />
-                      <CardTitle className="text-lg">
+                      <CardTitle className="text-sm sm:text-base">
                         Email Preferences
                       </CardTitle>
                     </div>
@@ -118,7 +118,7 @@ export default function AdminPage() {
                   <CardHeader className="">
                     <div className="flex items-center gap-2">
                       <FiBarChart2 className="h-5 w-5 text-sky-600 dark:text-sky-400" />
-                      <CardTitle className="text-lg">
+                      <CardTitle className="text-sm sm:text-base">
                         Business Insights
                       </CardTitle>
                     </div>
@@ -137,7 +137,7 @@ export default function AdminPage() {
                   <CardHeader className="">
                     <div className="flex items-center gap-2">
                       <FiShoppingCart className="h-5 w-5 text-sky-600 dark:text-sky-400" />
-                      <CardTitle className="text-lg">Client Portal</CardTitle>
+                      <CardTitle className="text-sm sm:text-base">Client Portal</CardTitle>
                     </div>
                     <CardDescription>
                       Place orders, track shipments, manage account (coming
@@ -155,7 +155,7 @@ export default function AdminPage() {
                   <CardHeader className="">
                     <div className="flex items-center gap-2">
                       <FiUsers className="h-5 w-5 text-muted-foreground" />
-                      <CardTitle className="text-lg text-muted-foreground">
+                      <CardTitle className="text-sm sm:text-base text-muted-foreground">
                         User Management
                       </CardTitle>
                       <FiLock className="h-4 w-4 text-muted-foreground" />
@@ -173,7 +173,7 @@ export default function AdminPage() {
                   <CardHeader className="">
                     <div className="flex items-center gap-2">
                       <FiServer className="h-5 w-5 text-muted-foreground" />
-                      <CardTitle className="text-lg text-muted-foreground">
+                      <CardTitle className="text-sm sm:text-base text-muted-foreground">
                         System Settings
                       </CardTitle>
                       <FiLock className="h-4 w-4 text-muted-foreground" />

@@ -293,7 +293,7 @@ export default function AdminUserManagementDetailContent({
             </Link>
           </Button>
           <div>
-            <h1 className="text-sm sm:text-lg font-medium text-gray-700 dark:text-white">
+            <h1 className="text-sm sm:text-base font-medium text-gray-700 dark:text-white">
               User Details
             </h1>
             <p className="text-sm text-gray-600 dark:text-gray-400">
@@ -320,7 +320,7 @@ export default function AdminUserManagementDetailContent({
               <User className="h-5 w-5 text-violet-600 dark:text-violet-400" />
             </div>
             <div>
-              <h3 className="text-lg font-medium text-gray-700 dark:text-white">
+              <h3 className="text-sm sm:text-base font-medium text-gray-700 dark:text-white">
                 Profile
               </h3>
               <p className="text-xs text-gray-600 dark:text-gray-400">
@@ -496,7 +496,7 @@ export default function AdminUserManagementDetailContent({
                 <DollarSign className="h-5 w-5 text-sky-600 dark:text-sky-400" />
               </div>
               <div>
-                <h3 className="text-lg font-medium text-gray-700 dark:text-white">
+                <h3 className="text-sm sm:text-base font-medium text-gray-700 dark:text-white">
                   Overview
                 </h3>
                 <p className="text-xs text-gray-600 dark:text-gray-400">
@@ -514,7 +514,7 @@ export default function AdminUserManagementDetailContent({
               >
                 <ShoppingCart className="h-5 w-5 text-sky-600 dark:text-sky-400" />
                 <div>
-                  <p className="text-sm sm:text-lg font-medium text-gray-700 dark:text-white">
+                  <p className="text-sm sm:text-base font-medium text-gray-700 dark:text-white">
                     {dataLoading ? (
                       <DataSlotPulse variant="metric" />
                     ) : (
@@ -532,7 +532,7 @@ export default function AdminUserManagementDetailContent({
               >
                 <FileText className="h-5 w-5 text-sky-600 dark:text-sky-400" />
                 <div>
-                  <p className="text-sm sm:text-lg font-medium text-gray-700 dark:text-white">
+                  <p className="text-sm sm:text-base font-medium text-gray-700 dark:text-white">
                     {dataLoading ? (
                       <DataSlotPulse variant="metric" />
                     ) : (
@@ -547,7 +547,7 @@ export default function AdminUserManagementDetailContent({
               <div className="flex items-center gap-2 p-2 rounded-xl border border-violet-200/40 dark:border-white/10 bg-white/30 dark:bg-white/5">
                 <DollarSign className="h-5 w-5 text-violet-600 dark:text-violet-400" />
                 <div>
-                  <p className="text-sm sm:text-lg font-medium text-gray-700 dark:text-white">
+                  <p className="text-sm sm:text-base font-medium text-gray-700 dark:text-white">
                     {dataLoading ? (
                       <DataSlotPulse variant="currency" />
                     ) : (
@@ -562,7 +562,7 @@ export default function AdminUserManagementDetailContent({
               <div className="flex items-center gap-2 p-2 rounded-xl border border-emerald-200/40 dark:border-white/10 bg-white/30 dark:bg-white/5">
                 <DollarSign className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
                 <div>
-                  <p className="text-sm sm:text-lg font-medium text-gray-700 dark:text-white">
+                  <p className="text-sm sm:text-base font-medium text-gray-700 dark:text-white">
                     {dataLoading ? (
                       <DataSlotPulse variant="currency" />
                     ) : (
@@ -577,7 +577,7 @@ export default function AdminUserManagementDetailContent({
               <div className="flex items-center gap-2 p-2 rounded-xl border border-amber-200/40 dark:border-white/10 bg-white/30 dark:bg-white/5">
                 <DollarSign className="h-5 w-5 text-amber-600 dark:text-amber-400" />
                 <div>
-                  <p className="text-sm sm:text-lg font-medium text-gray-700 dark:text-white">
+                  <p className="text-sm sm:text-base font-medium text-gray-700 dark:text-white">
                     {dataLoading ? (
                       <DataSlotPulse variant="currency" />
                     ) : (
@@ -597,7 +597,7 @@ export default function AdminUserManagementDetailContent({
               >
                 <Package className="h-5 w-5 text-violet-600 dark:text-violet-400" />
                 <div>
-                  <p className="text-xl font-medium text-gray-700 dark:text-white">
+                  <p className="text-sm sm:text-lg font-medium text-gray-700 dark:text-white">
                     {dataLoading ? (
                       <DataSlotPulse variant="metric" />
                     ) : (
@@ -615,7 +615,7 @@ export default function AdminUserManagementDetailContent({
               >
                 <Truck className="h-5 w-5 text-violet-600 dark:text-violet-400" />
                 <div>
-                  <p className="text-xl font-medium text-gray-700 dark:text-white">
+                  <p className="text-sm sm:text-lg font-medium text-gray-700 dark:text-white">
                     {dataLoading ? (
                       <DataSlotPulse variant="metric" />
                     ) : (
@@ -633,7 +633,7 @@ export default function AdminUserManagementDetailContent({
               >
                 <Tag className="h-5 w-5 text-violet-600 dark:text-violet-400" />
                 <div>
-                  <p className="text-xl font-medium text-gray-700 dark:text-white">
+                  <p className="text-sm sm:text-lg font-medium text-gray-700 dark:text-white">
                     {dataLoading ? (
                       <DataSlotPulse variant="metric" />
                     ) : (
@@ -651,7 +651,7 @@ export default function AdminUserManagementDetailContent({
               >
                 <Building2 className="h-5 w-5 text-violet-600 dark:text-violet-400" />
                 <div>
-                  <p className="text-xl font-medium text-gray-700 dark:text-white">
+                  <p className="text-sm sm:text-lg font-medium text-gray-700 dark:text-white">
                     {dataLoading ? (
                       <DataSlotPulse variant="metric" />
                     ) : (
@@ -679,7 +679,7 @@ export default function AdminUserManagementDetailContent({
               <Trash2 className="h-5 w-5 text-rose-600 dark:text-rose-400" />
             </div>
             <div>
-              <h3 className="text-lg font-medium text-rose-600 dark:text-rose-400">
+              <h3 className="text-sm sm:text-base font-medium text-rose-600 dark:text-rose-400">
                 Danger Zone
               </h3>
               <p className="text-xs text-gray-600 dark:text-gray-400">

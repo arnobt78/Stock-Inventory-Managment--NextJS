@@ -107,6 +107,8 @@
 | ART-0100 | REQ-0042 | `ExportMenuButton.tsx`, `OrderFilters.tsx`, `InvoiceFilters.tsx` | disabled prop; orders/invoices export |
 | ART-0101 | REQ-0043 | `filter-chip-styles.ts`, `DismissibleFilterChips.tsx` | shared multi-group chip row |
 | ART-0102 | REQ-0043 | Product/Order/Invoice/Review/Ticket/History/User Filters | chip row + Reset |
+| ART-0103 | REQ-0044 | `typography-scale.ts` | PAGE/CARD/SUBTITLE/STAT tokens |
+| ART-0104 | REQ-0044 | PageSectionHeader, SectionCardHeader, dialog, ~45 files | responsive typography sweep |
 
 ## Tests
 

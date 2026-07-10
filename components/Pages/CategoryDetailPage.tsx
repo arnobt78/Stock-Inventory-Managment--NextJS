@@ -261,7 +261,7 @@ export default function CategoryDetailPage({
       <PageWrapper>
         <div className="flex flex-col items-center justify-center min-h-[60vh] gap-2">
           <GlassCard variant="rose" className="max-w-md text-center">
-            <h2 className="text-sm sm:text-lg font-medium text-gray-700 dark:text-white mb-2">
+            <h2 className="text-sm sm:text-base font-medium text-gray-700 dark:text-white mb-2">
               Category Not Found
             </h2>
             <p className="text-gray-600 dark:text-gray-400 mb-4">
@@ -288,7 +288,7 @@ export default function CategoryDetailPage({
       <PageWrapper>
         <div className="flex flex-col items-center justify-center min-h-[60vh] gap-2">
           <GlassCard variant="rose" className="max-w-md text-center">
-            <h2 className="text-sm sm:text-lg font-medium text-gray-700 dark:text-white mb-2">
+            <h2 className="text-sm sm:text-base font-medium text-gray-700 dark:text-white mb-2">
               Category Not Found
             </h2>
             <p className="text-gray-600 dark:text-gray-400 mb-4">
@@ -379,7 +379,7 @@ export default function CategoryDetailPage({
                 >
                   <Tag className="h-5 w-5 text-orange-600 dark:text-orange-400" />
                 </div>
-                <h3 className="text-lg font-medium text-gray-700 dark:text-white">
+                <h3 className="text-sm sm:text-base font-medium text-gray-700 dark:text-white">
                   Category Information
                 </h3>
               </div>
@@ -506,7 +506,7 @@ export default function CategoryDetailPage({
                   <BarChart3 className="h-5 w-5 text-teal-600 dark:text-teal-400" />
                 </div>
                 <div>
-                  <h3 className="text-lg font-medium text-gray-700 dark:text-white">
+                  <h3 className="text-sm sm:text-base font-medium text-gray-700 dark:text-white">
                     Statistics
                   </h3>
                   <p className="text-xs text-gray-600 dark:text-gray-400">
@@ -520,7 +520,7 @@ export default function CategoryDetailPage({
                   <span className="text-sm text-gray-600 dark:text-gray-400">
                     Total Products:
                   </span>
-                  <span className="text-lg font-medium text-sky-600 dark:text-sky-400">
+                  <span className="text-sm sm:text-lg font-medium text-sky-600 dark:text-sky-400">
                     {stats.totalProducts}
                   </span>
                 </div>
@@ -529,7 +529,7 @@ export default function CategoryDetailPage({
                   <span className="text-sm text-gray-600 dark:text-gray-400">
                     Total Quantity Sold:
                   </span>
-                  <span className="text-lg font-medium text-violet-600 dark:text-violet-400">
+                  <span className="text-sm sm:text-lg font-medium text-violet-600 dark:text-violet-400">
                     {stats.totalQuantitySold}
                   </span>
                 </div>
@@ -538,7 +538,7 @@ export default function CategoryDetailPage({
                   <span className="text-sm text-gray-600 dark:text-gray-400">
                     Total Revenue:
                   </span>
-                  <span className="text-lg font-medium text-emerald-600 dark:text-emerald-400">
+                  <span className="text-sm sm:text-lg font-medium text-emerald-600 dark:text-emerald-400">
                     ${stats.totalRevenue.toFixed(2)}
                   </span>
                 </div>
@@ -547,7 +547,7 @@ export default function CategoryDetailPage({
                   <span className="text-sm text-gray-600 dark:text-gray-400">
                     Orders Containing Products:
                   </span>
-                  <span className="text-lg font-medium text-amber-600 dark:text-amber-400">
+                  <span className="text-sm sm:text-lg font-medium text-amber-600 dark:text-amber-400">
                     {stats.uniqueOrders}
                   </span>
                 </div>
@@ -558,7 +558,7 @@ export default function CategoryDetailPage({
                   <span className="text-sm text-gray-600 dark:text-gray-400">
                     Current Stock Value:
                   </span>
-                  <span className="text-lg font-medium text-blue-600 dark:text-blue-400">
+                  <span className="text-sm sm:text-lg font-medium text-blue-600 dark:text-blue-400">
                     ${stats.totalValue.toFixed(2)}
                   </span>
                 </div>
@@ -582,7 +582,7 @@ export default function CategoryDetailPage({
                     <Package className="h-5 w-5 text-sky-600 dark:text-sky-400" />
                   </div>
                   <div>
-                    <h3 className="text-lg font-medium text-gray-700 dark:text-white">
+                    <h3 className="text-sm sm:text-base font-medium text-gray-700 dark:text-white">
                       Products in this Category
                     </h3>
                     <p className="text-xs text-gray-600 dark:text-gray-400">
@@ -645,7 +645,7 @@ export default function CategoryDetailPage({
                     <ShoppingCart className="h-5 w-5 text-violet-600 dark:text-violet-400" />
                   </div>
                   <div>
-                    <h3 className="text-lg font-medium text-gray-700 dark:text-white">
+                    <h3 className="text-sm sm:text-base font-medium text-gray-700 dark:text-white">
                       Recent Orders
                     </h3>
                     <p className="text-xs text-gray-600 dark:text-gray-400">

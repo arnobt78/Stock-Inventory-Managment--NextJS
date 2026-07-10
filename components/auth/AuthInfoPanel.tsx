@@ -24,7 +24,7 @@ export function AuthInfoPanel({ variant }: AuthInfoPanelProps) {
 
       <AuthAnimatedBlock delayMs={AUTH_STAGGER_MS * 2}>
         <div className="space-y-1 px-1 text-left">
-          <h2 className="text-lg font-medium text-gray-700 dark:text-white tracking-tight">
+          <h2 className="text-sm sm:text-base font-medium text-gray-700 dark:text-white tracking-tight">
             {sectionTitle}
           </h2>
           <p className="text-sm text-gray-600 dark:text-white/75 leading-snug">

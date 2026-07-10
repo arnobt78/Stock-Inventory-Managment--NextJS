@@ -811,7 +811,7 @@ export default function BusinessInsightPage({
           {/* Header */}
           <div className="pb-6 flex flex-col sm:flex-row items-start justify-between gap-2">
             <div className="flex flex-col">
-              <h1 className="text-sm sm:text-lg font-medium text-gray-700 dark:text-white ">
+              <h1 className="text-sm sm:text-base font-medium text-gray-700 dark:text-white ">
                 Product Inventory Business Insights
               </h1>
               <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">
@@ -1352,7 +1352,7 @@ export default function BusinessInsightPage({
                 <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-sky-300/30 bg-sky-100/50 dark:border-white/15 dark:bg-white/10">
                   <Eye className="h-4 w-4 text-gray-700 dark:text-white" />
                 </div>
-                <h3 className="text-base sm:text-lg font-medium text-gray-700 dark:text-white">
+                <h3 className="text-sm sm:text-base font-medium text-gray-700 dark:text-white">
                   Quick Insights
                 </h3>
               </div>
@@ -1402,7 +1402,7 @@ export default function BusinessInsightPage({
                 <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-emerald-300/30 bg-emerald-100/50 dark:border-white/15 dark:bg-white/10">
                   <Users className="h-4 w-4 text-gray-700 dark:text-white" />
                 </div>
-                <h3 className="text-base sm:text-lg font-medium text-gray-700 dark:text-white">
+                <h3 className="text-sm sm:text-base font-medium text-gray-700 dark:text-white">
                   Performance
                 </h3>
               </div>
@@ -1460,7 +1460,7 @@ export default function BusinessInsightPage({
                 <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-violet-300/30 bg-violet-100/50 dark:border-white/15 dark:bg-white/10">
                   <QrCode className="h-4 w-4 text-gray-700 dark:text-white" />
                 </div>
-                <h3 className="text-base sm:text-lg font-medium text-gray-700 dark:text-white">
+                <h3 className="text-sm sm:text-base font-medium text-gray-700 dark:text-white">
                   Quick QR Code
                 </h3>
               </div>
@@ -1478,7 +1478,7 @@ export default function BusinessInsightPage({
                 <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-amber-300/30 bg-amber-100/50 dark:border-white/15 dark:bg-white/10">
                   <Sparkles className="h-4 w-4 text-gray-700 dark:text-white" />
                 </div>
-                <h3 className="text-base sm:text-lg font-medium text-gray-700 dark:text-white">
+                <h3 className="text-sm sm:text-base font-medium text-gray-700 dark:text-white">
                   AI Insights
                 </h3>
               </div>

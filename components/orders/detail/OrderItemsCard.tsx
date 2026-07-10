@@ -39,7 +39,7 @@ export function OrderItemsCard({
           <Package className="h-5 w-5 text-sky-600 dark:text-sky-400" />
         </div>
         <div>
-          <h3 className="text-lg font-medium text-gray-700 dark:text-white">
+          <h3 className="text-sm sm:text-base font-medium text-gray-700 dark:text-white">
             Order Items
           </h3>
           <p className="text-xs text-gray-600 dark:text-gray-400">
@@ -120,7 +120,7 @@ export function OrderItemsCard({
                 </p>
               </div>
               <div className="text-left sm:text-right mt-2 sm:mt-0 flex flex-col items-end gap-2">
-                <p className="font-medium text-sky-600 dark:text-sky-400 text-lg">
+                <p className="font-medium text-sky-600 dark:text-sky-400 text-sm sm:text-lg">
                   ${Number(item.subtotal).toFixed(2)}
                 </p>
                 {order.paymentStatus === "paid" && item.productId && (

@@ -138,7 +138,7 @@ export default function AdminDashboardOverview({
     <PageContentWrapper>
       <div className="space-y-4">
         <div className="space-y-2">
-          <h1 className="text-sm sm:text-lg font-medium text-gray-700 dark:text-white">
+          <h1 className="text-sm sm:text-base font-medium text-gray-700 dark:text-white">
             {title}
           </h1>
           <p className="text-xs sm:text-sm text-muted-foreground">{subtitle}</p>

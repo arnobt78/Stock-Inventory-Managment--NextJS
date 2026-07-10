@@ -29,7 +29,7 @@ export function OrderSummaryCard({
         >
           <DollarSign className="h-5 w-5 text-teal-600 dark:text-teal-400" />
         </div>
-        <h3 className="text-lg font-medium text-gray-700 dark:text-white">
+        <h3 className="text-sm sm:text-base font-medium text-gray-700 dark:text-white">
           Order Summary
         </h3>
       </div>
@@ -69,7 +69,7 @@ export function OrderSummaryCard({
           </div>
         )}
         <Separator className="my-2 bg-teal-200/50 dark:bg-teal-400/20" />
-        <div className="flex justify-between text-lg font-medium p-2 rounded-xl bg-gradient-to-r from-emerald-100/50 via-emerald-50/30 to-transparent dark:from-emerald-500/15 dark:via-emerald-500/10 dark:to-transparent border border-emerald-200/30 dark:border-emerald-400/20">
+        <div className="flex justify-between text-sm sm:text-lg font-medium p-2 rounded-xl bg-gradient-to-r from-emerald-100/50 via-emerald-50/30 to-transparent dark:from-emerald-500/15 dark:via-emerald-500/10 dark:to-transparent border border-emerald-200/30 dark:border-emerald-400/20">
           <span className="text-gray-700 dark:text-white">Total:</span>
           <span className="text-emerald-600 dark:text-emerald-400">
             {dataLoading ? (

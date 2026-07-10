@@ -287,7 +287,7 @@ export function ForecastingCard({ products, className }: ForecastingCardProps) {
     >
       {/* Header */}
       <div className="flex items-center justify-between px-4 sm:px-5 pt-4 sm:pt-5 pb-3">
-        <h3 className="text-base sm:text-lg font-medium text-gray-700 dark:text-white flex items-center gap-2">
+        <h3 className="text-sm sm:text-base font-medium text-gray-700 dark:text-white flex items-center gap-2">
           <Target className="h-4 w-4 sm:h-5 sm:w-5" />
           Demand Forecasting & Insights
         </h3>
@@ -313,7 +313,7 @@ export function ForecastingCard({ products, className }: ForecastingCardProps) {
             </div>
           </div>
           <div className="text-center p-2 rounded-xl border border-rose-400/20 bg-gradient-to-br from-rose-500/15 via-rose-500/5 to-transparent">
-            <div className="text-sm sm:text-lg font-medium text-rose-600 dark:text-rose-400">
+            <div className="text-sm sm:text-base font-medium text-rose-600 dark:text-rose-400">
               {forecastData.outOfStockProducts}
             </div>
             <div className="text-sm text-gray-600 dark:text-white/70">
@@ -408,7 +408,7 @@ export function ForecastingCard({ products, className }: ForecastingCardProps) {
                 <div className="text-xs font-medium text-gray-700 dark:text-white/80">
                   {trend.month}
                 </div>
-                <div className="text-lg font-medium text-gray-700 dark:text-white">
+                <div className="text-sm sm:text-base font-medium text-gray-700 dark:text-white">
                   {trend.demand}
                 </div>
                 <div className="flex justify-center mt-1">

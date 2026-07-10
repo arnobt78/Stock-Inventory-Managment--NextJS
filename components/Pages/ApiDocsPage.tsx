@@ -1203,7 +1203,7 @@ export default function ApiDocsPage() {
         <div className="space-y-4">
           {/* Header */}
           <div className="text-center space-y-4 pb-4">
-            <h1 className="text-sm sm:text-lg font-medium text-gray-700 dark:text-white">
+            <h1 className="text-sm sm:text-base font-medium text-gray-700 dark:text-white">
               Stock API Documentation
             </h1>
             <p className="text-xs sm:text-sm text-gray-600 dark:text-white/70 max-w-2xl mx-auto">
@@ -1236,7 +1236,7 @@ export default function ApiDocsPage() {
                       <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-blue-300/30 bg-blue-100/50 dark:border-white/15 dark:bg-white/10">
                         <FiCode className="h-4 w-4 text-gray-700 dark:text-white" />
                       </div>
-                      <h3 className="text-lg font-medium text-gray-700 dark:text-white">
+                      <h3 className="text-sm sm:text-base font-medium text-gray-700 dark:text-white">
                         Base URL
                       </h3>
                     </div>
@@ -1253,7 +1253,7 @@ export default function ApiDocsPage() {
                       <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-violet-300/30 bg-violet-100/50 dark:border-white/15 dark:bg-white/10">
                         <FiKey className="h-4 w-4 text-gray-700 dark:text-white" />
                       </div>
-                      <h3 className="text-lg font-medium text-gray-700 dark:text-white">
+                      <h3 className="text-sm sm:text-base font-medium text-gray-700 dark:text-white">
                         Auth
                       </h3>
                     </div>
@@ -1273,7 +1273,7 @@ export default function ApiDocsPage() {
                       <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-amber-300/30 bg-amber-100/50 dark:border-white/15 dark:bg-white/10">
                         <Zap className="h-4 w-4 text-gray-700 dark:text-white" />
                       </div>
-                      <h3 className="text-lg font-medium text-gray-700 dark:text-white">
+                      <h3 className="text-sm sm:text-base font-medium text-gray-700 dark:text-white">
                         Rate Limit
                       </h3>
                     </div>
@@ -1291,7 +1291,7 @@ export default function ApiDocsPage() {
                       <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-teal-300/30 bg-teal-100/50 dark:border-white/15 dark:bg-white/10">
                         <FileJson className="h-4 w-4 text-gray-700 dark:text-white" />
                       </div>
-                      <h3 className="text-lg font-medium text-gray-700 dark:text-white">
+                      <h3 className="text-sm sm:text-base font-medium text-gray-700 dark:text-white">
                         OpenAPI 3.0
                       </h3>
                     </div>
@@ -1370,7 +1370,7 @@ export default function ApiDocsPage() {
                         >
                           <section.icon className="h-5 w-5 text-gray-700 dark:text-white" />
                         </div>
-                        <h3 className="text-xl font-medium text-gray-700 dark:text-white">
+                        <h3 className="text-sm sm:text-base font-medium text-gray-700 dark:text-white">
                           {section.name}
                         </h3>
                       </div>
@@ -1505,7 +1505,7 @@ export default function ApiDocsPage() {
                       <FiDatabase className="h-5 w-5 text-gray-700 dark:text-white" />
                     </div>
                     <div>
-                      <h3 className="text-xl font-medium text-gray-700 dark:text-white">
+                      <h3 className="text-sm sm:text-base font-medium text-gray-700 dark:text-white">
                         Data Types
                       </h3>
                       <p className="text-sm text-gray-600 dark:text-white/60">
@@ -1579,7 +1579,7 @@ export default function ApiDocsPage() {
                       <AlertCircle className="h-5 w-5 text-gray-700 dark:text-white" />
                     </div>
                     <div>
-                      <h3 className="text-xl font-medium text-gray-700 dark:text-white">
+                      <h3 className="text-sm sm:text-base font-medium text-gray-700 dark:text-white">
                         Error Codes
                       </h3>
                       <p className="text-sm text-gray-600 dark:text-white/60">

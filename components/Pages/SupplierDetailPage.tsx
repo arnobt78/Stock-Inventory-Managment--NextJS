@@ -263,7 +263,7 @@ export default function SupplierDetailPage({
       <PageWrapper>
         <div className="flex flex-col items-center justify-center min-h-[60vh] gap-2">
           <div className="text-center">
-            <h2 className="text-sm sm:text-lg font-medium text-gray-700 dark:text-white mb-2">
+            <h2 className="text-sm sm:text-base font-medium text-gray-700 dark:text-white mb-2">
               Supplier Not Found
             </h2>
             <p className="text-gray-600 dark:text-gray-400 mb-4">
@@ -343,7 +343,7 @@ export default function SupplierDetailPage({
                   <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-orange-300/30 bg-orange-100/50 dark:border-white/15 dark:bg-white/10">
                     <Truck className="h-4 w-4 text-gray-700 dark:text-white" />
                   </div>
-                  <h3 className="text-lg font-medium text-gray-700 dark:text-white">
+                  <h3 className="text-sm sm:text-base font-medium text-gray-700 dark:text-white">
                     Supplier Information
                   </h3>
                 </div>
@@ -461,7 +461,7 @@ export default function SupplierDetailPage({
                     <BarChart3 className="h-4 w-4 text-gray-700 dark:text-white" />
                   </div>
                   <div>
-                    <h3 className="text-lg font-medium text-gray-700 dark:text-white">
+                    <h3 className="text-sm sm:text-base font-medium text-gray-700 dark:text-white">
                       Statistics
                     </h3>
                     <p className="text-xs text-gray-600 dark:text-white/60">
@@ -474,7 +474,7 @@ export default function SupplierDetailPage({
                     <span className="text-sm text-gray-600 dark:text-white/70">
                       Total Products:
                     </span>
-                    <span className="text-lg font-medium text-gray-700 dark:text-white">
+                    <span className="text-sm sm:text-base font-medium text-gray-700 dark:text-white">
                       {stats.totalProducts}
                     </span>
                   </div>
@@ -483,7 +483,7 @@ export default function SupplierDetailPage({
                     <span className="text-sm text-gray-600 dark:text-white/70">
                       Total Quantity Sold:
                     </span>
-                    <span className="text-lg font-medium text-gray-700 dark:text-white">
+                    <span className="text-sm sm:text-base font-medium text-gray-700 dark:text-white">
                       {stats.totalQuantitySold}
                     </span>
                   </div>
@@ -492,7 +492,7 @@ export default function SupplierDetailPage({
                     <span className="text-sm text-gray-600 dark:text-white/70">
                       Total Revenue:
                     </span>
-                    <span className="text-lg font-medium text-emerald-600 dark:text-emerald-400">
+                    <span className="text-sm sm:text-lg font-medium text-emerald-600 dark:text-emerald-400">
                       ${stats.totalRevenue.toFixed(2)}
                     </span>
                   </div>
@@ -501,7 +501,7 @@ export default function SupplierDetailPage({
                     <span className="text-sm text-gray-600 dark:text-white/70">
                       Orders Containing Products:
                     </span>
-                    <span className="text-lg font-medium text-gray-700 dark:text-white">
+                    <span className="text-sm sm:text-base font-medium text-gray-700 dark:text-white">
                       {stats.uniqueOrders}
                     </span>
                   </div>
@@ -510,7 +510,7 @@ export default function SupplierDetailPage({
                     <span className="text-sm text-gray-600 dark:text-white/70">
                       Current Stock Value:
                     </span>
-                    <span className="text-lg font-medium text-blue-600 dark:text-blue-400">
+                    <span className="text-sm sm:text-lg font-medium text-blue-600 dark:text-blue-400">
                       ${stats.totalValue.toFixed(2)}
                     </span>
                   </div>
@@ -528,7 +528,7 @@ export default function SupplierDetailPage({
                     <Package className="h-4 w-4 text-gray-700 dark:text-white" />
                   </div>
                   <div>
-                    <h3 className="text-lg font-medium text-gray-700 dark:text-white">
+                    <h3 className="text-sm sm:text-base font-medium text-gray-700 dark:text-white">
                       Products from this Supplier
                     </h3>
                     <p className="text-xs text-gray-600 dark:text-white/60">
@@ -587,7 +587,7 @@ export default function SupplierDetailPage({
                     <ShoppingCart className="h-4 w-4 text-gray-700 dark:text-white" />
                   </div>
                   <div>
-                    <h3 className="text-lg font-medium text-gray-700 dark:text-white">
+                    <h3 className="text-sm sm:text-base font-medium text-gray-700 dark:text-white">
                       Recent Orders
                     </h3>
                     <p className="text-xs text-gray-600 dark:text-white/60">

@@ -119,7 +119,7 @@ export default function SupportTicketDetailContent({
                     {ticket.ticketNumber}
                   </p>
                 )}
-                <h1 className="text-xl font-medium text-gray-700 dark:text-white">
+                <h1 className="text-sm sm:text-lg font-medium text-gray-700 dark:text-white">
                   {ticket.subject}
                 </h1>
                 <div className="flex flex-wrap items-center gap-2 mt-2">
@@ -188,7 +188,7 @@ export default function SupportTicketDetailContent({
               variantConfig.shadow,
             )}
           >
-            <h2 className="text-lg font-medium text-gray-700 dark:text-white mb-4">
+            <h2 className="text-sm sm:text-base font-medium text-gray-700 dark:text-white mb-4">
               Replies
             </h2>
             {repliesLoading ? (

@@ -9,6 +9,7 @@ import { LucideIcon } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { DataSlotPulse } from "@/components/shared/DataSlotPulse";
+import { TYPO_STAT_VALUE, TYPO_SUBTITLE } from "@/lib/ui/typography-scale";
 
 /**
  * Color variant types for statistics cards
@@ -194,11 +195,11 @@ export function StatisticsCard({
             <Icon className="h-5 w-5 text-gray-700 dark:text-white" />
           </div>
         </div>
-        <p className="text-sm sm:text-lg font-medium text-gray-700 dark:text-white">
+        <p className={TYPO_STAT_VALUE}>
           {displayValue}
         </p>
         {description && (
-          <p className="mt-2 text-sm text-gray-600 dark:text-white/70">
+          <p className={cn("mt-2", TYPO_SUBTITLE)}>
             {description}
           </p>
         )}

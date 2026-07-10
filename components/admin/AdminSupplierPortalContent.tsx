@@ -198,7 +198,7 @@ export default function AdminSupplierPortalContent({
                 <Package className="h-5 w-5 text-sky-600 dark:text-sky-400" />
               </div>
               <div>
-                <h3 className="text-md sm:text-lg font-medium text-gray-700 dark:text-white">
+                <h3 className="text-sm sm:text-base font-medium text-gray-700 dark:text-white">
                   Recent Supplier Products
                 </h3>
                 <p className="text-xs text-gray-600 dark:text-gray-400">
@@ -271,7 +271,7 @@ export default function AdminSupplierPortalContent({
                 <ShoppingCart className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
               </div>
               <div>
-                <h3 className="text-md sm:text-lg font-medium text-gray-700 dark:text-white">
+                <h3 className="text-sm sm:text-base font-medium text-gray-700 dark:text-white">
                   Recent Supplier Orders
                 </h3>
                 <p className="text-xs text-gray-600 dark:text-gray-400">
@@ -346,7 +346,7 @@ export default function AdminSupplierPortalContent({
               <Truck className="h-5 w-5 text-violet-600 dark:text-violet-400" />
             </div>
             <div>
-              <h3 className="text-md sm:text-lg font-medium text-gray-700 dark:text-white">
+              <h3 className="text-sm sm:text-base font-medium text-gray-700 dark:text-white">
                 Suppliers
               </h3>
               <p className="text-xs text-gray-600 dark:text-gray-400">

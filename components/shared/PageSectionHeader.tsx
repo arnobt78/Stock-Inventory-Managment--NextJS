@@ -10,6 +10,7 @@ import {
   SECTION_HEADER_ICON_TONE,
   type SectionHeaderTone,
 } from "@/lib/ui/section-header-tones";
+import { TYPO_PAGE_HEADER, TYPO_SUBTITLE } from "@/lib/ui/typography-scale";
 
 export type PageSectionHeaderProps = {
   title: React.ReactNode;
@@ -53,11 +54,11 @@ export function PageSectionHeader({
         </div>
       )}
       <div className="flex min-w-0 flex-1 flex-col justify-center">
-        <TitleTag className="text-lg font-medium leading-tight text-gray-700 dark:text-white sm:text-xl">
+        <TitleTag className={TYPO_PAGE_HEADER}>
           {title}
         </TitleTag>
         {description != null && description !== "" && (
-          <p className="text-xs leading-tight text-gray-600 dark:text-gray-400 sm:text-sm">
+          <p className={TYPO_SUBTITLE}>
             {description}
           </p>
         )}

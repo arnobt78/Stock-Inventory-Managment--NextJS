@@ -1,6 +1,7 @@
 /**
  * Shared table cell typography (REQ-0028).
  * Defaults live in components/ui/table.tsx — TableHead text-sm, TableCell text-xs, both font-normal.
+ * Non-table responsive tiers: lib/ui/typography-scale.ts (REQ-0044).
  * Use these only for semantic overrides (links, muted empty state, destructive color).
  */
 

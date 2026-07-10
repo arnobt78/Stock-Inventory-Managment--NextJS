@@ -74,7 +74,7 @@ export default function PaymentDialog({
       </DialogTrigger>
       <DialogContent className="poppins max-h-[90vh] flex flex-col overflow-hidden pl-4 sm:pl-8 pt-4 sm:pt-7 pb-4 sm:pb-7 pr-0 border-sky-400/30 dark:border-sky-400/30 shadow-[0_30px_80px_rgba(2,132,199,0.35)] dark:shadow-[0_30px_80px_rgba(2,132,199,0.25)]">
         <DialogHeader className="flex-shrink-0 .5 pr-4 sm:pr-8">
-          <DialogTitle className="flex items-center gap-2 text-xl text-white  ">
+          <DialogTitle className="flex items-center gap-2 text-sm sm:text-base text-white">
             Complete Payment
             <ShieldCheck className="h-5 w-5 text-green-500 shrink-0" />
           </DialogTitle>
@@ -166,7 +166,7 @@ export default function PaymentDialog({
 
               <div className="flex items-center justify-between pt-1">
                 <span className="font-medium text-white">Total</span>
-                <span className="text-xl font-medium text-white">
+                <span className="text-sm sm:text-lg font-medium text-white">
                   ${amount.toFixed(2)}
                 </span>
               </div>

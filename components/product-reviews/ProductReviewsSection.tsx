@@ -219,7 +219,7 @@ export default function ProductReviewsSection({
           <div className={cn("p-2 rounded-xl border", config.iconBg)}>
             <Star className="h-5 w-5 text-amber-500" />
           </div>
-          <h3 className="text-lg font-medium text-gray-700 dark:text-white">
+          <h3 className="text-sm sm:text-base font-medium text-gray-700 dark:text-white">
             Reviews
           </h3>
         </div>

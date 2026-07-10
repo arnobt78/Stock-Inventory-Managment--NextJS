@@ -10,6 +10,7 @@ import {
   SECTION_HEADER_ICON_TONE,
   type SectionHeaderTone,
 } from "@/lib/ui/section-header-tones";
+import { TYPO_CARD_TITLE, TYPO_SUBTITLE } from "@/lib/ui/typography-scale";
 
 export type SectionCardHeaderProps = {
   title: React.ReactNode;
@@ -46,19 +47,13 @@ export function SectionCardHeader({
       )}
       <div className="flex min-w-0 flex-col justify-center">
         <h3
-          className={cn(
-            "text-base font-medium leading-tight text-gray-700 dark:text-white sm:text-lg",
-            titleClassName,
-          )}
+          className={cn(TYPO_CARD_TITLE, titleClassName)}
         >
           {title}
         </h3>
         {description != null && description !== "" && (
           <p
-            className={cn(
-              "text-xs leading-tight text-gray-600 dark:text-white/70 sm:text-sm",
-              descriptionClassName,
-            )}
+            className={cn(TYPO_SUBTITLE, descriptionClassName)}
           >
             {description}
           </p>

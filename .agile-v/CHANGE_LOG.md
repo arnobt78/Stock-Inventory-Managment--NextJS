@@ -37,4 +37,5 @@
 | 2026-07-10 | Catalog filter icons, dismissible chips, export chevron | REQ-0041 |
 | 2026-07-10 | Catalog select inline layout; orders/invoices export chevron | REQ-0042 |
 | 2026-07-10 | Unified filter chip row + reset on all list filters | REQ-0043 |
+| 2026-07-10 | Unified responsive typography scale + gap fixes (zero text-xl) | REQ-0044 |
 | _pending_ | Human Gate 2 Sentry 24h sign-off | REQ-0009 |

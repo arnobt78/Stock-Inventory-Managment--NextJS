@@ -5,6 +5,7 @@ import * as DialogPrimitive from "@radix-ui/react-dialog";
 import { X } from "lucide-react";
 
 import { cn } from "@/lib/utils";
+import { TYPO_CARD_TITLE } from "@/lib/ui/typography-scale";
 
 const Dialog = DialogPrimitive.Root;
 
@@ -91,7 +92,7 @@ const DialogTitle = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <DialogPrimitive.Title
     ref={ref}
-    className={cn("text-lg font-medium leading-none tracking-tight", className)}
+    className={cn(TYPO_CARD_TITLE, "tracking-tight", className)}
     {...props}
   />
 ));

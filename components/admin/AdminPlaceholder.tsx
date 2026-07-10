@@ -30,7 +30,7 @@ export default function AdminPlaceholder({
           <h1 className="text-sm sm:text-lg font-medium text-primary">
             {title}
           </h1>
-          <p className="text-lg text-muted-foreground">{description}</p>
+          <p className="text-xs sm:text-sm text-muted-foreground">{description}</p>
         </div>
         <Card className="border border-white/10 dark:border-white/10">
           <CardHeader className="flex flex-row items-center gap-2">

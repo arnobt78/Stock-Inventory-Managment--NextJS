@@ -5,6 +5,7 @@ import * as AlertDialogPrimitive from "@radix-ui/react-alert-dialog";
 
 import { cn } from "@/lib/utils";
 import { buttonVariants } from "@/components/ui/button";
+import { TYPO_CARD_TITLE } from "@/lib/ui/typography-scale";
 
 const AlertDialog = AlertDialogPrimitive.Root;
 
@@ -79,7 +80,7 @@ const AlertDialogTitle = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <AlertDialogPrimitive.Title
     ref={ref}
-    className={cn("text-lg font-medium", className)}
+    className={cn(TYPO_CARD_TITLE, className)}
     {...props}
   />
 ));

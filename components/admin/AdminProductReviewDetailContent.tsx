@@ -197,7 +197,7 @@ export default function AdminProductReviewDetailContent({
           <CardContent className="p-2 sm:p-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-2 sm:gap-4">
               <div>
-                <h2 className="text-lg font-medium mb-4 flex items-center gap-2">
+                <h2 className="text-sm sm:text-base font-medium mb-4 flex items-center gap-2">
                   <Package className="h-5 w-5" />
                   Product &amp; Reviewer
                 </h2>
@@ -378,7 +378,7 @@ export default function AdminProductReviewDetailContent({
                 </dl>
               </div>
               <div>
-                <h2 className="text-lg font-medium mb-4 flex items-center gap-2">
+                <h2 className="text-sm sm:text-base font-medium mb-4 flex items-center gap-2">
                   <Star className="h-5 w-5" />
                   Rating &amp; Comment
                 </h2>

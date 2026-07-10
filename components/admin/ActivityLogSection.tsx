@@ -316,7 +316,7 @@ export default function ActivityLogSection({
     >
       <div className="flex flex-col gap-2 mb-4">
         <div className="flex flex-col">
-          <h2 className="text-sm sm:text-lg font-medium text-gray-700 dark:text-white ">
+          <h2 className="text-sm sm:text-base font-medium text-gray-700 dark:text-white ">
             Activity Logs
           </h2>
           <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">

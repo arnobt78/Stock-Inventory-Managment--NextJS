@@ -157,7 +157,7 @@ export default function OrderDetailPage({
       <Navbar>
         <div className="flex flex-col items-center justify-center min-h-[60vh] gap-2">
           <GlassCard variant="rose" className="max-w-md text-center">
-            <h2 className="text-sm sm:text-lg font-medium text-gray-700 dark:text-white mb-2">
+            <h2 className="text-sm sm:text-base font-medium text-gray-700 dark:text-white mb-2">
               Order Not Found
             </h2>
             <p className="text-gray-600 dark:text-gray-400 mb-4">
@@ -183,7 +183,7 @@ export default function OrderDetailPage({
       <Navbar>
         <div className="flex flex-col items-center justify-center min-h-[60vh] gap-2">
           <GlassCard variant="rose" className="max-w-md text-center">
-            <h2 className="text-sm sm:text-lg font-medium text-gray-700 dark:text-white mb-2">
+            <h2 className="text-sm sm:text-base font-medium text-gray-700 dark:text-white mb-2">
               Order Not Found
             </h2>
             <p className="text-gray-600 dark:text-gray-400 mb-4">
@@ -271,7 +271,7 @@ export default function OrderDetailPage({
                 >
                   <FileText className="h-5 w-5 text-orange-600 dark:text-orange-400" />
                 </div>
-                <h3 className="text-lg font-medium text-gray-700 dark:text-white">
+                <h3 className="text-sm sm:text-base font-medium text-gray-700 dark:text-white">
                   Order Information
                 </h3>
               </div>
@@ -389,7 +389,7 @@ export default function OrderDetailPage({
                     >
                       <CreditCard className="h-5 w-5 text-blue-600 dark:text-blue-400" />
                     </div>
-                    <h3 className="text-lg font-medium text-gray-700 dark:text-white">
+                    <h3 className="text-sm sm:text-base font-medium text-gray-700 dark:text-white">
                       Billing Address
                     </h3>
                   </div>

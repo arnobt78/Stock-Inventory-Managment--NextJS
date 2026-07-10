@@ -1,6 +1,7 @@
 import { cn } from "@/lib/utils";
 import { LucideIcon } from "lucide-react";
 import { DataSlotPulse } from "@/components/shared/DataSlotPulse";
+import { TYPO_STAT_VALUE, TYPO_SUBTITLE } from "@/lib/ui/typography-scale";
 
 /**
  * Color variant types for analytics cards (matching StatisticsCard)
@@ -141,11 +142,11 @@ export function AnalyticsCard({
             <Icon className={cn("h-5 w-5", iconColor)} />
           </div>
         </div>
-        <p className="text-sm sm:text-lg font-medium text-gray-700 dark:text-white">
+        <p className={TYPO_STAT_VALUE}>
           {valueLoading ? <DataSlotPulse variant="metric" /> : value}
         </p>
         {description && (
-          <p className="mt-2 text-sm text-gray-600 dark:text-white/70">
+          <p className={cn("mt-2", TYPO_SUBTITLE)}>
             {description}
           </p>
         )}

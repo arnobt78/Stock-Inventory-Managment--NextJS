@@ -43,7 +43,7 @@ export function OrderPartiesCard({
         >
           <Package className="h-5 w-5 text-teal-600 dark:text-teal-400" />
         </div>
-        <h3 className="text-lg font-medium text-gray-700 dark:text-white">
+        <h3 className="text-sm sm:text-base font-medium text-gray-700 dark:text-white">
           Parties &amp; roles
         </h3>
       </div>

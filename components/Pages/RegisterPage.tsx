@@ -110,7 +110,7 @@ export default function RegisterPage() {
     >
       <AuthFormCard variant="register" className="w-full space-y-4">
         <AuthAnimatedBlock delayMs={formRowDelay(0)} className="space-y-2">
-          <h2 className="text-sm sm:text-lg font-medium text-gray-700 dark:text-white text-center">
+          <h2 className="text-sm sm:text-base font-medium text-gray-700 dark:text-white text-center">
             Create Account
           </h2>
           <p className="text-xs sm:text-sm text-gray-600 dark:text-white/70 text-center">

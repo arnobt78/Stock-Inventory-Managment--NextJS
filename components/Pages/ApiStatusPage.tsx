@@ -451,7 +451,7 @@ export default function ApiStatusPage() {
           {/* Header - Always visible */}
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
             <div className="space-y-2">
-              <h1 className="text-sm sm:text-lg font-medium text-gray-700 dark:text-white">
+              <h1 className="text-sm sm:text-base font-medium text-gray-700 dark:text-white">
                 API & Project Status
               </h1>
               <p className="text-xs sm:text-sm text-gray-600 dark:text-white/70">
@@ -495,7 +495,7 @@ export default function ApiStatusPage() {
                   <p className="text-xs uppercase tracking-[0.2em] text-gray-600 dark:text-white/60 mb-2">
                     Project
                   </p>
-                  <p className="text-md sm:text-base font-medium text-gray-700 dark:text-white">
+                  <p className="text-sm sm:text-base font-medium text-gray-700 dark:text-white">
                     {systemStatus.project}
                   </p>
                 </div>
@@ -506,7 +506,7 @@ export default function ApiStatusPage() {
                   <p className="text-xs uppercase tracking-[0.2em] text-gray-600 dark:text-white/60 mb-2">
                     Environment
                   </p>
-                  <p className="text-md sm:text-base font-medium text-gray-700 dark:text-white capitalize">
+                  <p className="text-sm sm:text-base font-medium text-gray-700 dark:text-white capitalize">
                     {systemStatus.environment}
                   </p>
                 </div>
@@ -517,7 +517,7 @@ export default function ApiStatusPage() {
                   <p className="text-xs uppercase tracking-[0.2em] text-gray-600 dark:text-white/60 mb-2">
                     Current Time
                   </p>
-                  <p className="text-md sm:text-base font-medium text-gray-700 dark:text-white">
+                  <p className="text-sm sm:text-base font-medium text-gray-700 dark:text-white">
                     {systemStatus.currentTime}
                   </p>
                 </div>
@@ -528,7 +528,7 @@ export default function ApiStatusPage() {
                   <p className="text-xs uppercase tracking-[0.2em] text-gray-600 dark:text-white/60 mb-2">
                     Uptime
                   </p>
-                  <p className="text-md sm:text-base font-medium text-gray-700 dark:text-white">
+                  <p className="text-sm sm:text-base font-medium text-gray-700 dark:text-white">
                     {systemStatus.uptime}
                   </p>
                 </div>
@@ -553,7 +553,7 @@ export default function ApiStatusPage() {
                       <FiActivity className="h-5 w-5 text-gray-700 dark:text-white" />
                     </div>
                     <div>
-                      <h3 className="text-md sm:text-lg font-medium text-gray-700 dark:text-white">
+                      <h3 className="text-sm sm:text-base font-medium text-gray-700 dark:text-white">
                         API Health
                       </h3>
                       <p className="text-sm text-gray-600 dark:text-white/60">
@@ -593,7 +593,7 @@ export default function ApiStatusPage() {
                       <FiServer className="h-5 w-5 text-gray-700 dark:text-white" />
                     </div>
                     <div>
-                      <h3 className="text-lg font-medium text-gray-700 dark:text-white">
+                      <h3 className="text-sm sm:text-base font-medium text-gray-700 dark:text-white">
                         Endpoints
                       </h3>
                       <p className="text-sm text-gray-600 dark:text-white/60">
@@ -665,7 +665,7 @@ export default function ApiStatusPage() {
                       <FiCloud className="h-5 w-5 text-gray-700 dark:text-white" />
                     </div>
                     <div>
-                      <h3 className="text-md sm:text-lg font-medium text-gray-700 dark:text-white">
+                      <h3 className="text-sm sm:text-base font-medium text-gray-700 dark:text-white">
                         External Services
                       </h3>
                       <p className="text-sm text-gray-600 dark:text-white/60">
@@ -829,7 +829,7 @@ export default function ApiStatusPage() {
                     <FiTrendingUp className="h-5 w-5 text-gray-700 dark:text-white" />
                   </div>
                   <div>
-                    <h3 className="text-md sm:text-lg font-medium text-gray-700 dark:text-white">
+                    <h3 className="text-sm sm:text-base font-medium text-gray-700 dark:text-white">
                       Performance Metrics
                     </h3>
                     <p className="text-sm text-gray-600 dark:text-white/60">
@@ -844,7 +844,7 @@ export default function ApiStatusPage() {
                       <div className="text-sm text-gray-600 dark:text-white/60 mb-1">
                         Total Endpoints
                       </div>
-                      <div className="text-sm sm:text-lg font-medium text-gray-700 dark:text-white">
+                      <div className="text-sm sm:text-base font-medium text-gray-700 dark:text-white">
                         {systemStatus.performance.totalEndpoints}
                       </div>
                     </div>
@@ -852,7 +852,7 @@ export default function ApiStatusPage() {
                       <div className="text-sm text-gray-600 dark:text-white/60 mb-1">
                         Total Requests
                       </div>
-                      <div className="text-sm sm:text-lg font-medium text-gray-700 dark:text-white">
+                      <div className="text-sm sm:text-base font-medium text-gray-700 dark:text-white">
                         {systemStatus.performance.totalRequests.toLocaleString()}
                       </div>
                     </div>
@@ -861,7 +861,7 @@ export default function ApiStatusPage() {
                         <FiClock className="h-3 w-3" />
                         Avg Response
                       </div>
-                      <div className="text-sm sm:text-lg font-medium text-gray-700 dark:text-white">
+                      <div className="text-sm sm:text-base font-medium text-gray-700 dark:text-white">
                         {systemStatus.performance.averageResponseTime}ms
                       </div>
                     </div>
@@ -869,7 +869,7 @@ export default function ApiStatusPage() {
                       <div className="text-sm text-gray-600 dark:text-white/60 mb-1">
                         Error Rate
                       </div>
-                      <div className="text-sm sm:text-lg font-medium text-gray-700 dark:text-white">
+                      <div className="text-sm sm:text-base font-medium text-gray-700 dark:text-white">
                         {systemStatus.performance.overallErrorRate}%
                       </div>
                     </div>
@@ -966,7 +966,7 @@ export default function ApiStatusPage() {
                     <FiCpu className="h-5 w-5 text-gray-700 dark:text-white" />
                   </div>
                   <div>
-                    <h3 className="text-md sm:text-lg font-medium text-gray-700 dark:text-white">
+                    <h3 className="text-sm sm:text-base font-medium text-gray-700 dark:text-white">
                       System Metrics
                     </h3>
                     <p className="text-sm text-gray-600 dark:text-white/60">
@@ -987,7 +987,7 @@ export default function ApiStatusPage() {
                         <div className="text-xs text-gray-600 dark:text-white/60 mb-1">
                           Cache Hits
                         </div>
-                        <div className="text-xl font-medium text-emerald-600 dark:text-emerald-400">
+                        <div className="text-sm sm:text-lg font-medium text-emerald-600 dark:text-emerald-400">
                           {systemStatus.systemMetrics.cache.hits.toLocaleString()}
                         </div>
                       </div>
@@ -995,7 +995,7 @@ export default function ApiStatusPage() {
                         <div className="text-xs text-gray-600 dark:text-white/60 mb-1">
                           Cache Misses
                         </div>
-                        <div className="text-xl font-medium text-orange-600 dark:text-orange-400">
+                        <div className="text-sm sm:text-lg font-medium text-orange-600 dark:text-orange-400">
                           {systemStatus.systemMetrics.cache.misses.toLocaleString()}
                         </div>
                       </div>
@@ -1003,7 +1003,7 @@ export default function ApiStatusPage() {
                         <div className="text-xs text-gray-600 dark:text-white/60 mb-1">
                           Hit Rate
                         </div>
-                        <div className="text-xl font-medium text-gray-700 dark:text-white">
+                        <div className="text-sm sm:text-lg font-medium text-gray-700 dark:text-white">
                           {systemStatus.systemMetrics.cache.hitRate}%
                         </div>
                       </div>
@@ -1011,7 +1011,7 @@ export default function ApiStatusPage() {
                         <div className="text-xs text-gray-600 dark:text-white/60 mb-1">
                           Total Requests
                         </div>
-                        <div className="text-xl font-medium text-gray-700 dark:text-white">
+                        <div className="text-sm sm:text-lg font-medium text-gray-700 dark:text-white">
                           {systemStatus.systemMetrics.cache.totalRequests.toLocaleString()}
                         </div>
                       </div>
@@ -1029,7 +1029,7 @@ export default function ApiStatusPage() {
                         <div className="text-xs text-gray-600 dark:text-white/60 mb-1">
                           Total Queries
                         </div>
-                        <div className="text-xl font-medium text-gray-700 dark:text-white">
+                        <div className="text-sm sm:text-lg font-medium text-gray-700 dark:text-white">
                           {systemStatus.systemMetrics.database.totalQueries.toLocaleString()}
                         </div>
                       </div>
@@ -1038,7 +1038,7 @@ export default function ApiStatusPage() {
                           <FiClock className="h-3 w-3" />
                           Avg Query Time
                         </div>
-                        <div className="text-xl font-medium text-gray-700 dark:text-white">
+                        <div className="text-sm sm:text-lg font-medium text-gray-700 dark:text-white">
                           {systemStatus.systemMetrics.database.averageQueryTime}
                           ms
                         </div>
@@ -1047,7 +1047,7 @@ export default function ApiStatusPage() {
                         <div className="text-xs text-gray-600 dark:text-white/60 mb-1">
                           Slow Queries (&gt;1s)
                         </div>
-                        <div className="text-xl font-medium text-amber-600 dark:text-amber-400">
+                        <div className="text-sm sm:text-lg font-medium text-amber-600 dark:text-amber-400">
                           {systemStatus.systemMetrics.database.slowQueries.toLocaleString()}
                         </div>
                       </div>
@@ -1191,7 +1191,7 @@ export default function ApiStatusPage() {
                   <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-rose-300/30 bg-rose-100/50 dark:border-white/15 dark:bg-white/10">
                     <FiPackage className="h-5 w-5 text-gray-700 dark:text-white" />
                   </div>
-                  <h3 className="text-md sm:text-lg font-medium text-gray-700 dark:text-white">
+                  <h3 className="text-sm sm:text-base font-medium text-gray-700 dark:text-white">
                     Deployment Information
                   </h3>
                 </div>

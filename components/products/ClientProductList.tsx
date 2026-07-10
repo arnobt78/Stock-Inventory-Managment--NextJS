@@ -153,7 +153,7 @@ export default function ClientProductList({
 
       {/* Product Inventory Section — client-facing copy */}
       <div className="pb-6 flex flex-col items-start text-left">
-        <h2 className="text-sm sm:text-lg font-medium text-gray-700 dark:text-white ">
+        <h2 className="text-sm sm:text-base font-medium text-gray-700 dark:text-white ">
           Browse & Purchase Products
         </h2>
         <p className="text-base text-gray-600 dark:text-gray-400">

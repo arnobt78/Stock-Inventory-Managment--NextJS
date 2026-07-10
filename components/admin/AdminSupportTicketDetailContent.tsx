@@ -252,7 +252,7 @@ export default function AdminSupportTicketDetailContent({
           <CardContent className="p-2 sm:p-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-2 sm:gap-4">
               <div>
-                <h2 className="text-lg font-medium mb-4 flex items-center gap-2">
+                <h2 className="text-sm sm:text-base font-medium mb-4 flex items-center gap-2">
                   <MessageSquare className="h-5 w-5" />
                   Ticket Information
                 </h2>
@@ -437,7 +437,7 @@ export default function AdminSupportTicketDetailContent({
                 </dl>
               </div>
               <div>
-                <h2 className="text-lg font-medium mb-4">Description</h2>
+                <h2 className="text-sm sm:text-base font-medium mb-4">Description</h2>
                 <p className="text-sm text-muted-foreground whitespace-pre-wrap rounded-lg border border-border/50 bg-muted/30 p-4">
                   {dataLoading ? (
                     <DataSlotPulse

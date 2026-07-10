@@ -868,6 +868,30 @@ Canonical REQ source. All artifacts link via `REQ-XXXX`. Status: `done` | `verif
 
 ---
 
+## REQ-0044 — Unified responsive typography scale
+
+| Field | Value |
+|-------|-------|
+| **Priority** | P2 |
+| **Risk** | R1 |
+| **Status** | done |
+| **Cycle** | C2 |
+| **Parent** | REQ-0028 |
+
+**Intent:** Centralize responsive typography: page headers `text-sm sm:text-lg`, card titles `text-sm sm:text-base`, subtitles `text-xs sm:text-sm`; stat values keep `text-sm sm:text-lg`.
+
+**Acceptance criteria**
+
+- AC1: `lib/ui/typography-scale.ts` exports PAGE/CARD/SUBTITLE/STAT tokens
+- AC2: `PageSectionHeader`, `SectionCardHeader`, dialog titles use tokens
+- AC3: Inline sweep ~45 files; fix invalid `text-md` classNames
+- AC4: Stat/metric values unchanged; Navbar/AuthBrandHeader brand excluded
+- AC5: No TanStack/SSR changes; Red Team pass
+
+**Artifacts:** `typography-scale.ts`, `PageSectionHeader.tsx`, `SectionCardHeader.tsx`, `ui/dialog.tsx`, `StatisticsCard.tsx`, inline sweep
+
+---
+
 ## REQ-0020 — Locale-aware admin formatting
 
 | Field | Value |

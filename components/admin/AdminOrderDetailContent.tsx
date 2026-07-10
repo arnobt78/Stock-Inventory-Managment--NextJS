@@ -315,7 +315,7 @@ export default function AdminOrderDetailContent({
               >
                 <FileText className="h-5 w-5 text-orange-600 dark:text-orange-400" />
               </div>
-              <h3 className="text-lg font-medium text-gray-700 dark:text-white">
+              <h3 className="text-sm sm:text-base font-medium text-gray-700 dark:text-white">
                 Order Information
               </h3>
             </div>
@@ -368,7 +368,7 @@ export default function AdminOrderDetailContent({
               >
                 <MapPin className="h-5 w-5 text-blue-600 dark:text-blue-400" />
               </div>
-              <h3 className="text-lg font-medium text-gray-700 dark:text-white">
+              <h3 className="text-sm sm:text-base font-medium text-gray-700 dark:text-white">
                 Customer Information
               </h3>
             </div>
@@ -422,7 +422,7 @@ export default function AdminOrderDetailContent({
               >
                 <FileText className="h-5 w-5 text-violet-600 dark:text-violet-400" />
               </div>
-              <h3 className="text-lg font-medium text-gray-700 dark:text-white">
+              <h3 className="text-sm sm:text-base font-medium text-gray-700 dark:text-white">
                 Invoice
               </h3>
             </div>
@@ -459,7 +459,7 @@ export default function AdminOrderDetailContent({
               >
                 <Truck className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
               </div>
-              <h3 className="text-lg font-medium text-gray-700 dark:text-white">
+              <h3 className="text-sm sm:text-base font-medium text-gray-700 dark:text-white">
                 Shipping &amp; Tracking
               </h3>
             </div>
@@ -573,7 +573,7 @@ export default function AdminOrderDetailContent({
         {canRefund && (
           <GlassCard variant="rose">
             <div className="flex items-center gap-2 mb-2">
-              <h3 className="text-lg font-medium text-gray-700 dark:text-white">
+              <h3 className="text-sm sm:text-base font-medium text-gray-700 dark:text-white">
                 Refund Management
               </h3>
             </div>

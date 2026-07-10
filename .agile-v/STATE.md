@@ -7,7 +7,7 @@
 | **Infinity Loop stage** | Verify ◐ (code done; Human Gate 2 + manual QA open) |
 | **Last updated** | 2026-07-10 |
 | **Session** | ACTIVE — Agile V bootstrap resume |
-| **Active REQ range** | REQ-0001 … REQ-0043 (REQ-0043 code-complete) |
+| **Active REQ range** | REQ-0001 … REQ-0044 (REQ-0044 code-complete) |
 | **Prod deploy target** | `3ebb4db` (pushed `main` 2026-07-09) — confirm Vercel SHA |
 | **Human Gate 1** | APPROVED (retroactive bootstrap) |
 | **Human Gate 2** | PENDING — Sentry 24h after prod deploy |
@@ -29,7 +29,8 @@
 12. **REQ-0041** — Catalog filter icons, chips, export chevron (code-complete)
 13. **REQ-0042** — Catalog select inline + orders/invoices export chevron (code-complete)
 14. **REQ-0043** — Unified filter chip row + reset (code-complete)
-15. **C2 backlog** — user-reported issues + manual QA gaps (see below)
+15. **REQ-0044** — Unified responsive typography scale (code-complete)
+16. **C2 backlog** — user-reported issues + manual QA gaps (see below)
 
 ## Session resume (every chat)
 
@@ -65,7 +66,7 @@
 | UI glass badges + tables + invoices (REQ-0028) | done |
 | Supplier catalog detail Option B (REQ-0029) | done — `3ebb4db` |
 | TanStack invalidation | unchanged; 202 audit pass |
-| Red Team (latest) | lint ✓ test 343 ✓ invalidate 202 ✓ build ✓ (2026-07-10 REQ-0041) |
+| Red Team (latest) | lint ✓ test 343 ✓ invalidate 202 ✓ build ✓ (2026-07-10 REQ-0044) |
 | PLAYBOOK.md | active — session ops guide |
 
 ## Recent commits (last ~3 days)

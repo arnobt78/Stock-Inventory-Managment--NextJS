@@ -322,7 +322,7 @@ export default function InvoiceDetailPage({
       <Wrapper>
         <div className="flex flex-col items-center justify-center min-h-[60vh] gap-2">
           <GlassCard variant="rose" className="max-w-md text-center">
-            <h2 className="text-sm sm:text-lg font-medium text-gray-700 dark:text-white mb-2">
+            <h2 className="text-sm sm:text-base font-medium text-gray-700 dark:text-white mb-2">
               Invoice Not Found
             </h2>
             <p className="text-gray-600 dark:text-gray-400 mb-4">
@@ -349,7 +349,7 @@ export default function InvoiceDetailPage({
       <Wrapper>
         <div className="flex flex-col items-center justify-center min-h-[60vh] gap-2">
           <GlassCard variant="rose" className="max-w-md text-center">
-            <h2 className="text-sm sm:text-lg font-medium text-gray-700 dark:text-white mb-2">
+            <h2 className="text-sm sm:text-base font-medium text-gray-700 dark:text-white mb-2">
               Invoice Not Found
             </h2>
             <p className="text-gray-600 dark:text-gray-400 mb-4">
@@ -504,7 +504,7 @@ export default function InvoiceDetailPage({
                 <FileText className="h-5 w-5 text-orange-600 dark:text-orange-400" />
               </div>
               <div>
-                <h3 className="text-lg font-medium text-gray-700 dark:text-white">
+                <h3 className="text-sm sm:text-base font-medium text-gray-700 dark:text-white">
                   Invoice Information
                 </h3>
                 <p className="text-xs text-gray-600 dark:text-gray-400">
@@ -666,7 +666,7 @@ export default function InvoiceDetailPage({
                 >
                   <FileText className="h-5 w-5 text-teal-600 dark:text-teal-400" />
                 </div>
-                <h3 className="text-lg font-medium text-gray-700 dark:text-white">
+                <h3 className="text-sm sm:text-base font-medium text-gray-700 dark:text-white">
                   Parties &amp; roles
                 </h3>
               </div>
@@ -779,7 +779,7 @@ export default function InvoiceDetailPage({
                   >
                     <MapPin className="h-5 w-5 text-sky-600 dark:text-sky-400" />
                   </div>
-                  <h3 className="text-lg font-medium text-gray-700 dark:text-white">
+                  <h3 className="text-sm sm:text-base font-medium text-gray-700 dark:text-white">
                     Billing Address
                   </h3>
                 </div>
@@ -805,7 +805,7 @@ export default function InvoiceDetailPage({
                 >
                   <DollarSign className="h-5 w-5 text-teal-600 dark:text-teal-400" />
                 </div>
-                <h3 className="text-lg font-medium text-gray-700 dark:text-white">
+                <h3 className="text-sm sm:text-base font-medium text-gray-700 dark:text-white">
                   Invoice Summary
                 </h3>
               </div>
@@ -856,7 +856,7 @@ export default function InvoiceDetailPage({
                   </div>
                 )}
                 <Separator className="my-2 bg-teal-200/50 dark:bg-teal-400/20" />
-                <div className="flex justify-between text-lg font-medium p-2 rounded-xl bg-gradient-to-r from-blue-100/50 via-blue-50/30 to-transparent dark:from-blue-500/15 dark:via-blue-500/10 dark:to-transparent border border-blue-200/30 dark:border-blue-400/20">
+                <div className="flex justify-between text-sm sm:text-lg font-medium p-2 rounded-xl bg-gradient-to-r from-blue-100/50 via-blue-50/30 to-transparent dark:from-blue-500/15 dark:via-blue-500/10 dark:to-transparent border border-blue-200/30 dark:border-blue-400/20">
                   <span className="text-gray-700 dark:text-white">Total:</span>
                   <span className="text-blue-600 dark:text-blue-400">
                     {dataLoading ? (
@@ -879,7 +879,7 @@ export default function InvoiceDetailPage({
                     </div>
                     <div
                       className={cn(
-                        "flex justify-between text-lg font-medium p-2 rounded-xl border",
+                        "flex justify-between text-sm sm:text-lg font-medium p-2 rounded-xl border",
                         invoice!.amountDue > 0 && isOverdue
                           ? "bg-gradient-to-r from-rose-100/50 via-rose-50/30 to-transparent dark:from-rose-500/15 dark:via-rose-500/10 dark:to-transparent border-rose-200/30 dark:border-rose-400/20"
                           : invoice!.amountDue > 0

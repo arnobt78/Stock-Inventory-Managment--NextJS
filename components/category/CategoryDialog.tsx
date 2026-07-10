@@ -466,7 +466,7 @@ export default function AddCategoryDialog({
 
             {/* Categories Table — x-scroll contained here, not on the dialog shell */}
             <div className={DIALOG_TABLE_SECTION}>
-              <h3 className="text-lg font-medium mb-4 text-white/90 dark:text-white">
+              <h3 className="text-sm sm:text-base font-medium mb-4 text-white/90 dark:text-white">
                 Categories{" "}
                 {categories && categories.length > 0 && (
                   <span className="text-white/90 dark:text-white">

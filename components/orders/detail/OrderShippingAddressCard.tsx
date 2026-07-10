@@ -34,7 +34,7 @@ export function OrderShippingAddressCard({
         >
           <MapPin className="h-5 w-5 text-violet-600 dark:text-violet-400" />
         </div>
-        <h3 className="text-lg font-medium text-gray-700 dark:text-white">
+        <h3 className="text-sm sm:text-base font-medium text-gray-700 dark:text-white">
           Shipping Address
         </h3>
       </div>

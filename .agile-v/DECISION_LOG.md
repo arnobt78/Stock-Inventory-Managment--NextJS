@@ -82,3 +82,9 @@ Format: `TIMESTAMP | AGENT | DECISION | RATIONALE | REQ-ID`
 2026-07-10T14:40:00Z | build-agent | REQ-0043 filter chip rollout | DismissibleFilterChips + filter-chip-styles; wire 8 filter surfaces; rose/sky hover | REQ-0043
 2026-07-10T14:44:00Z | red-team | REQ-0043 automated gates | lint ✓ test 343 ✓ invalidate 202 ✓ build ✓ | REQ-0043
 2026-07-10T14:44:00Z | build-agent | Hang diagnostic | No duplicate next dev; ClientProductList useEffect deps fix | REQ-0043
+2026-07-10T14:55:00Z | build-agent | REQ-0044 typography scale | typography-scale.ts; hub headers + ~45 file sweep | REQ-0044
+2026-07-10T15:00:00Z | red-team | REQ-0044 automated gates | lint ✓ test 343 ✓ invalidate 202 ✓ build ✓ | REQ-0044
+2026-07-10T15:08:00Z | build-agent | REQ-0044 ApiStatus gap | cache/DB metric divs text-xl → text-sm sm:text-lg | REQ-0044
+2026-07-10T15:12:00Z | build-agent | REQ-0044 text-xl sweep | Navbar/AuthBrandHeader lg:text-xl removed; PaymentDialog title+total → card/stat tier | REQ-0044
+2026-07-10T15:15:00Z | build-agent | REQ-0044 bare text-lg | brand/AdminPage/PaymentDialog/misc → responsive pairs only | REQ-0044
+2026-07-10T15:18:00Z | red-team | REQ-0044 final audit | lint ✓ test 343 ✓ invalidate 202 ✓ build ✓; zero text-xl; no TanStack/SSR delta | REQ-0044

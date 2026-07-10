@@ -125,7 +125,7 @@ export default function ClientPortalPage({
       <PageContentWrapper>
         <div className="space-y-4">
           <div className="">
-            <h1 className="text-sm sm:text-lg font-medium text-gray-700 dark:text-white">
+            <h1 className="text-sm sm:text-base font-medium text-gray-700 dark:text-white">
               Client Portal
             </h1>
             <p className="text-xs sm:text-sm text-muted-foreground">
@@ -323,7 +323,7 @@ export default function ClientPortalPage({
             )}
           >
             <div className="mb-4">
-              <h3 className="flex items-center gap-2 text-lg font-medium text-gray-700 dark:text-white">
+              <h3 className="flex items-center gap-2 text-sm sm:text-base font-medium text-gray-700 dark:text-white">
                 <TrendingUp className="h-5 w-5 text-emerald-500 dark:text-emerald-400" />
                 Monthly Spending
               </h3>
@@ -377,7 +377,7 @@ export default function ClientPortalPage({
             )}
           >
             <div className="mb-6">
-              <h3 className="flex items-center gap-2 text-lg font-medium text-gray-700 dark:text-white">
+              <h3 className="flex items-center gap-2 text-sm sm:text-base font-medium text-gray-700 dark:text-white">
                 <Store className="h-5 w-5 text-sky-500 dark:text-sky-400" />
                 Catalog — What&apos;s available
               </h3>
@@ -844,7 +844,7 @@ export default function ClientPortalPage({
               "hover:border-violet-300/40",
             )}
           >
-            <h3 className="text-lg font-medium text-gray-700 dark:text-white mb-4">
+            <h3 className="text-sm sm:text-base font-medium text-gray-700 dark:text-white mb-4">
               Quick Links
             </h3>
             <div className="flex flex-wrap gap-2">

@@ -614,7 +614,7 @@ export default function AdminAnalyticsContent({
         {/* Order Analytics section */}
         {stats && stats.orderAnalytics && (
           <div className="space-y-4">
-            <h2 className="text-sm sm:text-lg font-medium text-gray-700 dark:text-white flex items-center gap-2">
+            <h2 className="text-sm sm:text-base font-medium text-gray-700 dark:text-white flex items-center gap-2">
               <ShoppingCart className="h-5 w-5 text-sky-600" />
               Order Analytics
             </h2>
@@ -882,7 +882,7 @@ export default function AdminAnalyticsContent({
         {/* Invoice Analytics section */}
         {stats && stats.invoiceAnalytics && (
           <div className="space-y-4">
-            <h2 className="text-sm sm:text-lg font-medium text-gray-700 dark:text-white flex items-center gap-2">
+            <h2 className="text-sm sm:text-base font-medium text-gray-700 dark:text-white flex items-center gap-2">
               <FileText className="h-5 w-5 text-amber-600" />
               Invoice Analytics
             </h2>
@@ -1106,7 +1106,7 @@ export default function AdminAnalyticsContent({
             }));
             return (
               <div className="space-y-4">
-                <h2 className="text-sm sm:text-lg font-medium text-gray-700 dark:text-white flex items-center gap-2">
+                <h2 className="text-sm sm:text-base font-medium text-gray-700 dark:text-white flex items-center gap-2">
                   <Warehouse className="h-5 w-5 text-amber-500" />
                   Warehouse Analytics
                 </h2>

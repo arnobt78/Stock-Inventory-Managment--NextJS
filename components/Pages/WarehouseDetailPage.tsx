@@ -250,7 +250,7 @@ export default function WarehouseDetailPage({
       <PageWrapper>
         <div className="flex flex-col items-center justify-center min-h-[60vh] gap-2">
           <GlassCard variant="rose" className="max-w-md text-center">
-            <h2 className="text-sm sm:text-lg font-medium text-gray-700 dark:text-white mb-2">
+            <h2 className="text-sm sm:text-base font-medium text-gray-700 dark:text-white mb-2">
               Warehouse Not Found
             </h2>
             <p className="text-gray-600 dark:text-gray-400 mb-4">
@@ -347,7 +347,7 @@ export default function WarehouseDetailPage({
                 >
                   <Boxes className="h-5 w-5 text-sky-600 dark:text-sky-400" />
                 </div>
-                <p className="text-sm sm:text-lg font-medium text-gray-700 dark:text-white">
+                <p className="text-sm sm:text-base font-medium text-gray-700 dark:text-white">
                   {stockSummary.totalProducts}
                 </p>
                 <p className="text-xs text-gray-600 dark:text-gray-400">
@@ -364,7 +364,7 @@ export default function WarehouseDetailPage({
                 >
                   <Package className="h-5 w-5 text-violet-600 dark:text-violet-400" />
                 </div>
-                <p className="text-sm sm:text-lg font-medium text-gray-700 dark:text-white">
+                <p className="text-sm sm:text-base font-medium text-gray-700 dark:text-white">
                   {stockSummary.totalQuantity}
                 </p>
                 <p className="text-xs text-gray-600 dark:text-gray-400">
@@ -421,7 +421,7 @@ export default function WarehouseDetailPage({
                 >
                   <Building2 className="h-5 w-5 text-cyan-600 dark:text-cyan-400" />
                 </div>
-                <h3 className="text-lg font-medium text-gray-700 dark:text-white">
+                <h3 className="text-sm sm:text-base font-medium text-gray-700 dark:text-white">
                   Warehouse Information
                 </h3>
               </div>
@@ -503,7 +503,7 @@ export default function WarehouseDetailPage({
                   <Package className="h-5 w-5 text-violet-600 dark:text-violet-400" />
                 </div>
                 <div>
-                  <h3 className="text-lg font-medium text-gray-700 dark:text-white">
+                  <h3 className="text-sm sm:text-base font-medium text-gray-700 dark:text-white">
                     Stock in Warehouse
                   </h3>
                   <p className="text-xs text-gray-600 dark:text-gray-400">
