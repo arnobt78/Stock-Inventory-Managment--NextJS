@@ -97,7 +97,7 @@ export default function ClientPortalPage({
       <Navbar>
         <PageContentWrapper>
           <div className="space-y-4">
-            <h1 className="text-lg sm:text-xl font-medium text-primary">
+            <h1 className="text-sm sm:text-lg font-medium text-primary">
               Client Portal
             </h1>
             <article
@@ -125,7 +125,7 @@ export default function ClientPortalPage({
       <PageContentWrapper>
         <div className="space-y-4">
           <div className="">
-            <h1 className="text-lg sm:text-xl font-medium text-gray-700 dark:text-white">
+            <h1 className="text-sm sm:text-lg font-medium text-gray-700 dark:text-white">
               Client Portal
             </h1>
             <p className="text-xs sm:text-sm text-muted-foreground">

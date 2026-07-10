@@ -9,31 +9,39 @@
 import React, { useCallback, useMemo } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Search, Download, ChevronDown } from "lucide-react";
+import { Search } from "lucide-react";
 import { IoClose } from "react-icons/io5";
-import { FiFileText, FiGrid } from "react-icons/fi";
 import { PaginationType } from "@/components/shared/PaginationSelector";
+import { DismissibleFilterChips, ExportMenuButton } from "@/components/shared";
+import type { FilterChipGroup } from "@/components/shared";
 import { useToast } from "@/hooks/use-toast";
 import { exportToExcel, exportToCSV } from "@/lib/export";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import { OrderStatusDropDown } from "./OrderStatusFilter";
 import { PaymentStatusDropDown } from "./PaymentStatusFilter";
 import {
   OrderSourceDropDown,
   type OrderSourceFilterValue,
 } from "./OrderSourceFilter";
+import {
+  OrderStatusBadge,
+  PaymentStatusBadge,
+} from "@/lib/ui/semantic-badges";
+import { FILTER_CHIP_COLLAPSED_CLASS } from "@/lib/ui/filter-chip-styles";
 import type { Order } from "@/types";
+
+const ORDER_SOURCE_LABELS: Record<OrderSourceFilterValue, string> = {
+  client: "Client orders",
+  personal: "Personal orders",
+  both: "View both",
+};
 
 interface OrderFiltersProps {
   searchTerm: string;
   setSearchTerm: (term: string) => void;
   pagination: PaginationType;
-  setPagination: (pagination: PaginationType) => void;
+  setPagination: (
+    pagination: PaginationType | ((prev: PaginationType) => PaginationType),
+  ) => void;
   allOrders: Order[];
   selectedStatuses: string[];
   setSelectedStatuses: React.Dispatch<React.SetStateAction<string[]>>;
@@ -204,6 +212,64 @@ export default function OrderFilters({
     }
   }, [filteredOrders, toast]);
 
+  const handleResetFilters = useCallback(() => {
+    setSelectedStatuses([]);
+    setSelectedPaymentStatuses([]);
+    if (setOrderSourceFilter) setOrderSourceFilter("both");
+    setPagination((prev) => ({ ...prev, pageIndex: 0 }));
+  }, [
+    setSelectedStatuses,
+    setSelectedPaymentStatuses,
+    setOrderSourceFilter,
+    setPagination,
+  ]);
+
+  const filterChipGroups = useMemo((): FilterChipGroup[] => {
+    const groups: FilterChipGroup[] = [];
+
+    if (showOrderSourceFilter && orderSourceFilter !== "both") {
+      groups.push({
+        label: "Type",
+        values: [orderSourceFilter],
+        onClear: () => setOrderSourceFilter?.("both"),
+        renderBadge: (value) => (
+          <span className={FILTER_CHIP_COLLAPSED_CLASS}>
+            {ORDER_SOURCE_LABELS[value as OrderSourceFilterValue] ?? value}
+          </span>
+        ),
+      });
+    }
+
+    groups.push(
+      {
+        label: "Status",
+        values: selectedStatuses,
+        onClear: () => setSelectedStatuses([]),
+        renderBadge: (value) => (
+          <OrderStatusBadge status={value} size="compact" />
+        ),
+      },
+      {
+        label: "Payment",
+        values: selectedPaymentStatuses,
+        onClear: () => setSelectedPaymentStatuses([]),
+        renderBadge: (value) => (
+          <PaymentStatusBadge status={value} size="compact" />
+        ),
+      },
+    );
+
+    return groups;
+  }, [
+    showOrderSourceFilter,
+    orderSourceFilter,
+    selectedStatuses,
+    selectedPaymentStatuses,
+    setOrderSourceFilter,
+    setSelectedStatuses,
+    setSelectedPaymentStatuses,
+  ]);
+
   return (
     <div className="flex flex-col gap-2">
       {/* Single Row: Search (Left) | Filters (Middle) | Export (Right) */}
@@ -249,40 +315,20 @@ export default function OrderFilters({
 
         {/* Export Dropdown - Right */}
         <div className="flex-shrink-0 flex items-center gap-2">
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button
-                variant="outline"
-                disabled={filteredOrders.length === 0}
-                className="h-10 w-full sm:w-auto flex items-center gap-2 rounded-[28px] border border-violet-400/30 dark:border-violet-400/30 bg-gradient-to-r from-violet-500/25 via-violet-500/15 to-violet-500/10 dark:from-violet-500/25 dark:via-violet-500/15 dark:to-violet-500/10 text-gray-700 dark:text-white shadow-[0_10px_30px_rgba(139,92,246,0.2)] backdrop-blur-md transition duration-200 hover:border-violet-300/40 hover:from-violet-500/35 hover:via-violet-500/25 hover:to-violet-500/15 dark:hover:border-violet-300/40 dark:hover:from-violet-500/35 dark:hover:via-violet-500/25 dark:hover:to-violet-500/15 disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                <Download className="h-4 w-4" />
-                Export Orders
-                <ChevronDown className="h-4 w-4" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent
-              align="end"
-              className="rounded-[28px] border border-violet-400/20 dark:border-white/10 bg-white/80 dark:bg-popover/50 backdrop-blur-md"
-            >
-              <DropdownMenuItem
-                onClick={handleExportToCSV}
-                className="cursor-pointer text-gray-700 dark:text-white/80 hover:text-gray-700 dark:hover:text-white focus:bg-violet-100 dark:focus:bg-white/10 focus:text-gray-700 dark:focus:text-white"
-              >
-                <FiFileText className="mr-2 h-4 w-4" />
-                Export as CSV
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                onClick={handleExportToExcel}
-                className="cursor-pointer text-gray-700 dark:text-white/80 hover:text-gray-700 dark:hover:text-white focus:bg-violet-100 dark:focus:bg-white/10 focus:text-gray-700 dark:focus:text-white"
-              >
-                <FiGrid className="mr-2 h-4 w-4" />
-                Export as Excel
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+          <ExportMenuButton
+            label="Export Orders"
+            accent="violet"
+            disabled={filteredOrders.length === 0}
+            onExportCsv={handleExportToCSV}
+            onExportExcel={handleExportToExcel}
+          />
         </div>
       </div>
+
+      <DismissibleFilterChips
+        groups={filterChipGroups}
+        onReset={handleResetFilters}
+      />
     </div>
   );
 }

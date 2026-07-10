@@ -811,7 +811,7 @@ export default function BusinessInsightPage({
           {/* Header */}
           <div className="pb-6 flex flex-col sm:flex-row items-start justify-between gap-2">
             <div className="flex flex-col">
-              <h1 className="text-lg sm:text-xl font-medium text-gray-700 dark:text-white ">
+              <h1 className="text-sm sm:text-lg font-medium text-gray-700 dark:text-white ">
                 Product Inventory Business Insights
               </h1>
               <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">

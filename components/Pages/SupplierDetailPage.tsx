@@ -263,7 +263,7 @@ export default function SupplierDetailPage({
       <PageWrapper>
         <div className="flex flex-col items-center justify-center min-h-[60vh] gap-2">
           <div className="text-center">
-            <h2 className="text-lg sm:text-xl font-medium text-gray-700 dark:text-white mb-2">
+            <h2 className="text-sm sm:text-lg font-medium text-gray-700 dark:text-white mb-2">
               Supplier Not Found
             </h2>
             <p className="text-gray-600 dark:text-gray-400 mb-4">

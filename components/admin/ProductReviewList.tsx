@@ -157,6 +157,7 @@ export default function ProductReviewList({
             setSelectedStatuses={setSelectedStatuses}
             selectedRatings={selectedRatings}
             setSelectedRatings={setSelectedRatings}
+            setPagination={setPagination}
           />
         </div>
         {isMounted && (

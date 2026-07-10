@@ -22,7 +22,7 @@ interface AnalyticsCardSkeletonProps {
 /**
  * AnalyticsCardSkeleton component
  * Displays a skeleton loader matching AnalyticsCard structure and dimensions
- * Matches: CardHeader (), CardTitle (text-sm), Icon (h-4 w-4), Value (text-lg sm:text-xl), Description (text-xs)
+ * Matches: CardHeader (), CardTitle (text-sm), Icon (h-4 w-4), Value (text-sm sm:text-lg), Description (text-xs)
  */
 export function AnalyticsCardSkeleton({
   className,
@@ -36,7 +36,7 @@ export function AnalyticsCardSkeleton({
         <Skeleton className="h-4 w-4 rounded" />
       </CardHeader>
       <CardContent>
-        {/* Value skeleton - matches text-lg sm:text-xl font-medium (24px font, ~32px line-height) */}
+        {/* Value skeleton - matches text-sm sm:text-lg font-medium (24px font, ~32px line-height) */}
         <Skeleton className="h-8 w-32" />
         {/* Description skeleton - matches text-xs (12px font, ~16px line-height) with mt-1 */}
         <Skeleton className="h-4 w-full mt-1" />

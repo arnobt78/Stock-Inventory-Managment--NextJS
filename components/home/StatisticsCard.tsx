@@ -194,7 +194,7 @@ export function StatisticsCard({
             <Icon className="h-5 w-5 text-gray-700 dark:text-white" />
           </div>
         </div>
-        <p className="text-lg sm:text-xl font-medium text-gray-700 dark:text-white">
+        <p className="text-sm sm:text-lg font-medium text-gray-700 dark:text-white">
           {displayValue}
         </p>
         {description && (

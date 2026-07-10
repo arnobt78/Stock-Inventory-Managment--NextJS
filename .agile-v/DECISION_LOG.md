@@ -76,3 +76,9 @@ Format: `TIMESTAMP | AGENT | DECISION | RATIONALE | REQ-ID`
 2026-07-10T13:52:00Z | red-team | REQ-0039 automated gates | lint ✓ test 340 ✓ invalidate 202 ✓ build ✓ | REQ-0039
 2026-07-10T13:58:00Z | build-agent | REQ-0040 avatar URL DRY | resolveAvatarSourcesFromSeed; migrate reviews/tickets; Gmail QA PASS | REQ-0040
 2026-07-10T13:59:00Z | red-team | REQ-0040 automated gates | lint ✓ test 343 ✓ invalidate 202 ✓ build ✓ | REQ-0040
+2026-07-10T14:15:00Z | build-agent | REQ-0041 catalog filter UI | shared select/chips/export; entity icons + glass badges | REQ-0041
+2026-07-10T14:17:00Z | red-team | REQ-0041 automated gates | lint ✓ test 343 ✓ invalidate 202 ✓ build ✓ | REQ-0041
+2026-07-10T14:26:00Z | red-team | REQ-0042 automated gates | lint ✓ test 343 ✓ invalidate 202 ✓ build ✓ | REQ-0042
+2026-07-10T14:40:00Z | build-agent | REQ-0043 filter chip rollout | DismissibleFilterChips + filter-chip-styles; wire 8 filter surfaces; rose/sky hover | REQ-0043
+2026-07-10T14:44:00Z | red-team | REQ-0043 automated gates | lint ✓ test 343 ✓ invalidate 202 ✓ build ✓ | REQ-0043
+2026-07-10T14:44:00Z | build-agent | Hang diagnostic | No duplicate next dev; ClientProductList useEffect deps fix | REQ-0043

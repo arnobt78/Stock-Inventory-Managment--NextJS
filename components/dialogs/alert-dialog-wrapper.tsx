@@ -140,7 +140,7 @@ export function AlertDialogWrapper({
       <AlertDialogContent className={cn("p-4 sm:p-6", contentClassName)}>
         <AlertDialogHeader>
           <AlertDialogTitle
-            className={cn("text-lg sm:text-xl", titleClassName)}
+            className={cn("text-sm sm:text-lg", titleClassName)}
           >
             {title}
           </AlertDialogTitle>

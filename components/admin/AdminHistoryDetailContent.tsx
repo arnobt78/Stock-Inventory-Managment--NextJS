@@ -102,7 +102,7 @@ export default function AdminHistoryDetailContent({
             </Link>
           </Button>
           <div>
-            <h1 className="text-lg sm:text-xl font-medium text-foreground">
+            <h1 className="text-sm sm:text-lg font-medium text-foreground">
               Import History Details
             </h1>
             <p className="text-sm text-muted-foreground">
@@ -173,10 +173,7 @@ export default function AdminHistoryDetailContent({
                           className="h-6 w-20 rounded-full"
                         />
                       ) : (
-                        <ImportStatusBadge
-                          status={r!.status}
-                          size="detail"
-                        />
+                        <ImportStatusBadge status={r!.status} size="detail" />
                       )}
                     </dd>
                   </div>

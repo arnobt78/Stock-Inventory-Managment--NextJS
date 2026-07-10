@@ -498,63 +498,63 @@ export default function AdminAnalyticsContent({
                 loading={dataLoading}
                 hasData={(stats.trends?.length ?? 0) > 0}
               >
-              <ResponsiveChartContainer>
-                <AreaChart data={stats.trends}>
-                  <CartesianGrid
-                    strokeDasharray="3 3"
-                    className="stroke-muted"
-                  />
-                  <XAxis
-                    dataKey="label"
-                    tick={{ fontSize: 12 }}
-                    className="text-muted-foreground"
-                  />
-                  <YAxis
-                    yAxisId="left"
-                    tick={{ fontSize: 12 }}
-                    className="text-muted-foreground"
-                  />
-                  <YAxis
-                    yAxisId="right"
-                    orientation="right"
-                    tick={{ fontSize: 12 }}
-                    className="text-muted-foreground"
-                    tickFormatter={(v) => `$${(v / 1000).toFixed(0)}k`}
-                  />
-                  <Tooltip
-                    contentStyle={{
-                      backgroundColor: "hsl(var(--card))",
-                      border: "1px solid hsl(var(--border))",
-                      borderRadius: "8px",
-                    }}
-                    formatter={(value, name) => [
-                      name === "revenue"
-                        ? formatClientCurrency(Number(value ?? 0))
-                        : (value ?? 0),
-                      name === "revenue"
-                        ? "Order revenue (excl. cancelled)"
-                        : "Orders",
-                    ]}
-                    labelFormatter={(label) => label}
-                  />
-                  <Area
-                    yAxisId="left"
-                    type="monotone"
-                    dataKey="orders"
-                    stroke="hsl(var(--chart-1))"
-                    fill="hsl(var(--chart-1) / 0.2)"
-                    name="orders"
-                  />
-                  <Area
-                    yAxisId="right"
-                    type="monotone"
-                    dataKey="revenue"
-                    stroke="hsl(var(--chart-2))"
-                    fill="hsl(var(--chart-2) / 0.2)"
-                    name="revenue"
-                  />
-                </AreaChart>
-              </ResponsiveChartContainer>
+                <ResponsiveChartContainer>
+                  <AreaChart data={stats.trends}>
+                    <CartesianGrid
+                      strokeDasharray="3 3"
+                      className="stroke-muted"
+                    />
+                    <XAxis
+                      dataKey="label"
+                      tick={{ fontSize: 12 }}
+                      className="text-muted-foreground"
+                    />
+                    <YAxis
+                      yAxisId="left"
+                      tick={{ fontSize: 12 }}
+                      className="text-muted-foreground"
+                    />
+                    <YAxis
+                      yAxisId="right"
+                      orientation="right"
+                      tick={{ fontSize: 12 }}
+                      className="text-muted-foreground"
+                      tickFormatter={(v) => `$${(v / 1000).toFixed(0)}k`}
+                    />
+                    <Tooltip
+                      contentStyle={{
+                        backgroundColor: "hsl(var(--card))",
+                        border: "1px solid hsl(var(--border))",
+                        borderRadius: "8px",
+                      }}
+                      formatter={(value, name) => [
+                        name === "revenue"
+                          ? formatClientCurrency(Number(value ?? 0))
+                          : (value ?? 0),
+                        name === "revenue"
+                          ? "Order revenue (excl. cancelled)"
+                          : "Orders",
+                      ]}
+                      labelFormatter={(label) => label}
+                    />
+                    <Area
+                      yAxisId="left"
+                      type="monotone"
+                      dataKey="orders"
+                      stroke="hsl(var(--chart-1))"
+                      fill="hsl(var(--chart-1) / 0.2)"
+                      name="orders"
+                    />
+                    <Area
+                      yAxisId="right"
+                      type="monotone"
+                      dataKey="revenue"
+                      stroke="hsl(var(--chart-2))"
+                      fill="hsl(var(--chart-2) / 0.2)"
+                      name="revenue"
+                    />
+                  </AreaChart>
+                </ResponsiveChartContainer>
               </DeferredChartSection>
             </ChartCard>
             <ChartCard
@@ -567,45 +567,45 @@ export default function AdminAnalyticsContent({
                 loading={dataLoading}
                 hasData={(stats.trends?.length ?? 0) > 0}
               >
-              <ResponsiveChartContainer>
-                <BarChart
-                  data={stats.trends}
-                  margin={{ top: 8, right: 8, left: 8, bottom: 8 }}
-                >
-                  <CartesianGrid
-                    strokeDasharray="3 3"
-                    className="stroke-muted"
-                  />
-                  <XAxis
-                    dataKey="label"
-                    tick={{ fontSize: 12 }}
-                    className="text-muted-foreground"
-                  />
-                  <YAxis
-                    tick={{ fontSize: 12 }}
-                    className="text-muted-foreground"
-                  />
-                  <Tooltip
-                    contentStyle={{
-                      backgroundColor: "hsl(var(--card))",
-                      border: "1px solid hsl(var(--border))",
-                      borderRadius: "8px",
-                    }}
-                  />
-                  <Bar
-                    dataKey="products"
-                    fill="hsl(var(--chart-1))"
-                    name="Products"
-                    radius={[4, 4, 0, 0]}
-                  />
-                  <Bar
-                    dataKey="invoices"
-                    fill="hsl(var(--chart-2))"
-                    name="Invoices"
-                    radius={[4, 4, 0, 0]}
-                  />
-                </BarChart>
-              </ResponsiveChartContainer>
+                <ResponsiveChartContainer>
+                  <BarChart
+                    data={stats.trends}
+                    margin={{ top: 8, right: 8, left: 8, bottom: 8 }}
+                  >
+                    <CartesianGrid
+                      strokeDasharray="3 3"
+                      className="stroke-muted"
+                    />
+                    <XAxis
+                      dataKey="label"
+                      tick={{ fontSize: 12 }}
+                      className="text-muted-foreground"
+                    />
+                    <YAxis
+                      tick={{ fontSize: 12 }}
+                      className="text-muted-foreground"
+                    />
+                    <Tooltip
+                      contentStyle={{
+                        backgroundColor: "hsl(var(--card))",
+                        border: "1px solid hsl(var(--border))",
+                        borderRadius: "8px",
+                      }}
+                    />
+                    <Bar
+                      dataKey="products"
+                      fill="hsl(var(--chart-1))"
+                      name="Products"
+                      radius={[4, 4, 0, 0]}
+                    />
+                    <Bar
+                      dataKey="invoices"
+                      fill="hsl(var(--chart-2))"
+                      name="Invoices"
+                      radius={[4, 4, 0, 0]}
+                    />
+                  </BarChart>
+                </ResponsiveChartContainer>
               </DeferredChartSection>
             </ChartCard>
           </div>
@@ -614,7 +614,7 @@ export default function AdminAnalyticsContent({
         {/* Order Analytics section */}
         {stats && stats.orderAnalytics && (
           <div className="space-y-4">
-            <h2 className="text-lg sm:text-xl font-medium text-gray-700 dark:text-white flex items-center gap-2">
+            <h2 className="text-sm sm:text-lg font-medium text-gray-700 dark:text-white flex items-center gap-2">
               <ShoppingCart className="h-5 w-5 text-sky-600" />
               Order Analytics
             </h2>
@@ -742,75 +742,77 @@ export default function AdminAnalyticsContent({
                 description="Store-wide"
               >
                 <DeferredChartSection loading={dataLoading} hasData={!!stats}>
-                <ResponsiveChartContainer>
-                  <BarChart
-                    data={[
-                      {
-                        status: "Pending",
-                        count: stats.orderAnalytics.statusDistribution.pending,
-                        fill: "hsl(45, 93%, 47%)",
-                      },
-                      {
-                        status: "Confirmed",
-                        count:
-                          stats.orderAnalytics.statusDistribution.confirmed,
-                        fill: "hsl(142, 76%, 36%)",
-                      },
-                      {
-                        status: "Processing",
-                        count:
-                          stats.orderAnalytics.statusDistribution.processing,
-                        fill: "hsl(217, 91%, 60%)",
-                      },
-                      {
-                        status: "Shipped",
-                        count: stats.orderAnalytics.statusDistribution.shipped,
-                        fill: "hsl(199, 89%, 48%)",
-                      },
-                      {
-                        status: "Delivered",
-                        count:
-                          stats.orderAnalytics.statusDistribution.delivered,
-                        fill: "hsl(142, 71%, 45%)",
-                      },
-                      {
-                        status: "Cancelled",
-                        count:
-                          stats.orderAnalytics.statusDistribution.cancelled,
-                        fill: "hsl(0, 84%, 60%)",
-                      },
-                    ]}
-                    layout="vertical"
-                    margin={{ top: 8, right: 8, left: 70, bottom: 8 }}
-                  >
-                    <CartesianGrid
-                      strokeDasharray="3 3"
-                      className="stroke-muted"
-                      horizontal={false}
-                    />
-                    <XAxis
-                      type="number"
-                      tick={{ fontSize: 12 }}
-                      className="text-muted-foreground"
-                    />
-                    <YAxis
-                      type="category"
-                      dataKey="status"
-                      tick={{ fontSize: 12 }}
-                      className="text-muted-foreground"
-                      width={65}
-                    />
-                    <Tooltip
-                      contentStyle={{
-                        backgroundColor: "hsl(var(--card))",
-                        border: "1px solid hsl(var(--border))",
-                        borderRadius: "8px",
-                      }}
-                      formatter={(value) => [value, "Orders"]}
-                    />
-                    <Bar dataKey="count" radius={[0, 4, 4, 0]} />
-                  </BarChart>
-                </ResponsiveChartContainer>
+                  <ResponsiveChartContainer>
+                    <BarChart
+                      data={[
+                        {
+                          status: "Pending",
+                          count:
+                            stats.orderAnalytics.statusDistribution.pending,
+                          fill: "hsl(45, 93%, 47%)",
+                        },
+                        {
+                          status: "Confirmed",
+                          count:
+                            stats.orderAnalytics.statusDistribution.confirmed,
+                          fill: "hsl(142, 76%, 36%)",
+                        },
+                        {
+                          status: "Processing",
+                          count:
+                            stats.orderAnalytics.statusDistribution.processing,
+                          fill: "hsl(217, 91%, 60%)",
+                        },
+                        {
+                          status: "Shipped",
+                          count:
+                            stats.orderAnalytics.statusDistribution.shipped,
+                          fill: "hsl(199, 89%, 48%)",
+                        },
+                        {
+                          status: "Delivered",
+                          count:
+                            stats.orderAnalytics.statusDistribution.delivered,
+                          fill: "hsl(142, 71%, 45%)",
+                        },
+                        {
+                          status: "Cancelled",
+                          count:
+                            stats.orderAnalytics.statusDistribution.cancelled,
+                          fill: "hsl(0, 84%, 60%)",
+                        },
+                      ]}
+                      layout="vertical"
+                      margin={{ top: 8, right: 8, left: 70, bottom: 8 }}
+                    >
+                      <CartesianGrid
+                        strokeDasharray="3 3"
+                        className="stroke-muted"
+                        horizontal={false}
+                      />
+                      <XAxis
+                        type="number"
+                        tick={{ fontSize: 12 }}
+                        className="text-muted-foreground"
+                      />
+                      <YAxis
+                        type="category"
+                        dataKey="status"
+                        tick={{ fontSize: 12 }}
+                        className="text-muted-foreground"
+                        width={65}
+                      />
+                      <Tooltip
+                        contentStyle={{
+                          backgroundColor: "hsl(var(--card))",
+                          border: "1px solid hsl(var(--border))",
+                          borderRadius: "8px",
+                        }}
+                        formatter={(value) => [value, "Orders"]}
+                      />
+                      <Bar dataKey="count" radius={[0, 4, 4, 0]} />
+                    </BarChart>
+                  </ResponsiveChartContainer>
                 </DeferredChartSection>
               </ChartCard>
 
@@ -880,7 +882,7 @@ export default function AdminAnalyticsContent({
         {/* Invoice Analytics section */}
         {stats && stats.invoiceAnalytics && (
           <div className="space-y-4">
-            <h2 className="text-lg sm:text-xl font-medium text-gray-700 dark:text-white flex items-center gap-2">
+            <h2 className="text-sm sm:text-lg font-medium text-gray-700 dark:text-white flex items-center gap-2">
               <FileText className="h-5 w-5 text-amber-600" />
               Invoice Analytics
             </h2>
@@ -1009,67 +1011,68 @@ export default function AdminAnalyticsContent({
               description="Store-wide"
             >
               <DeferredChartSection loading={dataLoading} hasData={!!stats}>
-              <ResponsiveChartContainer>
-                <BarChart
-                  data={[
-                    {
-                      status: "Draft",
-                      count: stats.invoiceAnalytics.statusDistribution.draft,
-                      fill: "hsl(220, 9%, 46%)",
-                    },
-                    {
-                      status: "Sent",
-                      count: stats.invoiceAnalytics.statusDistribution.sent,
-                      fill: "hsl(217, 91%, 60%)",
-                    },
-                    {
-                      status: "Paid",
-                      count: stats.invoiceAnalytics.statusDistribution.paid,
-                      fill: "hsl(142, 71%, 45%)",
-                    },
-                    {
-                      status: "Overdue",
-                      count: stats.invoiceAnalytics.statusDistribution.overdue,
-                      fill: "hsl(0, 84%, 60%)",
-                    },
-                    {
-                      status: "Cancelled",
-                      count:
-                        stats.invoiceAnalytics.statusDistribution.cancelled,
-                      fill: "hsl(0, 0%, 45%)",
-                    },
-                  ]}
-                  layout="vertical"
-                  margin={{ top: 8, right: 8, left: 70, bottom: 8 }}
-                >
-                  <CartesianGrid
-                    strokeDasharray="3 3"
-                    className="stroke-muted"
-                    horizontal={false}
-                  />
-                  <XAxis
-                    type="number"
-                    tick={{ fontSize: 12 }}
-                    className="text-muted-foreground"
-                  />
-                  <YAxis
-                    type="category"
-                    dataKey="status"
-                    tick={{ fontSize: 12 }}
-                    className="text-muted-foreground"
-                    width={65}
-                  />
-                  <Tooltip
-                    contentStyle={{
-                      backgroundColor: "hsl(var(--card))",
-                      border: "1px solid hsl(var(--border))",
-                      borderRadius: "8px",
-                    }}
-                    formatter={(value) => [value, "Invoices"]}
-                  />
-                  <Bar dataKey="count" radius={[0, 4, 4, 0]} />
-                </BarChart>
-              </ResponsiveChartContainer>
+                <ResponsiveChartContainer>
+                  <BarChart
+                    data={[
+                      {
+                        status: "Draft",
+                        count: stats.invoiceAnalytics.statusDistribution.draft,
+                        fill: "hsl(220, 9%, 46%)",
+                      },
+                      {
+                        status: "Sent",
+                        count: stats.invoiceAnalytics.statusDistribution.sent,
+                        fill: "hsl(217, 91%, 60%)",
+                      },
+                      {
+                        status: "Paid",
+                        count: stats.invoiceAnalytics.statusDistribution.paid,
+                        fill: "hsl(142, 71%, 45%)",
+                      },
+                      {
+                        status: "Overdue",
+                        count:
+                          stats.invoiceAnalytics.statusDistribution.overdue,
+                        fill: "hsl(0, 84%, 60%)",
+                      },
+                      {
+                        status: "Cancelled",
+                        count:
+                          stats.invoiceAnalytics.statusDistribution.cancelled,
+                        fill: "hsl(0, 0%, 45%)",
+                      },
+                    ]}
+                    layout="vertical"
+                    margin={{ top: 8, right: 8, left: 70, bottom: 8 }}
+                  >
+                    <CartesianGrid
+                      strokeDasharray="3 3"
+                      className="stroke-muted"
+                      horizontal={false}
+                    />
+                    <XAxis
+                      type="number"
+                      tick={{ fontSize: 12 }}
+                      className="text-muted-foreground"
+                    />
+                    <YAxis
+                      type="category"
+                      dataKey="status"
+                      tick={{ fontSize: 12 }}
+                      className="text-muted-foreground"
+                      width={65}
+                    />
+                    <Tooltip
+                      contentStyle={{
+                        backgroundColor: "hsl(var(--card))",
+                        border: "1px solid hsl(var(--border))",
+                        borderRadius: "8px",
+                      }}
+                      formatter={(value) => [value, "Invoices"]}
+                    />
+                    <Bar dataKey="count" radius={[0, 4, 4, 0]} />
+                  </BarChart>
+                </ResponsiveChartContainer>
               </DeferredChartSection>
             </ChartCard>
           </div>
@@ -1103,7 +1106,7 @@ export default function AdminAnalyticsContent({
             }));
             return (
               <div className="space-y-4">
-                <h2 className="text-lg sm:text-xl font-medium text-gray-700 dark:text-white flex items-center gap-2">
+                <h2 className="text-sm sm:text-lg font-medium text-gray-700 dark:text-white flex items-center gap-2">
                   <Warehouse className="h-5 w-5 text-amber-500" />
                   Warehouse Analytics
                 </h2>
@@ -1159,46 +1162,46 @@ export default function AdminAnalyticsContent({
                         stats.warehouseAnalytics.typeDistribution.length > 0
                       }
                     >
-                    <ResponsiveChartContainer>
-                      <BarChart
-                        data={stats.warehouseAnalytics.typeDistribution.map(
-                          (t, i) => ({
-                            type: t.type,
-                            count: t.count,
-                            fill: `hsl(${(i * 60 + 35) % 360}, 70%, 50%)`,
-                          }),
-                        )}
-                        layout="vertical"
-                        margin={{ top: 8, right: 8, left: 90, bottom: 8 }}
-                      >
-                        <CartesianGrid
-                          strokeDasharray="3 3"
-                          className="stroke-muted"
-                          horizontal={false}
-                        />
-                        <XAxis
-                          type="number"
-                          tick={{ fontSize: 12 }}
-                          className="text-muted-foreground"
-                        />
-                        <YAxis
-                          type="category"
-                          dataKey="type"
-                          tick={{ fontSize: 12 }}
-                          className="text-muted-foreground"
-                          width={85}
-                        />
-                        <Tooltip
-                          contentStyle={{
-                            backgroundColor: "hsl(var(--card))",
-                            border: "1px solid hsl(var(--border))",
-                            borderRadius: "8px",
-                          }}
-                          formatter={(value) => [value, "Warehouses"]}
-                        />
-                        <Bar dataKey="count" radius={[0, 4, 4, 0]} />
-                      </BarChart>
-                    </ResponsiveChartContainer>
+                      <ResponsiveChartContainer>
+                        <BarChart
+                          data={stats.warehouseAnalytics.typeDistribution.map(
+                            (t, i) => ({
+                              type: t.type,
+                              count: t.count,
+                              fill: `hsl(${(i * 60 + 35) % 360}, 70%, 50%)`,
+                            }),
+                          )}
+                          layout="vertical"
+                          margin={{ top: 8, right: 8, left: 90, bottom: 8 }}
+                        >
+                          <CartesianGrid
+                            strokeDasharray="3 3"
+                            className="stroke-muted"
+                            horizontal={false}
+                          />
+                          <XAxis
+                            type="number"
+                            tick={{ fontSize: 12 }}
+                            className="text-muted-foreground"
+                          />
+                          <YAxis
+                            type="category"
+                            dataKey="type"
+                            tick={{ fontSize: 12 }}
+                            className="text-muted-foreground"
+                            width={85}
+                          />
+                          <Tooltip
+                            contentStyle={{
+                              backgroundColor: "hsl(var(--card))",
+                              border: "1px solid hsl(var(--border))",
+                              borderRadius: "8px",
+                            }}
+                            formatter={(value) => [value, "Warehouses"]}
+                          />
+                          <Bar dataKey="count" radius={[0, 4, 4, 0]} />
+                        </BarChart>
+                      </ResponsiveChartContainer>
                     </DeferredChartSection>
                   </ChartCard>
                 )}

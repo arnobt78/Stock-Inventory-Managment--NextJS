@@ -34,4 +34,7 @@
 | 2026-07-10 | SafeImage rollout — all UI images + SafeAvatarImage | REQ-0038 |
 | 2026-07-10 | Navbar/Sidebar SafeAvatarImage + shared avatar resolver | REQ-0039 |
 | 2026-07-10 | Avatar URL DRY — resolveAvatarSourcesFromSeed for reviews/tickets | REQ-0040 |
+| 2026-07-10 | Catalog filter icons, dismissible chips, export chevron | REQ-0041 |
+| 2026-07-10 | Catalog select inline layout; orders/invoices export chevron | REQ-0042 |
+| 2026-07-10 | Unified filter chip row + reset on all list filters | REQ-0043 |
 | _pending_ | Human Gate 2 Sentry 24h sign-off | REQ-0009 |

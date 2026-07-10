@@ -15,7 +15,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { LuGitPullRequestDraft } from "react-icons/lu";
+import { Truck } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Separator } from "@/components/ui/separator";
 import { useSuppliers } from "@/hooks/queries";
@@ -57,7 +57,7 @@ export function SuppliersDropDown({
             variant={"secondary"}
             className="h-10 w-full sm:w-auto rounded-[28px] border border-emerald-400/30 dark:border-emerald-400/30 bg-gradient-to-r from-emerald-500/25 via-emerald-500/15 to-emerald-500/10 dark:from-emerald-500/25 dark:via-emerald-500/15 dark:to-emerald-500/10 text-gray-700 dark:text-white shadow-[0_10px_30px_rgba(16,185,129,0.2)] backdrop-blur-md transition duration-200 hover:border-emerald-300/40 hover:from-emerald-500/35 hover:via-emerald-500/25 hover:to-emerald-500/15 dark:hover:border-emerald-300/40 dark:hover:from-emerald-500/35 dark:hover:via-emerald-500/25 dark:hover:to-emerald-500/15"
           >
-            <LuGitPullRequestDraft />
+            <Truck className="h-4 w-4 mr-1" aria-hidden />
             Suppliers
           </Button>
         </PopoverTrigger>

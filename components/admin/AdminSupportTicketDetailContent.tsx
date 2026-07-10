@@ -228,7 +228,7 @@ export default function AdminSupportTicketDetailContent({
             </Link>
           </Button>
           <div>
-            <h1 className="text-lg sm:text-xl font-medium text-foreground">
+            <h1 className="text-sm sm:text-lg font-medium text-foreground">
               Support Ticket Details
             </h1>
             <p className="text-sm text-muted-foreground">
@@ -335,10 +335,7 @@ export default function AdminSupportTicketDetailContent({
                           className="h-6 w-20 rounded-full"
                         />
                       ) : (
-                        <TicketStatusBadge
-                          status={t!.status}
-                          size="detail"
-                        />
+                        <TicketStatusBadge status={t!.status} size="detail" />
                       )}
                       {!dataLoading && (
                         <DeferredSelectGate

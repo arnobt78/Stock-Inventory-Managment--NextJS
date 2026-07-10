@@ -43,7 +43,8 @@ export default function ClientProductList({
   initialBrowseProducts,
   initialOwnerId = "",
 }: ClientProductListProps = {}) {
-  const [internalOwnerId, setInternalOwnerId] = useState<string>(initialOwnerId);
+  const [internalOwnerId, setInternalOwnerId] =
+    useState<string>(initialOwnerId);
   const selectedOwnerId = controlledOwnerId ?? internalOwnerId;
   const setSelectedOwnerId = onOwnerChange ?? setInternalOwnerId;
 
@@ -74,7 +75,7 @@ export default function ClientProductList({
         admins.find((a) => a.email === "test@admin.com") ?? admins[0];
       if (defaultAdmin) setSelectedOwnerId(defaultAdmin.id);
     }
-  }, [admins, selectedOwnerId]);
+  }, [admins, selectedOwnerId, setSelectedOwnerId]);
 
   const [searchTerm, setSearchTerm] = useState("");
   const [pagination, setPagination] = useState<PaginationType>({
@@ -152,7 +153,7 @@ export default function ClientProductList({
 
       {/* Product Inventory Section — client-facing copy */}
       <div className="pb-6 flex flex-col items-start text-left">
-        <h2 className="text-lg sm:text-xl font-medium text-gray-700 dark:text-white ">
+        <h2 className="text-sm sm:text-lg font-medium text-gray-700 dark:text-white ">
           Browse & Purchase Products
         </h2>
         <p className="text-base text-gray-600 dark:text-gray-400">

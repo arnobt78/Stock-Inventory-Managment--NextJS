@@ -73,7 +73,7 @@ export default function SupportTicketsPageContent({
         <div className="flex flex-col poppins">
           <div className="pb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
             <div>
-              <h1 className="text-lg sm:text-xl font-medium text-gray-700 dark:text-white flex items-center gap-2">
+              <h1 className="text-sm sm:text-lg font-medium text-gray-700 dark:text-white flex items-center gap-2">
                 <div
                   className={cn(
                     "p-2 rounded-xl border",

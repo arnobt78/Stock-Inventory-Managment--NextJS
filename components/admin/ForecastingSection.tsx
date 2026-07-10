@@ -155,7 +155,7 @@ export default function ForecastingSection({
           <CardContent>
             <div className="flex items-center gap-2">
               <Package className="h-5 w-5 text-blue-500" />
-              <span className="text-lg sm:text-xl font-medium">
+              <span className="text-sm sm:text-lg font-medium">
                 <MetricValue loading={dataLoading}>
                   {summary?.totalProducts ?? 0}
                 </MetricValue>
@@ -173,7 +173,7 @@ export default function ForecastingSection({
           <CardContent>
             <div className="flex items-center gap-2">
               <AlertTriangle className="h-5 w-5 text-red-500" />
-              <span className="text-lg sm:text-xl font-medium">
+              <span className="text-sm sm:text-lg font-medium">
                 <MetricValue loading={dataLoading}>
                   {summary?.productsAtRisk ?? 0}
                 </MetricValue>
@@ -191,7 +191,7 @@ export default function ForecastingSection({
           <CardContent>
             <div className="flex items-center gap-2">
               <TrendingDown className="h-5 w-5 text-orange-500" />
-              <span className="text-lg sm:text-xl font-medium">
+              <span className="text-sm sm:text-lg font-medium">
                 <MetricValue loading={dataLoading}>
                   {summary?.productsOverstocked ?? 0}
                 </MetricValue>
@@ -209,7 +209,7 @@ export default function ForecastingSection({
           <CardContent>
             <div className="flex items-center gap-2">
               <AlertCircle className="h-5 w-5 text-purple-500" />
-              <span className="text-lg sm:text-xl font-medium">
+              <span className="text-sm sm:text-lg font-medium">
                 <MetricValue loading={dataLoading}>
                   {summary?.anomaliesDetected ?? 0}
                 </MetricValue>

@@ -4,34 +4,20 @@ import React, { useMemo, useCallback } from "react";
 import { Supplier } from "@/types";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Badge } from "@/components/ui/badge";
-import { Separator } from "@/components/ui/separator";
 import { useToast } from "@/hooks/use-toast";
 import Papa from "papaparse";
-import { FiFileText, FiGrid } from "react-icons/fi";
 import { IoClose } from "react-icons/io5";
-import { Search, Download, ChevronDown } from "lucide-react";
+import { Search } from "lucide-react";
 import ExcelJS from "exceljs";
-import { DeferredSelectGate } from "@/components/shared";
+import {
+  ActiveInactiveFilterChips,
+  CatalogActiveInactiveSelect,
+  ExportMenuButton,
+} from "@/components/shared";
 import { PaginationType } from "@/components/shared/PaginationSelector";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+import type { CatalogStatusFilter } from "@/lib/ui/catalog-filter-tokens";
 
-/**
- * Status filter type
- */
-type StatusFilter = "all" | "active" | "inactive";
+type StatusFilter = CatalogStatusFilter;
 
 /**
  * Props for SupplierFilters component
@@ -255,152 +241,35 @@ export default function SupplierFilters({
           )}
         </div>
 
-        {/* Filters - Middle (Status Filter) */}
         <div className="flex items-center gap-2 flex-wrap sm:flex-nowrap">
-          <DeferredSelectGate
-            placeholder={
-              <div
-                className="h-10 w-full sm:w-[180px] rounded-[28px] border border-emerald-400/30 bg-gradient-to-r from-emerald-500/25 via-emerald-500/15 to-emerald-500/10 text-gray-700 dark:text-white shadow-[0_10px_30px_rgba(16,185,129,0.2)] font-normal flex items-center justify-between px-2 py-2 text-sm"
-                aria-hidden
-              >
-                <span>
-                  {statusFilter === "all"
-                    ? "All Suppliers"
-                    : statusFilter === "active"
-                      ? "Active"
-                      : "Inactive"}
-                </span>
-                <ChevronDown className="h-4 w-4 opacity-70" />
-              </div>
-            }
-          >
-            {({ selectRemountKey }) => (
-              <Select
-                key={selectRemountKey}
-                value={statusFilter}
-                onValueChange={(value) =>
-                  setStatusFilter(value as StatusFilter)
-                }
-              >
-                <SelectTrigger className="h-10 w-full sm:w-[180px] rounded-[28px] border border-emerald-400/30 dark:border-emerald-400/30 bg-gradient-to-r from-emerald-500/25 via-emerald-500/15 to-emerald-500/10 dark:from-emerald-500/25 dark:via-emerald-500/15 dark:to-emerald-500/10 text-gray-700 dark:text-white shadow-[0_10px_30px_rgba(16,185,129,0.2)] backdrop-blur-md transition duration-200 hover:border-emerald-300/40 hover:from-emerald-500/35 hover:via-emerald-500/25 hover:to-emerald-500/15 dark:hover:border-emerald-300/40 dark:hover:from-emerald-500/35 dark:hover:via-emerald-500/25 dark:hover:to-emerald-500/15 font-normal">
-                  <SelectValue placeholder="All Suppliers" />
-                </SelectTrigger>
-                <SelectContent className="rounded-[28px] border border-emerald-400/20 dark:border-white/10 bg-white/80 dark:bg-popover/50 backdrop-blur-md shadow-[0_10px_30px_rgba(16,185,129,0.15)]">
-                  <SelectItem
-                    value="all"
-                    className="text-gray-700 dark:text-white/80 focus:bg-emerald-100 dark:focus:bg-white/10 focus:text-gray-700 dark:focus:text-white"
-                  >
-                    All Suppliers
-                  </SelectItem>
-                  <SelectItem
-                    value="active"
-                    className="text-gray-700 dark:text-white/80 focus:bg-emerald-100 dark:focus:bg-white/10 focus:text-gray-700 dark:focus:text-white"
-                  >
-                    Active
-                  </SelectItem>
-                  <SelectItem
-                    value="inactive"
-                    className="text-gray-700 dark:text-white/80 focus:bg-emerald-100 dark:focus:bg-white/10 focus:text-gray-700 dark:focus:text-white"
-                  >
-                    Inactive
-                  </SelectItem>
-                </SelectContent>
-              </Select>
-            )}
-          </DeferredSelectGate>
+          <CatalogActiveInactiveSelect
+            entity="supplier"
+            value={statusFilter}
+            onValueChange={setStatusFilter}
+          />
         </div>
 
-        {/* Export Dropdown - Right */}
         <div className="flex-shrink-0">
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button
-                variant="outline"
-                className="h-10 w-full sm:w-auto flex items-center gap-2 rounded-[28px] border border-violet-400/30 dark:border-violet-400/30 bg-gradient-to-r from-violet-500/25 via-violet-500/15 to-violet-500/10 dark:from-violet-500/25 dark:via-violet-500/15 dark:to-violet-500/10 text-gray-700 dark:text-white shadow-[0_10px_30px_rgba(139,92,246,0.2)] backdrop-blur-md transition duration-200 hover:border-violet-300/40 hover:from-violet-500/35 hover:via-violet-500/25 hover:to-violet-500/15 dark:hover:border-violet-300/40 dark:hover:from-violet-500/35 dark:hover:via-violet-500/25 dark:hover:to-violet-500/15"
-              >
-                <Download className="h-4 w-4" />
-                Export Suppliers
-                <ChevronDown className="h-4 w-4" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent
-              align="end"
-              className="rounded-[28px] border border-violet-400/20 dark:border-white/10 bg-white/80 dark:bg-popover/50 backdrop-blur-md"
-            >
-              <DropdownMenuItem
-                onClick={exportToCSV}
-                className="cursor-pointer text-gray-700 dark:text-white/80 hover:text-gray-700 dark:hover:text-white focus:bg-violet-100 dark:focus:bg-white/10 focus:text-gray-700 dark:focus:text-white"
-              >
-                <FiFileText className="mr-2 h-4 w-4" />
-                Export as CSV
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                onClick={exportToExcel}
-                className="cursor-pointer text-gray-700 dark:text-white/80 hover:text-gray-700 dark:hover:text-white focus:bg-violet-100 dark:focus:bg-white/10 focus:text-gray-700 dark:focus:text-white"
-              >
-                <FiGrid className="mr-2 h-4 w-4" />
-                Export as Excel
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+          <ExportMenuButton
+            label="Export Suppliers"
+            accent="violet"
+            onExportCsv={exportToCSV}
+            onExportExcel={exportToExcel}
+          />
         </div>
       </div>
 
-      {/* Filter Area - Active Filters Display */}
-      <FilterArea
+      <ActiveInactiveFilterChips
         statusFilter={statusFilter}
-        setStatusFilter={setStatusFilter}
+        onClear={() => {
+          setStatusFilter("all");
+          setPagination((prev) => ({ ...prev, pageIndex: 0 }));
+        }}
+        onReset={() => {
+          setStatusFilter("all");
+          setPagination((prev) => ({ ...prev, pageIndex: 0 }));
+        }}
       />
-    </div>
-  );
-}
-
-/**
- * FilterArea Component
- * Displays active filters with reset functionality
- */
-function FilterArea({
-  statusFilter,
-  setStatusFilter,
-}: {
-  statusFilter: StatusFilter;
-  setStatusFilter: (filter: StatusFilter) => void;
-}) {
-  const hasActiveFilter = statusFilter !== "all";
-
-  return (
-    <div className="flex flex-col sm:flex-row gap-2 poppins">
-      {/* Status Filter */}
-      {hasActiveFilter && (
-        <div className="inline-flex items-center gap-1 px-2 py-1 text-xs border border-emerald-400/30 bg-gradient-to-r from-emerald-500/25 via-emerald-500/10 to-emerald-500/5 text-gray-700 dark:text-white rounded-md backdrop-blur-md shadow-[0_10px_30px_rgba(16,185,129,0.2)]">
-          <span className="text-gray-700 dark:text-white/80">Status:</span>
-          <div className="flex gap-1 items-center">
-            <Badge className="border border-emerald-400/30 bg-gradient-to-r from-emerald-500/25 via-emerald-500/10 to-emerald-500/5 text-white backdrop-blur-md">
-              {statusFilter === "active" ? "Active" : "Inactive"}
-            </Badge>
-          </div>
-          <button
-            onClick={() => setStatusFilter("all")}
-            className="ml-1 hover:text-gray-700 dark:hover:text-white/80 transition-colors"
-          >
-            <IoClose className="h-3 w-3 text-gray-700 dark:text-white" />
-          </button>
-        </div>
-      )}
-
-      {/* Reset Filters Button */}
-      {hasActiveFilter && (
-        <Button
-          onClick={() => {
-            setStatusFilter("all");
-          }}
-          variant={"ghost"}
-          className="p-1 px-2 text-gray-700 dark:text-white/80 hover:text-gray-700 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-white/10 backdrop-blur-md"
-        >
-          <span>Reset</span>
-          <IoClose className="h-3 w-3 text-gray-700 dark:text-white" />
-        </Button>
-      )}
     </div>
   );
 }

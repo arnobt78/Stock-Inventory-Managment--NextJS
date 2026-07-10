@@ -2,28 +2,23 @@
 
 import React, { useMemo, useCallback } from "react";
 import { Product, Category, Supplier } from "@/types";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Separator } from "@/components/ui/separator";
 import { useToast } from "@/hooks/use-toast";
 import Papa from "papaparse";
-import { FiFileText, FiGrid } from "react-icons/fi";
 import { IoClose } from "react-icons/io5";
-import { Search, Download, ChevronDown, Users } from "lucide-react";
+import { Search, Users } from "lucide-react";
 import ExcelJS from "exceljs";
 import { CategoryDropDown } from "@/components/category/CategoryFilter";
 import { StatusDropDown } from "./ProductStatusFilter";
 import { SuppliersDropDown } from "@/components/supplier/SupplierFilter";
 import { PaginationType } from "@/components/shared/PaginationSelector";
+import { DismissibleFilterChips, ExportMenuButton } from "@/components/shared";
+import type { FilterChipGroup } from "@/components/shared";
 import { ProductImportDialog } from "./ProductImportDialog";
 import { ProductOwnerSelect } from "./ProductOwnerSelect";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+import { ProductStockStatusBadge } from "@/lib/ui/semantic-badges";
+import { FILTER_CHIP_COLLAPSED_CLASS } from "@/lib/ui/filter-chip-styles";
 
 type FiltersAndActionsProps = {
   allProducts: Product[];
@@ -245,7 +240,57 @@ export default function FiltersAndActions({
     }
   }, [filteredProducts, toast]);
 
-  // Use memoized filteredProducts instead of calling getFilteredProducts()
+  const handleResetFilters = useCallback(() => {
+    setSelectedStatuses([]);
+    setSelectedCategory([]);
+    setSelectedSuppliers([]);
+    setPagination((prev) => ({ ...prev, pageIndex: 0 }));
+  }, [setSelectedStatuses, setSelectedCategory, setSelectedSuppliers, setPagination]);
+
+  const filterChipGroups = useMemo((): FilterChipGroup[] => {
+    const categoryNameById = new Map(allCategories.map((c) => [c.id, c.name]));
+    const supplierNameById = new Map(allSuppliers.map((s) => [s.id, s.name]));
+
+    return [
+      {
+        label: "Status",
+        values: selectedStatuses,
+        onClear: () => setSelectedStatuses([]),
+        renderBadge: (value) => (
+          <ProductStockStatusBadge status={value} size="compact" />
+        ),
+      },
+      {
+        label: "Category",
+        values: selectedCategory,
+        onClear: () => setSelectedCategory([]),
+        renderBadge: (value) => (
+          <span className={FILTER_CHIP_COLLAPSED_CLASS}>
+            {categoryNameById.get(value) ?? value}
+          </span>
+        ),
+      },
+      {
+        label: "Supplier",
+        values: selectedSuppliers,
+        onClear: () => setSelectedSuppliers([]),
+        renderBadge: (value) => (
+          <span className={FILTER_CHIP_COLLAPSED_CLASS}>
+            {supplierNameById.get(value) ?? value}
+          </span>
+        ),
+      },
+    ];
+  }, [
+    allCategories,
+    allSuppliers,
+    selectedStatuses,
+    selectedCategory,
+    selectedSuppliers,
+    setSelectedStatuses,
+    setSelectedCategory,
+    setSelectedSuppliers,
+  ]);
 
   const exportButtonClass =
     "h-10 w-full sm:w-auto flex items-center gap-2 rounded-[28px] border border-violet-400/30 dark:border-violet-400/30 bg-gradient-to-r from-violet-500/25 via-violet-500/15 to-violet-500/10 dark:from-violet-500/25 dark:via-violet-500/15 dark:to-violet-500/10 text-gray-700 dark:text-white shadow-[0_10px_30px_rgba(139,92,246,0.2)] backdrop-blur-md transition duration-200 hover:border-violet-300/40 hover:from-violet-500/35 hover:via-violet-500/25 hover:to-violet-500/15 dark:hover:border-violet-300/40 dark:hover:from-violet-500/35 dark:hover:via-violet-500/25 dark:hover:to-violet-500/15";
@@ -314,190 +359,20 @@ export default function FiltersAndActions({
             setSelectedStatuses={setSelectedStatuses}
           />
           {!hideImport && <ProductImportDialog />}
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button
-                variant="outline"
-                className={exportButtonClass + " w-full sm:w-auto"}
-              >
-                <Download className="h-4 w-4" />
-                Export Products
-                <ChevronDown className="h-4 w-4" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent
-              align="end"
-              className="rounded-[28px] border border-violet-400/20 dark:border-white/10 bg-white/80 dark:bg-popover/50 backdrop-blur-md"
-            >
-              <DropdownMenuItem
-                onClick={exportToCSV}
-                className="cursor-pointer text-gray-700 dark:text-white/80 hover:text-gray-700 dark:hover:text-white focus:bg-violet-100 dark:focus:bg-white/10 focus:text-gray-700 dark:focus:text-white"
-              >
-                <FiFileText className="mr-2 h-4 w-4" />
-                Export as CSV
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                onClick={exportToExcel}
-                className="cursor-pointer text-gray-700 dark:text-white/80 hover:text-gray-700 dark:hover:text-white focus:bg-violet-100 dark:focus:bg-white/10 focus:text-gray-700 dark:focus:text-white"
-              >
-                <FiGrid className="mr-2 h-4 w-4" />
-                Export as Excel
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+          <ExportMenuButton
+            label="Export Products"
+            accent="violet"
+            onExportCsv={exportToCSV}
+            onExportExcel={exportToExcel}
+            className="w-full sm:w-auto"
+          />
         </div>
       </div>
 
-      {/* Filter Area - Active Filters Display */}
-      <FilterArea
-        selectedStatuses={selectedStatuses}
-        setSelectedStatuses={setSelectedStatuses}
-        selectedCategories={selectedCategory}
-        setSelectedCategories={setSelectedCategory}
-        selectedSuppliers={selectedSuppliers}
-        setSelectedSuppliers={setSelectedSuppliers}
-        allCategories={allCategories}
-        allSuppliers={allSuppliers}
+      <DismissibleFilterChips
+        groups={filterChipGroups}
+        onReset={handleResetFilters}
       />
-    </div>
-  );
-}
-
-// Add the FilterArea component here
-function FilterArea({
-  selectedStatuses,
-  setSelectedStatuses,
-  selectedCategories,
-  setSelectedCategories,
-  selectedSuppliers,
-  setSelectedSuppliers,
-  allCategories,
-  allSuppliers,
-}: {
-  selectedStatuses: string[];
-  setSelectedStatuses: React.Dispatch<React.SetStateAction<string[]>>;
-  selectedCategories: string[];
-  setSelectedCategories: React.Dispatch<React.SetStateAction<string[]>>;
-  selectedSuppliers: string[];
-  setSelectedSuppliers: React.Dispatch<React.SetStateAction<string[]>>;
-  allCategories: Category[];
-  allSuppliers: Supplier[];
-}) {
-  return (
-    <div className="flex flex-col sm:flex-row gap-2 poppins">
-      {/* Status Filter */}
-      {selectedStatuses.length > 0 && (
-        <div className="inline-flex items-center gap-1 px-2 py-1 text-xs border border-rose-400/30 bg-gradient-to-r from-rose-500/25 via-rose-500/10 to-rose-500/5 text-gray-700 dark:text-white sm:text-white rounded-md backdrop-blur-md shadow-[0_10px_30px_rgba(225,29,72,0.2)]">
-          <span className="text-gray-700 dark:text-white/80">Status:</span>
-          <div className="flex gap-1 items-center">
-            {selectedStatuses.length < 3 ? (
-              selectedStatuses.map((status, index) => (
-                <Badge
-                  key={index}
-                  className="border border-rose-400/30 bg-gradient-to-r from-rose-500/25 via-rose-500/10 to-rose-500/5 text-white backdrop-blur-md"
-                >
-                  {status}
-                </Badge>
-              ))
-            ) : (
-              <Badge className="border border-rose-400/30 bg-gradient-to-r from-rose-500/25 via-rose-500/10 to-rose-500/5 text-gray-700 dark:text-white backdrop-blur-md">
-                {selectedStatuses.length} Selected
-              </Badge>
-            )}
-          </div>
-          <button
-            aria-label="Clear status filter"
-            onClick={() => setSelectedStatuses([])}
-            className="ml-1 hover:text-gray-700 dark:hover:text-white/80 transition-colors"
-          >
-            <IoClose className="h-3 w-3 text-gray-700 dark:text-white" />
-          </button>
-        </div>
-      )}
-
-      {/* Category Filter */}
-      {selectedCategories.length > 0 && (
-        <div className="inline-flex items-center gap-1 px-2 py-1 text-xs border border-sky-400/30 bg-gradient-to-r from-sky-500/25 via-sky-500/10 to-sky-500/5 text-gray-700 dark:text-white rounded-md backdrop-blur-md shadow-[0_10px_30px_rgba(2,132,199,0.2)]">
-          <span className="text-gray-700 dark:text-white/80">Category:</span>
-          <div className="flex gap-1 items-center">
-            {selectedCategories.length < 3 ? (
-              selectedCategories.map((categoryId, index) => {
-                const category = allCategories.find((c) => c.id === categoryId);
-                return (
-                  <Badge
-                    key={index}
-                    className="border border-sky-400/30 bg-gradient-to-r from-sky-500/25 via-sky-500/10 to-sky-500/5 text-white backdrop-blur-md"
-                  >
-                    {category?.name || categoryId}
-                  </Badge>
-                );
-              })
-            ) : (
-              <Badge className="border border-sky-400/30 bg-gradient-to-r from-sky-500/25 via-sky-500/10 to-sky-500/5 text-gray-700 dark:text-white backdrop-blur-md">
-                {selectedCategories.length} Selected
-              </Badge>
-            )}
-          </div>
-          <button
-            aria-label="Clear category filter"
-            onClick={() => setSelectedCategories([])}
-            className="ml-1 hover:text-gray-700 dark:hover:text-white/80 transition-colors"
-          >
-            <IoClose className="h-3 w-3 text-gray-700 dark:text-white" />
-          </button>
-        </div>
-      )}
-
-      {/* Supplier Filter */}
-      {selectedSuppliers.length > 0 && (
-        <div className="inline-flex items-center gap-1 px-2 py-1 text-xs border border-emerald-400/30 bg-gradient-to-r from-emerald-500/25 via-emerald-500/10 to-emerald-500/5 text-gray-700 dark:text-white rounded-md backdrop-blur-md shadow-[0_10px_30px_rgba(16,185,129,0.2)]">
-          <span className="text-gray-700 dark:text-white/80">Supplier:</span>
-          <div className="flex gap-1 items-center">
-            {selectedSuppliers.length < 3 ? (
-              selectedSuppliers.map((supplierId, index) => {
-                const supplier = allSuppliers.find((s) => s.id === supplierId);
-                return (
-                  <Badge
-                    key={index}
-                    className="border border-emerald-400/30 bg-gradient-to-r from-emerald-500/25 via-emerald-500/10 to-emerald-500/5 text-white backdrop-blur-md"
-                  >
-                    {supplier?.name || supplierId}
-                  </Badge>
-                );
-              })
-            ) : (
-              <Badge className="border border-emerald-400/30 bg-gradient-to-r from-emerald-500/25 via-emerald-500/10 to-emerald-500/5 text-white backdrop-blur-md">
-                {selectedSuppliers.length} Selected
-              </Badge>
-            )}
-          </div>
-          <button
-            aria-label="Clear supplier filter"
-            onClick={() => setSelectedSuppliers([])}
-            className="ml-1 hover:text-gray-700 dark:hover:text-white/80 transition-colors"
-          >
-            <IoClose className="h-3 w-3 text-gray-700 dark:text-white" />
-          </button>
-        </div>
-      )}
-
-      {/* Reset Filters Button */}
-      {(selectedStatuses.length > 0 ||
-        selectedCategories.length > 0 ||
-        selectedSuppliers.length > 0) && (
-        <Button
-          onClick={() => {
-            setSelectedStatuses([]);
-            setSelectedCategories([]);
-            setSelectedSuppliers([]);
-          }}
-          variant={"ghost"}
-          className="p-1 px-2 text-gray-700 dark:text-white/80 hover:text-gray-700 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-white/10 backdrop-blur-md"
-        >
-          <span>Reset</span>
-          <IoClose className="h-3 w-3 text-gray-700 dark:text-white" />
-        </Button>
-      )}
     </div>
   );
 }

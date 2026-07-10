@@ -794,6 +794,80 @@ Canonical REQ source. All artifacts link via `REQ-XXXX`. Status: `done` | `verif
 
 ---
 
+## REQ-0041 — Catalog filter icons, chips, export chevron
+
+| Field | Value |
+|-------|-------|
+| **Priority** | P2 |
+| **Risk** | R1 |
+| **Status** | done |
+| **Cycle** | C2 |
+| **Parent** | REQ-0028 |
+
+**Intent:** Entity icons + ActiveInactiveBadge in catalog status selects; borderless dismissible filter chips; shared export menu with rotating muted chevron.
+
+**Acceptance criteria**
+
+- AC1: Category/Supplier/Warehouse status select shows entity icon + glass badges in items
+- AC2: Filter chip row borderless; ActiveInactiveBadge chip with X inside; Reset with RotateCcw
+- AC3: Export Categories/Suppliers/Warehouses/Products use ExportMenuButton rotating chevron
+- AC4: Shared components + catalog-filter-tokens; DeferredSelectGate preserved
+- AC5: Product CategoryFilter/SupplierFilter use FolderTree/Truck icons
+- AC6: No TanStack/CRUD changes; Red Team pass
+
+**Artifacts:** `lib/ui/catalog-filter-tokens.ts`, `CatalogActiveInactiveSelect.tsx`, `ActiveInactiveFilterChips.tsx`, `ExportMenuButton.tsx`, `*Filters.tsx`, `CategoryFilter.tsx`, `SupplierFilter.tsx`
+
+---
+
+## REQ-0042 — Catalog select inline layout + orders/invoices export chevron
+
+| Field | Value |
+|-------|-------|
+| **Priority** | P2 |
+| **Risk** | R1 |
+| **Status** | done |
+| **Cycle** | C2 |
+| **Parent** | REQ-0041 |
+
+**Intent:** Fix REQ-0041 gaps: catalog status select icon+text inline (SelectTrigger line-clamp on span); wire ExportMenuButton to orders/invoices with muted rotating chevron.
+
+**Acceptance criteria**
+
+- AC1: Catalog status trigger shows icon + label inline (same row)
+- AC2: Placeholder skeleton matches inline layout
+- AC3: `ExportMenuButton` supports optional `disabled` prop
+- AC4: OrderFilters + InvoiceFilters use `ExportMenuButton` (violet accent, rotating muted chevron)
+- AC5: No TanStack/CRUD/hydration changes; Red Team pass
+
+**Artifacts:** `CatalogActiveInactiveSelect.tsx`, `ExportMenuButton.tsx`, `OrderFilters.tsx`, `InvoiceFilters.tsx`
+
+---
+
+## REQ-0043 — Unified filter chip row + reset (all list filters)
+
+| Field | Value |
+|-------|-------|
+| **Priority** | P2 |
+| **Risk** | R1 |
+| **Status** | done |
+| **Cycle** | C2 |
+| **Parent** | REQ-0041 |
+
+**Intent:** Extend REQ-0041 borderless chip row to products, orders, invoices, reviews, tickets, history, user-mgmt; shared `DismissibleFilterChips`; rose hover on X, sky hover on Reset.
+
+**Acceptance criteria**
+
+- AC1: Shared `DismissibleFilterChips` — borderless row, per-group dismiss, global Reset (RotateCcw)
+- AC2: X hover rose; Reset hover sky (catalog + all surfaces)
+- AC3: Products replace legacy `FilterArea` with semantic badges
+- AC4–AC8: Orders, invoices, reviews, tickets, history, user-mgmt chip rows
+- AC9: Reset clears dropdown filters + pageIndex 0 where applicable
+- AC10: No TanStack/CRUD/SSR changes; Red Team pass
+
+**Artifacts:** `filter-chip-styles.ts`, `DismissibleFilterChips.tsx`, `*Filters.tsx`, `ActiveInactiveFilterChips.tsx`
+
+---
+
 ## REQ-0020 — Locale-aware admin formatting
 
 | Field | Value |

@@ -127,6 +127,7 @@ export default function UserManagementList({
             setSearchTerm={setSearchTerm}
             selectedRoles={selectedRoles}
             setSelectedRoles={setSelectedRoles}
+            setPagination={setPagination}
           />
         </div>
         {isMounted && (

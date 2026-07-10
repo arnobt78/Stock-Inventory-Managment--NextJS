@@ -234,7 +234,9 @@ export default function Navbar({ children }: NavbarProps) {
         Skip to main content
       </a>
       {/* min-w-0 on flex children instead of overflow-x-hidden — hidden overflow-y would clip notification portal ancestors */}
-      <div className={`${APP_SHELL_WIDTH_CLASS} flex h-full items-center justify-between gap-2 px-2 sm:px-4 lg:px-6`}>
+      <div
+        className={`${APP_SHELL_WIDTH_CLASS} flex h-full items-center justify-between gap-2 px-2 sm:px-4 lg:px-6`}
+      >
         {/* Left Section - Logo and Brand */}
         <div className="flex items-center gap-2">
           <div
@@ -250,7 +252,7 @@ export default function Navbar({ children }: NavbarProps) {
               }
             }}
           >
-            <AiFillProduct className="text-lg sm:text-xl text-rose-600 dark:text-rose-400 transition-transform group-hover:scale-110 drop-shadow-[0_2px_8px_rgba(225,29,72,0.4)]" />
+            <AiFillProduct className="text-sm sm:text-lg text-rose-600 dark:text-rose-400 transition-transform group-hover:scale-110 drop-shadow-[0_2px_8px_rgba(225,29,72,0.4)]" />
           </div>
           <h1 className="text-lg font-medium tracking-tight bg-gradient-to-r from-rose-600 to-gray-900 dark:from-rose-400 dark:to-gray-100 bg-clip-text text-transparent lg:text-xl transition-all duration-300 ease-in-out hover:from-rose-700 hover:to-gray-950 dark:hover:from-rose-300 dark:hover:to-gray-50 cursor-pointer">
             Stockly
@@ -453,7 +455,9 @@ export default function Navbar({ children }: NavbarProps) {
           aria-label="Mobile navigation"
           className="xl:hidden border-t border-white/10 dark:border-white/10 bg-gradient-to-br from-white/95 via-white/90 to-white/85 dark:from-white/10 dark:via-white/10 dark:to-white/5 backdrop-blur-xl max-h-[calc(100vh-3.5rem)] overflow-y-auto"
         >
-          <div className={`${APP_SHELL_WIDTH_CLASS} px-2 sm:px-4 lg:px-6 sm:py-6 space-y-2`}>
+          <div
+            className={`${APP_SHELL_WIDTH_CLASS} px-2 sm:px-4 lg:px-6 sm:py-6 space-y-2`}
+          >
             {/* User Email with Avatar */}
             <div className="flex items-center gap-2 px-2 py-2">
               {isCheckingAuth ? (

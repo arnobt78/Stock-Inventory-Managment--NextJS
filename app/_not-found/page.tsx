@@ -9,7 +9,7 @@ export const fetchCache = "only-no-store"; // Prevent caching
 export default function NotFoundPage() {
   return (
     <div className="flex flex-col items-center justify-center h-screen">
-      <h1 className="text-lg sm:text-xl font-medium text-gray-700 dark:text-white">
+      <h1 className="text-sm sm:text-lg font-medium text-gray-700 dark:text-white">
         404 - Page Not Found
       </h1>
       <p className="text-lg mt-4">

@@ -101,6 +101,12 @@
 | ART-0094 | REQ-0039 | `next.config.ts`, `safe-avatar-image.tsx` | googleusercontent wildcard + referrerPolicy |
 | ART-0095 | REQ-0040 | `user-avatar-sources.ts` | resolveAvatarSourcesFromSeed |
 | ART-0096 | REQ-0040 | reviews + ticket reply components | DRY robohash via shared resolver |
+| ART-0097 | REQ-0041 | `catalog-filter-tokens.ts`, shared filter/export components | CatalogActiveInactiveSelect, chips, export |
+| ART-0098 | REQ-0041 | Category/Supplier/Warehouse/Product Filters | wire shared UI |
+| ART-0099 | REQ-0042 | `CatalogActiveInactiveSelect.tsx` | div trigger label; placeholder inline |
+| ART-0100 | REQ-0042 | `ExportMenuButton.tsx`, `OrderFilters.tsx`, `InvoiceFilters.tsx` | disabled prop; orders/invoices export |
+| ART-0101 | REQ-0043 | `filter-chip-styles.ts`, `DismissibleFilterChips.tsx` | shared multi-group chip row |
+| ART-0102 | REQ-0043 | Product/Order/Invoice/Review/Ticket/History/User Filters | chip row + Reset |
 
 ## Tests
 

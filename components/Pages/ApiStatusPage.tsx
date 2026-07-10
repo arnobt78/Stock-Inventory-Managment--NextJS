@@ -451,7 +451,7 @@ export default function ApiStatusPage() {
           {/* Header - Always visible */}
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
             <div className="space-y-2">
-              <h1 className="text-lg sm:text-xl font-medium text-gray-700 dark:text-white">
+              <h1 className="text-sm sm:text-lg font-medium text-gray-700 dark:text-white">
                 API & Project Status
               </h1>
               <p className="text-xs sm:text-sm text-gray-600 dark:text-white/70">
@@ -844,7 +844,7 @@ export default function ApiStatusPage() {
                       <div className="text-sm text-gray-600 dark:text-white/60 mb-1">
                         Total Endpoints
                       </div>
-                      <div className="text-lg sm:text-xl font-medium text-gray-700 dark:text-white">
+                      <div className="text-sm sm:text-lg font-medium text-gray-700 dark:text-white">
                         {systemStatus.performance.totalEndpoints}
                       </div>
                     </div>
@@ -852,7 +852,7 @@ export default function ApiStatusPage() {
                       <div className="text-sm text-gray-600 dark:text-white/60 mb-1">
                         Total Requests
                       </div>
-                      <div className="text-lg sm:text-xl font-medium text-gray-700 dark:text-white">
+                      <div className="text-sm sm:text-lg font-medium text-gray-700 dark:text-white">
                         {systemStatus.performance.totalRequests.toLocaleString()}
                       </div>
                     </div>
@@ -861,7 +861,7 @@ export default function ApiStatusPage() {
                         <FiClock className="h-3 w-3" />
                         Avg Response
                       </div>
-                      <div className="text-lg sm:text-xl font-medium text-gray-700 dark:text-white">
+                      <div className="text-sm sm:text-lg font-medium text-gray-700 dark:text-white">
                         {systemStatus.performance.averageResponseTime}ms
                       </div>
                     </div>
@@ -869,7 +869,7 @@ export default function ApiStatusPage() {
                       <div className="text-sm text-gray-600 dark:text-white/60 mb-1">
                         Error Rate
                       </div>
-                      <div className="text-lg sm:text-xl font-medium text-gray-700 dark:text-white">
+                      <div className="text-sm sm:text-lg font-medium text-gray-700 dark:text-white">
                         {systemStatus.performance.overallErrorRate}%
                       </div>
                     </div>

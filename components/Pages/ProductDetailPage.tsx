@@ -290,7 +290,7 @@ export default function ProductDetailPage({
       <PageWrapper>
         <div className="flex flex-col items-center justify-center min-h-[60vh] gap-2">
           <div className="text-center">
-            <h2 className="text-lg sm:text-xl font-medium text-gray-700 dark:text-white mb-2">
+            <h2 className="text-sm sm:text-lg font-medium text-gray-700 dark:text-white mb-2">
               Product Not Found
             </h2>
             <p className="text-gray-600 dark:text-gray-400 mb-4">
@@ -445,7 +445,7 @@ export default function ProductDetailPage({
                 <p className="text-xs uppercase tracking-[0.2em] text-gray-600 dark:text-white/60 mb-3">
                   Stock
                 </p>
-                <p className="text-lg sm:text-xl font-medium text-gray-700 dark:text-white">
+                <p className="text-sm sm:text-lg font-medium text-gray-700 dark:text-white">
                   {(product?.quantity ?? 0) - (product?.reservedQuantity ?? 0)}
                   <span className="text-sm font-normal text-gray-600 dark:text-white/60 ml-1">
                     available
@@ -465,7 +465,7 @@ export default function ProductDetailPage({
                 <p className="text-xs uppercase tracking-[0.2em] text-gray-600 dark:text-white/60 mb-3">
                   Price
                 </p>
-                <p className="text-lg sm:text-xl font-medium text-gray-700 dark:text-white">
+                <p className="text-sm sm:text-lg font-medium text-gray-700 dark:text-white">
                   ${product?.price.toFixed(2)}
                 </p>
               </div>

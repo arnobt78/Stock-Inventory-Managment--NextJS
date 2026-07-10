@@ -140,6 +140,7 @@ export default function SupportTicketList({
             setSelectedPriorities={setSelectedPriorities}
             viewFilter={viewFilter}
             onViewFilterChange={setViewFilter}
+            setPagination={setPagination}
           />
         </div>
         {isMounted && (

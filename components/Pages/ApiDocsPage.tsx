@@ -1203,7 +1203,7 @@ export default function ApiDocsPage() {
         <div className="space-y-4">
           {/* Header */}
           <div className="text-center space-y-4 pb-4">
-            <h1 className="text-lg sm:text-xl font-medium text-gray-700 dark:text-white">
+            <h1 className="text-sm sm:text-lg font-medium text-gray-700 dark:text-white">
               Stock API Documentation
             </h1>
             <p className="text-xs sm:text-sm text-gray-600 dark:text-white/70 max-w-2xl mx-auto">

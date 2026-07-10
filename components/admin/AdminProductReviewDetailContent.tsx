@@ -177,7 +177,7 @@ export default function AdminProductReviewDetailContent({
             </Link>
           </Button>
           <div>
-            <h1 className="text-lg sm:text-xl font-medium text-foreground">
+            <h1 className="text-sm sm:text-lg font-medium text-foreground">
               Product Review Details
             </h1>
             <p className="text-sm text-muted-foreground">

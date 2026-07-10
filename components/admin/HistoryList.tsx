@@ -68,6 +68,7 @@ export default function HistoryList({
             setSelectedImportTypes={setSelectedImportTypes}
             selectedStatuses={selectedStatuses}
             setSelectedStatuses={setSelectedStatuses}
+            setPagination={setPagination}
           />
         </div>
       </div>

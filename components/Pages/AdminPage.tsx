@@ -41,7 +41,7 @@ export default function AdminPage() {
           <div className="space-y-4">
             <div className="space-y-2">
               <div className="flex items-center gap-2">
-                <h1 className="text-lg sm:text-xl font-medium text-primary">
+                <h1 className="text-sm sm:text-lg font-medium text-primary">
                   Admin
                 </h1>
                 <HelpTooltip

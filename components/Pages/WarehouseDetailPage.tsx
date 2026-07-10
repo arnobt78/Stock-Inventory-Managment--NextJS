@@ -250,7 +250,7 @@ export default function WarehouseDetailPage({
       <PageWrapper>
         <div className="flex flex-col items-center justify-center min-h-[60vh] gap-2">
           <GlassCard variant="rose" className="max-w-md text-center">
-            <h2 className="text-lg sm:text-xl font-medium text-gray-700 dark:text-white mb-2">
+            <h2 className="text-sm sm:text-lg font-medium text-gray-700 dark:text-white mb-2">
               Warehouse Not Found
             </h2>
             <p className="text-gray-600 dark:text-gray-400 mb-4">
@@ -347,7 +347,7 @@ export default function WarehouseDetailPage({
                 >
                   <Boxes className="h-5 w-5 text-sky-600 dark:text-sky-400" />
                 </div>
-                <p className="text-lg sm:text-xl font-medium text-gray-700 dark:text-white">
+                <p className="text-sm sm:text-lg font-medium text-gray-700 dark:text-white">
                   {stockSummary.totalProducts}
                 </p>
                 <p className="text-xs text-gray-600 dark:text-gray-400">
@@ -364,7 +364,7 @@ export default function WarehouseDetailPage({
                 >
                   <Package className="h-5 w-5 text-violet-600 dark:text-violet-400" />
                 </div>
-                <p className="text-lg sm:text-xl font-medium text-gray-700 dark:text-white">
+                <p className="text-sm sm:text-lg font-medium text-gray-700 dark:text-white">
                   {stockSummary.totalQuantity}
                 </p>
                 <p className="text-xs text-gray-600 dark:text-gray-400">
@@ -381,7 +381,7 @@ export default function WarehouseDetailPage({
                 >
                   <CheckCircle2 className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
                 </div>
-                <p className="text-lg sm:text-xl font-medium text-emerald-600 dark:text-emerald-400">
+                <p className="text-sm sm:text-lg font-medium text-emerald-600 dark:text-emerald-400">
                   {stockSummary.availableQuantity}
                 </p>
                 <p className="text-xs text-gray-600 dark:text-gray-400">
@@ -398,7 +398,7 @@ export default function WarehouseDetailPage({
                 >
                   <Clock className="h-5 w-5 text-amber-600 dark:text-amber-400" />
                 </div>
-                <p className="text-lg sm:text-xl font-medium text-amber-600 dark:text-amber-400">
+                <p className="text-sm sm:text-lg font-medium text-amber-600 dark:text-amber-400">
                   {stockSummary.reservedQuantity}
                 </p>
                 <p className="text-xs text-gray-600 dark:text-gray-400">

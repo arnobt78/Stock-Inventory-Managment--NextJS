@@ -252,7 +252,7 @@ export default function AdminMyActivityContent({
     <PageContentWrapper>
       <div className="space-y-4">
         <div className="flex flex-col items-start text-left ">
-          <h1 className="text-lg sm:text-xl font-medium text-gray-700 dark:text-white ">
+          <h1 className="text-sm sm:text-lg font-medium text-gray-700 dark:text-white ">
             My Activity (self-only as user)
           </h1>
           <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">

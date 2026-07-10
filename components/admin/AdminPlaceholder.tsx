@@ -27,7 +27,7 @@ export default function AdminPlaceholder({
     <PageContentWrapper>
       <div className="space-y-4">
         <div className="space-y-2">
-          <h1 className="text-lg sm:text-xl font-medium text-primary">
+          <h1 className="text-sm sm:text-lg font-medium text-primary">
             {title}
           </h1>
           <p className="text-lg text-muted-foreground">{description}</p>

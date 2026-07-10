@@ -183,7 +183,7 @@ export default function LoginPage() {
     >
       <AuthFormCard variant="login" className="w-full">
         <AuthAnimatedBlock delayMs={formRowDelay(0)} className="space-y-2 mb-6">
-          <h2 className="text-lg sm:text-xl font-medium text-gray-700 dark:text-white text-center">
+          <h2 className="text-sm sm:text-lg font-medium text-gray-700 dark:text-white text-center">
             Welcome Back
           </h2>
           <p className="text-xs sm:text-sm text-gray-600 dark:text-white/70 text-center">
@@ -312,7 +312,10 @@ export default function LoginPage() {
           </Button>
         </AuthAnimatedBlock>
 
-        <AuthAnimatedBlock delayMs={formRowDelay(7)} className="text-center text-sm">
+        <AuthAnimatedBlock
+          delayMs={formRowDelay(7)}
+          className="text-center text-sm"
+        >
           <p className="text-gray-600 dark:text-white/70">
             Don&apos;t have an account?{" "}
             <Link

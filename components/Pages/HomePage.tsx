@@ -112,7 +112,7 @@ export default function HomePage({
     <Navbar>
       <PageContentWrapper>
         <div className="pb-6 flex flex-col items-start text-left">
-          <h2 className="text-lg sm:text-xl font-medium text-gray-700 dark:text-white ">
+          <h2 className="text-sm sm:text-lg font-medium text-gray-700 dark:text-white ">
             Store Overview
           </h2>
           <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">

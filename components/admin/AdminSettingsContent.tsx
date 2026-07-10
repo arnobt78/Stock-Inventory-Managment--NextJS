@@ -27,7 +27,7 @@ export default function AdminSettingsContent({
               <Settings className="h-6 w-6 text-blue-600 dark:text-blue-400" />
             </div>
             <div>
-              <h1 className="text-lg sm:text-xl font-medium tracking-tight">
+              <h1 className="text-sm sm:text-lg font-medium tracking-tight">
                 System Settings
               </h1>
               <p className="text-muted-foreground">

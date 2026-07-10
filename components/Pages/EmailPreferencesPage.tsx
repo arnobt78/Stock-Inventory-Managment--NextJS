@@ -164,7 +164,7 @@ export default function EmailPreferencesPage({
       <div className="mx-auto">
         <div className="space-y-4">
           <div className="space-y-2">
-            <h1 className="text-lg sm:text-xl font-medium text-gray-700 dark:text-white">
+            <h1 className="text-sm sm:text-lg font-medium text-gray-700 dark:text-white">
               Email Preferences
             </h1>
             <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">

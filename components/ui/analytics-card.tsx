@@ -141,7 +141,7 @@ export function AnalyticsCard({
             <Icon className={cn("h-5 w-5", iconColor)} />
           </div>
         </div>
-        <p className="text-lg sm:text-xl font-medium text-gray-700 dark:text-white">
+        <p className="text-sm sm:text-lg font-medium text-gray-700 dark:text-white">
           {valueLoading ? <DataSlotPulse variant="metric" /> : value}
         </p>
         {description && (
