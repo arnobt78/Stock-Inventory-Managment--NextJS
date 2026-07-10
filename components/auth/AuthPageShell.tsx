@@ -44,7 +44,7 @@ export function AuthPageShell({
       <div className="relative z-10 mx-auto w-full max-w-7xl px-2 sm:px-4">
         <div className="flex min-h-screen flex-col lg:flex-row lg:gap-8">
           <div className="hidden lg:flex lg:w-1/2 relative items-center justify-center py-6 lg:py-12">
-            <div className="relative z-10 w-full max-w-xl space-y-2">
+            <div className="relative z-10 w-full max-w-2xl space-y-2">
               {left}
             </div>
           </div>
