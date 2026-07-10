@@ -131,6 +131,7 @@
 | ART-0124 | REQ-0050 | ProductReview + WriteEditReview dialogs | amber submit shell-reset |
 | ART-0125 | REQ-0050 | Order/Invoice/Payment/SupportTicket/Login/Register | Batch B `GLASS_BUTTON_SHELL_RESET` |
 | ART-0126 | REQ-0050 | CategoryDialog, SupplierDialog | table section title token |
+| ART-0127 | hotfix | `auth-glass-styles.ts`, Login/Register, page CTAs, `glass-button-styles.ts` | CTA gradient restore `73060a1` |
 
 ## Tests
 

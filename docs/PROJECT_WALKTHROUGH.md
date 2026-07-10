@@ -162,6 +162,8 @@ Prevents `NotFoundError: removeChild` when App Router navigates between pages wh
 | Auth light mode + dialog tables + order thumbs (REQ-0048) | `AUTH_FORM_FIELD_*` + `AUTH_GOOGLE_BUTTON`; `DIALOG_TABLE_*` in category/supplier dialogs; `ProductOptionRow` in OrderDialog; CSS/UI only |
 | Dialog UX polish (REQ-0049) | dual-theme `DIALOG_TABLE_*`; slim dialog columns; `GLASS_BUTTON_SHELL_RESET` + PRIMARY CTAs; submit validity gates on catalog/product/warehouse dialogs; CSS/UI only |
 | Glass shell-reset polish (REQ-0050) | `DIALOG_TABLE_SECTION_TITLE`; Batch B primary buttons shell-reset; review dialog amber submits; CSS/UI only |
+| CTA hotfix (`73060a1`) | `AUTH_SUBMIT_BUTTON_EMERALD`; SHELL_RESET shadow-only; auth + page primary CTAs restored |
+| REQ-0051 backlog | detail-page CTAs, FABs, ShippingManagement, WriteEditReview cancel — planned |
 
 Tests: `lib/ai/openrouter.test.ts`, `lib/ai/groq.test.ts`, `lib/ai/create-chat-completion.test.ts`, `lib/auth/unique-username.test.ts`, `lib/server/catalog-entity-access.test.ts`.
 

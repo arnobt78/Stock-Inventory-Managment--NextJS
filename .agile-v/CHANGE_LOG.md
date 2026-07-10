@@ -45,4 +45,6 @@
 | 2026-07-10 | Auth light mode; dialog table tokens; order product thumbs | REQ-0048 |
 | 2026-07-10 | Dialog table dual-theme; glass CTA fix; submit gates; column slim | REQ-0049 |
 | 2026-07-10 | Glass shell-reset Batch B; dialog table titles; review submit tokens | REQ-0050 |
+| 2026-07-10 | Hotfix: restore CTA gradients; AUTH_SUBMIT_BUTTON_EMERALD; SHELL_RESET fix | `73060a1` |
+| _pending_ | REQ-0051 glass consistency (detail pages, FABs, shipping) | backlog |
 | _pending_ | Human Gate 2 Sentry 24h sign-off | REQ-0009 |

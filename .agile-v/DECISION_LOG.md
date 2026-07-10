@@ -111,3 +111,6 @@ Format: `TIMESTAMP | AGENT | DECISION | RATIONALE | REQ-ID`
 2026-07-10T18:03:00Z | build-agent | Batch B shell-reset sweep | variant ghost + SHELL_RESET on remaining primary glass buttons | REQ-0050
 2026-07-10T18:03:00Z | build-agent | Review dialog submit tokens | ProductReview + WriteEditReview amber PRIMARY migration | REQ-0050
 2026-07-10T18:04:00Z | red-team | REQ-0050 gates | lint ✓ test 343 ✓ invalidate 202 ✓ build ✓; CSS/UI only | REQ-0050
+2026-07-10T18:35:00Z | build-agent | Revert auth/page CTA shell-reset | bg-transparent killed gradients; Login sky unchanged; Register AUTH_SUBMIT_BUTTON_EMERALD | hotfix
+2026-07-10T18:35:00Z | build-agent | SHELL_RESET trim | shadow-only reset; never bg-transparent with PRIMARY | hotfix
+2026-07-10T18:36:00Z | release | Push main 73060a1 | REQ-0049/0050 + hotfix on main | REQ-0049

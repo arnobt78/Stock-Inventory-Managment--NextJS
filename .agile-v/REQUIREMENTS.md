@@ -1039,6 +1039,26 @@ Canonical REQ source. All artifacts link via `REQ-XXXX`. Status: `done` | `verif
 
 **Artifacts:** `dialog-edge-scroll.ts`, `ProductReviewDialog.tsx`, `WriteEditReviewDialog.tsx`, Order/Invoice/Payment/SupportTicket dialogs, LoginPage, RegisterPage, CategoryDialog, SupplierDialog
 
+**Post-ship note:** Hotfix `73060a1` reverted Login/Register + page primary CTAs from broken `bg-transparent` shell-reset; Register uses `AUTH_SUBMIT_BUTTON_EMERALD`.
+
+---
+
+## REQ-0051 — Glass consistency backlog (planned)
+
+| Field | Value |
+|-------|-------|
+| **Priority** | P2 |
+| **Risk** | R1 |
+| **Status** | backlog |
+| **Cycle** | C2 |
+| **Parent** | REQ-0050 |
+
+**Intent:** Finish inline glass gradient migrations for detail pages, FABs, ShippingManagement, WriteEditReview cancel; smoke Batch B dialog submits in light/dark.
+
+**Scope (CSS/UI only):** `OrderDetailPage`, `InvoiceDetailPage`, `CategoryDetailPage`, `WarehouseDetailPage`, `FloatingActionButtons`, `ShippingManagement`, `WriteEditReviewDialog` cancel → shared tokens; no TanStack/SSR/API.
+
+**Not in scope:** Auth Login/Register CTAs (user-verified at `73060a1`).
+
 ---
 
 ## REQ-0020 — Locale-aware admin formatting

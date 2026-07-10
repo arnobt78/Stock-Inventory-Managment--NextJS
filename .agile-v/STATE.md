@@ -36,7 +36,9 @@
 19. **REQ-0048** — Auth light mode + dialog tables + order product thumbs (code-complete)
 20. **REQ-0049** — Dialog UX polish: dual-theme tables, glass CTAs, submit gates (code-complete)
 21. **REQ-0050** — Glass shell-reset Batch B + dialog table titles + review submits (code-complete)
-22. **C2 backlog** — user-reported issues + manual QA gaps (see below)
+22. **Hotfix** — CTA gradient restore `73060a1` (auth + page buttons; SHELL_RESET fix)
+23. **REQ-0051** — glass consistency backlog (planned — see handoff)
+24. **C2 backlog** — Gate 2 + manual QA (see below)
 
 ## Session resume (every chat)
 
@@ -72,22 +74,43 @@
 | UI glass badges + tables + invoices (REQ-0028) | done |
 | Supplier catalog detail Option B (REQ-0029) | done — `3ebb4db` |
 | TanStack invalidation | unchanged; 202 audit pass |
-| Red Team (latest) | lint ✓ test 343 ✓ invalidate 202 ✓ build ✓ (2026-07-10 REQ-0050) |
+| Red Team (latest) | lint ✓ test 343 ✓ invalidate 202 ✓ build ✓ (`73060a1` hotfix 2026-07-10) |
 | PLAYBOOK.md | active — session ops guide |
 
 ## Recent commits (last ~3 days)
 
 | SHA | REQ | Summary |
 |-----|-----|---------|
-| `733681a` | REQ-0021 | Shell-first nav + DataSlotPulse |
-| `3ebb4db` | REQ-0022–0029 | Detail SSR, glass badges, invoices, supplier catalog detail, UI polish (338 files) |
+| `73060a1` | hotfix | Restore glass CTA gradients — auth + page buttons; SHELL_RESET no bg-transparent |
+| `3c01ad1` | REQ-0049/0050 | Dialog glass polish — tables, CTAs, submit gates, shell-reset |
+| `9aa2f1e` | REQ-0048 | Auth light mode, dialog tables, order product thumbs |
+| `3ebb4db` | REQ-0022–0029 | Detail SSR, glass badges, supplier catalog detail |
+
+## Session handoff (2026-07-10 — pick up tomorrow)
+
+**Done today:** REQ-0049/0050 pushed; user smoke OK on auth + toolbar CTAs; hotfix `73060a1` (Login kept `GLASS_PRIMARY_BUTTON.sky`; Register → `AUTH_SUBMIT_BUTTON_EMERALD`; page Save/Refresh/Export restored; `GLASS_BUTTON_SHELL_RESET` no longer uses `bg-transparent`).
+
+**Do NOT repeat:** Do not put `bg-transparent` + `GLASS_PRIMARY_BUTTON` together; do not shell-reset Login/Register CTAs.
+
+**REQ-0051 next (CSS only):** Migrate remaining inline glass gradients → tokens + smoke light/dark:
+
+| Area | Files |
+|------|-------|
+| Detail page CTAs | `OrderDetailPage`, `InvoiceDetailPage`, `CategoryDetailPage`, `WarehouseDetailPage` |
+| FABs | `FloatingActionButtons.tsx` |
+| Batch A leftover | `ShippingManagement.tsx` |
+| Review cancel | `WriteEditReviewDialog` cancel → `GLASS_GHOST_BUTTON` |
+| Dialog smoke | Batch B dialogs still use `variant="ghost"` + SHELL_RESET — verify gradients OK post-hotfix |
+
+**Out of scope:** TanStack, SSR, API, invalidation.
 
 ## Open backlog (C2 — fix next)
 
 | ID | Priority | Item | REQ / notes |
 |----|----------|------|-------------|
-| OB-001 | P0 | Confirm Vercel prod SHA = `3ebb4db` | deploy |
+| OB-001 | P0 | Confirm Vercel prod SHA = `73060a1` | deploy |
 | OB-002 | P0 | Sentry 24h regression watch | REQ-0009 checklist in `REVALIDATION_LOG.md` |
+| OB-008 | P2 | Glass consistency sweep | **REQ-0051** — see handoff table above |
 | OB-003 | P1 | Manual QA: supplier `/products` → category/supplier links | REQ-0029 |
 | OB-004 | P1 | Manual QA: removeChild nav smoke (products↔orders×10) | REQ-0001, REQ-0006 |
 | OB-005 | P2 | Broken product `imageUrl` 404s in UI | data/ImageKit — not REQ-0029 |
