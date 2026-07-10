@@ -6,7 +6,7 @@
 "use client";
 
 import { useState, useRef } from "react";
-import Image from "next/image";
+import { SafeImage } from "@/components/ui/safe-image";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -144,7 +144,7 @@ export default function ImageField() {
       {/* Image Preview */}
       {imageUrl && (
         <div className="relative w-full max-w-xs">
-          <Image
+          <SafeImage
             src={imageUrl}
             alt="Product preview"
             width={256}

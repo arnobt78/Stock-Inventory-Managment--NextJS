@@ -3,7 +3,7 @@
 **Generated:** 2026-07-10  
 **eval_gate_status:** PENDING (Human Gate 2)  
 **Prod target SHA:** `3ebb4db` (main, pushed 2026-07-09)  
-**Red Team:** lint ✓ test 335 ✓ invalidate 202 ✓ build ✓ (REQ-0037 2026-07-10)
+**Red Team:** lint ✓ test 343 ✓ invalidate 202 ✓ build ✓ (REQ-0040 2026-07-10)
 
 ---
 
@@ -12,7 +12,7 @@
 | Check | Command | Result | REQ-IDs |
 |-------|---------|--------|---------|
 | Lint | `npm run lint` | PASS | ALL |
-| Unit tests | `npm run test` | PASS (335) | REQ-0021–REQ-0037 |
+| Unit tests | `npm run test` | PASS (343) | REQ-0021–REQ-0040 |
 | Invalidation audit | `npm run test:invalidate` | PASS (202) | — |
 | Build | `npm run build` | PASS | ALL |
 
@@ -27,6 +27,7 @@
 | Supplier category/supplier detail from product | PENDING user QA | REQ-0029 |
 | removeChild nav smoke | PENDING | REQ-0001, REQ-0006, REQ-0017 |
 | Sentry 24h regression | PENDING (checklist in REVALIDATION_LOG) | REQ-0009 |
+| Gmail OAuth login + navbar avatar before/after profile dropdown click | PASS (user screenshot 2026-07-10) | REQ-0039, REQ-0040 |
 | Vercel prod SHA = `3ebb4db` | PENDING confirm | ALL |
 
 ---

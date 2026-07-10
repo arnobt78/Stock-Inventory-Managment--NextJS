@@ -46,7 +46,7 @@ import {
 import CategoryDialog from "@/components/category/CategoryDialog";
 import { AlertDialogWrapper } from "@/components/dialogs";
 import type { Category } from "@/types";
-import Image from "next/image";
+import { SafeImage } from "@/components/ui/safe-image";
 import { isDataSlotLoading } from "@/lib/react-query";
 import { cn } from "@/lib/utils";
 import { APP_SHELL_DETAIL_CLASS } from "@/lib/ui/shell-layout-styles";
@@ -602,7 +602,7 @@ export default function CategoryDetailPage({
                     >
                       {product.imageUrl && (
                         <div className="relative w-16 h-16 rounded-xl overflow-hidden bg-white/50 dark:bg-white/5 border border-sky-200/30 dark:border-sky-400/20 flex-shrink-0">
-                          <Image
+                          <SafeImage
                             src={product.imageUrl ?? ""}
                             width={64}
                             height={64}

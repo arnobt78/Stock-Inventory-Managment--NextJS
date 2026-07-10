@@ -721,6 +721,79 @@ Canonical REQ source. All artifacts link via `REQ-XXXX`. Status: `done` | `verif
 
 ---
 
+## REQ-0038 — SafeImage rollout (remote + local fallback)
+
+| Field | Value |
+|-------|-------|
+| **Priority** | P1 |
+| **Risk** | R1 |
+| **Status** | done |
+| **Cycle** | C2 |
+| **Parent** | REQ-0028 |
+
+**Intent:** Adopt `SafeImage` for all UI images; `next/image` first, native `<img>` fallback on optimizer/upstream failure (Vercel 402).
+
+**Acceptance criteria**
+
+- AC1: `SafeImage` used for all current `next/image` consumers (incl. auth SVG)
+- AC2: `SafeAvatarImage` handles Google avatar → robohash fallback
+- AC3: `SafeImage` resets native fallback when `src` changes (`failedSrc` pattern, no effect)
+- AC4: `remotePatterns` unchanged (already correct)
+- AC5: No TanStack / CRUD changes; Red Team pass
+
+**Artifacts:** `components/ui/safe-image.tsx`, `components/ui/safe-avatar-image.tsx`, migrated consumer components, `docs/SAFE_IMAGE_REUSABLE_COMPONENT.md`
+
+---
+
+## REQ-0039 — Navbar Google avatar SafeAvatarImage
+
+| Field | Value |
+|-------|-------|
+| **Priority** | P1 |
+| **Risk** | R1 |
+| **Status** | done |
+| **Cycle** | C2 |
+| **Parent** | REQ-0038 |
+
+**Intent:** Close REQ-0038 AC2 gap — Navbar/Sidebar used SafeImage with merged avatarUrl so Google profile images never fell back to robohash on error.
+
+**Acceptance criteria**
+
+- AC1: Navbar desktop + mobile avatars use `SafeAvatarImage` with separate `src` + `fallbackSrc`
+- AC2: SidebarLayout avatar uses same pattern
+- AC3: Shared `resolveUserAvatarSources` + `getRoboHashAvatarUrl` in `lib/ui/user-avatar-sources.ts`
+- AC4: `remotePatterns` covers `**.googleusercontent.com`
+- AC5: No TanStack / CRUD / hydration changes; Red Team pass
+
+**Artifacts:** `lib/ui/user-avatar-sources.ts`, `Navbar.tsx`, `SidebarLayout.tsx`, `safe-avatar-image.tsx`, `next.config.ts`
+
+---
+
+## REQ-0040 — Avatar URL DRY (reviews/tickets)
+
+| Field | Value |
+|-------|-------|
+| **Priority** | P2 |
+| **Risk** | R1 |
+| **Status** | done |
+| **Cycle** | C2 |
+| **Parent** | REQ-0039 |
+
+**Intent:** DRY inline robohash strings in reviews/tickets; shared `resolveAvatarSourcesFromSeed`; manual Gmail avatar QA sign-off.
+
+**Acceptance criteria**
+
+- AC1: No inline `robohash.org` in components (only `lib/ui/user-avatar-sources.ts` + tests)
+- AC2: Reviews + ticket replies use `resolveAvatarSourcesFromSeed`
+- AC3: `resolveUserAvatarSources` delegates to seed helper (Navbar behavior unchanged)
+- AC4: Unit tests cover seed resolver with userId + Google image
+- AC5: Manual Gmail avatar QA PASS in VALIDATION_SUMMARY
+- AC6: Red Team pass
+
+**Artifacts:** `lib/ui/user-avatar-sources.ts`, `ProductReviewsSection.tsx`, `SupportTicketDetailContent.tsx`, `AdminSupportTicketDetailContent.tsx`
+
+---
+
 ## REQ-0020 — Locale-aware admin formatting
 
 | Field | Value |

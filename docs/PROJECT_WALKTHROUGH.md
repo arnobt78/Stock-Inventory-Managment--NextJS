@@ -153,6 +153,7 @@ Prevents `NotFoundError: removeChild` when App Router navigates between pages wh
 | Auth OAuth welcome (REQ-0035) | `AuthSessionToasts` detects `oauth_success`; `refreshSession` + shared welcome copy; URL strip via `oauth-success-url.ts` |
 | App shell full bleed (REQ-0036) | `lib/ui/shell-layout-styles.ts` — `APP_SHELL_WIDTH_CLASS` / `APP_SHELL_DETAIL_CLASS`; Navbar/Footer/SidebarLayout + 11 lists + 6 details; auth stays `max-w-7xl` in `AuthPageShell`; `9xl` token removed |
 | Product status filter glass (REQ-0037) | `ProductStatusFilter.tsx` — `ProductStockStatusBadge` in dropdown rows (matches invoice/order filter pattern; closes REQ-0028 AC7 gap) |
+| SafeImage rollout (REQ-0038) | `components/ui/safe-image.tsx` + `safe-avatar-image.tsx`; migrated product/avatar/QR/auth image consumers; native img fallback on optimizer failure |
 
 Tests: `lib/ai/openrouter.test.ts`, `lib/ai/groq.test.ts`, `lib/ai/create-chat-completion.test.ts`, `lib/auth/unique-username.test.ts`, `lib/server/catalog-entity-access.test.ts`.
 

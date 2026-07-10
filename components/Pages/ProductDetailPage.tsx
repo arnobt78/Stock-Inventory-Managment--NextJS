@@ -56,7 +56,7 @@ import type { Product, ProductStatus, ProductReview } from "@/types";
 import type { ReviewEligibilityResult } from "@/lib/server/product-reviews-detail-data";
 import { cn } from "@/lib/utils";
 import { APP_SHELL_DETAIL_CLASS } from "@/lib/ui/shell-layout-styles";
-import Image from "next/image";
+import { SafeImage } from "@/components/ui/safe-image";
 import ProductFormDialog from "@/components/products/ProductFormDialog";
 import { AlertDialogWrapper } from "@/components/dialogs";
 import ProductReviewsSection from "@/components/product-reviews/ProductReviewsSection";
@@ -374,7 +374,7 @@ export default function ProductDetailPage({
                 </div>
                 {product?.imageUrl ? (
                   <div className="relative w-full h-64 rounded-xl overflow-hidden bg-white/50 dark:bg-white/5 border border-gray-300/20 dark:border-white/10">
-                    <Image
+                    <SafeImage
                       src={product?.imageUrl}
                       alt={product?.name}
                       fill
@@ -405,7 +405,7 @@ export default function ProductDetailPage({
                 </div>
                 {product?.qrCodeUrl ? (
                   <div className="relative w-full h-64 rounded-xl overflow-hidden bg-white border border-gray-300/20 dark:border-white/10">
-                    <Image
+                    <SafeImage
                       src={product?.qrCodeUrl}
                       alt={`QR Code for ${product?.sku}`}
                       fill

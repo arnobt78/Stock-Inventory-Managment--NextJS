@@ -70,3 +70,9 @@ Format: `TIMESTAMP | AGENT | DECISION | RATIONALE | REQ-ID`
 2026-07-10T13:10:00Z | red-team | REQ-0036 DRY + build | lint ✓ test 335 ✓ invalidate 202 ✓ build ✓ | REQ-0036
 2026-07-10T13:26:00Z | build-agent | REQ-0037 product status filter glass | ProductStockStatusBadge in ProductStatusFilter; closes REQ-0028 AC7 gap | REQ-0037
 2026-07-10T13:29:00Z | red-team | REQ-0037 automated gates | lint ✓ test 335 ✓ invalidate 202 ✓ build ✓ | REQ-0037
+2026-07-10T13:38:00Z | build-agent | REQ-0038 SafeImage rollout | safe-image + safe-avatar-image; migrate 12 consumers | REQ-0038
+2026-07-10T13:40:00Z | red-team | REQ-0038 automated gates | lint ✓ test 335 ✓ invalidate 202 ✓ build ✓ | REQ-0038
+2026-07-10T13:50:00Z | build-agent | REQ-0039 navbar SafeAvatarImage | resolveUserAvatarSources; Navbar/Sidebar SafeAvatarImage; googleusercontent wildcard | REQ-0039
+2026-07-10T13:52:00Z | red-team | REQ-0039 automated gates | lint ✓ test 340 ✓ invalidate 202 ✓ build ✓ | REQ-0039
+2026-07-10T13:58:00Z | build-agent | REQ-0040 avatar URL DRY | resolveAvatarSourcesFromSeed; migrate reviews/tickets; Gmail QA PASS | REQ-0040
+2026-07-10T13:59:00Z | red-team | REQ-0040 automated gates | lint ✓ test 343 ✓ invalidate 202 ✓ build ✓ | REQ-0040

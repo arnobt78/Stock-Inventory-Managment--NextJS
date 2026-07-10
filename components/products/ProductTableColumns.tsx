@@ -1,6 +1,6 @@
 "use client";
 
-import Image from "next/image";
+import { SafeImage } from "@/components/ui/safe-image";
 import Link from "next/link";
 import { Product } from "@/types";
 import { Column, ColumnDef } from "@tanstack/react-table";
@@ -91,7 +91,7 @@ export function createProductColumns(
         return (
           <div className="flex items-center gap-3 min-w-0 max-w-[220px]">
             {imageUrl ? (
-              <Image
+              <SafeImage
                 src={imageUrl}
                 alt={product.name}
                 width={48}

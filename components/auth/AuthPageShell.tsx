@@ -1,7 +1,7 @@
 "use client";
 
 import type { ReactNode } from "react";
-import Image from "next/image";
+import { SafeImage } from "@/components/ui/safe-image";
 
 type AuthPageShellProps = {
   illustrationSrc: string;
@@ -31,7 +31,7 @@ export function AuthPageShell({
         className="pointer-events-none fixed inset-0 z-0 flex items-center justify-center"
       >
         <div className="auth-bg-float relative h-[min(75vh,640px)] w-[min(92vw,860px)] opacity-25 dark:opacity-20">
-          <Image
+          <SafeImage
             src={illustrationSrc}
             alt={illustrationAlt}
             fill

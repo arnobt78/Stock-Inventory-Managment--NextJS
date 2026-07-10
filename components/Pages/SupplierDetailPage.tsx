@@ -48,7 +48,7 @@ import {
 import SupplierDialog from "@/components/supplier/SupplierDialog";
 import { AlertDialogWrapper } from "@/components/dialogs";
 import type { Supplier } from "@/types";
-import Image from "next/image";
+import { SafeImage } from "@/components/ui/safe-image";
 import { isDataSlotLoading } from "@/lib/react-query";
 import { cn } from "@/lib/utils";
 import { APP_SHELL_DETAIL_CLASS } from "@/lib/ui/shell-layout-styles";
@@ -550,7 +550,7 @@ export default function SupplierDetailPage({
                     >
                       {product.imageUrl && (
                         <div className="relative w-16 h-16 rounded-xl overflow-hidden bg-white/50 dark:bg-white/5 border border-gray-300/20 dark:border-white/10 flex-shrink-0">
-                          <Image
+                          <SafeImage
                             src={product.imageUrl ?? ""}
                             width={64}
                             height={64}

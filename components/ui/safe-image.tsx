@@ -1,10 +1,18 @@
+/**
+ * REQ-0038 — next/image with native img fallback when /_next/image fails (e.g. Vercel 402).
+ * See docs/SAFE_IMAGE_REUSABLE_COMPONENT.md
+ */
 "use client";
 
 import { cn } from "@/lib/utils";
 import Image, { type ImageProps } from "next/image";
-import { useCallback, useState, type SyntheticEvent } from "react";
+import {
+  useCallback,
+  useState,
+  type SyntheticEvent,
+} from "react";
 
-type SafeImageProps = ImageProps;
+export type SafeImageProps = ImageProps;
 
 export function SafeImage({
   alt,
@@ -18,13 +26,14 @@ export function SafeImage({
   loading,
   ...rest
 }: SafeImageProps) {
-  const [useNative, setUseNative] = useState(false);
+  const [failedSrc, setFailedSrc] = useState<string | null>(null);
   const resolvedSrc = typeof src === "string" ? src : "";
+  const useNative = Boolean(resolvedSrc && failedSrc === resolvedSrc);
 
   const handleError = useCallback(
     (e: SyntheticEvent<HTMLImageElement, Event>) => {
       onError?.(e);
-      if (resolvedSrc) setUseNative(true);
+      if (resolvedSrc) setFailedSrc(resolvedSrc);
     },
     [onError, resolvedSrc],
   );

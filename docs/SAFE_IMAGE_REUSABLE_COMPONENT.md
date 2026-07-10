@@ -170,7 +170,6 @@ export function SafeImage({
 
 ## This repo
 
-- Implementation: `src/Components/ui/safe-image.tsx`
-- Current usage: `src/Components/pages/home-page.tsx`, `src/Components/pages/gallery-page.tsx`
-
-You can **copy this entire `.md` file** into another repository’s `docs/` folder and attach the same `safe-image.tsx` next to it.
+- Implementation: [`components/ui/safe-image.tsx`](../components/ui/safe-image.tsx), [`components/ui/safe-avatar-image.tsx`](../components/ui/safe-avatar-image.tsx)
+- Usage (REQ-0038/0040): product table/detail, ImageField preview, category/supplier product thumbs, QR code, auth shell SVG (`SafeImage`); **all avatars** use `SafeAvatarImage` with `getRoboHashAvatarUrl` / `resolveAvatarSourcesFromSeed` / `resolveUserAvatarSources` from [`lib/ui/user-avatar-sources.ts`](../lib/ui/user-avatar-sources.ts) (Navbar, Sidebar, reviews, ticket replies)
+- `remotePatterns` in [`next.config.ts`](../next.config.ts): `robohash.org`, `ik.imagekit.io`, `**.googleusercontent.com`

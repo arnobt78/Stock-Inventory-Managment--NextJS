@@ -94,6 +94,13 @@
 | ART-0087 | REQ-0036 | `tailwind.config.ts` | Remove unused 9xl token |
 | ART-0088 | REQ-0036 | `shell-layout-styles.ts` | `APP_SHELL_DETAIL_CLASS` DRY on 6 detail pages |
 | ART-0089 | REQ-0037 | `ProductStatusFilter.tsx` | ProductStockStatusBadge in filter dropdown |
+| ART-0090 | REQ-0038 | `safe-image.tsx`, `safe-avatar-image.tsx` | next/image + native fallback |
+| ART-0091 | REQ-0038 | 12 image consumer components | SafeImage / SafeAvatarImage migration |
+| ART-0092 | REQ-0039 | `user-avatar-sources.ts` | Shared Google + robohash resolver |
+| ART-0093 | REQ-0039 | `Navbar.tsx`, `SidebarLayout.tsx` | SafeAvatarImage with fallbackSrc |
+| ART-0094 | REQ-0039 | `next.config.ts`, `safe-avatar-image.tsx` | googleusercontent wildcard + referrerPolicy |
+| ART-0095 | REQ-0040 | `user-avatar-sources.ts` | resolveAvatarSourcesFromSeed |
+| ART-0096 | REQ-0040 | reviews + ticket reply components | DRY robohash via shared resolver |
 
 ## Tests
 
@@ -112,3 +119,5 @@
 | TC-0011 | REQ-0027 | `lib/server/client-browse-data.test.ts` |
 | TC-0012 | REQ-0027 | `lib/navigation/shallow-search-param.test.ts` |
 | TC-0013 | REQ-0029 | `lib/server/catalog-entity-access.test.ts` |
+| TC-0014 | REQ-0039 | `lib/ui/user-avatar-sources.test.ts` |
+| TC-0015 | REQ-0040 | `lib/ui/user-avatar-sources.test.ts` (seed resolver) |

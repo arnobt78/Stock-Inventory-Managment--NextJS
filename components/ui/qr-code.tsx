@@ -5,7 +5,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
 import { logger } from "@/lib/logger";
 import { Download, QrCode } from "lucide-react";
-import Image from "next/image";
+import { SafeImage } from "@/components/ui/safe-image";
 import QRCode from "qrcode";
 import { useEffect, useState } from "react";
 
@@ -136,7 +136,7 @@ export function QRCodeComponent({
             style={{ width: size, height: size }}
           />
         ) : (
-          <Image
+          <SafeImage
             src={qrCodeUrl}
             alt="QR Code"
             width={size}

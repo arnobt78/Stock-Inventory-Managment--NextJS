@@ -1,7 +1,8 @@
 "use client";
 
 import React, { useCallback, useState, useEffect } from "react";
-import Image from "next/image";
+import { SafeAvatarImage } from "@/components/ui/safe-avatar-image";
+import { resolveAvatarSourcesFromSeed } from "@/lib/ui/user-avatar-sources";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import {
@@ -490,9 +491,10 @@ export default function AdminSupportTicketDetailContent({
             ) : (
               <ul className="space-y-2 mb-4">
                 {replies.map((r) => {
-                  const avatarSrc =
-                    r.userImage ||
-                    `https://robohash.org/${encodeURIComponent(r.userId)}?set=set1&size=80x80`;
+                  const avatar = resolveAvatarSourcesFromSeed(
+                    r.userId,
+                    r.userImage,
+                  );
                   const displayName =
                     r.userName?.trim() ||
                     r.userEmail ||
@@ -506,19 +508,13 @@ export default function AdminSupportTicketDetailContent({
                         {r.body}
                       </p>
                       <div className="flex items-center gap-2 mt-2 flex-wrap">
-                        <Image
-                          src={avatarSrc}
+                        <SafeAvatarImage
+                          src={avatar.src}
+                          fallbackSrc={avatar.fallbackSrc}
                           alt=""
                           width={32}
                           height={32}
                           className="h-8 w-8 rounded-full object-cover border border-border flex-shrink-0"
-                          unoptimized
-                          onError={(e) => {
-                            const target = e.currentTarget;
-                            if (!target.src.includes("robohash.org")) {
-                              target.src = `https://robohash.org/${encodeURIComponent(r.userId)}?set=set1&size=80x80`;
-                            }
-                          }}
                         />
                         <span className="text-xs font-medium text-foreground">
                           {displayName}

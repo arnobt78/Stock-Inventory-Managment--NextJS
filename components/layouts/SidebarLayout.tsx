@@ -25,15 +25,13 @@ import { clearAuthToastMarkers } from "@/components/shared/AuthSessionToasts";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { cn } from "@/lib/utils";
-import Image from "next/image";
+import { SafeAvatarImage } from "@/components/ui/safe-avatar-image";
+import { resolveUserAvatarSources } from "@/lib/ui/user-avatar-sources";
 
 /**
  * Reusable sidebar layout: fixed left sidebar (always visible, no scroll), scrollable right main content.
  * Use for Admin, Business Insights, and similar dashboard-style pages.
  */
-
-const getRoboHashAvatarUrl = (nameOrId: string): string =>
-  `https://robohash.org/${encodeURIComponent(nameOrId)}.png?size=80x80`;
 
 const SIDEBAR_NAV_ITEMS: {
   path: string;
@@ -98,12 +96,7 @@ export default function SidebarLayout({
     }
   };
 
-  const avatarUrl =
-    user?.image && typeof user.image === "string" && user.image.trim() !== ""
-      ? user.image
-      : user
-        ? getRoboHashAvatarUrl(user?.name || String(user?.id ?? "user"))
-        : "";
+  const avatar = resolveUserAvatarSources(user);
 
   return (
     <div className="relative flex h-screen w-full overflow-hidden bg-[radial-gradient(circle_at_top,_rgba(59,130,246,0.15),transparent_55%),radial-gradient(circle_at_bottom,_rgba(236,72,153,0.12),transparent_65%)] dark:bg-[radial-gradient(circle_at_top,_rgba(59,130,246,0.15),transparent_55%),radial-gradient(circle_at_bottom,_rgba(236,72,153,0.12),transparent_65%)]">
@@ -160,14 +153,14 @@ export default function SidebarLayout({
           {!isCheckingAuth && user && (
             <>
               <div className="flex items-center gap-2 rounded-lg px-2 py-2">
-                {avatarUrl ? (
-                  <Image
-                    src={avatarUrl}
+                {avatar ? (
+                  <SafeAvatarImage
+                    src={avatar.src}
+                    fallbackSrc={avatar.fallbackSrc}
                     alt={user.name || "User"}
                     width={32}
                     height={32}
                     className="rounded-full object-cover flex-shrink-0"
-                    unoptimized
                   />
                 ) : (
                   <span className="flex h-8 w-8 items-center justify-center rounded-full bg-sky-500/20 text-sm font-medium text-sky-700 dark:text-sky-300">

@@ -1,7 +1,8 @@
 "use client";
 
 import React, { useState, useLayoutEffect } from "react";
-import Image from "next/image";
+import { SafeAvatarImage } from "@/components/ui/safe-avatar-image";
+import { resolveAvatarSourcesFromSeed } from "@/lib/ui/user-avatar-sources";
 import Link from "next/link";
 import { useQueryClient } from "@tanstack/react-query";
 import Navbar from "@/components/layouts/Navbar";
@@ -202,9 +203,10 @@ export default function SupportTicketDetailContent({
             ) : (
               <ul className="space-y-2 mb-6">
                 {replies.map((r) => {
-                  const avatarSrc =
-                    r.userImage ||
-                    `https://robohash.org/${encodeURIComponent(r.userId)}?set=set1&size=80x80`;
+                  const avatar = resolveAvatarSourcesFromSeed(
+                    r.userId,
+                    r.userImage,
+                  );
                   const displayName =
                     r.userName?.trim() ||
                     r.userEmail ||
@@ -221,19 +223,13 @@ export default function SupportTicketDetailContent({
                         {r.body}
                       </p>
                       <div className="flex items-center gap-2 mt-2 flex-wrap">
-                        <Image
-                          src={avatarSrc}
+                        <SafeAvatarImage
+                          src={avatar.src}
+                          fallbackSrc={avatar.fallbackSrc}
                           alt=""
                           width={32}
                           height={32}
                           className="h-8 w-8 rounded-full object-cover border border-sky-200/90 dark:border-white/30 flex-shrink-0"
-                          unoptimized
-                          onError={(e) => {
-                            const target = e.currentTarget;
-                            if (!target.src.includes("robohash.org")) {
-                              target.src = `https://robohash.org/${encodeURIComponent(r.userId)}?set=set1&size=80x80`;
-                            }
-                          }}
                         />
                         <span className="text-xs font-medium text-gray-700 dark:text-gray-300">
                           {displayName}

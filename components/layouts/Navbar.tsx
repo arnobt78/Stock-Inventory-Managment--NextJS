@@ -35,19 +35,12 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Separator } from "@/components/ui/separator";
-import Image from "next/image";
+import { SafeAvatarImage } from "@/components/ui/safe-avatar-image";
+import { resolveUserAvatarSources } from "@/lib/ui/user-avatar-sources";
 import { useTheme } from "next-themes";
 import ScrollControl from "../shared/ScrollControl";
 import Footer from "./Footer";
 import { NotificationBell } from "../shared";
-
-/**
- * RoboHash fallback avatar URL when user has no custom/Google image.
- * Same user (by name or id) always gets the same robot.
- */
-const getRoboHashAvatarUrl = (nameOrId: string): string => {
-  return `https://robohash.org/${encodeURIComponent(nameOrId)}.png?size=80x80`;
-};
 
 import {
   DROPDOWN_NAV_CONTENT_CLASS,
@@ -227,16 +220,8 @@ export default function Navbar({ children }: NavbarProps) {
   const homePath =
     role === "client" ? "/client" : role === "supplier" ? "/supplier" : "/";
 
-  // Avatar: use custom/Google image if present, else RoboHash (same user → same robot)
-  const preferredImage =
-    user?.image && typeof user.image === "string" && user.image.trim() !== ""
-      ? user.image
-      : null;
-  const avatarUrl =
-    preferredImage ||
-    (user
-      ? getRoboHashAvatarUrl(user?.name || String(user?.id ?? "user"))
-      : "");
+  // REQ-0039 — SafeAvatarImage: Google primary + robohash fallback on load error
+  const avatar = resolveUserAvatarSources(user);
 
   // If children prop is provided, wrap with full layout, otherwise just return navbar
   const navbarContent = (
@@ -349,14 +334,14 @@ export default function Navbar({ children }: NavbarProps) {
                 >
                   {isCheckingAuth ? (
                     <div className="h-10 w-10 rounded-full bg-gray-200 dark:bg-gray-700 animate-pulse" />
-                  ) : avatarUrl ? (
-                    <Image
-                      src={avatarUrl}
+                  ) : avatar ? (
+                    <SafeAvatarImage
+                      src={avatar.src}
+                      fallbackSrc={avatar.fallbackSrc}
                       alt={user?.name || "User"}
                       width={40}
                       height={40}
                       className="rounded-full object-cover"
-                      unoptimized
                       priority
                     />
                   ) : (
@@ -474,15 +459,15 @@ export default function Navbar({ children }: NavbarProps) {
               {isCheckingAuth ? (
                 <div className="h-10 w-10 rounded-full bg-gray-200 dark:bg-gray-700 animate-pulse" />
               ) : (
-                avatarUrl && (
+                avatar && (
                   <div className="relative flex h-10 w-10 items-center justify-center rounded-full border-2 border-sky-400/50 dark:border-white/20 bg-gradient-to-br from-sky-500/25 via-sky-500/10 to-sky-500/5 dark:from-white/10 dark:via-white/10 dark:to-white/5 backdrop-blur-md overflow-hidden ring-2 ring-sky-400/30 dark:ring-white/20 shadow-[0_5px_20px_rgba(2,132,199,0.3)]">
-                    <Image
-                      src={avatarUrl}
+                    <SafeAvatarImage
+                      src={avatar.src}
+                      fallbackSrc={avatar.fallbackSrc}
                       alt={user?.name || "User"}
                       width={40}
                       height={40}
                       className="rounded-full object-cover"
-                      unoptimized
                     />
                   </div>
                 )
