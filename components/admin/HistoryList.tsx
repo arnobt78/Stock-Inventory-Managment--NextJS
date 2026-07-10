@@ -8,6 +8,7 @@
 import React, { useState, useEffect, useRef, useMemo } from "react";
 import { useHistory } from "@/hooks/queries";
 import { isDataSlotLoading } from "@/lib/react-query";
+import { APP_SHELL_WIDTH_CLASS } from "@/lib/ui/shell-layout-styles";
 import { PaginationType } from "@/components/shared/PaginationSelector";
 import { PageSectionHeader } from "@/components/shared";
 import { Upload } from "lucide-react";
@@ -59,7 +60,7 @@ export default function HistoryList({
       />
 
       <div className="pb-6 flex justify-start">
-        <div className="w-full max-w-9xl">
+        <div className={APP_SHELL_WIDTH_CLASS}>
           <HistoryFilters
             searchTerm={searchTerm}
             setSearchTerm={setSearchTerm}

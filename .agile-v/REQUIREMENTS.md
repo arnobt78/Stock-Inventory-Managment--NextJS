@@ -537,7 +537,7 @@ Canonical REQ source. All artifacts link via `REQ-XXXX`. Status: `done` | `verif
 
 - AC1: Test-account `SelectItem` rows show role icon + label (not trigger-only)
 - AC2: Select chevron rotates 180° smoothly on open/close (`select.tsx` group pattern)
-- AC3: Login + register content constrained to `max-w-7xl`; app shell stays `max-w-9xl`
+- AC3: Login + register content constrained to `max-w-7xl` (app shell width superseded by REQ-0036 — full bleed)
 - AC4: Left promo cards + form rows ease-in with stagger on page load; `prefers-reduced-motion` respected
 - AC5: Background SVG centered on viewport (x-y middle), may sit under form column
 - AC6: Shared auth components (`AuthPageShell`, `LoginRoleSelect`, etc.); no TanStack/CRUD changes
@@ -669,6 +669,30 @@ Canonical REQ source. All artifacts link via `REQ-XXXX`. Status: `done` | `verif
 - AC6: No TanStack/CRUD changes; Red Team pass
 
 **Artifacts:** `lib/auth/oauth-success-url.ts`, `lib/auth/auth-welcome-toast.ts`, `lib/auth/oauth-success-url.test.ts`, `AuthSessionToasts.tsx`, `post-login-welcome.ts`
+
+---
+
+## REQ-0036 — App shell full bleed (auth stays max-w-7xl)
+
+| Field | Value |
+|-------|-------|
+| **Priority** | P1 |
+| **Risk** | R1 |
+| **Status** | done |
+| **Cycle** | C2 |
+| **Parent** | REQ-0030 |
+
+**Intent:** Restore pre-REQ-0030 ultrawide layout: logged-in app uses full viewport width (padding only). Login/register remain capped at `max-w-7xl` via `AuthPageShell`.
+
+**Acceptance criteria**
+
+- AC1: Navbar, Footer, SidebarLayout, and all list/detail inner wrappers have no `max-w-9xl`
+- AC2: Login + register still `max-w-7xl` via `AuthPageShell`
+- AC3: Unused `9xl` token removed from `tailwind.config.ts`
+- AC4: Shared `APP_SHELL_WIDTH_CLASS` + `APP_SHELL_DETAIL_CLASS` in `lib/ui/shell-layout-styles.ts`
+- AC5: No TanStack / CRUD / hydration changes; Red Team pass
+
+**Artifacts:** `lib/ui/shell-layout-styles.ts`, `Navbar.tsx`, `Footer.tsx`, `SidebarLayout.tsx`, list/detail page components, `tailwind.config.ts`
 
 ---
 

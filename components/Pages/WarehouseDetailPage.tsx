@@ -46,6 +46,7 @@ import { AlertDialogWrapper } from "@/components/dialogs";
 import type { Warehouse as WarehouseType, StockAllocation } from "@/types";
 import { isDataSlotLoading } from "@/lib/react-query";
 import { cn } from "@/lib/utils";
+import { APP_SHELL_DETAIL_CLASS } from "@/lib/ui/shell-layout-styles";
 
 /**
  * Color variants for glassmorphic cards
@@ -300,7 +301,7 @@ export default function WarehouseDetailPage({
   return (
     <PageWrapper>
       <PageContentWrapper>
-        <div className="max-w-9xl mx-auto space-y-4">
+        <div className={APP_SHELL_DETAIL_CLASS}>
           <PageSectionHeader
             as="h1"
             tone="violet"

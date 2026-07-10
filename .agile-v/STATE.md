@@ -7,7 +7,7 @@
 | **Infinity Loop stage** | Verify ◐ (code done; Human Gate 2 + manual QA open) |
 | **Last updated** | 2026-07-10 |
 | **Session** | ACTIVE — Agile V bootstrap resume |
-| **Active REQ range** | REQ-0001 … REQ-0035 (REQ-0035 code-complete) |
+| **Active REQ range** | REQ-0001 … REQ-0036 (REQ-0036 code-complete) |
 | **Prod deploy target** | `3ebb4db` (pushed `main` 2026-07-09) — confirm Vercel SHA |
 | **Human Gate 1** | APPROVED (retroactive bootstrap) |
 | **Human Gate 2** | PENDING — Sentry 24h after prod deploy |
@@ -21,7 +21,8 @@
 4. **REQ-0033** — auth copy, scroll shift, icon glow, spacing (code-complete)
 5. **REQ-0034** — auth welcome/goodbye session toasts (code-complete)
 6. **REQ-0035** — Google OAuth welcome toast (code-complete)
-7. **C2 backlog** — user-reported issues + manual QA gaps (see below)
+7. **REQ-0036** — App shell full bleed; auth max-w-7xl only (code-complete)
+8. **C2 backlog** — user-reported issues + manual QA gaps (see below)
 
 ## Session resume (every chat)
 
@@ -57,7 +58,7 @@
 | UI glass badges + tables + invoices (REQ-0028) | done |
 | Supplier catalog detail Option B (REQ-0029) | done — `3ebb4db` |
 | TanStack invalidation | unchanged; 202 audit pass |
-| Red Team (latest) | lint ✓ test 329 ✓ invalidate 202 ✓ build ✓ (2026-07-10) |
+| Red Team (latest) | lint ✓ test 335 ✓ invalidate 202 ✓ build ✓ (2026-07-10 REQ-0036) |
 | PLAYBOOK.md | active — session ops guide |
 
 ## Recent commits (last ~3 days)

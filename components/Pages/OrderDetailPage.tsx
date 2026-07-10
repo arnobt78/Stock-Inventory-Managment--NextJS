@@ -37,6 +37,7 @@ import {
 import type { Order } from "@/types";
 import type { OrderReviewContext } from "@/lib/server/order-review-context-data";
 import { cn } from "@/lib/utils";
+import { APP_SHELL_DETAIL_CLASS } from "@/lib/ui/shell-layout-styles";
 import OrderDialog from "@/components/orders/OrderDialog";
 import { AlertDialogWrapper } from "@/components/dialogs";
 import { PaymentDialog } from "@/components/payments";
@@ -221,7 +222,7 @@ export default function OrderDetailPage({
   return (
     <Navbar>
       <PageContentWrapper>
-        <div className="max-w-9xl mx-auto space-y-4">
+        <div className={APP_SHELL_DETAIL_CLASS}>
           <OrderDetailHeader
             onBack={handleBack}
             orderNumber={order?.orderNumber}

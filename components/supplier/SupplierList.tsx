@@ -14,6 +14,7 @@ import { createSupplierColumns } from "./SupplierTableColumns";
 import { useAuth } from "@/contexts";
 import { useSuppliers, useDashboard } from "@/hooks/queries";
 import { isDataSlotLoading } from "@/lib/react-query";
+import { APP_SHELL_WIDTH_CLASS } from "@/lib/ui/shell-layout-styles";
 import SupplierFilters from "./SupplierFilters";
 import AddSupplierDialog from "./SupplierDialog";
 import { StatisticsCard } from "@/components/home/StatisticsCard";
@@ -237,7 +238,7 @@ const SupplierList = React.memo(function SupplierList({
 
       {/* Filters and Actions - Always visible, only disabled during auth check */}
       <div className="pb-6 flex justify-center">
-        <div className="w-full max-w-9xl">
+        <div className={APP_SHELL_WIDTH_CLASS}>
           <SupplierFilters
             allSuppliers={allSuppliers}
             statusFilter={statusFilter}

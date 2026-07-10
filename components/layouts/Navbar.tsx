@@ -53,6 +53,7 @@ import {
   DROPDOWN_NAV_CONTENT_CLASS,
   DROPDOWN_NAV_ITEM_CLASS,
 } from "@/components/ui/menu-item-styles";
+import { APP_SHELL_WIDTH_CLASS } from "@/lib/ui/shell-layout-styles";
 
 /**
  * Theme toggle component (inline ModeToggle)
@@ -248,7 +249,7 @@ export default function Navbar({ children }: NavbarProps) {
         Skip to main content
       </a>
       {/* min-w-0 on flex children instead of overflow-x-hidden — hidden overflow-y would clip notification portal ancestors */}
-      <div className="mx-auto flex w-full h-full max-w-9xl min-w-0 items-center justify-between gap-2 px-2 sm:px-4 lg:px-6">
+      <div className={`${APP_SHELL_WIDTH_CLASS} flex h-full items-center justify-between gap-2 px-2 sm:px-4 lg:px-6`}>
         {/* Left Section - Logo and Brand */}
         <div className="flex items-center gap-2">
           <div
@@ -467,7 +468,7 @@ export default function Navbar({ children }: NavbarProps) {
           aria-label="Mobile navigation"
           className="xl:hidden border-t border-white/10 dark:border-white/10 bg-gradient-to-br from-white/95 via-white/90 to-white/85 dark:from-white/10 dark:via-white/10 dark:to-white/5 backdrop-blur-xl max-h-[calc(100vh-3.5rem)] overflow-y-auto"
         >
-          <div className="mx-auto w-full max-w-9xl px-2 sm:px-4 lg:px-6 sm:py-6 space-y-2">
+          <div className={`${APP_SHELL_WIDTH_CLASS} px-2 sm:px-4 lg:px-6 sm:py-6 space-y-2`}>
             {/* User Email with Avatar */}
             <div className="flex items-center gap-2 px-2 py-2">
               {isCheckingAuth ? (
@@ -633,8 +634,8 @@ export default function Navbar({ children }: NavbarProps) {
                 className={
                   pathname?.startsWith("/admin") ||
                   pathname?.startsWith("/business-insights")
-                    ? "mx-auto w-full max-w-9xl flex-1 sm:pr-4"
-                    : "mx-auto w-full max-w-9xl p-2 sm:px-4 sm:py-6 flex-1"
+                    ? `${APP_SHELL_WIDTH_CLASS} flex-1 sm:pr-4`
+                    : `${APP_SHELL_WIDTH_CLASS} p-2 sm:px-4 sm:py-6 flex-1`
                 }
               >
                 {children}

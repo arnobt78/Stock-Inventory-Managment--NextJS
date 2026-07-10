@@ -25,6 +25,7 @@ import {
   useSupplierPortalDashboard,
 } from "@/hooks/queries";
 import { isDataSlotLoading } from "@/lib/react-query";
+import { APP_SHELL_WIDTH_CLASS } from "@/lib/ui/shell-layout-styles";
 import OrderFilters from "./OrderFilters";
 import OrderDialog from "./OrderDialog";
 import { StatisticsCard } from "@/components/home/StatisticsCard";
@@ -986,7 +987,7 @@ const OrderList = React.memo(
 
         {/* Filters and Actions - Always visible, only disabled during auth check */}
         <div className="pb-6 flex justify-center">
-          <div className="w-full max-w-9xl">
+          <div className={APP_SHELL_WIDTH_CLASS}>
             <OrderFilters
               searchTerm={searchTerm}
               setSearchTerm={setSearchTerm}

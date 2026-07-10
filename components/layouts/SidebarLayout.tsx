@@ -2,6 +2,7 @@
 
 import React, { type ReactNode } from "react";
 import Link from "next/link";
+import { APP_SHELL_WIDTH_CLASS } from "@/lib/ui/shell-layout-styles";
 import { usePathname, useRouter } from "next/navigation";
 import {
   Activity,
@@ -200,7 +201,7 @@ export default function SidebarLayout({
         className="min-w-0 flex-1 overflow-y-auto overflow-x-hidden"
         tabIndex={-1}
       >
-        <div className="mx-auto w-full max-w-9xl p-2 sm:p-4 sm:py-6">
+        <div className={`${APP_SHELL_WIDTH_CLASS} p-2 sm:p-4 sm:py-6`}>
           {children}
         </div>
       </main>

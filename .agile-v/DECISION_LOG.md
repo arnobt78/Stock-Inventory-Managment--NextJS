@@ -65,3 +65,6 @@ Format: `TIMESTAMP | AGENT | DECISION | RATIONALE | REQ-ID`
 2026-07-10T10:33:00Z | red-team | REQ-0034 automated gates | lint ✓ test 329 ✓ invalidate 202 ✓ build ✓ | REQ-0034
 2026-07-10T10:40:00Z | build-agent | REQ-0035 OAuth welcome toast | AuthSessionToasts oauth_success handler; oauth-success-url + auth-welcome-toast helpers | REQ-0035
 2026-07-10T10:41:00Z | red-team | REQ-0035 automated gates | lint ✓ test 335 ✓ invalidate 202 ✓ build ✓ | REQ-0035
+2026-07-10T13:05:00Z | build-agent | REQ-0036 app shell full bleed | Remove max-w-9xl; APP_SHELL_WIDTH_CLASS; auth stays max-w-7xl | REQ-0036
+2026-07-10T13:06:00Z | red-team | REQ-0036 automated gates | lint ✓ test 335 ✓ invalidate 202 ✓ build ✓ | REQ-0036
+2026-07-10T13:10:00Z | red-team | REQ-0036 DRY + build | lint ✓ test 335 ✓ invalidate 202 ✓ build ✓ | REQ-0036

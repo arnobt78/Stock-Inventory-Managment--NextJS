@@ -8,6 +8,7 @@ import { createCategoryColumns } from "./CategoryTableColumns";
 import { useAuth } from "@/contexts";
 import { useCategories, useDashboard } from "@/hooks/queries";
 import { isDataSlotLoading } from "@/lib/react-query";
+import { APP_SHELL_WIDTH_CLASS } from "@/lib/ui/shell-layout-styles";
 import CategoryFilters from "./CategoryFilters";
 import AddCategoryDialog from "./CategoryDialog";
 import { StatisticsCard } from "@/components/home/StatisticsCard";
@@ -204,7 +205,7 @@ const CategoryList = React.memo(function CategoryList({
       )}
 
       <div className="pb-6 flex justify-center">
-        <div className="w-full max-w-9xl">
+        <div className={APP_SHELL_WIDTH_CLASS}>
           <CategoryFilters
             allCategories={allCategories}
             statusFilter={statusFilter}

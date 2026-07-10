@@ -6,6 +6,7 @@ import { PaginationType } from "@/components/shared/PaginationSelector";
 import { columns } from "./ProductTableColumns";
 import { useClientBrowseMeta, useClientBrowseProducts } from "@/hooks/queries";
 import { isDataSlotLoading } from "@/lib/react-query";
+import { APP_SHELL_WIDTH_CLASS } from "@/lib/ui/shell-layout-styles";
 import type {
   Product,
   Category,
@@ -161,7 +162,7 @@ export default function ClientProductList({
       </div>
 
       <div className="pb-6 flex justify-center">
-        <div className="w-full max-w-9xl">
+        <div className={APP_SHELL_WIDTH_CLASS}>
           <ProductFilters
             searchTerm={searchTerm}
             setSearchTerm={setSearchTerm}

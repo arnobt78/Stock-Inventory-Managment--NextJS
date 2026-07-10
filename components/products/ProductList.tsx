@@ -22,6 +22,7 @@ import { PageSectionHeader } from "@/components/shared";
 import type { Product } from "@/types";
 import type { ProductForHome } from "@/lib/server/home-data";
 import type { DashboardStats, SupplierPortalDashboard } from "@/types";
+import { APP_SHELL_WIDTH_CLASS } from "@/lib/ui/shell-layout-styles";
 
 const ProductTable = dynamic(
   () =>
@@ -579,7 +580,7 @@ const ProductList = React.memo(function ProductList({
 
       {/* Filters and Actions - Always visible, only disabled during auth check */}
       <div className="pb-6 flex justify-center">
-        <div className="w-full max-w-9xl">
+        <div className={APP_SHELL_WIDTH_CLASS}>
           <ProductFilters
             searchTerm={searchTerm}
             setSearchTerm={setSearchTerm}

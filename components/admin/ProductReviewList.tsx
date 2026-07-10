@@ -8,6 +8,7 @@
 import React, { useState, useEffect, useRef, useMemo } from "react";
 import { useProductReviews, useDashboard } from "@/hooks/queries";
 import { isDataSlotLoading } from "@/lib/react-query";
+import { APP_SHELL_WIDTH_CLASS } from "@/lib/ui/shell-layout-styles";
 import { PaginationType } from "@/components/shared/PaginationSelector";
 import { PageSectionHeader } from "@/components/shared";
 import { createProductReviewColumns } from "./ProductReviewTableColumns";
@@ -148,7 +149,7 @@ export default function ProductReviewList({
       </div>
 
       <div className="pb-6 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2">
-        <div className="w-full max-w-9xl">
+        <div className={APP_SHELL_WIDTH_CLASS}>
           <ProductReviewFilters
             searchTerm={searchTerm}
             setSearchTerm={setSearchTerm}

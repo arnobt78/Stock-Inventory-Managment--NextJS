@@ -2,6 +2,7 @@
 
 import React from "react";
 import Link from "next/link";
+import { APP_SHELL_WIDTH_CLASS } from "@/lib/ui/shell-layout-styles";
 
 /**
  * Footer Component
@@ -22,7 +23,7 @@ export default function Footer() {
 
   return (
     <footer className="w-full border-t border-gray-200/50 dark:border-white/10 bg-gradient-to-br from-white/90 via-white/85 to-white/80 dark:from-white/10 dark:via-white/10 dark:to-white/5 backdrop-blur-2xl shadow-[0_-10px_30px_rgba(2,132,199,0.15)] dark:shadow-[0_-10px_30px_rgba(15,23,42,0.25)]">
-      <div className="mx-auto w-full max-w-9xl px-2 sm:px-4 lg:px-6 py-4 sm:py-6">
+      <div className={`${APP_SHELL_WIDTH_CLASS} px-2 sm:px-4 lg:px-6 py-4 sm:py-6`}>
         <div className="flex flex-col sm:flex-row items-center justify-between gap-2">
           {/* Left Section - Copyright and Brand */}
           <div className="flex flex-col sm:flex-row items-center gap-1 sm:gap-2 text-sm text-gray-700 dark:text-muted-foreground">

@@ -89,6 +89,10 @@
 | ART-0082 | REQ-0033 | `AuthInfoPanel.tsx`, `AuthInfoListItem.tsx` | Tighter space-y-1 / py-2 spacing |
 | ART-0083 | REQ-0034 | `app/layout.tsx`, `AuthSessionToasts.tsx`, `use-toast.ts` | Deferred welcome/goodbye toasts |
 | ART-0084 | REQ-0035 | `oauth-success-url.ts`, `auth-welcome-toast.ts`, `AuthSessionToasts.tsx` | OAuth welcome toast on role destinations |
+| ART-0085 | REQ-0036 | `lib/ui/shell-layout-styles.ts`, `Navbar.tsx`, `Footer.tsx`, `SidebarLayout.tsx` | APP_SHELL_WIDTH_CLASS full bleed |
+| ART-0086 | REQ-0036 | list/detail page components | Remove max-w-9xl inner caps |
+| ART-0087 | REQ-0036 | `tailwind.config.ts` | Remove unused 9xl token |
+| ART-0088 | REQ-0036 | `shell-layout-styles.ts` | `APP_SHELL_DETAIL_CLASS` DRY on 6 detail pages |
 
 ## Tests
 

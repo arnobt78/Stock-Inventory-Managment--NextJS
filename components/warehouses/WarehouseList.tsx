@@ -13,6 +13,7 @@ import { PaginationType } from "@/components/shared/PaginationSelector";
 import { createWarehouseColumns } from "./WarehouseTableColumns";
 import { useWarehouses, useDashboard } from "@/hooks/queries";
 import { isDataSlotLoading } from "@/lib/react-query";
+import { APP_SHELL_WIDTH_CLASS } from "@/lib/ui/shell-layout-styles";
 import WarehouseFilters from "./WarehouseFilters";
 import WarehouseDialog from "./WarehouseDialog";
 import { StatisticsCard } from "@/components/home/StatisticsCard";
@@ -282,7 +283,7 @@ export default function WarehouseList({
 
       {/* Filters and Actions - Always visible, only disabled during auth check */}
       <div className="pb-6 flex justify-center">
-        <div className="w-full max-w-9xl">
+        <div className={APP_SHELL_WIDTH_CLASS}>
           <WarehouseFilters
             allWarehouses={allWarehouses}
             statusFilter={statusFilter}

@@ -55,6 +55,7 @@ import { isDataSlotLoading } from "@/lib/react-query";
 import type { Product, ProductStatus, ProductReview } from "@/types";
 import type { ReviewEligibilityResult } from "@/lib/server/product-reviews-detail-data";
 import { cn } from "@/lib/utils";
+import { APP_SHELL_DETAIL_CLASS } from "@/lib/ui/shell-layout-styles";
 import Image from "next/image";
 import ProductFormDialog from "@/components/products/ProductFormDialog";
 import { AlertDialogWrapper } from "@/components/dialogs";
@@ -327,7 +328,7 @@ export default function ProductDetailPage({
   return (
     <PageWrapper>
       <PageContentWrapper>
-        <div className="max-w-9xl mx-auto space-y-4">
+        <div className={APP_SHELL_DETAIL_CLASS}>
           {/* Header */}
           <PageSectionHeader
             as="h1"

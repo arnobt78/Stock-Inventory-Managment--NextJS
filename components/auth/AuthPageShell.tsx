@@ -12,7 +12,7 @@ type AuthPageShellProps = {
 
 /**
  * REQ-0030 — shared login/register layout shell.
- * Viewport-centered bg illustration (fixed z-0); content max-w-7xl.
+ * Viewport-centered bg illustration (fixed z-0); content max-w-7xl (REQ-0036: auth-only cap).
  * REQ-0033 — auth-page-root marker for html scrollbar-gutter (Select scroll-lock shift).
  */
 export function AuthPageShell({

@@ -6,6 +6,7 @@ import { PageContentWrapper } from "@/components/shared";
 import { PaginationType } from "@/components/shared/PaginationSelector";
 import { useSupportTickets } from "@/hooks/queries";
 import { isDataSlotLoading } from "@/lib/react-query";
+import { APP_SHELL_WIDTH_CLASS } from "@/lib/ui/shell-layout-styles";
 import { MessageSquare, MessageCircle, Plus } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { SupportTicket } from "@/types";
@@ -169,7 +170,7 @@ export default function SupportTicketsPageContent({
           </div>
 
           <div className="pb-6 flex justify-center">
-            <div className="w-full max-w-9xl">
+            <div className={APP_SHELL_WIDTH_CLASS}>
               <SupportTicketFilters
                 searchTerm={searchTerm}
                 setSearchTerm={setSearchTerm}
