@@ -7,7 +7,7 @@
 | **Infinity Loop stage** | Verify ◐ (code done; Human Gate 2 + manual QA open) |
 | **Last updated** | 2026-07-10 |
 | **Session** | ACTIVE — Agile V bootstrap resume |
-| **Active REQ range** | REQ-0001 … REQ-0033 (REQ-0033 code-complete) |
+| **Active REQ range** | REQ-0001 … REQ-0034 (REQ-0034 code-complete) |
 | **Prod deploy target** | `3ebb4db` (pushed `main` 2026-07-09) — confirm Vercel SHA |
 | **Human Gate 1** | APPROVED (retroactive bootstrap) |
 | **Human Gate 2** | PENDING — Sentry 24h after prod deploy |
@@ -19,7 +19,8 @@
 2. **Human Gate 2** — deploy confirm + Sentry 24h (REQ-0009)
 3. **REQ-0032** — auth glass parity, flat list, BG animation (code-complete)
 4. **REQ-0033** — auth copy, scroll shift, icon glow, spacing (code-complete)
-5. **C2 backlog** — user-reported issues + manual QA gaps (see below)
+5. **REQ-0034** — auth welcome/goodbye session toasts (code-complete)
+6. **C2 backlog** — user-reported issues + manual QA gaps (see below)
 
 ## Session resume (every chat)
 

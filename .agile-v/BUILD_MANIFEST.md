@@ -87,6 +87,7 @@
 | ART-0080 | REQ-0033 | `auth-glass-styles.ts`, `auth-list-styles.ts`, `AuthInfoListItem.tsx` | AUTH_LIST_ICON_GLASS glow pills |
 | ART-0081 | REQ-0033 | `AuthPageShell.tsx`, `globals.css` | auth-page-root + scrollbar-gutter |
 | ART-0082 | REQ-0033 | `AuthInfoPanel.tsx`, `AuthInfoListItem.tsx` | Tighter space-y-1 / py-2 spacing |
+| ART-0083 | REQ-0034 | `app/layout.tsx`, `AuthSessionToasts.tsx`, `use-toast.ts` | Deferred welcome/goodbye toasts |
 
 ## Tests
 

@@ -2,11 +2,10 @@
 
 /**
  * Consumes deferred login welcome / logout goodbye payloads after full-page navigation.
- * Mounted in root layout so toasts fire once Toaster is ready (post-redirect).
- * useLayoutEffect fires before paint so welcome appears with the dashboard shell.
+ * Mounted in root layout after Toaster so toast listeners are registered first (useEffect order).
  */
 
-import { useLayoutEffect, useRef } from "react";
+import { useEffect, useRef } from "react";
 import { useToast } from "@/hooks/use-toast";
 import {
   clearPostLoginWelcome,
@@ -26,7 +25,7 @@ export function AuthSessionToasts() {
   const { toast } = useToast();
   const consumedRef = useRef(false);
 
-  useLayoutEffect(() => {
+  useEffect(() => {
     if (consumedRef.current) return;
 
     if (!wasPostLogoutGoodbyeShown()) {

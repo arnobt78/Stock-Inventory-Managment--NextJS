@@ -3,7 +3,7 @@
 **Generated:** 2026-07-10  
 **eval_gate_status:** PENDING (Human Gate 2)  
 **Prod target SHA:** `3ebb4db` (main, pushed 2026-07-09)  
-**Red Team:** lint ✓ test 329 ✓ invalidate 202 ✓ build ✓ (session resume 2026-07-10; REQ-0033 2026-07-10)
+**Red Team:** lint ✓ test 329 ✓ invalidate 202 ✓ build ✓ (REQ-0034 2026-07-10)
 
 ---
 
@@ -55,6 +55,7 @@
 | VS-025 | INFO | Auth left panel list + brand redesign (REQ-0031) | PASS (automated) |
 | VS-026 | INFO | Auth glass parity, flat list, BG animation (REQ-0032) | PASS (automated) |
 | VS-027 | INFO | Auth copy, scroll shift, icon glow, spacing (REQ-0033) | PASS (automated) |
+| VS-028 | INFO | Auth welcome/goodbye session toasts (REQ-0034) | PASS (automated + user QA) |
 
 ---
 

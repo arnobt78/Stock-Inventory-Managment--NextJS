@@ -622,6 +622,31 @@ Canonical REQ source. All artifacts link via `REQ-XXXX`. Status: `done` | `verif
 
 ---
 
+## REQ-0034 — Auth welcome/goodbye session toasts
+
+| Field | Value |
+|-------|-------|
+| **Priority** | P1 |
+| **Risk** | R1 |
+| **Status** | done |
+| **Cycle** | C2 |
+| **Parent** | REQ-0030 |
+
+**Intent:** Restore deferred welcome toast after login redirect and goodbye toast after logout redirect.
+
+**Acceptance criteria**
+
+- AC1: Email/password login → welcome toast on role destination (`/`, `/client`, `/supplier`)
+- AC2: Logout from Navbar/AdminSidebar/SidebarLayout → goodbye toast on `/login`
+- AC3: `Toaster` mounts before `AuthSessionToasts`; `AuthSessionToasts` uses `useEffect`; `useToast` syncs `memoryState` on subscribe
+- AC4: Remove dead `use-post-login-welcome-toast.ts` hook
+- AC5: No TanStack/CRUD changes
+- AC6: Red Team pass
+
+**Artifacts:** `app/layout.tsx`, `AuthSessionToasts.tsx`, `hooks/use-toast.ts`, `lib/auth/post-login-welcome.ts`, `lib/auth/post-logout-goodbye.ts`, `LoginPage.tsx`, `Navbar.tsx`, `AdminSidebar.tsx`, `SidebarLayout.tsx`
+
+---
+
 ## REQ-0020 — Locale-aware admin formatting
 
 | Field | Value |

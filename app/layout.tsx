@@ -167,8 +167,9 @@ export default async function RootLayout({
                   </KeyboardShortcutsProvider>
                 </TooltipProvider>
               </ThemeProvider>
-              <AuthSessionToasts />
+              {/* Toaster must mount before AuthSessionToasts so useToast listeners exist when deferred toasts fire */}
               <Toaster />
+              <AuthSessionToasts />
               </ShellSsrProvider>
             </AuthProvider>
           </QueryProvider>
