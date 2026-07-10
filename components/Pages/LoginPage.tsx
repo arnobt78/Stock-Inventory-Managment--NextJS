@@ -4,7 +4,7 @@ import { useState, useEffect, useRef } from "react";
 import { useAuth } from "@/contexts";
 import { useRouter, useSearchParams } from "next/navigation";
 import { AUTH_FORM_FIELD_SKY, AUTH_GOOGLE_BUTTON } from "@/components/auth/auth-glass-styles";
-import { GLASS_BUTTON_ICON_HOVER, GLASS_BUTTON_SHELL_RESET, GLASS_PRIMARY_BUTTON } from "@/components/shared";
+import { GLASS_BUTTON_ICON_HOVER, GLASS_PRIMARY_BUTTON } from "@/components/shared";
 import { cn } from "@/lib/utils";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -247,13 +247,7 @@ export default function LoginPage() {
           <AuthAnimatedBlock delayMs={formRowDelay(4)}>
             <Button
               type="submit"
-              variant="ghost"
-              className={cn(
-                GLASS_BUTTON_ICON_HOVER,
-                GLASS_BUTTON_SHELL_RESET,
-                "w-full",
-                GLASS_PRIMARY_BUTTON.sky,
-              )}
+              className={cn(GLASS_BUTTON_ICON_HOVER, "w-full", GLASS_PRIMARY_BUTTON.sky)}
               disabled={formDisabled}
             >
               {isNavigatingToHome ? (

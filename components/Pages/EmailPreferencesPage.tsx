@@ -8,7 +8,6 @@ import {
   DataSlotPulse,
   PageSectionHeader,
   GLASS_BUTTON_ICON_HOVER,
-  GLASS_BUTTON_SHELL_RESET,
   GLASS_GHOST_BUTTON,
   GLASS_PRIMARY_BUTTON,
 } from "@/components/shared";
@@ -253,12 +252,10 @@ export default function EmailPreferencesPage({
                   Reset to Defaults
                 </Button>
                 <Button
-                  variant="ghost"
                   onClick={handleSaveAll}
                   disabled={updateMutation.isPending}
                   className={cn(
                     GLASS_BUTTON_ICON_HOVER,
-                    GLASS_BUTTON_SHELL_RESET,
                     "gap-2",
                     GLASS_PRIMARY_BUTTON.sky,
                   )}

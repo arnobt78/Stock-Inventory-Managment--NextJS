@@ -1,7 +1,11 @@
 /** Glass tokens for auth login/register pages (REQ-0032, REQ-0033). */
 
 import type { AuthListHue } from "@/lib/auth/auth-panel-copy";
-import { glassFormFieldClasses } from "@/lib/ui/focus-ring-styles";
+import {
+  FOCUS_NO_LAYOUT_SHIFT_CLASS,
+  GLASS_FOCUS_RING,
+  glassFormFieldClasses,
+} from "@/lib/ui/focus-ring-styles";
 
 export type AuthGlassVariant = "login" | "register";
 
@@ -60,3 +64,12 @@ export const AUTH_GOOGLE_BUTTON: Record<AuthGlassVariant, string> = {
   register:
     "w-full border-emerald-400/40 dark:border-white/20 bg-white/80 dark:bg-white/5 backdrop-blur-md text-gray-700 dark:text-white shadow-sm hover:bg-white dark:hover:bg-white/10 hover:text-gray-700 dark:hover:text-white",
 };
+
+const AUTH_SUBMIT_LAYOUT =
+  "h-11 w-full inline-flex items-center justify-center rounded-xl backdrop-blur-md transition duration-200 text-white font-normal";
+
+/**
+ * Register submit — richer opaque gradient on pale emerald glass (matches login CTA punch).
+ * Login keeps GLASS_PRIMARY_BUTTON.sky (user-verified).
+ */
+export const AUTH_SUBMIT_BUTTON_EMERALD = `${FOCUS_NO_LAYOUT_SHIFT_CLASS} ${GLASS_FOCUS_RING.emerald} ${AUTH_SUBMIT_LAYOUT} border border-emerald-400/40 bg-gradient-to-r from-emerald-600 via-emerald-500 to-teal-700 shadow-[0_15px_35px_rgba(16,185,129,0.5)] hover:border-emerald-300/50 hover:from-emerald-500 hover:via-emerald-400 hover:to-teal-600 hover:shadow-[0_20px_45px_rgba(16,185,129,0.6)] dark:from-emerald-500/80 dark:via-emerald-500/60 dark:to-teal-600/70`;

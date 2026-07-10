@@ -192,7 +192,7 @@ export function ProductImportDialog({
         </Button>
       </DialogTrigger>
       <DialogContent
-        className="p-4 p-2 sm:p-4 sm:px-8 poppins max-h-[90vh] overflow-y-auto border-amber-400/30 dark:border-amber-400/30 shadow-[0_30px_80px_rgba(245,158,11,0.45)] dark:shadow-[0_30px_80px_rgba(245,158,11,0.25)]"
+        className="p-2 sm:p-4 sm:px-8 poppins max-h-[90vh] overflow-y-auto border-amber-400/30 dark:border-amber-400/30 shadow-[0_30px_80px_rgba(245,158,11,0.45)] dark:shadow-[0_30px_80px_rgba(245,158,11,0.25)]"
         onOpenAutoFocus={(e) => e.preventDefault()}
       >
         <DialogHeader>

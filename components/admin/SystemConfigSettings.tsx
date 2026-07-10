@@ -11,7 +11,6 @@ import { Button } from "@/components/ui/button";
 import {
   GLASS_ACTION_BUTTON,
   GLASS_BUTTON_ICON_HOVER,
-  GLASS_BUTTON_SHELL_RESET,
   GLASS_GHOST_BUTTON,
   GLASS_PRIMARY_BUTTON,
 } from "@/lib/ui/glass-button-styles";
@@ -137,13 +136,11 @@ export default function SystemConfigSettings({
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           <Button
-            variant="ghost"
             size="sm"
             onClick={() => configsQuery.refetch()}
             disabled={actionsDisabled || updateMutation.isPending}
             className={cn(
               GLASS_BUTTON_ICON_HOVER,
-              GLASS_BUTTON_SHELL_RESET,
               "gap-2",
               GLASS_ACTION_BUTTON.sky,
             )}
@@ -165,13 +162,11 @@ export default function SystemConfigSettings({
             </Button>
           )}
           <Button
-            variant="ghost"
             size="sm"
             onClick={handleSave}
             disabled={!hasChanges || actionsDisabled || updateMutation.isPending}
             className={cn(
               GLASS_BUTTON_ICON_HOVER,
-              GLASS_BUTTON_SHELL_RESET,
               "gap-2",
               GLASS_PRIMARY_BUTTON.emerald,
             )}

@@ -68,7 +68,6 @@ import {
 } from "@/lib/ui/focus-ring-styles";
 import {
   GLASS_BUTTON_ICON_HOVER,
-  GLASS_BUTTON_SHELL_RESET,
   GLASS_PRIMARY_BUTTON,
 } from "@/lib/ui/glass-button-styles";
 
@@ -837,11 +836,9 @@ export default function BusinessInsightPage({
               </p>
             </div>
             <Button
-              variant="ghost"
               onClick={handleExportAnalytics}
               className={cn(
                 GLASS_BUTTON_ICON_HOVER,
-                GLASS_BUTTON_SHELL_RESET,
                 "flex-shrink-0 gap-2",
                 GLASS_PRIMARY_BUTTON.blue,
               )}
@@ -1516,11 +1513,9 @@ export default function BusinessInsightPage({
                     {aiInsightsText}
                   </p>
                   <Button
-                    variant="ghost"
                     size="sm"
                     className={cn(
                       GLASS_BUTTON_ICON_HOVER,
-                      GLASS_BUTTON_SHELL_RESET,
                       "gap-1",
                       GLASS_PRIMARY_BUTTON.amber,
                     )}
@@ -1536,11 +1531,9 @@ export default function BusinessInsightPage({
                     Get short AI recommendations based on your current metrics.
                   </p>
                   <Button
-                    variant="ghost"
                     size="sm"
                     className={cn(
                       GLASS_BUTTON_ICON_HOVER,
-                      GLASS_BUTTON_SHELL_RESET,
                       "gap-1",
                       GLASS_PRIMARY_BUTTON.amber,
                     )}

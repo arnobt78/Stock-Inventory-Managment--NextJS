@@ -5,12 +5,9 @@ import { useRouter } from "next/navigation";
 import {
   AUTH_FORM_FIELD_EMERALD,
   AUTH_GOOGLE_BUTTON,
+  AUTH_SUBMIT_BUTTON_EMERALD,
 } from "@/components/auth/auth-glass-styles";
-import {
-  GLASS_BUTTON_ICON_HOVER,
-  GLASS_BUTTON_SHELL_RESET,
-  GLASS_PRIMARY_BUTTON,
-} from "@/components/shared";
+import { GLASS_BUTTON_ICON_HOVER } from "@/components/shared";
 import { cn } from "@/lib/utils";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -204,13 +201,7 @@ export default function RegisterPage() {
           <AuthAnimatedBlock delayMs={formRowDelay(5)}>
             <Button
               type="submit"
-              variant="ghost"
-              className={cn(
-                GLASS_BUTTON_ICON_HOVER,
-                GLASS_BUTTON_SHELL_RESET,
-                "w-full",
-                GLASS_PRIMARY_BUTTON.emerald,
-              )}
+              className={cn(GLASS_BUTTON_ICON_HOVER, AUTH_SUBMIT_BUTTON_EMERALD)}
               disabled={isLoading}
             >
               {isLoading ? (

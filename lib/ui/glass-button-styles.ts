@@ -12,9 +12,9 @@ import {
 export const GLASS_BUTTON_ICON_HOVER =
   "group [&_svg]:transition-transform [&_svg]:duration-200 group-hover:[&_svg]:scale-110";
 
-/** Strips shadcn Button default bg-primary bleed under glass gradients */
+/** Strips shadcn Button default shadow bleed; do NOT use bg-transparent — it kills GLASS_PRIMARY gradients via tailwind-merge */
 export const GLASS_BUTTON_SHELL_RESET =
-  "bg-transparent hover:bg-transparent shadow-none";
+  "shadow-none hover:shadow-none";
 
 /** Faded disabled submit/toolbar state */
 export const GLASS_BUTTON_DISABLED =
