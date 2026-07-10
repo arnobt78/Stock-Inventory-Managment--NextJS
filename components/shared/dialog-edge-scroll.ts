@@ -32,3 +32,16 @@ export const DIALOG_TABLE_FRAME_SKY =
  */
 export const DIALOG_TABLE_FRAME_EMERALD =
   "rounded-md border border-white/10 bg-gradient-to-br from-white/20 via-white/15 to-white/10 dark:from-white/5 dark:via-white/5 dark:to-white/5 backdrop-blur-md ring-1 ring-emerald-400/25 shadow-sm";
+
+/**
+ * REQ-0048 — embedded dialog tables (dark glass shell; light system theme).
+ * Use td-level zebra so horizontal scroll does not break striping.
+ */
+export const DIALOG_TABLE_TEXT = "text-white/90";
+export const DIALOG_TABLE_TEXT_MUTED = "text-white/70";
+export const DIALOG_TABLE_HEAD_TEXT = "text-white/80";
+export const DIALOG_TABLE_HEAD_ROW = "[&_th]:bg-white/10";
+export const DIALOG_TABLE_ROW_EVEN = "[&_td]:bg-white/10";
+export const DIALOG_TABLE_ROW_ODD = "[&_td]:bg-white/[0.06]";
+export const DIALOG_TABLE_ROW_HOVER = "hover:[&_td]:bg-white/15";
+export const DIALOG_TABLE_SURFACE = "bg-black/20";

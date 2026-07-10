@@ -115,7 +115,9 @@ export default function SupportTicketDialog({
     ? "border-violet-300/30 bg-violet-100/50 dark:border-violet-400/30 dark:bg-violet-500/20"
     : "border-sky-300/30 bg-sky-100/50 dark:border-sky-400/30 dark:bg-sky-500/20";
   const iconColorClass = isViolet ? "text-violet-400" : "text-sky-400";
-  const inputClass = isViolet ? DIALOG_FORM_FIELD_VIOLET : DIALOG_FORM_FIELD_SKY;
+  const inputClass = isViolet
+    ? DIALOG_FORM_FIELD_VIOLET
+    : DIALOG_FORM_FIELD_SKY;
   const labelClass = "text-white/80";
   const descClass = "text-white/50";
   const titleClass = "text-[22px] text-white";
@@ -128,7 +130,7 @@ export default function SupportTicketDialog({
       {trigger && <DialogTrigger asChild>{trigger}</DialogTrigger>}
       <DialogContent
         className={cn(
-          "p-4 p-2 sm:p-4 sm:px-8 poppins max-h-[90vh] overflow-y-auto",
+          "p-2 sm:p-4 sm:px-8 poppins max-h-[90vh] overflow-y-auto",
           "bg-gradient-to-br from-slate-800/98 to-slate-900/98 dark:from-slate-800/98 dark:to-slate-900/98",
           borderClass,
           shadowClass,

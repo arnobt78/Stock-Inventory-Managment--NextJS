@@ -119,6 +119,9 @@
 | ART-0112 | REQ-0047 | `glass-button-styles.ts`, `shared/index.ts` | primary/action/ghost + icon hover tokens |
 | ART-0113 | REQ-0047 | PaymentDialog, ShippingManagement, ApiStatusPage, BusinessInsightPage, EmailPreferencesPage, SystemConfigSettings | Batch A glass buttons |
 | ART-0114 | REQ-0047 | Category/Supplier/Order/Invoice/CreateUser/SupportTicket/Login/Register dialogs | Batch B submit/cancel pairs |
+| ART-0115 | REQ-0048 | `auth-glass-styles.ts` | AUTH_FORM_FIELD_* + AUTH_GOOGLE_BUTTON light-mode |
+| ART-0116 | REQ-0048 | `dialog-edge-scroll.ts`, Category/Supplier dialogs + columns | DIALOG_TABLE_* tokens; context dialog |
+| ART-0117 | REQ-0048 | `ProductOptionRow.tsx`, `OrderDialog.tsx` | product Select thumbs + Package label |
 
 ## Tests
 

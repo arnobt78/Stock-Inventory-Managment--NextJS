@@ -70,7 +70,8 @@ import type {
   CreateOrderInput,
 } from "@/types";
 import { logger } from "@/lib/logger";
-import { Plus, Trash2, X } from "lucide-react";
+import { Plus, Trash2, X, Package } from "lucide-react";
+import { ProductOptionRow } from "@/components/products/ProductOptionRow";
 import { useAuth } from "@/contexts";
 import { useToast } from "@/hooks/use-toast";
 
@@ -1067,18 +1068,29 @@ export default function OrderDialog({
                           <div className="flex-1 grid grid-cols-1 sm:grid-cols-2 gap-2">
                             {/* Product Selection */}
                             <div className="flex flex-col gap-2">
-                              <Label className="text-white/80 text-sm">
+                              <Label className="flex items-center gap-2 text-white/80 text-sm">
+                                <Package className="h-4 w-4 shrink-0 text-violet-400" />
                                 Product {index + 1}
                               </Label>
                               <DeferredSelectGate
                                 enabled={open}
                                 placeholder={
                                   <div
-                                    className="flex h-11 w-full items-center rounded-md border border-violet-400/30 bg-white/10 px-2 text-sm text-white/60"
+                                    className="flex h-11 w-full items-center rounded-md border border-violet-400/30 bg-white/10 px-2 text-sm"
                                     aria-hidden
                                   >
-                                    {selectedProduct?.name ??
-                                      productSelectPlaceholder}
+                                    {selectedProduct ? (
+                                      <ProductOptionRow
+                                        name={selectedProduct.name}
+                                        imageUrl={selectedProduct.imageUrl}
+                                        size="sm"
+                                        className="text-white/90"
+                                      />
+                                    ) : (
+                                      <span className="text-white/60">
+                                        {productSelectPlaceholder}
+                                      </span>
+                                    )}
                                   </div>
                                 }
                               >
@@ -1102,9 +1114,16 @@ export default function OrderDialog({
                                     }
                                   >
                                     <SelectTrigger className={cn("h-11 w-full", DIALOG_FORM_FIELD_VIOLET)}>
-                                      <SelectValue
-                                        placeholder={productSelectPlaceholder}
-                                      />
+                                      <SelectValue placeholder={productSelectPlaceholder}>
+                                        {selectedProduct ? (
+                                          <ProductOptionRow
+                                            name={selectedProduct.name}
+                                            imageUrl={selectedProduct.imageUrl}
+                                            size="sm"
+                                            className="text-white/90"
+                                          />
+                                        ) : null}
+                                      </SelectValue>
                                     </SelectTrigger>
                                     <SelectContent
                                       className="border-violet-400/20 dark:border-white/10 bg-white/80 dark:bg-popover/50 backdrop-blur-md z-[100]"
@@ -1124,11 +1143,16 @@ export default function OrderDialog({
                                           <SelectItem
                                             key={product.id}
                                             value={product.id}
-                                            className="cursor-pointer text-gray-700 dark:text-white focus:bg-violet-100 dark:focus:bg-white/10 focus:text-gray-700 dark:focus:text-white"
+                                            className="cursor-pointer py-2 text-gray-700 dark:text-white focus:bg-violet-100 dark:focus:bg-white/10 focus:text-gray-700 dark:focus:text-white"
                                           >
-                                            {product.name} - $
-                                            {Number(product.price).toFixed(2)}{" "}
-                                            (Stock: {product.quantity})
+                                            <ProductOptionRow
+                                              name={product.name}
+                                              imageUrl={product.imageUrl}
+                                              price={Number(product.price)}
+                                              quantity={Number(product.quantity)}
+                                              size="sm"
+                                              showMeta
+                                            />
                                           </SelectItem>
                                         ))
                                       )}

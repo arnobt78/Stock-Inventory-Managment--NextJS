@@ -7,7 +7,7 @@
 | **Infinity Loop stage** | Verify ◐ (code done; Human Gate 2 + manual QA open) |
 | **Last updated** | 2026-07-10 |
 | **Session** | ACTIVE — Agile V bootstrap resume |
-| **Active REQ range** | REQ-0001 … REQ-0047 (REQ-0047 code-complete) |
+| **Active REQ range** | REQ-0001 … REQ-0048 (REQ-0048 code-complete) |
 | **Prod deploy target** | `3ebb4db` (pushed `main` 2026-07-09) — confirm Vercel SHA |
 | **Human Gate 1** | APPROVED (retroactive bootstrap) |
 | **Human Gate 2** | PENDING — Sentry 24h after prod deploy |
@@ -33,7 +33,8 @@
 16. **REQ-0045** — Filter row UX + invoice status perf + header spacing (code-complete)
 17. **REQ-0046** — Catalog toolbar parity + focus no-shift + hue rings (code-complete)
 18. **REQ-0047** — Glass button tokens + Batch A/B page consistency (code-complete)
-19. **C2 backlog** — user-reported issues + manual QA gaps (see below)
+19. **REQ-0048** — Auth light mode + dialog tables + order product thumbs (code-complete)
+20. **C2 backlog** — user-reported issues + manual QA gaps (see below)
 
 ## Session resume (every chat)
 
@@ -69,7 +70,7 @@
 | UI glass badges + tables + invoices (REQ-0028) | done |
 | Supplier catalog detail Option B (REQ-0029) | done — `3ebb4db` |
 | TanStack invalidation | unchanged; 202 audit pass |
-| Red Team (latest) | lint ✓ test 343 ✓ invalidate 202 ✓ build ✓ (2026-07-10 REQ-0047 glass buttons) |
+| Red Team (latest) | lint ✓ test 343 ✓ invalidate 202 ✓ build ✓ (2026-07-10 REQ-0048) |
 | PLAYBOOK.md | active — session ops guide |
 
 ## Recent commits (last ~3 days)

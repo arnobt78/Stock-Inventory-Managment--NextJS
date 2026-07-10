@@ -23,7 +23,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { DeferredSelectGate, DIALOG_FORM_FIELD_TEAL } from "@/components/shared";
+import {
+  DeferredSelectGate,
+  DIALOG_FORM_FIELD_TEAL,
+} from "@/components/shared";
 import { cn } from "@/lib/utils";
 import { useCreateWarehouse, useUpdateWarehouse } from "@/hooks/queries";
 import { Warehouse } from "@/types";
@@ -146,7 +149,7 @@ export default function WarehouseDialog({
     <Dialog open={open} onOpenChange={setOpen}>
       {children && <DialogTrigger asChild>{children}</DialogTrigger>}
       <DialogContent
-        className="p-4 p-2 sm:p-4 sm:px-8 poppins max-h-[90vh] overflow-y-auto border-teal-400/30 dark:border-teal-400/30 shadow-[0_30px_80px_rgba(20,184,166,0.35)] dark:shadow-[0_30px_80px_rgba(20,184,166,0.25)]"
+        className="p-2 sm:p-4 sm:px-8 poppins max-h-[90vh] overflow-y-auto border-teal-400/30 dark:border-teal-400/30 shadow-[0_30px_80px_rgba(20,184,166,0.35)] dark:shadow-[0_30px_80px_rgba(20,184,166,0.25)]"
         onOpenAutoFocus={(e) => e.preventDefault()}
       >
         <DialogHeader>
@@ -217,7 +220,9 @@ export default function WarehouseDialog({
                   value={type}
                   onValueChange={setType}
                 >
-                  <SelectTrigger className={cn("h-11 w-full", DIALOG_FORM_FIELD_TEAL)}>
+                  <SelectTrigger
+                    className={cn("h-11 w-full", DIALOG_FORM_FIELD_TEAL)}
+                  >
                     <SelectValue placeholder="Select type" />
                   </SelectTrigger>
                   <SelectContent

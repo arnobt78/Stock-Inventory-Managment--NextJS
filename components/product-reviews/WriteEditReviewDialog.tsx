@@ -97,7 +97,7 @@ export default function WriteEditReviewDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent
         className={cn(
-          "p-4 p-2 sm:p-4 sm:px-8 poppins max-h-[90vh] overflow-y-auto",
+          "p-2 sm:p-4 sm:px-8 poppins max-h-[90vh] overflow-y-auto",
           "bg-gradient-to-br from-slate-800/98 to-slate-900/98 dark:from-slate-800/98 dark:to-slate-900/98",
           "border-amber-400/30 dark:border-amber-400/30",
           "shadow-[0_25px_60px_rgba(245,158,11,0.25)] dark:shadow-[0_25px_60px_rgba(245,158,11,0.2)]",
@@ -157,7 +157,10 @@ export default function WriteEditReviewDialog({
               onChange={(e) => setComment(e.target.value)}
               disabled={isPending}
               placeholder="Share your experience..."
-              className={cn("min-h-[100px] rounded-xl mt-1", DIALOG_FORM_FIELD_AMBER)}
+              className={cn(
+                "min-h-[100px] rounded-xl mt-1",
+                DIALOG_FORM_FIELD_AMBER,
+              )}
             />
           </div>
           <DialogFooter className="mt-6 flex flex-col sm:flex-row items-center gap-2">

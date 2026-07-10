@@ -1,6 +1,7 @@
 /** Glass tokens for auth login/register pages (REQ-0032, REQ-0033). */
 
 import type { AuthListHue } from "@/lib/auth/auth-panel-copy";
+import { glassFormFieldClasses } from "@/lib/ui/focus-ring-styles";
 
 export type AuthGlassVariant = "login" | "register";
 
@@ -31,4 +32,31 @@ export const AUTH_LIST_ICON_GLASS: Record<AuthListHue, string> = {
     "border-violet-400/35 bg-gradient-to-br from-violet-500/30 via-violet-500/15 to-violet-500/8 shadow-[0_5px_20px_rgba(139,92,246,0.3)] dark:border-violet-400/30 dark:from-violet-500/25 dark:via-violet-500/12 dark:to-violet-500/6 dark:shadow-[0_5px_20px_rgba(139,92,246,0.25)] backdrop-blur-md",
   blue:
     "border-blue-400/35 bg-gradient-to-br from-blue-500/30 via-blue-500/15 to-blue-500/8 shadow-[0_5px_20px_rgba(59,130,246,0.3)] dark:border-blue-400/30 dark:from-blue-500/25 dark:via-blue-500/12 dark:to-blue-500/6 dark:shadow-[0_5px_20px_rgba(59,130,246,0.25)] backdrop-blur-md",
+};
+
+/**
+ * REQ-0048 — auth form controls (light-mode readable on pale glass card).
+ * Do not reuse DIALOG_FORM_FIELD_* — those assume dark modal shell.
+ */
+const AUTH_FORM_FIELD_BASE =
+  "bg-white/70 dark:bg-white/5 backdrop-blur-md text-gray-700 dark:text-white placeholder:text-gray-500 dark:placeholder:text-white/40";
+
+const authSkyShell = `${AUTH_FORM_FIELD_BASE} border border-sky-400/30 dark:border-white/20 shadow-[0_10px_30px_rgba(2,132,199,0.15)]`;
+const authEmeraldShell = `${AUTH_FORM_FIELD_BASE} border border-emerald-400/30 dark:border-white/20 shadow-[0_10px_30px_rgba(16,185,129,0.15)]`;
+
+/** Login page inputs + role Select trigger */
+export const AUTH_FORM_FIELD_SKY = glassFormFieldClasses("sky", authSkyShell);
+
+/** Register page inputs */
+export const AUTH_FORM_FIELD_EMERALD = glassFormFieldClasses(
+  "emerald",
+  authEmeraldShell,
+);
+
+/** Google OAuth — soft opaque fill in light mode (not bg-white/10 on pale card) */
+export const AUTH_GOOGLE_BUTTON: Record<AuthGlassVariant, string> = {
+  login:
+    "w-full border-sky-400/40 dark:border-white/20 bg-white/80 dark:bg-white/5 backdrop-blur-md text-gray-700 dark:text-white shadow-sm hover:bg-white dark:hover:bg-white/10 hover:text-gray-700 dark:hover:text-white",
+  register:
+    "w-full border-emerald-400/40 dark:border-white/20 bg-white/80 dark:bg-white/5 backdrop-blur-md text-gray-700 dark:text-white shadow-sm hover:bg-white dark:hover:bg-white/10 hover:text-gray-700 dark:hover:text-white",
 };

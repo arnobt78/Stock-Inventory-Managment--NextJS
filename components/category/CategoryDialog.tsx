@@ -49,7 +49,14 @@ import {
   DIALOG_EDGE_SCROLL_SHELL,
   DIALOG_FORM_FIELD_SKY,
   DIALOG_TABLE_FRAME_SKY,
+  DIALOG_TABLE_HEAD_ROW,
+  DIALOG_TABLE_ROW_EVEN,
+  DIALOG_TABLE_ROW_HOVER,
+  DIALOG_TABLE_ROW_ODD,
   DIALOG_TABLE_SECTION,
+  DIALOG_TABLE_SURFACE,
+  DIALOG_TABLE_TEXT,
+  DIALOG_TABLE_TEXT_MUTED,
   GLASS_BUTTON_ICON_HOVER,
   GLASS_GHOST_BUTTON,
   GLASS_PRIMARY_BUTTON,
@@ -274,7 +281,7 @@ export default function AddCategoryDialog({
 
   // Create table columns with edit handler
   const columns = useMemo<ColumnDef<Category>[]>(
-    () => createCategoryColumns(handleEditCategory),
+    () => createCategoryColumns(handleEditCategory, { context: "dialog" }),
     [handleEditCategory],
   );
 
@@ -486,12 +493,12 @@ export default function AddCategoryDialog({
                 )}
               </h3>
               <DialogTableScrollArea frameClassName={DIALOG_TABLE_FRAME_SKY}>
-                <Table>
+                <Table className={cn(DIALOG_TABLE_TEXT, DIALOG_TABLE_SURFACE)}>
                   <TableHeader>
                     {table.getHeaderGroups().map((headerGroup) => (
                       <TableRow
                         key={headerGroup.id}
-                        className="bg-white/40 dark:bg-white/10"
+                        className={DIALOG_TABLE_HEAD_ROW}
                       >
                         {headerGroup.headers.map((header) => (
                           <TableHead
@@ -516,7 +523,7 @@ export default function AddCategoryDialog({
                       <TableRow>
                         <TableCell
                           colSpan={columns.length}
-                          className="text-center text-gray-700 dark:text-white"
+                          className={cn("text-center", DIALOG_TABLE_TEXT_MUTED)}
                         >
                           Loading...
                         </TableCell>
@@ -526,11 +533,12 @@ export default function AddCategoryDialog({
                         <TableRow
                           key={row.id}
                           data-state={row.getIsSelected() && "selected"}
-                          className={
+                          className={cn(
                             index % 2 === 0
-                              ? "bg-white/30 dark:bg-white/5"
-                              : "bg-white/20 dark:bg-white/10"
-                          }
+                              ? DIALOG_TABLE_ROW_EVEN
+                              : DIALOG_TABLE_ROW_ODD,
+                            DIALOG_TABLE_ROW_HOVER,
+                          )}
                         >
                           {row.getVisibleCells().map((cell) => (
                             <TableCell
@@ -551,7 +559,7 @@ export default function AddCategoryDialog({
                       <TableRow>
                         <TableCell
                           colSpan={columns.length}
-                          className="text-center text-gray-700 dark:text-white"
+                          className={cn("text-center", DIALOG_TABLE_TEXT_MUTED)}
                         >
                           No categories found.
                         </TableCell>

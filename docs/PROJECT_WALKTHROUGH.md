@@ -159,6 +159,7 @@ Prevents `NotFoundError: removeChild` when App Router navigates between pages wh
 | Filter row + invoice status (REQ-0045) | `filter-command-item.tsx` — whole-row cmdk toggle; invoice status client-side in `InvoiceTable`/`InvoiceFilters` (matches orders); `shell-layout-styles` header spacing; no TanStack/invalidation delta |
 | Catalog toolbar parity (REQ-0046) | `CATALOG_TOOLBAR_TRIGGER_LAYOUT` + `focus-ring-styles.ts` (`GLASS_FOCUS_RING`) — filter/export `px-4 gap-2 h-10 sm:w-auto`; dialog forms via `dialog-form-field.ts`; no focus border shift; dark hue rings; CSS-only |
 | Glass button tokens (REQ-0047) | `glass-button-styles.ts` — `GLASS_PRIMARY/ACTION/GHOST_BUTTON` + icon hover; Batch A (payment/shipping/api-status/insights/email-prefs/system-config) + Batch B dialogs/auth; builds on focus-ring; CSS-only |
+| Auth light mode + dialog tables + order thumbs (REQ-0048) | `AUTH_FORM_FIELD_*` + `AUTH_GOOGLE_BUTTON`; `DIALOG_TABLE_*` in category/supplier dialogs; `ProductOptionRow` in OrderDialog; CSS/UI only |
 
 Tests: `lib/ai/openrouter.test.ts`, `lib/ai/groq.test.ts`, `lib/ai/create-chat-completion.test.ts`, `lib/auth/unique-username.test.ts`, `lib/server/catalog-entity-access.test.ts`.
 

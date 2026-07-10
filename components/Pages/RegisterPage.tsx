@@ -3,7 +3,10 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import {
-  DIALOG_FORM_FIELD_EMERALD,
+  AUTH_FORM_FIELD_EMERALD,
+  AUTH_GOOGLE_BUTTON,
+} from "@/components/auth/auth-glass-styles";
+import {
   GLASS_BUTTON_ICON_HOVER,
   GLASS_PRIMARY_BUTTON,
 } from "@/components/shared";
@@ -139,10 +142,7 @@ export default function RegisterPage() {
               onChange={(e) => setName(e.target.value)}
               placeholder="John Doe"
               required
-              className={cn(
-                "w-full text-gray-700 dark:text-white placeholder:text-gray-500 dark:placeholder:text-white/40",
-                DIALOG_FORM_FIELD_EMERALD,
-              )}
+              className={cn("w-full", AUTH_FORM_FIELD_EMERALD)}
             />
           </AuthAnimatedBlock>
 
@@ -160,10 +160,7 @@ export default function RegisterPage() {
               onChange={(e) => setEmail(e.target.value)}
               placeholder="you@example.com"
               required
-              className={cn(
-                "w-full text-gray-700 dark:text-white placeholder:text-gray-500 dark:placeholder:text-white/40",
-                DIALOG_FORM_FIELD_EMERALD,
-              )}
+              className={cn("w-full", AUTH_FORM_FIELD_EMERALD)}
             />
           </AuthAnimatedBlock>
 
@@ -181,10 +178,7 @@ export default function RegisterPage() {
               onChange={(e) => setPassword(e.target.value)}
               placeholder="Enter your password"
               required
-              className={cn(
-                "w-full text-gray-700 dark:text-white placeholder:text-gray-500 dark:placeholder:text-white/40",
-                DIALOG_FORM_FIELD_EMERALD,
-              )}
+              className={cn("w-full", AUTH_FORM_FIELD_EMERALD)}
             />
           </AuthAnimatedBlock>
 
@@ -202,10 +196,7 @@ export default function RegisterPage() {
               onChange={(e) => setConfirmPassword(e.target.value)}
               placeholder="Confirm your password"
               required
-              className={cn(
-                "w-full text-gray-700 dark:text-white placeholder:text-gray-500 dark:placeholder:text-white/40",
-                DIALOG_FORM_FIELD_EMERALD,
-              )}
+              className={cn("w-full", AUTH_FORM_FIELD_EMERALD)}
             />
           </AuthAnimatedBlock>
 
@@ -244,7 +235,7 @@ export default function RegisterPage() {
             variant="outline"
             onClick={handleGoogleSignUp}
             disabled={isLoading}
-            className="w-full border-emerald-400/30 dark:border-white/20 bg-white/10 dark:bg-white/5 backdrop-blur-md text-gray-700 dark:text-white hover:bg-white/20 dark:hover:bg-white/10 hover:text-gray-700 dark:hover:text-white"
+            className={AUTH_GOOGLE_BUTTON.register}
           >
             <svg
               className="mr-2 h-4 w-4"

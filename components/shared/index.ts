@@ -44,7 +44,15 @@ export {
   DIALOG_EDGE_SCROLL_SHELL,
   DIALOG_TABLE_FRAME_EMERALD,
   DIALOG_TABLE_FRAME_SKY,
+  DIALOG_TABLE_HEAD_ROW,
+  DIALOG_TABLE_HEAD_TEXT,
+  DIALOG_TABLE_ROW_EVEN,
+  DIALOG_TABLE_ROW_HOVER,
+  DIALOG_TABLE_ROW_ODD,
   DIALOG_TABLE_SECTION,
+  DIALOG_TABLE_SURFACE,
+  DIALOG_TABLE_TEXT,
+  DIALOG_TABLE_TEXT_MUTED,
 } from "./dialog-edge-scroll";
 export { DialogTableScrollArea } from "./DialogTableScrollArea";
 export type { DialogTableScrollAreaProps } from "./DialogTableScrollArea";

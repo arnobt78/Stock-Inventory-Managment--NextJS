@@ -99,3 +99,7 @@ Format: `TIMESTAMP | AGENT | DECISION | RATIONALE | REQ-ID`
 2026-07-10T16:51:00Z | build-agent | Batch A+B glass migration | 14 files; Email prefs icon h-4 w-4 mr-2 | REQ-0047
 2026-07-10T16:52:00Z | red-team | REQ-0047 gates | lint ✓ test 343 ✓ invalidate 202 ✓ build ✓; CSS-only | REQ-0047
 2026-07-10T16:52:00Z | release-manager | commit split note | REQ-0046 focus-ring separate from REQ-0047 glass+email prefs | REQ-0046, REQ-0047
+2026-07-10T17:16:00Z | build-agent | AUTH_FORM_FIELD_* | light-mode auth fields; stop DIALOG_FORM_FIELD on login/register | REQ-0048
+2026-07-10T17:16:00Z | build-agent | DIALOG_TABLE_* | td zebra + white text; category/supplier dialog tables | REQ-0048
+2026-07-10T17:16:00Z | build-agent | ProductOptionRow | OrderDialog product Select SafeImage thumbs | REQ-0048
+2026-07-10T17:17:00Z | red-team | REQ-0048 gates | lint ✓ test 343 ✓ invalidate 202 ✓ build ✓; CSS/UI only | REQ-0048

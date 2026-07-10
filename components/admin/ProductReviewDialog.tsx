@@ -22,7 +22,10 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Star, Loader2 } from "lucide-react";
-import { DeferredSelectGate, DIALOG_FORM_FIELD_AMBER } from "@/components/shared";
+import {
+  DeferredSelectGate,
+  DIALOG_FORM_FIELD_AMBER,
+} from "@/components/shared";
 import { cn } from "@/lib/utils";
 import { useCreateProductReview, useProducts } from "@/hooks/queries";
 
@@ -94,7 +97,7 @@ export default function ProductReviewDialog({
     <Dialog open={open} onOpenChange={setOpen}>
       {trigger && <DialogTrigger asChild>{trigger}</DialogTrigger>}
       <DialogContent
-        className="p-4 p-2 sm:p-4 sm:px-8 poppins max-h-[90vh] overflow-y-auto border-amber-400/30 dark:border-amber-400/30 shadow-[0_30px_80px_rgba(245,158,11,0.35)] dark:shadow-[0_30px_80px_rgba(245,158,11,0.25)]"
+        className="p-2 sm:p-4 sm:px-8 poppins max-h-[90vh] overflow-y-auto border-amber-400/30 dark:border-amber-400/30 shadow-[0_30px_80px_rgba(245,158,11,0.35)] dark:shadow-[0_30px_80px_rgba(245,158,11,0.25)]"
         onOpenAutoFocus={(e) => e.preventDefault()}
       >
         <DialogHeader>
@@ -238,7 +241,10 @@ export default function ProductReviewDialog({
               value={comment}
               onChange={(e) => setComment(e.target.value)}
               disabled={isPending}
-              className={cn("min-h-[120px] resize-none", DIALOG_FORM_FIELD_AMBER)}
+              className={cn(
+                "min-h-[120px] resize-none",
+                DIALOG_FORM_FIELD_AMBER,
+              )}
               maxLength={2000}
             />
             <p className="text-xs text-white/50 text-right">

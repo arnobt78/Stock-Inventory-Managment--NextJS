@@ -967,6 +967,29 @@ Canonical REQ source. All artifacts link via `REQ-XXXX`. Status: `done` | `verif
 
 ---
 
+## REQ-0048 — Auth light mode + dialog tables + order product thumbs
+
+| Field | Value |
+|-------|-------|
+| **Priority** | P2 |
+| **Risk** | R1 |
+| **Status** | done |
+| **Cycle** | C2 |
+| **Parent** | REQ-0032 |
+
+**Intent:** Fix light-mode auth readability (placeholders, Google button); category/supplier dialog embedded table text/zebra after x-scroll; order product Select with inline SafeImage thumbs.
+
+**Acceptance criteria**
+
+- AC1: `AUTH_FORM_FIELD_SKY` / `AUTH_FORM_FIELD_EMERALD` / `AUTH_GOOGLE_BUTTON` in `auth-glass-styles.ts`; Login/Register/LoginRoleSelect migrated (not `DIALOG_FORM_FIELD_*`)
+- AC2: `DIALOG_TABLE_*` tokens in `dialog-edge-scroll.ts`; Category/Supplier dialogs + column `context: 'dialog'`
+- AC3: `ProductOptionRow` + OrderDialog Package label + thumbs in trigger/dropdown
+- AC4: CSS/UI only; lint + test 343 + invalidate 202 + build pass
+
+**Artifacts:** `auth-glass-styles.ts`, `dialog-edge-scroll.ts`, `CategoryTableColumns.tsx`, `SupplierTableColumns.tsx`, `ProductOptionRow.tsx`, `OrderDialog.tsx`
+
+---
+
 ## REQ-0020 — Locale-aware admin formatting
 
 | Field | Value |

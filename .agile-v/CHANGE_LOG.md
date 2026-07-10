@@ -42,4 +42,5 @@
 | 2026-07-10 | Catalog filter/export toolbar px-4 gap-2 sm:w-auto parity | REQ-0046 |
 | 2026-07-10 | Focus no-shift + hue rings; dialog-form-field token sweep | REQ-0046 |
 | 2026-07-10 | Glass button tokens; Batch A/B migrations; Email prefs polish | REQ-0047 |
+| 2026-07-10 | Auth light mode; dialog table tokens; order product thumbs | REQ-0048 |
 | _pending_ | Human Gate 2 Sentry 24h sign-off | REQ-0009 |

@@ -8,7 +8,7 @@ import {
   SelectItem,
   SelectTrigger,
 } from "@/components/ui/select";
-import { DIALOG_FORM_FIELD_SKY } from "@/components/shared/dialog-form-field";
+import { AUTH_FORM_FIELD_SKY } from "@/components/auth/auth-glass-styles";
 import { cn } from "@/lib/utils";
 import {
   roleMeta,
@@ -48,10 +48,7 @@ export function LoginRoleSelect({
     >
       <SelectTrigger
         data-login-role-select
-        className={cn(
-          "w-full gap-2 text-gray-700 dark:text-white placeholder:text-gray-500 dark:placeholder:text-white/40",
-          DIALOG_FORM_FIELD_SKY,
-        )}
+        className={cn("w-full gap-2", AUTH_FORM_FIELD_SKY)}
       >
         <TriggerIcon
           className={cn(

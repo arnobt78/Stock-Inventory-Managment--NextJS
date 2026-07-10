@@ -3,7 +3,8 @@
 import { useState, useEffect, useRef } from "react";
 import { useAuth } from "@/contexts";
 import { useRouter, useSearchParams } from "next/navigation";
-import { DIALOG_FORM_FIELD_SKY, GLASS_BUTTON_ICON_HOVER, GLASS_PRIMARY_BUTTON } from "@/components/shared";
+import { AUTH_FORM_FIELD_SKY, AUTH_GOOGLE_BUTTON } from "@/components/auth/auth-glass-styles";
+import { GLASS_BUTTON_ICON_HOVER, GLASS_PRIMARY_BUTTON } from "@/components/shared";
 import { cn } from "@/lib/utils";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -220,10 +221,7 @@ export default function LoginPage() {
               placeholder="you@example.com"
               required
               disabled={formDisabled}
-              className={cn(
-                "w-full text-gray-700 dark:text-white placeholder:text-gray-500 dark:placeholder:text-white/40",
-                DIALOG_FORM_FIELD_SKY,
-              )}
+              className={cn("w-full", AUTH_FORM_FIELD_SKY)}
             />
           </AuthAnimatedBlock>
 
@@ -242,10 +240,7 @@ export default function LoginPage() {
               placeholder="Enter your password"
               required
               disabled={formDisabled}
-              className={cn(
-                "w-full text-gray-700 dark:text-white placeholder:text-gray-500 dark:placeholder:text-white/40",
-                DIALOG_FORM_FIELD_SKY,
-              )}
+              className={cn("w-full", AUTH_FORM_FIELD_SKY)}
             />
           </AuthAnimatedBlock>
 
@@ -292,7 +287,7 @@ export default function LoginPage() {
             variant="outline"
             onClick={handleGoogleSignIn}
             disabled={formDisabled}
-            className="w-full border-sky-400/30 dark:border-white/20 bg-white/10 dark:bg-white/5 backdrop-blur-md text-gray-700 dark:text-white hover:bg-white/20 dark:hover:bg-white/10 hover:text-gray-700 dark:hover:text-white mb-6"
+            className={cn(AUTH_GOOGLE_BUTTON.login, "mb-6")}
           >
             <svg
               className="mr-2 h-4 w-4"

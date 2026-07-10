@@ -13,17 +13,37 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { ArrowUpDown } from "lucide-react";
 import { IoMdArrowDown, IoMdArrowUp } from "react-icons/io";
+import {
+  DIALOG_TABLE_HEAD_TEXT,
+  DIALOG_TABLE_TEXT,
+} from "@/components/shared/dialog-edge-scroll";
+
+export type TableColumnContext = "page" | "dialog";
+
+const PAGE_BODY_TEXT = "text-gray-700 dark:text-white";
+const PAGE_HEADER_TEXT = "text-gray-700 dark:text-white";
+
+function columnTextClasses(context: TableColumnContext) {
+  return context === "dialog"
+    ? { body: DIALOG_TABLE_TEXT, header: DIALOG_TABLE_HEAD_TEXT }
+    : { body: PAGE_BODY_TEXT, header: PAGE_HEADER_TEXT };
+}
 
 type SortableHeaderProps = {
   column: Column<Category, unknown>;
   label: string;
+  textClass: string;
 };
 
 /**
  * Sortable Header Component
  * Provides sorting functionality for table columns
  */
-const SortableHeader: React.FC<SortableHeaderProps> = ({ column, label }) => {
+const SortableHeader: React.FC<SortableHeaderProps> = ({
+  column,
+  label,
+  textClass,
+}) => {
   const isSorted = column.getIsSorted();
   const SortingIcon =
     isSorted === "asc"
@@ -36,7 +56,7 @@ const SortableHeader: React.FC<SortableHeaderProps> = ({ column, label }) => {
     <DropdownMenu>
       <DropdownMenuTrigger className="" asChild>
         <div
-          className={`flex items-center select-none cursor-pointer gap-1 py-2 text-sm font-normal text-gray-700 dark:text-white ${
+          className={`flex items-center select-none cursor-pointer gap-1 py-2 text-sm font-normal ${textClass} ${
             isSorted && "text-primary"
           }`}
           aria-label={`Sort by ${label}`}
@@ -80,7 +100,13 @@ const truncateText = (
  */
 export const createCategoryColumns = (
   onEdit: (category: Category) => void,
-): ColumnDef<Category>[] => [
+  options?: { context?: TableColumnContext },
+): ColumnDef<Category>[] => {
+  const { body: bodyText, header: headerText } = columnTextClasses(
+    options?.context ?? "page",
+  );
+
+  return [
   {
     accessorKey: "name",
     cell: ({ row }) => {
@@ -94,12 +120,16 @@ export const createCategoryColumns = (
         </Link>
       );
     },
-    header: ({ column }) => <SortableHeader column={column} label="Category" />,
+    header: ({ column }) => (
+      <SortableHeader column={column} label="Category" textClass={headerText} />
+    ),
     size: 15,
   },
   {
     accessorKey: "status",
-    header: ({ column }) => <SortableHeader column={column} label="Status" />,
+    header: ({ column }) => (
+      <SortableHeader column={column} label="Status" textClass={headerText} />
+    ),
     cell: ({ row }) => {
       const status = row.original.status ?? true;
       return <ActiveInactiveBadge active={status} />;
@@ -109,15 +139,16 @@ export const createCategoryColumns = (
   {
     accessorKey: "description",
     header: ({ column }) => (
-      <SortableHeader column={column} label="Description" />
+      <SortableHeader
+        column={column}
+        label="Description"
+        textClass={headerText}
+      />
     ),
     cell: ({ row }) => {
       const description = row.original.description;
       return (
-        <span
-          className="text-gray-700 dark:text-white"
-          title={description || undefined}
-        >
+        <span className={bodyText} title={description || undefined}>
           {truncateText(description, 50)}
         </span>
       );
@@ -126,14 +157,13 @@ export const createCategoryColumns = (
   },
   {
     accessorKey: "notes",
-    header: ({ column }) => <SortableHeader column={column} label="Notes" />,
+    header: ({ column }) => (
+      <SortableHeader column={column} label="Notes" textClass={headerText} />
+    ),
     cell: ({ row }) => {
       const notes = row.original.notes;
       return (
-        <span
-          className="text-gray-700 dark:text-white"
-          title={notes || undefined}
-        >
+        <span className={bodyText} title={notes || undefined}>
           {truncateText(notes, 50)}
         </span>
       );
@@ -143,7 +173,11 @@ export const createCategoryColumns = (
   {
     accessorKey: "createdAt",
     header: ({ column }) => (
-      <SortableHeader column={column} label="Created At" />
+      <SortableHeader
+        column={column}
+        label="Created At"
+        textClass={headerText}
+      />
     ),
     cell: ({ getValue }) => {
       const dateValue = getValue<string | Date>();
@@ -151,13 +185,11 @@ export const createCategoryColumns = (
         typeof dateValue === "string" ? new Date(dateValue) : dateValue;
 
       if (!date || isNaN(date.getTime())) {
-        return (
-          <span className="text-gray-700 dark:text-white">Unknown Date</span>
-        );
+        return <span className={bodyText}>Unknown Date</span>;
       }
 
       return (
-        <span className="text-gray-700 dark:text-white">
+        <span className={bodyText}>
           {date.toLocaleDateString("en-US", {
             year: "numeric",
             month: "short",
@@ -171,24 +203,28 @@ export const createCategoryColumns = (
   {
     accessorKey: "updatedAt",
     header: ({ column }) => (
-      <SortableHeader column={column} label="Updated At" />
+      <SortableHeader
+        column={column}
+        label="Updated At"
+        textClass={headerText}
+      />
     ),
     cell: ({ getValue }) => {
       const dateValue = getValue<string | Date | null | undefined>();
 
       if (!dateValue) {
-        return <span className="text-gray-700 dark:text-white">-</span>;
+        return <span className={bodyText}>-</span>;
       }
 
       const date =
         typeof dateValue === "string" ? new Date(dateValue) : dateValue;
 
       if (!date || isNaN(date.getTime())) {
-        return <span className="text-gray-700 dark:text-white">-</span>;
+        return <span className={bodyText}>-</span>;
       }
 
       return (
-        <span className="text-gray-700 dark:text-white">
+        <span className={bodyText}>
           {date.toLocaleDateString("en-US", {
             year: "numeric",
             month: "short",
@@ -208,3 +244,4 @@ export const createCategoryColumns = (
     size: 10,
   },
 ];
+};
