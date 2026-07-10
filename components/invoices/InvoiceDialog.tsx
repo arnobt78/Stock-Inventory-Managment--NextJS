@@ -55,6 +55,7 @@ import {
   DeferredSelectGate,
   DIALOG_FORM_FIELD_INDIGO,
   GLASS_BUTTON_ICON_HOVER,
+  GLASS_BUTTON_SHELL_RESET,
   GLASS_GHOST_BUTTON,
   GLASS_PRIMARY_BUTTON,
 } from "@/components/shared";
@@ -666,8 +667,10 @@ export default function InvoiceDialog({
                 </Button>
                 <Button
                   type="submit"
+                  variant="ghost"
                   className={cn(
                     GLASS_BUTTON_ICON_HOVER,
+                    GLASS_BUTTON_SHELL_RESET,
                     "w-full sm:w-auto px-11",
                     GLASS_PRIMARY_BUTTON.indigo,
                   )}
@@ -828,8 +831,10 @@ export default function InvoiceDialog({
               </Button>
               <Button
                 type="submit"
+                variant="ghost"
                 className={cn(
                   GLASS_BUTTON_ICON_HOVER,
+                  GLASS_BUTTON_SHELL_RESET,
                   "w-full sm:w-auto px-11",
                   GLASS_PRIMARY_BUTTON.indigo,
                 )}

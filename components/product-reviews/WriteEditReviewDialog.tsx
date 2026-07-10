@@ -14,6 +14,12 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Star, Loader2 } from "lucide-react";
 import { DIALOG_FORM_FIELD_AMBER } from "@/components/shared/dialog-form-field";
+import {
+  GLASS_BUTTON_DISABLED,
+  GLASS_BUTTON_ICON_HOVER,
+  GLASS_BUTTON_SHELL_RESET,
+  GLASS_PRIMARY_BUTTON,
+} from "@/components/shared";
 import { cn } from "@/lib/utils";
 import {
   useCreateProductReview,
@@ -175,11 +181,14 @@ export default function WriteEditReviewDialog({
             </Button>
             <Button
               type="submit"
+              variant="ghost"
               disabled={isPending || !comment.trim()}
               className={cn(
-                "h-11 rounded-xl border border-amber-400/30 bg-gradient-to-r from-amber-500/70 via-amber-500/50 to-amber-500/30 text-white",
-                "shadow-[0_15px_35px_rgba(245,158,11,0.4)] backdrop-blur-md transition duration-200",
-                "hover:border-amber-300/40 hover:from-amber-500/80 hover:via-amber-500/60 hover:to-amber-500/40 hover:shadow-[0_20px_45px_rgba(245,158,11,0.5)] disabled:opacity-50",
+                GLASS_BUTTON_ICON_HOVER,
+                GLASS_BUTTON_SHELL_RESET,
+                GLASS_BUTTON_DISABLED,
+                "h-11 rounded-xl",
+                GLASS_PRIMARY_BUTTON.amber,
               )}
             >
               {isPending ? (

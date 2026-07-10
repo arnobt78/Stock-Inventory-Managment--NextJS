@@ -43,4 +43,6 @@
 | 2026-07-10 | Focus no-shift + hue rings; dialog-form-field token sweep | REQ-0046 |
 | 2026-07-10 | Glass button tokens; Batch A/B migrations; Email prefs polish | REQ-0047 |
 | 2026-07-10 | Auth light mode; dialog table tokens; order product thumbs | REQ-0048 |
+| 2026-07-10 | Dialog table dual-theme; glass CTA fix; submit gates; column slim | REQ-0049 |
+| 2026-07-10 | Glass shell-reset Batch B; dialog table titles; review submit tokens | REQ-0050 |
 | _pending_ | Human Gate 2 Sentry 24h sign-off | REQ-0009 |

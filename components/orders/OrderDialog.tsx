@@ -50,6 +50,7 @@ import {
   DeferredSelectGate,
   DIALOG_FORM_FIELD_VIOLET,
   GLASS_BUTTON_ICON_HOVER,
+  GLASS_BUTTON_SHELL_RESET,
   GLASS_GHOST_BUTTON,
   GLASS_PRIMARY_BUTTON,
 } from "@/components/shared";
@@ -933,8 +934,10 @@ export default function OrderDialog({
                 </Button>
                 <Button
                   type="submit"
+                  variant="ghost"
                   className={cn(
                     GLASS_BUTTON_ICON_HOVER,
+                    GLASS_BUTTON_SHELL_RESET,
                     "w-full sm:w-auto px-11",
                     GLASS_PRIMARY_BUTTON.violet,
                   )}
@@ -1449,8 +1452,10 @@ export default function OrderDialog({
                 </DialogClose>
                 <Button
                   type="submit"
+                  variant="ghost"
                   className={cn(
                     GLASS_BUTTON_ICON_HOVER,
+                    GLASS_BUTTON_SHELL_RESET,
                     "w-full sm:w-auto px-11",
                     GLASS_PRIMARY_BUTTON.violet,
                   )}

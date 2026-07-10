@@ -990,6 +990,57 @@ Canonical REQ source. All artifacts link via `REQ-XXXX`. Status: `done` | `verif
 
 ---
 
+## REQ-0049 — Dialog UX polish (tables, glass CTAs, submit gates)
+
+| Field | Value |
+|-------|-------|
+| **Priority** | P2 |
+| **Risk** | R1 |
+| **Status** | done |
+| **Cycle** | C2 |
+| **Parent** | REQ-0048 |
+
+**Intent:** Fix light-mode dialog embedded table parity with list pages; glass CTA button visibility; slim dialog columns; submit disabled until valid; backlog ghost/primary migrations.
+
+**Acceptance criteria**
+
+- AC1: Dual-theme `DIALOG_TABLE_*` + `DIALOG_TABLE_LINK` / `DIALOG_TABLE_ACTION_ICON` — light list-page zebra; dark glass rows
+- AC2: Actions header + kebab visible in dialog context (`context: 'dialog'` on columns + Actions)
+- AC3: Dialog embedded tables omit `description` + `notes` columns
+- AC4: `GLASS_BUTTON_SHELL_RESET` + `variant="ghost"` on glass Buttons; CTAs promoted to `GLASS_PRIMARY_BUTTON`; toolbar `ACTION` light opaque base
+- AC5: Category/Supplier/Warehouse/ProductForm submit `disabled` until required fields valid (`GLASS_BUTTON_DISABLED`)
+- AC6: ProductForm/ProductImport/ProductReview/Warehouse ghost+primary backlog migrations
+- AC7: CSS/UI only; lint + test 343 + invalidate 202 + build pass
+
+**Artifacts:** `dialog-edge-scroll.ts`, `glass-button-styles.ts`, `CategoryTableColumns.tsx`, `SupplierTableColumns.tsx`, `CategoryActions.tsx`, `SupplierActions.tsx`, Category/Supplier/Warehouse/ProductForm dialogs, Batch A glass pages, ProductImport/ProductReview dialogs
+
+---
+
+## REQ-0050 — Glass shell-reset + dialog table title polish
+
+| Field | Value |
+|-------|-------|
+| **Priority** | P2 |
+| **Risk** | R1 |
+| **Status** | done |
+| **Cycle** | C2 |
+| **Parent** | REQ-0049 |
+
+**Intent:** Complete REQ-0049 deferred polish — `GLASS_BUTTON_SHELL_RESET` on remaining Batch B primary buttons; review dialog submit tokens; dual-theme embedded table section titles; ESLint cleanup.
+
+**Acceptance criteria**
+
+- AC1: `ProductReviewDialog` + `WriteEditReviewDialog` submit → `GLASS_PRIMARY_BUTTON.amber` + shell reset + disabled token
+- AC2: Batch B primary buttons (Order/Invoice/Payment/SupportTicket/Login/Register) → `variant="ghost"` + `GLASS_BUTTON_SHELL_RESET`
+- AC3: `DIALOG_TABLE_SECTION_TITLE` token; Category/Supplier dialog table `<h3>` + count spans
+- AC4: Export from `components/shared/index.ts`
+- AC5: ESLint clean — no stale directive in `ProductFormDialog.tsx`
+- AC6: CSS/UI only; lint + test 343 + invalidate 202 + build pass
+
+**Artifacts:** `dialog-edge-scroll.ts`, `ProductReviewDialog.tsx`, `WriteEditReviewDialog.tsx`, Order/Invoice/Payment/SupportTicket dialogs, LoginPage, RegisterPage, CategoryDialog, SupplierDialog
+
+---
+
 ## REQ-0020 — Locale-aware admin formatting
 
 | Field | Value |

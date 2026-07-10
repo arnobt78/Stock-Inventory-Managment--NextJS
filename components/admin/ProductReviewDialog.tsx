@@ -25,6 +25,11 @@ import { Star, Loader2 } from "lucide-react";
 import {
   DeferredSelectGate,
   DIALOG_FORM_FIELD_AMBER,
+  GLASS_BUTTON_DISABLED,
+  GLASS_BUTTON_ICON_HOVER,
+  GLASS_BUTTON_SHELL_RESET,
+  GLASS_GHOST_BUTTON,
+  GLASS_PRIMARY_BUTTON,
 } from "@/components/shared";
 import { cn } from "@/lib/utils";
 import { useCreateProductReview, useProducts } from "@/hooks/queries";
@@ -256,7 +261,7 @@ export default function ProductReviewDialog({
               <Button
                 type="button"
                 variant="secondary"
-                className="h-11 w-full sm:w-auto px-8 inline-flex items-center justify-center rounded-xl border border-white/10 bg-gradient-to-r from-gray-400/40 via-gray-300/30 to-gray-400/40 dark:bg-background/50 backdrop-blur-md shadow-[0_15px_35px_rgba(0,0,0,0.3)] dark:shadow-[0_15px_35px_rgba(255,255,255,0.25)] transition duration-200 hover:bg-gradient-to-r hover:from-gray-400/60 hover:via-gray-300/50 hover:to-gray-400/60 dark:hover:bg-accent/50 hover:border-white/20 dark:hover:border-white/20"
+                className={cn("h-11 w-full sm:w-auto px-8", GLASS_GHOST_BUTTON)}
                 disabled={isPending}
               >
                 Cancel
@@ -264,8 +269,15 @@ export default function ProductReviewDialog({
             </DialogClose>
             <Button
               type="submit"
+              variant="ghost"
               disabled={isPending || !productId.trim() || !comment.trim()}
-              className="h-11 w-full sm:w-auto px-8 inline-flex items-center justify-center rounded-xl border border-amber-400/30 dark:border-amber-400/30 bg-gradient-to-r from-amber-500/70 via-amber-500/50 to-amber-500/30 dark:from-amber-500/70 dark:via-amber-500/50 dark:to-amber-500/30 text-white shadow-[0_15px_35px_rgba(245,158,11,0.45)] backdrop-blur-md transition duration-200 hover:border-amber-300/40 hover:from-amber-500/80 hover:via-amber-500/60 hover:to-amber-500/40 dark:hover:border-amber-300/40 dark:hover:from-amber-500/80 dark:hover:via-amber-500/60 dark:hover:to-amber-500/40 hover:shadow-[0_20px_45px_rgba(245,158,11,0.6)] disabled:opacity-50"
+              className={cn(
+                GLASS_BUTTON_ICON_HOVER,
+                GLASS_BUTTON_SHELL_RESET,
+                GLASS_BUTTON_DISABLED,
+                "h-11 w-full sm:w-auto px-8",
+                GLASS_PRIMARY_BUTTON.amber,
+              )}
             >
               {isPending ? (
                 <>

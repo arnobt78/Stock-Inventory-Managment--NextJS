@@ -8,6 +8,7 @@ import {
 } from "@/components/auth/auth-glass-styles";
 import {
   GLASS_BUTTON_ICON_HOVER,
+  GLASS_BUTTON_SHELL_RESET,
   GLASS_PRIMARY_BUTTON,
 } from "@/components/shared";
 import { cn } from "@/lib/utils";
@@ -203,7 +204,13 @@ export default function RegisterPage() {
           <AuthAnimatedBlock delayMs={formRowDelay(5)}>
             <Button
               type="submit"
-              className={cn(GLASS_BUTTON_ICON_HOVER, "w-full", GLASS_PRIMARY_BUTTON.emerald)}
+              variant="ghost"
+              className={cn(
+                GLASS_BUTTON_ICON_HOVER,
+                GLASS_BUTTON_SHELL_RESET,
+                "w-full",
+                GLASS_PRIMARY_BUTTON.emerald,
+              )}
               disabled={isLoading}
             >
               {isLoading ? (

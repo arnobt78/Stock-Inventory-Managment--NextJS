@@ -6,8 +6,9 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
 import {
-  GLASS_ACTION_BUTTON,
   GLASS_BUTTON_ICON_HOVER,
+  GLASS_BUTTON_SHELL_RESET,
+  GLASS_PRIMARY_BUTTON,
 } from "@/lib/ui/glass-button-styles";
 import React, { useEffect, useState } from "react";
 import {
@@ -464,12 +465,14 @@ export default function ApiStatusPage() {
               </p>
             </div>
             <Button
+              variant="ghost"
               onClick={handleRefresh}
               disabled={isRefreshing}
               className={cn(
                 GLASS_BUTTON_ICON_HOVER,
+                GLASS_BUTTON_SHELL_RESET,
                 "gap-2",
-                GLASS_ACTION_BUTTON.emerald,
+                GLASS_PRIMARY_BUTTON.emerald,
               )}
             >
               <FiRefreshCw

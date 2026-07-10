@@ -33,6 +33,7 @@ import {
   DIALOG_FORM_FIELD_BLUE,
   GLASS_ACTION_BUTTON,
   GLASS_BUTTON_ICON_HOVER,
+  GLASS_BUTTON_SHELL_RESET,
   GLASS_GHOST_BUTTON,
   GLASS_PRIMARY_BUTTON,
 } from "@/components/shared";
@@ -111,8 +112,10 @@ export default function CreateUserDialog() {
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogTrigger asChild>
         <Button
+          variant="ghost"
           className={cn(
             GLASS_BUTTON_ICON_HOVER,
+            GLASS_BUTTON_SHELL_RESET,
             "gap-2 h-10 font-medium",
             GLASS_ACTION_BUTTON.blue,
           )}
@@ -297,9 +300,11 @@ export default function CreateUserDialog() {
             </DialogClose>
             <Button
               type="submit"
+              variant="ghost"
               disabled={isPending}
               className={cn(
                 GLASS_BUTTON_ICON_HOVER,
+                GLASS_BUTTON_SHELL_RESET,
                 "w-full sm:w-auto px-8 disabled:opacity-50",
                 GLASS_PRIMARY_BUTTON.blue,
               )}

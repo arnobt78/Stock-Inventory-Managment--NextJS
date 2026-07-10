@@ -16,19 +16,27 @@ import { AlertDialogWrapper } from "@/components/dialogs";
 import { useRouter } from "next/navigation";
 import { MoreVertical, Eye, Edit, Trash2, Copy } from "lucide-react";
 import Link from "next/link";
+import { cn } from "@/lib/utils";
+import { DIALOG_TABLE_ACTION_ICON } from "@/components/shared/dialog-edge-scroll";
+import type { TableColumnContext } from "@/components/category/CategoryTableColumns";
 
 interface CategoryActionsProps {
   row: {
     original: Category;
   };
   onEdit: (category: Category) => void;
+  context?: TableColumnContext;
 }
 
 /**
  * Category Actions Component
  * Provides edit and delete actions for category table rows
  */
-export default function CategoryActions({ row, onEdit }: CategoryActionsProps) {
+export default function CategoryActions({
+  row,
+  onEdit,
+  context = "page",
+}: CategoryActionsProps) {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const { user } = useAuth();
   const router = useRouter();
@@ -90,7 +98,14 @@ export default function CategoryActions({ row, onEdit }: CategoryActionsProps) {
         <DropdownMenuTrigger asChild>
           <Button variant="ghost" className="h-8 w-8 p-0">
             <span className="sr-only">Open menu</span>
-            <MoreVertical className="h-4 w-4 text-gray-600 dark:text-gray-300" />
+            <MoreVertical
+              className={cn(
+                "h-4 w-4",
+                context === "dialog"
+                  ? DIALOG_TABLE_ACTION_ICON
+                  : "text-gray-600 dark:text-gray-300",
+              )}
+            />
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent

@@ -103,3 +103,11 @@ Format: `TIMESTAMP | AGENT | DECISION | RATIONALE | REQ-ID`
 2026-07-10T17:16:00Z | build-agent | DIALOG_TABLE_* | td zebra + white text; category/supplier dialog tables | REQ-0048
 2026-07-10T17:16:00Z | build-agent | ProductOptionRow | OrderDialog product Select SafeImage thumbs | REQ-0048
 2026-07-10T17:17:00Z | red-team | REQ-0048 gates | lint ✓ test 343 ✓ invalidate 202 ✓ build ✓; CSS/UI only | REQ-0048
+2026-07-10T17:50:00Z | build-agent | Dual-theme DIALOG_TABLE_* | light list-page parity; dark glass rows in dialogs | REQ-0049
+2026-07-10T17:50:00Z | build-agent | GLASS_BUTTON_SHELL_RESET | variant ghost strips bg-primary bleed under glass gradients | REQ-0049
+2026-07-10T17:50:00Z | build-agent | Submit isValid gates | Category/Supplier/Warehouse/ProductForm disabled until required valid | REQ-0049
+2026-07-10T17:51:00Z | red-team | REQ-0049 gates | lint ✓ test 343 ✓ invalidate 202 ✓ build ✓; CSS/UI only | REQ-0049
+2026-07-10T18:03:00Z | build-agent | DIALOG_TABLE_SECTION_TITLE | light-readable embedded table headings in Category/Supplier dialogs | REQ-0050
+2026-07-10T18:03:00Z | build-agent | Batch B shell-reset sweep | variant ghost + SHELL_RESET on remaining primary glass buttons | REQ-0050
+2026-07-10T18:03:00Z | build-agent | Review dialog submit tokens | ProductReview + WriteEditReview amber PRIMARY migration | REQ-0050
+2026-07-10T18:04:00Z | red-team | REQ-0050 gates | lint ✓ test 343 ✓ invalidate 202 ✓ build ✓; CSS/UI only | REQ-0050

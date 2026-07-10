@@ -26,6 +26,11 @@ import {
 import {
   DeferredSelectGate,
   DIALOG_FORM_FIELD_TEAL,
+  GLASS_BUTTON_DISABLED,
+  GLASS_BUTTON_ICON_HOVER,
+  GLASS_BUTTON_SHELL_RESET,
+  GLASS_GHOST_BUTTON,
+  GLASS_PRIMARY_BUTTON,
 } from "@/components/shared";
 import { cn } from "@/lib/utils";
 import { useCreateWarehouse, useUpdateWarehouse } from "@/hooks/queries";
@@ -109,6 +114,7 @@ export default function WarehouseDialog({
   const createMutation = useCreateWarehouse();
   const updateMutation = useUpdateWarehouse();
   const isSubmitting = createMutation.isPending || updateMutation.isPending;
+  const isValid = name.trim() !== "";
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -271,7 +277,7 @@ export default function WarehouseDialog({
               <Button
                 type="button"
                 variant="secondary"
-                className="h-11 w-full sm:w-auto px-8 inline-flex items-center justify-center rounded-xl border border-white/10 bg-gradient-to-r from-gray-400/40 via-gray-300/30 to-gray-400/40 dark:bg-background/50 backdrop-blur-md shadow-[0_15px_35px_rgba(0,0,0,0.3)] dark:shadow-[0_15px_35px_rgba(255,255,255,0.25)] transition duration-200 hover:bg-gradient-to-r hover:from-gray-400/60 hover:via-gray-300/50 hover:to-gray-400/60 dark:hover:bg-accent/50 hover:border-white/20 dark:hover:border-white/20 hover:shadow-[0_20px_45px_rgba(0,0,0,0.5)] dark:hover:shadow-[0_20px_45px_rgba(255,255,255,0.4)]"
+                className={cn("h-11 w-full sm:w-auto px-8", GLASS_GHOST_BUTTON)}
                 disabled={isSubmitting}
               >
                 Cancel
@@ -279,8 +285,15 @@ export default function WarehouseDialog({
             </DialogClose>
             <Button
               type="submit"
-              disabled={isSubmitting}
-              className="h-11 w-full sm:w-auto px-8 inline-flex items-center justify-center rounded-xl border border-teal-400/30 dark:border-teal-400/30 bg-gradient-to-r from-teal-500/70 via-teal-500/50 to-teal-500/30 dark:from-teal-500/70 dark:via-teal-500/50 dark:to-teal-500/30 text-white shadow-[0_15px_35px_rgba(20,184,166,0.45)] backdrop-blur-md transition duration-200 hover:border-teal-300/40 hover:from-teal-500/80 hover:via-teal-500/60 hover:to-teal-500/40 dark:hover:border-teal-300/40 dark:hover:from-teal-500/80 dark:hover:via-teal-500/60 dark:hover:to-teal-500/40 hover:shadow-[0_20px_45px_rgba(20,184,166,0.6)]"
+              variant="ghost"
+              disabled={!isValid || isSubmitting}
+              className={cn(
+                GLASS_BUTTON_ICON_HOVER,
+                GLASS_BUTTON_SHELL_RESET,
+                GLASS_BUTTON_DISABLED,
+                "h-11 w-full sm:w-auto px-8",
+                GLASS_PRIMARY_BUTTON.teal,
+              )}
             >
               {isSubmitting
                 ? "Saving..."

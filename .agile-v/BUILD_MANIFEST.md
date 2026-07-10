@@ -122,6 +122,15 @@
 | ART-0115 | REQ-0048 | `auth-glass-styles.ts` | AUTH_FORM_FIELD_* + AUTH_GOOGLE_BUTTON light-mode |
 | ART-0116 | REQ-0048 | `dialog-edge-scroll.ts`, Category/Supplier dialogs + columns | DIALOG_TABLE_* tokens; context dialog |
 | ART-0117 | REQ-0048 | `ProductOptionRow.tsx`, `OrderDialog.tsx` | product Select thumbs + Package label |
+| ART-0118 | REQ-0049 | `dialog-edge-scroll.ts`, column factories + Actions | dual-theme DIALOG_TABLE_*; slim dialog cols; link/action icons |
+| ART-0119 | REQ-0049 | `glass-button-styles.ts` | SHELL_RESET + DISABLED; ACTION light opaque base |
+| ART-0120 | REQ-0049 | Category/Supplier/Warehouse/ProductForm dialogs | submit validity gates |
+| ART-0121 | REQ-0049 | EmailPrefs, SystemConfig, BusinessInsight, ApiStatus, CreateUser | glass CTA PRIMARY + ghost shell reset |
+| ART-0122 | REQ-0049 | ProductImport, ProductReview dialogs | GLASS_GHOST_BUTTON cancel backlog |
+| ART-0123 | REQ-0050 | `dialog-edge-scroll.ts` | `DIALOG_TABLE_SECTION_TITLE` |
+| ART-0124 | REQ-0050 | ProductReview + WriteEditReview dialogs | amber submit shell-reset |
+| ART-0125 | REQ-0050 | Order/Invoice/Payment/SupportTicket/Login/Register | Batch B `GLASS_BUTTON_SHELL_RESET` |
+| ART-0126 | REQ-0050 | CategoryDialog, SupplierDialog | table section title token |
 
 ## Tests
 

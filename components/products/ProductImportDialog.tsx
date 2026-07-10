@@ -20,6 +20,8 @@ import { useToast } from "@/hooks/use-toast";
 import { Upload, FileText, Loader2 } from "lucide-react";
 import { useQueryClient } from "@tanstack/react-query";
 import { invalidateAllRelatedQueries } from "@/lib/react-query";
+import { GLASS_GHOST_BUTTON } from "@/components/shared";
+import { cn } from "@/lib/utils";
 
 interface ProductImportDialogProps {
   /**
@@ -297,7 +299,7 @@ export function ProductImportDialog({
           <Button
             onClick={() => handleOpenChange(false)}
             disabled={isImporting}
-            className="h-11 w-full sm:w-auto px-11 inline-flex items-center justify-center rounded-xl border border-white/10 bg-gradient-to-r from-gray-400/40 via-gray-300/30 to-gray-400/40 dark:bg-background/50 backdrop-blur-md shadow-[0_15px_35px_rgba(0,0,0,0.3)] dark:shadow-[0_15px_35px_rgba(255,255,255,0.25)] transition duration-200 hover:bg-gradient-to-r hover:from-gray-400/60 hover:via-gray-300/50 hover:to-gray-400/60 dark:hover:bg-accent/50 hover:border-white/20 dark:hover:border-white/20 hover:shadow-[0_20px_45px_rgba(0,0,0,0.5)] dark:hover:shadow-[0_20px_45px_rgba(255,255,255,0.4)] text-white"
+            className={cn("h-11 w-full sm:w-auto px-11", GLASS_GHOST_BUTTON)}
           >
             {importResult ? "Close" : "Cancel"}
           </Button>

@@ -12,11 +12,19 @@ import {
 export const GLASS_BUTTON_ICON_HOVER =
   "group [&_svg]:transition-transform [&_svg]:duration-200 group-hover:[&_svg]:scale-110";
 
+/** Strips shadcn Button default bg-primary bleed under glass gradients */
+export const GLASS_BUTTON_SHELL_RESET =
+  "bg-transparent hover:bg-transparent shadow-none";
+
+/** Faded disabled submit/toolbar state */
+export const GLASS_BUTTON_DISABLED =
+  "disabled:opacity-50 disabled:cursor-not-allowed";
+
 const PRIMARY_LAYOUT =
   "h-11 inline-flex items-center justify-center rounded-xl backdrop-blur-md transition duration-200 text-white font-normal";
 
 const ACTION_LAYOUT =
-  "inline-flex items-center justify-center rounded-xl backdrop-blur-md transition duration-200 font-normal text-gray-700 dark:text-white";
+  "inline-flex items-center justify-center rounded-xl backdrop-blur-md transition duration-200 font-normal text-gray-700 dark:text-white bg-white/80 dark:bg-transparent";
 
 /** Cancel / reset — gray glass (dialog footers). */
 export const GLASS_GHOST_BUTTON = `${FOCUS_NO_LAYOUT_SHIFT_CLASS} focus-visible:ring-2 focus-visible:ring-ring/50 dark:focus-visible:ring-white/35 h-11 inline-flex items-center justify-center rounded-xl border border-white/10 bg-gradient-to-r from-gray-400/40 via-gray-300/30 to-gray-400/40 dark:bg-background/50 backdrop-blur-md shadow-[0_15px_35px_rgba(0,0,0,0.3)] dark:shadow-[0_15px_35px_rgba(255,255,255,0.25)] transition duration-200 hover:bg-gradient-to-r hover:from-gray-400/60 hover:via-gray-300/50 hover:to-gray-400/60 dark:hover:bg-accent/50 hover:border-white/20 dark:hover:border-white/20 hover:shadow-[0_20px_45px_rgba(0,0,0,0.5)] dark:hover:shadow-[0_20px_45px_rgba(255,255,255,0.4)] text-gray-700 dark:text-white`;

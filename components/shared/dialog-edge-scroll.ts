@@ -21,27 +21,43 @@ export const DIALOG_EDGE_SCROLL_INNER = "flex flex-col pr-4 sm:pr-8 pl-2 pb-4";
 /** Wrapper around dialog embedded list tables */
 export const DIALOG_TABLE_SECTION = "mt-6 min-w-0";
 
+/** Embedded table heading above Category/Supplier dialog lists — light readable, dark glass (REQ-0050) */
+export const DIALOG_TABLE_SECTION_TITLE =
+  "text-gray-700 dark:text-white/90";
+
 /**
- * Table frame for category dialog — ring + shadow-sm only (large box-shadow clips inside overflow).
+ * Table frame for category dialog — light opaque island + dark glass (REQ-0049).
  */
 export const DIALOG_TABLE_FRAME_SKY =
-  "rounded-md border border-white/10 bg-gradient-to-br from-white/20 via-white/15 to-white/10 dark:from-white/5 dark:via-white/5 dark:to-white/5 backdrop-blur-md ring-1 ring-sky-400/25 shadow-sm";
+  "rounded-md border border-white/10 bg-white/60 bg-gradient-to-br from-white/20 via-white/15 to-white/10 dark:from-white/5 dark:via-white/5 dark:to-white/5 backdrop-blur-md ring-1 ring-sky-400/25 shadow-sm";
 
 /**
- * Table frame for supplier dialog — ring + shadow-sm only (large box-shadow clips inside overflow).
+ * Table frame for supplier dialog — light opaque island + dark glass (REQ-0049).
  */
 export const DIALOG_TABLE_FRAME_EMERALD =
-  "rounded-md border border-white/10 bg-gradient-to-br from-white/20 via-white/15 to-white/10 dark:from-white/5 dark:via-white/5 dark:to-white/5 backdrop-blur-md ring-1 ring-emerald-400/25 shadow-sm";
+  "rounded-md border border-white/10 bg-white/60 bg-gradient-to-br from-white/20 via-white/15 to-white/10 dark:from-white/5 dark:via-white/5 dark:to-white/5 backdrop-blur-md ring-1 ring-emerald-400/25 shadow-sm";
 
 /**
- * REQ-0048 — embedded dialog tables (dark glass shell; light system theme).
+ * REQ-0049 — embedded dialog tables: list-page parity in light mode; dark glass in dark mode.
  * Use td-level zebra so horizontal scroll does not break striping.
  */
-export const DIALOG_TABLE_TEXT = "text-white/90";
-export const DIALOG_TABLE_TEXT_MUTED = "text-white/70";
-export const DIALOG_TABLE_HEAD_TEXT = "text-white/80";
-export const DIALOG_TABLE_HEAD_ROW = "[&_th]:bg-white/10";
-export const DIALOG_TABLE_ROW_EVEN = "[&_td]:bg-white/10";
-export const DIALOG_TABLE_ROW_ODD = "[&_td]:bg-white/[0.06]";
-export const DIALOG_TABLE_ROW_HOVER = "hover:[&_td]:bg-white/15";
-export const DIALOG_TABLE_SURFACE = "bg-black/20";
+export const DIALOG_TABLE_TEXT = "text-gray-700 dark:text-white/90";
+export const DIALOG_TABLE_TEXT_MUTED = "text-gray-600 dark:text-white/70";
+export const DIALOG_TABLE_HEAD_TEXT = "text-gray-700 dark:text-white/80";
+export const DIALOG_TABLE_HEAD_ROW =
+  "[&_th]:bg-white/40 dark:[&_th]:bg-white/10";
+export const DIALOG_TABLE_ROW_EVEN =
+  "[&_td]:bg-white/30 dark:[&_td]:bg-white/10";
+export const DIALOG_TABLE_ROW_ODD =
+  "[&_td]:bg-white/20 dark:[&_td]:bg-white/[0.06]";
+export const DIALOG_TABLE_ROW_HOVER =
+  "hover:[&_td]:bg-muted/50 dark:hover:[&_td]:bg-white/15";
+export const DIALOG_TABLE_SURFACE = "bg-transparent dark:bg-black/20";
+
+/** Name column links — matches TABLE_LINK_PRIMARY in light; sky-400 in dark dialog */
+export const DIALOG_TABLE_LINK =
+  "font-normal text-sky-600 dark:text-sky-400 hover:text-sky-500 dark:hover:text-sky-300";
+
+/** Kebab / row action icon in embedded dialog tables */
+export const DIALOG_TABLE_ACTION_ICON =
+  "text-gray-600 dark:text-white/70 hover:text-gray-800 dark:hover:text-white";

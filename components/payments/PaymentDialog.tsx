@@ -23,8 +23,9 @@ import type { CheckoutType } from "@/types";
 import { cn } from "@/lib/utils";
 import {
   GLASS_BUTTON_ICON_HOVER,
+  GLASS_BUTTON_SHELL_RESET,
   GLASS_PRIMARY_BUTTON,
-} from "@/lib/ui/glass-button-styles";
+} from "@/components/shared";
 
 interface PaymentDialogProps {
   type: CheckoutType;
@@ -189,10 +190,12 @@ export default function PaymentDialog({
                 Stripe&apos;s page after clicking below.
               </p>
               <Button
+                variant="ghost"
                 onClick={handlePayment}
                 disabled={isLoading}
                 className={cn(
                   GLASS_BUTTON_ICON_HOVER,
+                  GLASS_BUTTON_SHELL_RESET,
                   "w-full sm:w-auto px-11",
                   GLASS_PRIMARY_BUTTON.sky,
                 )}

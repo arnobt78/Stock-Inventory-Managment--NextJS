@@ -28,6 +28,7 @@ import {
   DIALOG_FORM_FIELD_VIOLET,
   DIALOG_FORM_FIELD_SKY,
   GLASS_BUTTON_ICON_HOVER,
+  GLASS_BUTTON_SHELL_RESET,
   GLASS_GHOST_BUTTON,
   GLASS_PRIMARY_BUTTON,
 } from "@/components/shared";
@@ -318,9 +319,11 @@ export default function SupportTicketDialog({
             </DialogClose>
             <Button
               type="submit"
+              variant="ghost"
               disabled={isPending || !subject.trim() || !description.trim()}
               className={cn(
                 GLASS_BUTTON_ICON_HOVER,
+                GLASS_BUTTON_SHELL_RESET,
                 "h-11 rounded-xl disabled:opacity-50",
                 primaryButtonClass,
               )}

@@ -7,9 +7,10 @@ import {
   PageContentWrapper,
   DataSlotPulse,
   PageSectionHeader,
-  GLASS_ACTION_BUTTON,
   GLASS_BUTTON_ICON_HOVER,
+  GLASS_BUTTON_SHELL_RESET,
   GLASS_GHOST_BUTTON,
+  GLASS_PRIMARY_BUTTON,
 } from "@/components/shared";
 import { cn } from "@/lib/utils";
 import {
@@ -252,12 +253,14 @@ export default function EmailPreferencesPage({
                   Reset to Defaults
                 </Button>
                 <Button
+                  variant="ghost"
                   onClick={handleSaveAll}
                   disabled={updateMutation.isPending}
                   className={cn(
                     GLASS_BUTTON_ICON_HOVER,
+                    GLASS_BUTTON_SHELL_RESET,
                     "gap-2",
-                    GLASS_ACTION_BUTTON.sky,
+                    GLASS_PRIMARY_BUTTON.sky,
                   )}
                 >
                   <Save className="h-4 w-4 mr-2" />

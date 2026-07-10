@@ -42,7 +42,7 @@ import {
   calculateProductStatus,
   type ProductFormData,
 } from "@/lib/validations";
-import { DeferredSelectGate, DIALOG_FORM_FIELD_ROSE } from "@/components/shared";
+import { DeferredSelectGate, DIALOG_FORM_FIELD_ROSE, GLASS_BUTTON_DISABLED, GLASS_BUTTON_ICON_HOVER, GLASS_BUTTON_SHELL_RESET, GLASS_GHOST_BUTTON, GLASS_PRIMARY_BUTTON } from "@/components/shared";
 import { cn } from "@/lib/utils";
 
 interface AddProductDialogProps {
@@ -69,7 +69,7 @@ export default function AddProductDialog({
     },
   });
 
-  const { reset } = methods;
+  const { reset, watch } = methods;
 
   const [selectedCategory, setSelectedCategory] = useState<string>("");
   const [selectedSupplier, setSelectedSupplier] = useState<string>("");
@@ -225,6 +225,13 @@ export default function AddProductDialog({
   const isSubmitting =
     createProductMutation.isPending || updateProductMutation.isPending;
 
+  const formValues = watch();
+  const isFormValid = productFormSubmitSchema.safeParse({
+    ...formValues,
+    categoryId: selectedCategory,
+    supplierId: selectedSupplier,
+  }).success;
+
   const handleOpenChange = (open: boolean) => {
     if (open) {
       // When opening the dialog for adding a new product, clear any selected product
@@ -258,8 +265,6 @@ export default function AddProductDialog({
           </DialogDescription>
         </DialogHeader>
         <FormProvider {...methods}>
-          {/* react-hook-form handleSubmit passes a ref; rule is for raw refs during render */}
-          {/* eslint-disable-next-line react-hooks/refs */}
           <form onSubmit={methods.handleSubmit(onSubmit)}>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
               <ProductName />
@@ -377,15 +382,22 @@ export default function AddProductDialog({
                 <Button
                   ref={dialogCloseRef}
                   variant="secondary"
-                  className="h-11 w-full sm:w-auto px-11 inline-flex items-center justify-center rounded-xl border border-white/10 bg-gradient-to-r from-gray-400/40 via-gray-300/30 to-gray-400/40 dark:bg-background/50 backdrop-blur-md shadow-[0_15px_35px_rgba(0,0,0,0.3)] dark:shadow-[0_15px_35px_rgba(255,255,255,0.25)] transition duration-200 hover:bg-gradient-to-r hover:from-gray-400/60 hover:via-gray-300/50 hover:to-gray-400/60 dark:hover:bg-accent/50 hover:border-white/20 dark:hover:border-white/20 hover:shadow-[0_20px_45px_rgba(0,0,0,0.5)] dark:hover:shadow-[0_20px_45px_rgba(255,255,255,0.4)]"
+                  className={cn("h-11 w-full sm:w-auto px-11", GLASS_GHOST_BUTTON)}
                 >
                   Cancel
                 </Button>
               </DialogClose>
               <Button
                 type="submit"
-                className="h-11 w-full sm:w-auto px-11 inline-flex items-center justify-center rounded-xl border border-rose-400/30 dark:border-rose-400/30 bg-gradient-to-r from-rose-500/70 via-rose-500/50 to-rose-500/30 dark:from-rose-500/70 dark:via-rose-500/50 dark:to-rose-500/30 text-white shadow-[0_15px_35px_rgba(225,29,72,0.45)] backdrop-blur-md transition duration-200 hover:border-rose-300/40 hover:from-rose-500/80 hover:via-rose-500/60 hover:to-rose-500/40 dark:hover:border-rose-300/40 dark:hover:from-rose-500/80 dark:hover:via-rose-500/60 dark:hover:to-rose-500/40 hover:shadow-[0_20px_45px_rgba(225,29,72,0.6)]"
-                disabled={isSubmitting}
+                variant="ghost"
+                className={cn(
+                  GLASS_BUTTON_ICON_HOVER,
+                  GLASS_BUTTON_SHELL_RESET,
+                  GLASS_BUTTON_DISABLED,
+                  "h-11 w-full sm:w-auto px-11",
+                  GLASS_PRIMARY_BUTTON.rose,
+                )}
+                disabled={!isFormValid || isSubmitting}
               >
                 {isSubmitting
                   ? "Loading..."

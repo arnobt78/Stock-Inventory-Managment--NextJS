@@ -54,10 +54,13 @@ import {
   DIALOG_TABLE_ROW_HOVER,
   DIALOG_TABLE_ROW_ODD,
   DIALOG_TABLE_SECTION,
+  DIALOG_TABLE_SECTION_TITLE,
   DIALOG_TABLE_SURFACE,
   DIALOG_TABLE_TEXT,
   DIALOG_TABLE_TEXT_MUTED,
+  GLASS_BUTTON_DISABLED,
   GLASS_BUTTON_ICON_HOVER,
+  GLASS_BUTTON_SHELL_RESET,
   GLASS_GHOST_BUTTON,
   GLASS_PRIMARY_BUTTON,
 } from "@/components/shared";
@@ -158,6 +161,8 @@ export default function AddCategoryDialog({
   // Determine loading states from mutations
   const isSubmitting = createCategoryMutation.isPending;
   const isEditing = updateCategoryMutation.isPending;
+  const isAddValid = categoryName.trim() !== "";
+  const isEditValid = newCategoryName.trim() !== "";
 
   const handleAddCategory = async () => {
     if (categoryName.trim() === "") {
@@ -394,12 +399,15 @@ export default function AddCategoryDialog({
                   </Button>
                   <Button
                     onClick={handleUpdateCategory}
+                    variant="ghost"
                     className={cn(
                       GLASS_BUTTON_ICON_HOVER,
+                      GLASS_BUTTON_SHELL_RESET,
+                      GLASS_BUTTON_DISABLED,
                       "w-full sm:w-auto px-11",
                       GLASS_PRIMARY_BUTTON.sky,
                     )}
-                    disabled={isEditing}
+                    disabled={!isEditValid || isEditing}
                   >
                     {isEditing ? "Saving..." : "Save Changes"}
                   </Button>
@@ -469,12 +477,15 @@ export default function AddCategoryDialog({
                   </DialogClose>
                   <Button
                     onClick={handleAddCategory}
+                    variant="ghost"
                     className={cn(
                       GLASS_BUTTON_ICON_HOVER,
+                      GLASS_BUTTON_SHELL_RESET,
+                      GLASS_BUTTON_DISABLED,
                       "w-full sm:w-auto px-11",
                       GLASS_PRIMARY_BUTTON.sky,
                     )}
-                    disabled={isSubmitting}
+                    disabled={!isAddValid || isSubmitting}
                   >
                     {isSubmitting ? "Creating..." : "Add Category"}
                   </Button>
@@ -484,10 +495,15 @@ export default function AddCategoryDialog({
 
             {/* Categories Table — x-scroll contained here, not on the dialog shell */}
             <div className={DIALOG_TABLE_SECTION}>
-              <h3 className="text-sm sm:text-base font-medium mb-4 text-white/90 dark:text-white">
+              <h3
+                className={cn(
+                  "text-sm sm:text-base font-medium mb-4",
+                  DIALOG_TABLE_SECTION_TITLE,
+                )}
+              >
                 Categories{" "}
                 {categories && categories.length > 0 && (
-                  <span className="text-white/90 dark:text-white">
+                  <span className={DIALOG_TABLE_SECTION_TITLE}>
                     ({categories.length})
                   </span>
                 )}

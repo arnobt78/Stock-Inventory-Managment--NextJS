@@ -17,8 +17,10 @@ import { ArrowUpDown } from "lucide-react";
 import { IoMdArrowDown, IoMdArrowUp } from "react-icons/io";
 import {
   DIALOG_TABLE_HEAD_TEXT,
+  DIALOG_TABLE_LINK,
   DIALOG_TABLE_TEXT,
 } from "@/components/shared/dialog-edge-scroll";
+import { TABLE_LINK_PRIMARY } from "@/lib/ui/table-typography";
 import type { TableColumnContext } from "@/components/category/CategoryTableColumns";
 
 const PAGE_BODY_TEXT = "text-gray-700 dark:text-white";
@@ -26,8 +28,16 @@ const PAGE_HEADER_TEXT = "text-gray-700 dark:text-white";
 
 function columnTextClasses(context: TableColumnContext) {
   return context === "dialog"
-    ? { body: DIALOG_TABLE_TEXT, header: DIALOG_TABLE_HEAD_TEXT }
-    : { body: PAGE_BODY_TEXT, header: PAGE_HEADER_TEXT };
+    ? {
+        body: DIALOG_TABLE_TEXT,
+        header: DIALOG_TABLE_HEAD_TEXT,
+        link: DIALOG_TABLE_LINK,
+      }
+    : {
+        body: PAGE_BODY_TEXT,
+        header: PAGE_HEADER_TEXT,
+        link: TABLE_LINK_PRIMARY,
+      };
 }
 
 type SortableHeaderProps = {
@@ -93,10 +103,12 @@ function NameLinkWithClose({
   href,
   name,
   onBeforeNavigate,
+  linkClass,
 }: {
   href: string;
   name: string;
   onBeforeNavigate: () => void;
+  linkClass: string;
 }) {
   const router = useRouter();
   return (
@@ -107,23 +119,25 @@ function NameLinkWithClose({
         clearBodyScrollLock();
         setTimeout(() => router.push(href), 150);
       }}
-      className="font-normal text-sky-600 dark:text-sky-400 hover:text-sky-500 dark:hover:text-sky-300 text-left"
+      className={`${linkClass} text-left`}
     >
       {name}
     </button>
   );
 }
 
+const DIALOG_HIDDEN_COLUMNS = new Set(["description", "notes"]);
+
 export const createSupplierColumns = (
   onEdit: (supplier: Supplier) => void,
   onBeforeNavigate?: () => void,
   options?: { context?: TableColumnContext },
 ): ColumnDef<Supplier>[] => {
-  const { body: bodyText, header: headerText } = columnTextClasses(
-    options?.context ?? "page",
-  );
+  const context = options?.context ?? "page";
+  const { body: bodyText, header: headerText, link: linkClass } =
+    columnTextClasses(context);
 
-  return [
+  const columns: ColumnDef<Supplier>[] = [
     {
       accessorKey: "name",
       cell: ({ row }) => {
@@ -135,14 +149,12 @@ export const createSupplierColumns = (
               href={href}
               name={supplier.name}
               onBeforeNavigate={onBeforeNavigate}
+              linkClass={linkClass}
             />
           );
         }
         return (
-          <Link
-            href={href}
-            className="font-normal text-sky-600 dark:text-sky-400 hover:text-sky-500 dark:hover:text-sky-300"
-          >
+          <Link href={href} className={linkClass}>
             {supplier.name}
           </Link>
         );
@@ -268,17 +280,30 @@ export const createSupplierColumns = (
     },
     {
       id: "actions",
-      header: "Actions",
+      header: () => <span className={headerText}>Actions</span>,
       cell: ({ row }) => {
         return (
           <SupplierActions
             row={row}
             onEdit={onEdit}
             onBeforeNavigate={onBeforeNavigate}
+            context={context}
           />
         );
       },
       size: 10,
     },
   ];
+
+  if (context === "dialog") {
+    return columns.filter((col) => {
+      const key =
+        "accessorKey" in col && col.accessorKey
+          ? String(col.accessorKey)
+          : col.id;
+      return !key || !DIALOG_HIDDEN_COLUMNS.has(key);
+    });
+  }
+
+  return columns;
 };

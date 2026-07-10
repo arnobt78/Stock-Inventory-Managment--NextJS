@@ -17,6 +17,9 @@ import { AlertDialogWrapper } from "@/components/dialogs";
 import { useRouter } from "next/navigation";
 import { MoreVertical, Eye, Edit, Trash2, Copy } from "lucide-react";
 import Link from "next/link";
+import { cn } from "@/lib/utils";
+import { DIALOG_TABLE_ACTION_ICON } from "@/components/shared/dialog-edge-scroll";
+import type { TableColumnContext } from "@/components/category/CategoryTableColumns";
 
 interface SupplierActionsProps {
   row: {
@@ -25,6 +28,7 @@ interface SupplierActionsProps {
   onEdit: (supplier: Supplier) => void;
   /** When set (e.g. from Add Supplier dialog), called before navigating so the dialog closes and the new page is not blocked by overlay/scroll-lock */
   onBeforeNavigate?: () => void;
+  context?: TableColumnContext;
 }
 
 /**
@@ -35,6 +39,7 @@ export default function SupplierActions({
   row,
   onEdit,
   onBeforeNavigate,
+  context = "page",
 }: SupplierActionsProps) {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const { user } = useAuth();
@@ -105,7 +110,14 @@ export default function SupplierActions({
         <DropdownMenuTrigger asChild>
           <Button variant="ghost" className="h-8 w-8 p-0">
             <span className="sr-only">Open menu</span>
-            <MoreVertical className="h-4 w-4 text-gray-600 dark:text-gray-300" />
+            <MoreVertical
+              className={cn(
+                "h-4 w-4",
+                context === "dialog"
+                  ? DIALOG_TABLE_ACTION_ICON
+                  : "text-gray-600 dark:text-gray-300",
+              )}
+            />
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent

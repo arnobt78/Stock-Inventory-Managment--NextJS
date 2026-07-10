@@ -15,8 +15,10 @@ import { ArrowUpDown } from "lucide-react";
 import { IoMdArrowDown, IoMdArrowUp } from "react-icons/io";
 import {
   DIALOG_TABLE_HEAD_TEXT,
+  DIALOG_TABLE_LINK,
   DIALOG_TABLE_TEXT,
 } from "@/components/shared/dialog-edge-scroll";
+import { TABLE_LINK_PRIMARY } from "@/lib/ui/table-typography";
 
 export type TableColumnContext = "page" | "dialog";
 
@@ -25,8 +27,16 @@ const PAGE_HEADER_TEXT = "text-gray-700 dark:text-white";
 
 function columnTextClasses(context: TableColumnContext) {
   return context === "dialog"
-    ? { body: DIALOG_TABLE_TEXT, header: DIALOG_TABLE_HEAD_TEXT }
-    : { body: PAGE_BODY_TEXT, header: PAGE_HEADER_TEXT };
+    ? {
+        body: DIALOG_TABLE_TEXT,
+        header: DIALOG_TABLE_HEAD_TEXT,
+        link: DIALOG_TABLE_LINK,
+      }
+    : {
+        body: PAGE_BODY_TEXT,
+        header: PAGE_HEADER_TEXT,
+        link: TABLE_LINK_PRIMARY,
+      };
 }
 
 type SortableHeaderProps = {
@@ -35,10 +45,6 @@ type SortableHeaderProps = {
   textClass: string;
 };
 
-/**
- * Sortable Header Component
- * Provides sorting functionality for table columns
- */
 const SortableHeader: React.FC<SortableHeaderProps> = ({
   column,
   label,
@@ -66,12 +72,10 @@ const SortableHeader: React.FC<SortableHeaderProps> = ({
         </div>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="start" side="bottom">
-        {/* Ascending Sorting */}
         <DropdownMenuItem onClick={() => column.toggleSorting(false)}>
           <IoMdArrowUp className="mr-2 h-4 w-4" />
           Asc
         </DropdownMenuItem>
-        {/* Descending Sorting */}
         <DropdownMenuItem onClick={() => column.toggleSorting(true)}>
           <IoMdArrowDown className="mr-2 h-4 w-4" />
           Desc
@@ -81,10 +85,6 @@ const SortableHeader: React.FC<SortableHeaderProps> = ({
   );
 };
 
-/**
- * Truncate text helper function
- * Truncates text to specified length with ellipsis
- */
 const truncateText = (
   text: string | null | undefined,
   maxLength: number = 50,
@@ -94,154 +94,167 @@ const truncateText = (
   return `${text.substring(0, maxLength)}...`;
 };
 
-/**
- * Category Table Columns Definition
- * Defines the columns for the category table with sorting and actions
- */
+const DIALOG_HIDDEN_COLUMNS = new Set(["description", "notes"]);
+
 export const createCategoryColumns = (
   onEdit: (category: Category) => void,
   options?: { context?: TableColumnContext },
 ): ColumnDef<Category>[] => {
-  const { body: bodyText, header: headerText } = columnTextClasses(
-    options?.context ?? "page",
-  );
+  const context = options?.context ?? "page";
+  const { body: bodyText, header: headerText, link: linkClass } =
+    columnTextClasses(context);
 
-  return [
-  {
-    accessorKey: "name",
-    cell: ({ row }) => {
-      const category = row.original;
-      return (
-        <Link
-          href={`/categories/${category.id}`}
-          className="font-normal text-sky-600 dark:text-sky-400 hover:text-sky-500 dark:hover:text-sky-300"
-        >
-          {category.name}
-        </Link>
-      );
+  const columns: ColumnDef<Category>[] = [
+    {
+      accessorKey: "name",
+      cell: ({ row }) => {
+        const category = row.original;
+        return (
+          <Link href={`/categories/${category.id}`} className={linkClass}>
+            {category.name}
+          </Link>
+        );
+      },
+      header: ({ column }) => (
+        <SortableHeader
+          column={column}
+          label="Category"
+          textClass={headerText}
+        />
+      ),
+      size: 15,
     },
-    header: ({ column }) => (
-      <SortableHeader column={column} label="Category" textClass={headerText} />
-    ),
-    size: 15,
-  },
-  {
-    accessorKey: "status",
-    header: ({ column }) => (
-      <SortableHeader column={column} label="Status" textClass={headerText} />
-    ),
-    cell: ({ row }) => {
-      const status = row.original.status ?? true;
-      return <ActiveInactiveBadge active={status} />;
+    {
+      accessorKey: "status",
+      header: ({ column }) => (
+        <SortableHeader column={column} label="Status" textClass={headerText} />
+      ),
+      cell: ({ row }) => {
+        const status = row.original.status ?? true;
+        return <ActiveInactiveBadge active={status} />;
+      },
+      size: 10,
     },
-    size: 10,
-  },
-  {
-    accessorKey: "description",
-    header: ({ column }) => (
-      <SortableHeader
-        column={column}
-        label="Description"
-        textClass={headerText}
-      />
-    ),
-    cell: ({ row }) => {
-      const description = row.original.description;
-      return (
-        <span className={bodyText} title={description || undefined}>
-          {truncateText(description, 50)}
-        </span>
-      );
+    {
+      accessorKey: "description",
+      header: ({ column }) => (
+        <SortableHeader
+          column={column}
+          label="Description"
+          textClass={headerText}
+        />
+      ),
+      cell: ({ row }) => {
+        const description = row.original.description;
+        return (
+          <span className={bodyText} title={description || undefined}>
+            {truncateText(description, 50)}
+          </span>
+        );
+      },
+      size: 20,
     },
-    size: 20,
-  },
-  {
-    accessorKey: "notes",
-    header: ({ column }) => (
-      <SortableHeader column={column} label="Notes" textClass={headerText} />
-    ),
-    cell: ({ row }) => {
-      const notes = row.original.notes;
-      return (
-        <span className={bodyText} title={notes || undefined}>
-          {truncateText(notes, 50)}
-        </span>
-      );
+    {
+      accessorKey: "notes",
+      header: ({ column }) => (
+        <SortableHeader column={column} label="Notes" textClass={headerText} />
+      ),
+      cell: ({ row }) => {
+        const notes = row.original.notes;
+        return (
+          <span className={bodyText} title={notes || undefined}>
+            {truncateText(notes, 50)}
+          </span>
+        );
+      },
+      size: 20,
     },
-    size: 20,
-  },
-  {
-    accessorKey: "createdAt",
-    header: ({ column }) => (
-      <SortableHeader
-        column={column}
-        label="Created At"
-        textClass={headerText}
-      />
-    ),
-    cell: ({ getValue }) => {
-      const dateValue = getValue<string | Date>();
-      const date =
-        typeof dateValue === "string" ? new Date(dateValue) : dateValue;
+    {
+      accessorKey: "createdAt",
+      header: ({ column }) => (
+        <SortableHeader
+          column={column}
+          label="Created At"
+          textClass={headerText}
+        />
+      ),
+      cell: ({ getValue }) => {
+        const dateValue = getValue<string | Date>();
+        const date =
+          typeof dateValue === "string" ? new Date(dateValue) : dateValue;
 
-      if (!date || isNaN(date.getTime())) {
-        return <span className={bodyText}>Unknown Date</span>;
-      }
+        if (!date || isNaN(date.getTime())) {
+          return <span className={bodyText}>Unknown Date</span>;
+        }
 
-      return (
-        <span className={bodyText}>
-          {date.toLocaleDateString("en-US", {
-            year: "numeric",
-            month: "short",
-            day: "numeric",
-          })}
-        </span>
-      );
+        return (
+          <span className={bodyText}>
+            {date.toLocaleDateString("en-US", {
+              year: "numeric",
+              month: "short",
+              day: "numeric",
+            })}
+          </span>
+        );
+      },
+      size: 15,
     },
-    size: 15,
-  },
-  {
-    accessorKey: "updatedAt",
-    header: ({ column }) => (
-      <SortableHeader
-        column={column}
-        label="Updated At"
-        textClass={headerText}
-      />
-    ),
-    cell: ({ getValue }) => {
-      const dateValue = getValue<string | Date | null | undefined>();
+    {
+      accessorKey: "updatedAt",
+      header: ({ column }) => (
+        <SortableHeader
+          column={column}
+          label="Updated At"
+          textClass={headerText}
+        />
+      ),
+      cell: ({ getValue }) => {
+        const dateValue = getValue<string | Date | null | undefined>();
 
-      if (!dateValue) {
-        return <span className={bodyText}>-</span>;
-      }
+        if (!dateValue) {
+          return <span className={bodyText}>-</span>;
+        }
 
-      const date =
-        typeof dateValue === "string" ? new Date(dateValue) : dateValue;
+        const date =
+          typeof dateValue === "string" ? new Date(dateValue) : dateValue;
 
-      if (!date || isNaN(date.getTime())) {
-        return <span className={bodyText}>-</span>;
-      }
+        if (!date || isNaN(date.getTime())) {
+          return <span className={bodyText}>-</span>;
+        }
 
-      return (
-        <span className={bodyText}>
-          {date.toLocaleDateString("en-US", {
-            year: "numeric",
-            month: "short",
-            day: "numeric",
-          })}
-        </span>
-      );
+        return (
+          <span className={bodyText}>
+            {date.toLocaleDateString("en-US", {
+              year: "numeric",
+              month: "short",
+              day: "numeric",
+            })}
+          </span>
+        );
+      },
+      size: 15,
     },
-    size: 15,
-  },
-  {
-    id: "actions",
-    header: "Actions",
-    cell: ({ row }) => {
-      return <CategoryActions row={row} onEdit={onEdit} />;
+    {
+      id: "actions",
+      header: () => <span className={headerText}>Actions</span>,
+      cell: ({ row }) => {
+        return (
+          <CategoryActions row={row} onEdit={onEdit} context={context} />
+        );
+      },
+      size: 10,
     },
-    size: 10,
-  },
-];
+  ];
+
+  if (context === "dialog") {
+    return columns.filter((col) => {
+      const key =
+        "accessorKey" in col && col.accessorKey
+          ? String(col.accessorKey)
+          : col.id;
+      return !key || !DIALOG_HIDDEN_COLUMNS.has(key);
+    });
+  }
+
+  return columns;
 };

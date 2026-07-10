@@ -67,8 +67,9 @@ import {
   GLASS_FOCUS_RING,
 } from "@/lib/ui/focus-ring-styles";
 import {
-  GLASS_ACTION_BUTTON,
   GLASS_BUTTON_ICON_HOVER,
+  GLASS_BUTTON_SHELL_RESET,
+  GLASS_PRIMARY_BUTTON,
 } from "@/lib/ui/glass-button-styles";
 
 /** Date range inputs — violet hue ring, no border-width shift (REQ-0046). */
@@ -836,11 +837,13 @@ export default function BusinessInsightPage({
               </p>
             </div>
             <Button
+              variant="ghost"
               onClick={handleExportAnalytics}
               className={cn(
                 GLASS_BUTTON_ICON_HOVER,
+                GLASS_BUTTON_SHELL_RESET,
                 "flex-shrink-0 gap-2",
-                GLASS_ACTION_BUTTON.blue,
+                GLASS_PRIMARY_BUTTON.blue,
               )}
               disabled={dataLoading}
             >
@@ -1513,12 +1516,13 @@ export default function BusinessInsightPage({
                     {aiInsightsText}
                   </p>
                   <Button
-                    variant="outline"
+                    variant="ghost"
                     size="sm"
                     className={cn(
                       GLASS_BUTTON_ICON_HOVER,
+                      GLASS_BUTTON_SHELL_RESET,
                       "gap-1",
-                      GLASS_ACTION_BUTTON.amber,
+                      GLASS_PRIMARY_BUTTON.amber,
                     )}
                     onClick={handleGenerateAiInsights}
                     disabled={aiInsightsLoading}
@@ -1532,11 +1536,13 @@ export default function BusinessInsightPage({
                     Get short AI recommendations based on your current metrics.
                   </p>
                   <Button
+                    variant="ghost"
                     size="sm"
                     className={cn(
                       GLASS_BUTTON_ICON_HOVER,
+                      GLASS_BUTTON_SHELL_RESET,
                       "gap-1",
-                      GLASS_ACTION_BUTTON.amber,
+                      GLASS_PRIMARY_BUTTON.amber,
                     )}
                     onClick={handleGenerateAiInsights}
                     disabled={aiInsightsLoading || dataLoading}
