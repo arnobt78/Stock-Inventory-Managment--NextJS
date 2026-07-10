@@ -2,6 +2,12 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import {
+  DIALOG_FORM_FIELD_EMERALD,
+  GLASS_BUTTON_ICON_HOVER,
+  GLASS_PRIMARY_BUTTON,
+} from "@/components/shared";
+import { cn } from "@/lib/utils";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import axiosInstance from "@/utils/axiosInstance";
@@ -133,7 +139,10 @@ export default function RegisterPage() {
               onChange={(e) => setName(e.target.value)}
               placeholder="John Doe"
               required
-              className="w-full bg-white/10 dark:bg-white/5 backdrop-blur-md border border-emerald-400/30 dark:border-white/20 text-gray-700 dark:text-white placeholder:text-gray-500 dark:placeholder:text-white/40 focus-visible:border-emerald-400 focus-visible:ring-emerald-500/50 shadow-[0_10px_30px_rgba(16,185,129,0.15)]"
+              className={cn(
+                "w-full text-gray-700 dark:text-white placeholder:text-gray-500 dark:placeholder:text-white/40",
+                DIALOG_FORM_FIELD_EMERALD,
+              )}
             />
           </AuthAnimatedBlock>
 
@@ -151,7 +160,10 @@ export default function RegisterPage() {
               onChange={(e) => setEmail(e.target.value)}
               placeholder="you@example.com"
               required
-              className="w-full bg-white/10 dark:bg-white/5 backdrop-blur-md border border-emerald-400/30 dark:border-white/20 text-gray-700 dark:text-white placeholder:text-gray-500 dark:placeholder:text-white/40 focus-visible:border-emerald-400 focus-visible:ring-emerald-500/50 shadow-[0_10px_30px_rgba(16,185,129,0.15)]"
+              className={cn(
+                "w-full text-gray-700 dark:text-white placeholder:text-gray-500 dark:placeholder:text-white/40",
+                DIALOG_FORM_FIELD_EMERALD,
+              )}
             />
           </AuthAnimatedBlock>
 
@@ -169,7 +181,10 @@ export default function RegisterPage() {
               onChange={(e) => setPassword(e.target.value)}
               placeholder="Enter your password"
               required
-              className="w-full bg-white/10 dark:bg-white/5 backdrop-blur-md border border-emerald-400/30 dark:border-white/20 text-gray-700 dark:text-white placeholder:text-gray-500 dark:placeholder:text-white/40 focus-visible:border-emerald-400 focus-visible:ring-emerald-500/50 shadow-[0_10px_30px_rgba(16,185,129,0.15)]"
+              className={cn(
+                "w-full text-gray-700 dark:text-white placeholder:text-gray-500 dark:placeholder:text-white/40",
+                DIALOG_FORM_FIELD_EMERALD,
+              )}
             />
           </AuthAnimatedBlock>
 
@@ -187,14 +202,17 @@ export default function RegisterPage() {
               onChange={(e) => setConfirmPassword(e.target.value)}
               placeholder="Confirm your password"
               required
-              className="w-full bg-white/10 dark:bg-white/5 backdrop-blur-md border border-emerald-400/30 dark:border-white/20 text-gray-700 dark:text-white placeholder:text-gray-500 dark:placeholder:text-white/40 focus-visible:border-emerald-400 focus-visible:ring-emerald-500/50 shadow-[0_10px_30px_rgba(16,185,129,0.15)]"
+              className={cn(
+                "w-full text-gray-700 dark:text-white placeholder:text-gray-500 dark:placeholder:text-white/40",
+                DIALOG_FORM_FIELD_EMERALD,
+              )}
             />
           </AuthAnimatedBlock>
 
           <AuthAnimatedBlock delayMs={formRowDelay(5)}>
             <Button
               type="submit"
-              className="w-full rounded-xl border border-emerald-400/30 bg-gradient-to-r from-emerald-500/70 via-emerald-500/50 to-emerald-500/30 text-white shadow-[0_15px_35px_rgba(16,185,129,0.45)] backdrop-blur-md transition duration-200 hover:border-emerald-300/40 hover:from-emerald-500/80 hover:via-emerald-500/60 hover:to-emerald-500/40"
+              className={cn(GLASS_BUTTON_ICON_HOVER, "w-full", GLASS_PRIMARY_BUTTON.emerald)}
               disabled={isLoading}
             >
               {isLoading ? (

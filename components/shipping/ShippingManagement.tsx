@@ -30,7 +30,12 @@ import {
   useGenerateShippingLabel,
   useAddTrackingNumber,
 } from "@/hooks/queries";
-import { DeferredSelectGate } from "@/components/shared";
+import { DeferredSelectGate, DIALOG_FORM_FIELD_EMERALD } from "@/components/shared";
+import {
+  GLASS_BUTTON_ICON_HOVER,
+  GLASS_PRIMARY_BUTTON,
+} from "@/lib/ui/glass-button-styles";
+import { cn } from "@/lib/utils";
 import {
   Truck,
   Package,
@@ -223,7 +228,7 @@ export default function ShippingManagement({
                     >
                       <SelectTrigger
                         id="carrier"
-                        className="h-11 w-full border-emerald-400/30 dark:border-white/20 bg-white/10 dark:bg-white/5 backdrop-blur-md text-white placeholder:text-white/40 focus:border-emerald-400 focus:ring-emerald-500/50 shadow-[0_10px_30px_rgba(16,185,129,0.15)] dark:shadow-[0_10px_30px_rgba(16,185,129,0.1)]"
+                        className={cn("h-11 w-full dark:shadow-[0_10px_30px_rgba(16,185,129,0.1)]", DIALOG_FORM_FIELD_EMERALD)}
                       >
                         <SelectValue placeholder="Select carrier" />
                       </SelectTrigger>
@@ -251,7 +256,7 @@ export default function ShippingManagement({
               <Button
                 onClick={handleGenerateLabel}
                 disabled={isLoading}
-                className="h-11 w-full rounded-xl border border-emerald-400/30 dark:border-emerald-400/30 bg-gradient-to-r from-emerald-500/70 via-emerald-500/50 to-emerald-500/30 dark:from-emerald-500/70 dark:via-emerald-500/50 dark:to-emerald-500/30 text-white shadow-[0_15px_35px_rgba(16,185,129,0.45)] dark:shadow-[0_15px_35px_rgba(16,185,129,0.25)] backdrop-blur-md transition duration-200 hover:border-emerald-300/40 hover:from-emerald-500/80 hover:via-emerald-500/60 hover:to-emerald-500/40 dark:hover:border-emerald-300/40 dark:hover:from-emerald-500/80 dark:hover:via-emerald-500/60 dark:hover:to-emerald-500/40 hover:shadow-[0_20px_45px_rgba(16,185,129,0.6)] dark:hover:shadow-[0_20px_45px_rgba(16,185,129,0.35)] focus-visible:ring-emerald-500/50"
+                className={cn(GLASS_BUTTON_ICON_HOVER, "w-full", GLASS_PRIMARY_BUTTON.emerald)}
               >
                 {generateLabelMutation.isPending ? (
                   <>
@@ -303,7 +308,7 @@ export default function ShippingManagement({
                     >
                       <SelectTrigger
                         id="manual-carrier"
-                        className="h-11 w-full border-emerald-400/30 dark:border-white/20 bg-white/10 dark:bg-white/5 backdrop-blur-md text-white placeholder:text-white/40 focus:border-emerald-400 focus:ring-emerald-500/50 shadow-[0_10px_30px_rgba(16,185,129,0.15)] dark:shadow-[0_10px_30px_rgba(16,185,129,0.1)]"
+                        className={cn("h-11 w-full dark:shadow-[0_10px_30px_rgba(16,185,129,0.1)]", DIALOG_FORM_FIELD_EMERALD)}
                       >
                         <SelectValue placeholder="Select carrier" />
                       </SelectTrigger>
@@ -337,14 +342,14 @@ export default function ShippingManagement({
                   placeholder="Enter tracking number"
                   value={manualTrackingNumber}
                   onChange={(e) => setManualTrackingNumber(e.target.value)}
-                  className="h-11 w-full border-emerald-400/30 dark:border-white/20 bg-white/10 dark:bg-white/5 backdrop-blur-md text-white placeholder:text-white/40 focus-visible:border-emerald-400 focus-visible:ring-emerald-500/50 shadow-[0_10px_30px_rgba(16,185,129,0.15)] dark:shadow-[0_10px_30px_rgba(16,185,129,0.1)]"
+                  className={cn("h-11 w-full dark:shadow-[0_10px_30px_rgba(16,185,129,0.1)]", DIALOG_FORM_FIELD_EMERALD)}
                 />
               </div>
 
               <Button
                 onClick={handleAddTracking}
                 disabled={isLoading || !manualTrackingNumber.trim()}
-                className="h-11 w-full rounded-xl border border-emerald-400/30 dark:border-emerald-400/30 bg-gradient-to-r from-emerald-500/70 via-emerald-500/50 to-emerald-500/30 dark:from-emerald-500/70 dark:via-emerald-500/50 dark:to-emerald-500/30 text-white shadow-[0_15px_35px_rgba(16,185,129,0.45)] dark:shadow-[0_15px_35px_rgba(16,185,129,0.25)] backdrop-blur-md transition duration-200 hover:border-emerald-300/40 hover:from-emerald-500/80 hover:via-emerald-500/60 hover:to-emerald-500/40 dark:hover:border-emerald-300/40 dark:hover:from-emerald-500/80 dark:hover:via-emerald-500/60 dark:hover:to-emerald-500/40 hover:shadow-[0_20px_45px_rgba(16,185,129,0.6)] dark:hover:shadow-[0_20px_45px_rgba(16,185,129,0.35)] focus-visible:ring-emerald-500/50"
+                className={cn(GLASS_BUTTON_ICON_HOVER, "w-full", GLASS_PRIMARY_BUTTON.emerald)}
               >
                 {addTrackingMutation.isPending ? (
                   <>

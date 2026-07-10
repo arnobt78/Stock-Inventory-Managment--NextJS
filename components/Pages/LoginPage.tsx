@@ -3,6 +3,8 @@
 import { useState, useEffect, useRef } from "react";
 import { useAuth } from "@/contexts";
 import { useRouter, useSearchParams } from "next/navigation";
+import { DIALOG_FORM_FIELD_SKY, GLASS_BUTTON_ICON_HOVER, GLASS_PRIMARY_BUTTON } from "@/components/shared";
+import { cn } from "@/lib/utils";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
@@ -218,7 +220,10 @@ export default function LoginPage() {
               placeholder="you@example.com"
               required
               disabled={formDisabled}
-              className="w-full bg-white/10 dark:bg-white/5 backdrop-blur-md border border-sky-400/30 dark:border-white/20 text-gray-700 dark:text-white placeholder:text-gray-500 dark:placeholder:text-white/40 focus-visible:border-sky-400 focus-visible:ring-sky-500/50 shadow-[0_10px_30px_rgba(2,132,199,0.15)]"
+              className={cn(
+                "w-full text-gray-700 dark:text-white placeholder:text-gray-500 dark:placeholder:text-white/40",
+                DIALOG_FORM_FIELD_SKY,
+              )}
             />
           </AuthAnimatedBlock>
 
@@ -237,14 +242,17 @@ export default function LoginPage() {
               placeholder="Enter your password"
               required
               disabled={formDisabled}
-              className="w-full bg-white/10 dark:bg-white/5 backdrop-blur-md border border-sky-400/30 dark:border-white/20 text-gray-700 dark:text-white placeholder:text-gray-500 dark:placeholder:text-white/40 focus-visible:border-sky-400 focus-visible:ring-sky-500/50 shadow-[0_10px_30px_rgba(2,132,199,0.15)]"
+              className={cn(
+                "w-full text-gray-700 dark:text-white placeholder:text-gray-500 dark:placeholder:text-white/40",
+                DIALOG_FORM_FIELD_SKY,
+              )}
             />
           </AuthAnimatedBlock>
 
           <AuthAnimatedBlock delayMs={formRowDelay(4)}>
             <Button
               type="submit"
-              className="w-full rounded-xl border border-sky-400/30 dark:border-sky-400/40 bg-gradient-to-r from-sky-500/70 via-sky-500/50 to-sky-500/30 dark:from-sky-500/80 dark:via-sky-500/60 dark:to-sky-500/40 text-white shadow-[0_15px_35px_rgba(2,132,199,0.45)] backdrop-blur-md transition duration-200 hover:border-sky-300/60 dark:hover:border-sky-300/60 hover:from-sky-500/90 hover:via-sky-500/70 hover:to-sky-500/50 dark:hover:from-sky-500/90 dark:hover:via-sky-500/70 dark:hover:to-sky-500/50 hover:shadow-[0_20px_45px_rgba(2,132,199,0.6)]"
+              className={cn(GLASS_BUTTON_ICON_HOVER, "w-full", GLASS_PRIMARY_BUTTON.sky)}
               disabled={formDisabled}
             >
               {isNavigatingToHome ? (

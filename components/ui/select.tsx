@@ -6,6 +6,7 @@ import { Check, ChevronDown, ChevronUp } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 import { MENU_ITEM_PADDING_CLASS } from "@/components/ui/menu-item-styles";
+import { FOCUS_NO_LAYOUT_SHIFT_CLASS, FOCUS_VISIBLE_NEUTRAL_RING_CLASS } from "@/lib/ui/focus-ring-styles";
 
 const Select = SelectPrimitive.Root;
 
@@ -21,8 +22,9 @@ const SelectTrigger = React.forwardRef<
     ref={ref}
     className={cn(
       "group flex h-11 w-full items-center justify-between whitespace-nowrap rounded-md border border-input bg-transparent px-2 py-2 text-sm shadow-sm ring-offset-background placeholder:text-muted-foreground disabled:cursor-not-allowed disabled:opacity-50 [&>span]:line-clamp-1",
-      "focus:outline-none focus:border-2 focus:border-sky-500 focus:ring-2 focus:ring-sky-500/20",
-      "dark:border-white/20 dark:bg-white/5 dark:text-white dark:focus:border-sky-400 dark:focus:ring-sky-400/30",
+      FOCUS_NO_LAYOUT_SHIFT_CLASS,
+      FOCUS_VISIBLE_NEUTRAL_RING_CLASS,
+      "dark:border-white/20 dark:bg-white/5 dark:text-white",
       className,
     )}
     {...props}

@@ -91,3 +91,11 @@ Format: `TIMESTAMP | AGENT | DECISION | RATIONALE | REQ-ID`
 2026-07-10T16:00:00Z | build-agent | FilterCommandCheckboxItem | cmdk onSelect only; checkbox visual — fixes hang + whole-row click | REQ-0045
 2026-07-10T16:02:00Z | build-agent | Invoice status client-side | match OrderList; API search+scope only — no query key churn | REQ-0045
 2026-07-10T16:04:00Z | red-team | REQ-0045 gates | lint ✓ test 343 ✓ invalidate 202 ✓ build ✓; no TanStack/invalidation delta | REQ-0045
+2026-07-10T16:12:00Z | build-agent | CATALOG_TOOLBAR_TRIGGER_LAYOUT | px-4 gap-2 sm:w-auto parity filter+export | REQ-0046
+2026-07-10T16:14:00Z | red-team | REQ-0046 lint | CSS-only; catalog-filter-tokens + placeholder | REQ-0046
+2026-07-10T16:34:00Z | build-agent | GLASS_FOCUS_RING | hue ring dark-visible; no border-width shift; dialog-form-field sweep | REQ-0046
+2026-07-10T16:35:00Z | red-team | REQ-0046 gates | lint ✓ test 343 ✓ invalidate 202 ✓ build ✓; CSS-only | REQ-0046
+2026-07-10T16:50:00Z | build-agent | GLASS_*_BUTTON tokens | primary/action/ghost + icon hover; focus-ring build-on | REQ-0047
+2026-07-10T16:51:00Z | build-agent | Batch A+B glass migration | 14 files; Email prefs icon h-4 w-4 mr-2 | REQ-0047
+2026-07-10T16:52:00Z | red-team | REQ-0047 gates | lint ✓ test 343 ✓ invalidate 202 ✓ build ✓; CSS-only | REQ-0047
+2026-07-10T16:52:00Z | release-manager | commit split note | REQ-0046 focus-ring separate from REQ-0047 glass+email prefs | REQ-0046, REQ-0047

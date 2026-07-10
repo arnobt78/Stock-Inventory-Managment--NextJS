@@ -61,6 +61,22 @@ import { exportToExcel, exportToCSV } from "@/lib/export";
 import type { Product, Order } from "@/types";
 import type { ProductForHome } from "@/lib/server/home-data";
 import type { OrderForPage } from "@/lib/server/orders-data";
+import { cn } from "@/lib/utils";
+import {
+  FOCUS_NO_LAYOUT_SHIFT_CLASS,
+  GLASS_FOCUS_RING,
+} from "@/lib/ui/focus-ring-styles";
+import {
+  GLASS_ACTION_BUTTON,
+  GLASS_BUTTON_ICON_HOVER,
+} from "@/lib/ui/glass-button-styles";
+
+/** Date range inputs — violet hue ring, no border-width shift (REQ-0046). */
+const BUSINESS_INSIGHT_DATE_INPUT_CLASS = cn(
+  "flex-1 sm:flex-none px-2 py-2 text-sm rounded-xl border border-gray-300/30 bg-white/50 dark:bg-white/5 dark:border-white/10 text-gray-700 dark:text-white backdrop-blur-md transition",
+  FOCUS_NO_LAYOUT_SHIFT_CLASS,
+  GLASS_FOCUS_RING.violet,
+);
 
 const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042", "#8884D8"];
 
@@ -821,7 +837,11 @@ export default function BusinessInsightPage({
             </div>
             <Button
               onClick={handleExportAnalytics}
-              className="flex items-center gap-2 flex-shrink-0 rounded-xl border-blue-400/30 bg-gradient-to-r from-blue-500/20 via-blue-500/10 to-transparent hover:from-blue-500/30 shadow-[0_10px_30px_rgba(59,130,246,0.2)]"
+              className={cn(
+                GLASS_BUTTON_ICON_HOVER,
+                "flex-shrink-0 gap-2",
+                GLASS_ACTION_BUTTON.blue,
+              )}
               disabled={dataLoading}
             >
               <Download className="h-4 w-4" />
@@ -859,7 +879,7 @@ export default function BusinessInsightPage({
                           startDate: e.target.value,
                         }))
                       }
-                      className="flex-1 sm:flex-none px-2 py-2 text-sm rounded-xl border border-gray-300/30 bg-white/50 dark:bg-white/5 dark:border-white/10 text-gray-700 dark:text-white backdrop-blur-md focus:outline-none focus:ring-2 focus:ring-violet-400/50 focus:border-transparent transition"
+                      className={BUSINESS_INSIGHT_DATE_INPUT_CLASS}
                       max={dateRange.endDate || undefined}
                     />
                   </div>
@@ -880,7 +900,7 @@ export default function BusinessInsightPage({
                           endDate: e.target.value,
                         }))
                       }
-                      className="flex-1 sm:flex-none px-2 py-2 text-sm rounded-xl border border-gray-300/30 bg-white/50 dark:bg-white/5 dark:border-white/10 text-gray-700 dark:text-white backdrop-blur-md focus:outline-none focus:ring-2 focus:ring-violet-400/50 focus:border-transparent transition"
+                      className={BUSINESS_INSIGHT_DATE_INPUT_CLASS}
                       min={dateRange.startDate || undefined}
                     />
                   </div>
@@ -1495,7 +1515,11 @@ export default function BusinessInsightPage({
                   <Button
                     variant="outline"
                     size="sm"
-                    className="rounded-xl border-amber-400/30 hover:border-amber-300/50"
+                    className={cn(
+                      GLASS_BUTTON_ICON_HOVER,
+                      "gap-1",
+                      GLASS_ACTION_BUTTON.amber,
+                    )}
                     onClick={handleGenerateAiInsights}
                     disabled={aiInsightsLoading}
                   >
@@ -1508,9 +1532,12 @@ export default function BusinessInsightPage({
                     Get short AI recommendations based on your current metrics.
                   </p>
                   <Button
-                    variant="outline"
                     size="sm"
-                    className="rounded-xl border-amber-400/30 hover:border-amber-300/50"
+                    className={cn(
+                      GLASS_BUTTON_ICON_HOVER,
+                      "gap-1",
+                      GLASS_ACTION_BUTTON.amber,
+                    )}
                     onClick={handleGenerateAiInsights}
                     disabled={aiInsightsLoading || dataLoading}
                   >

@@ -51,7 +51,14 @@ import { FileText, Calendar as CalendarIcon } from "lucide-react";
 import { useForm, FormProvider } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { FormField, FormNumberField } from "@/components/forms";
-import { DeferredSelectGate } from "@/components/shared";
+import {
+  DeferredSelectGate,
+  DIALOG_FORM_FIELD_INDIGO,
+  GLASS_BUTTON_ICON_HOVER,
+  GLASS_GHOST_BUTTON,
+  GLASS_PRIMARY_BUTTON,
+} from "@/components/shared";
+import { cn } from "@/lib/utils";
 
 interface InvoiceDialogProps {
   children?: React.ReactNode;
@@ -520,7 +527,7 @@ export default function InvoiceDialog({
                           )
                         }
                       >
-                        <SelectTrigger className="h-11 w-full border-indigo-400/30 dark:border-white/20 bg-white/10 dark:bg-white/5 backdrop-blur-md text-white placeholder:text-white/40 focus:border-indigo-400 focus:ring-indigo-500/50 shadow-[0_10px_30px_rgba(99,102,241,0.15)]">
+                        <SelectTrigger className={cn("h-11 w-full", DIALOG_FORM_FIELD_INDIGO)}>
                           <SelectValue placeholder="Select Status" />
                         </SelectTrigger>
                         <SelectContent
@@ -547,7 +554,7 @@ export default function InvoiceDialog({
                   placeholder="0.00"
                   allowNegative={false}
                   labelClassName="text-white/80"
-                  inputClassName="h-11 border-indigo-400/30 dark:border-white/20 bg-white/10 dark:bg-white/5 backdrop-blur-md text-white placeholder:text-white/40 focus-visible:border-indigo-400 focus-visible:ring-indigo-500/50 shadow-[0_10px_30px_rgba(99,102,241,0.15)]"
+                  inputClassName={cn("h-11", DIALOG_FORM_FIELD_INDIGO)}
                 />
 
                 {/* Order Pricing Summary (read-only — values come from the order) */}
@@ -588,7 +595,7 @@ export default function InvoiceDialog({
                   label="Due Date"
                   type="date"
                   labelClassName="text-white/80"
-                  inputClassName="border-indigo-400/30 dark:border-white/20 bg-white/10 dark:bg-white/5 backdrop-blur-md text-white placeholder:text-white/40 focus-visible:border-indigo-400 focus-visible:ring-indigo-500/50 shadow-[0_10px_30px_rgba(99,102,241,0.15)]"
+                  inputClassName={DIALOG_FORM_FIELD_INDIGO}
                 />
 
                 {/* Sent At */}
@@ -600,7 +607,7 @@ export default function InvoiceDialog({
                     label="Sent At"
                     type="date"
                     labelClassName="text-white/80"
-                    inputClassName="border-indigo-400/30 dark:border-white/20 bg-white/10 dark:bg-white/5 backdrop-blur-md text-white placeholder:text-white/40 focus-visible:border-indigo-400 focus-visible:ring-indigo-500/50 shadow-[0_10px_30px_rgba(99,102,241,0.15)]"
+                    inputClassName={DIALOG_FORM_FIELD_INDIGO}
                   />
                 ) : null}
 
@@ -611,7 +618,7 @@ export default function InvoiceDialog({
                     label="Paid At"
                     type="date"
                     labelClassName="text-white/80"
-                    inputClassName="border-indigo-400/30 dark:border-white/20 bg-white/10 dark:bg-white/5 backdrop-blur-md text-white placeholder:text-white/40 focus-visible:border-indigo-400 focus-visible:ring-indigo-500/50 shadow-[0_10px_30px_rgba(99,102,241,0.15)]"
+                    inputClassName={DIALOG_FORM_FIELD_INDIGO}
                   />
                 ) : null}
 
@@ -622,7 +629,7 @@ export default function InvoiceDialog({
                     label="Cancelled At"
                     type="date"
                     labelClassName="text-white/80"
-                    inputClassName="border-indigo-400/30 dark:border-white/20 bg-white/10 dark:bg-white/5 backdrop-blur-md text-white placeholder:text-white/40 focus-visible:border-indigo-400 focus-visible:ring-indigo-500/50 shadow-[0_10px_30px_rgba(99,102,241,0.15)]"
+                    inputClassName={DIALOG_FORM_FIELD_INDIGO}
                   />
                 ) : null}
 
@@ -634,7 +641,7 @@ export default function InvoiceDialog({
                   type="url"
                   labelClassName="text-white/80"
                   className="sm:col-span-2"
-                  inputClassName="border-indigo-400/30 dark:border-white/20 bg-white/10 dark:bg-white/5 backdrop-blur-md text-white placeholder:text-white/40 focus-visible:border-indigo-400 focus-visible:ring-indigo-500/50 shadow-[0_10px_30px_rgba(99,102,241,0.15)]"
+                  inputClassName={DIALOG_FORM_FIELD_INDIGO}
                 />
 
                 {/* Notes */}
@@ -644,7 +651,7 @@ export default function InvoiceDialog({
                     label="Notes"
                     placeholder="Enter invoice notes..."
                     labelClassName="text-white/80"
-                    inputClassName="border-indigo-400/30 dark:border-white/20 bg-white/10 dark:bg-white/5 backdrop-blur-md text-white placeholder:text-white/40 focus-visible:border-indigo-400 focus-visible:ring-indigo-500/50 shadow-[0_10px_30px_rgba(99,102,241,0.15)]"
+                    inputClassName={DIALOG_FORM_FIELD_INDIGO}
                   />
                 </div>
               </div>
@@ -653,13 +660,17 @@ export default function InvoiceDialog({
                 <Button
                   onClick={handleCancelEdit}
                   variant="secondary"
-                  className="h-11 w-full sm:w-auto px-11 inline-flex items-center justify-center rounded-xl border border-white/10 bg-gradient-to-r from-gray-400/40 via-gray-300/30 to-gray-400/40 dark:bg-background/50 backdrop-blur-md shadow-[0_15px_35px_rgba(0,0,0,0.3)] dark:shadow-[0_15px_35px_rgba(255,255,255,0.25)] transition duration-200 hover:bg-gradient-to-r hover:from-gray-400/60 hover:via-gray-300/50 hover:to-gray-400/60 dark:hover:bg-accent/50 hover:border-white/20 dark:hover:border-white/20 hover:shadow-[0_20px_45px_rgba(0,0,0,0.5)] dark:hover:shadow-[0_20px_45px_rgba(255,255,255,0.4)]"
+                  className={cn("w-full sm:w-auto px-11", GLASS_GHOST_BUTTON)}
                 >
                   Cancel
                 </Button>
                 <Button
                   type="submit"
-                  className="h-11 w-full sm:w-auto px-11 inline-flex items-center justify-center rounded-xl border border-indigo-400/30 dark:border-indigo-400/30 bg-gradient-to-r from-indigo-500/70 via-indigo-500/50 to-indigo-500/30 text-white shadow-[0_15px_35px_rgba(99,102,241,0.45)] backdrop-blur-md transition duration-200 hover:border-indigo-300/40 hover:from-indigo-500/80 hover:via-indigo-500/60 hover:to-indigo-500/40 hover:shadow-[0_20px_45px_rgba(99,102,241,0.6)]"
+                  className={cn(
+                    GLASS_BUTTON_ICON_HOVER,
+                    "w-full sm:w-auto px-11",
+                    GLASS_PRIMARY_BUTTON.indigo,
+                  )}
                   disabled={isUpdating}
                 >
                   {isUpdating ? "Updating..." : "Update Invoice"}
@@ -698,7 +709,7 @@ export default function InvoiceDialog({
                     >
                       <SelectTrigger
                         id="order-select"
-                        className="w-full bg-white/10 backdrop-blur-md border border-white/20 text-white placeholder:text-white/40 focus-visible:border-indigo-400 focus-visible:ring-indigo-500/50 shadow-[0_10px_30px_rgba(99,102,241,0.15)]"
+                        className={cn("w-full", DIALOG_FORM_FIELD_INDIGO)}
                       >
                         <SelectValue placeholder="Select an order..." />
                       </SelectTrigger>
@@ -742,7 +753,7 @@ export default function InvoiceDialog({
                     type="date"
                     value={dueDate}
                     onChange={(e) => setDueDate(e.target.value)}
-                    className="w-full bg-white/10 backdrop-blur-md border border-white/20 text-white placeholder:text-white/40 focus-visible:border-indigo-400 focus-visible:ring-indigo-500/50 shadow-[0_10px_30px_rgba(99,102,241,0.15)] pr-10"
+                    className={cn("w-full pr-10", DIALOG_FORM_FIELD_INDIGO)}
                     min={new Date().toISOString().split("T")[0]}
                   />
                   <CalendarIcon className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-white dark:text-white/40 pointer-events-none" />
@@ -801,7 +812,7 @@ export default function InvoiceDialog({
                   onChange={(e) => setNotes(e.target.value)}
                   placeholder="Add any additional notes for this invoice..."
                   rows={3}
-                  className="w-full bg-white/10 backdrop-blur-md border border-white/20 text-white placeholder:text-white/40 focus-visible:border-indigo-400 focus-visible:ring-indigo-500/50 shadow-[0_10px_30px_rgba(99,102,241,0.15)]"
+                  className={cn("w-full", DIALOG_FORM_FIELD_INDIGO)}
                 />
               </div>
             </div>
@@ -811,13 +822,17 @@ export default function InvoiceDialog({
                 type="button"
                 onClick={handleCancel}
                 variant="secondary"
-                className="h-11 w-full sm:w-auto px-11 inline-flex items-center justify-center rounded-xl border border-white/10 bg-gradient-to-r from-gray-400/40 via-gray-300/30 to-gray-400/40 dark:bg-background/50 backdrop-blur-md shadow-[0_15px_35px_rgba(0,0,0,0.3)] dark:shadow-[0_15px_35px_rgba(255,255,255,0.25)] transition duration-200 hover:bg-gradient-to-r hover:from-gray-400/60 hover:via-gray-300/50 hover:to-gray-400/60 dark:hover:bg-accent/50 hover:border-white/20 dark:hover:border-white/20 hover:shadow-[0_20px_45px_rgba(0,0,0,0.5)] dark:hover:shadow-[0_20px_45px_rgba(255,255,255,0.4)]"
+                className={cn("w-full sm:w-auto px-11", GLASS_GHOST_BUTTON)}
               >
                 Cancel
               </Button>
               <Button
                 type="submit"
-                className="h-11 w-full sm:w-auto px-11 inline-flex items-center justify-center rounded-xl border border-indigo-400/30 bg-gradient-to-r from-indigo-500/70 via-indigo-500/50 to-indigo-500/30 text-white shadow-[0_15px_35px_rgba(99,102,241,0.45)] backdrop-blur-md transition duration-200 hover:border-indigo-300/40 hover:from-indigo-500/80 hover:via-indigo-500/60 hover:to-indigo-500/40 hover:shadow-[0_20px_45px_rgba(99,102,241,0.6)]"
+                className={cn(
+                  GLASS_BUTTON_ICON_HOVER,
+                  "w-full sm:w-auto px-11",
+                  GLASS_PRIMARY_BUTTON.indigo,
+                )}
                 disabled={isCreating || !selectedOrderId || !dueDate}
               >
                 <FileText className="h-4 w-4 mr-2" />

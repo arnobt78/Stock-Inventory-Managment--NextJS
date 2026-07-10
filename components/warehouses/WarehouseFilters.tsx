@@ -1,5 +1,7 @@
 "use client";
 
+import { FILTER_SEARCH_INPUT_TEAL_CLASS } from "@/lib/ui/filter-toolbar-styles";
+
 import React, { useMemo, useCallback } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -209,7 +211,7 @@ export default function WarehouseFilters({
               setSearchTerm(e.target.value);
               setPagination((prev) => ({ ...prev, pageIndex: 0 }));
             }}
-            className="h-10 pl-9 pr-10 w-full rounded-[28px] bg-white/10 dark:bg-white/5 backdrop-blur-md border border-teal-400/30 dark:border-white/20 text-gray-700 dark:text-white placeholder:text-gray-500 dark:placeholder:text-white/40 focus-visible:border-teal-400 focus-visible:ring-teal-500/50 shadow-[0_10px_30px_rgba(20,184,166,0.15)]"
+            className={FILTER_SEARCH_INPUT_TEAL_CLASS}
           />
           {searchTerm && (
             <Button

@@ -23,7 +23,14 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { MessageSquare, Loader2 } from "lucide-react";
-import { DeferredSelectGate } from "@/components/shared";
+import {
+  DeferredSelectGate,
+  DIALOG_FORM_FIELD_VIOLET,
+  DIALOG_FORM_FIELD_SKY,
+  GLASS_BUTTON_ICON_HOVER,
+  GLASS_GHOST_BUTTON,
+  GLASS_PRIMARY_BUTTON,
+} from "@/components/shared";
 import { useCreateSupportTicket } from "@/hooks/queries";
 import { cn } from "@/lib/utils";
 import type { SupportTicketPriority } from "@/types";
@@ -108,15 +115,13 @@ export default function SupportTicketDialog({
     ? "border-violet-300/30 bg-violet-100/50 dark:border-violet-400/30 dark:bg-violet-500/20"
     : "border-sky-300/30 bg-sky-100/50 dark:border-sky-400/30 dark:bg-sky-500/20";
   const iconColorClass = isViolet ? "text-violet-400" : "text-sky-400";
-  const inputClass = isViolet
-    ? "border border-violet-400/30 border-white/20 bg-white/10 text-white placeholder:text-white/40 focus-visible:outline-none focus-visible:border focus-visible:border-violet-400 focus-visible:ring-2 focus-visible:ring-violet-500/50 focus:outline-none focus:border focus:border-violet-400 focus:ring-2 focus:ring-violet-500/50 shadow-[0_10px_30px_rgba(139,92,246,0.15)]"
-    : "border border-sky-400/30 border-white/20 bg-white/10 text-white placeholder:text-white/40 focus-visible:outline-none focus-visible:border focus-visible:border-sky-400 focus-visible:ring-2 focus-visible:ring-sky-500/50 focus:outline-none focus:border focus:border-sky-400 focus:ring-2 focus:ring-sky-500/50 shadow-[0_10px_30px_rgba(2,132,199,0.15)]";
+  const inputClass = isViolet ? DIALOG_FORM_FIELD_VIOLET : DIALOG_FORM_FIELD_SKY;
   const labelClass = "text-white/80";
   const descClass = "text-white/50";
   const titleClass = "text-[22px] text-white";
-  const submitButtonClass = isViolet
-    ? "border-violet-400/30 bg-gradient-to-r from-violet-500/70 via-violet-500/50 to-violet-500/30 text-white shadow-[0_15px_35px_rgba(139,92,246,0.45)] hover:border-violet-300/40 hover:from-violet-500/80"
-    : "border-sky-400/30 bg-gradient-to-r from-sky-500/60 via-sky-500/50 to-sky-500/40 text-white shadow-[0_10px_30px_rgba(2,132,199,0.3)] hover:from-sky-500/70";
+  const primaryButtonClass = isViolet
+    ? GLASS_PRIMARY_BUTTON.violet
+    : GLASS_PRIMARY_BUTTON.sky;
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -303,7 +308,7 @@ export default function SupportTicketDialog({
               <Button
                 type="button"
                 variant="secondary"
-                className="h-11 rounded-xl border border-white/20 bg-white/15 text-white hover:bg-white/25 backdrop-blur-md"
+                className={cn("h-11 rounded-xl", GLASS_GHOST_BUTTON)}
                 disabled={isPending}
               >
                 Cancel
@@ -313,9 +318,9 @@ export default function SupportTicketDialog({
               type="submit"
               disabled={isPending || !subject.trim() || !description.trim()}
               className={cn(
-                "h-11 rounded-xl",
-                submitButtonClass,
-                "backdrop-blur-md transition duration-200 disabled:opacity-50",
+                GLASS_BUTTON_ICON_HOVER,
+                "h-11 rounded-xl disabled:opacity-50",
+                primaryButtonClass,
               )}
             >
               {isPending ? (

@@ -38,6 +38,7 @@ import { cn } from "@/lib/utils";
 import { isAnyDataSlotLoading, isDataSlotLoading } from "@/lib/react-query";
 import { useAuth } from "@/contexts";
 import { PageContentWrapper, PageSectionHeader } from "@/components/shared";
+import { FILTER_SEARCH_INPUT_SKY_CLASS } from "@/lib/ui/filter-toolbar-styles";
 import { ClientCurrency, ClientCompactDateTime } from "@/components/shared";
 import { formatStableCurrency } from "@/lib/format";
 import { StatisticsCard } from "@/components/home/StatisticsCard";
@@ -443,14 +444,7 @@ export default function AdminMyActivityContent({
                 placeholder="Search by order ID..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className={cn(
-                  "h-10 pl-9 pr-4 w-full rounded-[28px]",
-                  "bg-white/10 dark:bg-white/5 backdrop-blur-md",
-                  "border border-sky-400/30 dark:border-white/20",
-                  "text-gray-700 dark:text-white placeholder:text-gray-500 dark:placeholder:text-white/40",
-                  "focus-visible:border-sky-400 focus-visible:ring-sky-500/50",
-                  "shadow-[0_10px_30px_rgba(2,132,199,0.15)]",
-                )}
+                className={cn(FILTER_SEARCH_INPUT_SKY_CLASS, "pr-4")}
               />
             </div>
           </div>

@@ -66,7 +66,7 @@ export function CatalogActiveInactiveSelect({
   return (
     <DeferredSelectGate
       placeholder={
-        <div className={cn(meta.selectPlaceholderClass, "gap-2")} aria-hidden>
+        <div className={meta.selectPlaceholderClass} aria-hidden>
           <SelectTriggerLabel entity={entity} value={value} />
           <ChevronDown className="h-4 w-4 shrink-0 opacity-70" />
         </div>

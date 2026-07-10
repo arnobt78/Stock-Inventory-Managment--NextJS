@@ -3,7 +3,15 @@
 import React, { useState, useEffect } from "react";
 import { useAuth } from "@/contexts";
 import Navbar from "@/components/layouts/Navbar";
-import { PageContentWrapper, DataSlotPulse, PageSectionHeader } from "@/components/shared";
+import {
+  PageContentWrapper,
+  DataSlotPulse,
+  PageSectionHeader,
+  GLASS_ACTION_BUTTON,
+  GLASS_BUTTON_ICON_HOVER,
+  GLASS_GHOST_BUTTON,
+} from "@/components/shared";
+import { cn } from "@/lib/utils";
 import {
   Card,
   CardContent,
@@ -30,6 +38,9 @@ import {
   ShoppingCart,
   AlertTriangle,
   BarChart3,
+  Info,
+  RotateCcw,
+  Save,
 } from "lucide-react";
 import { HelpTooltip } from "@/components/shared";
 
@@ -161,7 +172,7 @@ export default function EmailPreferencesPage({
 
   const content = (
     <PageContentWrapper>
-        <div className="flex flex-col gap-4">
+      <div className="flex flex-col">
         <PageSectionHeader
           as="h1"
           icon={Mail}
@@ -171,114 +182,118 @@ export default function EmailPreferencesPage({
         />
 
         <Card>
-            <CardHeader>
-              <CardTitle className="text-sm sm:text-base flex items-center gap-2">
-                <Mail className="h-5 w-5" />
-                Notification Settings
-                <HelpTooltip
-                  content="Toggle each type of email on or off. Changes are saved automatically."
-                  side="top"
-                  ariaLabel="Notification settings help"
-                />
-              </CardTitle>
-              <CardDescription className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">
-                Toggle email notifications on or off. Changes are saved
-                automatically.
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                {preferenceItems.map((item) => {
-                  const Icon = item.icon;
-                  const isEnabled = localPreferences?.[item.key] ?? false;
+          <CardHeader>
+            <CardTitle className="text-sm sm:text-base flex items-center gap-2 text-gray-700 dark:text-white">
+              <Mail className="h-5 w-5" />
+              Notification Settings
+              <HelpTooltip
+                content="Toggle each type of email on or off. Changes are saved automatically."
+                side="top"
+                ariaLabel="Notification settings help"
+              />
+            </CardTitle>
+            <CardDescription className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">
+              Toggle email notifications on or off. Changes are saved
+              automatically.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              {preferenceItems.map((item) => {
+                const Icon = item.icon;
+                const isEnabled = localPreferences?.[item.key] ?? false;
 
-                  return (
-                    <div
-                      key={item.key}
-                      className="flex items-center justify-between gap-2 p-2 sm:p-4 border rounded-lg hover:bg-gray-50 dark:hover:bg-gray-900/50 transition-colors"
-                    >
-                      <div className="flex items-start gap-2 sm:gap-2 flex-1 min-w-0">
-                        <div className="mt-0.5 shrink-0">
-                          <Icon className="h-5 w-5 text-gray-600 dark:text-gray-400" />
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <Label
-                            htmlFor={item.key}
-                            className="text-xs sm:text-sm font-medium text-gray-700 dark:text-white cursor-pointer"
-                          >
-                            {item.label}
-                          </Label>
-                          <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 mt-1">
-                            {item.description}
-                          </p>
-                        </div>
+                return (
+                  <div
+                    key={item.key}
+                    className="flex items-center justify-between gap-2 p-2 sm:p-4 border rounded-lg hover:bg-gray-50 dark:hover:bg-gray-900/50 transition-colors"
+                  >
+                    <div className="flex items-start gap-2 sm:gap-2 flex-1 min-w-0">
+                      <div className="mt-0.5 shrink-0">
+                        <Icon className="h-5 w-5 text-gray-600 dark:text-gray-400" />
                       </div>
-                      {dataLoading ? (
-                        <DataSlotPulse variant="badge" className="h-5 w-9" />
-                      ) : (
-                        <Switch
-                          id={item.key}
-                          checked={isEnabled}
-                          onCheckedChange={() => handleToggle(item.key)}
-                          disabled={
-                            updateMutation.isPending || !localPreferences
-                          }
-                          className="shrink-0"
-                        />
-                      )}
+                      <div className="flex-1 min-w-0">
+                        <Label
+                          htmlFor={item.key}
+                          className="text-xs sm:text-sm font-medium text-gray-700 dark:text-white cursor-pointer"
+                        >
+                          {item.label}
+                        </Label>
+                        <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 mt-1">
+                          {item.description}
+                        </p>
+                      </div>
                     </div>
-                  );
-                })}
-              </div>
+                    {dataLoading ? (
+                      <DataSlotPulse variant="badge" className="h-5 w-9" />
+                    ) : (
+                      <Switch
+                        id={item.key}
+                        checked={isEnabled}
+                        onCheckedChange={() => handleToggle(item.key)}
+                        disabled={updateMutation.isPending || !localPreferences}
+                        className="shrink-0"
+                      />
+                    )}
+                  </div>
+                );
+              })}
+            </div>
 
-              {!dataLoading && localPreferences && (
-                <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-end gap-2 mt-6 pt-6 border-t">
-                  <Button
-                    variant="outline"
-                    onClick={handleReset}
-                    disabled={updateMutation.isPending}
-                  >
-                    Reset to Defaults
-                  </Button>
-                  <Button
-                    onClick={handleSaveAll}
-                    disabled={updateMutation.isPending}
-                  >
-                    {updateMutation.isPending
-                      ? "Saving..."
-                      : "Save All Changes"}
-                  </Button>
-                </div>
-              )}
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-xs sm:text-sm font-medium text-gray-700 dark:text-white">
-                About Email Preferences
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-2 text-sm text-gray-600 dark:text-gray-400">
-                <p>
-                  • All preferences are saved automatically when you toggle
-                  them.
-                </p>
-                <p>• You can always change these settings later.</p>
-                <p>
-                  • Critical system alerts may still be sent regardless of
-                  preferences.
-                </p>
-                <p>
-                  • Email notifications are sent to:{" "}
-                  <strong className="text-gray-700 dark:text-white">
-                    {user?.email}
-                  </strong>
-                </p>
+            {!dataLoading && localPreferences && (
+              <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-end gap-2 mt-4">
+                <Button
+                  variant="outline"
+                  onClick={handleReset}
+                  disabled={updateMutation.isPending}
+                  className={cn(GLASS_BUTTON_ICON_HOVER, GLASS_GHOST_BUTTON)}
+                >
+                  <RotateCcw className="h-4 w-4 mr-2" />
+                  Reset to Defaults
+                </Button>
+                <Button
+                  onClick={handleSaveAll}
+                  disabled={updateMutation.isPending}
+                  className={cn(
+                    GLASS_BUTTON_ICON_HOVER,
+                    "gap-2",
+                    GLASS_ACTION_BUTTON.sky,
+                  )}
+                >
+                  <Save className="h-4 w-4 mr-2" />
+                  {updateMutation.isPending ? "Saving..." : "Save All Changes"}
+                </Button>
               </div>
-            </CardContent>
-          </Card>
+            )}
+          </CardContent>
+        </Card>
+
+        <Card className="mt-4">
+          <CardHeader>
+            <CardTitle className="text-xs sm:text-sm font-medium text-gray-700 dark:text-white flex items-center gap-2">
+              <Info className="h-5 w-5" />
+              About Email Preferences
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-2 text-sm text-gray-600 dark:text-gray-400">
+              <p>
+                • All preferences are saved automatically when you toggle them.
+              </p>
+              <p>• You can always change these settings later.</p>
+              <p>
+                • Critical system alerts may still be sent regardless of
+                preferences.
+              </p>
+              <p>
+                • Email notifications are sent to:{" "}
+                <strong className="text-gray-700 dark:text-white">
+                  {user?.email}
+                </strong>
+              </p>
+            </div>
+          </CardContent>
+        </Card>
       </div>
     </PageContentWrapper>
   );

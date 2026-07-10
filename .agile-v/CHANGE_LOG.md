@@ -39,4 +39,7 @@
 | 2026-07-10 | Unified filter chip row + reset on all list filters | REQ-0043 |
 | 2026-07-10 | Unified responsive typography scale + gap fixes (zero text-xl) | REQ-0044 |
 | 2026-07-10 | Filter row UX, invoice status client-side filter, header spacing | REQ-0045 |
+| 2026-07-10 | Catalog filter/export toolbar px-4 gap-2 sm:w-auto parity | REQ-0046 |
+| 2026-07-10 | Focus no-shift + hue rings; dialog-form-field token sweep | REQ-0046 |
+| 2026-07-10 | Glass button tokens; Batch A/B migrations; Email prefs polish | REQ-0047 |
 | _pending_ | Human Gate 2 Sentry 24h sign-off | REQ-0009 |

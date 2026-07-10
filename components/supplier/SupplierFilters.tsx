@@ -1,5 +1,6 @@
 "use client";
 
+import { FILTER_SEARCH_INPUT_SKY_CLASS } from "@/lib/ui/filter-toolbar-styles";
 import React, { useMemo, useCallback } from "react";
 import { Supplier } from "@/types";
 import { Button } from "@/components/ui/button";
@@ -227,7 +228,7 @@ export default function SupplierFilters({
             placeholder="Search by Supplier Name..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="h-10 pl-9 pr-10 w-full rounded-[28px] bg-white/10 dark:bg-white/5 backdrop-blur-md border border-sky-400/30 dark:border-white/20 text-gray-700 dark:text-white placeholder:text-gray-500 dark:placeholder:text-white/40 focus-visible:border-sky-400 focus-visible:ring-sky-500/50 shadow-[0_10px_30px_rgba(2,132,199,0.15)]"
+            className={FILTER_SEARCH_INPUT_SKY_CLASS}
           />
           {searchTerm && (
             <Button

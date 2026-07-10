@@ -5,6 +5,10 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
+import {
+  GLASS_ACTION_BUTTON,
+  GLASS_BUTTON_ICON_HOVER,
+} from "@/lib/ui/glass-button-styles";
 import React, { useEffect, useState } from "react";
 import {
   FiActivity,
@@ -462,7 +466,11 @@ export default function ApiStatusPage() {
             <Button
               onClick={handleRefresh}
               disabled={isRefreshing}
-              className="flex items-center gap-2 rounded-xl border-emerald-400/30 bg-gradient-to-r from-emerald-500/20 via-emerald-500/10 to-transparent hover:from-emerald-500/30 shadow-[0_10px_30px_rgba(16,185,129,0.2)]"
+              className={cn(
+                GLASS_BUTTON_ICON_HOVER,
+                "gap-2",
+                GLASS_ACTION_BUTTON.emerald,
+              )}
             >
               <FiRefreshCw
                 className={`h-4 w-4 ${isRefreshing ? "animate-spin" : ""}`}

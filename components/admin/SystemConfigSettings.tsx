@@ -8,6 +8,12 @@
 import React, { useEffect, useState } from "react";
 import { Save, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import {
+  GLASS_ACTION_BUTTON,
+  GLASS_BUTTON_ICON_HOVER,
+  GLASS_GHOST_BUTTON,
+} from "@/lib/ui/glass-button-styles";
+import { cn } from "@/lib/utils";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
@@ -29,7 +35,6 @@ import type {
 } from "@/types";
 import { CATEGORY_LABELS } from "@/types";
 import type { SystemConfigForPage } from "@/lib/server/system-config-data";
-import { cn } from "@/lib/utils";
 
 const categoryIcons: Record<ConfigCategory, string> = {
   general: "🏢",
@@ -134,6 +139,11 @@ export default function SystemConfigSettings({
             size="sm"
             onClick={() => configsQuery.refetch()}
             disabled={actionsDisabled || updateMutation.isPending}
+            className={cn(
+              GLASS_BUTTON_ICON_HOVER,
+              "gap-2",
+              GLASS_ACTION_BUTTON.sky,
+            )}
           >
             <RefreshCw className="h-4 w-4 mr-2" />
             Refresh
@@ -146,6 +156,7 @@ export default function SystemConfigSettings({
               size="sm"
               onClick={handleReset}
               disabled={actionsDisabled || updateMutation.isPending}
+              className={cn(GLASS_BUTTON_ICON_HOVER, GLASS_GHOST_BUTTON, "h-9")}
             >
               Reset
             </Button>
@@ -154,6 +165,11 @@ export default function SystemConfigSettings({
             size="sm"
             onClick={handleSave}
             disabled={!hasChanges || actionsDisabled || updateMutation.isPending}
+            className={cn(
+              GLASS_BUTTON_ICON_HOVER,
+              "gap-2",
+              GLASS_ACTION_BUTTON.emerald,
+            )}
           >
             <Save className="h-4 w-4 mr-2" />
             {updateMutation.isPending ? "Saving..." : "Save Changes"}

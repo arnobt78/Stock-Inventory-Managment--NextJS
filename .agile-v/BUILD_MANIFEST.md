@@ -113,6 +113,12 @@
 | ART-0106 | REQ-0045 | `*StatusFilter.tsx`, `filter-dropdown.tsx`, Category/Supplier/Import/User filters | migrate to FilterCommandCheckboxItem |
 | ART-0107 | REQ-0045 | `InvoiceList.tsx`, `InvoiceTable.tsx`, `invoice-list-filters.ts` | client-side status filter; API search+scope only |
 | ART-0108 | REQ-0045 | `shell-layout-styles.ts`, Home/MyActivity/Email/Analytics pages | header spacing + icons |
+| ART-0109 | REQ-0046 | `catalog-filter-tokens.ts` | `CATALOG_TOOLBAR_TRIGGER_LAYOUT` shared filter+export |
+| ART-0110 | REQ-0046 | `focus-ring-styles.ts`, `dialog-form-field.ts`, `filter-toolbar-styles.ts` | no-shift + hue focus rings |
+| ART-0111 | REQ-0046 | `ui/input|select|textarea`, ~21 dialog/form files | central glass field tokens |
+| ART-0112 | REQ-0047 | `glass-button-styles.ts`, `shared/index.ts` | primary/action/ghost + icon hover tokens |
+| ART-0113 | REQ-0047 | PaymentDialog, ShippingManagement, ApiStatusPage, BusinessInsightPage, EmailPreferencesPage, SystemConfigSettings | Batch A glass buttons |
+| ART-0114 | REQ-0047 | Category/Supplier/Order/Invoice/CreateUser/SupportTicket/Login/Register dialogs | Batch B submit/cancel pairs |
 
 ## Tests
 

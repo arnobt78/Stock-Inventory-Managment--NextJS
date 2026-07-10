@@ -1,5 +1,7 @@
 "use client";
 
+import { DIALOG_FORM_FIELD_ROSE } from "@/components/shared/dialog-form-field";
+import { cn } from "@/lib/utils";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { HelpTooltip } from "@/components/shared";
@@ -55,7 +57,7 @@ export default function SKU({ allProducts }: SKUProps) {
         {...register("sku")}
         type="text"
         id="sku"
-        className="h-11 bg-white/10 dark:bg-white/5 backdrop-blur-md border border-rose-400/30 dark:border-white/20 text-white placeholder:text-white/40 focus-visible:border-rose-400 focus-visible:ring-rose-500/50 shadow-[0_10px_30px_rgba(225,29,72,0.15)]"
+        className={cn("h-11", DIALOG_FORM_FIELD_ROSE)}
         placeholder="ABC001"
         onChange={handleSkuChange} // Validate SKU on change
       />

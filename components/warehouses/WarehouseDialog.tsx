@@ -23,7 +23,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { DeferredSelectGate } from "@/components/shared";
+import { DeferredSelectGate, DIALOG_FORM_FIELD_TEAL } from "@/components/shared";
+import { cn } from "@/lib/utils";
 import { useCreateWarehouse, useUpdateWarehouse } from "@/hooks/queries";
 import { Warehouse } from "@/types";
 
@@ -172,7 +173,7 @@ export default function WarehouseDialog({
               onChange={(e) => setName(e.target.value)}
               placeholder="e.g. Main Warehouse, NYC Distribution Center"
               required
-              className="h-11 border-teal-400/30 dark:border-white/20 bg-white/10 dark:bg-white/5 backdrop-blur-md text-white placeholder:text-white/40 focus:border-teal-400 focus:ring-teal-500/50 shadow-[0_10px_30px_rgba(20,184,166,0.15)]"
+              className={cn("h-11", DIALOG_FORM_FIELD_TEAL)}
             />
           </div>
           <div className="space-y-2">
@@ -188,7 +189,7 @@ export default function WarehouseDialog({
               onChange={(e) => setAddress(e.target.value)}
               placeholder="Full street address, city, state, ZIP code"
               rows={3}
-              className="border-teal-400/30 dark:border-white/20 bg-white/10 dark:bg-white/5 backdrop-blur-md text-white placeholder:text-white/40 focus:border-teal-400 focus:ring-teal-500/50 shadow-[0_10px_30px_rgba(20,184,166,0.15)] resize-none"
+              className={cn("resize-none", DIALOG_FORM_FIELD_TEAL)}
             />
           </div>
           <div className="space-y-2">
@@ -216,7 +217,7 @@ export default function WarehouseDialog({
                   value={type}
                   onValueChange={setType}
                 >
-                  <SelectTrigger className="h-11 w-full border-teal-400/30 dark:border-white/20 bg-white/10 dark:bg-white/5 backdrop-blur-md text-white placeholder:text-white/40 focus:border-teal-400 focus:ring-teal-500/50 shadow-[0_10px_30px_rgba(20,184,166,0.15)]">
+                  <SelectTrigger className={cn("h-11 w-full", DIALOG_FORM_FIELD_TEAL)}>
                     <SelectValue placeholder="Select type" />
                   </SelectTrigger>
                   <SelectContent

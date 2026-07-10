@@ -917,6 +917,56 @@ Canonical REQ source. All artifacts link via `REQ-XXXX`. Status: `done` | `verif
 
 ---
 
+## REQ-0046 — Catalog filter / export button class parity
+
+| Field | Value |
+|-------|-------|
+| **Priority** | P2 |
+| **Risk** | R1 |
+| **Status** | done |
+| **Cycle** | C2 |
+| **Parent** | REQ-0041 |
+
+**Intent:** All Categories/Suppliers/Warehouses filter triggers match Export toolbar buttons: `px-4`, `gap-2`, `h-10`, `sm:w-auto`.
+
+**Acceptance criteria**
+
+- AC1: `CATALOG_TOOLBAR_TRIGGER_LAYOUT` in `catalog-filter-tokens.ts` shared by filter + export
+- AC2: `CatalogActiveInactiveSelect` trigger + deferred placeholder use token classes
+- AC3: No TanStack/SSR changes; lint pass
+- AC4: `FOCUS_NO_LAYOUT_SHIFT_CLASS` — no border-width growth on focus (toolbar shift fix)
+- AC5: Hue-matched `focus-visible:ring-2` visible in dark mode (`GLASS_FOCUS_RING` in `focus-ring-styles.ts`)
+- AC6: Dialog/form glass fields use `dialog-form-field.ts` tokens (no inline `focus-visible:border-*`)
+
+**Artifacts:** `catalog-filter-tokens.ts`, `CatalogActiveInactiveSelect.tsx`, `ExportMenuButton.tsx`, `focus-ring-styles.ts`, `filter-toolbar-styles.ts`, `dialog-form-field.ts`, `ui/input|select|textarea`
+
+---
+
+## REQ-0047 — Glass button tokens + page consistency
+
+| Field | Value |
+|-------|-------|
+| **Priority** | P2 |
+| **Risk** | R1 |
+| **Status** | done |
+| **Cycle** | C2 |
+| **Parent** | REQ-0046 |
+
+**Intent:** Centralize glass CTA/action button styles (shadow glow + hue focus ring + icon hover) in `glass-button-styles.ts`; migrate audit-gap pages and dialog submit/cancel pairs; Email Preferences UX polish (icons `h-4 w-4 mr-2`).
+
+**Acceptance criteria**
+
+- AC1: `lib/ui/glass-button-styles.ts` — `GLASS_PRIMARY_BUTTON`, `GLASS_ACTION_BUTTON`, `GLASS_GHOST_BUTTON`, `GLASS_BUTTON_ICON_HOVER`; builds on `focus-ring-styles.ts`
+- AC2: Batch A migrated — PaymentDialog, ShippingManagement, ApiStatusPage, BusinessInsightPage, EmailPreferencesPage, SystemConfigSettings
+- AC3: Batch B dialog submits migrated — Category/Supplier/Order/Invoice/CreateUser/SupportTicket/Login/Register
+- AC4: CSS-only; no TanStack/SSR/invalidation delta
+
+**Commit split:** REQ-0046 focus-ring work (separate commit); REQ-0047 glass buttons + Email Preferences polish.
+
+**Artifacts:** `glass-button-styles.ts`, `components/shared/index.ts`, Batch A/B component migrations
+
+---
+
 ## REQ-0020 — Locale-aware admin formatting
 
 | Field | Value |

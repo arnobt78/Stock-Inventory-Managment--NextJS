@@ -22,7 +22,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Star, Loader2 } from "lucide-react";
-import { DeferredSelectGate } from "@/components/shared";
+import { DeferredSelectGate, DIALOG_FORM_FIELD_AMBER } from "@/components/shared";
+import { cn } from "@/lib/utils";
 import { useCreateProductReview, useProducts } from "@/hooks/queries";
 
 const RATINGS = [1, 2, 3, 4, 5] as const;
@@ -137,7 +138,7 @@ export default function ProductReviewDialog({
                 >
                   <SelectTrigger
                     id="product-review-product"
-                    className="h-11 w-full border-amber-400/30 dark:border-white/20 bg-white/10 dark:bg-white/5 backdrop-blur-md text-white placeholder:text-white/40 focus:border-amber-400 focus:ring-amber-500/50 shadow-[0_10px_30px_rgba(245,158,11,0.15)]"
+                    className={cn("h-11 w-full", DIALOG_FORM_FIELD_AMBER)}
                   >
                     <SelectValue placeholder="Select product to review" />
                   </SelectTrigger>
@@ -188,7 +189,7 @@ export default function ProductReviewDialog({
                 >
                   <SelectTrigger
                     id="product-review-rating"
-                    className="h-11 w-full border-amber-400/30 dark:border-white/20 bg-white/10 dark:bg-white/5 backdrop-blur-md text-white placeholder:text-white/40 focus:border-amber-400 focus:ring-amber-500/50 shadow-[0_10px_30px_rgba(245,158,11,0.15)]"
+                    className={cn("h-11 w-full", DIALOG_FORM_FIELD_AMBER)}
                   >
                     <SelectValue>
                       <span className="flex items-center gap-2">
@@ -237,7 +238,7 @@ export default function ProductReviewDialog({
               value={comment}
               onChange={(e) => setComment(e.target.value)}
               disabled={isPending}
-              className="min-h-[120px] border-amber-400/30 dark:border-white/20 bg-white/10 dark:bg-white/5 backdrop-blur-md text-white placeholder:text-white/40 focus:border-amber-400 focus:ring-amber-500/50 shadow-[0_10px_30px_rgba(245,158,11,0.15)] resize-none"
+              className={cn("min-h-[120px] resize-none", DIALOG_FORM_FIELD_AMBER)}
               maxLength={2000}
             />
             <p className="text-xs text-white/50 text-right">

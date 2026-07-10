@@ -20,6 +20,11 @@ import { useCreateCheckout } from "@/hooks/queries";
 import { CreditCard, Loader2, ShieldCheck } from "lucide-react";
 import TestCredentialsCard from "./TestCredentialsCard";
 import type { CheckoutType } from "@/types";
+import { cn } from "@/lib/utils";
+import {
+  GLASS_BUTTON_ICON_HOVER,
+  GLASS_PRIMARY_BUTTON,
+} from "@/lib/ui/glass-button-styles";
 
 interface PaymentDialogProps {
   type: CheckoutType;
@@ -186,7 +191,11 @@ export default function PaymentDialog({
               <Button
                 onClick={handlePayment}
                 disabled={isLoading}
-                className="h-11 w-full sm:w-auto px-11 inline-flex items-center justify-center rounded-xl border border-sky-400/30 dark:border-sky-400/30 bg-gradient-to-r from-sky-500/70 via-sky-500/50 to-sky-500/30 dark:from-sky-500/70 dark:via-sky-500/50 dark:to-sky-500/30 text-white shadow-[0_15px_35px_rgba(2,132,199,0.45)] dark:shadow-[0_15px_35px_rgba(2,132,199,0.25)] backdrop-blur-md transition duration-200 hover:border-sky-300/40 hover:from-sky-500/80 hover:via-sky-500/60 hover:to-sky-500/40 dark:hover:border-sky-300/40 dark:hover:from-sky-500/80 dark:hover:via-sky-500/60 dark:hover:to-sky-500/40 hover:shadow-[0_20px_45px_rgba(2,132,199,0.6)] dark:hover:shadow-[0_20px_45px_rgba(2,132,199,0.35)] focus-visible:ring-sky-500/50"
+                className={cn(
+                  GLASS_BUTTON_ICON_HOVER,
+                  "w-full sm:w-auto px-11",
+                  GLASS_PRIMARY_BUTTON.sky,
+                )}
               >
                 {isLoading ? (
                   <>

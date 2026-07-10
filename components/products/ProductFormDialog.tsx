@@ -42,7 +42,8 @@ import {
   calculateProductStatus,
   type ProductFormData,
 } from "@/lib/validations";
-import { DeferredSelectGate } from "@/components/shared";
+import { DeferredSelectGate, DIALOG_FORM_FIELD_ROSE } from "@/components/shared";
+import { cn } from "@/lib/utils";
 
 interface AddProductDialogProps {
   allProducts: Product[];
@@ -293,7 +294,7 @@ export default function AddProductDialog({
                         setCategoryError("");
                       }}
                     >
-                      <SelectTrigger className="h-11 w-full border-rose-400/30 dark:border-white/20 bg-white/10 dark:bg-white/5 backdrop-blur-md text-white placeholder:text-white/40 focus:border-rose-400 focus:ring-rose-500/50 shadow-[0_10px_30px_rgba(225,29,72,0.15)]">
+                      <SelectTrigger className={cn("h-11 w-full", DIALOG_FORM_FIELD_ROSE)}>
                         <SelectValue placeholder="Select Category" />
                       </SelectTrigger>
                       <SelectContent
@@ -344,7 +345,7 @@ export default function AddProductDialog({
                         setSupplierError("");
                       }}
                     >
-                      <SelectTrigger className="h-11 w-full border-rose-400/30 dark:border-white/20 bg-white/10 dark:bg-white/5 backdrop-blur-md text-white placeholder:text-white/40 focus:border-rose-400 focus:ring-rose-500/50 shadow-[0_10px_30px_rgba(225,29,72,0.15)]">
+                      <SelectTrigger className={cn("h-11 w-full", DIALOG_FORM_FIELD_ROSE)}>
                         <SelectValue placeholder="Select Supplier" />
                       </SelectTrigger>
                       <SelectContent
