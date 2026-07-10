@@ -41,10 +41,12 @@ export function AuthPageShell({
         </div>
       </div>
 
-      <div className="relative z-10 mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">
+      <div className="relative z-10 mx-auto w-full max-w-7xl px-2 sm:px-4">
         <div className="flex min-h-screen flex-col lg:flex-row lg:gap-8">
-          <div className="hidden lg:flex lg:w-1/2 relative items-center justify-center py-8 lg:py-12">
-            <div className="relative z-10 w-full max-w-xl space-y-2">{left}</div>
+          <div className="hidden lg:flex lg:w-1/2 relative items-center justify-center py-6 lg:py-12">
+            <div className="relative z-10 w-full max-w-xl space-y-2">
+              {left}
+            </div>
           </div>
 
           <div className="flex w-full lg:w-1/2 items-center justify-center py-6 sm:py-8 lg:py-12">

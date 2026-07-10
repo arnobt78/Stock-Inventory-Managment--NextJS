@@ -88,6 +88,7 @@
 | ART-0081 | REQ-0033 | `AuthPageShell.tsx`, `globals.css` | auth-page-root + scrollbar-gutter |
 | ART-0082 | REQ-0033 | `AuthInfoPanel.tsx`, `AuthInfoListItem.tsx` | Tighter space-y-1 / py-2 spacing |
 | ART-0083 | REQ-0034 | `app/layout.tsx`, `AuthSessionToasts.tsx`, `use-toast.ts` | Deferred welcome/goodbye toasts |
+| ART-0084 | REQ-0035 | `oauth-success-url.ts`, `auth-welcome-toast.ts`, `AuthSessionToasts.tsx` | OAuth welcome toast on role destinations |
 
 ## Tests
 

@@ -647,6 +647,31 @@ Canonical REQ source. All artifacts link via `REQ-XXXX`. Status: `done` | `verif
 
 ---
 
+## REQ-0035 — Google OAuth welcome toast
+
+| Field | Value |
+|-------|-------|
+| **Priority** | P1 |
+| **Risk** | R1 |
+| **Status** | done |
+| **Cycle** | C2 |
+| **Parent** | REQ-0034 |
+
+**Intent:** Show welcome toast after Google OAuth redirect on role destinations (`/`, `/client`, `/supplier`) via centralized `AuthSessionToasts` handler.
+
+**Acceptance criteria**
+
+- AC1: OAuth admin → welcome toast on `/` with `oauth_success` stripped from URL
+- AC2: OAuth client → welcome on `/client`; supplier → `/supplier`
+- AC3: `refreshSession` when OAuth lands without client user (client/supplier paths)
+- AC4: Shared `auth-welcome-toast.ts` + `oauth-success-url.ts`; email/password flow unchanged
+- AC5: Remove dead `consumePostLoginWelcome`
+- AC6: No TanStack/CRUD changes; Red Team pass
+
+**Artifacts:** `lib/auth/oauth-success-url.ts`, `lib/auth/auth-welcome-toast.ts`, `lib/auth/oauth-success-url.test.ts`, `AuthSessionToasts.tsx`, `post-login-welcome.ts`
+
+---
+
 ## REQ-0020 — Locale-aware admin formatting
 
 | Field | Value |

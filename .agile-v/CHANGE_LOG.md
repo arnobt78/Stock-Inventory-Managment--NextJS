@@ -28,4 +28,5 @@
 | 2026-07-10 | Auth glass form, flat list rows, BG float animation | REQ-0032 |
 | 2026-07-10 | Auth polish: pro copy, scroll gutter, icon glow, tight spacing | REQ-0033 |
 | 2026-07-10 | Auth welcome/goodbye session toasts fix | REQ-0034 |
+| 2026-07-10 | Google OAuth welcome toast on role destinations | REQ-0035 |
 | _pending_ | Human Gate 2 Sentry 24h sign-off | REQ-0009 |

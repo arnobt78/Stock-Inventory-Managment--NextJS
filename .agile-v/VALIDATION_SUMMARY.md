@@ -3,7 +3,7 @@
 **Generated:** 2026-07-10  
 **eval_gate_status:** PENDING (Human Gate 2)  
 **Prod target SHA:** `3ebb4db` (main, pushed 2026-07-09)  
-**Red Team:** lint ✓ test 329 ✓ invalidate 202 ✓ build ✓ (REQ-0034 2026-07-10)
+**Red Team:** lint ✓ test 335 ✓ invalidate 202 ✓ build ✓ (REQ-0035 2026-07-10)
 
 ---
 
@@ -12,7 +12,7 @@
 | Check | Command | Result | REQ-IDs |
 |-------|---------|--------|---------|
 | Lint | `npm run lint` | PASS | ALL |
-| Unit tests | `npm run test` | PASS (329) | REQ-0021–REQ-0029 |
+| Unit tests | `npm run test` | PASS (335) | REQ-0021–REQ-0035 |
 | Invalidation audit | `npm run test:invalidate` | PASS (202) | — |
 | Build | `npm run build` | PASS | ALL |
 
@@ -56,6 +56,7 @@
 | VS-026 | INFO | Auth glass parity, flat list, BG animation (REQ-0032) | PASS (automated) |
 | VS-027 | INFO | Auth copy, scroll shift, icon glow, spacing (REQ-0033) | PASS (automated) |
 | VS-028 | INFO | Auth welcome/goodbye session toasts (REQ-0034) | PASS (automated + user QA) |
+| VS-029 | INFO | Google OAuth welcome toast (REQ-0035) | PASS (automated) |
 
 ---
 

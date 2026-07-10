@@ -2,11 +2,21 @@
 
 /**
  * Consumes deferred login welcome / logout goodbye payloads after full-page navigation.
- * Mounted in root layout after Toaster so toast listeners are registered first (useEffect order).
+ * REQ-0034 — mounted after Toaster so useToast listeners exist.
+ * REQ-0035 — Google OAuth ?oauth_success=true welcome on /, /client, /supplier.
  */
 
 import { useEffect, useRef } from "react";
+import { useAuth } from "@/contexts";
 import { useToast } from "@/hooks/use-toast";
+import {
+  buildWelcomePayloadFromUser,
+  getWelcomeToastContent,
+} from "@/lib/auth/auth-welcome-toast";
+import {
+  isOAuthSuccessRedirect,
+  stripOAuthSuccessFromUrl,
+} from "@/lib/auth/oauth-success-url";
 import {
   clearPostLoginWelcome,
   getPostLoginWelcome,
@@ -23,8 +33,12 @@ import {
 
 export function AuthSessionToasts() {
   const { toast } = useToast();
+  const { user, refreshSession } = useAuth();
   const consumedRef = useRef(false);
+  const oauthWelcomeHandledRef = useRef(false);
+  const oauthRefreshAttemptedRef = useRef(false);
 
+  // Email/password login — sessionStorage payload set before window.location redirect.
   useEffect(() => {
     if (consumedRef.current) return;
 
@@ -49,13 +63,39 @@ export function AuthSessionToasts() {
         consumedRef.current = true;
         markPostLoginWelcomeShown();
         clearPostLoginWelcome();
-        toast({
-          title: `Welcome back, ${welcome.userName}! 👋`,
-          description: "You have successfully logged in. Enjoy your stay!",
-        });
+        toast(getWelcomeToastContent(welcome));
       }
     }
   }, [toast]);
+
+  // Google OAuth — callback redirects with ?oauth_success=true (no sessionStorage pre-set).
+  useEffect(() => {
+    if (oauthWelcomeHandledRef.current) return;
+    if (!isOAuthSuccessRedirect()) return;
+
+    if (wasPostLoginWelcomeShown()) {
+      stripOAuthSuccessFromUrl();
+      return;
+    }
+
+    const showOAuthWelcome = async () => {
+      if (!user) {
+        if (!oauthRefreshAttemptedRef.current) {
+          oauthRefreshAttemptedRef.current = true;
+          await refreshSession();
+        }
+        return;
+      }
+
+      oauthWelcomeHandledRef.current = true;
+      markPostLoginWelcomeShown();
+      const payload = buildWelcomePayloadFromUser(user);
+      toast(getWelcomeToastContent(payload));
+      stripOAuthSuccessFromUrl();
+    };
+
+    void showOAuthWelcome();
+  }, [user, refreshSession, toast]);
 
   return null;
 }

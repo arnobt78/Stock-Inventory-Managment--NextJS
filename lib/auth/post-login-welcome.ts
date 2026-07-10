@@ -59,10 +59,3 @@ export function markPostLoginWelcomeShown(): void {
     // ignore
   }
 }
-
-/** @deprecated Use getPostLoginWelcome + clearPostLoginWelcome in hook */
-export function consumePostLoginWelcome(): PostLoginWelcomePayload | null {
-  const payload = getPostLoginWelcome();
-  if (payload) clearPostLoginWelcome();
-  return payload;
-}

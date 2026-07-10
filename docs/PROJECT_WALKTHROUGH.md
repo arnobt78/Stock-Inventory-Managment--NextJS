@@ -150,6 +150,7 @@ Prevents `NotFoundError: removeChild` when App Router navigates between pages wh
 | Supplier catalog detail (REQ-0029) | `lib/server/catalog-entity-access.ts`; supplier read-only `/categories/[id]` + `/suppliers/[id]` via product links; scoped Redis `detail(id, supplier:{entityId})`; `disableCrud` on detail pages |
 | Auth login/register (REQ-0030–0033) | `components/auth/*` — `AuthPageShell`, flat left list, `AuthFormCard` glass, `LoginRoleSelect`; copy in `auth-panel-copy.ts`; `auth-page-root` scrollbar-gutter; no TanStack changes |
 | Auth session toasts (REQ-0034) | `AuthSessionToasts` + `post-login-welcome.ts` / `post-logout-goodbye.ts`; `Toaster` before consumer in `app/layout.tsx`; welcome on `/` `/client` `/supplier`; goodbye on `/login` |
+| Auth OAuth welcome (REQ-0035) | `AuthSessionToasts` detects `oauth_success`; `refreshSession` + shared welcome copy; URL strip via `oauth-success-url.ts` |
 
 Tests: `lib/ai/openrouter.test.ts`, `lib/ai/groq.test.ts`, `lib/ai/create-chat-completion.test.ts`, `lib/auth/unique-username.test.ts`, `lib/server/catalog-entity-access.test.ts`.
 
@@ -194,7 +195,7 @@ flowchart LR
 |-------|--------|
 | `npm run lint` | pass |
 | `npm run build` | pass |
-| `npm run test` | 329 passed |
+| `npm run test` | 335 passed |
 | `npm run test:invalidate` | 202 passed |
 | Radix table Select | `useDeferredRadixSelect` + `PaginationSelector` (11 tables) |
 | Pagination clamp + page-size reset | `useClampPaginationIndex` + `PaginationSelector` pageIndex 0 |
