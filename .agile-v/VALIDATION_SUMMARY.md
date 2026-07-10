@@ -3,7 +3,7 @@
 **Generated:** 2026-07-10  
 **eval_gate_status:** PENDING (Human Gate 2)  
 **Prod target SHA:** `3ebb4db` (main, pushed 2026-07-09)  
-**Red Team:** lint ✓ test 335 ✓ invalidate 202 ✓ build ✓ (REQ-0036 2026-07-10)
+**Red Team:** lint ✓ test 335 ✓ invalidate 202 ✓ build ✓ (REQ-0037 2026-07-10)
 
 ---
 
@@ -12,7 +12,7 @@
 | Check | Command | Result | REQ-IDs |
 |-------|---------|--------|---------|
 | Lint | `npm run lint` | PASS | ALL |
-| Unit tests | `npm run test` | PASS (335) | REQ-0021–REQ-0036 |
+| Unit tests | `npm run test` | PASS (335) | REQ-0021–REQ-0037 |
 | Invalidation audit | `npm run test:invalidate` | PASS (202) | — |
 | Build | `npm run build` | PASS | ALL |
 

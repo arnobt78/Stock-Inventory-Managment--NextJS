@@ -696,6 +696,31 @@ Canonical REQ source. All artifacts link via `REQ-XXXX`. Status: `done` | `verif
 
 ---
 
+## REQ-0037 — Product status filter glass badges
+
+| Field | Value |
+|-------|-------|
+| **Priority** | P2 |
+| **Risk** | R1 |
+| **Status** | done |
+| **Cycle** | C2 |
+| **Parent** | REQ-0028 |
+
+**Intent:** Product status filter dropdown uses same glass `ProductStockStatusBadge` as table/detail (closes REQ-0028 AC7 gap).
+
+**Acceptance criteria**
+
+- AC1: Filter rows render `ProductStockStatusBadge` (not flat `returnColor` divs)
+- AC2: Icons/colors match table: Available=emerald, Stock Low=orange+AlertTriangle, Stock Out=red
+- AC3: Trigger uses lucide `Package` icon (consistent with order/invoice filters)
+- AC4: Filter values unchanged (`Available` / `Stock Low` / `Stock Out`); client filter logic unchanged
+- AC5: Remove dead `returnColor`, react-icons imports
+- AC6: No TanStack / CRUD changes; Red Team pass
+
+**Artifacts:** `components/products/ProductStatusFilter.tsx`
+
+---
+
 ## REQ-0020 — Locale-aware admin formatting
 
 | Field | Value |

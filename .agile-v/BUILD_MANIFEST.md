@@ -93,6 +93,7 @@
 | ART-0086 | REQ-0036 | list/detail page components | Remove max-w-9xl inner caps |
 | ART-0087 | REQ-0036 | `tailwind.config.ts` | Remove unused 9xl token |
 | ART-0088 | REQ-0036 | `shell-layout-styles.ts` | `APP_SHELL_DETAIL_CLASS` DRY on 6 detail pages |
+| ART-0089 | REQ-0037 | `ProductStatusFilter.tsx` | ProductStockStatusBadge in filter dropdown |
 
 ## Tests
 

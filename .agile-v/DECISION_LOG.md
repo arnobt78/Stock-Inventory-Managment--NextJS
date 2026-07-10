@@ -68,3 +68,5 @@ Format: `TIMESTAMP | AGENT | DECISION | RATIONALE | REQ-ID`
 2026-07-10T13:05:00Z | build-agent | REQ-0036 app shell full bleed | Remove max-w-9xl; APP_SHELL_WIDTH_CLASS; auth stays max-w-7xl | REQ-0036
 2026-07-10T13:06:00Z | red-team | REQ-0036 automated gates | lint ✓ test 335 ✓ invalidate 202 ✓ build ✓ | REQ-0036
 2026-07-10T13:10:00Z | red-team | REQ-0036 DRY + build | lint ✓ test 335 ✓ invalidate 202 ✓ build ✓ | REQ-0036
+2026-07-10T13:26:00Z | build-agent | REQ-0037 product status filter glass | ProductStockStatusBadge in ProductStatusFilter; closes REQ-0028 AC7 gap | REQ-0037
+2026-07-10T13:29:00Z | red-team | REQ-0037 automated gates | lint ✓ test 335 ✓ invalidate 202 ✓ build ✓ | REQ-0037
