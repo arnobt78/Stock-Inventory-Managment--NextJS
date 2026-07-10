@@ -237,7 +237,7 @@ export default function ActivityLogSection({
           const email = log.user?.email ?? "—";
           return (
             <div className="flex flex-col min-w-0">
-              <span className="font-normal text-gray-800 dark:text-gray-200">
+              <span className="font-normal text-gray-700 dark:text-gray-200">
                 {name}
               </span>
               <span

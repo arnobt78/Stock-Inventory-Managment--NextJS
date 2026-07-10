@@ -73,7 +73,7 @@ const CARRIER_INFO: Record<
   },
   other: {
     name: "Other",
-    color: "bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-300",
+    color: "bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300",
   },
 };
 

@@ -1240,7 +1240,7 @@ export default function ApiDocsPage() {
                         Base URL
                       </h3>
                     </div>
-                    <code className="block bg-white/50 dark:bg-white/5 border border-gray-300/30 dark:border-white/10 px-2 py-2 rounded-xl text-sm font-mono text-gray-800 dark:text-white/90 break-all">
+                    <code className="block bg-white/50 dark:bg-white/5 border border-gray-300/30 dark:border-white/10 px-2 py-2 rounded-xl text-sm font-mono text-gray-700 dark:text-white/90 break-all">
                       {baseUrl}
                     </code>
                   </div>
@@ -1390,7 +1390,7 @@ export default function ApiDocsPage() {
                               >
                                 {endpoint.method}
                               </Badge>
-                              <code className="bg-gray-100/50 dark:bg-white/5 border border-gray-300/30 dark:border-white/10 px-2 py-1 rounded-lg text-sm font-mono text-gray-800 dark:text-white/90">
+                              <code className="bg-gray-100/50 dark:bg-white/5 border border-gray-300/30 dark:border-white/10 px-2 py-1 rounded-lg text-sm font-mono text-gray-700 dark:text-white/90">
                                 {endpoint.path}
                               </code>
                             </div>
@@ -1410,7 +1410,7 @@ export default function ApiDocsPage() {
                                         key={paramIndex}
                                         className="flex flex-wrap items-center gap-2 text-sm"
                                       >
-                                        <code className="bg-gray-100/50 dark:bg-white/5 border border-gray-300/20 dark:border-white/10 px-2 py-0.5 rounded-lg text-xs font-mono text-gray-800 dark:text-white/90">
+                                        <code className="bg-gray-100/50 dark:bg-white/5 border border-gray-300/20 dark:border-white/10 px-2 py-0.5 rounded-lg text-xs font-mono text-gray-700 dark:text-white/90">
                                           {param.name}
                                         </code>
                                         <span className="text-gray-500 dark:text-white/50">
@@ -1447,7 +1447,7 @@ export default function ApiDocsPage() {
                                     Status: {endpoint.response.success.status}
                                   </span>
                                 </div>
-                                <code className="block bg-gray-100/50 dark:bg-white/5 border border-gray-300/20 dark:border-white/10 px-2 py-1 rounded-lg text-xs font-mono text-gray-800 dark:text-white/90">
+                                <code className="block bg-gray-100/50 dark:bg-white/5 border border-gray-300/20 dark:border-white/10 px-2 py-1 rounded-lg text-xs font-mono text-gray-700 dark:text-white/90">
                                   {endpoint.response.success.data}
                                 </code>
 
@@ -1459,7 +1459,7 @@ export default function ApiDocsPage() {
                                     Status: {endpoint.response.error.status}
                                   </span>
                                 </div>
-                                <code className="block bg-gray-100/50 dark:bg-white/5 border border-gray-300/20 dark:border-white/10 px-2 py-1 rounded-lg text-xs font-mono text-gray-800 dark:text-white/90">
+                                <code className="block bg-gray-100/50 dark:bg-white/5 border border-gray-300/20 dark:border-white/10 px-2 py-1 rounded-lg text-xs font-mono text-gray-700 dark:text-white/90">
                                   {endpoint.response.error.data}
                                 </code>
                               </div>
@@ -1548,7 +1548,7 @@ export default function ApiDocsPage() {
                                 key={fieldIndex}
                                 className="flex flex-wrap items-center gap-2 text-sm"
                               >
-                                <code className="bg-white/50 dark:bg-white/5 border border-gray-300/20 dark:border-white/10 px-2 py-0.5 rounded-lg text-xs font-mono text-gray-800 dark:text-white/90">
+                                <code className="bg-white/50 dark:bg-white/5 border border-gray-300/20 dark:border-white/10 px-2 py-0.5 rounded-lg text-xs font-mono text-gray-700 dark:text-white/90">
                                   {field.name}
                                 </code>
                                 <span className="text-gray-500 dark:text-white/50">

@@ -470,7 +470,7 @@ Canonical REQ source. All artifacts link via `REQ-XXXX`. Status: `done` | `verif
 
 ---
 
-## REQ-0028 — UI consistency (scrollbar, login, tables)
+## REQ-0028 — UI consistency (scrollbar, login, tables, glass badges)
 
 | Field | Value |
 |-------|-------|
@@ -479,17 +479,21 @@ Canonical REQ source. All artifacts link via `REQ-XXXX`. Status: `done` | `verif
 | **Status** | done |
 | **Parent** | REQ-0027 |
 
-**Intent:** Stable scrollbar gutter; login form values persist during redirect; unified font-normal table/filter typography.
+**Intent:** Stable scrollbar gutter; login form persist; unified table typography; glass semantic badges across orders/invoices/tickets/reviews/admin filters; invoice list scope fixes.
 
 **Acceptance criteria**
 
 - AC1: `scrollbar-gutter: stable` + thin transparent-track scrollbar in `globals.css`
-- AC2: Login keeps email/password/role visible during "Loading Dashboard…"; welcome toast on destination dashboard
-- AC3: Table headers `font-medium`; data `font-normal`; secondary cols `text-xs`; primary cols `text-sm`; `text-gray-700 dark:text-white`
+- AC2: Login keeps email/password/role visible during redirect; welcome toast on dashboard
+- AC3: Table headers `font-medium`; data `font-normal`; secondary `text-xs`; primary `text-sm`
 - AC4: Filter triggers + menu items `font-normal`
-- AC5: Red Team pass
+- AC5: `GLASS_BADGE_CLASS` dark-mode tokens on all hues (`lib/ui/glass-badge-styles.ts`)
+- AC6: Semantic badges: orders, invoices, tickets, reviews, user-role, import, audit → `lib/ui/semantic-badges.tsx`
+- AC7: Colored filter dropdowns for status/priority/role/import (ticket, review, admin filters)
+- AC8: Invoice list: store-scoped Prisma filters; payment `pending`→`unpaid`; role-scoped TanStack keys
+- AC9: Red Team pass
 
-**Artifacts:** `globals.css`, `LoginPage.tsx`, `post-login-welcome.ts`, `table.tsx`, `badge.tsx`, `*TableColumns.tsx`, `pagination-select-styles.ts`
+**Artifacts:** `globals.css`, `LoginPage.tsx`, `post-login-welcome.ts`, `table.tsx`, `badge.tsx`, `*TableColumns.tsx`, `lib/ui/glass-badge-styles.ts`, `lib/ui/semantic-badges.tsx`, `*Filter.tsx`, `lib/invoices/*`
 
 ---
 
@@ -515,6 +519,106 @@ Canonical REQ source. All artifacts link via `REQ-XXXX`. Status: `done` | `verif
 - AC7: Red Team pass
 
 **Artifacts:** `lib/server/catalog-entity-access.ts`, `lib/server/category-detail-data.ts`, `lib/server/supplier-detail-data.ts`, `lib/cache/cache-utils.ts`, `CategoryDetailPage.tsx`, `SupplierDetailPage.tsx`, `lib/server/catalog-entity-access.test.ts`
+
+---
+
+## REQ-0030 — Auth login/register UX polish
+
+| Field | Value |
+|-------|-------|
+| **Priority** | P1 |
+| **Risk** | R1 |
+| **Status** | done |
+| **Cycle** | C2 |
+
+**Intent:** Polish login/register UX: role dropdown icons in menu items, smooth chevron rotation, max-w-7xl auth layout, viewport-centered background illustration, CSS-only staggered entrance animations.
+
+**Acceptance criteria**
+
+- AC1: Test-account `SelectItem` rows show role icon + label (not trigger-only)
+- AC2: Select chevron rotates 180° smoothly on open/close (`select.tsx` group pattern)
+- AC3: Login + register content constrained to `max-w-7xl`; app shell stays `max-w-9xl`
+- AC4: Left promo cards + form rows ease-in with stagger on page load; `prefers-reduced-motion` respected
+- AC5: Background SVG centered on viewport (x-y middle), may sit under form column
+- AC6: Shared auth components (`AuthPageShell`, `LoginRoleSelect`, etc.); no TanStack/CRUD changes
+- AC7: Red Team pass (lint, test, invalidate, build)
+
+**Artifacts:** `lib/auth/test-accounts.ts`, `components/auth/*`, `LoginPage.tsx`, `RegisterPage.tsx`, `components/ui/select.tsx`, `tailwind.config.ts`, `app/globals.css`, `app/login/page.tsx`, `app/register/page.tsx`
+
+---
+
+## REQ-0031 — Auth left panel list redesign
+
+| Field | Value |
+|-------|-------|
+| **Priority** | P1 |
+| **Risk** | R1 |
+| **Status** | done |
+| **Cycle** | C2 |
+| **Parent** | REQ-0030 |
+
+**Intent:** Replace login/register left-column 2x2 promo grid with navbar-style brand header (Stockly + Stock Inventory Management subtitle) and a single professional list-view panel.
+
+**Acceptance criteria**
+
+- AC1: Brand matches Navbar rose icon box + Stockly gradient + subtitle
+- AC2: Login left panel = single list panel (no 2x2 grid); professional copy
+- AC3: Register left panel = same list pattern with register-specific copy
+- AC4: Stagger animations via existing `AuthAnimatedBlock`
+- AC5: Remove dead `AuthPromoCard` / `promo-card-styles` after migration
+- AC6: Red Team pass (lint, test, invalidate, build)
+
+**Artifacts:** `lib/auth/auth-panel-copy.ts`, `components/auth/AuthBrandHeader.tsx`, `AuthInfoPanel.tsx`, `AuthInfoListItem.tsx`, `auth-list-styles.ts`, `LoginPage.tsx`, `RegisterPage.tsx`
+
+---
+
+## REQ-0032 — Auth glass parity, flat list, BG animation
+
+| Field | Value |
+|-------|-------|
+| **Priority** | P1 |
+| **Risk** | R1 |
+| **Status** | done |
+| **Cycle** | C2 |
+| **Parent** | REQ-0031 |
+
+**Intent:** Match right form glass blur to left, flatten left column (no outer card, space-y-2 rows), expand list copy to 6 items, animate viewport BG illustration (zoom + nudge).
+
+**Acceptance criteria**
+
+- AC1: `AuthFormCard` with `backdrop-blur-2xl` on login/register forms
+- AC2: Left column flat stack — no outer card shell; `space-y-2` between rows
+- AC3: Per-row micro-glass + stagger via `AuthAnimatedBlock`
+- AC4: 6 list items per page in `auth-panel-copy.ts`
+- AC5: CSS `authBgFloat` on illustration; `prefers-reduced-motion` respected
+- AC6: Red Team pass
+
+**Artifacts:** `auth-glass-styles.ts`, `AuthFormCard.tsx`, `AuthInfoPanel.tsx`, `AuthInfoListItem.tsx`, `AuthPageShell.tsx`, `globals.css`, `auth-panel-copy.ts`, `LoginPage.tsx`, `RegisterPage.tsx`
+
+---
+
+## REQ-0033 — Auth login/register polish (copy, scroll shift, icon glow, spacing)
+
+| Field | Value |
+|-------|-------|
+| **Priority** | P1 |
+| **Risk** | R1 |
+| **Status** | done |
+| **Cycle** | C2 |
+| **Parent** | REQ-0032 |
+
+**Intent:** Polish auth left panel copy (no exposed demo password), prevent layout shift when test-account Select opens, glassmorphic glow on list icon pills, tighter list spacing.
+
+**Acceptance criteria**
+
+- AC1: Login `sectionTitle` / `sectionLead` professional; no password string in UI; demo pre-fill unchanged in `test-accounts.ts`
+- AC2: `html:has(.auth-page-root) { scrollbar-gutter: stable }` + `auth-page-root` on `AuthPageShell`; no horizontal shift when Select opens
+- AC3: `AUTH_LIST_ICON_GLASS` on login + register list icon pills (gradient + hue shadow; light + dark)
+- AC4: Tighter spacing — `space-y-1` list stack, `space-y-0.5` title/description, row `py-2` (supersedes REQ-0032 `space-y-2` row gap)
+- AC5: No TanStack/CRUD/API changes
+- AC6: Red Team pass (lint, test, invalidate, build)
+
+**Artifacts:** `lib/auth/auth-panel-copy.ts`, `components/auth/auth-glass-styles.ts`, `auth-list-styles.ts`, `AuthInfoListItem.tsx`, `AuthInfoPanel.tsx`, `AuthPageShell.tsx`, `app/globals.css`
 
 ---
 

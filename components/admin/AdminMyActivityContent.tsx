@@ -514,10 +514,10 @@ export default function AdminMyActivityContent({
                           status={order.paymentStatus ?? ""}
                         />
                       </TableCell>
-                      <TableCell className="text-gray-800 dark:text-gray-200">
+                      <TableCell className="text-gray-700 dark:text-gray-200">
                         <ClientCurrency value={Number(order.total)} />
                       </TableCell>
-                      <TableCell className="text-gray-800 dark:text-gray-200">
+                      <TableCell className="text-gray-700 dark:text-gray-200">
                         {order.items?.length ?? 0}
                       </TableCell>
                       <TableCell className="text-gray-600 dark:text-gray-400">

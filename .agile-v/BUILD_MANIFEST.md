@@ -71,6 +71,22 @@
 | ART-0064 | REQ-0029 | `lib/server/category-detail-data.ts`, `lib/server/supplier-detail-data.ts` | Supplier read-only detail branches |
 | ART-0065 | REQ-0029 | `lib/cache/cache-utils.ts` | Role-scoped detail cache keys |
 | ART-0066 | REQ-0029 | `CategoryDetailPage.tsx`, `SupplierDetailPage.tsx` | disableCrud for supplier + client |
+| ART-0067 | REQ-0028 | `lib/ui/glass-badge-styles.ts`, `lib/ui/semantic-badges.tsx` | GLASS_BADGE_CLASS + semantic maps |
+| ART-0068 | REQ-0028 | `*StatusFilter.tsx`, `*PriorityFilter.tsx`, admin import/role filters | Colored glass filter dropdowns |
+| ART-0069 | REQ-0028 | `lib/invoices/invoice-list-filters.ts`, `prisma/invoice.ts` | Store-scoped invoice list + payment pending→unpaid |
+| ART-0070 | REQ-0028 | `globals.css`, `LoginPage.tsx`, `post-login-welcome.ts` | Scrollbar gutter + login persist |
+| ART-0071 | REQ-0030 | `lib/auth/test-accounts.ts` | Demo role meta + credentials |
+| ART-0072 | REQ-0030 | `components/auth/*` | AuthPageShell, AuthPromoCard, LoginRoleSelect, animations |
+| ART-0073 | REQ-0030 | `components/ui/select.tsx` | Chevron group-data rotate |
+| ART-0074 | REQ-0030 | `tailwind.config.ts`, `app/globals.css` | max-w-9xl token + auth-enter keyframes |
+| ART-0075 | REQ-0031 | `lib/auth/auth-panel-copy.ts` | Login/register panel copy |
+| ART-0076 | REQ-0031 | `components/auth/AuthBrandHeader.tsx`, `AuthInfoPanel.tsx` | List panel + navbar brand |
+| ART-0077 | REQ-0032 | `components/auth/AuthFormCard.tsx`, `auth-glass-styles.ts` | Form glass blur-2xl + flat list |
+| ART-0078 | REQ-0032 | `AuthPageShell.tsx`, `globals.css` | authBgFloat illustration animation |
+| ART-0079 | REQ-0033 | `lib/auth/auth-panel-copy.ts` | Professional login intro copy |
+| ART-0080 | REQ-0033 | `auth-glass-styles.ts`, `auth-list-styles.ts`, `AuthInfoListItem.tsx` | AUTH_LIST_ICON_GLASS glow pills |
+| ART-0081 | REQ-0033 | `AuthPageShell.tsx`, `globals.css` | auth-page-root + scrollbar-gutter |
+| ART-0082 | REQ-0033 | `AuthInfoPanel.tsx`, `AuthInfoListItem.tsx` | Tighter space-y-1 / py-2 spacing |
 
 ## Tests
 

@@ -66,6 +66,10 @@ export default {
         md: "calc(var(--radius) - 2px)",
         sm: "calc(var(--radius) - 4px)",
       },
+      maxWidth: {
+        "7xl": "80rem",
+        "9xl": "96rem",
+      },
     },
   },
   plugins: [tailwindcssAnimate],

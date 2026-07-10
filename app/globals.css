@@ -87,6 +87,14 @@
     scrollbar-gutter: stable;
   }
 
+  /*
+   * REQ-0033 — auth routes scroll on document; Radix Select RemoveScroll hides body scrollbar.
+   * Reserve gutter on html when AuthPageShell is mounted to prevent horizontal layout shift.
+   */
+  html:has(.auth-page-root) {
+    scrollbar-gutter: stable;
+  }
+
   #main-content,
   aside.overflow-y-auto,
   .overflow-y-auto,
@@ -148,4 +156,55 @@
 
 .animate-fade-in {
   animation: fadeIn 0.2s ease-out forwards;
+}
+
+/* REQ-0030 — auth page entrance (CSS-only; no hydration mismatch) */
+@keyframes authEnter {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.auth-enter {
+  animation: authEnter 0.45s ease-out forwards;
+  opacity: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .auth-enter {
+    animation: none;
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* REQ-0032 — viewport illustration zoom + horizontal nudge (CSS-only) */
+@keyframes authBgFloat {
+  0%,
+  100% {
+    transform: scale(1) translateX(0);
+  }
+  33% {
+    transform: scale(1.08) translateX(-14px);
+  }
+  66% {
+    transform: scale(1.12) translateX(14px);
+  }
+}
+
+.auth-bg-float {
+  animation: authBgFloat 22s ease-in-out infinite;
+  will-change: transform;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .auth-bg-float {
+    animation: none;
+    transform: none;
+  }
 }

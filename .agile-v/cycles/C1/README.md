@@ -1,26 +1,32 @@
-# Cycle C1 — Sentry, Groq, Select, API Zod
+# Cycle C1 — Sentry, Groq, SSR, UI polish
 
-**Status:** Verify (Human Gate 2 pending)  
-**Active state:** `../STATE.md`  
-**Phase:** `../phases/01-sentry-groq-select/`  
-**REQ range:** REQ-0001 … REQ-0013  
-**Deploy:** `9a2e37c` (implementation)
+**Status:** Code-complete; Human Gate 2 pending  
+**Active state:** `../../STATE.md`  
+**REQ range:** REQ-0001 … REQ-0029  
+**Latest SHA:** `3ebb4db` (main, 2026-07-09)  
+**Red Team (2026-07-10):** lint ✓ test 329 ✓ invalidate 202 ✓ build ✓
 
-## Delivered
+## Delivered (high level)
 
 - Radix Select `removeChild` mitigation (DeferredSelectGate)
-- OpenRouter → Groq LLM fallback
+- OpenRouter → Groq LLM fallback + model chain migration
 - OAuth P2002 recovery, hydration SSR-first
 - Notification bell portal fix
-- Products + catalog + remaining API Zod (`safeParse` + `logger.warn`)
-- Central 4xx Sentry logging guard
-- `.agile-v/` + 24 skills + Cursor `agile-v-core.mdc`
+- Full API Zod sweep + 4xx Sentry guard
+- Shell-first nav + DataSlotPulse (REQ-0021)
+- Detail SSR prefetch + order detail DRY (REQ-0024/0025)
+- Client browse SSR + ProductOwnerSelect (REQ-0026)
+- Shallow ownerId URL + deferred warm (REQ-0027)
+- Glass badges + invoice scope + table typography (REQ-0028)
+- Supplier read-only category/supplier detail (REQ-0029)
 
-## Open (Human Gate 2)
+## Open (Human Gate 2 + C2)
 
+- Vercel prod SHA confirm (`3ebb4db`)
 - Sentry 24h post-deploy (REQ-0009)
-- Manual nav smoke REQ-0001/0006
+- Manual QA: supplier category links, removeChild nav smoke
+- User-reported live issues → C2 REQ-0030+
 
 ## Archive rule
 
-On Cycle 2 start: freeze this README, copy `VALIDATION_SUMMARY.md` snapshot here.
+On C2 close: freeze this README; snapshot `VALIDATION_SUMMARY.md` here.

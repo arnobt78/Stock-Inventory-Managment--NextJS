@@ -217,7 +217,7 @@ export default function SupportTicketDetailContent({
                         "bg-white/50 dark:bg-white/5",
                       )}
                     >
-                      <p className="text-sm text-gray-800 dark:text-gray-200 whitespace-pre-wrap">
+                      <p className="text-sm text-gray-700 dark:text-gray-200 whitespace-pre-wrap">
                         {r.body}
                       </p>
                       <div className="flex items-center gap-2 mt-2 flex-wrap">

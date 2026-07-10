@@ -1,6 +1,6 @@
 # Change Log — Agile V Cycles
 
-## C1 (2026-05-19 → active)
+## C1 (2026-05-19 → 2026-07-09, code-complete)
 
 | Date | Change | REQ-IDs |
 |------|--------|---------|
@@ -11,3 +11,20 @@
 | 2026-05-19 | Products Zod + 4xx Sentry logger | REQ-0010, REQ-0011 |
 | 2026-05-19 | Catalog Zod (cat/supplier/warehouse) + API barrel | REQ-0012 |
 | 2026-05-19 | Remaining API Zod sweep (payment/shipping/auth/AI) | REQ-0013 |
+| 2026-06-27 | ChunkLoadError reload + OrderDialog logger.warn | REQ-0014, REQ-0015 |
+| 2026-07-08 | OAuth warn, Groq chain, forecasting tokens, locale format | REQ-0016–0020 |
+| 2026-07-08 | Shell-first nav + DataSlotPulse | REQ-0021 (`733681a`) |
+| 2026-07-08–09 | Detail SSR prefetch, order DRY, P3 SSR, client browse | REQ-0022–0026 |
+| 2026-07-09 | Shallow ownerId URL + deferred admin warm | REQ-0027 |
+| 2026-07-09 | Glass badges, invoice scope, table typography, login persist | REQ-0028 |
+| 2026-07-09 | Supplier read-only category/supplier detail Option B | REQ-0029 (`3ebb4db`) |
+
+## C2 (2026-07-09 → open)
+
+| Date | Change | REQ-IDs |
+|------|--------|---------|
+| 2026-07-10 | Auth UX: role Select icons, max-w-7xl shell, stagger anim | REQ-0030 |
+| 2026-07-10 | Auth left panel: brand header + flat list (removed AuthPromoCard) | REQ-0031 |
+| 2026-07-10 | Auth glass form, flat list rows, BG float animation | REQ-0032 |
+| 2026-07-10 | Auth polish: pro copy, scroll gutter, icon glow, tight spacing | REQ-0033 |
+| _pending_ | Human Gate 2 Sentry 24h sign-off | REQ-0009 |

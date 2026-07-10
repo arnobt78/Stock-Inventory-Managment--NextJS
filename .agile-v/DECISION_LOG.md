@@ -48,3 +48,16 @@ Format: `TIMESTAMP | AGENT | DECISION | RATIONALE | REQ-ID`
 2026-07-09T17:50:00Z | build-agent | Ticket/review glass badges + colored filters | TICKET_STATUS/PRIORITY + REVIEW_STATUS → GLASS; badge filter dropdowns; detail pages use semantic badges | REQ-0028
 2026-07-09T18:00:00Z | build-agent | Admin user-mgmt + activity-history glass badges | USER_ROLE/IMPORT/AUDIT → GLASS; ImportTypeBadge; colored role/import filters | REQ-0028
 2026-07-09T18:20:00Z | build-agent | Supplier catalog detail Option B | Read-only category/supplier detail via assigned-product gate; role-scoped Redis cache; disableCrud on detail pages | REQ-0029
+2026-07-09T18:25:00Z | red-team | REQ-0029 automated gates + push main | lint ✓ test 329 ✓ invalidate 202 ✓ build ✓; SHA `3ebb4db` | REQ-0029
+2026-07-09T18:30:00Z | product-owner | C2 backlog opened | Human Gate 2 + user live-test issues deferred to C2; see STATE.md Open backlog | REQ-0009
+2026-07-10T09:13:00Z | agile-v-core | Session bootstrap resume | PLAYBOOK.md created; config.json synced; Red Team re-run PASS; skills 01+02+03 active | REQ-0008
+2026-07-10T09:27:00Z | requirement-architect | REQ-0030 auth UX polish | Dropdown icons, chevron, max-w-7xl, stagger anim, viewport bg; shared components/auth | REQ-0030
+2026-07-10T09:30:00Z | build-agent | REQ-0030 implemented | AuthPageShell, LoginRoleSelect, select chevron group, tailwind 9xl token | REQ-0030
+2026-07-10T09:31:00Z | red-team | REQ-0030 automated gates | lint ✓ test 329 ✓ invalidate 202 ✓ build ✓ | REQ-0030
+2026-07-10T09:40:00Z | requirement-architect | REQ-0031 auth left list redesign | Brand header + list panel; replace promo grid | REQ-0031
+2026-07-10T09:43:00Z | build-agent | REQ-0031 implemented | AuthInfoPanel, AuthBrandHeader, auth-panel-copy; removed AuthPromoCard | REQ-0031
+2026-07-10T09:44:00Z | red-team | REQ-0031 automated gates | lint ✓ test 329 ✓ invalidate 202 ✓ build ✓ | REQ-0031
+2026-07-10T09:57:00Z | build-agent | REQ-0032 auth glass + flat list + bg anim | AuthFormCard blur-2xl, flat list space-y-2, authBgFloat, 6 copy items | REQ-0032
+2026-07-10T09:59:00Z | red-team | REQ-0032 automated gates | lint ✓ test 329 ✓ invalidate 202 ✓ build ✓ | REQ-0032
+2026-07-10T10:14:00Z | build-agent | REQ-0033 auth polish | Professional copy, scrollbar-gutter on auth, icon glass glow, tighter spacing | REQ-0033
+2026-07-10T10:15:00Z | red-team | REQ-0033 automated gates | lint ✓ test 329 ✓ invalidate 202 ✓ build ✓ | REQ-0033
