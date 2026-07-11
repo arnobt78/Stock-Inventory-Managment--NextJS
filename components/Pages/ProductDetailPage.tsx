@@ -27,6 +27,7 @@ import {
   Copy,
   Trash2,
   Building2,
+  Hash,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -55,8 +56,10 @@ import {
   PageSectionHeader,
   GLASS_GHOST_BUTTON,
   glassDetailFooterButtonClass,
+  DETAIL_HEADER_BACK_ICON_CLASS,
   DialogSubmitButton,
 } from "@/components/shared";
+import { DetailInfoRow } from "@/components/orders/detail";
 import { isDataSlotLoading, queryKeys, useSyncSsrQueryDataMany } from "@/lib/react-query";
 import type { Product, ProductStatus, ProductReview, StockAllocation } from "@/types";
 import type { ReviewEligibilityResult } from "@/lib/server/product-reviews-detail-data";
@@ -363,7 +366,7 @@ export default function ProductDetailPage({
                 variant="ghost"
                 size="icon"
                 onClick={handleBack}
-                className="h-10 w-10 shrink-0 self-center rounded-xl border border-gray-300/30 bg-white/50 dark:bg-white/5 dark:border-white/10 hover:bg-gray-100/50 dark:hover:bg-white/10"
+                className={DETAIL_HEADER_BACK_ICON_CLASS}
               >
                 <ArrowLeft className="h-5 w-5" />
               </Button>
@@ -509,137 +512,109 @@ export default function ProductDetailPage({
                     Product Information
                   </h3>
                 </div>
-                <div className="space-y-4">
-                  <div className="flex items-center gap-2 text-sm">
-                    <Tag className="h-4 w-4 text-gray-500 dark:text-white/50" />
-                    <span className="text-gray-600 dark:text-white/60">
-                      SKU:
-                    </span>
-                    <span className="font-medium text-gray-700 dark:text-white">
-                      {product?.sku}
-                    </span>
-                  </div>
-
-                  {product?.category &&
-                    typeof product?.category === "object" && (
-                      <div className="flex items-center gap-2 text-sm">
-                        <Tag className="h-4 w-4 text-gray-500 dark:text-white/50" />
-                        <span className="text-gray-600 dark:text-white/60">
-                          Category:
-                        </span>
+                <div className="space-y-2">
+                  {!dataLoading && product && (
+                    <DetailInfoRow icon={Hash} label="Product ID:" tone="violet">
+                      <span className="font-mono text-xs">{product.id}</span>
+                    </DetailInfoRow>
+                  )}
+                  <DetailInfoRow icon={Tag} label="SKU:" tone="teal" loading={dataLoading}>
+                    {!dataLoading && product?.sku}
+                  </DetailInfoRow>
+                  {!dataLoading && product && (
+                    <DetailInfoRow icon={Package} label="Status:" tone="emerald">
+                      <ProductStockStatusBadge
+                        status={product.status ?? "available"}
+                        label={product.status || "N/A"}
+                        size="detail"
+                        className="text-sm"
+                      />
+                    </DetailInfoRow>
+                  )}
+                  {!dataLoading &&
+                    product?.category &&
+                    typeof product.category === "object" && (
+                      <DetailInfoRow icon={Tag} label="Category:" tone="sky">
                         <Link
                           href={
                             embedInAdmin
-                              ? `/admin/categories/${product?.category.id}`
-                              : `/categories/${product?.category.id}`
+                              ? `/admin/categories/${product.category.id}`
+                              : `/categories/${product.category.id}`
                           }
-                          className="font-medium text-sky-600 dark:text-sky-400 hover:text-sky-500 dark:hover:text-sky-300"
+                          className="text-sky-600 dark:text-sky-400 hover:text-sky-500 dark:hover:text-sky-300"
                         >
-                          {product?.category.name}
+                          {product.category.name}
                         </Link>
-                      </div>
+                      </DetailInfoRow>
                     )}
-
-                  {product?.supplier &&
-                    typeof product?.supplier === "object" && (
-                      <div className="flex items-center gap-2 text-sm">
-                        <Truck className="h-4 w-4 text-gray-500 dark:text-white/50" />
-                        <span className="text-gray-600 dark:text-white/60">
-                          Supplier:
-                        </span>
+                  {!dataLoading &&
+                    product?.supplier &&
+                    typeof product.supplier === "object" && (
+                      <DetailInfoRow icon={Truck} label="Supplier:" tone="orange">
                         <Link
                           href={
                             embedInAdmin
-                              ? `/admin/suppliers/${product?.supplier.id}`
-                              : `/suppliers/${product?.supplier.id}`
+                              ? `/admin/suppliers/${product.supplier.id}`
+                              : `/suppliers/${product.supplier.id}`
                           }
-                          className="font-medium text-sky-600 dark:text-sky-400 hover:text-sky-500 dark:hover:text-sky-300"
+                          className="text-sky-600 dark:text-sky-400 hover:text-sky-500 dark:hover:text-sky-300"
                         >
-                          {product?.supplier.name}
+                          {product.supplier.name}
                         </Link>
-                      </div>
+                      </DetailInfoRow>
                     )}
-
-                  <div className="flex items-center gap-2 text-sm">
-                    <Calendar className="h-4 w-4 text-gray-500 dark:text-white/50" />
-                    <span className="text-gray-600 dark:text-white/60">
-                      Created:
-                    </span>
-                    <span className="font-medium text-gray-700 dark:text-white">
-                      <ClientDateTime date={createdAt} />
-                    </span>
-                  </div>
-
-                  {updatedAt && (
-                    <div className="flex items-center gap-2 text-sm">
-                      <Calendar className="h-4 w-4 text-gray-500 dark:text-white/50" />
-                      <span className="text-gray-600 dark:text-white/60">
-                        Updated:
-                      </span>
-                      <span className="font-medium text-gray-700 dark:text-white">
-                        <ClientDateTime date={updatedAt} />
-                      </span>
-                    </div>
+                  <DetailInfoRow icon={Calendar} label="Created:" tone="teal" loading={dataLoading}>
+                    {!dataLoading && <ClientDateTime date={createdAt} />}
+                  </DetailInfoRow>
+                  {(dataLoading || updatedAt) && (
+                    <DetailInfoRow icon={Calendar} label="Updated:" tone="sky" loading={dataLoading}>
+                      {!dataLoading && updatedAt && <ClientDateTime date={updatedAt} />}
+                    </DetailInfoRow>
                   )}
-
-                  {expirationDate && (
-                    <div className="flex items-center gap-2 text-sm">
-                      <Calendar className="h-4 w-4 text-gray-500 dark:text-white/50" />
-                      <span className="text-gray-600 dark:text-white/60">
-                        Expiration Date:
-                      </span>
-                      <span className="font-medium text-gray-700 dark:text-white">
-                        <ClientDate date={expirationDate} />
-                      </span>
-                    </div>
+                  {!dataLoading && expirationDate && (
+                    <DetailInfoRow icon={Calendar} label="Expiration:" tone="amber">
+                      <ClientDate date={expirationDate} />
+                    </DetailInfoRow>
                   )}
-
-                  {/* Creator Information */}
-                  {product?.creator && (
-                    <div className="pt-2 mt-3 border-t border-teal-400/20">
-                      <div className="flex items-center gap-2 text-sm">
-                        <User className="h-4 w-4 text-gray-500 dark:text-white/50" />
-                        <span className="text-gray-600 dark:text-white/60">
-                          Created by:
-                        </span>
-                        <span className="font-medium text-gray-700 dark:text-white">
-                          {product?.creator.name}
-                        </span>
-                      </div>
-                      <div className="flex items-center gap-2 text-sm mt-1">
-                        <Mail className="h-4 w-4 text-gray-500 dark:text-white/50" />
-                        <span className="text-gray-600 dark:text-white/60">
-                          Email:
-                        </span>
-                        <span className="font-medium text-gray-700 dark:text-white">
-                          {product?.creator.email}
-                        </span>
-                      </div>
-                    </div>
+                  {!dataLoading && product && (
+                    <>
+                      <DetailInfoRow icon={Package} label="Stock qty:" tone="blue">
+                        {product.quantity ?? 0}
+                      </DetailInfoRow>
+                      {(product.reservedQuantity ?? 0) > 0 && (
+                        <DetailInfoRow icon={Package} label="Reserved:" tone="violet">
+                          {product.reservedQuantity}
+                        </DetailInfoRow>
+                      )}
+                      <DetailInfoRow icon={Package} label="Available:" tone="emerald">
+                        {(product.quantity ?? 0) - (product.reservedQuantity ?? 0)}
+                      </DetailInfoRow>
+                    </>
                   )}
-
-                  {/* Updater Information */}
-                  {product?.updater && (
-                    <div className="pt-2 mt-3 border-t border-teal-400/20">
-                      <div className="flex items-center gap-2 text-sm">
-                        <User className="h-4 w-4 text-gray-500 dark:text-white/50" />
-                        <span className="text-gray-600 dark:text-white/60">
-                          Updated by:
-                        </span>
-                        <span className="font-medium text-gray-700 dark:text-white">
-                          {product?.updater.name}
-                        </span>
-                      </div>
-                      <div className="flex items-center gap-2 text-sm mt-1">
-                        <Mail className="h-4 w-4 text-gray-500 dark:text-white/50" />
-                        <span className="text-gray-600 dark:text-white/60">
-                          Email:
-                        </span>
-                        <span className="font-medium text-gray-700 dark:text-white">
-                          {product?.updater.email}
-                        </span>
-                      </div>
-                    </div>
+                  {!dataLoading && product?.deletedAt && (
+                    <DetailInfoRow icon={Package} label="Archived:" tone="rose">
+                      <ClientDateTime date={new Date(product.deletedAt)} />
+                    </DetailInfoRow>
+                  )}
+                  {!dataLoading && product?.creator && (
+                    <>
+                      <DetailInfoRow icon={User} label="Created by:" tone="violet">
+                        {product.creator.name}
+                      </DetailInfoRow>
+                      <DetailInfoRow icon={Mail} label="Creator email:" tone="violet">
+                        {product.creator.email}
+                      </DetailInfoRow>
+                    </>
+                  )}
+                  {!dataLoading && product?.updater && (
+                    <>
+                      <DetailInfoRow icon={User} label="Updated by:" tone="blue">
+                        {product.updater.name}
+                      </DetailInfoRow>
+                      <DetailInfoRow icon={Mail} label="Updater email:" tone="blue">
+                        {product.updater.email}
+                      </DetailInfoRow>
+                    </>
                   )}
                 </div>
               </div>

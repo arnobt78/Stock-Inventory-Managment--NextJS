@@ -18,6 +18,7 @@ import {
   User,
   Mail,
   Edit,
+  Hash,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
@@ -38,12 +39,11 @@ import {
   DataSlotPulse,
   PageSectionHeader,
   DialogSubmitButton,
-  GLASS_BUTTON_DISABLED,
-  GLASS_BUTTON_ICON_HOVER,
-  GLASS_BUTTON_SHELL_RESET,
   GLASS_GHOST_BUTTON,
   glassDetailFooterButtonClass,
+  DETAIL_HEADER_BACK_ICON_CLASS,
 } from "@/components/shared";
+import { DetailInfoRow } from "@/components/orders/detail";
 import {
   ActiveInactiveBadge,
   OrderStatusBadge,
@@ -341,7 +341,7 @@ export default function CategoryDetailPage({
                 variant="ghost"
                 size="icon"
                 onClick={handleBack}
-                className="h-10 w-10 shrink-0 self-center rounded-xl border border-gray-300/30 bg-white/50 dark:bg-white/5 dark:border-white/10 hover:bg-gray-100/50 dark:hover:bg-white/10"
+                className={DETAIL_HEADER_BACK_ICON_CLASS}
               >
                 <ArrowLeft className="h-5 w-5" />
               </Button>
@@ -390,21 +390,20 @@ export default function CategoryDetailPage({
                 </h3>
               </div>
 
-              <div className="space-y-4">
-                <div className="flex items-center gap-2 text-sm p-2 rounded-xl bg-gradient-to-r from-orange-100/50 via-orange-50/30 to-transparent dark:from-orange-500/10 dark:via-orange-500/5 dark:to-transparent border border-orange-200/30 dark:border-orange-400/10">
-                  <Tag className="h-4 w-4 text-orange-500 dark:text-orange-400" />
-                  <span className="text-gray-600 dark:text-gray-400">
-                    Name:
-                  </span>
-                  <span className="font-medium text-gray-700 dark:text-white">
-                    {dataLoading ? (
-                      <DataSlotPulse variant="text-sm" />
-                    ) : (
-                      category?.name
-                    )}
-                  </span>
-                </div>
-
+              <div className="space-y-2">
+                {!dataLoading && category && (
+                  <DetailInfoRow icon={Hash} label="Category ID:" tone="violet">
+                    <span className="font-mono text-xs">{category.id}</span>
+                  </DetailInfoRow>
+                )}
+                <DetailInfoRow icon={Tag} label="Name:" tone="orange" loading={dataLoading}>
+                  {!dataLoading && category?.name}
+                </DetailInfoRow>
+                {!dataLoading && category && (
+                  <DetailInfoRow icon={Tag} label="Status:" tone="emerald">
+                    <ActiveInactiveBadge active={Boolean(category.status)} />
+                  </DetailInfoRow>
+                )}
                 {!dataLoading && category?.description && (
                   <div className="p-2 rounded-xl bg-gradient-to-r from-amber-100/50 via-amber-50/30 to-transparent dark:from-amber-500/10 dark:via-amber-500/5 dark:to-transparent border border-amber-200/30 dark:border-amber-400/10">
                     <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">
@@ -415,7 +414,6 @@ export default function CategoryDetailPage({
                     </p>
                   </div>
                 )}
-
                 {!dataLoading && category?.notes && (
                   <div className="p-2 rounded-xl bg-gradient-to-r from-yellow-100/50 via-yellow-50/30 to-transparent dark:from-yellow-500/10 dark:via-yellow-500/5 dark:to-transparent border border-yellow-200/30 dark:border-yellow-400/10">
                     <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">
@@ -426,75 +424,33 @@ export default function CategoryDetailPage({
                     </p>
                   </div>
                 )}
-
-                <div className="flex items-center gap-2 text-sm p-2 rounded-xl bg-gradient-to-r from-teal-100/50 via-teal-50/30 to-transparent dark:from-teal-500/10 dark:via-teal-500/5 dark:to-transparent border border-teal-200/30 dark:border-teal-400/10">
-                  <Calendar className="h-4 w-4 text-teal-500 dark:text-teal-400" />
-                  <span className="text-gray-600 dark:text-gray-400">
-                    Created:
-                  </span>
-                  <span className="font-medium text-gray-700 dark:text-white">
-                    <ClientDateTime date={createdAt} />
-                  </span>
-                </div>
-
-                {updatedAt && (
-                  <div className="flex items-center gap-2 text-sm p-2 rounded-xl bg-gradient-to-r from-sky-100/50 via-sky-50/30 to-transparent dark:from-sky-500/10 dark:via-sky-500/5 dark:to-transparent border border-sky-200/30 dark:border-sky-400/10">
-                    <Calendar className="h-4 w-4 text-sky-500 dark:text-sky-400" />
-                    <span className="text-gray-600 dark:text-gray-400">
-                      Updated:
-                    </span>
-                    <span className="font-medium text-gray-700 dark:text-white">
-                      <ClientDateTime date={updatedAt} />
-                    </span>
-                  </div>
+                <DetailInfoRow icon={Calendar} label="Created:" tone="teal" loading={dataLoading}>
+                  {!dataLoading && <ClientDateTime date={createdAt} />}
+                </DetailInfoRow>
+                {(dataLoading || updatedAt) && (
+                  <DetailInfoRow icon={Calendar} label="Updated:" tone="sky" loading={dataLoading}>
+                    {!dataLoading && updatedAt && <ClientDateTime date={updatedAt} />}
+                  </DetailInfoRow>
                 )}
-
-                {/* Creator Information */}
                 {!dataLoading && category?.creator && (
-                  <div className="p-2 rounded-xl bg-gradient-to-r from-violet-100/50 via-violet-50/30 to-transparent dark:from-violet-500/10 dark:via-violet-500/5 dark:to-transparent border border-violet-200/30 dark:border-violet-400/10 space-y-2">
-                    <div className="flex items-center gap-2 text-sm">
-                      <User className="h-4 w-4 text-violet-500 dark:text-violet-400" />
-                      <span className="text-gray-600 dark:text-gray-400">
-                        Created by:
-                      </span>
-                      <span className="font-medium text-gray-700 dark:text-white">
-                        {category.creator.name}
-                      </span>
-                    </div>
-                    <div className="flex items-center gap-2 text-sm">
-                      <Mail className="h-4 w-4 text-violet-500 dark:text-violet-400" />
-                      <span className="text-gray-600 dark:text-gray-400">
-                        Email:
-                      </span>
-                      <span className="font-medium text-gray-700 dark:text-white">
-                        {category.creator.email}
-                      </span>
-                    </div>
-                  </div>
+                  <>
+                    <DetailInfoRow icon={User} label="Created by:" tone="violet">
+                      {category.creator.name}
+                    </DetailInfoRow>
+                    <DetailInfoRow icon={Mail} label="Creator email:" tone="violet">
+                      {category.creator.email}
+                    </DetailInfoRow>
+                  </>
                 )}
-
-                {/* Updater Information */}
                 {!dataLoading && category?.updater && (
-                  <div className="p-2 rounded-xl bg-gradient-to-r from-blue-100/50 via-blue-50/30 to-transparent dark:from-blue-500/10 dark:via-blue-500/5 dark:to-transparent border border-blue-200/30 dark:border-blue-400/10 space-y-2">
-                    <div className="flex items-center gap-2 text-sm">
-                      <User className="h-4 w-4 text-blue-500 dark:text-blue-400" />
-                      <span className="text-gray-600 dark:text-gray-400">
-                        Updated by:
-                      </span>
-                      <span className="font-medium text-gray-700 dark:text-white">
-                        {category.updater.name}
-                      </span>
-                    </div>
-                    <div className="flex items-center gap-2 text-sm">
-                      <Mail className="h-4 w-4 text-blue-500 dark:text-blue-400" />
-                      <span className="text-gray-600 dark:text-gray-400">
-                        Email:
-                      </span>
-                      <span className="font-medium text-gray-700 dark:text-white">
-                        {category.updater.email}
-                      </span>
-                    </div>
-                  </div>
+                  <>
+                    <DetailInfoRow icon={User} label="Updated by:" tone="blue">
+                      {category.updater.name}
+                    </DetailInfoRow>
+                    <DetailInfoRow icon={Mail} label="Updater email:" tone="blue">
+                      {category.updater.email}
+                    </DetailInfoRow>
+                  </>
                 )}
               </div>
             </GlassCard>

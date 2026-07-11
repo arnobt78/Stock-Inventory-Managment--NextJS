@@ -22,6 +22,7 @@ import {
   Edit,
   Copy,
   Trash2,
+  Hash,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -47,8 +48,10 @@ import {
   PageSectionHeader,
   GLASS_GHOST_BUTTON,
   glassDetailFooterButtonClass,
+  DETAIL_HEADER_BACK_ICON_CLASS,
   DialogSubmitButton,
 } from "@/components/shared";
+import { DetailInfoRow } from "@/components/orders/detail";
 import SupplierDialog from "@/components/supplier/SupplierDialog";
 import { AlertDialogWrapper } from "@/components/dialogs";
 import type { Supplier } from "@/types";
@@ -315,7 +318,7 @@ export default function SupplierDetailPage({
                 variant="ghost"
                 size="icon"
                 onClick={handleBack}
-                className="h-10 w-10 shrink-0 self-center rounded-xl border border-gray-300/30 bg-white/50 dark:bg-white/5 dark:border-white/10 hover:bg-gray-100/50 dark:hover:bg-white/10"
+                className={DETAIL_HEADER_BACK_ICON_CLASS}
               >
                 <ArrowLeft className="h-5 w-5" />
               </Button>
@@ -352,107 +355,67 @@ export default function SupplierDetailPage({
                     Supplier Information
                   </h3>
                 </div>
-                <div className="space-y-4">
-                  <div className="flex items-center gap-2 text-sm">
-                    <Truck className="h-4 w-4 text-gray-500 dark:text-white/50" />
-                    <span className="text-gray-600 dark:text-white/60">
-                      Name:
-                    </span>
-                    <span className="font-medium text-gray-700 dark:text-white">
-                      {supplier?.name}
-                    </span>
-                  </div>
-
-                  {supplier?.description && (
-                    <div className="pt-2 mt-3 border-t border-orange-400/20">
-                      <p className="text-sm text-gray-600 dark:text-white/60 mb-1">
+                <div className="space-y-2">
+                  {!dataLoading && supplier && (
+                    <DetailInfoRow icon={Hash} label="Supplier ID:" tone="violet">
+                      <span className="font-mono text-xs">{supplier.id}</span>
+                    </DetailInfoRow>
+                  )}
+                  <DetailInfoRow icon={Truck} label="Name:" tone="orange" loading={dataLoading}>
+                    {!dataLoading && supplier?.name}
+                  </DetailInfoRow>
+                  {!dataLoading && supplier && (
+                    <DetailInfoRow icon={Truck} label="Status:" tone="emerald">
+                      <ActiveInactiveBadge active={Boolean(supplier.status)} />
+                    </DetailInfoRow>
+                  )}
+                  {!dataLoading && supplier?.description && (
+                    <div className="p-2 rounded-xl bg-gradient-to-r from-amber-100/50 via-amber-50/30 to-transparent dark:from-amber-500/10 dark:via-amber-500/5 dark:to-transparent border border-amber-200/30 dark:border-amber-400/10">
+                      <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">
                         Description:
                       </p>
                       <p className="text-sm text-gray-700 dark:text-white">
-                        {supplier?.description}
+                        {supplier.description}
                       </p>
                     </div>
                   )}
-
-                  {supplier?.notes && (
-                    <div className="pt-2 mt-3 border-t border-orange-400/20">
-                      <p className="text-sm text-gray-600 dark:text-white/60 mb-1">
+                  {!dataLoading && supplier?.notes && (
+                    <div className="p-2 rounded-xl bg-gradient-to-r from-yellow-100/50 via-yellow-50/30 to-transparent dark:from-yellow-500/10 dark:via-yellow-500/5 dark:to-transparent border border-yellow-200/30 dark:border-yellow-400/10">
+                      <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">
                         Notes:
                       </p>
                       <p className="text-sm text-gray-700 dark:text-white">
-                        {supplier?.notes}
+                        {supplier.notes}
                       </p>
                     </div>
                   )}
-
-                  <div className="flex items-center gap-2 text-sm">
-                    <Calendar className="h-4 w-4 text-gray-500 dark:text-white/50" />
-                    <span className="text-gray-600 dark:text-white/60">
-                      Created:
-                    </span>
-                    <span className="font-medium text-gray-700 dark:text-white">
-                      <ClientDateTime date={createdAt} />
-                    </span>
-                  </div>
-
-                  {updatedAt && (
-                    <div className="flex items-center gap-2 text-sm">
-                      <Calendar className="h-4 w-4 text-gray-500 dark:text-white/50" />
-                      <span className="text-gray-600 dark:text-white/60">
-                        Updated:
-                      </span>
-                      <span className="font-medium text-gray-700 dark:text-white">
-                        <ClientDateTime date={updatedAt} />
-                      </span>
-                    </div>
+                  <DetailInfoRow icon={Calendar} label="Created:" tone="teal" loading={dataLoading}>
+                    {!dataLoading && <ClientDateTime date={createdAt} />}
+                  </DetailInfoRow>
+                  {(dataLoading || updatedAt) && (
+                    <DetailInfoRow icon={Calendar} label="Updated:" tone="sky" loading={dataLoading}>
+                      {!dataLoading && updatedAt && <ClientDateTime date={updatedAt} />}
+                    </DetailInfoRow>
                   )}
-
-                  {/* Creator Information */}
-                  {supplier?.creator && (
-                    <div className="pt-2 mt-3 border-t border-orange-400/20">
-                      <div className="flex items-center gap-2 text-sm">
-                        <User className="h-4 w-4 text-gray-500 dark:text-white/50" />
-                        <span className="text-gray-600 dark:text-white/60">
-                          Created by:
-                        </span>
-                        <span className="font-medium text-gray-700 dark:text-white">
-                          {supplier?.creator.name}
-                        </span>
-                      </div>
-                      <div className="flex items-center gap-2 text-sm mt-1">
-                        <Mail className="h-4 w-4 text-gray-500 dark:text-white/50" />
-                        <span className="text-gray-600 dark:text-white/60">
-                          Email:
-                        </span>
-                        <span className="font-medium text-gray-700 dark:text-white">
-                          {supplier?.creator.email}
-                        </span>
-                      </div>
-                    </div>
+                  {!dataLoading && supplier?.creator && (
+                    <>
+                      <DetailInfoRow icon={User} label="Created by:" tone="violet">
+                        {supplier.creator.name}
+                      </DetailInfoRow>
+                      <DetailInfoRow icon={Mail} label="Creator email:" tone="violet">
+                        {supplier.creator.email}
+                      </DetailInfoRow>
+                    </>
                   )}
-
-                  {/* Updater Information */}
-                  {supplier?.updater && (
-                    <div className="pt-2 mt-3 border-t border-orange-400/20">
-                      <div className="flex items-center gap-2 text-sm">
-                        <User className="h-4 w-4 text-gray-500 dark:text-white/50" />
-                        <span className="text-gray-600 dark:text-white/60">
-                          Updated by:
-                        </span>
-                        <span className="font-medium text-gray-700 dark:text-white">
-                          {supplier?.updater.name}
-                        </span>
-                      </div>
-                      <div className="flex items-center gap-2 text-sm mt-1">
-                        <Mail className="h-4 w-4 text-gray-500 dark:text-white/50" />
-                        <span className="text-gray-600 dark:text-white/60">
-                          Email:
-                        </span>
-                        <span className="font-medium text-gray-700 dark:text-white">
-                          {supplier?.updater.email}
-                        </span>
-                      </div>
-                    </div>
+                  {!dataLoading && supplier?.updater && (
+                    <>
+                      <DetailInfoRow icon={User} label="Updated by:" tone="blue">
+                        {supplier.updater.name}
+                      </DetailInfoRow>
+                      <DetailInfoRow icon={Mail} label="Updater email:" tone="blue">
+                        {supplier.updater.email}
+                      </DetailInfoRow>
+                    </>
                   )}
                 </div>
               </div>

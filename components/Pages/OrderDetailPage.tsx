@@ -38,9 +38,6 @@ import {
   ClientDateTime,
   PageContentWrapper,
   DataSlotPulse,
-  GLASS_BUTTON_DISABLED,
-  GLASS_BUTTON_ICON_HOVER,
-  GLASS_BUTTON_SHELL_RESET,
   GLASS_GHOST_BUTTON,
   glassDetailFooterButtonClass,
   CopyableText,
@@ -325,6 +322,17 @@ export default function OrderDetailPage({
                     {order.paymentStatus === "partial" && (
                       <DetailInfoRow icon={CreditCard} label="Payment:" tone="amber">
                         Partial payment — total ${order.total.toFixed(2)}
+                        {order.invoiceForOrder && (
+                          <>
+                            {" · "}
+                            <Link
+                              href={`/invoices/${order.invoiceForOrder.id}`}
+                              className="text-sky-600 dark:text-sky-400 hover:underline"
+                            >
+                              View invoice for payment breakdown
+                            </Link>
+                          </>
+                        )}
                       </DetailInfoRow>
                     )}
                     {order.stripePaymentIntentId && (
