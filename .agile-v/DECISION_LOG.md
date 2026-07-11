@@ -179,3 +179,5 @@ Format: `TIMESTAMP | AGENT | DECISION | RATIONALE | REQ-ID`
 2026-07-11T21:10:00Z | build-agent | REQ-0074 FAB + order dialog | hover+click FAB; 3-col order line grid | REQ-0074
 2026-07-11T21:20:00Z | build-agent | REQ-0074 detail parity | PartiesRolesCard; InvoiceSummaryCard; party image SSR | REQ-0074
 2026-07-11T21:30:00Z | red-team | REQ-0074 gates | lint ✓ test 384 ✓ invalidate 206 ✓ build ✓ | REQ-0074
+2026-07-11T22:00:00Z | red-team | REQ-0074 audit | All phases done; minor gap AdminOrderDetailContent status rows; lint warn fixed | REQ-0074
+2026-07-11T22:05:00Z | po | C2 backlog | OB-011–015 supplier/UI sweep queued for 2026-07-12 | REQ-0075 candidate

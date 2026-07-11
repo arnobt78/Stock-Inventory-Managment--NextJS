@@ -5,10 +5,10 @@
 | **Cycle** | C1 (closing) → **C2 open** |
 | **Phase** | `phases/07-shell-first-navigation` → C2 backlog |
 | **Infinity Loop stage** | Verify ◐ (code done; Human Gate 2 + manual QA open) |
-| **Last updated** | 2026-07-11 (REQ-0074 portal/chart/detail parity) |
-| **Session** | ACTIVE — REQ-0074 |
+| **Last updated** | 2026-07-11 (REQ-0074 done; C2 QA backlog for 2026-07-12) |
+| **Session** | PAUSED — REQ-0074 shipped; resume REQ-0075 supplier/UI sweep |
 | **Active REQ range** | REQ-0001 … REQ-0074 done |
-| **Prod deploy target** | pending — REQ-0074 |
+| **Prod deploy target** | pending — REQ-0074 (7 commits ahead of origin) |
 | **Human Gate 1** | APPROVED (retroactive bootstrap) |
 | **Human Gate 2** | PENDING — Sentry 24h after prod deploy |
 | **Resume token** | `C2-post-mutation-cache` — see **Session handoff** + **Open backlog** |
@@ -108,7 +108,20 @@
 
 **REQ-0063 (2026-07-11 PM):** invoice detail linked order line items (`linkedOrderItems` via widened enrichInvoice query — no extra DB round-trip); `ProductLineItemsList` shared with `OrderItemsCard`; CopyableText on shipping order#/tracking; Related Order shows order # + admin-aware href. Gates: lint ✓ test 356 ✓ invalidate 202 ✓ build ✓.
 
-**Do NOT repeat:** don't re-derive REQ-0053/0054/0055 content — already fully specified in `REQUIREMENTS.md`/`DECISION_LOG.md`; don't re-run full gate suite unless files change again (already green this session).
+**Do NOT repeat:** don't re-derive REQ-0073/0074 — shipped `188e8ae`+`578999f`; gates lint ✓ test 384 ✓ invalidate 206 ✓ build ✓.
+
+## Session handoff (2026-07-12 — pick up tomorrow)
+
+**REQ-0074 shipped (2026-07-11 PM):** portal pb-6 rhythm, chart point labels, FAB hover+click, order dialog 3-col grid, PartiesRolesCard, InvoiceSummaryCard, party image SSR. Commits: `8fdd937`/`95446fd` (0073), `188e8ae`/`578999f` (0074).
+
+**Tomorrow (REQ-0075 candidate):**
+1. Supplier product detail — warehouse count/allocations mismatch ("no warehouse" when stock exists)
+2. Supplier table action menu — invoice/create actions gating review
+3. Static pages UI parity — remove/email, API status, docs (`SectionCardHeader` + icon row)
+4. Admin detail pages consistency pass
+5. Minor: AdminOrderDetailContent split payment status rows (0074 gap)
+
+**Invalidation:** REQ-0074 UI-only + party `image` on existing SSR selects — no registry/TanStack changes; CRUD invalidation unchanged.
 
 ---
 
@@ -130,17 +143,20 @@
 
 **Out of scope:** TanStack, SSR, API, invalidation.
 
-## Open backlog (C2 — fix next)
+## Open backlog (C2 — fix next, updated 2026-07-11 PM)
 
 | ID | Priority | Item | REQ / notes |
 |----|----------|------|-------------|
-| OB-001 | P0 | Confirm Vercel prod SHA = `73060a1` | deploy |
-| OB-002 | P0 | Sentry 24h regression watch | REQ-0009 checklist in `REVALIDATION_LOG.md` |
-| OB-008 | P2 | Glass consistency sweep | **REQ-0051** — see handoff table above |
+| OB-009 | P0 | Push `main` (REQ-0073+0074, 7 commits) | deploy prep |
+| OB-010 | P0 | Sentry 24h after prod deploy | REQ-0009 |
+| OB-011 | P1 | **Supplier role:** product detail shows "no warehouse" despite allocations; table actions (invoice etc.) may be wrongly disabled | REQ-0075 candidate |
+| OB-012 | P1 | **Supplier role:** warehouse/stock display mismatch vs admin table dropdown | REQ-0075 |
+| OB-013 | P2 | UI consistency: remove/email, API status, documentation pages — header icon row parity (`SectionCardHeader`) | REQ-0075 |
+| OB-014 | P2 | Admin detail pages UI consistency sweep (icons, cards, spacing) | REQ-0075 |
+| OB-015 | P2 | AdminOrderDetailContent: split Order/Payment status rows (parity with OrderDetailPage) | REQ-0074 gap |
+| OB-001 | P0 | Confirm Vercel prod SHA post-push | deploy |
+| OB-008 | P2 | Glass consistency sweep | REQ-0051 |
 | OB-003 | P1 | Manual QA: supplier `/products` → category/supplier links | REQ-0029 |
-| OB-004 | P1 | Manual QA: removeChild nav smoke (products↔orders×10) | REQ-0001, REQ-0006 |
-| OB-005 | P2 | Broken product `imageUrl` 404s in UI | data/ImageKit — not REQ-0029 |
-| OB-006 | P2 | User-reported issues from live testing | _capture per session in CAPA_LOG_ |
-| OB-007 | P3 | Optional: `use-deferred-radix-select.test.ts` | known gap OK |
+| OB-004 | P1 | Manual QA: removeChild nav smoke | REQ-0001 |
 
 **Rule:** New fixes → new REQ-0030+ in C2; do not expand C1 without traceability.

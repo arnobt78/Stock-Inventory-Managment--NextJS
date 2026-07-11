@@ -87,7 +87,7 @@ export function ChartBarLabel({
   value,
   fill,
   formatter = formatChartCurrencyLabel,
-}: RechartsLabelProps & { width?: number }): ReactElement | null {
+}: RechartsLabelProps): ReactElement | null {
   if (value == null || value === "") return null;
   const num = typeof value === "number" ? value : Number(value);
   if (!Number.isFinite(num)) return null;
@@ -116,24 +116,30 @@ export function createChartDotLabelRenderer(
   dataLength: number,
   formatter?: ChartPointLabelFormatter,
   lastOnly = true,
-) {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  return function ChartDotLabelRenderer(props: any) {
+): (props: unknown) => ReactElement | null {
+  function ChartDotLabelRenderer(props: unknown) {
+    const labelProps = props as RechartsLabelProps;
     return (
       <ChartDotLabel
-        {...props}
+        {...labelProps}
         formatter={formatter}
         lastOnly={lastOnly}
         dataLength={dataLength}
       />
     );
-  };
+  }
+  ChartDotLabelRenderer.displayName = "ChartDotLabelRenderer";
+  return ChartDotLabelRenderer;
 }
 
 /** Factory for Bar label prop */
-export function createChartBarLabelRenderer(formatter?: ChartPointLabelFormatter) {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  return function ChartBarLabelRenderer(props: any) {
-    return <ChartBarLabel {...props} formatter={formatter} />;
-  };
+export function createChartBarLabelRenderer(
+  formatter?: ChartPointLabelFormatter,
+): (props: unknown) => ReactElement | null {
+  function ChartBarLabelRenderer(props: unknown) {
+    const labelProps = props as RechartsLabelProps;
+    return <ChartBarLabel {...labelProps} formatter={formatter} />;
+  }
+  ChartBarLabelRenderer.displayName = "ChartBarLabelRenderer";
+  return ChartBarLabelRenderer;
 }
