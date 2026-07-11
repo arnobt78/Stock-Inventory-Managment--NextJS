@@ -1,6 +1,6 @@
 # PROJECT_WALKTHROUGH.md
 
-Agent-oriented map of **stock-inventory** (Stockly). Last updated: 2026-07-10.
+Agent-oriented map of **stock-inventory** (Stockly). Last updated: 2026-07-11.
 
 ## 1. What this app is
 
@@ -195,6 +195,21 @@ flowchart LR
 - **Security:** `Receiver.verify` with `QSTASH_CURRENT_SIGNING_KEY` / `QSTASH_NEXT_SIGNING_KEY`
 - **Retries:** webhook 500 on send failure → QStash retries; direct fallback in `queueEmailNotification` still logs-only on error
 
+## 7h. Post-mutation cache + order/invoice UX (REQ-0052–0062, 2026-07-11)
+
+| Area | Pattern |
+|------|---------|
+| Redis invalidation | `lib/cache/post-mutation.ts` — domain `scheduleInvalidate*()` **awaited before** API 200/201 (no stale refetch race) |
+| TanStack | mutations → `invalidateAllRelatedQueries` / `invalidateAfterOrderGraphChange`; delete → `cancelOrRemoveDetailQuery` first |
+| Back nav | `useBackWithRefresh` on all 9 detail entities — invalidates before `router.back` / list push |
+| CopyableText | `components/shared/CopyableText.tsx` — order/invoice # in tables, detail headers, portals |
+| ProductThumb | `ProductOptionRow` extract; `imageUrl` on order detail items + warehouse allocations + catalog grids |
+| OrderPickerCommand | searchable order select in `InvoiceDialog` create mode; `initialOrderId` pre-select |
+| Cross-domain menus | `invoiceForOrder` on order lists (`getInvoiceLinkMap` batch); invoice actions in `OrderActions`; View/Cancel order in `InvoiceActions` |
+| Demo reset | `npm run script:reset-demo-db` — wipe Mongo + optional Redis + reseed test@admin/client/supplier |
+
+**Invalidation on REQ-0058–0062:** no new write routes; existing invoice/order mutation hooks + `INVOICE_PATTERNS` Redis scope already cover UI refresh.
+
 ## 7g. Post-deploy observability (REQ-0009)
 
 1. Confirm Vercel production = commit `9a2e37c` (REQ-0013; or later on `main`)
@@ -202,14 +217,15 @@ flowchart LR
 3. Sentry **stock-inventory** — 24h: compare cases 1–7 vs `docs/SENTRY_ERRORS.md`
 4. Log result in `.agile-v/REVALIDATION_LOG.md`; CAPA if regression
 
-## 8. Quality gates (audit 2026-07-10)
+## 8. Quality gates (audit 2026-07-11)
 
 | Check | Status |
 |-------|--------|
 | `npm run lint` | pass |
 | `npm run build` | pass |
-| `npm run test` | 335 passed |
+| `npm run test` | 352 passed |
 | `npm run test:invalidate` | 202 passed |
+| Prod commit | `21f172f` (REQ-0058–0062) on `main` |
 | Radix table Select | `useDeferredRadixSelect` + `PaginationSelector` (11 tables) |
 | Pagination clamp + page-size reset | `useClampPaginationIndex` + `PaginationSelector` pageIndex 0 |
 | Sentry | tunnel + translate scrub + `syncSentryUserFromAuth` |
