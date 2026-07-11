@@ -50,6 +50,7 @@ import {
   ProductLineItemsList,
   GLASS_GHOST_BUTTON,
   glassDetailFooterButtonClass,
+  DETAIL_HEADER_BACK_ICON_CLASS,
   DialogSubmitButton,
 } from "@/components/shared";
 import { DetailInfoRow } from "@/components/orders/detail/order-detail-primitives";
@@ -427,7 +428,7 @@ export default function InvoiceDetailPage({
                 variant="ghost"
                 size="icon"
                 onClick={onBack}
-                className="h-10 w-10 shrink-0 self-center rounded-xl border border-gray-300/30 bg-white/50 dark:bg-white/5 dark:border-white/10 hover:bg-gray-100/50 dark:hover:bg-white/10"
+                className={DETAIL_HEADER_BACK_ICON_CLASS}
               >
                 <ArrowLeft className="h-5 w-5" />
               </Button>

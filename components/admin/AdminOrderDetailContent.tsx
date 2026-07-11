@@ -44,6 +44,7 @@ import {
   PageContentWrapper,
   DataSlotPulse,
   GLASS_GHOST_BUTTON,
+  glassDetailFooterButtonClass,
 } from "@/components/shared";
 import { isDataSlotLoading, queryKeys, useSyncSsrQueryData } from "@/lib/react-query";
 import { useToast } from "@/hooks/use-toast";
@@ -215,7 +216,11 @@ export default function AdminOrderDetailContent({
     return (
       <PageContentWrapper>
         <div className="space-y-4">
-          <Button variant="ghost" size="sm" className="gap-2" onClick={() => navigateTo(backHref)}>
+          <Button
+            size="sm"
+            onClick={() => navigateTo(backHref)}
+            className={cn("gap-2", GLASS_GHOST_BUTTON)}
+          >
             <ArrowLeft className="h-4 w-4" />
             Back to Orders
           </Button>
@@ -233,7 +238,11 @@ export default function AdminOrderDetailContent({
     return (
       <PageContentWrapper>
         <div className="space-y-4">
-          <Button variant="ghost" size="sm" className="gap-2" onClick={() => navigateTo(backHref)}>
+          <Button
+            size="sm"
+            onClick={() => navigateTo(backHref)}
+            className={cn("gap-2", GLASS_GHOST_BUTTON)}
+          >
             <ArrowLeft className="h-4 w-4" />
             Back to Orders
           </Button>
@@ -443,12 +452,11 @@ export default function AdminOrderDetailContent({
                 {/* CopyableText copies the invoice # without following the link */}
                 <CopyableText value={order.invoiceForOrder.invoiceNumber}>
                   <Button
-                    variant="outline"
-                    size="sm"
                     asChild
-                    className="rounded-xl border-violet-300/40"
+                    className={glassDetailFooterButtonClass("indigo", "w-auto")}
                   >
                     <Link href={`/admin/invoices/${order.invoiceForOrder.id}`}>
+                      <FileText className="h-4 w-4 shrink-0" />
                       View invoice {order.invoiceForOrder.invoiceNumber}
                     </Link>
                   </Button>
@@ -460,13 +468,11 @@ export default function AdminOrderDetailContent({
                   No invoice has been generated for this order yet.
                 </p>
                 <Button
-                  variant="outline"
-                  size="sm"
                   onClick={() => setCreateInvoiceOpen(true)}
                   disabled={order.status === "cancelled"}
-                  className="rounded-xl border-violet-300/40"
+                  className={glassDetailFooterButtonClass("indigo", "w-auto")}
                 >
-                  <FilePlus2 className="h-4 w-4 mr-2" />
+                  <FilePlus2 className="h-4 w-4 shrink-0" />
                   Create Invoice
                 </Button>
               </>
@@ -503,8 +509,8 @@ export default function AdminOrderDetailContent({
                   <ShippingManagement
                     order={order!}
                     trigger={
-                      <Button className="gap-2 rounded-xl border border-emerald-400/30 bg-gradient-to-r from-emerald-500/70 via-emerald-500/50 to-emerald-500/30 text-white shadow-[0_15px_35px_rgba(16,185,129,0.45)] dark:shadow-[0_15px_35px_rgba(16,185,129,0.25)] hover:border-emerald-300/50 hover:from-emerald-500/80 hover:via-emerald-500/60 hover:to-emerald-500/40">
-                        <Truck className="h-4 w-4" />
+                      <Button className={glassDetailFooterButtonClass("emerald", "w-auto")}>
+                        <Truck className="h-4 w-4 shrink-0" />
                         Generate Shipping Label
                       </Button>
                     }
@@ -580,7 +586,7 @@ export default function AdminOrderDetailContent({
                       <Button
                         onClick={handleAddTracking}
                         disabled={isUpdating || !manualTrackingNumber.trim()}
-                        className="gap-2 rounded-xl"
+                        className={glassDetailFooterButtonClass("sky", "w-auto")}
                       >
                         {isUpdating ? (
                           <Loader2 className="h-4 w-4 animate-spin" />
@@ -659,7 +665,6 @@ export default function AdminOrderDetailContent({
 
         <div className="flex flex-col sm:flex-row flex-wrap gap-2">
           <Button
-            variant="ghost"
             onClick={handleBack}
             className={cn("w-full sm:w-auto gap-2 px-8", GLASS_GHOST_BUTTON)}
           >

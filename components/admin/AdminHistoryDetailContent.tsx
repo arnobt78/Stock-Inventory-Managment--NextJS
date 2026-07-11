@@ -13,7 +13,8 @@ import {
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, FileText, AlertCircle } from "lucide-react";
 import { useHistoryItem } from "@/hooks/queries";
-import { PageContentWrapper, DataSlotPulse } from "@/components/shared";
+import { PageContentWrapper, DataSlotPulse, GLASS_GHOST_BUTTON, DETAIL_HEADER_BACK_ICON_CLASS } from "@/components/shared";
+import { cn } from "@/lib/utils";
 import { isDataSlotLoading, queryKeys, useSyncSsrQueryData } from "@/lib/react-query";
 import { format } from "date-fns";
 import {
@@ -50,8 +51,8 @@ export default function AdminHistoryDetailContent({
     return (
       <PageContentWrapper>
         <div className="space-y-4">
-          <Button variant="ghost" size="sm" asChild>
-            <Link href={backHref} className="gap-2">
+          <Button size="sm" asChild className={cn("gap-2", GLASS_GHOST_BUTTON)}>
+            <Link href={backHref}>
               <ArrowLeft className="h-4 w-4" />
               Back to History
             </Link>
@@ -72,8 +73,8 @@ export default function AdminHistoryDetailContent({
     return (
       <PageContentWrapper>
         <div className="space-y-4">
-          <Button variant="ghost" size="sm" asChild>
-            <Link href={backHref} className="gap-2">
+          <Button size="sm" asChild className={cn("gap-2", GLASS_GHOST_BUTTON)}>
+            <Link href={backHref}>
               <ArrowLeft className="h-4 w-4" />
               Back to History
             </Link>
@@ -99,7 +100,7 @@ export default function AdminHistoryDetailContent({
       <div className="space-y-4">
         <div className="flex items-center gap-2">
           <Button variant="ghost" size="icon" asChild>
-            <Link href={backHref} className="h-10 w-10">
+            <Link href={backHref} className={DETAIL_HEADER_BACK_ICON_CLASS}>
               <ArrowLeft className="h-5 w-5" />
             </Link>
           </Button>

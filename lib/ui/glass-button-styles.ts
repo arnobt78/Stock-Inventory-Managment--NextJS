@@ -118,3 +118,7 @@ export function glassDetailFooterButtonClass(
     extra,
   );
 }
+
+/** Icon-only back control in PageSectionHeader leading slot (REQ-0072). */
+export const DETAIL_HEADER_BACK_ICON_CLASS =
+  "h-10 w-10 shrink-0 self-center rounded-xl border border-gray-300/30 bg-white/50 dark:bg-white/5 dark:border-white/10 hover:bg-gray-100/50 dark:hover:bg-white/10";

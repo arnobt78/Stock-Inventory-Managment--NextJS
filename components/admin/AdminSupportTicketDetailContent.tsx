@@ -54,7 +54,7 @@ import {
   SectionCardHeader,
   GLASS_BUTTON_SHELL_RESET,
   GLASS_GHOST_BUTTON,
-  GLASS_PRIMARY_BUTTON,
+  DETAIL_HEADER_BACK_ICON_CLASS,
   DialogSubmitButton,
 } from "@/components/shared";
 import { TYPO_BODY, TYPO_BODY_MUTED } from "@/lib/ui/typography-scale";
@@ -188,7 +188,11 @@ export default function AdminSupportTicketDetailContent({
     return (
       <PageContentWrapper>
         <div className="space-y-4">
-          <Button variant="ghost" size="sm" onClick={handleBack} className="gap-2">
+          <Button
+            size="sm"
+            onClick={handleBack}
+            className={cn("gap-2", GLASS_GHOST_BUTTON)}
+          >
             <ArrowLeft className="h-4 w-4" />
             Back to Support Tickets
           </Button>
@@ -208,7 +212,11 @@ export default function AdminSupportTicketDetailContent({
     return (
       <PageContentWrapper>
         <div className="space-y-4">
-          <Button variant="ghost" size="sm" onClick={handleBack} className="gap-2">
+          <Button
+            size="sm"
+            onClick={handleBack}
+            className={cn("gap-2", GLASS_GHOST_BUTTON)}
+          >
             <ArrowLeft className="h-4 w-4" />
             Back to Support Tickets
           </Button>
@@ -242,7 +250,7 @@ export default function AdminSupportTicketDetailContent({
               variant="ghost"
               size="icon"
               onClick={handleBack}
-              className="h-10 w-10 shrink-0 self-center rounded-xl border border-gray-300/30 bg-white/50 dark:bg-white/5 dark:border-white/10 hover:bg-gray-100/50 dark:hover:bg-white/10"
+              className={DETAIL_HEADER_BACK_ICON_CLASS}
             >
               <ArrowLeft className="h-5 w-5" />
             </Button>
@@ -661,7 +669,6 @@ export default function AdminSupportTicketDetailContent({
 
         <div className="flex flex-col sm:flex-row flex-wrap gap-2">
           <Button
-            variant="ghost"
             onClick={handleBack}
             className={cn("w-full sm:w-auto gap-2 px-8", GLASS_GHOST_BUTTON)}
           >
