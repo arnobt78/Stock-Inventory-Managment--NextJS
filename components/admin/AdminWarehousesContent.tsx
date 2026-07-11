@@ -5,11 +5,12 @@ import WarehouseList from "@/components/warehouses/WarehouseList";
 import { PageContentWrapper } from "@/components/shared";
 import FloatingActionButtons from "@/components/shared/FloatingActionButtons";
 import type { WarehouseForPage } from "@/lib/server/warehouses-data";
-import type { DashboardStats } from "@/types";
+import type { DashboardStats, WarehouseStockSummary } from "@/types";
 
 export type AdminWarehousesContentProps = {
   initialWarehouses?: WarehouseForPage[];
   initialStats?: DashboardStats;
+  initialWarehouseSummary?: WarehouseStockSummary[];
 };
 
 /**
@@ -19,12 +20,14 @@ export type AdminWarehousesContentProps = {
 export default function AdminWarehousesContent({
   initialWarehouses,
   initialStats,
+  initialWarehouseSummary,
 }: AdminWarehousesContentProps = {}) {
   return (
     <PageContentWrapper>
       <WarehouseList
         initialWarehouses={initialWarehouses}
         initialStats={initialStats}
+        initialWarehouseSummary={initialWarehouseSummary}
       />
       <FloatingActionButtons variant="warehouses" />
     </PageContentWrapper>

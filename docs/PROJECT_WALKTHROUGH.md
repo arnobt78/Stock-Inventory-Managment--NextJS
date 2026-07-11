@@ -208,7 +208,7 @@ flowchart LR
 | Cross-domain menus | `invoiceForOrder` on order lists (`getInvoiceLinkMap` batch); invoice actions in `OrderActions`; View/Cancel order in `InvoiceActions` |
 | Invoice line items | REQ-0063 — `linkedOrderItems` + `ProductLineItemsList` on invoice detail; `mapOrderItemsFromRaw` shared mapper |
 | Shipping copy | REQ-0063 — `CopyableText` on order#/tracking in `ShippingManagement` + `OrderTrackingInfo` |
-| Warehouse integration (REQ-0066) | `POST /api/stock-transfers`; `?productId=` on stock-allocations; `AllocateStockDialog` / `TransferStockDialog`; product warehouse card; list stock-share column; order→allocation sync via `decrement-stock-allocations.ts` |
+| Warehouse integration (REQ-0066) | `POST /api/stock-transfers` (rollback pending on complete fail); `?productId=`; dialogs; product warehouse card; list stock-share; order sync; admin+user SSR prefetch |
 | AI warehouse insights (REQ-0067) | `POST /api/ai/insights` enriches payload with `getWarehouseStockSummary` |
 | Demo reset | `npm run script:reset-demo-db` — wipe Mongo + optional Redis + reseed test@admin/client/supplier |
 

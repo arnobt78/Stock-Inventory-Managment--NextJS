@@ -10,6 +10,7 @@ import { mergeProductListWhere } from "@/lib/products/product-query";
 import {
   createStockTransfer,
   completeStockTransfer,
+  cancelStockTransfer,
 } from "@/prisma/stock-allocation";
 import { createStockTransferSchema } from "@/lib/validations/stock-allocation";
 import { scheduleInvalidateStockAllocationCaches } from "@/lib/cache";
@@ -84,7 +85,17 @@ export async function POST(request: NextRequest) {
     }
 
     const transfer = await createStockTransfer(data, session.id);
-    await completeStockTransfer(transfer.id, session.id);
+    try {
+      await completeStockTransfer(transfer.id, session.id);
+    } catch (completeError) {
+      await cancelStockTransfer(transfer.id).catch((cancelErr) => {
+        logger.warn("Failed to cancel pending stock transfer after complete error", {
+          transferId: transfer.id,
+          cancelErr,
+        });
+      });
+      throw completeError;
+    }
 
     await scheduleInvalidateStockAllocationCaches();
 

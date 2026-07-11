@@ -8,7 +8,7 @@
 | **Last updated** | 2026-07-11 (REQ-0064–0067 done; gates green) |
 | **Session** | ACTIVE — REQ-0051 + REQ-0064–0067 code-complete |
 | **Active REQ range** | REQ-0001 … REQ-0050 done; **REQ-0051 + REQ-0052–0067 done** |
-| **Prod deploy target** | `57d97d4` (main) — REQ-0063 ahead of prod |
+| **Prod deploy target** | `1f53160` (main) — REQ-0064–0067 + audit fixes |
 | **Human Gate 1** | APPROVED (retroactive bootstrap) |
 | **Human Gate 2** | PENDING — Sentry 24h after prod deploy |
 | **Resume token** | `C2-post-mutation-cache` — see **Session handoff** + **Open backlog** |
