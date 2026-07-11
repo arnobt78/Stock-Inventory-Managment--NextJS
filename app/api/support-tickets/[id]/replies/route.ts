@@ -15,10 +15,10 @@ import {
 import { createSupportTicketReplySchema } from "@/lib/validations";
 import { withRateLimit, defaultRateLimits } from "@/lib/api/rate-limit";
 import { createSupportTicketRepliedNotification } from "@/lib/notifications/in-app";
+import { scheduleInvalidateSupportTicketCaches } from "@/lib/cache";
 import { prisma } from "@/prisma/client";
 import type { SupportTicketReply } from "@/types";
 
-import { scheduleInvalidateAllServerCaches } from "@/lib/cache";
 function transform(
   r: Awaited<ReturnType<typeof getSupportTicketReplies>>[number],
   user?: { name: string | null; email: string | null; image: string | null } | null,
@@ -143,7 +143,7 @@ export async function POST(
       session.id,
       parsed.data.body,
     );
-    scheduleInvalidateAllServerCaches();
+    scheduleInvalidateSupportTicketCaches();
     const updaterDisplay =
       session.name?.trim() || session.email || "Someone";
     const toNotify: string[] = [];

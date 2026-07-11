@@ -11,8 +11,8 @@ import {
   deleteProductImageFromImageKit,
 } from "@/lib/imagekit";
 import { withRateLimit, defaultRateLimits } from "@/lib/api/rate-limit";
+import { scheduleInvalidateProductCaches } from "@/lib/cache";
 
-import { scheduleInvalidateAllServerCaches } from "@/lib/cache";
 /**
  * POST /api/products/image
  * Upload a product image to ImageKit
@@ -74,7 +74,7 @@ export async function POST(request: NextRequest) {
 
     // Upload to ImageKit
     const result = await uploadProductImageToImageKit(buffer, fileName);
-    scheduleInvalidateAllServerCaches();
+    scheduleInvalidateProductCaches();
     logger.info("Product image uploaded successfully", {
       userId: session.id,
       sku,
@@ -130,7 +130,7 @@ export async function DELETE(request: NextRequest) {
 
     // Delete from ImageKit
     await deleteProductImageFromImageKit(fileId);
-    scheduleInvalidateAllServerCaches();
+    scheduleInvalidateProductCaches();
     logger.info("Product image deleted successfully", {
       userId: session.id,
       fileId,

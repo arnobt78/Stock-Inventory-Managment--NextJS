@@ -12,9 +12,9 @@ import {
   getSupportTicketsByAssignedTo,
 } from "@/prisma/support-ticket";
 import { createSupportTicketSchema } from "@/lib/validations";
-import { getCache, setCache, cacheKeys, scheduleInvalidateAllServerCaches } from "@/lib/cache";
 import { withRateLimit, defaultRateLimits } from "@/lib/api/rate-limit";
 import { createSupportTicketCreatedNotification } from "@/lib/notifications/in-app";
+import { cacheKeys, getCache, scheduleInvalidateSupportTicketCaches, setCache } from "@/lib/cache";
 import { prisma } from "@/prisma/client";
 import { createAuditLog } from "@/prisma/audit-log";
 import type { SupportTicket } from "@/types";
@@ -215,7 +215,7 @@ export async function POST(request: NextRequest) {
       },
       userId,
     );
-    scheduleInvalidateAllServerCaches();
+    scheduleInvalidateSupportTicketCaches();
     createAuditLog({
       userId,
       action: "create",

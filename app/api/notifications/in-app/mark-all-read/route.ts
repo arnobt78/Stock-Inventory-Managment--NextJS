@@ -8,8 +8,8 @@ import { getSessionFromRequest } from "@/utils/auth";
 import { logger } from "@/lib/logger";
 import { markAllNotificationsAsRead } from "@/prisma/notification";
 import { withRateLimit, defaultRateLimits } from "@/lib/api/rate-limit";
+import { scheduleInvalidateNotificationCaches } from "@/lib/cache";
 
-import { scheduleInvalidateAllServerCaches } from "@/lib/cache";
 /**
  * PUT /api/notifications/in-app/mark-all-read
  * Mark all notifications as read for the authenticated user
@@ -34,7 +34,7 @@ export async function PUT(request: NextRequest) {
 
     // Mark all notifications as read
     const count = await markAllNotificationsAsRead(userId);
-    scheduleInvalidateAllServerCaches();
+    scheduleInvalidateNotificationCaches();
     logger.info("Marked all notifications as read", { userId, count });
 
     return NextResponse.json({

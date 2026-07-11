@@ -15,9 +15,9 @@ import {
   getEligibleReviewSlots,
 } from "@/prisma/product-review";
 import { createProductReviewSchema } from "@/lib/validations";
-import { getCache, setCache, cacheKeys, scheduleInvalidateAllServerCaches } from "@/lib/cache";
 import { withRateLimit, defaultRateLimits } from "@/lib/api/rate-limit";
 import { createProductReviewSubmittedNotification } from "@/lib/notifications/in-app";
+import { cacheKeys, getCache, scheduleInvalidateProductReviewCaches, setCache } from "@/lib/cache";
 import { prisma } from "@/prisma/client";
 import { createAuditLog } from "@/prisma/audit-log";
 import type { ProductReview } from "@/types";
@@ -178,7 +178,7 @@ export async function POST(request: NextRequest) {
       },
       userId,
     );
-    scheduleInvalidateAllServerCaches();
+    scheduleInvalidateProductReviewCaches();
     const product = await prisma.product.findUnique({
       where: { id: data.productId },
       select: { userId: true, name: true },

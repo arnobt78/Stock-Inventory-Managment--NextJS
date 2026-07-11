@@ -10,10 +10,10 @@ import {
   getUserEmailPreferences,
   updateUserEmailPreferences,
 } from "@/lib/email/preferences";
+import { scheduleInvalidateEmailPreferenceCaches } from "@/lib/cache";
 import type { EmailPreferences, UpdateEmailPreferencesInput } from "@/types/auth";
 import { z } from "zod";
 
-import { scheduleInvalidateAllServerCaches } from "@/lib/cache";
 /**
  * Email preferences update schema
  */
@@ -93,7 +93,7 @@ export async function PUT(request: NextRequest) {
       userId,
       preferences
     );
-    scheduleInvalidateAllServerCaches();
+    scheduleInvalidateEmailPreferenceCaches();
     // Return preferences directly (matching API client expectations)
     return NextResponse.json(updatedPreferences);
   } catch (error) {

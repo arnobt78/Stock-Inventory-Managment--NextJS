@@ -19,8 +19,8 @@ import { withRateLimit, defaultRateLimits } from "@/lib/api/rate-limit";
 import { createAuditLog } from "@/prisma/audit-log";
 import type { UpdateInvoiceInput } from "@/types";
 import { getInvoiceDetailForPage } from "@/lib/server/invoice-detail-data";
+import { scheduleInvalidateInvoiceCaches } from "@/lib/cache";
 
-import { scheduleInvalidateAllServerCaches } from "@/lib/cache";
 /**
  * GET /api/invoices/:id
  * Fetch a single invoice by ID
@@ -180,7 +180,7 @@ export async function PUT(
       entityId: id,
       details: { invoiceNumber: invoice.invoiceNumber },
     }).catch(() => {});
-    scheduleInvalidateAllServerCaches();
+    scheduleInvalidateInvoiceCaches();
     // Transform invoice for response
     const transformedInvoice = {
       id: invoice.id,
@@ -281,7 +281,7 @@ export async function DELETE(
       entityId: invoiceId,
       details: existingInvoice ? { invoiceNumber: existingInvoice.invoiceNumber } : undefined,
     }).catch(() => {});
-    scheduleInvalidateAllServerCaches();
+    scheduleInvalidateInvoiceCaches();
     logger.info("Invoice deleted successfully", { invoiceId, userId });
 
     return NextResponse.json({

@@ -3,7 +3,6 @@
  * Handles product data import from CSV/Excel files
  */
 
-import { scheduleInvalidateAllServerCaches } from "@/lib/cache";
 import { NextRequest, NextResponse } from "next/server";
 import { getSessionFromRequest } from "@/utils/auth";
 import { logger } from "@/lib/logger";
@@ -22,6 +21,7 @@ import {
   updateImportHistory,
 } from "@/prisma/import-history";
 import { checkAndSendStockAlerts } from "@/lib/email/notifications";
+import { scheduleInvalidateImportCaches } from "@/lib/cache";
 
 /**
  * POST /api/products/import
@@ -319,7 +319,7 @@ export async function POST(request: NextRequest) {
         errors: errors.length > 0 ? errors : undefined,
         status: failCount === 0 ? "completed" : "completed",
       });
-    scheduleInvalidateAllServerCaches();
+    scheduleInvalidateImportCaches();
       // Check and send stock alerts for newly imported products
       // This is done asynchronously to not block the response
       // Note: We check alerts for all products, not just imported ones
@@ -361,7 +361,7 @@ export async function POST(request: NextRequest) {
           },
         ],
       });
-    scheduleInvalidateAllServerCaches();
+    scheduleInvalidateImportCaches();
       logger.error("Product import failed:", error);
       return NextResponse.json(
         {

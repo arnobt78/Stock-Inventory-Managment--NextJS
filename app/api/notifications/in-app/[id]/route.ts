@@ -13,9 +13,9 @@ import {
 } from "@/prisma/notification";
 import { withRateLimit, defaultRateLimits } from "@/lib/api/rate-limit";
 import { updateInAppNotificationBodySchema } from "@/lib/validations/notification";
+import { scheduleInvalidateNotificationCaches } from "@/lib/cache";
 import type { UpdateNotificationInput } from "@/types";
 
-import { scheduleInvalidateAllServerCaches } from "@/lib/cache";
 /**
  * GET /api/notifications/in-app/:id
  * Fetch a single notification by ID
@@ -149,7 +149,7 @@ export async function PUT(
       updateData,
       userId
     );
-    scheduleInvalidateAllServerCaches();
+    scheduleInvalidateNotificationCaches();
     // Transform notification for response
     const transformedNotification = {
       id: notification.id,
@@ -215,7 +215,7 @@ export async function DELETE(
     }
 
     await deleteNotification(notificationId, userId);
-    scheduleInvalidateAllServerCaches();
+    scheduleInvalidateNotificationCaches();
     logger.info("Notification deleted", { userId, notificationId });
 
     return NextResponse.json({

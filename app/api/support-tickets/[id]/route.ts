@@ -21,8 +21,8 @@ import { prisma } from "@/prisma/client";
 import type { UpdateSupportTicketInput } from "@/types";
 import { getSupportTicketDetailForPage } from "@/lib/server/support-ticket-detail-data";
 import { transformSupportTicketDetail } from "@/lib/support-tickets/transform-support-ticket-detail";
+import { scheduleInvalidateSupportTicketCaches } from "@/lib/cache";
 
-import { scheduleInvalidateAllServerCaches } from "@/lib/cache";
 /**
  * GET /api/support-tickets/:id
  */
@@ -122,7 +122,7 @@ export async function PUT(
     if (data.notes !== undefined) updatePayload.notes = data.notes;
 
     const updated = await updateSupportTicket(id, updatePayload);
-    scheduleInvalidateAllServerCaches();
+    scheduleInvalidateSupportTicketCaches();
     createAuditLog({
       userId: session.id,
       action: "update",
@@ -224,7 +224,7 @@ export async function DELETE(
     }
 
     await deleteSupportTicket(id);
-    scheduleInvalidateAllServerCaches();
+    scheduleInvalidateSupportTicketCaches();
     createAuditLog({
       userId: session.id,
       action: "delete",

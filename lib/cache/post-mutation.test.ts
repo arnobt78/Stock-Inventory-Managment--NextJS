@@ -1,5 +1,5 @@
 /**
- * Post-mutation cache scheduling — unit tests (REQ-0052).
+ * Post-mutation cache scheduling — unit tests (REQ-0052/0054).
  */
 
 import { after } from "next/server";
@@ -16,13 +16,19 @@ vi.mock("@/lib/cache/cache-utils", () => ({
     products: { pattern: "products:*" },
     categories: { pattern: "categories:*" },
     suppliers: { pattern: "suppliers:*" },
+    orders: { pattern: "orders:*" },
+    invoices: { pattern: "invoices:*" },
     stockAllocation: { pattern: "stock-allocation:*" },
     dashboard: { pattern: "dashboard:*" },
     portal: { pattern: "portal:*" },
     clientPortal: { pattern: "clientPortal:*" },
     supplierPortal: { pattern: "supplierPortal:*" },
     productReviews: { pattern: "productReviews:*" },
+    history: { pattern: "history:*" },
     userManagement: { pattern: "userManagement:*" },
+    sessions: { pattern: "sessions:*" },
+    notifications: { pattern: "notifications:*" },
+    supportTickets: { pattern: "supportTickets:*" },
   },
   invalidateAllServerCaches: vi.fn(async () => undefined),
   invalidateCache: vi.fn(async () => 0),
@@ -32,6 +38,8 @@ import {
   invalidateOnProductChange,
   scheduleAfterResponse,
   scheduleInvalidateAllServerCaches,
+  scheduleInvalidateInvoiceCaches,
+  scheduleInvalidateOrderGraphCaches,
   scheduleInvalidateWarehouseCaches,
 } from "./post-mutation";
 import { invalidateAllServerCaches } from "./cache-utils";
@@ -60,6 +68,16 @@ describe("post-mutation scheduling", () => {
     await vi.waitFor(() => {
       expect(task).toHaveBeenCalled();
     });
+  });
+
+  it("scheduleInvalidateOrderGraphCaches registers after() callback", () => {
+    scheduleInvalidateOrderGraphCaches();
+    expect(after).toHaveBeenCalled();
+  });
+
+  it("scheduleInvalidateInvoiceCaches registers after() callback", () => {
+    scheduleInvalidateInvoiceCaches();
+    expect(after).toHaveBeenCalled();
   });
 
   it("scheduleInvalidateWarehouseCaches registers after() callback", () => {

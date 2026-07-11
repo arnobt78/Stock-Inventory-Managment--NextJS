@@ -12,12 +12,12 @@ import {
 } from "@/lib/auth/oauth";
 import { logger } from "@/lib/logger";
 import { generateUniqueUsername } from "@/lib/auth/unique-username";
+import { scheduleInvalidateAuthCaches } from "@/lib/cache";
 import { prisma } from "@/prisma/client";
 import { Prisma } from "@prisma/client";
 import bcrypt from "bcryptjs";
 import type { User } from "@prisma/client";
 
-import { scheduleInvalidateAllServerCaches } from "@/lib/cache";
 type GoogleOAuthProfile = {
   email: string;
   name?: string | null;
@@ -236,7 +236,7 @@ export async function GET(request: NextRequest) {
       if (!user) {
         user = await createGoogleOAuthUser(profile);
         logger.info(`New user created via Google OAuth: ${email}`);
-    scheduleInvalidateAllServerCaches();
+    scheduleInvalidateAuthCaches();
       } else {
         user = await updateGoogleOAuthUser(user, profile);
       }
@@ -283,7 +283,7 @@ export async function GET(request: NextRequest) {
       // Clear OAuth cookies
       response.cookies.delete("oauth_state");
       response.cookies.delete("oauth_callback");
-    scheduleInvalidateAllServerCaches();
+    scheduleInvalidateAuthCaches();
       logger.info(`User authenticated via Google OAuth: ${email}`);
       return response;
     } catch (error) {

@@ -9,9 +9,9 @@ import bcrypt from "bcryptjs";
 import { MongoClient } from "mongodb";
 import { registerSchema } from "@/lib/validations";
 import { logger } from "@/lib/logger";
+import { scheduleInvalidateAuthCaches } from "@/lib/cache";
 import { prisma } from "@/prisma/client";
 
-import { scheduleInvalidateAllServerCaches } from "@/lib/cache";
 /**
  * Attempt to insert a user document. If a non-sparse unique index on
  * `googleId` blocks the insert (E11000 dup key: { googleId: null }),
@@ -126,7 +126,7 @@ export async function POST(request: NextRequest) {
         { status: 500 }
       );
     }
-    scheduleInvalidateAllServerCaches();
+    scheduleInvalidateAuthCaches();
     return NextResponse.json(
       {
         id: createdUser.id,

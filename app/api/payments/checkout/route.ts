@@ -10,9 +10,9 @@ import { getStripe, isStripeConfigured } from "@/lib/stripe";
 import { prisma } from "@/prisma/client";
 import { withRateLimit, defaultRateLimits } from "@/lib/api/rate-limit";
 import { createCheckoutBodySchema } from "@/lib/validations/payment";
+import { scheduleInvalidateOrderGraphCaches } from "@/lib/cache";
 import type { CheckoutSessionResponse } from "@/types";
 
-import { scheduleInvalidateAllServerCaches } from "@/lib/cache";
 /**
  * POST /api/payments/checkout
  * Creates a Stripe Checkout session for an order or invoice
@@ -283,7 +283,7 @@ export async function POST(request: NextRequest) {
         },
       });
     }
-    scheduleInvalidateAllServerCaches();
+    scheduleInvalidateOrderGraphCaches();
     const response: CheckoutSessionResponse = {
       sessionId: checkoutSession.id,
       url: checkoutSession.url!,

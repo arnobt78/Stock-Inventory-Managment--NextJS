@@ -12,10 +12,10 @@ import { sendInvoiceEmail } from "@/lib/email/notifications";
 import { getOrderById } from "@/prisma/order";
 import { getStripe, isStripeConfigured } from "@/lib/stripe";
 import { createInvoiceSentNotification } from "@/lib/notifications/in-app";
+import { scheduleInvalidateInvoiceCaches } from "@/lib/cache";
 import { prisma } from "@/prisma/client";
 import type { InvoiceEmailData, BillingAddress } from "@/types";
 
-import { scheduleInvalidateAllServerCaches } from "@/lib/cache";
 /**
  * POST /api/invoices/:id/send
  * Send invoice via email to client
@@ -204,7 +204,7 @@ export async function POST(
         });
       });
     }
-    scheduleInvalidateAllServerCaches();
+    scheduleInvalidateInvoiceCaches();
     logger.info("Invoice email sent successfully", {
       invoiceId,
       invoiceNumber: invoice.invoiceNumber,

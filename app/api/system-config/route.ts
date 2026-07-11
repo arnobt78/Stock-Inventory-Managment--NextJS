@@ -13,8 +13,8 @@ import {
   initializeDefaultConfigs,
 } from "@/prisma/system-config";
 import { withRateLimit, defaultRateLimits } from "@/lib/api/rate-limit";
-import { getCache, setCache, invalidateCache, scheduleInvalidateAllServerCaches } from "@/lib/cache";
 import { updateSystemConfigsBodySchema } from "@/lib/validations/system-config";
+import { getCache, invalidateCache, scheduleInvalidateSystemConfigCaches, setCache } from "@/lib/cache";
 import type { SystemConfig, ConfigCategory } from "@/types";
 import { CATEGORY_LABELS } from "@/types";
 
@@ -139,7 +139,7 @@ export async function PUT(request: NextRequest) {
 
     // Invalidate cache
     await invalidateCache(CACHE_KEY);
-    scheduleInvalidateAllServerCaches();
+    scheduleInvalidateSystemConfigCaches();
     logger.info("System configurations updated", {
       userId: session.id,
       updatedCount: updated.length,

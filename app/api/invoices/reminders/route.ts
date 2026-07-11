@@ -12,9 +12,9 @@ import { logger } from "@/lib/logger";
 import { prisma } from "@/prisma/client";
 import { sendInvoiceEmail } from "@/lib/email/notifications";
 import { withRateLimit, defaultRateLimits } from "@/lib/api/rate-limit";
+import { scheduleInvalidateInvoiceCaches } from "@/lib/cache";
 import type { InvoiceEmailData, BillingAddress } from "@/types";
 
-import { scheduleInvalidateAllServerCaches } from "@/lib/cache";
 /**
  * POST /api/invoices/reminders
  * Send payment reminders for overdue and soon-due invoices
@@ -182,7 +182,7 @@ export async function POST(request: NextRequest) {
     }
 
     if (sentCount > 0) {
-    scheduleInvalidateAllServerCaches();
+    scheduleInvalidateInvoiceCaches();
     }
 
     return NextResponse.json({

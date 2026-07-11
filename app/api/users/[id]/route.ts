@@ -21,8 +21,8 @@ import {
   getUserDetailForPage,
   transformUserForAdmin,
 } from "@/lib/server/user-detail-data";
+import { scheduleInvalidateUserCaches } from "@/lib/cache";
 
-import { scheduleInvalidateAllServerCaches } from "@/lib/cache";
 /**
  * GET /api/users/:id
  */
@@ -117,7 +117,7 @@ export async function PUT(
       entityType: "user",
       entityId: id,
     }).catch(() => {});
-    scheduleInvalidateAllServerCaches();
+    scheduleInvalidateUserCaches();
     return NextResponse.json(transformUserForAdmin(updated));
   } catch (error) {
     logger.error("Error updating user:", error);
@@ -174,7 +174,7 @@ export async function DELETE(
       entityType: "user",
       entityId: id,
     }).catch(() => {});
-    scheduleInvalidateAllServerCaches();
+    scheduleInvalidateUserCaches();
     return NextResponse.json(transformUserForAdmin(deleted));
   } catch (error) {
     logger.error("Error deleting user:", error);

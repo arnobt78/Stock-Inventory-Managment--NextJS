@@ -11,9 +11,9 @@ import {
 } from "@/lib/imagekit";
 import { logger } from "@/lib/logger";
 import { generateProductQrCodeBodySchema } from "@/lib/validations/product";
+import { scheduleInvalidateProductCaches } from "@/lib/cache";
 import { prisma } from "@/prisma/client";
 
-import { scheduleInvalidateAllServerCaches } from "@/lib/cache";
 /**
  * POST /api/products/qr-code
  * Generate QR code for a product and upload to ImageKit
@@ -102,7 +102,7 @@ export async function POST(request: NextRequest) {
         );
       }
     }
-    scheduleInvalidateAllServerCaches();
+    scheduleInvalidateProductCaches();
     return NextResponse.json(
       {
         qrCodeUrl: updatedProduct.qrCodeUrl,

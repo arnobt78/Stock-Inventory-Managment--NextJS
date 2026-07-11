@@ -8,12 +8,12 @@ import { getSessionFromRequest } from "@/utils/auth";
 import { logger } from "@/lib/logger";
 import { createInvoice, getInvoicesByUser, getInvoicesByClientId, getInvoicesByOrderIds } from "@/prisma/invoice";
 import { createInvoiceSchema } from "@/lib/validations";
-import { getCache, setCache, cacheKeys, scheduleInvalidateAllServerCaches } from "@/lib/cache";
 import { createAuditLog } from "@/prisma/audit-log";
 import { withRateLimit, defaultRateLimits } from "@/lib/api/rate-limit";
 import { prisma } from "@/prisma/client";
 import { fetchOrderUserIdMap } from "@/lib/invoices/enrich-order-user-ids";
 import { getStoreOrderIds } from "@/lib/invoices/store-order-ids";
+import { cacheKeys, getCache, scheduleInvalidateInvoiceCaches, setCache } from "@/lib/cache";
 import type { CreateInvoiceInput, InvoiceFilters } from "@/types";
 
 /**
@@ -241,7 +241,7 @@ export async function POST(request: NextRequest) {
       entityId: invoice.id,
       details: { invoiceNumber: invoice.invoiceNumber },
     }).catch(() => {});
-    scheduleInvalidateAllServerCaches();
+    scheduleInvalidateInvoiceCaches();
     // Transform invoice for response
     const transformedInvoice = {
       id: invoice.id,

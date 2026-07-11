@@ -98,7 +98,7 @@ Details: `docs/Redis_Sentry_PostHog_INTEGRATION_GUIDE.md`
 | Broad invalidation | `lib/react-query/invalidate-all.ts` — `lists()` for catalog entities; `.all` for invoices, reviews, tickets, history, portal, etc. |
 | Safe delete cleanup | `lib/react-query/cancel-or-remove-detail.ts` — used by all 9 delete hooks |
 | Static audit | `lib/react-query/invalidate-coverage.test.ts` — run `npm run test:invalidate` |
-| Server Redis | `lib/cache/post-mutation.ts` — `scheduleInvalidateAllServerCaches()` via Next.js `after()` (non-blocking); `lib/cache/cache-utils.ts` for SCAN patterns |
+| Server Redis | `lib/cache/post-mutation.ts` — per-domain `scheduleInvalidate*Caches()` via `after()`; `scheduleInvalidateAllServerCaches` escape hatch only |
 
 **Rules:** new mutation hook → `invalidateAllRelatedQueries` on success. New API write → scoped `scheduleInvalidate*Caches()` from `post-mutation.ts` (warehouse/stock/product/category/supplier/order graph). Never `await` full Redis wipe before response.
 

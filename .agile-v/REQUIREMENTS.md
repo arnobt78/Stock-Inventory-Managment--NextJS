@@ -1101,6 +1101,22 @@ Canonical REQ source. All artifacts link via `REQ-XXXX`. Status: `done` | `verif
 
 ---
 
+## REQ-0054 — Scoped invalidation sweep (all API write routes)
+
+| Field | Value |
+|-------|-------|
+| **Priority** | P1 |
+| **Risk** | R1 |
+| **Status** | done |
+| **Cycle** | C2 |
+| **Parent** | REQ-0052 |
+
+**Intent:** Replace remaining `scheduleInvalidateAllServerCaches` on CRUD routes with domain-scoped deferred patterns (invoice, ticket, review, user, notification, auth, import, order graph).
+
+**Scope:** `lib/cache/post-mutation.ts` pattern constants + 22 route updates. Zero API routes use full wipe on writes. Client TanStack unchanged.
+
+---
+
 ## REQ-0020 — Locale-aware admin formatting
 
 | Field | Value |
