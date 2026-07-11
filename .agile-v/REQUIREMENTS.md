@@ -1085,6 +1085,22 @@ Canonical REQ source. All artifacts link via `REQ-XXXX`. Status: `done` | `verif
 
 ---
 
+## REQ-0053 — Scoped warehouse + stock Redis invalidation
+
+| Field | Value |
+|-------|-------|
+| **Priority** | P2 |
+| **Risk** | R1 |
+| **Status** | done |
+| **Cycle** | C2 |
+| **Parent** | REQ-0052 |
+
+**Intent:** Replace full `scheduleInvalidateAllServerCaches` on warehouse/stock routes with targeted deferred patterns.
+
+**Scope:** `scheduleInvalidateWarehouseCaches` (warehouses route); `scheduleInvalidateStockAllocationCaches` (stock-allocations POST). Client TanStack unchanged.
+
+---
+
 ## REQ-0020 — Locale-aware admin formatting
 
 | Field | Value |

@@ -100,7 +100,7 @@ Details: `docs/Redis_Sentry_PostHog_INTEGRATION_GUIDE.md`
 | Static audit | `lib/react-query/invalidate-coverage.test.ts` — run `npm run test:invalidate` |
 | Server Redis | `lib/cache/post-mutation.ts` — `scheduleInvalidateAllServerCaches()` via Next.js `after()` (non-blocking); `lib/cache/cache-utils.ts` for SCAN patterns |
 
-**Rules:** new mutation hook → `invalidateAllRelatedQueries` on success. New API write → `scheduleInvalidateAllServerCaches()` or scoped schedule (never `await` full Redis wipe before response). Product hard-delete → DB first, ImageKit in `scheduleAfterResponse`. `vercel.json` `maxDuration: 60` on API routes.
+**Rules:** new mutation hook → `invalidateAllRelatedQueries` on success. New API write → scoped `scheduleInvalidate*Caches()` from `post-mutation.ts` (warehouse/stock/product/category/supplier/order graph). Never `await` full Redis wipe before response.
 
 **Exempt webhooks (no Redis/TanStack):** `app/api/email/queue/process/route.ts`, auth, AI insights, shipping rates, notifications POST — see `API_WRITE_EXEMPT` in invalidate-coverage test.
 

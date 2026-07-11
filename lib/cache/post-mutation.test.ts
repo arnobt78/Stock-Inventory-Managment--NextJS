@@ -22,7 +22,7 @@ vi.mock("@/lib/cache/cache-utils", () => ({
     clientPortal: { pattern: "clientPortal:*" },
     supplierPortal: { pattern: "supplierPortal:*" },
     productReviews: { pattern: "productReviews:*" },
-    history: { pattern: "history:*" },
+    userManagement: { pattern: "userManagement:*" },
   },
   invalidateAllServerCaches: vi.fn(async () => undefined),
   invalidateCache: vi.fn(async () => 0),
@@ -32,6 +32,7 @@ import {
   invalidateOnProductChange,
   scheduleAfterResponse,
   scheduleInvalidateAllServerCaches,
+  scheduleInvalidateWarehouseCaches,
 } from "./post-mutation";
 import { invalidateAllServerCaches } from "./cache-utils";
 
@@ -59,5 +60,10 @@ describe("post-mutation scheduling", () => {
     await vi.waitFor(() => {
       expect(task).toHaveBeenCalled();
     });
+  });
+
+  it("scheduleInvalidateWarehouseCaches registers after() callback", () => {
+    scheduleInvalidateWarehouseCaches();
+    expect(after).toHaveBeenCalled();
   });
 });

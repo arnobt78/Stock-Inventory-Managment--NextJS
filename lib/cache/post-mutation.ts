@@ -81,6 +81,42 @@ export function scheduleInvalidateSupplierCaches(): void {
   });
 }
 
+/**
+ * Warehouse CRUD — stock rows embed warehouse name; dashboard/client browse show counts.
+ * Skips orders/invoices/notifications (unaffected by warehouse metadata).
+ */
+export function scheduleInvalidateWarehouseCaches(): void {
+  after(async () => {
+    try {
+      await invalidatePatterns([
+        cacheKeys.stockAllocation.pattern,
+        cacheKeys.dashboard.pattern,
+        cacheKeys.portal.pattern,
+        cacheKeys.clientPortal.pattern,
+        cacheKeys.userManagement.pattern,
+      ]);
+    } catch (error) {
+      logger.error("Deferred warehouse cache invalidation failed:", error);
+    }
+  });
+}
+
+/** Stock allocation writes — product list quantity + warehouse stock caches + dashboards. */
+export function scheduleInvalidateStockAllocationCaches(): void {
+  after(async () => {
+    try {
+      await invalidatePatterns([
+        cacheKeys.stockAllocation.pattern,
+        cacheKeys.products.pattern,
+        cacheKeys.dashboard.pattern,
+        cacheKeys.portal.pattern,
+      ]);
+    } catch (error) {
+      logger.error("Deferred stock-allocation cache invalidation failed:", error);
+    }
+  });
+}
+
 /** Order / payment / shipping / invoice graph — broad invalidation (deferred). */
 export function scheduleInvalidateOrderGraphCaches(): void {
   scheduleInvalidateAllServerCaches();
@@ -126,4 +162,9 @@ export function invalidateOnCategoryOrSupplierChange(): void {
       logger.error("Deferred category/supplier cache invalidation failed:", error);
     }
   });
+}
+
+/** @deprecated Use scheduleInvalidateWarehouseCaches — kept for route invalidation audit spec */
+export function invalidateOnWarehouseChange(): void {
+  scheduleInvalidateWarehouseCaches();
 }

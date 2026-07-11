@@ -14,7 +14,7 @@ import {
 } from "@/prisma/stock-allocation";
 import { prisma } from "@/prisma/client";
 import { mergeProductListWhere } from "@/lib/products/product-query";
-import { getCache, setCache, cacheKeys, scheduleInvalidateAllServerCaches } from "@/lib/cache";
+import { getCache, setCache, cacheKeys, scheduleInvalidateStockAllocationCaches } from "@/lib/cache";
 import { withRateLimit, defaultRateLimits } from "@/lib/api/rate-limit";
 import { createStockAllocationSchema } from "@/lib/validations";
 import type { StockAllocation, WarehouseStockSummary } from "@/types";
@@ -198,7 +198,7 @@ export async function POST(request: NextRequest) {
     }
 
     const allocation = await upsertStockAllocation(data, session.id);
-    scheduleInvalidateAllServerCaches();
+    scheduleInvalidateStockAllocationCaches();
     const result: StockAllocation = {
       id: allocation.id,
       productId: allocation.productId,
