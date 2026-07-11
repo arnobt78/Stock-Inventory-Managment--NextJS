@@ -17,7 +17,8 @@ import {
 } from "lucide-react";
 import { StatisticsCard } from "./StatisticsCard";
 import { useDashboard } from "@/hooks/queries/use-dashboard";
-import { isDataSlotLoading } from "@/lib/react-query";
+import { isDataSlotLoading, queryKeys, useSyncSsrQueryData } from "@/lib/react-query";
+import { useAuth } from "@/contexts";
 import type { DashboardStats } from "@/types";
 
 const formatCurrency = (value: number) =>
@@ -32,9 +33,15 @@ export type StatisticsSectionProps = {
 };
 
 export function StatisticsSection({ initialStats }: StatisticsSectionProps = {}) {
+  const { user } = useAuth();
   const dashboardQuery = useDashboard(initialStats ?? undefined);
   const stats = dashboardQuery.data ?? initialStats ?? null;
   const dataLoading = isDataSlotLoading(dashboardQuery, initialStats);
+
+  useSyncSsrQueryData(
+    queryKeys.dashboard.overview(user?.id ?? ""),
+    user?.id && initialStats != null ? initialStats : undefined,
+  );
 
   const revenueFromOrders =
     stats?.orderAnalytics?.totalRevenueExcludingCancelled ??

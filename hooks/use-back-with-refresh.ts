@@ -16,6 +16,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import {
   invalidateAllRelatedQueries,
   invalidateAfterOrderGraphChange,
+  invalidateAfterStockChange,
 } from "@/lib/react-query";
 
 /** All entity types that have a back-button detail page. */
@@ -37,6 +38,11 @@ function runInvalidations(
   // Order/invoice flows stale many cross-domain keys (stock, invoices, portals)
   if (entity === "order" || entity === "invoice") {
     invalidateAfterOrderGraphChange(queryClient);
+    return;
+  }
+  // Stock-heavy entities: explicit stock graph invalidation + broad sweep
+  if (entity === "warehouse" || entity === "product") {
+    invalidateAfterStockChange(queryClient);
     return;
   }
   // All other entities: full cross-domain invalidation covers lists + dashboards

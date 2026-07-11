@@ -40,9 +40,10 @@ import {
   GLASS_BUTTON_SHELL_RESET,
   GLASS_GHOST_BUTTON,
   GLASS_PRIMARY_BUTTON,
+  DialogSubmitButton,
 } from "@/components/shared";
 import { TYPO_BODY, TYPO_BODY_MUTED } from "@/lib/ui/typography-scale";
-import { isDataSlotLoading } from "@/lib/react-query";
+import { isDataSlotLoading, queryKeys, useSyncSsrQueryData } from "@/lib/react-query";
 import { format } from "date-fns";
 import type { ProductReview, ProductReviewStatus } from "@/types";
 import { cn } from "@/lib/utils";
@@ -70,6 +71,9 @@ export default function AdminProductReviewDetailContent({
   const review = reviewQuery.data;
   const dataLoading = isDataSlotLoading(reviewQuery, initialReview);
   const { isError, error } = reviewQuery;
+
+  useSyncSsrQueryData(queryKeys.productReviews.detail(id), initialReview);
+
   const updateMutation = useUpdateProductReview();
   const deleteMutation = useDeleteProductReview();
 
@@ -494,18 +498,15 @@ export default function AdminProductReviewDetailContent({
           </Button>
           <AlertDialog>
             <AlertDialogTrigger asChild>
-              <Button
-                variant="ghost"
-                disabled={isDeleting || actionsDisabled}
-                className={cn(
-                  "w-full sm:w-auto gap-2 px-8",
-                  GLASS_BUTTON_SHELL_RESET,
-                  GLASS_PRIMARY_BUTTON.rose,
-                )}
-              >
-                <Trash2 className="h-4 w-4 shrink-0" />
-                {isDeleting ? "Deleting..." : "Delete Review"}
-              </Button>
+              <DialogSubmitButton
+                type="button"
+                isPending={isDeleting}
+                pendingLabel="Deleting…"
+                label="Delete Review"
+                hue="rose"
+                disabled={actionsDisabled}
+                className="w-full sm:w-auto gap-2 px-8"
+              />
             </AlertDialogTrigger>
             <AlertDialogContent>
               <AlertDialogHeader>

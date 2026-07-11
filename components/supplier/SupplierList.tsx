@@ -13,7 +13,7 @@ import { PaginationType } from "@/components/shared/PaginationSelector";
 import { createSupplierColumns } from "./SupplierTableColumns";
 import { useAuth } from "@/contexts";
 import { useSuppliers, useDashboard } from "@/hooks/queries";
-import { isDataSlotLoading } from "@/lib/react-query";
+import { isDataSlotLoading, queryKeys, useSyncSsrQueryData } from "@/lib/react-query";
 import { APP_SHELL_WIDTH_CLASS } from "@/lib/ui/shell-layout-styles";
 import SupplierFilters from "./SupplierFilters";
 import AddSupplierDialog from "./SupplierDialog";
@@ -60,16 +60,23 @@ const SupplierList = React.memo(function SupplierList({
   const [isMounted, setIsMounted] = useState(false);
 
   const pathname = usePathname();
+  const { user } = useAuth();
+  const isUserSuppliersPage = pathname === "/suppliers";
   const suppliersQuery = useSuppliers(initialSuppliers);
   const dashboardQuery = useDashboard(initialStats);
   const allSuppliers = suppliersQuery.data ?? [];
-  /** Show store-wide state cards only on the user suppliers page (/suppliers), not admin or homepage */
-  const isUserSuppliersPage = pathname === "/suppliers";
+
+  useSyncSsrQueryData(queryKeys.suppliers.lists(), initialSuppliers);
+  useSyncSsrQueryData(
+    queryKeys.dashboard.overview(user?.id ?? ""),
+    isUserSuppliersPage && user?.id && initialStats !== undefined
+      ? initialStats
+      : undefined,
+  );
+
   const suppliersPageStats = isUserSuppliersPage
     ? (dashboardQuery.data ?? null)
     : null;
-
-  const { user } = useAuth();
 
   // Mark component as mounted after client-side hydration
   useEffect(() => {

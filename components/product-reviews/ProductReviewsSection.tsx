@@ -13,6 +13,7 @@ import {
 } from "@/hooks/queries";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
+import { queryKeys, useSyncSsrQueryData } from "@/lib/react-query";
 import type { ProductReview, ReviewEligibilitySlot } from "@/types";
 import WriteEditReviewDialog from "./WriteEditReviewDialog";
 import {
@@ -114,6 +115,16 @@ export default function ProductReviewsSection({
     useReviewEligibility(productId, orderId, {
       initialData: initialEligibility,
     });
+
+  useSyncSsrQueryData(
+    queryKeys.productReviews.byProduct(productId, "all"),
+    initialReviews,
+  );
+  useSyncSsrQueryData(
+    queryKeys.productReviews.eligibility(productId, orderId),
+    initialEligibility,
+  );
+
   const deleteReview = useDeleteProductReview();
 
   const approvedReviews = reviews.filter((r) => r.status === "approved");

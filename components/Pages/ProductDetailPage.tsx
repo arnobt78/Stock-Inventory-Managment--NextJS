@@ -54,7 +54,7 @@ import {
   DataSlotPulse,
   PageSectionHeader,
 } from "@/components/shared";
-import { isDataSlotLoading } from "@/lib/react-query";
+import { isDataSlotLoading, queryKeys, useSyncSsrQueryData } from "@/lib/react-query";
 import type { Product, ProductStatus, ProductReview, StockAllocation } from "@/types";
 import type { ReviewEligibilityResult } from "@/lib/server/product-reviews-detail-data";
 import { cn } from "@/lib/utils";
@@ -227,6 +227,13 @@ export default function ProductDetailPage({
     stockByProductQuery,
     initialStockByProduct,
   );
+
+  useSyncSsrQueryData(queryKeys.products.detail(productId), initialProduct);
+  useSyncSsrQueryData(
+    queryKeys.stockAllocation.byProduct(productId),
+    initialStockByProduct,
+  );
+
   const { data: allProducts = [] } = useProducts();
   const { setSelectedProduct, setOpenProductDialog } = useProductStore();
   const createProductMutation = useCreateProduct();

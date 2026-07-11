@@ -11,8 +11,9 @@ import dynamic from "next/dynamic";
 import { usePathname } from "next/navigation";
 import { PaginationType } from "@/components/shared/PaginationSelector";
 import { createWarehouseColumns } from "./WarehouseTableColumns";
+import { useAuth } from "@/contexts";
 import { useWarehouses, useDashboard, useWarehouseStockSummary } from "@/hooks/queries";
-import { isDataSlotLoading } from "@/lib/react-query";
+import { isDataSlotLoading, queryKeys, useSyncSsrQueryData } from "@/lib/react-query";
 import { APP_SHELL_WIDTH_CLASS } from "@/lib/ui/shell-layout-styles";
 import WarehouseFilters from "./WarehouseFilters";
 import WarehouseDialog from "./WarehouseDialog";
@@ -46,19 +47,32 @@ export default function WarehouseList({
   initialStats,
   initialWarehouseSummary,
 }: WarehouseListProps = {}) {
-  const pathname = usePathname();
   const isMountedRef = useRef(false);
   const [isMounted, setIsMounted] = useState(false);
+
+  const pathname = usePathname();
+  const { user } = useAuth();
+  const isUserWarehousesPage = pathname === "/warehouses";
 
   const warehousesQuery = useWarehouses(initialWarehouses);
   const summaryQuery = useWarehouseStockSummary(initialWarehouseSummary);
   const dashboardQuery = useDashboard(initialStats);
   const allWarehouses = warehousesQuery.data ?? [];
 
+  useSyncSsrQueryData(queryKeys.warehouses.lists(), initialWarehouses);
+  useSyncSsrQueryData(
+    queryKeys.stockAllocation.summary(),
+    initialWarehouseSummary,
+  );
+  useSyncSsrQueryData(
+    queryKeys.dashboard.overview(user?.id ?? ""),
+    isUserWarehousesPage && user?.id && initialStats !== undefined
+      ? initialStats
+      : undefined,
+  );
+
   const isAdmin = pathname?.startsWith("/admin") ?? false;
   const dashboard = isAdmin ? (dashboardQuery.data ?? null) : null;
-  /** Show store-wide state cards only on the user warehouses page (/warehouses), not admin or homepage */
-  const isUserWarehousesPage = pathname === "/warehouses";
   const warehousesPageStats = isUserWarehousesPage
     ? (dashboardQuery.data ?? null)
     : null;

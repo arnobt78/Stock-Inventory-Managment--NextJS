@@ -27,6 +27,7 @@ import {
   queryKeys,
   invalidateAfterOrderGraphChange,
   isDataSlotLoading,
+  useSyncSsrQueryData,
 } from "@/lib/react-query";
 import { useAuth } from "@/contexts";
 import Navbar from "@/components/layouts/Navbar";
@@ -40,6 +41,7 @@ import {
   GLASS_BUTTON_SHELL_RESET,
   GLASS_GHOST_BUTTON,
   GLASS_PRIMARY_BUTTON,
+  DialogSubmitButton,
 } from "@/components/shared";
 import type { Order } from "@/types";
 import type { OrderReviewContext } from "@/lib/server/order-review-context-data";
@@ -89,6 +91,8 @@ export default function OrderDetailPage({
   const order = orderQuery.data;
   const dataLoading = isDataSlotLoading(orderQuery, initialOrder);
   const { isError, error } = orderQuery;
+
+  useSyncSsrQueryData(queryKeys.orders.detail(orderId), initialOrder);
 
   useEffect(() => {
     const payment = searchParams.get("payment");
@@ -564,21 +568,16 @@ export default function OrderDetailPage({
               <Tooltip>
                 <TooltipTrigger asChild>
                   <span className="inline-block">
-                    <Button
-                      variant="ghost"
+                    <DialogSubmitButton
+                      type="button"
                       onClick={() => setCancelDialogOpen(true)}
-                      disabled={isCancelling || actionsDisabled}
-                      className={cn(
-                        "group w-full sm:w-auto gap-2",
-                        GLASS_BUTTON_ICON_HOVER,
-                        GLASS_BUTTON_SHELL_RESET,
-                        GLASS_BUTTON_DISABLED,
-                        GLASS_PRIMARY_BUTTON.rose,
-                      )}
-                    >
-                      <Trash2 className="h-4 w-4 shrink-0" />
-                      {isCancelling ? "Cancelling..." : "Cancel Order"}
-                    </Button>
+                      isPending={isCancelling}
+                      pendingLabel="Cancelling…"
+                      label="Cancel Order"
+                      hue="rose"
+                      disabled={actionsDisabled}
+                      className="group w-full sm:w-auto gap-2"
+                    />
                   </span>
                 </TooltipTrigger>
                 <TooltipContent side="bottom" className="max-w-xs">

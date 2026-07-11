@@ -14,5 +14,10 @@ export {
 export { cancelOrRemoveDetailQuery } from "./cancel-or-remove-detail";
 export { isDataSlotLoading, isAnyDataSlotLoading } from "./is-data-slot-loading";
 export { withInitialData } from "./initial-data-options";
+export {
+  useSyncSsrQueryData,
+  useSyncSsrQueryDataMany,
+} from "@/hooks/use-sync-ssr-query-data";
+export type { SsrQuerySyncEntry } from "@/hooks/use-sync-ssr-query-data";
 export { warmQueriesForUser, warmAdminClientPortalLists } from "./warm-route-prefetch";
 

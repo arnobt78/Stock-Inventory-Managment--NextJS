@@ -5,9 +5,8 @@
 
 "use client";
 
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { useQueryClient } from "@tanstack/react-query";
 import {
   ArrowLeft,
   Warehouse,
@@ -48,6 +47,7 @@ import {
   GLASS_BUTTON_SHELL_RESET,
   GLASS_GHOST_BUTTON,
   GLASS_PRIMARY_BUTTON,
+  DialogSubmitButton,
 } from "@/components/shared";
 import WarehouseDialog from "@/components/warehouses/WarehouseDialog";
 import AllocateStockDialog from "@/components/warehouses/AllocateStockDialog";
@@ -55,8 +55,7 @@ import TransferStockDialog from "@/components/warehouses/TransferStockDialog";
 import { ProductThumb } from "@/components/products/ProductOptionRow";
 import { AlertDialogWrapper } from "@/components/dialogs";
 import type { Warehouse as WarehouseType, StockAllocation } from "@/types";
-import { isDataSlotLoading } from "@/lib/react-query";
-import { queryKeys } from "@/lib/react-query/config";
+import { isDataSlotLoading, queryKeys, useSyncSsrQueryData } from "@/lib/react-query";
 import { cn } from "@/lib/utils";
 import { APP_SHELL_DETAIL_CLASS } from "@/lib/ui/shell-layout-styles";
 
@@ -210,7 +209,6 @@ export default function WarehouseDetailPage({
 }: WarehouseDetailPageProps = {}) {
   const params = useParams();
   const router = useRouter();
-  const queryClient = useQueryClient();
   const { navigateTo } = useBackWithRefresh("warehouse");
   const warehouseId = params?.id as string;
   const { user, isCheckingAuth } = useAuth();
@@ -234,6 +232,16 @@ export default function WarehouseDetailPage({
   const [transferOpen, setTransferOpen] = useState(false);
 
   const isDeleting = deleteWarehouseMutation.isPending;
+
+  // REQ-0069 — SSR snapshots beat stale TanStack cache on warehouse navigation
+  useSyncSsrQueryData(
+    queryKeys.warehouses.detail(warehouseId),
+    initialWarehouse,
+  );
+  useSyncSsrQueryData(
+    queryKeys.stockAllocation.byWarehouse(warehouseId),
+    initialStockAllocations,
+  );
 
   const handleEdit = () => {
     if (!warehouse) return;
@@ -259,19 +267,6 @@ export default function WarehouseDetailPage({
       router.push("/login");
     }
   }, [user, isCheckingAuth, router]);
-
-  /**
-   * SSR → TanStack sync on warehouse navigation.
-   * withInitialData sets refetchOnMount:false — without this, a stale cached
-   * byWarehouse row survives after transfer until hard refresh.
-   */
-  useEffect(() => {
-    if (!warehouseId || initialStockAllocations === undefined) return;
-    queryClient.setQueryData(
-      queryKeys.stockAllocation.byWarehouse(warehouseId),
-      initialStockAllocations,
-    );
-  }, [warehouseId, initialStockAllocations, queryClient]);
 
   if (warehouseQuery.isError) {
     return (
@@ -685,20 +680,15 @@ export default function WarehouseDetailPage({
               <Edit className="h-4 w-4 shrink-0" />
               Edit Warehouse
             </Button>
-            <Button
+            <DialogSubmitButton
+              type="button"
               onClick={() => setDeleteDialogOpen(true)}
-              disabled={isDeleting}
-              className={cn(
-                "group w-full sm:w-auto gap-2 !text-white",
-                GLASS_BUTTON_ICON_HOVER,
-                GLASS_BUTTON_SHELL_RESET,
-                GLASS_BUTTON_DISABLED,
-                GLASS_PRIMARY_BUTTON.rose,
-              )}
-            >
-              <Trash2 className="h-4 w-4 shrink-0" />
-              {isDeleting ? "Deleting..." : "Delete Warehouse"}
-            </Button>
+              isPending={isDeleting}
+              pendingLabel="Deleting…"
+              label="Delete Warehouse"
+              hue="rose"
+              className="group w-full sm:w-auto gap-2 !text-white"
+            />
           </div>
         </div>
 

@@ -14,6 +14,9 @@
 import React from "react";
 import { Button } from "@/components/ui/button";
 import { DialogClose, DialogFooter } from "@/components/ui/dialog";
+import { DialogSubmitButton } from "@/components/shared/DialogSubmitButton";
+import { GLASS_GHOST_BUTTON } from "@/components/shared";
+import type { GlassFocusHue } from "@/lib/ui/focus-ring-styles";
 import { cn } from "@/lib/utils";
 
 /**
@@ -56,26 +59,9 @@ export interface DialogFooterActionsProps {
   onAction: () => void;
 
   /**
-   * Cancel button variant (default: "secondary")
+   * Glass hue for primary action (default: "blue")
    */
-  cancelVariant?:
-    | "default"
-    | "destructive"
-    | "outline"
-    | "secondary"
-    | "ghost"
-    | "link";
-
-  /**
-   * Action button variant (default: "default")
-   */
-  actionVariant?:
-    | "default"
-    | "destructive"
-    | "outline"
-    | "secondary"
-    | "ghost"
-    | "link";
+  actionHue?: GlassFocusHue;
 
   /**
    * Additional className for footer container
@@ -120,8 +106,7 @@ export function DialogFooterActions({
   isDisabled = false,
   onCancel,
   onAction,
-  cancelVariant = "secondary",
-  actionVariant = "default",
+  actionHue = "blue",
   footerClassName,
   cancelClassName,
   actionClassName,
@@ -142,10 +127,6 @@ export function DialogFooterActions({
     );
   }
 
-  const displayActionLabel = isLoading
-    ? actionLoadingLabel || `${actionLabel}...`
-    : actionLabel;
-
   return (
     <DialogFooter
       className={cn(
@@ -156,24 +137,30 @@ export function DialogFooterActions({
       {showCancel && (
         <DialogClose asChild>
           <Button
-            variant={cancelVariant}
-            className={cn("h-11 w-full sm:w-auto px-11", cancelClassName)}
+            variant="ghost"
+            className={cn(
+              "h-11 w-full sm:w-auto px-11",
+              GLASS_GHOST_BUTTON,
+              cancelClassName,
+            )}
             onClick={onCancel}
             type="button"
+            disabled={isLoading}
           >
             {cancelLabel}
           </Button>
         </DialogClose>
       )}
-      <Button
-        variant={actionVariant}
-        className={cn("h-11 w-full sm:w-auto px-11", actionClassName)}
-        onClick={onAction}
-        disabled={isLoading || isDisabled}
+      <DialogSubmitButton
         type="button"
-      >
-        {displayActionLabel}
-      </Button>
+        onClick={onAction}
+        isPending={isLoading}
+        pendingLabel={actionLoadingLabel ?? `${actionLabel}…`}
+        label={actionLabel}
+        hue={actionHue}
+        disabled={isDisabled}
+        className={cn("h-11 px-11", actionClassName)}
+      />
     </DialogFooter>
   );
 }

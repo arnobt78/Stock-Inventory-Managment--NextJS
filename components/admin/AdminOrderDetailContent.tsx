@@ -45,7 +45,7 @@ import {
   DataSlotPulse,
   GLASS_GHOST_BUTTON,
 } from "@/components/shared";
-import { isDataSlotLoading } from "@/lib/react-query";
+import { isDataSlotLoading, queryKeys, useSyncSsrQueryData } from "@/lib/react-query";
 import { useToast } from "@/hooks/use-toast";
 import type { OrderStatus, Order } from "@/types";
 import type { OrderReviewContext } from "@/lib/server/order-review-context-data";
@@ -108,6 +108,9 @@ export default function AdminOrderDetailContent({
   const order = orderQuery.data;
   const dataLoading = isDataSlotLoading(orderQuery, initialOrder);
   const { isError, error } = orderQuery;
+
+  useSyncSsrQueryData(queryKeys.orders.detail(orderId), initialOrder);
+
   const updateOrderMutation = useUpdateOrder();
   const deleteOrderMutation = useDeleteOrder();
 

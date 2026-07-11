@@ -1,10 +1,9 @@
 "use client";
 
-import React, { useState, useLayoutEffect } from "react";
+import React, { useState } from "react";
 import { SafeAvatarImage } from "@/components/ui/safe-avatar-image";
 import { resolveAvatarSourcesFromSeed } from "@/lib/ui/user-avatar-sources";
 import Link from "next/link";
-import { useQueryClient } from "@tanstack/react-query";
 import Navbar from "@/components/layouts/Navbar";
 import { PageContentWrapper } from "@/components/shared";
 import {
@@ -12,7 +11,7 @@ import {
   useSupportTicketReplies,
   useCreateSupportTicketReply,
 } from "@/hooks/queries";
-import { isDataSlotLoading, queryKeys } from "@/lib/react-query";
+import { isDataSlotLoading, queryKeys, useSyncSsrQueryData } from "@/lib/react-query";
 import {
   MessageSquare,
   ArrowLeft,
@@ -50,16 +49,18 @@ export default function SupportTicketDetailContent({
   initialTicket,
   initialReplies,
 }: SupportTicketDetailContentProps) {
-  const queryClient = useQueryClient();
   const [replyBody, setReplyBody] = useState("");
   const { data: ticket = initialTicket } = useSupportTicket(initialTicket.id);
 
-  useLayoutEffect(() => {
-    queryClient.setQueryData(
-      queryKeys.supportTickets.detail(initialTicket.id),
-      initialTicket,
-    );
-  }, [queryClient, initialTicket]);
+  useSyncSsrQueryData(
+    queryKeys.supportTickets.detail(initialTicket.id),
+    initialTicket,
+  );
+  useSyncSsrQueryData(
+    [...queryKeys.supportTickets.detail(initialTicket.id), "replies"],
+    initialReplies,
+  );
+
   const repliesQuery = useSupportTicketReplies(ticket.id, initialReplies);
   const replies = repliesQuery.data ?? initialReplies ?? [];
   const repliesLoading = isDataSlotLoading(repliesQuery, initialReplies);

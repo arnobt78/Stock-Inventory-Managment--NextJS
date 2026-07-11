@@ -39,6 +39,7 @@ import {
   PageContentWrapper,
   DataSlotPulse,
   PageSectionHeader,
+  DialogSubmitButton,
   GLASS_BUTTON_DISABLED,
   GLASS_BUTTON_ICON_HOVER,
   GLASS_BUTTON_SHELL_RESET,
@@ -53,7 +54,7 @@ import CategoryDialog from "@/components/category/CategoryDialog";
 import { AlertDialogWrapper } from "@/components/dialogs";
 import type { Category } from "@/types";
 import { SafeImage } from "@/components/ui/safe-image";
-import { isDataSlotLoading } from "@/lib/react-query";
+import { isDataSlotLoading, queryKeys, useSyncSsrQueryData } from "@/lib/react-query";
 import { cn } from "@/lib/utils";
 import { APP_SHELL_DETAIL_CLASS } from "@/lib/ui/shell-layout-styles";
 
@@ -204,6 +205,12 @@ export default function CategoryDetailPage({
   const categoryQuery = useCategory(categoryId, initialCategory);
   const category = categoryQuery.data;
   const dataLoading = isDataSlotLoading(categoryQuery, initialCategory);
+
+  useSyncSsrQueryData(
+    queryKeys.categories.detail(categoryId),
+    initialCategory,
+  );
+
   const createCategoryMutation = useCreateCategory();
   const deleteCategoryMutation = useDeleteCategory();
   const [editDialogOpen, setEditDialogOpen] = useState(false);
@@ -735,36 +742,26 @@ export default function CategoryDetailPage({
               <Edit className="h-4 w-4 shrink-0" />
               Edit Category
             </Button>
-            <Button
-              variant="ghost"
+            <DialogSubmitButton
+              type="button"
               onClick={handleDuplicateCategory}
-              disabled={isCopying || disableCrud}
-              className={cn(
-                "group w-full sm:w-auto gap-2",
-                GLASS_BUTTON_ICON_HOVER,
-                GLASS_BUTTON_SHELL_RESET,
-                GLASS_BUTTON_DISABLED,
-                GLASS_PRIMARY_BUTTON.violet,
-              )}
-            >
-              <Copy className="h-4 w-4 shrink-0" />
-              {isCopying ? "Duplicating..." : "Create Duplicate"}
-            </Button>
-            <Button
-              variant="ghost"
+              isPending={isCopying}
+              pendingLabel="Duplicating…"
+              label="Create Duplicate"
+              hue="violet"
+              disabled={disableCrud}
+              className="group w-full sm:w-auto gap-2"
+            />
+            <DialogSubmitButton
+              type="button"
               onClick={() => setDeleteDialogOpen(true)}
-              disabled={isDeleting || disableCrud}
-              className={cn(
-                "group w-full sm:w-auto gap-2",
-                GLASS_BUTTON_ICON_HOVER,
-                GLASS_BUTTON_SHELL_RESET,
-                GLASS_BUTTON_DISABLED,
-                GLASS_PRIMARY_BUTTON.rose,
-              )}
-            >
-              <Trash2 className="h-4 w-4 shrink-0" />
-              {isDeleting ? "Deleting..." : "Delete Category"}
-            </Button>
+              isPending={isDeleting}
+              pendingLabel="Deleting…"
+              label="Delete Category"
+              hue="rose"
+              disabled={disableCrud}
+              className="group w-full sm:w-auto gap-2"
+            />
           </div>
 
           {/* Delete confirmation — same pattern as CategoryActions */}

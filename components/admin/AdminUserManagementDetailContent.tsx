@@ -51,9 +51,10 @@ import {
   GLASS_BUTTON_SHELL_RESET,
   GLASS_GHOST_BUTTON,
   GLASS_PRIMARY_BUTTON,
+  DialogSubmitButton,
 } from "@/components/shared";
 import { TYPO_BODY, TYPO_BODY_MUTED, TYPO_STAT_VALUE } from "@/lib/ui/typography-scale";
-import { isDataSlotLoading } from "@/lib/react-query";
+import { isDataSlotLoading, queryKeys, useSyncSsrQueryData } from "@/lib/react-query";
 import { format } from "date-fns";
 import type { UserForAdmin, UserRole } from "@/types";
 import type { UserDetailForPage } from "@/hooks/queries/use-user-management";
@@ -189,6 +190,9 @@ export default function AdminUserManagementDetailContent({
   const user = userQuery.data;
   const dataLoading = isDataSlotLoading(userQuery, initialUser);
   const { isError, error } = userQuery;
+
+  useSyncSsrQueryData(queryKeys.userManagement.detail(id), initialUser);
+
   const updateMutation = useUpdateUser();
   const deleteMutation = useDeleteUser();
   const isOwner = currentUser?.id != null && currentUser.id === id;
@@ -631,22 +635,15 @@ export default function AdminUserManagementDetailContent({
           </Button>
           <AlertDialog>
             <AlertDialogTrigger asChild>
-              <Button
-                variant="ghost"
-                disabled={!canDeleteResolved || isDeleting || isUpdating}
-                className={cn(
-                  "w-full sm:w-auto gap-2 px-8",
-                  GLASS_BUTTON_SHELL_RESET,
-                  GLASS_PRIMARY_BUTTON.rose,
-                )}
-              >
-                {isDeleting ? (
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                ) : (
-                  <Trash2 className="h-4 w-4 shrink-0" />
-                )}
-                Delete User
-              </Button>
+              <DialogSubmitButton
+                type="button"
+                isPending={isDeleting}
+                pendingLabel="Deleting…"
+                label="Delete User"
+                hue="rose"
+                disabled={!canDeleteResolved || isUpdating}
+                className="w-full sm:w-auto gap-2 px-8"
+              />
             </AlertDialogTrigger>
             <AlertDialogContent>
               <AlertDialogHeader>

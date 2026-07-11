@@ -50,7 +50,7 @@ import SupplierDialog from "@/components/supplier/SupplierDialog";
 import { AlertDialogWrapper } from "@/components/dialogs";
 import type { Supplier } from "@/types";
 import { SafeImage } from "@/components/ui/safe-image";
-import { isDataSlotLoading } from "@/lib/react-query";
+import { isDataSlotLoading, queryKeys, useSyncSsrQueryData } from "@/lib/react-query";
 import { cn } from "@/lib/utils";
 import { APP_SHELL_DETAIL_CLASS } from "@/lib/ui/shell-layout-styles";
 
@@ -200,6 +200,12 @@ export default function SupplierDetailPage({
   const supplierQuery = useSupplier(supplierId, initialSupplier);
   const supplier = supplierQuery.data;
   const dataLoading = isDataSlotLoading(supplierQuery, initialSupplier);
+
+  useSyncSsrQueryData(
+    queryKeys.suppliers.detail(supplierId),
+    initialSupplier,
+  );
+
   const createSupplierMutation = useCreateSupplier();
   const deleteSupplierMutation = useDeleteSupplier();
   const [editDialogOpen, setEditDialogOpen] = useState(false);

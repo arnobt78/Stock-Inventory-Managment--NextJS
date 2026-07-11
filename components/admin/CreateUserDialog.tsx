@@ -27,9 +27,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Loader2, Plus, Eye, EyeOff, UserPlus } from "lucide-react";
 import {
   DeferredSelectGate,
+  DialogSubmitButton,
   DIALOG_FORM_FIELD_BLUE,
   GLASS_ACTION_BUTTON,
   GLASS_BUTTON_ICON_HOVER,
@@ -37,6 +37,7 @@ import {
   GLASS_GHOST_BUTTON,
   GLASS_PRIMARY_BUTTON,
 } from "@/components/shared";
+import { Plus, Eye, EyeOff, UserPlus } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useCreateUser } from "@/hooks/queries";
 import {
@@ -298,26 +299,13 @@ export default function CreateUserDialog() {
                 Cancel
               </Button>
             </DialogClose>
-            <Button
+            <DialogSubmitButton
               type="submit"
-              variant="ghost"
-              disabled={isPending}
-              className={cn(
-                GLASS_BUTTON_ICON_HOVER,
-                GLASS_BUTTON_SHELL_RESET,
-                "w-full sm:w-auto px-8 disabled:opacity-50",
-                GLASS_PRIMARY_BUTTON.blue,
-              )}
-            >
-              {isPending ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Creating...
-                </>
-              ) : (
-                "Create User"
-              )}
-            </Button>
+              isPending={isPending}
+              pendingLabel="Creating…"
+              label="Create User"
+              hue="blue"
+            />
           </DialogFooter>
         </form>
       </DialogContent>

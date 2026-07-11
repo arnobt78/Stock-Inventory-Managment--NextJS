@@ -7,7 +7,7 @@ import { PaginationType } from "@/components/shared/PaginationSelector";
 import { createCategoryColumns } from "./CategoryTableColumns";
 import { useAuth } from "@/contexts";
 import { useCategories, useDashboard } from "@/hooks/queries";
-import { isDataSlotLoading } from "@/lib/react-query";
+import { isDataSlotLoading, queryKeys, useSyncSsrQueryData } from "@/lib/react-query";
 import { APP_SHELL_WIDTH_CLASS } from "@/lib/ui/shell-layout-styles";
 import CategoryFilters from "./CategoryFilters";
 import AddCategoryDialog from "./CategoryDialog";
@@ -41,10 +41,20 @@ const CategoryList = React.memo(function CategoryList({
   initialStats,
 }: CategoryListProps = {}) {
   const pathname = usePathname();
+  const { user } = useAuth();
+  const isUserCategoriesPage = pathname === "/categories";
   const categoriesQuery = useCategories(initialCategories);
   const dashboardQuery = useDashboard(initialStats);
   const allCategories = categoriesQuery.data ?? [];
-  const isUserCategoriesPage = pathname === "/categories";
+
+  useSyncSsrQueryData(queryKeys.categories.lists(), initialCategories);
+  useSyncSsrQueryData(
+    queryKeys.dashboard.overview(user?.id ?? ""),
+    isUserCategoriesPage && user?.id && initialStats !== undefined
+      ? initialStats
+      : undefined,
+  );
+
   const categoriesPageStats = isUserCategoriesPage
     ? (dashboardQuery.data ?? null)
     : null;
@@ -55,8 +65,6 @@ const CategoryList = React.memo(function CategoryList({
     categoriesQuery,
     initialCategories,
   );
-
-  const { user } = useAuth();
 
   const [searchTerm, setSearchTerm] = useState("");
   const [pagination, setPagination] = useState<PaginationType>({

@@ -168,6 +168,12 @@
 | ART-0160 | REQ-0066 | `components/shared/{DialogSubmitButton,StockQuantityField}.tsx` | Dialog submit + qty validation |
 | ART-0161 | REQ-0066 | `lib/ui/fab-button-styles.ts`, `FloatingActionButtons.tsx` | FAB visible gradients |
 | ART-0162 | REQ-0066 | `AllocateStockDialog`, `TransferStockDialog`, `WarehouseDetailPage` | Dialog shell + SSR stock sync + stock card |
+| ART-0163 | REQ-0069 | `hooks/use-sync-ssr-query-data.ts`, `lib/react-query/index.ts` | SSR→TanStack sync hooks |
+| ART-0164 | REQ-0069 | Detail + list pages (Home, Products, Orders, …) | useSyncSsrQueryData wiring |
+| ART-0165 | REQ-0069 | `hooks/use-back-with-refresh.ts` | Stock entity invalidateAfterStockChange |
+| ART-0166 | REQ-0069 | `PaymentDialog`, `CreateUserDialog`, detail CTAs, `dialog-footer-actions` | DialogSubmitButton sweep |
+| ART-0167 | REQ-0069 | `lib/stock-allocation/stock-allocation-enrich.test.ts` | Enrich unit tests |
+| ART-0168 | REQ-0069 | Removed `AdminPage.tsx`, `SidebarLayout.tsx` | Orphan deletion |
 
 ## Tests
 
@@ -189,3 +195,4 @@
 | TC-0014 | REQ-0039 | `lib/ui/user-avatar-sources.test.ts` |
 | TC-0015 | REQ-0040 | `lib/ui/user-avatar-sources.test.ts` (seed resolver) |
 | TC-0016 | REQ-0068 | `lib/products/stock-allocation-order-sync.test.ts` |
+| TC-0017 | REQ-0069 | `lib/stock-allocation/stock-allocation-enrich.test.ts` |

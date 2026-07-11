@@ -14,7 +14,7 @@ import {
   useDashboard,
   useSupplierPortalDashboard,
 } from "@/hooks/queries";
-import { isDataSlotLoading } from "@/lib/react-query";
+import { isDataSlotLoading, queryKeys, useSyncSsrQueryData } from "@/lib/react-query";
 import ProductFilters from "./ProductFilters";
 import { StatisticsCard } from "@/components/home/StatisticsCard";
 import { Package, DollarSign, Truck, FolderTree } from "lucide-react";
@@ -71,6 +71,18 @@ const ProductList = React.memo(function ProductList({
   const ordersQuery = useOrders();
   const dashboardQuery = useDashboard(initialStats, { enabled: enableDashboard });
   const supplierPortalQuery = useSupplierPortalDashboard(
+    isSupplierProductsPage ? (initialSupplierPortal ?? undefined) : undefined,
+  );
+
+  useSyncSsrQueryData(queryKeys.products.lists(), initialProducts);
+  useSyncSsrQueryData(
+    queryKeys.dashboard.overview(user?.id ?? ""),
+    enableDashboard && user?.id && initialStats !== undefined
+      ? initialStats
+      : undefined,
+  );
+  useSyncSsrQueryData(
+    queryKeys.supplierPortal.overview(),
     isSupplierProductsPage ? (initialSupplierPortal ?? undefined) : undefined,
   );
 

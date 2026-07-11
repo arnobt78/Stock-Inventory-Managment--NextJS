@@ -5,10 +5,10 @@
 | **Cycle** | C1 (closing) → **C2 open** |
 | **Phase** | `phases/07-shell-first-navigation` → C2 backlog |
 | **Infinity Loop stage** | Verify ◐ (code done; Human Gate 2 + manual QA open) |
-| **Last updated** | 2026-07-11 (REQ-0066 AC6 warehouse UX) |
-| **Session** | ACTIVE — manual QA warehouse dialogs + transfer nav |
-| **Active REQ range** | REQ-0001 … REQ-0068 done |
-| **Prod deploy target** | `8de6f09` (main) — REQ-0066 AC6 warehouse UX |
+| **Last updated** | 2026-07-11 (REQ-0069 SSR sync + submit UX) |
+| **Session** | ACTIVE — REQ-0069 backlog closure |
+| **Active REQ range** | REQ-0001 … REQ-0069 done |
+| **Prod deploy target** | pending — REQ-0069 |
 | **Human Gate 1** | APPROVED (retroactive bootstrap) |
 | **Human Gate 2** | PENDING — Sentry 24h after prod deploy |
 | **Resume token** | `C2-post-mutation-cache` — see **Session handoff** + **Open backlog** |

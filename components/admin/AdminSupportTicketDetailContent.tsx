@@ -56,9 +56,10 @@ import {
   GLASS_BUTTON_SHELL_RESET,
   GLASS_GHOST_BUTTON,
   GLASS_PRIMARY_BUTTON,
+  DialogSubmitButton,
 } from "@/components/shared";
 import { TYPO_BODY, TYPO_BODY_MUTED } from "@/lib/ui/typography-scale";
-import { isDataSlotLoading } from "@/lib/react-query";
+import { isDataSlotLoading, queryKeys, useSyncSsrQueryData } from "@/lib/react-query";
 import { format } from "date-fns";
 import type {
   SupportTicket,
@@ -111,6 +112,13 @@ export default function AdminSupportTicketDetailContent({
   const ticket = ticketQuery.data;
   const dataLoading = isDataSlotLoading(ticketQuery, initialTicket);
   const { isError, error } = ticketQuery;
+
+  useSyncSsrQueryData(queryKeys.supportTickets.detail(id), initialTicket);
+  useSyncSsrQueryData(
+    [...queryKeys.supportTickets.detail(id), "replies"],
+    initialReplies,
+  );
+
   const updateMutation = useUpdateSupportTicket();
   const deleteMutation = useDeleteSupportTicket();
   const repliesQuery = useSupportTicketReplies(id, initialReplies);
@@ -600,20 +608,15 @@ export default function AdminSupportTicketDetailContent({
                 disabled={createReply.isPending || actionsDisabled}
                 className="min-h-[100px] rounded-xl resize-none"
               />
-              <Button
+              <DialogSubmitButton
                 type="submit"
-                disabled={createReply.isPending || !replyBody.trim()}
-                className="gap-2 rounded-xl border border-violet-400/30 bg-gradient-to-r from-violet-500/60 to-violet-500/40 text-white shadow-[0_10px_30px_rgba(139,92,246,0.25)] hover:from-violet-500/70 hover:to-violet-500/50"
-              >
-                {createReply.isPending ? (
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                ) : (
-                  <>
-                    <Send className="h-4 w-4" />
-                    Send Reply
-                  </>
-                )}
-              </Button>
+                isPending={createReply.isPending}
+                pendingLabel="Sending…"
+                label="Send Reply"
+                hue="violet"
+                disabled={!replyBody.trim() || actionsDisabled}
+                className="rounded-xl"
+              />
             </form>
           </CardContent>
         </Card>
@@ -666,18 +669,15 @@ export default function AdminSupportTicketDetailContent({
           </Button>
           <AlertDialog>
             <AlertDialogTrigger asChild>
-              <Button
-                variant="ghost"
-                disabled={isDeleting || actionsDisabled}
-                className={cn(
-                  "w-full sm:w-auto gap-2 px-8",
-                  GLASS_BUTTON_SHELL_RESET,
-                  GLASS_PRIMARY_BUTTON.rose,
-                )}
-              >
-                <Trash2 className="h-4 w-4 shrink-0" />
-                {isDeleting ? "Deleting..." : "Delete Ticket"}
-              </Button>
+              <DialogSubmitButton
+                type="button"
+                isPending={isDeleting}
+                pendingLabel="Deleting…"
+                label="Delete Ticket"
+                hue="rose"
+                disabled={actionsDisabled}
+                className="w-full sm:w-auto gap-2 px-8"
+              />
             </AlertDialogTrigger>
             <AlertDialogContent>
               <AlertDialogHeader>

@@ -23,7 +23,7 @@ import {
   useDashboard,
   useClientPortalDashboard,
 } from "@/hooks/queries";
-import { isDataSlotLoading } from "@/lib/react-query";
+import { isDataSlotLoading, queryKeys, useSyncSsrQueryData } from "@/lib/react-query";
 import { APP_SHELL_WIDTH_CLASS } from "@/lib/ui/shell-layout-styles";
 import InvoiceFilters from "./InvoiceFilters";
 import InvoiceDialog from "./InvoiceDialog";
@@ -181,6 +181,32 @@ const InvoiceList = React.memo(
       dataSource === "clientInvoices"
         ? invoicesQueryClient
         : invoicesQueryDefault;
+
+    useSyncSsrQueryData(
+      queryKeys.invoices.list(apiFilters as Record<string, unknown>),
+      useDefaultInvoiceFilters &&
+        (dataSource === "invoices" || dataSource === "adminCombined")
+        ? initialInvoices
+        : undefined,
+    );
+    useSyncSsrQueryData(
+      queryKeys.clientInvoices.list(
+        clientApiFilters as Record<string, unknown>,
+      ),
+      useDefaultClientFilters && enableClientInvoices
+        ? initialClientInvoices
+        : undefined,
+    );
+    useSyncSsrQueryData(
+      queryKeys.dashboard.overview(user?.id ?? ""),
+      enableDashboard && user?.id && initialStats != null
+        ? initialStats
+        : undefined,
+    );
+    useSyncSsrQueryData(
+      queryKeys.clientPortal.overview(),
+      enableClientPortal ? initialClientPortal : undefined,
+    );
 
     const mergedInvoicesForAdmin = useMemo((): InvoiceWithSource[] => {
       if (dataSource !== "adminCombined" || !user) return [];

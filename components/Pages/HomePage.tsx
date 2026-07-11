@@ -17,6 +17,7 @@ import { PageContentWrapper } from "@/components/shared";
 import FloatingActionButtons from "@/components/shared/FloatingActionButtons";
 import { PageSectionHeader } from "@/components/shared";
 import { useProducts } from "@/hooks/queries";
+import { queryKeys, useSyncSsrQueryData } from "@/lib/react-query";
 import type {
   ProductForHome,
   CategoryForHome,
@@ -49,6 +50,8 @@ export default function HomePage({
   const searchParams = useSearchParams();
   const { isLoggedIn, isCheckingAuth, user, refreshSession } = useAuth();
   const { data: allProducts = [] } = useProducts(initialProducts);
+
+  useSyncSsrQueryData(queryKeys.products.lists(), initialProducts);
 
   const [isRefreshingOAuth, setIsRefreshingOAuth] = useState(false);
   const [oauthRefreshComplete, setOauthRefreshComplete] = useState(false);

@@ -151,3 +151,9 @@ Format: `TIMESTAMP | AGENT | DECISION | RATIONALE | REQ-ID`
 2026-07-11T15:45:00Z | build-agent | REQ-0068 picking | OrderItem warehouse pick; stock-allocation-order-sync; OrderDialog UI; invoice/webhook gap | REQ-0068
 2026-07-11T16:40:00Z | build-agent | REQ-0066 AC6 warehouse UX | allocate/transfer dialog polish; FAB restore; SSR stock sync; DialogSubmitButton; stock-allocation-enrich | REQ-0066
 2026-07-11T16:42:00Z | red-team | REQ-0066 AC6 gates | lint ✓ test 372 ✓ invalidate 207 ✓ build ✓ | REQ-0066
+2026-07-11T17:00:00Z | build-agent | useSyncSsrQueryData hooks | useLayoutEffect setQueryData bridges withInitialData + refetchOnMount:false on App Router nav | REQ-0069
+2026-07-11T17:02:00Z | build-agent | SSR sync wiring | All detail pages + primary list pages; WarehouseDetailPage inline effect migrated | REQ-0069
+2026-07-11T17:04:00Z | build-agent | useBackWithRefresh stock entities | warehouse/product → invalidateAfterStockChange belt-and-suspenders | REQ-0069
+2026-07-11T17:06:00Z | build-agent | DialogSubmitButton sweep | PaymentDialog, CreateUserDialog, dialog-footer-actions, detail CTAs | REQ-0069
+2026-07-11T17:08:00Z | build-agent | stock-allocation-enrich tests | transformStockAllocationRow + fetchStockAllocationProductMap empty early return | REQ-0069
+2026-07-11T17:15:00Z | red-team | REQ-0069 gates | lint ✓ test 376 ✓ invalidate 206 ✓ build ✓ | REQ-0069

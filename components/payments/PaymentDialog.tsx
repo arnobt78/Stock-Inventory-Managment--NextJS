@@ -17,15 +17,13 @@ import {
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { useCreateCheckout } from "@/hooks/queries";
-import { CreditCard, Loader2, ShieldCheck } from "lucide-react";
+import { CreditCard, ShieldCheck } from "lucide-react";
 import TestCredentialsCard from "./TestCredentialsCard";
 import type { CheckoutType } from "@/types";
 import { cn } from "@/lib/utils";
 import {
   CopyableText,
-  GLASS_BUTTON_ICON_HOVER,
-  GLASS_BUTTON_SHELL_RESET,
-  GLASS_PRIMARY_BUTTON,
+  DialogSubmitButton,
 } from "@/components/shared";
 
 interface PaymentDialogProps {
@@ -191,29 +189,15 @@ export default function PaymentDialog({
                 No card entry here — you&apos;ll enter payment details on
                 Stripe&apos;s page after clicking below.
               </p>
-              <Button
-                variant="ghost"
+              <DialogSubmitButton
+                type="button"
                 onClick={handlePayment}
-                disabled={isLoading}
-                className={cn(
-                  GLASS_BUTTON_ICON_HOVER,
-                  GLASS_BUTTON_SHELL_RESET,
-                  "w-full sm:w-auto px-11",
-                  GLASS_PRIMARY_BUTTON.sky,
-                )}
-              >
-                {isLoading ? (
-                  <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Redirecting to payment...
-                  </>
-                ) : (
-                  <>
-                    <ShieldCheck className="mr-2 h-4 w-4" />
-                    Secure checkout with Link
-                  </>
-                )}
-              </Button>
+                isPending={isLoading}
+                pendingLabel="Redirecting to payment…"
+                label="Secure checkout with Link"
+                hue="sky"
+                className="px-11"
+              />
 
               <p className="text-xs text-center text-white">
                 You&apos;ll be redirected to Stripe&apos;s secure checkout page

@@ -1450,6 +1450,29 @@ Canonical REQ source. All artifacts link via `REQ-XXXX`. Status: `done` | `verif
 
 ---
 
+## REQ-0069 — SSR cache sync + submit UX backlog closure
+
+| Field | Value |
+|-------|-------|
+| **Priority** | P1 |
+| **Risk** | R2 |
+| **Status** | done |
+| **Cycle** | C2 |
+
+**Intent:** After CRUD + App Router navigation, fresh RSC props must win over stale TanStack cache (`withInitialData` + `refetchOnMount: false`). Complete deferred DialogSubmitButton sweep, enrich unit tests, remove confirmed orphan shell files.
+
+**Acceptance criteria**
+
+- AC1: `useSyncSsrQueryData` / `useSyncSsrQueryDataMany` exported from `lib/react-query`; wired on all detail pages + primary list pages (Home, Products, Orders, Invoices, Warehouses, Categories, Suppliers)
+- AC2: `useBackWithRefresh` — `warehouse` and `product` entities call `invalidateAfterStockChange`
+- AC3: `PaymentDialog`, `CreateUserDialog`, `dialog-footer-actions`, and detail CTAs (category/order/invoice/warehouse + admin detail) use `DialogSubmitButton`
+- AC4: `lib/stock-allocation/stock-allocation-enrich.test.ts` passes
+- AC5: Orphan `AdminPage.tsx` + `SidebarLayout.tsx` deleted; `invalidate-coverage` allowlist updated; doc refs note legacy removal
+
+**Artifacts:** `hooks/use-sync-ssr-query-data.ts`, `hooks/use-back-with-refresh.ts`, detail/list pages, `components/dialogs/dialog-footer-actions.tsx`, `lib/stock-allocation/stock-allocation-enrich.test.ts`
+
+---
+
 | Field | Value |
 |-------|-------|
 | **Priority** | P1 |

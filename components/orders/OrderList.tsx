@@ -24,7 +24,7 @@ import {
   useClientPortalDashboard,
   useSupplierPortalDashboard,
 } from "@/hooks/queries";
-import { isDataSlotLoading } from "@/lib/react-query";
+import { isDataSlotLoading, queryKeys, useSyncSsrQueryData } from "@/lib/react-query";
 import { APP_SHELL_WIDTH_CLASS } from "@/lib/ui/shell-layout-styles";
 import OrderFilters from "./OrderFilters";
 import OrderDialog from "./OrderDialog";
@@ -146,6 +146,32 @@ const OrderList = React.memo(
       : null;
     const ordersQuery =
       dataSource === "clientOrders" ? ordersQueryClient : ordersQueryDefault;
+
+    useSyncSsrQueryData(
+      queryKeys.orders.lists(),
+      dataSource === "orders" || dataSource === "adminCombined"
+        ? initialOrders
+        : undefined,
+    );
+    useSyncSsrQueryData(
+      queryKeys.clientOrders.lists(),
+      enableClientOrders ? initialClientOrders : undefined,
+    );
+    useSyncSsrQueryData(
+      queryKeys.dashboard.overview(user?.id ?? ""),
+      enableDashboard && user?.id && initialStats != null
+        ? initialStats
+        : undefined,
+    );
+    useSyncSsrQueryData(
+      queryKeys.clientPortal.overview(),
+      enableClientPortal ? initialClientPortal : undefined,
+    );
+    useSyncSsrQueryData(
+      queryKeys.supplierPortal.overview(),
+      enableSupplierPortal ? initialSupplierPortal : undefined,
+    );
+
     const effectiveDetailBase =
       dataSource === "clientOrders"
         ? "/admin/client-orders"

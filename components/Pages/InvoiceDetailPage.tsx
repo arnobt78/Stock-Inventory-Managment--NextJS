@@ -35,6 +35,7 @@ import {
   queryKeys,
   invalidateAfterOrderGraphChange,
   isDataSlotLoading,
+  useSyncSsrQueryData,
 } from "@/lib/react-query";
 import { useAuth } from "@/contexts";
 import Navbar from "@/components/layouts/Navbar";
@@ -51,6 +52,7 @@ import {
   GLASS_BUTTON_SHELL_RESET,
   GLASS_GHOST_BUTTON,
   GLASS_PRIMARY_BUTTON,
+  DialogSubmitButton,
 } from "@/components/shared";
 import type { InvoiceStatus } from "@/types";
 import type { Invoice } from "@/types";
@@ -236,6 +238,8 @@ export default function InvoiceDetailPage({
   const invoice = invoiceQuery.data;
   const dataLoading = isDataSlotLoading(invoiceQuery, initialInvoice);
   const { isError, error } = invoiceQuery;
+
+  useSyncSsrQueryData(queryKeys.invoices.detail(invoiceId), initialInvoice);
 
   // When returning from Stripe (payment=success or payment=cancelled), refetch invoice so UI shows Paid without manual refresh.
   // The webhook updates invoice asynchronously, so we poll a few times to catch the update.
@@ -1042,38 +1046,26 @@ export default function InvoiceDetailPage({
               </Button>
             )}
             {!dataLoading && invoice && invoice.status === "draft" && (
-              <Button
-                variant="ghost"
+              <DialogSubmitButton
+                type="button"
                 onClick={() => setSendDialogOpen(true)}
-                disabled={isSending}
-                className={cn(
-                  "group w-full sm:w-auto gap-2",
-                  GLASS_BUTTON_ICON_HOVER,
-                  GLASS_BUTTON_SHELL_RESET,
-                  GLASS_BUTTON_DISABLED,
-                  GLASS_PRIMARY_BUTTON.sky,
-                )}
-              >
-                <Send className="h-4 w-4 shrink-0" />
-                {isSending ? "Sending..." : "Send Invoice"}
-              </Button>
+                isPending={isSending}
+                pendingLabel="Sending…"
+                label="Send Invoice"
+                hue="sky"
+                className="group w-full sm:w-auto gap-2"
+              />
             )}
             {!dataLoading && invoice && invoice.status !== "cancelled" && (
-              <Button
-                variant="ghost"
+              <DialogSubmitButton
+                type="button"
                 onClick={() => setDeleteDialogOpen(true)}
-                disabled={isDeleting}
-                className={cn(
-                  "group w-full sm:w-auto gap-2",
-                  GLASS_BUTTON_ICON_HOVER,
-                  GLASS_BUTTON_SHELL_RESET,
-                  GLASS_BUTTON_DISABLED,
-                  GLASS_PRIMARY_BUTTON.rose,
-                )}
-              >
-                <Trash2 className="h-4 w-4 shrink-0" />
-                {isDeleting ? "Deleting..." : "Delete Invoice"}
-              </Button>
+                isPending={isDeleting}
+                pendingLabel="Deleting…"
+                label="Delete Invoice"
+                hue="rose"
+                className="group w-full sm:w-auto gap-2"
+              />
             )}
             {!dataLoading && invoice?.orderId && (
               <Button

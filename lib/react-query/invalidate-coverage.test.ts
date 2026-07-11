@@ -23,7 +23,6 @@ const COMPONENT_FETCH_CRUD_ALLOWLIST = new Set([
   "components/products/ProductImportDialog.tsx",
   "components/layouts/Navbar.tsx",
   "components/layouts/AdminSidebar.tsx",
-  "components/layouts/SidebarLayout.tsx",
   "components/Pages/BusinessInsightPage.tsx",
   "components/admin/AdminAnalyticsContent.tsx",
   "components/Pages/ApiStatusPage.tsx",

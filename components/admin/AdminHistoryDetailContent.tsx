@@ -14,7 +14,7 @@ import { Button } from "@/components/ui/button";
 import { ArrowLeft, FileText, AlertCircle } from "lucide-react";
 import { useHistoryItem } from "@/hooks/queries";
 import { PageContentWrapper, DataSlotPulse } from "@/components/shared";
-import { isDataSlotLoading } from "@/lib/react-query";
+import { isDataSlotLoading, queryKeys, useSyncSsrQueryData } from "@/lib/react-query";
 import { format } from "date-fns";
 import {
   ImportStatusBadge,
@@ -43,6 +43,8 @@ export default function AdminHistoryDetailContent({
   const record = recordQuery.data;
   const dataLoading = isDataSlotLoading(recordQuery, initialRecord);
   const { isError, error } = recordQuery;
+
+  useSyncSsrQueryData(queryKeys.history.detail(id), initialRecord);
 
   if (isError) {
     return (
