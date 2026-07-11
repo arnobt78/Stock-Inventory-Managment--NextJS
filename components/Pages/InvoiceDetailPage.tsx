@@ -24,6 +24,7 @@ import {
   ExternalLink,
   Package,
   Hash,
+  Trash2,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { InvoiceStatusBadge } from "@/lib/ui/semantic-badges";
@@ -1027,6 +1028,7 @@ export default function InvoiceDetailPage({
                 isPending={isDeleting}
                 pendingLabel="Deleting…"
                 label="Delete Invoice"
+                icon={Trash2}
                 hue="rose"
                 className="group w-full sm:w-auto gap-2"
               />

@@ -54,7 +54,7 @@ async function enrichOrder(orderId: string, order: NonNullable<Awaited<ReturnTyp
 
   const invoiceForOrder = await prisma.invoice.findUnique({
     where: { orderId },
-    select: { id: true, invoiceNumber: true },
+    select: { id: true, invoiceNumber: true, paidAt: true },
   });
 
   return {
@@ -66,7 +66,11 @@ async function enrichOrder(orderId: string, order: NonNullable<Awaited<ReturnTyp
       email: u.email,
     })),
     invoiceForOrder: invoiceForOrder
-      ? { id: invoiceForOrder.id, invoiceNumber: invoiceForOrder.invoiceNumber }
+      ? {
+          id: invoiceForOrder.id,
+          invoiceNumber: invoiceForOrder.invoiceNumber,
+          paidAt: invoiceForOrder.paidAt?.toISOString() ?? null,
+        }
       : null,
   };
 }

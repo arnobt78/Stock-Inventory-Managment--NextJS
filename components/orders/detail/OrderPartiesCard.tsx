@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { Package } from "lucide-react";
+import { Package, User, MapPin } from "lucide-react";
 import { DataSlotPulse } from "@/components/shared";
 import type { Order } from "@/types";
 import { cn } from "@/lib/utils";
@@ -49,7 +49,8 @@ export function OrderPartiesCard({
       </div>
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm">
         <div className="p-2 rounded-xl bg-gradient-to-r from-teal-100/50 via-teal-50/30 to-transparent dark:from-teal-500/10 dark:via-teal-500/5 dark:to-transparent border border-teal-200/30 dark:border-teal-400/10">
-          <p className="text-gray-600 dark:text-gray-400 font-medium mb-0.5">
+          <p className="text-gray-600 dark:text-gray-400 font-medium mb-0.5 inline-flex items-center gap-1.5">
+            <User className="h-3.5 w-3.5 shrink-0" />
             Ordered by
           </p>
           <p className="text-gray-700 dark:text-white">
@@ -66,7 +67,8 @@ export function OrderPartiesCard({
           )}
         </div>
         <div className="p-2 rounded-xl bg-gradient-to-r from-teal-100/50 via-teal-50/30 to-transparent dark:from-teal-500/10 dark:via-teal-500/5 dark:to-transparent border border-teal-200/30 dark:border-teal-400/10">
-          <p className="text-gray-600 dark:text-gray-400 font-medium mb-0.5">
+          <p className="text-gray-600 dark:text-gray-400 font-medium mb-0.5 inline-flex items-center gap-1.5">
+            <MapPin className="h-3.5 w-3.5 shrink-0" />
             Customer / Ship to
           </p>
           <p className="text-gray-700 dark:text-white">

@@ -49,7 +49,13 @@ import {
   GLASS_ACTION_BUTTON,
   GLASS_BUTTON_ICON_HOVER,
   GLASS_BUTTON_SHELL_RESET,
+  ClientCompactDateTime,
 } from "@/components/shared";
+import {
+  CARD_LIST_DIVIDE_CLASS,
+  CARD_LIST_META_CLASS,
+  CARD_LIST_ROW_CLASS,
+} from "@/lib/ui/card-list-styles";
 import {
   OrderStatusBadge,
   ProductStockFromQuantityBadge,
@@ -113,11 +119,12 @@ export default function SupplierPortalPage({
   return (
     <Navbar>
       <PageContentWrapper>
-        <div className="space-y-4">
+        <div className="flex flex-col">
           <PageSectionHeader
             as="h1"
             icon={Truck}
             tone="emerald"
+            className="pb-0"
             title="Supplier Portal"
             description={
               <>
@@ -373,54 +380,45 @@ export default function SupplierPortalPage({
               />
               <div>
                 {dataLoading ? (
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead>Order #</TableHead>
-                        <TableHead className="text-right">Revenue</TableHead>
-                        <TableHead>Status</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBodyPulseRows rows={5} columnCount={3} />
-                  </Table>
+                  <ul className="space-y-3 py-4">
+                    {[1, 2, 3, 4, 5].map((i) => (
+                      <li key={i} className="flex justify-between gap-2">
+                        <DataSlotPulse variant="text-sm" className="w-32" />
+                        <DataSlotPulse variant="badge" />
+                      </li>
+                    ))}
+                  </ul>
                 ) : (dashboard?.recentOrders.length ?? 0) === 0 ? (
                   <p className="text-muted-foreground text-center py-4">
                     No orders yet
                   </p>
                 ) : (
-                  <div className="overflow-x-auto">
-                    <Table>
-                      <TableHeader>
-                        <TableRow>
-                          <TableHead>Order #</TableHead>
-                          <TableHead className="text-right">Revenue</TableHead>
-                          <TableHead>Status</TableHead>
-                        </TableRow>
-                      </TableHeader>
-                      <TableBody>
-                        {dashboard!.recentOrders.slice(0, 5).map((order) => (
-                          <TableRow key={order.id}>
-                            <TableCell>
-                              <CopyableText value={order.orderNumber}>
-                                <Link
-                                  href={`/orders/${order.id}`}
-                                  className="text-sky-600 dark:text-sky-400 hover:text-sky-500 dark:hover:text-sky-300"
-                                >
-                                  {order.orderNumber}
-                                </Link>
-                              </CopyableText>
-                            </TableCell>
-                            <TableCell className="text-right">
-                              ${order.total.toFixed(2)}
-                            </TableCell>
-                            <TableCell>
-                              <OrderStatusBadge status={order.status} />
-                            </TableCell>
-                          </TableRow>
-                        ))}
-                      </TableBody>
-                    </Table>
-                  </div>
+                  <ul className={CARD_LIST_DIVIDE_CLASS}>
+                    {dashboard!.recentOrders.slice(0, 5).map((order) => (
+                      <li key={order.id} className={CARD_LIST_ROW_CLASS}>
+                        <div className="min-w-0">
+                          <CopyableText value={order.orderNumber} className="max-w-full">
+                            <Link
+                              href={`/orders/${order.id}`}
+                              className="font-normal text-xs text-sky-600 dark:text-sky-400 hover:text-sky-500 dark:hover:text-sky-300 truncate block"
+                            >
+                              {order.orderNumber}
+                            </Link>
+                          </CopyableText>
+                          <span className={CARD_LIST_META_CLASS}>
+                            {order.productCount} products ·{" "}
+                            <ClientCompactDateTime date={order.createdAt} />
+                          </span>
+                        </div>
+                        <div className="flex items-center gap-2 flex-shrink-0 overflow-visible py-1">
+                          <OrderStatusBadge status={order.status} />
+                          <span className="text-xs font-normal text-gray-700 dark:text-white">
+                            ${order.total.toFixed(2)}
+                          </span>
+                        </div>
+                      </li>
+                    ))}
+                  </ul>
                 )}
                 <div className="mt-4">
                   <Button

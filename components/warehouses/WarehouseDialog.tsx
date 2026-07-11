@@ -53,10 +53,11 @@ export default function WarehouseDialog({
   const open = isControlled ? controlledOpen : internalOpen;
   const setOpen = useCallback(
     (value: boolean) => {
-      if (isControlled && controlledOnOpenChange) {
-        controlledOnOpenChange(value);
+      if (isControlled) {
+        controlledOnOpenChange?.(value);
       } else {
         setInternalOpen(value);
+        controlledOnOpenChange?.(value);
       }
     },
     [isControlled, controlledOnOpenChange],

@@ -32,7 +32,7 @@ type FiltersAndActionsProps = {
   /** When true, hide Import (e.g. client browse mode) */
   hideImport?: boolean;
   /** When provided (e.g. client browse), show Product Owner dropdown in filter row */
-  productOwnerOptions?: Array<{ id: string; name: string; email: string }>;
+  productOwnerOptions?: Array<{ id: string; name: string; email: string; image?: string | null }>;
   /** REQ-0071 — total store owners vs owners with catalog products */
   storeOwnerCounts?: { total: number; withProducts: number };
   selectedOwnerId?: string;
@@ -303,20 +303,20 @@ export default function FiltersAndActions({
     <div className="flex flex-col gap-2">
       {/* Row 1: Select Product Owner (when client) - centered */}
       {productOwnerOptions && onOwnerChange && (
-        <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-center gap-2 sm:gap-3 w-full">
-          <div className="flex flex-col gap-1 sm:items-end">
-            {storeOwnerCounts && storeOwnerCounts.total > 0 && (
-              <p className="text-xs text-muted-foreground flex items-center gap-1.5">
-                <Users className="h-3.5 w-3.5 shrink-0 text-violet-500" />
-                {storeOwnerCounts.withProducts} of {storeOwnerCounts.total}{" "}
-                store owners have products
-              </p>
-            )}
-            <span className="text-sm font-medium text-gray-700 dark:text-white/80 flex items-center gap-2">
-              <Users className="h-4 w-4 text-violet-500 dark:text-violet-400 flex-shrink-0" />
-              Select Product Owner
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 w-full">
+          <p className="text-sm text-gray-700 dark:text-white/80 flex items-center gap-2 min-w-0">
+            <Users className="h-4 w-4 text-violet-500 dark:text-violet-400 shrink-0" />
+            <span className="truncate">
+              {storeOwnerCounts && storeOwnerCounts.total > 0 ? (
+                <>
+                  {storeOwnerCounts.withProducts} of {storeOwnerCounts.total}{" "}
+                  store owners have products · Select Product Owner
+                </>
+              ) : (
+                "Select Product Owner"
+              )}
             </span>
-          </div>
+          </p>
           <ProductOwnerSelect
             options={productOwnerOptions}
             selectedOwnerId={selectedOwnerId}

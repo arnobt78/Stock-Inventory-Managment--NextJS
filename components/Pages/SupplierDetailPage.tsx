@@ -654,6 +654,7 @@ export default function SupplierDetailPage({
               isPending={isDeleting}
               pendingLabel="Deleting…"
               label="Delete Supplier"
+              icon={Trash2}
               hue="rose"
               disabled={disableCrud || isGlobalDemo}
               className="w-full sm:w-auto gap-2"

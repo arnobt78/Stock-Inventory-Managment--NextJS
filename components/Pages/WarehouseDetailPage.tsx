@@ -22,6 +22,7 @@ import {
   ArrowRightLeft,
   Plus,
   Hash,
+  Trash2,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -648,6 +649,7 @@ export default function WarehouseDetailPage({
               isPending={isDeleting}
               pendingLabel="Deleting…"
               label="Delete Warehouse"
+              icon={Trash2}
               hue="rose"
               className="group w-full sm:w-auto gap-2 !text-white"
             />

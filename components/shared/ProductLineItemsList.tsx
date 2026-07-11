@@ -2,11 +2,12 @@
 
 /**
  * REQ-0063 — shared product line-item rows (thumb + name/SKU/qty/subtotal).
- * Used by order detail (OrderItemsCard) and invoice detail (linked order items).
+ * REQ-0073 — two-row thumb layout + inline category/supplier/warehouse row.
  */
 
 import React from "react";
 import Link from "next/link";
+import { Hash, Package, Tag, Truck, Warehouse } from "lucide-react";
 import { ProductThumb } from "@/components/products/ProductOptionRow";
 import ProductReviewsSection from "@/components/product-reviews/ProductReviewsSection";
 import type { Order, OrderItem } from "@/types";
@@ -15,16 +16,60 @@ import type { OrderReviewContext } from "@/lib/server/order-review-context-data"
 export type ProductLineItemsListProps = {
   items: OrderItem[];
   linkMode: "admin" | "none";
+  /** REQ-0073 — warehouse link for admin/owner; plain text for client/supplier */
+  warehouseLinkMode?: "admin" | "owner" | "none";
   emptyMessage?: string;
-  /** Order detail only — show review CTA when paid */
   showReviews?: boolean;
   order?: Pick<Order, "id" | "paymentStatus">;
   initialReviewContext?: OrderReviewContext;
 };
 
+function CatalogLink({
+  href,
+  icon: Icon,
+  label,
+  children,
+}: {
+  href: string;
+  icon: React.ComponentType<{ className?: string }>;
+  label: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <span className="inline-flex items-center gap-1 text-sm text-gray-600 dark:text-gray-400">
+      <Icon className="h-3.5 w-3.5 shrink-0 text-gray-500 dark:text-gray-400" />
+      {label}{" "}
+      <Link
+        href={href}
+        className="text-sky-600 dark:text-sky-400 hover:text-sky-500 dark:hover:text-sky-300 font-medium"
+      >
+        {children}
+      </Link>
+    </span>
+  );
+}
+
+function CatalogText({
+  icon: Icon,
+  label,
+  children,
+}: {
+  icon: React.ComponentType<{ className?: string }>;
+  label: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <span className="inline-flex items-center gap-1 text-sm text-gray-600 dark:text-gray-400">
+      <Icon className="h-3.5 w-3.5 shrink-0 text-gray-500 dark:text-gray-400" />
+      {label} {children}
+    </span>
+  );
+}
+
 export function ProductLineItemsList({
   items,
   linkMode,
+  warehouseLinkMode = "none",
   emptyMessage = "No items",
   showReviews = false,
   order,
@@ -36,126 +81,123 @@ export function ProductLineItemsList({
 
   return (
     <>
-      {items.map((item) => (
-        <div
-          key={item.id}
-          className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 p-4 rounded-xl border border-sky-200/40 dark:border-sky-400/20 bg-gradient-to-r from-sky-100/40 via-sky-50/20 to-transparent dark:from-sky-500/10 dark:via-sky-500/5 dark:to-transparent"
-        >
-          <div className="flex flex-1 min-w-0 items-start gap-3">
-            <ProductThumb
-              name={item.productName}
-              imageUrl={item.imageUrl}
-              size="md"
-            />
-            <div className="flex-1 min-w-0">
-              {linkMode === "admin" ? (
-                <div className="flex flex-wrap items-center gap-2">
-                  <h4 className="font-medium text-gray-700 dark:text-white">
-                    {item.productId ? (
-                      <Link
-                        href={`/admin/products/${item.productId}`}
-                        className="text-sky-600 dark:text-sky-400 hover:text-sky-500 dark:hover:text-sky-300"
-                      >
-                        {item.productName}
-                      </Link>
-                    ) : (
-                      item.productName
-                    )}
-                  </h4>
-                  {item.categoryId && (
+      {items.map((item) => {
+        const categoryHref =
+          linkMode === "admin"
+            ? `/admin/categories/${item.categoryId}`
+            : `/categories/${item.categoryId}`;
+        const supplierHref =
+          linkMode === "admin"
+            ? `/admin/suppliers/${item.supplierId}`
+            : `/suppliers/${item.supplierId}`;
+        const productHref =
+          linkMode === "admin" && item.productId
+            ? `/admin/products/${item.productId}`
+            : null;
+
+        const warehouseHref =
+          item.warehouseId && warehouseLinkMode === "admin"
+            ? `/admin/warehouses/${item.warehouseId}`
+            : item.warehouseId && warehouseLinkMode === "owner"
+              ? `/warehouses/${item.warehouseId}`
+              : null;
+
+        return (
+          <div
+            key={item.id}
+            className="p-4 rounded-xl border border-sky-200/40 dark:border-sky-400/20 bg-gradient-to-r from-sky-100/40 via-sky-50/20 to-transparent dark:from-sky-500/10 dark:via-sky-500/5 dark:to-transparent"
+          >
+            <div className="flex gap-3 items-start">
+              <ProductThumb
+                name={item.productName}
+                imageUrl={item.imageUrl}
+                size="lg"
+                className="shrink-0 self-stretch min-h-[3rem]"
+              />
+              <div className="flex-1 min-w-0 space-y-1">
+                <h4 className="font-medium text-gray-700 dark:text-white truncate">
+                  {productHref ? (
                     <Link
-                      href={`/admin/categories/${item.categoryId}`}
-                      className="text-xs text-sky-600 dark:text-sky-400 hover:text-sky-500 dark:hover:text-sky-300"
+                      href={productHref}
+                      className="text-sky-600 dark:text-sky-400 hover:text-sky-500 dark:hover:text-sky-300"
                     >
-                      Category
+                      {item.productName}
                     </Link>
+                  ) : (
+                    item.productName
                   )}
-                  {item.supplierId && (
-                    <Link
-                      href={`/admin/suppliers/${item.supplierId}`}
-                      className="text-xs text-sky-600 dark:text-sky-400 hover:text-sky-500 dark:hover:text-sky-300"
-                    >
-                      Supplier
-                    </Link>
-                  )}
-                </div>
-              ) : (
-                <>
-                  <h4 className="font-medium text-gray-700 dark:text-white">
-                    {item.productName}
-                  </h4>
-                  {(item.categoryName || item.categoryId) && (
-                    <p className="text-sm text-gray-600 dark:text-gray-400">
-                      Category:{" "}
-                      {item.categoryId ? (
-                        <Link
-                          href={`/categories/${item.categoryId}`}
-                          className="text-sky-600 dark:text-sky-400 hover:text-sky-500 dark:hover:text-sky-300"
-                        >
-                          {item.categoryName ?? "View category"}
-                        </Link>
-                      ) : (
-                        (item.categoryName ?? "—")
-                      )}
-                    </p>
-                  )}
-                  {(item.supplierName || item.supplierId) && (
-                    <p className="text-sm text-gray-600 dark:text-gray-400">
-                      Supplier:{" "}
-                      {item.supplierId ? (
-                        <Link
-                          href={`/suppliers/${item.supplierId}`}
-                          className="text-sky-600 dark:text-sky-400 hover:text-sky-500 dark:hover:text-sky-300"
-                        >
-                          {item.supplierName ?? "View supplier"}
-                        </Link>
-                      ) : (
-                        (item.supplierName ?? "—")
-                      )}
-                    </p>
-                  )}
-                </>
-              )}
-              {item.sku && (
-                <p className="text-sm text-gray-600 dark:text-gray-400">
-                  SKU: {item.sku}
+                </h4>
+                <p className="flex items-center gap-1 text-sm text-gray-600 dark:text-gray-400">
+                  <Hash className="h-3.5 w-3.5 shrink-0" />
+                  SKU: {item.sku ?? "—"}
                 </p>
-              )}
-              {item.warehouseName && (
-                <p className="text-sm text-gray-600 dark:text-gray-400">
-                  Warehouse: {item.warehouseName}
+                <p className="flex items-center gap-1 text-sm text-gray-600 dark:text-gray-400">
+                  <Package className="h-3.5 w-3.5 shrink-0" />
+                  Quantity: {item.quantity} × ${Number(item.price).toFixed(2)}
                 </p>
-              )}
-              <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
-                Quantity: {item.quantity} × ${Number(item.price).toFixed(2)}
-              </p>
+              </div>
+              <div className="text-left sm:text-right flex flex-col items-end gap-2 shrink-0">
+                <p className="font-medium text-sky-600 dark:text-sky-400 text-sm sm:text-lg">
+                  ${Number(item.subtotal).toFixed(2)}
+                </p>
+                {showReviews &&
+                  order?.paymentStatus === "paid" &&
+                  item.productId &&
+                  order.id && (
+                    <ProductReviewsSection
+                      productId={item.productId}
+                      productName={item.productName ?? "Product"}
+                      orderId={order.id}
+                      compact
+                      variant="sky"
+                      initialReviews={
+                        initialReviewContext?.reviewsByProductId[item.productId]
+                      }
+                      initialEligibility={
+                        initialReviewContext?.eligibilityByProductId[
+                          item.productId
+                        ]
+                      }
+                    />
+                  )}
+              </div>
+            </div>
+
+            <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1 pt-2 border-t border-sky-200/30 dark:border-sky-400/10">
+              {(item.categoryName || item.categoryId) &&
+                (item.categoryId ? (
+                  <CatalogLink href={categoryHref} icon={Tag} label="Category:">
+                    {item.categoryName ?? "View category"}
+                  </CatalogLink>
+                ) : (
+                  <CatalogText icon={Tag} label="Category:">
+                    {item.categoryName ?? "—"}
+                  </CatalogText>
+                ))}
+              {(item.supplierName || item.supplierId) &&
+                (item.supplierId ? (
+                  <CatalogLink href={supplierHref} icon={Truck} label="Supplier:">
+                    {item.supplierName ?? "View supplier"}
+                  </CatalogLink>
+                ) : (
+                  <CatalogText icon={Truck} label="Supplier:">
+                    {item.supplierName ?? "—"}
+                  </CatalogText>
+                ))}
+              {item.warehouseName &&
+                (warehouseHref ? (
+                  <CatalogLink href={warehouseHref} icon={Warehouse} label="Warehouse:">
+                    {item.warehouseName}
+                  </CatalogLink>
+                ) : (
+                  <CatalogText icon={Warehouse} label="Warehouse:">
+                    {item.warehouseName}
+                  </CatalogText>
+                ))}
             </div>
           </div>
-          <div className="text-left sm:text-right mt-2 sm:mt-0 flex flex-col items-end gap-2">
-            <p className="font-medium text-sky-600 dark:text-sky-400 text-sm sm:text-lg">
-              ${Number(item.subtotal).toFixed(2)}
-            </p>
-            {showReviews &&
-              order?.paymentStatus === "paid" &&
-              item.productId &&
-              order.id && (
-                <ProductReviewsSection
-                  productId={item.productId}
-                  productName={item.productName ?? "Product"}
-                  orderId={order.id}
-                  compact
-                  variant="sky"
-                  initialReviews={
-                    initialReviewContext?.reviewsByProductId[item.productId]
-                  }
-                  initialEligibility={
-                    initialReviewContext?.eligibilityByProductId[item.productId]
-                  }
-                />
-              )}
-          </div>
-        </div>
-      ))}
+        );
+      })}
     </>
   );
 }

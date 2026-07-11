@@ -3,6 +3,7 @@
 /**
  * Dialog primary submit — spinner + dynamic pending label (warehouse + catalog dialogs).
  */
+import type { LucideIcon } from "lucide-react";
 import { Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -19,6 +20,8 @@ export type DialogSubmitButtonProps = {
   pendingLabel: string;
   label: string;
   hue: GlassFocusHue;
+  /** REQ-0073 — optional leading icon when not pending */
+  icon?: LucideIcon;
   disabled?: boolean;
   type?: "button" | "submit";
   onClick?: () => void;
@@ -30,6 +33,7 @@ export function DialogSubmitButton({
   pendingLabel,
   label,
   hue,
+  icon: Icon,
   disabled,
   type = "submit",
   onClick,
@@ -55,7 +59,10 @@ export function DialogSubmitButton({
           {pendingLabel}
         </>
       ) : (
-        label
+        <>
+          {Icon && <Icon className="h-4 w-4 shrink-0" aria-hidden />}
+          {label}
+        </>
       )}
     </Button>
   );

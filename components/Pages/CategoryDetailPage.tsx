@@ -19,6 +19,7 @@ import {
   Mail,
   Edit,
   Hash,
+  Trash2,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
@@ -705,6 +706,7 @@ export default function CategoryDetailPage({
               isPending={isDeleting}
               pendingLabel="Deleting…"
               label="Delete Category"
+              icon={Trash2}
               hue="rose"
               disabled={disableCrud}
               className="group w-full sm:w-auto gap-2"

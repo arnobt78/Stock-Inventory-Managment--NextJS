@@ -44,7 +44,7 @@ export type OrderDetailEnrichment = {
   placedByName: string | null;
   placedByEmail: string | null;
   orderProductOwners: { userId: string; name: string | null; email: string }[];
-  invoiceForOrder: { id: string; invoiceNumber: string } | null;
+  invoiceForOrder: { id: string; invoiceNumber: string; paidAt?: string | null } | null;
 };
 
 /** Map Prisma order + enrichment to API/SSR Order shape. */
@@ -84,6 +84,10 @@ export function transformOrderDetail(
     placedByEmail: enrichment.placedByEmail,
     orderProductOwners: enrichment.orderProductOwners,
     invoiceForOrder: enrichment.invoiceForOrder,
+    paidAt:
+      order.paymentStatus === "paid" && enrichment.invoiceForOrder?.paidAt
+        ? enrichment.invoiceForOrder.paidAt
+        : null,
     items: mapOrderItemsFromRaw(order.items),
   } as unknown as Order;
 }

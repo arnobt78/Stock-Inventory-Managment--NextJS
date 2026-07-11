@@ -21,7 +21,7 @@ export async function getProductOwnerAdminsForBrowse() {
       id: { in: ownerIds },
       role: { in: ["admin", "user"] },
     },
-    select: { id: true, name: true, email: true },
+    select: { id: true, name: true, email: true, image: true },
     orderBy: { name: "asc" },
   });
 }
@@ -55,6 +55,7 @@ export async function getClientBrowseMetaForPage(): Promise<ClientBrowseMeta> {
       id: a.id,
       name: a.name ?? a.email ?? "Unknown",
       email: a.email ?? "",
+      image: a.image ?? null,
     })),
     stats: {
       storeOwners: {

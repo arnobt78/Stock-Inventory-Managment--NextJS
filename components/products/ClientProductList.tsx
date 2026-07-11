@@ -168,7 +168,7 @@ export default function ClientProductList({
         description="Explore products from our store. Filter by category, supplier, or status, or choose a product owner to browse their catalog."
       />
 
-      <div className="pb-6 flex justify-center">
+      <div className="pb-2 flex justify-center">
         <div className={APP_SHELL_WIDTH_CLASS}>
           <ProductFilters
             searchTerm={searchTerm}

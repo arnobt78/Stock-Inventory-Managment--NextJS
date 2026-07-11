@@ -19,6 +19,8 @@ import {
   Edit,
   Hash,
   Ban,
+  StickyNote,
+  CircleDollarSign,
 } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
@@ -282,6 +284,13 @@ export default function OrderDetailPage({
             order={order}
             dataLoading={dataLoading}
             linkMode="none"
+            warehouseLinkMode={
+              user?.role === "admin"
+                ? "admin"
+                : user?.role === "user"
+                  ? "owner"
+                  : "none"
+            }
             initialReviewContext={initialReviewContext}
           />
 
@@ -347,6 +356,13 @@ export default function OrderDetailPage({
                 <DetailInfoRow icon={Calendar} label="Created:" tone="orange" loading={dataLoading}>
                   {!dataLoading && <ClientDateTime date={createdAt} />}
                 </DetailInfoRow>
+                {(dataLoading || (order?.paymentStatus === "paid" && order?.paidAt)) && (
+                  <DetailInfoRow icon={CircleDollarSign} label="Paid:" tone="emerald" loading={dataLoading}>
+                    {!dataLoading && order?.paidAt && (
+                      <ClientDateTime date={new Date(order.paidAt)} />
+                    )}
+                  </DetailInfoRow>
+                )}
                 {(dataLoading || updatedAt) && (
                   <DetailInfoRow icon={Calendar} label="Updated:" tone="amber" loading={dataLoading}>
                     {!dataLoading && updatedAt && <ClientDateTime date={updatedAt} />}
@@ -391,14 +407,9 @@ export default function OrderDetailPage({
                   </DetailInfoRow>
                 )}
                 {!dataLoading && order?.notes && (
-                  <div className="p-2 rounded-xl bg-gradient-to-r from-teal-100/50 via-teal-50/30 to-transparent dark:from-teal-500/10 dark:via-teal-500/5 dark:to-transparent border border-teal-200/30 dark:border-teal-400/10">
-                    <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">
-                      Notes:
-                    </p>
-                    <p className="text-sm text-gray-700 dark:text-white">
-                      {order.notes}
-                    </p>
-                  </div>
+                  <DetailInfoRow icon={StickyNote} label="Notes:" tone="teal">
+                    {order.notes}
+                  </DetailInfoRow>
                 )}
               </div>
             </GlassCard>
@@ -560,6 +571,7 @@ export default function OrderDetailPage({
                       isPending={isCancelling}
                       pendingLabel="Cancelling…"
                       label="Cancel Order"
+                      icon={Ban}
                       hue="rose"
                       disabled={actionsDisabled}
                       className="group w-full sm:w-auto gap-2"

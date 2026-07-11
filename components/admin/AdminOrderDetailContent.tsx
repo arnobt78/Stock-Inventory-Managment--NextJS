@@ -317,6 +317,7 @@ export default function AdminOrderDetailContent({
           order={order}
           dataLoading={dataLoading}
           linkMode="admin"
+          warehouseLinkMode="admin"
           initialReviewContext={initialReviewContext}
         />
 

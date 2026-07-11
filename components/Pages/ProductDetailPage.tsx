@@ -849,6 +849,7 @@ export default function ProductDetailPage({
               isPending={isDeleting}
               pendingLabel="Deleting…"
               label="Delete Product"
+              icon={Trash2}
               hue="rose"
               disabled={disableCrud}
               className="w-full sm:w-auto gap-2"

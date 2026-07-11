@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import { ClipboardList, Wallet } from "lucide-react";
 import { DataSlotPulse } from "@/components/shared";
 import type { OrderStatus, PaymentStatus } from "@/types";
 import {
@@ -25,7 +26,8 @@ export function OrderStatusBadges({
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
       <GlassCard variant="amber">
-        <p className="text-xs uppercase tracking-[0.25em] text-gray-600 dark:text-white/60 mb-3">
+        <p className="text-xs uppercase tracking-[0.25em] text-gray-600 dark:text-white/60 mb-3 inline-flex items-center gap-1.5">
+          <ClipboardList className="h-3.5 w-3.5 shrink-0 text-amber-600 dark:text-amber-400" />
           Order Status
         </p>
         <div className="flex flex-wrap items-center gap-2">
@@ -38,7 +40,8 @@ export function OrderStatusBadges({
         </div>
       </GlassCard>
       <GlassCard variant="emerald">
-        <p className="text-xs uppercase tracking-[0.25em] text-gray-600 dark:text-white/60 mb-3">
+        <p className="text-xs uppercase tracking-[0.25em] text-gray-600 dark:text-white/60 mb-3 inline-flex items-center gap-1.5">
+          <Wallet className="h-3.5 w-3.5 shrink-0 text-emerald-600 dark:text-emerald-400" />
           Payment Status
         </p>
         {dataLoading ? (

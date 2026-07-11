@@ -12,6 +12,7 @@ export type OrderItemsCardProps = {
   order?: Order;
   dataLoading: boolean;
   linkMode: "admin" | "none";
+  warehouseLinkMode?: "admin" | "owner" | "none";
   /** REQ-0026 — batch SSR review context keyed by productId */
   initialReviewContext?: OrderReviewContext;
 };
@@ -20,6 +21,7 @@ export function OrderItemsCard({
   order,
   dataLoading,
   linkMode,
+  warehouseLinkMode = "none",
   initialReviewContext,
 }: OrderItemsCardProps) {
   const itemCount = order?.items?.length ?? 0;
@@ -69,6 +71,7 @@ export function OrderItemsCard({
           <ProductLineItemsList
             items={order?.items ?? []}
             linkMode={linkMode}
+            warehouseLinkMode={warehouseLinkMode}
             emptyMessage="No items in this order"
             showReviews
             order={order}

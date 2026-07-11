@@ -52,13 +52,36 @@ describe("transformOrderDetail", () => {
       orderProductOwners: [
         { userId: "owner1", name: "Owner", email: "owner@test.com" },
       ],
-      invoiceForOrder: { id: "inv1", invoiceNumber: "INV-001" },
+      invoiceForOrder: {
+        id: "inv1",
+        invoiceNumber: "INV-001",
+        paidAt: "2026-01-02T12:00:00.000Z",
+      },
     });
 
     expect(result.orderNumber).toBe("ORD-001");
     expect(result.placedByName).toBe("Alice");
     expect(result.invoiceForOrder?.invoiceNumber).toBe("INV-001");
+    expect(result.paidAt).toBe("2026-01-02T12:00:00.000Z");
     expect(result.items[0]?.categoryId).toBe("cat1");
     expect(result.createdAt).toBe("2026-01-01T00:00:00.000Z");
+  });
+
+  it("omits paidAt when order is not paid", () => {
+    const result = transformOrderDetail(
+      { ...baseOrder, paymentStatus: "unpaid" },
+      {
+        placedByName: null,
+        placedByEmail: null,
+        orderProductOwners: [],
+        invoiceForOrder: {
+          id: "inv1",
+          invoiceNumber: "INV-001",
+          paidAt: "2026-01-02T12:00:00.000Z",
+        },
+      },
+    );
+
+    expect(result.paidAt).toBeNull();
   });
 });

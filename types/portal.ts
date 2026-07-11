@@ -207,7 +207,7 @@ export interface ClientCatalogOverview {
  * Client browse meta (product owners + global stats for client browse page)
  */
 export interface ClientBrowseMeta {
-  admins: Array<{ id: string; name: string; email: string }>;
+  admins: Array<{ id: string; name: string; email: string; image?: string | null }>;
   stats: {
     storeOwners: {
       total: number;

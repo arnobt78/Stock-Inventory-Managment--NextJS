@@ -1,7 +1,14 @@
 "use client";
 
 import React from "react";
-import { DollarSign } from "lucide-react";
+import {
+  DollarSign,
+  Receipt,
+  Percent,
+  Truck,
+  Tag,
+  CircleDollarSign,
+} from "lucide-react";
 import { Separator } from "@/components/ui/separator";
 import { DataSlotPulse } from "@/components/shared";
 import type { Order } from "@/types";
@@ -12,6 +19,32 @@ export type OrderSummaryCardProps = {
   order?: Order;
   dataLoading: boolean;
 };
+
+function SummaryRow({
+  icon: Icon,
+  label,
+  value,
+  valueClassName,
+  loading,
+}: {
+  icon: React.ComponentType<{ className?: string }>;
+  label: string;
+  value: React.ReactNode;
+  valueClassName?: string;
+  loading?: boolean;
+}) {
+  return (
+    <div className="flex justify-between items-center text-sm p-2 rounded-lg bg-gradient-to-r from-sky-100/40 via-sky-50/20 to-transparent dark:from-sky-500/10 dark:via-sky-500/5 dark:to-transparent">
+      <span className="text-gray-600 dark:text-gray-400 inline-flex items-center gap-1.5">
+        <Icon className="h-3.5 w-3.5 shrink-0" />
+        {label}
+      </span>
+      <span className={cn("font-medium text-gray-700 dark:text-white", valueClassName)}>
+        {loading ? <DataSlotPulse variant="currency" /> : value}
+      </span>
+    </div>
+  );
+}
 
 export function OrderSummaryCard({
   order,
@@ -34,43 +67,40 @@ export function OrderSummaryCard({
         </h3>
       </div>
       <div className="space-y-2">
-        <div className="flex justify-between text-sm p-2 rounded-lg bg-gradient-to-r from-sky-100/40 via-sky-50/20 to-transparent dark:from-sky-500/10 dark:via-sky-500/5 dark:to-transparent">
-          <span className="text-gray-600 dark:text-gray-400">Subtotal:</span>
-          <span className="font-medium text-gray-700 dark:text-white">
-            {dataLoading ? (
-              <DataSlotPulse variant="currency" />
-            ) : (
-              `$${Number(order!.subtotal).toFixed(2)}`
-            )}
-          </span>
-        </div>
+        <SummaryRow
+          icon={Receipt}
+          label="Subtotal:"
+          loading={dataLoading}
+          value={`$${Number(order!.subtotal).toFixed(2)}`}
+        />
         {!dataLoading && order!.tax != null && order!.tax > 0 && (
-          <div className="flex justify-between text-sm p-2 rounded-lg bg-gradient-to-r from-amber-100/40 via-amber-50/20 to-transparent dark:from-amber-500/10 dark:via-amber-500/5 dark:to-transparent">
-            <span className="text-gray-600 dark:text-gray-400">Tax:</span>
-            <span className="font-medium text-gray-700 dark:text-white">
-              ${Number(order!.tax).toFixed(2)}
-            </span>
-          </div>
+          <SummaryRow
+            icon={Percent}
+            label="Tax:"
+            value={`$${Number(order!.tax).toFixed(2)}`}
+          />
         )}
         {!dataLoading && order!.shipping != null && order!.shipping > 0 && (
-          <div className="flex justify-between text-sm p-2 rounded-lg bg-gradient-to-r from-violet-100/40 via-violet-50/20 to-transparent dark:from-violet-500/10 dark:via-violet-500/5 dark:to-transparent">
-            <span className="text-gray-600 dark:text-gray-400">Shipping:</span>
-            <span className="font-medium text-gray-700 dark:text-white">
-              ${Number(order!.shipping).toFixed(2)}
-            </span>
-          </div>
+          <SummaryRow
+            icon={Truck}
+            label="Shipping:"
+            value={`$${Number(order!.shipping).toFixed(2)}`}
+          />
         )}
         {!dataLoading && order!.discount != null && order!.discount > 0 && (
-          <div className="flex justify-between text-sm p-2 rounded-lg bg-gradient-to-r from-rose-100/40 via-rose-50/20 to-transparent dark:from-rose-500/10 dark:via-rose-500/5 dark:to-transparent">
-            <span className="text-gray-600 dark:text-gray-400">Discount:</span>
-            <span className="font-medium text-rose-600 dark:text-rose-400">
-              -${Number(order!.discount).toFixed(2)}
-            </span>
-          </div>
+          <SummaryRow
+            icon={Tag}
+            label="Discount:"
+            value={`-$${Number(order!.discount).toFixed(2)}`}
+            valueClassName="text-rose-600 dark:text-rose-400"
+          />
         )}
         <Separator className="my-2 bg-teal-200/50 dark:bg-teal-400/20" />
         <div className="flex justify-between text-sm sm:text-lg font-medium p-2 rounded-xl bg-gradient-to-r from-emerald-100/50 via-emerald-50/30 to-transparent dark:from-emerald-500/15 dark:via-emerald-500/10 dark:to-transparent border border-emerald-200/30 dark:border-emerald-400/20">
-          <span className="text-gray-700 dark:text-white">Total:</span>
+          <span className="text-gray-700 dark:text-white inline-flex items-center gap-1.5">
+            <CircleDollarSign className="h-4 w-4 shrink-0 text-emerald-600 dark:text-emerald-400" />
+            Total:
+          </span>
           <span className="text-emerald-600 dark:text-emerald-400">
             {dataLoading ? (
               <DataSlotPulse variant="currency" />

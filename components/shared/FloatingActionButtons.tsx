@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useCallback, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import {
@@ -20,6 +20,7 @@ import WarehouseDialog from "@/components/warehouses/WarehouseDialog";
 import { Product } from "@/types";
 import { fabButtonClass } from "@/lib/ui/fab-button-styles";
 import type { GlassFocusHue } from "@/lib/ui/focus-ring-styles";
+import { useProductStore } from "@/stores";
 
 export type FloatingActionButtonsVariant =
   | "home"
@@ -73,15 +74,22 @@ export default function FloatingActionButtons({
   userId = "",
   selectedOwnerId = "",
 }: FloatingActionButtonsProps) {
-  const [isAnyHovered, setIsAnyHovered] = useState(false);
+  const [expandRequested, setExpandRequested] = useState(false);
+  const openProductDialog = useProductStore((s) => s.openProductDialog);
 
-  const handleMouseEnter = () => {
-    setIsAnyHovered(true);
-  };
+  const usesProductFab =
+    variant === "home" || variant === "products";
+  const isExpanded = usesProductFab
+    ? expandRequested && openProductDialog
+    : expandRequested;
 
-  const handleMouseLeave = () => {
-    setIsAnyHovered(false);
-  };
+  const handleFabPointerDown = useCallback(() => {
+    setExpandRequested(true);
+  }, []);
+
+  const handleDialogOpenChange = useCallback((open: boolean) => {
+    setExpandRequested(open);
+  }, []);
 
   const labelClass = (expanded: boolean) =>
     `overflow-hidden whitespace-nowrap transition-all duration-300 ${
@@ -93,121 +101,123 @@ export default function FloatingActionButtons({
       expanded ? "w-[160px]" : "w-14"
     }`;
 
+  const fabClickProps = { onPointerDown: handleFabPointerDown };
+
   return (
-    <div
-      className="fixed right-4 top-1/2 -translate-y-1/2 z-50 hidden md:flex flex-col gap-2"
-      onMouseEnter={handleMouseEnter}
-      onMouseLeave={handleMouseLeave}
-    >
+    <div className="fixed right-4 top-1/2 -translate-y-1/2 z-50 hidden md:flex flex-col gap-2">
       {variant === "home" && (
-        <div className={wrapClass(isAnyHovered)}>
+        <div className={wrapClass(isExpanded)}>
           <AddProductDialog allProducts={allProducts} userId={userId}>
-            <FabButton hue="rose" expanded={isAnyHovered}>
+            <FabButton hue="rose" expanded={isExpanded} {...fabClickProps}>
               <Package className="h-5 w-5 flex-shrink-0" />
-              <span className={labelClass(isAnyHovered)}>Add Product</span>
+              <span className={labelClass(isExpanded)}>Add Product</span>
             </FabButton>
           </AddProductDialog>
         </div>
       )}
 
       {variant === "products" && (
-        <div className={wrapClass(isAnyHovered)}>
+        <div className={wrapClass(isExpanded)}>
           <AddProductDialog allProducts={allProducts} userId={userId}>
-            <FabButton hue="rose" expanded={isAnyHovered}>
+            <FabButton hue="rose" expanded={isExpanded} {...fabClickProps}>
               <Package className="h-5 w-5 flex-shrink-0" />
-              <span className={labelClass(isAnyHovered)}>Add Product</span>
+              <span className={labelClass(isExpanded)}>Add Product</span>
             </FabButton>
           </AddProductDialog>
         </div>
       )}
 
       {variant === "home" && (
-        <div className={wrapClass(isAnyHovered)}>
-          <AddCategoryDialog>
-            <FabButton hue="sky" expanded={isAnyHovered}>
+        <div className={wrapClass(isExpanded)}>
+          <AddCategoryDialog onOpenChange={handleDialogOpenChange}>
+            <FabButton hue="sky" expanded={isExpanded} {...fabClickProps}>
               <Tag className="h-5 w-5 flex-shrink-0" />
-              <span className={labelClass(isAnyHovered)}>Add Category</span>
+              <span className={labelClass(isExpanded)}>Add Category</span>
             </FabButton>
           </AddCategoryDialog>
         </div>
       )}
 
       {variant === "categories" && (
-        <div className={wrapClass(isAnyHovered)}>
-          <AddCategoryDialog>
-            <FabButton hue="sky" expanded={isAnyHovered}>
+        <div className={wrapClass(isExpanded)}>
+          <AddCategoryDialog onOpenChange={handleDialogOpenChange}>
+            <FabButton hue="sky" expanded={isExpanded} {...fabClickProps}>
               <Tag className="h-5 w-5 flex-shrink-0" />
-              <span className={labelClass(isAnyHovered)}>Add Category</span>
+              <span className={labelClass(isExpanded)}>Add Category</span>
             </FabButton>
           </AddCategoryDialog>
         </div>
       )}
 
       {variant === "home" && (
-        <div className={wrapClass(isAnyHovered)}>
-          <AddSupplierDialog>
-            <FabButton hue="emerald" expanded={isAnyHovered}>
+        <div className={wrapClass(isExpanded)}>
+          <AddSupplierDialog onOpenChange={handleDialogOpenChange}>
+            <FabButton hue="emerald" expanded={isExpanded} {...fabClickProps}>
               <Truck className="h-5 w-5 flex-shrink-0" />
-              <span className={labelClass(isAnyHovered)}>Add Supplier</span>
+              <span className={labelClass(isExpanded)}>Add Supplier</span>
             </FabButton>
           </AddSupplierDialog>
         </div>
       )}
 
       {(variant === "home" || variant === "orders") && (
-        <div className={wrapClass(isAnyHovered)}>
-          <OrderDialog>
-            <FabButton hue="violet" expanded={isAnyHovered}>
+        <div className={wrapClass(isExpanded)}>
+          <OrderDialog onOpenChange={handleDialogOpenChange}>
+            <FabButton hue="violet" expanded={isExpanded} {...fabClickProps}>
               <ShoppingCart className="h-5 w-5 flex-shrink-0" />
-              <span className={labelClass(isAnyHovered)}>Create Order</span>
+              <span className={labelClass(isExpanded)}>Create Order</span>
             </FabButton>
           </OrderDialog>
         </div>
       )}
 
       {variant === "products-client" && (
-        <div className={wrapClass(isAnyHovered)}>
-          <OrderDialog defaultOwnerId={selectedOwnerId || undefined}>
+        <div className={wrapClass(isExpanded)}>
+          <OrderDialog
+            defaultOwnerId={selectedOwnerId || undefined}
+            onOpenChange={handleDialogOpenChange}
+          >
             <FabButton
               hue="violet"
-              expanded={isAnyHovered}
+              expanded={isExpanded}
               disabled={!selectedOwnerId}
+              {...fabClickProps}
             >
               <ShoppingCart className="h-5 w-5 flex-shrink-0" />
-              <span className={labelClass(isAnyHovered)}>Create Order</span>
+              <span className={labelClass(isExpanded)}>Create Order</span>
             </FabButton>
           </OrderDialog>
         </div>
       )}
 
       {variant === "suppliers" && (
-        <div className={wrapClass(isAnyHovered)}>
-          <AddSupplierDialog>
-            <FabButton hue="emerald" expanded={isAnyHovered}>
+        <div className={wrapClass(isExpanded)}>
+          <AddSupplierDialog onOpenChange={handleDialogOpenChange}>
+            <FabButton hue="emerald" expanded={isExpanded} {...fabClickProps}>
               <Truck className="h-5 w-5 flex-shrink-0" />
-              <span className={labelClass(isAnyHovered)}>Add Supplier</span>
+              <span className={labelClass(isExpanded)}>Add Supplier</span>
             </FabButton>
           </AddSupplierDialog>
         </div>
       )}
 
       {variant === "warehouses" && (
-        <div className={wrapClass(isAnyHovered)}>
-          <WarehouseDialog>
-            <FabButton hue="amber" expanded={isAnyHovered}>
+        <div className={wrapClass(isExpanded)}>
+          <WarehouseDialog onOpenChange={handleDialogOpenChange}>
+            <FabButton hue="amber" expanded={isExpanded} {...fabClickProps}>
               <Warehouse className="h-5 w-5 flex-shrink-0" />
-              <span className={labelClass(isAnyHovered)}>Add Warehouse</span>
+              <span className={labelClass(isExpanded)}>Add Warehouse</span>
             </FabButton>
           </WarehouseDialog>
         </div>
       )}
 
       {variant === "invoices" && (
-        <div className={wrapClass(isAnyHovered)}>
-          <InvoiceDialog>
-            <FabButton hue="indigo" expanded={isAnyHovered}>
+        <div className={wrapClass(isExpanded)}>
+          <InvoiceDialog onOpenChange={handleDialogOpenChange}>
+            <FabButton hue="indigo" expanded={isExpanded} {...fabClickProps}>
               <FileText className="h-5 w-5 flex-shrink-0" />
-              <span className={labelClass(isAnyHovered)}>Generate Invoice</span>
+              <span className={labelClass(isExpanded)}>Generate Invoice</span>
             </FabButton>
           </InvoiceDialog>
         </div>

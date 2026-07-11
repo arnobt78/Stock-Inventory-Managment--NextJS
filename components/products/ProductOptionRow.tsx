@@ -9,14 +9,15 @@ import { cn } from "@/lib/utils";
 const thumbSize = {
   sm: "h-8 w-8",
   md: "h-10 w-10",
+  lg: "h-12 w-12",
 } as const;
 
-const thumbPx = { sm: 32, md: 40 } as const;
+const thumbPx = { sm: 32, md: 40, lg: 48 } as const;
 
 export type ProductThumbProps = {
   name: string;
   imageUrl?: string | null;
-  size?: "sm" | "md";
+  size?: "sm" | "md" | "lg";
   className?: string;
 };
 
