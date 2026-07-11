@@ -1,9 +1,10 @@
 /**
  * Decrement warehouse stock allocations when product-level stock is sold.
- * Greedily deducts from the largest allocation first per product.
+ * Greedily deducts from the largest **available** allocation first per product.
  */
 
 import { prisma } from "@/prisma/client";
+import { planAllocationDecrements } from "@/lib/products/plan-allocation-decrements";
 
 export interface DecrementStockAllocationItem {
   productId: string;
@@ -12,7 +13,7 @@ export interface DecrementStockAllocationItem {
 
 /**
  * Best-effort decrement of StockAllocation rows for order line items.
- * Does not throw when allocations are missing or insufficient.
+ * Uses quantity − reservedQuantity as available; does not throw when insufficient.
  */
 export async function decrementStockAllocations(
   items: DecrementStockAllocationItem[],
@@ -20,30 +21,28 @@ export async function decrementStockAllocations(
   for (const item of items) {
     if (item.quantity <= 0) continue;
 
-    let remaining = item.quantity;
-
     const allocations = await prisma.stockAllocation.findMany({
       where: { productId: item.productId },
-      orderBy: { quantity: "desc" },
+      select: { id: true, quantity: true, reservedQuantity: true },
     });
 
-    for (const allocation of allocations) {
-      if (remaining <= 0) break;
+    const steps = planAllocationDecrements(
+      allocations.map((a) => ({
+        id: a.id,
+        quantity: Number(a.quantity),
+        reservedQuantity: Number(a.reservedQuantity),
+      })),
+      item.quantity,
+    );
 
-      const available = Number(allocation.quantity);
-      if (available <= 0) continue;
-
-      const deduct = Math.min(available, remaining);
-
+    for (const step of steps) {
       await prisma.stockAllocation.update({
-        where: { id: allocation.id },
+        where: { id: step.id },
         data: {
-          quantity: { decrement: deduct },
+          quantity: { decrement: step.deduct },
           updatedAt: new Date(),
         },
       });
-
-      remaining -= deduct;
     }
   }
 }

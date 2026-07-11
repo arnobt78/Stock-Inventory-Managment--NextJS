@@ -14,7 +14,7 @@ import {
   getWarehouseStockSummary,
 } from "@/prisma/stock-allocation";
 import { prisma } from "@/prisma/client";
-import { mergeProductListWhere } from "@/lib/products/product-query";
+import { findAccessibleProduct } from "@/lib/products/stock-product-access";
 import { getCache, setCache, cacheKeys, scheduleInvalidateStockAllocationCaches } from "@/lib/cache";
 import { withRateLimit, defaultRateLimits } from "@/lib/api/rate-limit";
 import { createStockAllocationSchema } from "@/lib/validations";
@@ -84,12 +84,11 @@ export async function GET(request: NextRequest) {
     let cacheKey: string;
 
     if (productId) {
-      const product = await prisma.product.findFirst({
-        where: mergeProductListWhere({
-          id: productId,
-          userId: session.id,
-        }),
-      });
+      const product = await findAccessibleProduct(
+        { id: session.id, role: session.role },
+        productId,
+        "read",
+      );
       if (!product) {
         return NextResponse.json({ error: "Product not found" }, { status: 404 });
       }
@@ -198,13 +197,15 @@ export async function POST(request: NextRequest) {
 
     const data = validation.data;
 
-    // Verify product belongs to user
-    const product = await prisma.product.findFirst({
-      where: mergeProductListWhere({
-        id: data.productId,
-        userId: session.id,
-      }),
-    });
+    if ((session.role ?? "client") === "client") {
+      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+    }
+
+    const product = await findAccessibleProduct(
+      { id: session.id, role: session.role },
+      data.productId,
+      "write",
+    );
     if (!product) {
       return NextResponse.json({ error: "Product not found" }, { status: 404 });
     }

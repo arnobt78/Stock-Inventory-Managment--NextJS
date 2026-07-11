@@ -163,6 +163,7 @@
 | ART-0155 | REQ-0065 | `components/admin/Admin*DetailContent.tsx` | Admin detail header/action parity |
 | ART-0156 | REQ-0066 | `app/api/stock-transfers/route.ts`, `lib/products/decrement-stock-allocations.ts`, warehouse dialogs | Warehouse integration |
 | ART-0157 | REQ-0067 | `app/api/ai/insights/route.ts` | Warehouse summary in AI payload |
+| ART-0158 | REQ-0066 | `lib/products/plan-allocation-decrements.ts`, `stock-product-access.ts` | Avail-sync planner + role gates |
 
 ## Tests
 

@@ -6,7 +6,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getSessionFromRequest } from "@/utils/auth";
 import { logger } from "@/lib/logger";
 import { prisma } from "@/prisma/client";
-import { mergeProductListWhere } from "@/lib/products/product-query";
+import { findAccessibleProduct } from "@/lib/products/stock-product-access";
 import {
   createStockTransfer,
   completeStockTransfer,
@@ -57,13 +57,15 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const product = await prisma.product.findFirst({
-      where: mergeProductListWhere({
-        id: data.productId,
-        userId: session.id,
-      }),
-      select: { id: true },
-    });
+    if ((session.role ?? "client") === "client") {
+      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+    }
+
+    const product = await findAccessibleProduct(
+      { id: session.id, role: session.role },
+      data.productId,
+      "write",
+    );
 
     const [fromWarehouse, toWarehouse] = await Promise.all([
       prisma.warehouse.findFirst({
