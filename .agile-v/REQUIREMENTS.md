@@ -1577,6 +1577,33 @@ Canonical REQ source. All artifacts link via `REQ-XXXX`. Status: `done` | `verif
 
 ---
 
+## REQ-0074 — Portal, charts, FAB & detail parity sweep
+
+| Field | Value |
+|-------|-------|
+| **Priority** | P1 |
+| **Risk** | R2 |
+| **Status** | done |
+| **Cycle** | C2 |
+| **Parent** | REQ-0073 |
+
+**Intent:** Close REQ-0073 QA gaps — portal pb-6 rhythm, SectionCardHeader charts, chart point labels, owner row center + avatar rings, FAB hover+click, order dialog grid, invoice/order detail parity.
+
+**Acceptance criteria**
+
+- AC1: Client/Supplier/ClientProductList use `PAGE_STATS_GRID_CLASS` + section `pb-6`
+- AC2: Portal chart/catalog use `SectionCardHeader`; chart point value labels on all Area/Bar/Line charts
+- AC3: Product owner row centered; avatar ring on picker
+- AC4: FAB hover+click expand; collapse on leave or dialog close
+- AC5: OrderDialog 3-column grid; warehouse icon + h-11 parity
+- AC6: Order payment status separate row; line items portal links + inline SKU
+- AC7: `PartiesRolesCard`, `InvoiceSummaryCard`, party `image` SSR
+- AC8: Red Team lint/test/invalidate/build pass
+
+**Artifacts:** portal pages, `chart-point-label.tsx`, `PartiesRolesCard.tsx`, `InvoiceSummaryCard.tsx`, `OrderDialog.tsx`
+
+---
+
 | Field | Value |
 |-------|-------|
 | **Priority** | P1 |

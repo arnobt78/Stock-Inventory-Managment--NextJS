@@ -175,3 +175,7 @@ Format: `TIMESTAMP | AGENT | DECISION | RATIONALE | REQ-ID`
 2026-07-11T20:10:00Z | build-agent | REQ-0073 owner avatars + FAB | ProductOwnerSelect SafeAvatarImage; FAB click-toggle | REQ-0073
 2026-07-11T20:20:00Z | build-agent | REQ-0073 order detail UX | line-item layout; paidAt; icon parity | REQ-0073
 2026-07-11T20:30:00Z | red-team | REQ-0073 gates | lint ✓ test 381 ✓ invalidate 206 ✓ build ✓ | REQ-0073
+2026-07-11T21:00:00Z | build-agent | REQ-0074 portal spacing + charts | pb-6 rhythm; SectionCardHeader; chart point labels | REQ-0074
+2026-07-11T21:10:00Z | build-agent | REQ-0074 FAB + order dialog | hover+click FAB; 3-col order line grid | REQ-0074
+2026-07-11T21:20:00Z | build-agent | REQ-0074 detail parity | PartiesRolesCard; InvoiceSummaryCard; party image SSR | REQ-0074
+2026-07-11T21:30:00Z | red-team | REQ-0074 gates | lint ✓ test 384 ✓ invalidate 206 ✓ build ✓ | REQ-0074

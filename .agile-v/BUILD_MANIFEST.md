@@ -192,6 +192,9 @@
 | ART-0184 | REQ-0073 | `ProductOwnerSelect`, `client-browse-data.ts` | Owner row avatars |
 | ART-0185 | REQ-0073 | `FloatingActionButtons.tsx`, dialog shells | FAB click-toggle collapse |
 | ART-0186 | REQ-0073 | `ProductLineItemsList`, order detail cards | Line-item layout + icons + paidAt |
+| ART-0187 | REQ-0074 | portal pages, `chart-point-label.tsx` | Spacing + chart headers + point labels |
+| ART-0188 | REQ-0074 | `PartiesRolesCard`, `InvoiceSummaryCard` | Detail parity + party avatars |
+| ART-0189 | REQ-0074 | `FloatingActionButtons`, `OrderDialog` | FAB hover + order line grid |
 
 ## Tests
 
@@ -216,3 +219,4 @@
 | TC-0017 | REQ-0069 | `lib/stock-allocation/stock-allocation-enrich.test.ts` |
 | TC-0018 | REQ-0072 | `lib/orders/enrich-order-items-catalog.test.ts` |
 | TC-0019 | REQ-0073 | `lib/orders/transform-order-detail.test.ts` (paidAt) |
+| TC-0020 | REQ-0074 | `lib/ui/chart-point-label.test.ts` |
