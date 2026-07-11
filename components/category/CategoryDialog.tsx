@@ -58,11 +58,8 @@ import {
   DIALOG_TABLE_SURFACE,
   DIALOG_TABLE_TEXT,
   DIALOG_TABLE_TEXT_MUTED,
-  GLASS_BUTTON_DISABLED,
-  GLASS_BUTTON_ICON_HOVER,
-  GLASS_BUTTON_SHELL_RESET,
   GLASS_GHOST_BUTTON,
-  GLASS_PRIMARY_BUTTON,
+  DialogSubmitButton,
 } from "@/components/shared";
 import { Category } from "@/types";
 import { createCategoryColumns } from "./CategoryTableColumns";
@@ -397,20 +394,16 @@ export default function AddCategoryDialog({
                   >
                     Cancel
                   </Button>
-                  <Button
+                  <DialogSubmitButton
+                    type="button"
                     onClick={handleUpdateCategory}
-                    variant="ghost"
-                    className={cn(
-                      GLASS_BUTTON_ICON_HOVER,
-                      GLASS_BUTTON_SHELL_RESET,
-                      GLASS_BUTTON_DISABLED,
-                      "w-full sm:w-auto px-11",
-                      GLASS_PRIMARY_BUTTON.sky,
-                    )}
-                    disabled={!isEditValid || isEditing}
-                  >
-                    {isEditing ? "Saving..." : "Save Changes"}
-                  </Button>
+                    isPending={isEditing}
+                    pendingLabel="Saving…"
+                    label="Save Changes"
+                    hue="sky"
+                    disabled={!isEditValid}
+                    className="px-11"
+                  />
                 </DialogFooter>
               </div>
             ) : (
@@ -475,20 +468,16 @@ export default function AddCategoryDialog({
                       Cancel
                     </Button>
                   </DialogClose>
-                  <Button
+                  <DialogSubmitButton
+                    type="button"
                     onClick={handleAddCategory}
-                    variant="ghost"
-                    className={cn(
-                      GLASS_BUTTON_ICON_HOVER,
-                      GLASS_BUTTON_SHELL_RESET,
-                      GLASS_BUTTON_DISABLED,
-                      "w-full sm:w-auto px-11",
-                      GLASS_PRIMARY_BUTTON.sky,
-                    )}
-                    disabled={!isAddValid || isSubmitting}
-                  >
-                    {isSubmitting ? "Creating..." : "Add Category"}
-                  </Button>
+                    isPending={isSubmitting}
+                    pendingLabel="Creating…"
+                    label="Add Category"
+                    hue="sky"
+                    disabled={!isAddValid}
+                    className="px-11"
+                  />
                 </DialogFooter>
               </>
             )}

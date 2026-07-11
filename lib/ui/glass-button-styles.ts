@@ -21,7 +21,7 @@ export const GLASS_BUTTON_DISABLED =
   "disabled:opacity-50 disabled:cursor-not-allowed";
 
 const PRIMARY_LAYOUT =
-  "h-11 inline-flex items-center justify-center rounded-xl backdrop-blur-md transition duration-200 text-white font-normal";
+  "h-11 inline-flex items-center justify-center rounded-xl backdrop-blur-md transition duration-200 !text-white font-normal";
 
 const ACTION_LAYOUT =
   "inline-flex items-center justify-center rounded-xl backdrop-blur-md transition duration-200 font-normal text-gray-700 dark:text-white bg-white/80 dark:bg-transparent";

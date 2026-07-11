@@ -49,10 +49,8 @@ import {
 import {
   DeferredSelectGate,
   DIALOG_FORM_FIELD_VIOLET,
-  GLASS_BUTTON_ICON_HOVER,
-  GLASS_BUTTON_SHELL_RESET,
+  DialogSubmitButton,
   GLASS_GHOST_BUTTON,
-  GLASS_PRIMARY_BUTTON,
 } from "@/components/shared";
 import { cn } from "@/lib/utils";
 import {
@@ -971,19 +969,14 @@ export default function OrderDialog({
                 >
                   Cancel
                 </Button>
-                <Button
-                  type="submit"
-                  variant="ghost"
-                  className={cn(
-                    GLASS_BUTTON_ICON_HOVER,
-                    GLASS_BUTTON_SHELL_RESET,
-                    "w-full sm:w-auto px-11",
-                    GLASS_PRIMARY_BUTTON.violet,
-                  )}
+                <DialogSubmitButton
+                  isPending={isUpdating}
+                  pendingLabel="Updating order…"
+                  label="Update Order"
+                  hue="violet"
                   disabled={isUpdating}
-                >
-                  {isUpdating ? "Updating..." : "Update Order"}
-                </Button>
+                  className="px-11"
+                />
               </DialogFooter>
             </form>
           </FormProvider>
@@ -1509,15 +1502,11 @@ export default function OrderDialog({
                     Cancel
                   </Button>
                 </DialogClose>
-                <Button
-                  type="submit"
-                  variant="ghost"
-                  className={cn(
-                    GLASS_BUTTON_ICON_HOVER,
-                    GLASS_BUTTON_SHELL_RESET,
-                    "w-full sm:w-auto px-11",
-                    GLASS_PRIMARY_BUTTON.violet,
-                  )}
+                <DialogSubmitButton
+                  isPending={isCreating}
+                  pendingLabel="Creating order…"
+                  label="Create Order"
+                  hue="violet"
                   disabled={
                     isCreating ||
                     watchedItems.length === 0 ||
@@ -1535,9 +1524,8 @@ export default function OrderDialog({
                       );
                     })
                   }
-                >
-                  {isCreating ? "Creating..." : "Create Order"}
-                </Button>
+                  className="px-11"
+                />
               </DialogFooter>
             </form>
           </FormProvider>

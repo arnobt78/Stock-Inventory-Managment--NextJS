@@ -111,3 +111,13 @@ export {
   glassActionButtonClass,
   glassPrimaryButtonClass,
 } from "@/lib/ui/glass-button-styles";
+export { DialogSubmitButton } from "./DialogSubmitButton";
+export type { DialogSubmitButtonProps } from "./DialogSubmitButton";
+export {
+  StockQuantityField,
+  getStockQuantityValidation,
+} from "./StockQuantityField";
+export type {
+  StockQuantityFieldProps,
+  StockQuantityMode,
+} from "./StockQuantityField";

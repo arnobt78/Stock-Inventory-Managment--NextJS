@@ -2,6 +2,7 @@
 
 /**
  * AllocateStockDialog — assign product quantity to a warehouse (REQ-0066).
+ * Shell matches CategoryDialog (edge scroll + outer glow).
  */
 
 import React, { useCallback, useMemo, useState } from "react";
@@ -14,7 +15,6 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
   Command,
@@ -29,19 +29,27 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { Check, ChevronDown, Loader2 } from "lucide-react";
+import { Check, ChevronDown } from "lucide-react";
 import {
-  DeferredSelectGate,
+  DIALOG_EDGE_SCROLL_BODY,
+  DIALOG_EDGE_SCROLL_HEADER,
+  DIALOG_EDGE_SCROLL_INNER,
+  DIALOG_EDGE_SCROLL_SHELL,
   DIALOG_FORM_FIELD_VIOLET,
-  GLASS_BUTTON_DISABLED,
-  GLASS_BUTTON_ICON_HOVER,
-  GLASS_BUTTON_SHELL_RESET,
+  DialogSubmitButton,
   GLASS_GHOST_BUTTON,
-  GLASS_PRIMARY_BUTTON,
+  StockQuantityField,
+  getStockQuantityValidation,
 } from "@/components/shared";
-import { ProductOptionRow } from "@/components/products/ProductOptionRow";
+import {
+  ProductOptionRow,
+  productCategoryLabel,
+  productSupplierLabel,
+} from "@/components/products/ProductOptionRow";
 import { useCreateStockAllocation, useProducts } from "@/hooks/queries";
 import { cn } from "@/lib/utils";
+
+const ALLOCATE_DIALOG_CONTENT_CLASS = `${DIALOG_EDGE_SCROLL_SHELL} poppins border-violet-400/30 dark:border-violet-400/30 shadow-[0_30px_80px_rgba(139,92,246,0.35)] dark:shadow-[0_30px_80px_rgba(139,92,246,0.25)]`;
 
 export type AllocateStockDialogProps = {
   open: boolean;
@@ -68,9 +76,19 @@ export default function AllocateStockDialog({
     [products, productId],
   );
 
+  const maxProductStock = selectedProduct?.quantity ?? 0;
+  const qtyValidation = getStockQuantityValidation(
+    quantity,
+    maxProductStock,
+    "allocate",
+  );
   const qtyNum = parseInt(quantity, 10);
   const isValid =
-    !!productId && Number.isFinite(qtyNum) && qtyNum >= 0 && !!warehouseId;
+    !!productId &&
+    qtyValidation.valid &&
+    Number.isFinite(qtyNum) &&
+    qtyNum >= 0 &&
+    !!warehouseId;
 
   const handleOpenChange = useCallback(
     (next: boolean) => {
@@ -102,132 +120,132 @@ export default function AllocateStockDialog({
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
-      <DialogContent className="poppins max-h-[90vh] flex flex-col overflow-hidden border-violet-400/30">
-        <DialogHeader>
-          <DialogTitle className="text-sm sm:text-base text-white">
+      <DialogContent className={ALLOCATE_DIALOG_CONTENT_CLASS}>
+        <DialogHeader className={DIALOG_EDGE_SCROLL_HEADER}>
+          <DialogTitle className="text-[22px] text-white">
             Allocate Stock
           </DialogTitle>
-          <DialogDescription className="text-white/80">
+          <DialogDescription className="text-white/70">
             Assign product quantity to{" "}
             {warehouseName ? `"${warehouseName}"` : "this warehouse"}.
           </DialogDescription>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit} className="flex flex-col gap-4 min-h-0">
-          <div>
-            <Label className="text-sm text-white/80">Product *</Label>
-            <Popover open={pickerOpen} onOpenChange={setPickerOpen}>
-              <PopoverTrigger asChild>
-                <Button
-                  type="button"
-                  variant="outline"
-                  role="combobox"
-                  disabled={productsLoading || isPending}
-                  className={cn(
-                    "mt-1 h-11 w-full justify-between font-normal",
-                    DIALOG_FORM_FIELD_VIOLET,
-                  )}
-                >
-                  {selectedProduct ? (
-                    <ProductOptionRow
-                      name={selectedProduct.name}
-                      imageUrl={selectedProduct.imageUrl}
-                      size="sm"
-                    />
-                  ) : (
-                    <span className="text-muted-foreground">
-                      Select product…
-                    </span>
-                  )}
-                  <ChevronDown className="h-4 w-4 shrink-0 opacity-50" />
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent
-                align="start"
-                className="p-0 w-[min(100vw-2rem,400px)] rounded-[28px] border border-violet-400/20 bg-white/80 dark:bg-popover/50 backdrop-blur-md"
+        <form onSubmit={handleSubmit} className={DIALOG_EDGE_SCROLL_BODY}>
+          <div className={DIALOG_EDGE_SCROLL_INNER}>
+            <div className="mt-2 space-y-4">
+              <div>
+                <Label className="text-sm text-white/80">Product *</Label>
+                <Popover open={pickerOpen} onOpenChange={setPickerOpen}>
+                  <PopoverTrigger asChild>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      role="combobox"
+                      disabled={productsLoading || isPending}
+                      className={cn(
+                        "mt-1 h-auto min-h-11 w-full justify-between py-2 font-normal",
+                        DIALOG_FORM_FIELD_VIOLET,
+                      )}
+                    >
+                      {selectedProduct ? (
+                        <ProductOptionRow
+                          name={selectedProduct.name}
+                          imageUrl={selectedProduct.imageUrl}
+                          price={selectedProduct.price}
+                          quantity={selectedProduct.quantity}
+                          categoryName={productCategoryLabel(
+                            selectedProduct.category,
+                          )}
+                          supplierName={productSupplierLabel(
+                            selectedProduct.supplier,
+                          )}
+                          showMeta
+                          size="sm"
+                          className="flex-1"
+                        />
+                      ) : (
+                        <span className="text-muted-foreground">
+                          Select product…
+                        </span>
+                      )}
+                      <ChevronDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent
+                    align="start"
+                    className="w-[var(--radix-popover-trigger-width)] p-0 rounded-[28px] border border-violet-400/20 bg-white/80 dark:bg-popover/50 backdrop-blur-md"
+                  >
+                    <Command className="bg-transparent">
+                      <CommandInput placeholder="Search products…" />
+                      <CommandList className="max-h-[min(60vh,280px)]">
+                        <CommandEmpty>No products found.</CommandEmpty>
+                        <CommandGroup>
+                          {products.map((p) => (
+                            <CommandItem
+                              key={p.id}
+                              value={`${p.name} ${p.sku ?? ""} ${productCategoryLabel(p.category) ?? ""} ${productSupplierLabel(p.supplier) ?? ""}`}
+                              onSelect={() => {
+                                setProductId(p.id);
+                                setPickerOpen(false);
+                              }}
+                              className="py-2"
+                            >
+                              <Check
+                                className={cn(
+                                  "mr-2 h-4 w-4 shrink-0",
+                                  productId === p.id ? "opacity-100" : "opacity-0",
+                                )}
+                              />
+                              <ProductOptionRow
+                                name={p.name}
+                                imageUrl={p.imageUrl}
+                                price={p.price}
+                                quantity={p.quantity}
+                                categoryName={productCategoryLabel(p.category)}
+                                supplierName={productSupplierLabel(p.supplier)}
+                                showMeta
+                              />
+                            </CommandItem>
+                          ))}
+                        </CommandGroup>
+                      </CommandList>
+                    </Command>
+                  </PopoverContent>
+                </Popover>
+              </div>
+
+              <StockQuantityField
+                id="alloc-qty"
+                value={quantity}
+                onChange={setQuantity}
+                maxAvailable={maxProductStock}
+                productStock={selectedProduct?.quantity}
+                mode="allocate"
+                disabled={isPending || !productId}
+                fieldClassName={DIALOG_FORM_FIELD_VIOLET}
+              />
+            </div>
+
+            <DialogFooter className="mt-9 mb-4 flex w-full min-w-0 flex-col sm:flex-row items-center gap-2">
+              <Button
+                type="button"
+                variant="secondary"
+                onClick={() => handleOpenChange(false)}
+                disabled={isPending}
+                className={cn("w-full sm:w-auto px-11", GLASS_GHOST_BUTTON)}
               >
-                <Command className="bg-transparent">
-                  <CommandInput placeholder="Search products…" />
-                  <CommandList className="max-h-[min(60vh,280px)]">
-                    <CommandEmpty>No products found.</CommandEmpty>
-                    <CommandGroup>
-                      {products.map((p) => (
-                        <CommandItem
-                          key={p.id}
-                          value={`${p.name} ${p.sku ?? ""}`}
-                          onSelect={() => {
-                            setProductId(p.id);
-                            setPickerOpen(false);
-                          }}
-                        >
-                          <Check
-                            className={cn(
-                              "mr-2 h-4 w-4 shrink-0",
-                              productId === p.id ? "opacity-100" : "opacity-0",
-                            )}
-                          />
-                          <ProductOptionRow
-                            name={p.name}
-                            imageUrl={p.imageUrl}
-                            price={p.price}
-                            quantity={p.quantity}
-                            showMeta
-                          />
-                        </CommandItem>
-                      ))}
-                    </CommandGroup>
-                  </CommandList>
-                </Command>
-              </PopoverContent>
-            </Popover>
+                Cancel
+              </Button>
+              <DialogSubmitButton
+                isPending={isPending}
+                pendingLabel="Saving allocation…"
+                label="Save allocation"
+                hue="violet"
+                disabled={!isValid}
+              />
+            </DialogFooter>
           </div>
-
-          <div>
-            <Label htmlFor="alloc-qty" className="text-sm text-white/80">
-              Quantity *
-            </Label>
-            <Input
-              id="alloc-qty"
-              type="number"
-              min={0}
-              step={1}
-              value={quantity}
-              onChange={(e) => setQuantity(e.target.value)}
-              disabled={isPending}
-              placeholder="0"
-              className={cn("mt-1 h-11 rounded-xl", DIALOG_FORM_FIELD_VIOLET)}
-            />
-          </div>
-
-          <DialogFooter className="flex flex-col sm:flex-row gap-2">
-            <Button
-              type="button"
-              variant="ghost"
-              onClick={() => handleOpenChange(false)}
-              disabled={isPending}
-              className={cn("w-full sm:w-auto px-8", GLASS_GHOST_BUTTON)}
-            >
-              Cancel
-            </Button>
-            <Button
-              type="submit"
-              variant="ghost"
-              disabled={!isValid || isPending}
-              className={cn(
-                GLASS_BUTTON_ICON_HOVER,
-                GLASS_BUTTON_SHELL_RESET,
-                GLASS_BUTTON_DISABLED,
-                "w-full sm:w-auto px-8",
-                GLASS_PRIMARY_BUTTON.violet,
-              )}
-            >
-              {isPending ? (
-                <Loader2 className="h-4 w-4 animate-spin" />
-              ) : (
-                "Save allocation"
-              )}
-            </Button>
-          </DialogFooter>
         </form>
       </DialogContent>
     </Dialog>

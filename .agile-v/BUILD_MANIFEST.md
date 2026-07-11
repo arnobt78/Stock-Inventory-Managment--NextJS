@@ -164,6 +164,10 @@
 | ART-0156 | REQ-0066 | `app/api/stock-transfers/route.ts`, `lib/products/decrement-stock-allocations.ts`, warehouse dialogs | Warehouse integration |
 | ART-0157 | REQ-0067 | `app/api/ai/insights/route.ts` | Warehouse summary in AI payload |
 | ART-0158 | REQ-0066 | `lib/products/plan-allocation-decrements.ts`, `stock-product-access.ts` | Avail-sync planner + role gates |
+| ART-0159 | REQ-0066 | `lib/stock-allocation/stock-allocation-enrich.ts` | Shared product context API+SSR |
+| ART-0160 | REQ-0066 | `components/shared/{DialogSubmitButton,StockQuantityField}.tsx` | Dialog submit + qty validation |
+| ART-0161 | REQ-0066 | `lib/ui/fab-button-styles.ts`, `FloatingActionButtons.tsx` | FAB visible gradients |
+| ART-0162 | REQ-0066 | `AllocateStockDialog`, `TransferStockDialog`, `WarehouseDetailPage` | Dialog shell + SSR stock sync + stock card |
 
 ## Tests
 

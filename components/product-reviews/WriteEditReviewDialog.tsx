@@ -12,14 +12,11 @@ import {
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Star, Loader2 } from "lucide-react";
+import { Star } from "lucide-react";
 import { DIALOG_FORM_FIELD_AMBER } from "@/components/shared/dialog-form-field";
 import {
-  GLASS_BUTTON_DISABLED,
-  GLASS_BUTTON_ICON_HOVER,
-  GLASS_BUTTON_SHELL_RESET,
+  DialogSubmitButton,
   GLASS_GHOST_BUTTON,
-  GLASS_PRIMARY_BUTTON,
 } from "@/components/shared";
 import { cn } from "@/lib/utils";
 import {
@@ -180,26 +177,14 @@ export default function WriteEditReviewDialog({
             >
               Cancel
             </Button>
-            <Button
-              type="submit"
-              variant="ghost"
-              disabled={isPending || !comment.trim()}
-              className={cn(
-                GLASS_BUTTON_ICON_HOVER,
-                GLASS_BUTTON_SHELL_RESET,
-                GLASS_BUTTON_DISABLED,
-                "h-11 rounded-xl",
-                GLASS_PRIMARY_BUTTON.amber,
-              )}
-            >
-              {isPending ? (
-                <Loader2 className="h-4 w-4 animate-spin" />
-              ) : isEdit ? (
-                "Save"
-              ) : (
-                "Submit review"
-              )}
-            </Button>
+            <DialogSubmitButton
+              isPending={isPending}
+              pendingLabel={isEdit ? "Saving review…" : "Submitting review…"}
+              label={isEdit ? "Save" : "Submit review"}
+              hue="amber"
+              disabled={!comment.trim()}
+              className="h-11 rounded-xl"
+            />
           </DialogFooter>
         </form>
       </DialogContent>

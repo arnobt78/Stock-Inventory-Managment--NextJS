@@ -21,15 +21,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Star, Loader2 } from "lucide-react";
+import { Star } from "lucide-react";
 import {
   DeferredSelectGate,
   DIALOG_FORM_FIELD_AMBER,
-  GLASS_BUTTON_DISABLED,
-  GLASS_BUTTON_ICON_HOVER,
-  GLASS_BUTTON_SHELL_RESET,
+  DialogSubmitButton,
   GLASS_GHOST_BUTTON,
-  GLASS_PRIMARY_BUTTON,
 } from "@/components/shared";
 import { cn } from "@/lib/utils";
 import { useCreateProductReview, useProducts } from "@/hooks/queries";
@@ -267,27 +264,14 @@ export default function ProductReviewDialog({
                 Cancel
               </Button>
             </DialogClose>
-            <Button
-              type="submit"
-              variant="ghost"
-              disabled={isPending || !productId.trim() || !comment.trim()}
-              className={cn(
-                GLASS_BUTTON_ICON_HOVER,
-                GLASS_BUTTON_SHELL_RESET,
-                GLASS_BUTTON_DISABLED,
-                "h-11 w-full sm:w-auto px-8",
-                GLASS_PRIMARY_BUTTON.amber,
-              )}
-            >
-              {isPending ? (
-                <>
-                  <Loader2 className="h-4 w-4 animate-spin mr-2" />
-                  Adding...
-                </>
-              ) : (
-                "Add Review"
-              )}
-            </Button>
+            <DialogSubmitButton
+              isPending={isPending}
+              pendingLabel="Adding review…"
+              label="Add Review"
+              hue="amber"
+              disabled={!productId.trim() || !comment.trim()}
+              className="h-11 px-8"
+            />
           </DialogFooter>
         </form>
       </DialogContent>

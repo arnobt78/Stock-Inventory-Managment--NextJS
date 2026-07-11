@@ -19,28 +19,17 @@ import { getCache, setCache, cacheKeys, scheduleInvalidateStockAllocationCaches 
 import { withRateLimit, defaultRateLimits } from "@/lib/api/rate-limit";
 import { createStockAllocationSchema } from "@/lib/validations";
 import type { StockAllocation, WarehouseStockSummary } from "@/types";
+import {
+  fetchStockAllocationProductMap,
+  transformStockAllocationRow,
+} from "@/lib/stock-allocation/stock-allocation-enrich";
 
 function transform(
   r: Awaited<ReturnType<typeof getStockAllocations>>[number],
-  productMap: Map<string, { name: string; sku: string; imageUrl: string | null }>,
+  productMap: Awaited<ReturnType<typeof fetchStockAllocationProductMap>>,
   warehouseMap: Map<string, string>,
 ): StockAllocation {
-  return {
-    id: r.id,
-    productId: r.productId,
-    warehouseId: r.warehouseId,
-    quantity: Number(r.quantity),
-    reservedQuantity: Number(r.reservedQuantity),
-    userId: r.userId,
-    createdAt: r.createdAt.toISOString(),
-    updatedAt: r.updatedAt?.toISOString() ?? null,
-    product: productMap.has(r.productId)
-      ? { id: r.productId, ...productMap.get(r.productId)! }
-      : undefined,
-    warehouse: warehouseMap.has(r.warehouseId)
-      ? { id: r.warehouseId, name: warehouseMap.get(r.warehouseId)! }
-      : undefined,
-  };
+  return transformStockAllocationRow(r, productMap, warehouseMap);
 }
 
 /**
@@ -132,27 +121,17 @@ export async function GET(request: NextRequest) {
     const warehouseIds = [...new Set(allocations.map((a) => a.warehouseId))];
 
     const [products, warehouses] = await Promise.all([
-      prisma.product.findMany({
-        where: { id: { in: productIds } },
-        // imageUrl → allocation row thumbnails (REQ-0059)
-        select: { id: true, name: true, sku: true, imageUrl: true },
-      }),
+      fetchStockAllocationProductMap(productIds),
       prisma.warehouse.findMany({
         where: { id: { in: warehouseIds } },
         select: { id: true, name: true },
       }),
     ]);
 
-    const productMap = new Map(
-      products.map((p) => [
-        p.id,
-        { name: p.name, sku: p.sku, imageUrl: p.imageUrl ?? null },
-      ]),
-    );
     const warehouseMap = new Map(warehouses.map((w) => [w.id, w.name]));
 
     const result = allocations.map((a) =>
-      transform(a, productMap, warehouseMap),
+      transform(a, products, warehouseMap),
     );
     await setCache(cacheKey, result, 300);
 

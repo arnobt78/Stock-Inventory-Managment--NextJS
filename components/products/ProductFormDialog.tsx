@@ -42,7 +42,7 @@ import {
   calculateProductStatus,
   type ProductFormData,
 } from "@/lib/validations";
-import { DeferredSelectGate, DIALOG_FORM_FIELD_ROSE, GLASS_BUTTON_DISABLED, GLASS_BUTTON_ICON_HOVER, GLASS_BUTTON_SHELL_RESET, GLASS_GHOST_BUTTON, GLASS_PRIMARY_BUTTON } from "@/components/shared";
+import { DeferredSelectGate, DIALOG_FORM_FIELD_ROSE, DialogSubmitButton, GLASS_GHOST_BUTTON } from "@/components/shared";
 import { cn } from "@/lib/utils";
 
 interface AddProductDialogProps {
@@ -387,24 +387,16 @@ export default function AddProductDialog({
                   Cancel
                 </Button>
               </DialogClose>
-              <Button
-                type="submit"
-                variant="ghost"
-                className={cn(
-                  GLASS_BUTTON_ICON_HOVER,
-                  GLASS_BUTTON_SHELL_RESET,
-                  GLASS_BUTTON_DISABLED,
-                  "h-11 w-full sm:w-auto px-11",
-                  GLASS_PRIMARY_BUTTON.rose,
-                )}
-                disabled={!isFormValid || isSubmitting}
-              >
-                {isSubmitting
-                  ? "Loading..."
-                  : selectedProduct
-                    ? "Update Product"
-                    : "Add Product"}
-              </Button>
+              <DialogSubmitButton
+                isPending={isSubmitting}
+                pendingLabel={
+                  selectedProduct ? "Updating product…" : "Adding product…"
+                }
+                label={selectedProduct ? "Update Product" : "Add Product"}
+                hue="rose"
+                disabled={!isFormValid}
+                className="h-11 px-11"
+              />
             </DialogFooter>
           </form>
         </FormProvider>

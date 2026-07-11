@@ -7,6 +7,7 @@
 
 import React, { useEffect, useRef, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
+import { useQueryClient } from "@tanstack/react-query";
 import {
   ArrowLeft,
   Warehouse,
@@ -55,6 +56,7 @@ import { ProductThumb } from "@/components/products/ProductOptionRow";
 import { AlertDialogWrapper } from "@/components/dialogs";
 import type { Warehouse as WarehouseType, StockAllocation } from "@/types";
 import { isDataSlotLoading } from "@/lib/react-query";
+import { queryKeys } from "@/lib/react-query/config";
 import { cn } from "@/lib/utils";
 import { APP_SHELL_DETAIL_CLASS } from "@/lib/ui/shell-layout-styles";
 
@@ -208,6 +210,7 @@ export default function WarehouseDetailPage({
 }: WarehouseDetailPageProps = {}) {
   const params = useParams();
   const router = useRouter();
+  const queryClient = useQueryClient();
   const { navigateTo } = useBackWithRefresh("warehouse");
   const warehouseId = params?.id as string;
   const { user, isCheckingAuth } = useAuth();
@@ -256,6 +259,19 @@ export default function WarehouseDetailPage({
       router.push("/login");
     }
   }, [user, isCheckingAuth, router]);
+
+  /**
+   * SSR → TanStack sync on warehouse navigation.
+   * withInitialData sets refetchOnMount:false — without this, a stale cached
+   * byWarehouse row survives after transfer until hard refresh.
+   */
+  useEffect(() => {
+    if (!warehouseId || initialStockAllocations === undefined) return;
+    queryClient.setQueryData(
+      queryKeys.stockAllocation.byWarehouse(warehouseId),
+      initialStockAllocations,
+    );
+  }, [warehouseId, initialStockAllocations, queryClient]);
 
   if (warehouseQuery.isError) {
     return (
@@ -535,59 +551,58 @@ export default function WarehouseDetailPage({
                     ))}
                   </div>
                 ) : stockAllocations && stockAllocations.length > 0 ? (
-                  <div className="space-y-2 max-h-64 overflow-y-auto pr-1">
-                    {stockAllocations.map((allocation, index) => {
-                      const colors = [
-                        "sky",
-                        "emerald",
-                        "amber",
-                        "blue",
-                        "teal",
-                      ] as const;
-                      const colorVariant = colors[index % colors.length];
+                  <div className="space-y-2 max-h-64 overflow-y-auto overflow-x-hidden pr-1">
+                    {stockAllocations.map((allocation) => {
+                      const available =
+                        allocation.quantity - allocation.reservedQuantity;
+                      const product = allocation.product;
                       return (
                         <div
                           key={allocation.id}
-                          className={cn(
-                            "flex items-center justify-between p-2 rounded-xl border transition-all duration-200 hover:scale-[1.02]",
-                            `bg-gradient-to-r from-${colorVariant}-100/50 via-${colorVariant}-50/30 to-transparent dark:from-${colorVariant}-500/10 dark:via-${colorVariant}-500/5 dark:to-transparent`,
-                            `border-${colorVariant}-200/30 dark:border-${colorVariant}-400/10`,
-                          )}
-                          style={{
-                            background: `linear-gradient(to right, rgb(var(--${colorVariant === "sky" ? "14 165 233" : colorVariant === "emerald" ? "16 185 129" : colorVariant === "amber" ? "245 158 11" : colorVariant === "blue" ? "59 130 246" : "20 184 166"}) / 0.1), transparent)`,
-                          }}
+                          className="flex items-center justify-between gap-3 rounded-xl border border-violet-200/30 bg-white/40 p-2 transition-all duration-200 hover:scale-[1.01] dark:border-violet-400/10 dark:bg-white/5"
                         >
-                          {/* REQ-0059: product thumbnail beside each allocation row */}
-                          <div className="flex flex-1 min-w-0 items-center gap-2">
+                          <div className="flex min-w-0 flex-1 items-center gap-2">
                             <ProductThumb
-                              name={allocation.product?.name || "Unknown Product"}
-                              imageUrl={allocation.product?.imageUrl}
+                              name={product?.name || "Unknown Product"}
+                              imageUrl={product?.imageUrl}
                               size="sm"
                             />
-                            <div className="flex-1 min-w-0">
-                              <p className="font-medium text-sm truncate text-gray-700 dark:text-white">
-                                {allocation.product?.name || "Unknown Product"}
+                            <div className="min-w-0 flex-1">
+                              <p className="truncate text-sm font-medium text-gray-700 dark:text-white">
+                                {product?.name || "Unknown Product"}
                               </p>
-                              {allocation.product?.sku && (
+                              {product?.sku ? (
                                 <p className="text-xs text-gray-500 dark:text-gray-400">
-                                  SKU: {allocation.product.sku}
+                                  SKU: {product.sku}
                                 </p>
-                              )}
+                              ) : null}
+                              {product?.categoryName || product?.supplierName ? (
+                                <p className="truncate text-xs text-gray-500 dark:text-gray-400">
+                                  {[product.categoryName, product.supplierName]
+                                    .filter(Boolean)
+                                    .join(" · ")}
+                                </p>
+                              ) : null}
                             </div>
                           </div>
-                          <div className="text-right ml-4">
-                            <p className="font-medium text-sm text-emerald-600 dark:text-emerald-400">
-                              {allocation.quantity -
-                                allocation.reservedQuantity}{" "}
-                              <span className="text-gray-500 dark:text-gray-400 font-normal">
-                                avail
+                          <div className="shrink-0 text-right">
+                            <p className="text-sm font-medium text-gray-700 dark:text-white">
+                              {allocation.quantity}{" "}
+                              <span className="font-normal text-gray-500 dark:text-gray-400">
+                                total
                               </span>
                             </p>
-                            {allocation.reservedQuantity > 0 && (
+                            <p className="text-sm font-medium text-emerald-600 dark:text-emerald-400">
+                              {available}{" "}
+                              <span className="font-normal text-gray-500 dark:text-gray-400">
+                                available
+                              </span>
+                            </p>
+                            {allocation.reservedQuantity > 0 ? (
                               <p className="text-xs text-amber-600 dark:text-amber-400">
                                 {allocation.reservedQuantity} reserved
                               </p>
-                            )}
+                            ) : null}
                           </div>
                         </div>
                       );
@@ -619,7 +634,6 @@ export default function WarehouseDetailPage({
           {/* Action Buttons */}
           <div className="flex flex-col sm:flex-row flex-wrap gap-2">
             <Button
-              variant="ghost"
               onClick={() => navigateTo(warehousesListHref)}
               className={cn("w-full sm:w-auto gap-2", GLASS_GHOST_BUTTON)}
             >
@@ -627,11 +641,10 @@ export default function WarehouseDetailPage({
               Back
             </Button>
             <Button
-              variant="ghost"
               onClick={() => setAllocateOpen(true)}
               disabled={dataLoading || !warehouse}
               className={cn(
-                "group w-full sm:w-auto gap-2",
+                "group w-full sm:w-auto gap-2 !text-white",
                 GLASS_BUTTON_ICON_HOVER,
                 GLASS_BUTTON_SHELL_RESET,
                 GLASS_PRIMARY_BUTTON.violet,
@@ -641,7 +654,6 @@ export default function WarehouseDetailPage({
               Allocate Stock
             </Button>
             <Button
-              variant="ghost"
               onClick={() => setTransferOpen(true)}
               disabled={
                 dataLoading ||
@@ -651,7 +663,7 @@ export default function WarehouseDetailPage({
                 )
               }
               className={cn(
-                "group w-full sm:w-auto gap-2",
+                "group w-full sm:w-auto gap-2 !text-white",
                 GLASS_BUTTON_ICON_HOVER,
                 GLASS_BUTTON_SHELL_RESET,
                 GLASS_BUTTON_DISABLED,
@@ -662,10 +674,9 @@ export default function WarehouseDetailPage({
               Transfer Stock
             </Button>
             <Button
-              variant="ghost"
               onClick={handleEdit}
               className={cn(
-                "group w-full sm:w-auto gap-2",
+                "group w-full sm:w-auto gap-2 !text-white",
                 GLASS_BUTTON_ICON_HOVER,
                 GLASS_BUTTON_SHELL_RESET,
                 GLASS_PRIMARY_BUTTON.blue,
@@ -675,11 +686,10 @@ export default function WarehouseDetailPage({
               Edit Warehouse
             </Button>
             <Button
-              variant="ghost"
               onClick={() => setDeleteDialogOpen(true)}
               disabled={isDeleting}
               className={cn(
-                "group w-full sm:w-auto gap-2",
+                "group w-full sm:w-auto gap-2 !text-white",
                 GLASS_BUTTON_ICON_HOVER,
                 GLASS_BUTTON_SHELL_RESET,
                 GLASS_BUTTON_DISABLED,

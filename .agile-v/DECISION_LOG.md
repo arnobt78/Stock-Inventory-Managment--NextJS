@@ -149,4 +149,5 @@ Format: `TIMESTAMP | AGENT | DECISION | RATIONALE | REQ-ID`
 2026-07-11T16:02:00Z | red-team | REQ-0066 hardening gates | lint ✓ test 366 ✓ invalidate 207 ✓ build ✓ | REQ-0066
 2026-07-11T15:38:00Z | build-agent | Pre-test gaps | clientMayWriteStock wired; WAREHOUSE_PATTERNS + products; delete hook invalidateAfterStockChange | REQ-0068 prep
 2026-07-11T15:45:00Z | build-agent | REQ-0068 picking | OrderItem warehouse pick; stock-allocation-order-sync; OrderDialog UI; invoice/webhook gap | REQ-0068
-2026-07-11T15:50:00Z | build-agent | docs sync | prod SHA f892b65; validation 372/207 | REQ-0068
+2026-07-11T16:40:00Z | build-agent | REQ-0066 AC6 warehouse UX | allocate/transfer dialog polish; FAB restore; SSR stock sync; DialogSubmitButton; stock-allocation-enrich | REQ-0066
+2026-07-11T16:42:00Z | red-team | REQ-0066 AC6 gates | lint ✓ test 372 ✓ invalidate 207 ✓ build ✓ | REQ-0066

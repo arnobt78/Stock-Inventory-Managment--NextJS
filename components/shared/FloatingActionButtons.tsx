@@ -17,13 +17,7 @@ import OrderDialog from "@/components/orders/OrderDialog";
 import InvoiceDialog from "@/components/invoices/InvoiceDialog";
 import WarehouseDialog from "@/components/warehouses/WarehouseDialog";
 import { Product } from "@/types";
-import {
-  GLASS_BUTTON_DISABLED,
-  GLASS_BUTTON_ICON_HOVER,
-  GLASS_BUTTON_SHELL_RESET,
-  GLASS_PRIMARY_BUTTON,
-} from "@/components/shared";
-import { cn } from "@/lib/utils";
+import { fabButtonClass } from "@/lib/ui/fab-button-styles";
 import type { GlassFocusHue } from "@/lib/ui/focus-ring-styles";
 
 export type FloatingActionButtonsVariant =
@@ -45,14 +39,21 @@ interface FloatingActionButtonsProps {
   selectedOwnerId?: string;
 }
 
-function fabGlassClass(hue: GlassFocusHue, expanded: boolean): string {
-  return cn(
-    "group h-14 rounded-full flex items-center justify-center gap-2 transition-all duration-300",
-    GLASS_BUTTON_ICON_HOVER,
-    GLASS_BUTTON_SHELL_RESET,
-    GLASS_BUTTON_DISABLED,
-    GLASS_PRIMARY_BUTTON[hue],
-    expanded ? "w-auto px-4" : "w-14 px-0",
+function FabButton({
+  hue,
+  expanded,
+  disabled,
+  children,
+}: {
+  hue: GlassFocusHue;
+  expanded: boolean;
+  disabled?: boolean;
+  children: React.ReactNode;
+}) {
+  return (
+    <Button disabled={disabled} className={fabButtonClass(hue, expanded)}>
+      {children}
+    </Button>
   );
 }
 
@@ -72,252 +73,132 @@ export default function FloatingActionButtons({
     setIsAnyHovered(false);
   };
 
+  const labelClass = (expanded: boolean) =>
+    `overflow-hidden whitespace-nowrap transition-all duration-300 ${
+      expanded ? "max-w-[120px] opacity-100" : "max-w-0 opacity-0"
+    }`;
+
+  const wrapClass = (expanded: boolean) =>
+    `relative flex justify-end transition-all duration-300 ${
+      expanded ? "w-[160px]" : "w-14"
+    }`;
+
   return (
     <div
       className="fixed right-4 top-1/2 -translate-y-1/2 z-50 hidden md:flex flex-col gap-2"
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
     >
-      {/* Add Product Button - home only */}
       {variant === "home" && (
-        <div
-          className={`relative flex justify-end transition-all duration-300 ${
-            isAnyHovered ? "w-[160px]" : "w-14"
-          }`}
-        >
+        <div className={wrapClass(isAnyHovered)}>
           <AddProductDialog allProducts={allProducts} userId={userId}>
-            <Button variant="ghost" className={fabGlassClass("rose", isAnyHovered)}>
+            <FabButton hue="rose" expanded={isAnyHovered}>
               <Package className="h-5 w-5 flex-shrink-0" />
-              <span
-                className={`overflow-hidden whitespace-nowrap transition-all duration-300 ${
-                  isAnyHovered
-                    ? "max-w-[120px] opacity-100"
-                    : "max-w-0 opacity-0"
-                }`}
-              >
-                Add Product
-              </span>
-            </Button>
+              <span className={labelClass(isAnyHovered)}>Add Product</span>
+            </FabButton>
           </AddProductDialog>
         </div>
       )}
 
-      {/* Add Product Button - products page only */}
       {variant === "products" && (
-        <div
-          className={`relative flex justify-end transition-all duration-300 ${
-            isAnyHovered ? "w-[160px]" : "w-14"
-          }`}
-        >
+        <div className={wrapClass(isAnyHovered)}>
           <AddProductDialog allProducts={allProducts} userId={userId}>
-            <Button variant="ghost" className={fabGlassClass("rose", isAnyHovered)}>
+            <FabButton hue="rose" expanded={isAnyHovered}>
               <Package className="h-5 w-5 flex-shrink-0" />
-              <span
-                className={`overflow-hidden whitespace-nowrap transition-all duration-300 ${
-                  isAnyHovered
-                    ? "max-w-[120px] opacity-100"
-                    : "max-w-0 opacity-0"
-                }`}
-              >
-                Add Product
-              </span>
-            </Button>
+              <span className={labelClass(isAnyHovered)}>Add Product</span>
+            </FabButton>
           </AddProductDialog>
         </div>
       )}
 
-      {/* Add Category Button - home only */}
       {variant === "home" && (
-        <div
-          className={`relative flex justify-end transition-all duration-300 ${
-            isAnyHovered ? "w-[160px]" : "w-14"
-          }`}
-        >
+        <div className={wrapClass(isAnyHovered)}>
           <AddCategoryDialog>
-            <Button variant="ghost" className={fabGlassClass("sky", isAnyHovered)}>
+            <FabButton hue="sky" expanded={isAnyHovered}>
               <Tag className="h-5 w-5 flex-shrink-0" />
-              <span
-                className={`overflow-hidden whitespace-nowrap transition-all duration-300 ${
-                  isAnyHovered
-                    ? "max-w-[120px] opacity-100"
-                    : "max-w-0 opacity-0"
-                }`}
-              >
-                Add Category
-              </span>
-            </Button>
+              <span className={labelClass(isAnyHovered)}>Add Category</span>
+            </FabButton>
           </AddCategoryDialog>
         </div>
       )}
 
-      {/* Add Category Button - categories page only */}
       {variant === "categories" && (
-        <div
-          className={`relative flex justify-end transition-all duration-300 ${
-            isAnyHovered ? "w-[160px]" : "w-14"
-          }`}
-        >
+        <div className={wrapClass(isAnyHovered)}>
           <AddCategoryDialog>
-            <Button variant="ghost" className={fabGlassClass("sky", isAnyHovered)}>
+            <FabButton hue="sky" expanded={isAnyHovered}>
               <Tag className="h-5 w-5 flex-shrink-0" />
-              <span
-                className={`overflow-hidden whitespace-nowrap transition-all duration-300 ${
-                  isAnyHovered
-                    ? "max-w-[120px] opacity-100"
-                    : "max-w-0 opacity-0"
-                }`}
-              >
-                Add Category
-              </span>
-            </Button>
+              <span className={labelClass(isAnyHovered)}>Add Category</span>
+            </FabButton>
           </AddCategoryDialog>
         </div>
       )}
 
-      {/* Add Supplier Button - home only */}
       {variant === "home" && (
-        <div
-          className={`relative flex justify-end transition-all duration-300 ${
-            isAnyHovered ? "w-[160px]" : "w-14"
-          }`}
-        >
+        <div className={wrapClass(isAnyHovered)}>
           <AddSupplierDialog>
-            <Button variant="ghost" className={fabGlassClass("emerald", isAnyHovered)}>
+            <FabButton hue="emerald" expanded={isAnyHovered}>
               <Truck className="h-5 w-5 flex-shrink-0" />
-              <span
-                className={`overflow-hidden whitespace-nowrap transition-all duration-300 ${
-                  isAnyHovered
-                    ? "max-w-[120px] opacity-100"
-                    : "max-w-0 opacity-0"
-                }`}
-              >
-                Add Supplier
-              </span>
-            </Button>
+              <span className={labelClass(isAnyHovered)}>Add Supplier</span>
+            </FabButton>
           </AddSupplierDialog>
         </div>
       )}
 
-      {/* Create Order Button - home and orders */}
       {(variant === "home" || variant === "orders") && (
-        <div
-          className={`relative flex justify-end transition-all duration-300 ${
-            isAnyHovered ? "w-[160px]" : "w-14"
-          }`}
-        >
+        <div className={wrapClass(isAnyHovered)}>
           <OrderDialog>
-            <Button variant="ghost" className={fabGlassClass("violet", isAnyHovered)}>
+            <FabButton hue="violet" expanded={isAnyHovered}>
               <ShoppingCart className="h-5 w-5 flex-shrink-0" />
-              <span
-                className={`overflow-hidden whitespace-nowrap transition-all duration-300 ${
-                  isAnyHovered
-                    ? "max-w-[120px] opacity-100"
-                    : "max-w-0 opacity-0"
-                }`}
-              >
-                Create Order
-              </span>
-            </Button>
+              <span className={labelClass(isAnyHovered)}>Create Order</span>
+            </FabButton>
           </OrderDialog>
         </div>
       )}
 
-      {/* Create Order Button - products page for client (depends on product owner select) */}
       {variant === "products-client" && (
-        <div
-          className={`relative flex justify-end transition-all duration-300 ${
-            isAnyHovered ? "w-[160px]" : "w-14"
-          }`}
-        >
+        <div className={wrapClass(isAnyHovered)}>
           <OrderDialog defaultOwnerId={selectedOwnerId || undefined}>
-            <Button
-              variant="ghost"
+            <FabButton
+              hue="violet"
+              expanded={isAnyHovered}
               disabled={!selectedOwnerId}
-              className={fabGlassClass("violet", isAnyHovered)}
             >
               <ShoppingCart className="h-5 w-5 flex-shrink-0" />
-              <span
-                className={`overflow-hidden whitespace-nowrap transition-all duration-300 ${
-                  isAnyHovered
-                    ? "max-w-[120px] opacity-100"
-                    : "max-w-0 opacity-0"
-                }`}
-              >
-                Create Order
-              </span>
-            </Button>
+              <span className={labelClass(isAnyHovered)}>Create Order</span>
+            </FabButton>
           </OrderDialog>
         </div>
       )}
 
-      {/* Add Supplier Button - suppliers only */}
       {variant === "suppliers" && (
-        <div
-          className={`relative flex justify-end transition-all duration-300 ${
-            isAnyHovered ? "w-[160px]" : "w-14"
-          }`}
-        >
+        <div className={wrapClass(isAnyHovered)}>
           <AddSupplierDialog>
-            <Button variant="ghost" className={fabGlassClass("emerald", isAnyHovered)}>
+            <FabButton hue="emerald" expanded={isAnyHovered}>
               <Truck className="h-5 w-5 flex-shrink-0" />
-              <span
-                className={`overflow-hidden whitespace-nowrap transition-all duration-300 ${
-                  isAnyHovered
-                    ? "max-w-[120px] opacity-100"
-                    : "max-w-0 opacity-0"
-                }`}
-              >
-                Add Supplier
-              </span>
-            </Button>
+              <span className={labelClass(isAnyHovered)}>Add Supplier</span>
+            </FabButton>
           </AddSupplierDialog>
         </div>
       )}
 
-      {/* Add Warehouse Button - warehouses only */}
       {variant === "warehouses" && (
-        <div
-          className={`relative flex justify-end transition-all duration-300 ${
-            isAnyHovered ? "w-[160px]" : "w-14"
-          }`}
-        >
+        <div className={wrapClass(isAnyHovered)}>
           <WarehouseDialog>
-            <Button variant="ghost" className={fabGlassClass("amber", isAnyHovered)}>
+            <FabButton hue="amber" expanded={isAnyHovered}>
               <Warehouse className="h-5 w-5 flex-shrink-0" />
-              <span
-                className={`overflow-hidden whitespace-nowrap transition-all duration-300 ${
-                  isAnyHovered
-                    ? "max-w-[120px] opacity-100"
-                    : "max-w-0 opacity-0"
-                }`}
-              >
-                Add Warehouse
-              </span>
-            </Button>
+              <span className={labelClass(isAnyHovered)}>Add Warehouse</span>
+            </FabButton>
           </WarehouseDialog>
         </div>
       )}
 
-      {/* Generate Invoice Button - invoices only */}
       {variant === "invoices" && (
-        <div
-          className={`relative flex justify-end transition-all duration-300 ${
-            isAnyHovered ? "w-[160px]" : "w-14"
-          }`}
-        >
+        <div className={wrapClass(isAnyHovered)}>
           <InvoiceDialog>
-            <Button variant="ghost" className={fabGlassClass("indigo", isAnyHovered)}>
+            <FabButton hue="indigo" expanded={isAnyHovered}>
               <FileText className="h-5 w-5 flex-shrink-0" />
-              <span
-                className={`overflow-hidden whitespace-nowrap transition-all duration-300 ${
-                  isAnyHovered
-                    ? "max-w-[120px] opacity-100"
-                    : "max-w-0 opacity-0"
-                }`}
-              >
-                Generate Invoice
-              </span>
-            </Button>
+              <span className={labelClass(isAnyHovered)}>Generate Invoice</span>
+            </FabButton>
           </InvoiceDialog>
         </div>
       )}

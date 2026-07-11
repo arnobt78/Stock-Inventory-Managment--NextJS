@@ -22,15 +22,13 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { MessageSquare, Loader2 } from "lucide-react";
+import { MessageSquare } from "lucide-react";
 import {
   DeferredSelectGate,
   DIALOG_FORM_FIELD_VIOLET,
   DIALOG_FORM_FIELD_SKY,
-  GLASS_BUTTON_ICON_HOVER,
-  GLASS_BUTTON_SHELL_RESET,
   GLASS_GHOST_BUTTON,
-  GLASS_PRIMARY_BUTTON,
+  DialogSubmitButton,
 } from "@/components/shared";
 import { useCreateSupportTicket } from "@/hooks/queries";
 import { cn } from "@/lib/utils";
@@ -122,9 +120,7 @@ export default function SupportTicketDialog({
   const labelClass = "text-white/80";
   const descClass = "text-white/50";
   const titleClass = "text-[22px] text-white";
-  const primaryButtonClass = isViolet
-    ? GLASS_PRIMARY_BUTTON.violet
-    : GLASS_PRIMARY_BUTTON.sky;
+  const submitHue = isViolet ? "violet" : "sky";
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -317,26 +313,14 @@ export default function SupportTicketDialog({
                 Cancel
               </Button>
             </DialogClose>
-            <Button
-              type="submit"
-              variant="ghost"
-              disabled={isPending || !subject.trim() || !description.trim()}
-              className={cn(
-                GLASS_BUTTON_ICON_HOVER,
-                GLASS_BUTTON_SHELL_RESET,
-                "h-11 rounded-xl disabled:opacity-50",
-                primaryButtonClass,
-              )}
-            >
-              {isPending ? (
-                <>
-                  <Loader2 className="h-4 w-4 animate-spin mr-2" />
-                  Creating...
-                </>
-              ) : (
-                "Create Ticket"
-              )}
-            </Button>
+            <DialogSubmitButton
+              isPending={isPending}
+              pendingLabel="Creating ticket…"
+              label="Create Ticket"
+              hue={submitHue}
+              disabled={!subject.trim() || !description.trim()}
+              className="h-11 rounded-xl"
+            />
           </DialogFooter>
         </form>
       </DialogContent>

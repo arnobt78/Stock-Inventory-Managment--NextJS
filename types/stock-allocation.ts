@@ -26,6 +26,11 @@ export interface StockAllocation {
     sku: string;
     /** Product image for allocation row thumbnails (REQ-0059) */
     imageUrl?: string | null;
+    price?: number;
+    /** Global product stock (not warehouse allocation qty) */
+    quantity?: number;
+    categoryName?: string | null;
+    supplierName?: string | null;
   };
   warehouse?: {
     id: string;

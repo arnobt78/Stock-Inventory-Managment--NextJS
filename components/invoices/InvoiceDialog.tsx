@@ -47,17 +47,15 @@ import type {
 } from "@/types";
 import { useAuth } from "@/contexts";
 import { useToast } from "@/hooks/use-toast";
-import { FileText, Calendar as CalendarIcon } from "lucide-react";
+import { Calendar as CalendarIcon } from "lucide-react";
 import { useForm, FormProvider } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { FormField, FormNumberField } from "@/components/forms";
 import {
   DeferredSelectGate,
   DIALOG_FORM_FIELD_INDIGO,
-  GLASS_BUTTON_ICON_HOVER,
-  GLASS_BUTTON_SHELL_RESET,
+  DialogSubmitButton,
   GLASS_GHOST_BUTTON,
-  GLASS_PRIMARY_BUTTON,
 } from "@/components/shared";
 import { cn } from "@/lib/utils";
 import { OrderPickerCommand } from "./OrderPickerCommand";
@@ -679,19 +677,14 @@ export default function InvoiceDialog({
                 >
                   Cancel
                 </Button>
-                <Button
-                  type="submit"
-                  variant="ghost"
-                  className={cn(
-                    GLASS_BUTTON_ICON_HOVER,
-                    GLASS_BUTTON_SHELL_RESET,
-                    "w-full sm:w-auto px-11",
-                    GLASS_PRIMARY_BUTTON.indigo,
-                  )}
+                <DialogSubmitButton
+                  isPending={isUpdating}
+                  pendingLabel="Updating invoice…"
+                  label="Update Invoice"
+                  hue="indigo"
                   disabled={isUpdating}
-                >
-                  {isUpdating ? "Updating..." : "Update Invoice"}
-                </Button>
+                  className="px-11"
+                />
               </DialogFooter>
             </form>
           </FormProvider>
@@ -812,20 +805,14 @@ export default function InvoiceDialog({
               >
                 Cancel
               </Button>
-              <Button
-                type="submit"
-                variant="ghost"
-                className={cn(
-                  GLASS_BUTTON_ICON_HOVER,
-                  GLASS_BUTTON_SHELL_RESET,
-                  "w-full sm:w-auto px-11",
-                  GLASS_PRIMARY_BUTTON.indigo,
-                )}
+              <DialogSubmitButton
+                isPending={isCreating}
+                pendingLabel="Generating invoice…"
+                label="Generate Invoice"
+                hue="indigo"
                 disabled={isCreating || !selectedOrderId || !dueDate}
-              >
-                <FileText className="h-4 w-4 mr-2" />
-                {isCreating ? "Generating..." : "Generate Invoice"}
-              </Button>
+                className="px-11"
+              />
             </DialogFooter>
           </form>
         )}

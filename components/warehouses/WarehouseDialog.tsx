@@ -26,11 +26,8 @@ import {
 import {
   DeferredSelectGate,
   DIALOG_FORM_FIELD_TEAL,
-  GLASS_BUTTON_DISABLED,
-  GLASS_BUTTON_ICON_HOVER,
-  GLASS_BUTTON_SHELL_RESET,
   GLASS_GHOST_BUTTON,
-  GLASS_PRIMARY_BUTTON,
+  DialogSubmitButton,
 } from "@/components/shared";
 import { cn } from "@/lib/utils";
 import { useCreateWarehouse, useUpdateWarehouse } from "@/hooks/queries";
@@ -283,24 +280,18 @@ export default function WarehouseDialog({
                 Cancel
               </Button>
             </DialogClose>
-            <Button
-              type="submit"
-              variant="ghost"
-              disabled={!isValid || isSubmitting}
-              className={cn(
-                GLASS_BUTTON_ICON_HOVER,
-                GLASS_BUTTON_SHELL_RESET,
-                GLASS_BUTTON_DISABLED,
-                "h-11 w-full sm:w-auto px-8",
-                GLASS_PRIMARY_BUTTON.teal,
-              )}
-            >
-              {isSubmitting
-                ? "Saving..."
-                : editingWarehouse
-                  ? "Update Warehouse"
-                  : "Create Warehouse"}
-            </Button>
+            <DialogSubmitButton
+              isPending={isSubmitting}
+              pendingLabel={
+                editingWarehouse ? "Saving…" : "Creating warehouse…"
+              }
+              label={
+                editingWarehouse ? "Update Warehouse" : "Create Warehouse"
+              }
+              hue="teal"
+              disabled={!isValid}
+              className="h-11 px-8"
+            />
           </DialogFooter>
         </form>
       </DialogContent>

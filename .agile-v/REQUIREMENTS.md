@@ -1407,6 +1407,7 @@ Canonical REQ source. All artifacts link via `REQ-XXXX`. Status: `done` | `verif
 - AC3: `useStockByProduct`, `useCreateStockTransfer`; Allocate/Transfer dialogs on warehouse detail
 - AC4: Product detail warehouse stock card (SSR); warehouses list stock-share column
 - AC5: Invalidation spec includes stock-transfers route
+- AC6: Allocate/Transfer dialog shell parity (CategoryDialog glow/padding); full-width product picker w/ category/supplier/price/stock; `StockQuantityField` inline validation; `DialogSubmitButton` spinners; FAB gradient restore; warehouse detail SSR→TanStack sync (fixes stale stock after transfer nav); stock card total/available/meta; `stock-allocation-enrich.ts` shared API+SSR product context
 
 ---
 

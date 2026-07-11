@@ -58,11 +58,8 @@ import {
   DIALOG_TABLE_SURFACE,
   DIALOG_TABLE_TEXT,
   DIALOG_TABLE_TEXT_MUTED,
-  GLASS_BUTTON_DISABLED,
-  GLASS_BUTTON_ICON_HOVER,
-  GLASS_BUTTON_SHELL_RESET,
   GLASS_GHOST_BUTTON,
-  GLASS_PRIMARY_BUTTON,
+  DialogSubmitButton,
 } from "@/components/shared";
 import { Supplier } from "@/types";
 import { createSupplierColumns } from "./SupplierTableColumns";
@@ -401,20 +398,16 @@ export default function AddSupplierDialog({
                   >
                     Cancel
                   </Button>
-                  <Button
+                  <DialogSubmitButton
+                    type="button"
                     onClick={handleUpdateSupplier}
-                    variant="ghost"
-                    className={cn(
-                      GLASS_BUTTON_ICON_HOVER,
-                      GLASS_BUTTON_SHELL_RESET,
-                      GLASS_BUTTON_DISABLED,
-                      "w-full sm:w-auto px-11",
-                      GLASS_PRIMARY_BUTTON.sky,
-                    )}
-                    disabled={!isEditValid || isEditing}
-                  >
-                    {isEditing ? "Saving..." : "Save Changes"}
-                  </Button>
+                    isPending={isEditing}
+                    pendingLabel="Saving…"
+                    label="Save Changes"
+                    hue="emerald"
+                    disabled={!isEditValid}
+                    className="px-11"
+                  />
                 </DialogFooter>
               </div>
             ) : (
@@ -479,20 +472,16 @@ export default function AddSupplierDialog({
                       Cancel
                     </Button>
                   </DialogClose>
-                  <Button
+                  <DialogSubmitButton
+                    type="button"
                     onClick={handleAddSupplier}
-                    variant="ghost"
-                    className={cn(
-                      GLASS_BUTTON_ICON_HOVER,
-                      GLASS_BUTTON_SHELL_RESET,
-                      GLASS_BUTTON_DISABLED,
-                      "w-full sm:w-auto px-11",
-                      GLASS_PRIMARY_BUTTON.sky,
-                    )}
-                    disabled={!isAddValid || isSubmitting}
-                  >
-                    {isSubmitting ? "Creating..." : "Add Supplier"}
-                  </Button>
+                    isPending={isSubmitting}
+                    pendingLabel="Creating…"
+                    label="Add Supplier"
+                    hue="emerald"
+                    disabled={!isAddValid}
+                    className="px-11"
+                  />
                 </DialogFooter>
               </>
             )}
