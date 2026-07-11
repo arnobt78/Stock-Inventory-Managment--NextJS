@@ -144,6 +144,15 @@
 | ART-0136 | REQ-0056 | `scripts/lib/delete-all-db-data.ts` | shared dependency-ordered Mongo wipe |
 | ART-0137 | REQ-0056 | `scripts/reset-demo-db.ts` | one-command wipe + Redis clear + reseed |
 | ART-0138 | REQ-0056 | `lib/auth/test-accounts.ts`, `create-demo-accounts.ts`, `delete-all-data.ts`, `verify-demo-accounts.ts`, `package.json` | derive from shared source; `script:reset-demo-db` |
+| ART-0139 | REQ-0058 | `components/shared/CopyableText.tsx` | inline copy-to-clipboard icon (Check ~1.5s) |
+| ART-0140 | REQ-0058 | order/invoice table columns, detail headers, portal lists, catalog recent-order cards | CopyableText drop-in points |
+| ART-0141 | REQ-0059 | `components/products/ProductOptionRow.tsx` | `ProductThumb` extracted (SafeImage + Package fallback) |
+| ART-0142 | REQ-0059 | `prisma/order.ts`, `lib/orders/transform-order-detail.ts`, `types/order.ts`, `app/api/orders/[id]/route.ts` | `imageUrl` on detail line items |
+| ART-0143 | REQ-0059 | `app/api/stock-allocations/route.ts`, `lib/server/warehouse-stock-data.ts`, `types/stock-allocation.ts`, `WarehouseDetailPage.tsx` | allocation row thumbnails |
+| ART-0144 | REQ-0060 | `components/invoices/OrderPickerCommand.tsx`, `components/invoices/InvoiceDialog.tsx` | searchable order picker + `initialOrderId` |
+| ART-0145 | REQ-0061 | `lib/server/orders-data.ts`, `app/api/orders/route.ts` | `getInvoiceLinkMap` + `invoiceForOrder` on list rows |
+| ART-0146 | REQ-0061 | `components/orders/{OrderActions,OrderTableColumns,OrderList}.tsx`, `OrderDetailPage.tsx`, `AdminOrderDetailContent.tsx` | situation-based invoice actions |
+| ART-0147 | REQ-0062 | `components/invoices/InvoiceActions.tsx` | View/Cancel Order + role gating |
 
 ## Tests
 

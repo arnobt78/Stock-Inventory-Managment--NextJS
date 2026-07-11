@@ -336,6 +336,11 @@ export async function PUT(
         price: number;
         subtotal: number;
         createdAt: Date;
+        product?: {
+          categoryId?: string | null;
+          supplierId?: string | null;
+          imageUrl?: string | null;
+        };
       }>;
     };
 
@@ -377,6 +382,10 @@ export async function PUT(
         price: item.price,
         subtotal: item.subtotal,
         createdAt: item.createdAt.toISOString(),
+        // REQ-0059: keep detail-page links + thumbnails intact after setQueryData(update response)
+        categoryId: item.product?.categoryId ?? null,
+        supplierId: item.product?.supplierId ?? null,
+        imageUrl: item.product?.imageUrl ?? null,
       })),
     };
 

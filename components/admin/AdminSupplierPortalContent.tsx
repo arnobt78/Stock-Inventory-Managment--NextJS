@@ -15,6 +15,7 @@ import {
 } from "@/lib/ui/card-list-styles";
 import { AnalyticsCard } from "@/components/ui/analytics-card";
 import {
+  CopyableText,
   PageContentWrapper,
   PageSectionHeader,
   DataSlotPulse,
@@ -297,12 +298,14 @@ export default function AdminSupplierPortalContent({
                 {(stats?.recentOrders ?? []).map((o) => (
                   <li key={o.id} className={CARD_LIST_ROW_CLASS}>
                     <div className="min-w-0">
-                      <Link
-                        href={`/admin/orders/${o.id}`}
-                        className="font-normal text-xs text-sky-600 dark:text-sky-400 hover:text-sky-500 dark:hover:text-sky-300 truncate block"
-                      >
-                        {o.orderNumber}
-                      </Link>
+                      <CopyableText value={o.orderNumber} className="max-w-full">
+                        <Link
+                          href={`/admin/orders/${o.id}`}
+                          className="font-normal text-xs text-sky-600 dark:text-sky-400 hover:text-sky-500 dark:hover:text-sky-300 truncate block"
+                        >
+                          {o.orderNumber}
+                        </Link>
+                      </CopyableText>
                       <span className={CARD_LIST_META_CLASS}>
                         {o.supplierName} ·{" "}
                         {format(new Date(o.createdAt), "MMM d, yyyy")}

@@ -23,6 +23,7 @@ import {
 import { IoMdArrowDown, IoMdArrowUp } from "react-icons/io";
 import { format } from "date-fns";
 import Link from "next/link";
+import { CopyableText } from "@/components/shared";
 import InvoiceActions from "./InvoiceActions";
 
 /**
@@ -116,12 +117,15 @@ export const createInvoiceColumns = (
           (invoice.issuedByName || invoice.issuedByEmail);
         return (
           <div className="flex flex-col gap-0.5">
-            <Link
-              href={invoiceHref(invoice.id)}
-              className="font-normal text-sky-600 dark:text-sky-400 hover:text-sky-500 dark:hover:text-sky-300"
-            >
-              {invoice.invoiceNumber}
-            </Link>
+            {/* CopyableText: click icon copies invoice # without triggering the row link */}
+            <CopyableText value={invoice.invoiceNumber}>
+              <Link
+                href={invoiceHref(invoice.id)}
+                className="font-normal text-sky-600 dark:text-sky-400 hover:text-sky-500 dark:hover:text-sky-300"
+              >
+                {invoice.invoiceNumber}
+              </Link>
+            </CopyableText>
             {showBadge && (
               <div className="flex items-center gap-1 flex-wrap">
                 {invoice._displayName != null &&

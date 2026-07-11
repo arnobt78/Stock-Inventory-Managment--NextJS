@@ -58,6 +58,8 @@ export interface OrderItem {
   categoryId?: string | null;
   /** Supplier ID for link to supplier detail (from product) */
   supplierId?: string | null;
+  /** Current product image for line-item thumbnails (REQ-0059; null when product deleted) */
+  imageUrl?: string | null;
 }
 
 /**

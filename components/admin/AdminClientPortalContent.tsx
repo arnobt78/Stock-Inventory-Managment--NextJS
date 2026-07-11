@@ -11,6 +11,7 @@ import {
 } from "@/lib/ui/card-list-styles";
 import { AnalyticsCard } from "@/components/ui/analytics-card";
 import {
+  CopyableText,
   PageContentWrapper,
   PageSectionHeader,
   DataSlotPulse,
@@ -220,12 +221,14 @@ export default function AdminClientPortalContent({
                 {(stats?.recentOrders ?? []).map((o) => (
                   <li key={o.id} className={CARD_LIST_ROW_CLASS}>
                     <div className="min-w-0">
-                      <Link
-                        href={`/admin/orders/${o.id}`}
-                        className="font-normal text-xs text-sky-600 dark:text-sky-400 hover:text-sky-500 dark:hover:text-sky-300 truncate block"
-                      >
-                        {o.orderNumber}
-                      </Link>
+                      <CopyableText value={o.orderNumber} className="max-w-full">
+                        <Link
+                          href={`/admin/orders/${o.id}`}
+                          className="font-normal text-xs text-sky-600 dark:text-sky-400 hover:text-sky-500 dark:hover:text-sky-300 truncate block"
+                        >
+                          {o.orderNumber}
+                        </Link>
+                      </CopyableText>
                       <span className={CARD_LIST_META_CLASS}>
                         {o.clientName} ·{" "}
                         {format(new Date(o.createdAt), "MMM d, yyyy")}
@@ -294,12 +297,14 @@ export default function AdminClientPortalContent({
                 {(stats?.recentInvoices ?? []).map((i) => (
                   <li key={i.id} className={CARD_LIST_ROW_CLASS}>
                     <div className="min-w-0">
-                      <Link
-                        href={`/admin/invoices/${i.id}`}
-                        className="font-normal text-xs text-sky-600 dark:text-sky-400 hover:text-sky-500 dark:hover:text-sky-300 truncate block"
-                      >
-                        {i.invoiceNumber}
-                      </Link>
+                      <CopyableText value={i.invoiceNumber} className="max-w-full">
+                        <Link
+                          href={`/admin/invoices/${i.id}`}
+                          className="font-normal text-xs text-sky-600 dark:text-sky-400 hover:text-sky-500 dark:hover:text-sky-300 truncate block"
+                        >
+                          {i.invoiceNumber}
+                        </Link>
+                      </CopyableText>
                       <span className={CARD_LIST_META_CLASS}>
                         {i.clientName} ·{" "}
                         {format(new Date(i.createdAt), "MMM d, yyyy")}

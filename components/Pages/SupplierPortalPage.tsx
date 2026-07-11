@@ -39,6 +39,7 @@ import { ResponsiveChartContainer } from "@/components/ui/responsive-chart-conta
 import { DeferredChartSection } from "@/components/ui/deferred-chart-section";
 import Navbar from "@/components/layouts/Navbar";
 import {
+  CopyableText,
   PageContentWrapper,
   DataSlotPulse,
   SectionCardHeader,
@@ -385,12 +386,14 @@ export default function SupplierPortalPage({
                         {dashboard!.recentOrders.slice(0, 5).map((order) => (
                           <TableRow key={order.id}>
                             <TableCell>
-                              <Link
-                                href={`/orders/${order.id}`}
-                                className="text-sky-600 dark:text-sky-400 hover:text-sky-500 dark:hover:text-sky-300"
-                              >
-                                {order.orderNumber}
-                              </Link>
+                              <CopyableText value={order.orderNumber}>
+                                <Link
+                                  href={`/orders/${order.id}`}
+                                  className="text-sky-600 dark:text-sky-400 hover:text-sky-500 dark:hover:text-sky-300"
+                                >
+                                  {order.orderNumber}
+                                </Link>
+                              </CopyableText>
                             </TableCell>
                             <TableCell className="text-right">
                               ${order.total.toFixed(2)}

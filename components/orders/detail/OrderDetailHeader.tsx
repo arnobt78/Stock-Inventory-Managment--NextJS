@@ -4,7 +4,12 @@ import React from "react";
 import Link from "next/link";
 import { ArrowLeft, ShoppingCart } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { ClientRelativeTime, DataSlotPulse, PageSectionHeader } from "@/components/shared";
+import {
+  ClientRelativeTime,
+  CopyableText,
+  DataSlotPulse,
+  PageSectionHeader,
+} from "@/components/shared";
 
 export type OrderDetailHeaderProps = {
   orderNumber?: string;
@@ -54,9 +59,12 @@ export function OrderDetailHeader({
           Order{" "}
           {dataLoading ? (
             <DataSlotPulse variant="text-lg" className="inline-block w-32 align-middle" />
-          ) : (
-            orderNumber
-          )}
+          ) : orderNumber ? (
+            // Copy icon next to the order number in the detail page title
+            <CopyableText value={orderNumber} className="align-middle">
+              {orderNumber}
+            </CopyableText>
+          ) : null}
         </>
       }
       description={

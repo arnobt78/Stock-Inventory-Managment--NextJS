@@ -27,16 +27,19 @@ import {
 import {
   ArrowLeft,
   Calendar,
+  FilePlus2,
   FileText,
   Loader2,
   MapPin,
   Pencil,
   Truck,
 } from "lucide-react";
+import InvoiceDialog from "@/components/invoices/InvoiceDialog";
 import { useOrder, useUpdateOrder, useDeleteOrder } from "@/hooks/queries";
 import { useBackWithRefresh } from "@/hooks/use-back-with-refresh";
 import {
   ClientDateTime,
+  CopyableText,
   DeferredSelectGate,
   PageContentWrapper,
   DataSlotPulse,
@@ -110,6 +113,8 @@ export default function AdminOrderDetailContent({
   const [manualTrackingNumber, setManualTrackingNumber] = useState("");
   const [manualCarrier, setManualCarrier] = useState("usps");
   const [refundDialogOpen, setRefundDialogOpen] = useState(false);
+  // REQ-0061: InvoiceDialog create mode pre-selected with this order
+  const [createInvoiceOpen, setCreateInvoiceOpen] = useState(false);
 
   const handleStatusChange = useCallback(
     (newStatus: OrderStatus) => {
@@ -409,8 +414,8 @@ export default function AdminOrderDetailContent({
 
         <OrderPartiesCard order={order} dataLoading={dataLoading} />
 
-        {/* Invoice link (admin) when order has an invoice */}
-        {!dataLoading && order?.invoiceForOrder && (
+        {/* Invoice card (admin) — link when the order has one, Create when it does not (REQ-0061) */}
+        {!dataLoading && order && (
           <GlassCard variant="violet">
             <div className="flex items-center gap-2 mb-2">
               <div
@@ -426,19 +431,42 @@ export default function AdminOrderDetailContent({
                 Invoice
               </h3>
             </div>
-            <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
-              This order has a linked invoice.
-            </p>
-            <Button
-              variant="outline"
-              size="sm"
-              asChild
-              className="rounded-xl border-violet-300/40"
-            >
-              <Link href={`/admin/invoices/${order!.invoiceForOrder!.id}`}>
-                View invoice {order!.invoiceForOrder!.invoiceNumber}
-              </Link>
-            </Button>
+            {order.invoiceForOrder ? (
+              <>
+                <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
+                  This order has a linked invoice.
+                </p>
+                {/* CopyableText copies the invoice # without following the link */}
+                <CopyableText value={order.invoiceForOrder.invoiceNumber}>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    asChild
+                    className="rounded-xl border-violet-300/40"
+                  >
+                    <Link href={`/admin/invoices/${order.invoiceForOrder.id}`}>
+                      View invoice {order.invoiceForOrder.invoiceNumber}
+                    </Link>
+                  </Button>
+                </CopyableText>
+              </>
+            ) : (
+              <>
+                <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
+                  No invoice has been generated for this order yet.
+                </p>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setCreateInvoiceOpen(true)}
+                  disabled={order.status === "cancelled"}
+                  className="rounded-xl border-violet-300/40"
+                >
+                  <FilePlus2 className="h-4 w-4 mr-2" />
+                  Create Invoice
+                </Button>
+              </>
+            )}
           </GlassCard>
         )}
 
@@ -625,6 +653,16 @@ export default function AdminOrderDetailContent({
           </GlassCard>
         )}
       </div>
+
+      {/* REQ-0061: InvoiceDialog create mode pre-selected with this order */}
+      {createInvoiceOpen && order && (
+        <InvoiceDialog
+          open={createInvoiceOpen}
+          onOpenChange={setCreateInvoiceOpen}
+          editingInvoice={null}
+          initialOrderId={order.id}
+        />
+      )}
     </PageContentWrapper>
   );
 }

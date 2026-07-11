@@ -15,7 +15,11 @@ type OrderItemRaw = {
   price: number;
   subtotal: number;
   createdAt: Date;
-  product?: { categoryId?: string | null; supplierId?: string | null };
+  product?: {
+    categoryId?: string | null;
+    supplierId?: string | null;
+    imageUrl?: string | null;
+  };
 };
 
 type OrderRaw = {
@@ -103,6 +107,8 @@ export function transformOrderDetail(
       createdAt: item.createdAt.toISOString(),
       categoryId: item.product?.categoryId ?? null,
       supplierId: item.product?.supplierId ?? null,
+      // REQ-0059: current product image for line-item thumbnails (null when product deleted)
+      imageUrl: item.product?.imageUrl ?? null,
     })),
   } as unknown as Order;
 }

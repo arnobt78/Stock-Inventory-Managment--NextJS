@@ -60,6 +60,7 @@ import {
   GLASS_PRIMARY_BUTTON,
 } from "@/components/shared";
 import { cn } from "@/lib/utils";
+import { OrderPickerCommand } from "./OrderPickerCommand";
 
 interface InvoiceDialogProps {
   children?: React.ReactNode;
@@ -67,6 +68,8 @@ interface InvoiceDialogProps {
   onOpenChange?: (open: boolean) => void;
   editingInvoice?: Invoice | null;
   onEditInvoice?: (invoice: Invoice | null) => void;
+  /** Pre-select an order in create mode (REQ-0061 — "Create Invoice" from order row/detail) */
+  initialOrderId?: string;
 }
 
 const fmt = (v: number) =>
@@ -83,6 +86,7 @@ export default function InvoiceDialog({
   onOpenChange: controlledOnOpenChange,
   editingInvoice: externalEditingInvoice,
   onEditInvoice,
+  initialOrderId,
 }: InvoiceDialogProps) {
   const [internalOpen, setInternalOpen] = useState(false);
   const [internalEditingInvoice, setInternalEditingInvoice] =
@@ -124,7 +128,10 @@ export default function InvoiceDialog({
   const pathname = usePathname();
   const isAdminInvoicesPage = pathname?.startsWith("/admin/invoices");
   const isAdmin = user?.role === "admin";
-  const needsClientOrdersLeg = isAdmin && isAdminInvoicesPage;
+  // Client-orders leg also loads when pre-selecting an order (REQ-0061 —
+  // "Create Invoice" from a client order row on /admin/orders)
+  const needsClientOrdersLeg =
+    isAdmin && (isAdminInvoicesPage || Boolean(initialOrderId));
 
   // Fetch orders only when dialog is open — avoids background admin/client-orders API calls
   const { data: selfOrders = [] } = useOrders(undefined, { enabled: open });
@@ -135,14 +142,14 @@ export default function InvoiceDialog({
   // /admin/invoices: show self + client orders with placer name
   // /invoices: show only self orders (product owner's own)
   const orders = React.useMemo(() => {
-    if (!isAdmin || !isAdminInvoicesPage) return selfOrders;
+    if (!needsClientOrdersLeg) return selfOrders;
     const byId = new Map<string, Order & { _source?: string }>();
     selfOrders.forEach((o) => byId.set(o.id, { ...o, _source: "self" }));
     clientOrders.forEach((o) => {
       if (!byId.has(o.id)) byId.set(o.id, { ...o, _source: "client" });
     });
     return Array.from(byId.values());
-  }, [isAdmin, isAdminInvoicesPage, selfOrders, clientOrders]);
+  }, [needsClientOrdersLeg, selfOrders, clientOrders]);
 
   const availableOrders = orders.filter(
     (order) => order.status !== "cancelled",
@@ -383,6 +390,13 @@ export default function InvoiceDialog({
       setNotes("");
     }
   }, [open, editingInvoice, isControlled]);
+
+  // REQ-0061: pre-select order when opened via "Create Invoice" from an order row/detail
+  useEffect(() => {
+    if (open && !editingInvoice && initialOrderId) {
+      setSelectedOrderId(initialOrderId);
+    }
+  }, [open, editingInvoice, initialOrderId]);
 
   const selectedOrder = availableOrders.find(
     (order) => order.id === selectedOrderId,
@@ -693,46 +707,15 @@ export default function InvoiceDialog({
                 >
                   Select Order <span className="text-red-400">*</span>
                 </Label>
-                <DeferredSelectGate
-                  enabled={open}
-                  placeholder={
-                    <div
-                      className="flex h-11 w-full items-center rounded-md border border-white/20 bg-white/10 px-2 text-sm text-white/60"
-                      aria-hidden
-                    >
-                      {selectedOrder?.orderNumber ?? "Select an order..."}
-                    </div>
-                  }
-                >
-                  {({ selectRemountKey }) => (
-                    <Select
-                      key={selectRemountKey}
-                      value={selectedOrderId}
-                      onValueChange={setSelectedOrderId}
-                    >
-                      <SelectTrigger
-                        id="order-select"
-                        className={cn("w-full", DIALOG_FORM_FIELD_INDIGO)}
-                      >
-                        <SelectValue placeholder="Select an order..." />
-                      </SelectTrigger>
-                      <SelectContent className="bg-white/80 dark:bg-popover/50 backdrop-blur-md">
-                        {availableOrders.map((order) => {
-                          const placer =
-                            order.placedByName || order.placedByEmail || null;
-                          const showPlacer =
-                            isAdminInvoicesPage && isAdmin && placer;
-                          return (
-                            <SelectItem key={order.id} value={order.id}>
-                              {order.orderNumber} - {fmt(order.total)} (
-                              {order.status}){showPlacer ? ` — ${placer}` : ""}
-                            </SelectItem>
-                          );
-                        })}
-                      </SelectContent>
-                    </Select>
-                  )}
-                </DeferredSelectGate>
+                {/* REQ-0060: searchable order picker (type-to-filter) replaces plain Select */}
+                <OrderPickerCommand
+                  orders={availableOrders}
+                  selectedOrderId={selectedOrderId}
+                  onSelect={setSelectedOrderId}
+                  showPlacer={Boolean(isAdminInvoicesPage && isAdmin)}
+                  triggerId="order-select"
+                  triggerClassName={DIALOG_FORM_FIELD_INDIGO}
+                />
                 {selectedOrder && (
                   <p className="text-xs text-white/60">
                     Order Total: ${selectedOrder.total.toFixed(2)} | Items:{" "}

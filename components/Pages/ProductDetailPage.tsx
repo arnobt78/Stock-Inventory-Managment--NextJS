@@ -47,6 +47,7 @@ import {
   ClientDate,
   ClientDateTime,
   ClientRelativeTime,
+  CopyableText,
   PageContentWrapper,
   DataSlotPulse,
   PageSectionHeader,
@@ -703,7 +704,9 @@ export default function ProductDetailPage({
                     >
                       <div className="flex-1">
                         <h4 className="font-medium text-gray-700 dark:text-white">
-                          Order {order.orderNumber}
+                          <CopyableText value={order.orderNumber}>
+                            Order {order.orderNumber}
+                          </CopyableText>
                         </h4>
                         <p className="text-sm text-gray-600 dark:text-white/60 mt-1">
                           Quantity: {order.quantity} × ${order.price.toFixed(2)}{" "}

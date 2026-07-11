@@ -1190,6 +1190,122 @@ Canonical REQ source. All artifacts link via `REQ-XXXX`. Status: `done` | `verif
 
 ---
 
+## REQ-0058 — Copy-to-clipboard order/invoice numbers
+
+| Field | Value |
+|-------|-------|
+| **Priority** | P2 |
+| **Risk** | R1 |
+| **Status** | done |
+| **Cycle** | C2 |
+
+**Intent:** Inline copy icon next to every rendered order/invoice number (tables, detail headers, portal lists, catalog recent-order cards) — click copies, check icon ~1.5s, no toast. Safe inside `<Link>` cells.
+
+**Acceptance criteria**
+
+- AC1: `components/shared/CopyableText.tsx` — children + Copy/Check icon; `preventDefault`/`stopPropagation`; barrel export
+- AC2: Order/Invoice table `orderNumber`/`invoiceNumber` cells wrapped
+- AC3: Detail headers — `OrderDetailHeader` title, `InvoiceDetailPage` title + info card
+- AC4: Portals/lists — `ClientPortalPage`, `SupplierPortalPage`, `AdminClientPortalContent`, `AdminSupplierPortalContent`, `AdminAnalyticsContent` recent rows
+- AC5: Product/Category/Supplier detail Recent Orders cards + `AdminOrderDetailContent` View-invoice button
+- AC6: lint ✓ test 352 ✓ invalidate 202 ✓ build ✓
+
+**Artifacts:** `components/shared/CopyableText.tsx`, `components/shared/index.ts`, table columns + detail/portal components listed above
+
+---
+
+## REQ-0059 — Product thumbnails on detail line items
+
+| Field | Value |
+|-------|-------|
+| **Priority** | P2 |
+| **Risk** | R1 |
+| **Status** | done |
+| **Cycle** | C2 |
+
+**Intent:** Same product-thumbnail treatment as the products table (SafeImage + Package fallback) on order detail line items, warehouse allocation rows, and category/supplier detail product grids.
+
+**Acceptance criteria**
+
+- AC1: `ProductThumb` extracted from `ProductOptionRow` (shared 32/40px thumb w/ Package fallback)
+- AC2: `prisma/order.ts` detail fetches (5 role variants) select `imageUrl`; `updateOrder` include too (stable after `setQueryData`)
+- AC3: `transform-order-detail.ts` + PUT response map `imageUrl`/`categoryId`/`supplierId` onto items; `OrderItem.imageUrl?` typed
+- AC4: `OrderItemsCard` line items render `ProductThumb` (admin + client variants)
+- AC5: Stock allocation API + SSR (`warehouse-stock-data.ts`) select product `imageUrl`; `StockAllocation.product.imageUrl?` typed; `WarehouseDetailPage` rows show thumb
+- AC6: Category/Supplier detail product grids — Package-icon fallback when `imageUrl` missing (rows stay aligned)
+
+**Artifacts:** `components/products/ProductOptionRow.tsx`, `prisma/order.ts`, `lib/orders/transform-order-detail.ts`, `types/{order,stock-allocation}.ts`, `app/api/{orders/[id],stock-allocations}/route.ts`, `lib/server/warehouse-stock-data.ts`, `OrderItemsCard.tsx`, `WarehouseDetailPage.tsx`, `{Category,Supplier}DetailPage.tsx`
+
+---
+
+## REQ-0060 — Searchable order picker in InvoiceDialog
+
+| Field | Value |
+|-------|-------|
+| **Priority** | P1 |
+| **Risk** | R1 |
+| **Status** | done |
+| **Cycle** | C2 |
+
+**Intent:** Replace the plain Select in invoice create mode with a type-to-filter Command dropdown (ProductOwnerSelect pattern) — scales past ~20 orders; search across order #, placer, total, status.
+
+**Acceptance criteria**
+
+- AC1: `components/invoices/OrderPickerCommand.tsx` — Popover + Command + CommandInput; `z-[100]` above dialog; indigo theme
+- AC2: Rows show order # + total + status (+ placer on admin combined page); all fields searchable
+- AC3: `InvoiceDialog` create mode uses picker; existing `useOrders`/`useClientOrders` merge + `status !== "cancelled"` filter + `enabled: open` gating unchanged
+- AC4: `initialOrderId` prop pre-selects order (used by REQ-0061); admin client-orders leg loads when pre-selecting
+
+**Artifacts:** `components/invoices/OrderPickerCommand.tsx`, `components/invoices/InvoiceDialog.tsx`
+
+---
+
+## REQ-0061 — Situation-based invoice actions on orders
+
+| Field | Value |
+|-------|-------|
+| **Priority** | P1 |
+| **Risk** | R2 |
+| **Status** | done |
+| **Cycle** | C2 |
+
+**Intent:** Create/View/Edit/Delete invoice directly from order rows and order detail pages, gated by invoice existence and role (client/supplier = view only).
+
+**Acceptance criteria**
+
+- AC1: Order list rows carry `invoiceForOrder {id, invoiceNumber} | null` — `getInvoiceLinkMap` (batch, one query) in `lib/server/orders-data.ts`; wired into all 4 SSR transforms + `GET /api/orders` (shared Redis shape)
+- AC2: `OrderActions` menu — no invoice + admin/owner → "Create Invoice" (opens `InvoiceDialog` w/ `initialOrderId`); has invoice → "View Invoice" (all roles), "Edit Invoice" (navigates to invoice detail) + "Delete Invoice" (AlertDialog + `useDeleteInvoice`) admin/owner only
+- AC3: `OrderList` hosts controlled `InvoiceDialog` create mode (same pattern as edit dialog)
+- AC4: `OrderDetailPage` action row — View Invoice (linked) or Create Invoice (absent, non-cancelled, admin/owner)
+- AC5: `AdminOrderDetailContent` invoice card — Create Invoice button when no invoice
+- AC6: Redis: `INVOICE_PATTERNS` already clears `orders:*` (verified); TanStack: `invalidateAfterOrderGraphChange` unchanged; existing 409 toast untouched
+
+**Artifacts:** `lib/server/orders-data.ts`, `app/api/orders/route.ts`, `components/orders/{OrderActions,OrderTableColumns,OrderList}.tsx`, `components/Pages/OrderDetailPage.tsx`, `components/admin/AdminOrderDetailContent.tsx`
+
+---
+
+## REQ-0062 — Order actions in invoice table
+
+| Field | Value |
+|-------|-------|
+| **Priority** | P2 |
+| **Risk** | R2 |
+| **Status** | done |
+| **Cycle** | C2 |
+
+**Intent:** From invoice rows: "View Order" for all roles; "Cancel Order" (AlertDialog + `useDeleteOrder`) for admin/owner. Add missing role gating to invoice Edit/Send/Delete (match order table pattern).
+
+**Acceptance criteria**
+
+- AC1: `InvoiceActions` — "View Order" link (`/admin/orders/*` when `detailHrefBase` is admin, else `/orders/*`)
+- AC2: Admin/owner-only "Cancel Order" with confirm dialog; API already guards already-cancelled orders
+- AC3: Edit/Send/Delete invoice disabled for client + supplier roles
+- AC4: lint ✓ test 352 ✓ invalidate 202 ✓ build ✓
+
+**Artifacts:** `components/invoices/InvoiceActions.tsx`
+
+---
+
 ## REQ-0020 — Locale-aware admin formatting
 
 | Field | Value |

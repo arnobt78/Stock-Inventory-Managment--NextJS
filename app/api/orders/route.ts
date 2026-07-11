@@ -13,6 +13,7 @@ import {
   getOrdersContainingSupplierProducts,
 } from "@/prisma/order";
 import { getSupplierByUserId } from "@/prisma/supplier";
+import { getInvoiceLinkMap } from "@/lib/server/orders-data";
 import { createOrderSchema } from "@/lib/validations";
 import { getCache, setCache, cacheKeys, invalidateOnOrderChange } from "@/lib/cache";
 import { withRateLimit, defaultRateLimits } from "@/lib/api/rate-limit";
@@ -72,13 +73,16 @@ export async function GET(request: NextRequest) {
         : await getOrdersByUser(userId);
 
     const userIds = [...new Set(orders.map((o) => o.userId))];
-    const users =
+    // Batch invoice linkage (REQ-0061) alongside placer lookup — one query each
+    const [users, invoiceLinkMap] = await Promise.all([
       userIds.length > 0
-        ? await prisma.user.findMany({
+        ? prisma.user.findMany({
             where: { id: { in: userIds } },
             select: { id: true, name: true, email: true },
           })
-        : [];
+        : Promise.resolve([]),
+      getInvoiceLinkMap(orders.map((o) => o.id)),
+    ]);
     const userMap = new Map(users.map((u) => [u.id, u]));
 
     // For client role, resolve product owner from order items
@@ -158,6 +162,7 @@ export async function GET(request: NextRequest) {
       })),
       placedByName,
       placedByEmail,
+      invoiceForOrder: invoiceLinkMap.get(order.id) ?? null,
       ...(po ? { productOwnerName: po.name ?? po.email, productOwnerEmail: po.email } : {}),
     };
     });

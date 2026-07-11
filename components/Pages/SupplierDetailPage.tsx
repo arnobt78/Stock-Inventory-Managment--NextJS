@@ -41,6 +41,7 @@ import {
   ClientDate,
   ClientDateTime,
   ClientRelativeTime,
+  CopyableText,
   PageContentWrapper,
   DataSlotPulse,
   PageSectionHeader,
@@ -543,17 +544,23 @@ export default function SupplierDetailPage({
                       }
                       className="flex items-center gap-2 p-4 rounded-xl border border-gray-300/20 dark:border-white/10 bg-white/30 dark:bg-white/5 hover:bg-white/50 dark:hover:bg-white/10 backdrop-blur-md transition-colors"
                     >
-                      {product.imageUrl && (
-                        <div className="relative w-16 h-16 rounded-xl overflow-hidden bg-white/50 dark:bg-white/5 border border-gray-300/20 dark:border-white/10 flex-shrink-0">
+                      {/* REQ-0059: Package-icon fallback so rows without image stay aligned */}
+                      <div className="relative w-16 h-16 rounded-xl overflow-hidden bg-white/50 dark:bg-white/5 border border-gray-300/20 dark:border-white/10 flex-shrink-0 flex items-center justify-center">
+                        {product.imageUrl ? (
                           <SafeImage
-                            src={product.imageUrl ?? ""}
+                            src={product.imageUrl}
                             width={64}
                             height={64}
                             alt={product.name}
                             className="w-full h-full object-contain"
                           />
-                        </div>
-                      )}
+                        ) : (
+                          <Package
+                            className="h-6 w-6 text-gray-400 dark:text-gray-500"
+                            aria-hidden
+                          />
+                        )}
+                      </div>
                       <div className="flex-1 min-w-0">
                         <h4 className="font-medium text-gray-700 dark:text-white truncate">
                           {product.name}
@@ -603,7 +610,9 @@ export default function SupplierDetailPage({
                     >
                       <div className="flex-1">
                         <h4 className="font-medium text-gray-700 dark:text-white">
-                          Order {order.orderNumber}
+                          <CopyableText value={order.orderNumber}>
+                            Order {order.orderNumber}
+                          </CopyableText>
                         </h4>
                         <p className="text-sm text-gray-600 dark:text-white/60 mt-1">
                           Product: {order.productName} (SKU: {order.productSku})

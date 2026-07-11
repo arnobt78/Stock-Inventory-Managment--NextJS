@@ -12,11 +12,13 @@ import {
   Package,
   Calendar,
   CreditCard,
+  FilePlus2,
   FileText,
   Truck,
   Edit,
   Trash2,
 } from "lucide-react";
+import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { useQueryClient } from "@tanstack/react-query";
 import { useOrder, useDeleteOrder } from "@/hooks/queries";
@@ -39,6 +41,7 @@ import type { OrderReviewContext } from "@/lib/server/order-review-context-data"
 import { cn } from "@/lib/utils";
 import { APP_SHELL_DETAIL_CLASS } from "@/lib/ui/shell-layout-styles";
 import OrderDialog from "@/components/orders/OrderDialog";
+import InvoiceDialog from "@/components/invoices/InvoiceDialog";
 import { AlertDialogWrapper } from "@/components/dialogs";
 import { PaymentDialog } from "@/components/payments";
 import { OrderTrackingInfo, ShippingManagement } from "@/components/shipping";
@@ -126,6 +129,8 @@ export default function OrderDetailPage({
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [editingOrder, setEditingOrder] = useState<Order | null>(null);
   const [cancelDialogOpen, setCancelDialogOpen] = useState(false);
+  // REQ-0061: InvoiceDialog create mode pre-selected with this order
+  const [createInvoiceOpen, setCreateInvoiceOpen] = useState(false);
 
   const handleUpdateOrder = useCallback(() => {
     if (!order) return;
@@ -432,6 +437,31 @@ export default function OrderDetailPage({
                   : "Edit order details."}
               </TooltipContent>
             </Tooltip>
+            {/* REQ-0061: situation-based invoice action — View when linked, Create when absent */}
+            {!dataLoading && order && order.invoiceForOrder ? (
+              <Button
+                asChild
+                className="w-full sm:w-auto gap-2 rounded-xl border border-indigo-400/30 bg-gradient-to-r from-indigo-500/70 via-indigo-500/50 to-indigo-500/30 text-white shadow-[0_10px_25px_rgba(99,102,241,0.35)] backdrop-blur-md hover:border-indigo-300/50 hover:from-indigo-500/80 hover:via-indigo-500/60 hover:to-indigo-500/40 transition-all duration-300"
+              >
+                <Link href={`/invoices/${order.invoiceForOrder.id}`}>
+                  <FileText className="h-4 w-4 shrink-0" />
+                  View Invoice
+                </Link>
+              </Button>
+            ) : (
+              !dataLoading &&
+              order &&
+              order.status !== "cancelled" &&
+              !disableOrderActions && (
+                <Button
+                  onClick={() => setCreateInvoiceOpen(true)}
+                  className="w-full sm:w-auto gap-2 rounded-xl border border-indigo-400/30 bg-gradient-to-r from-indigo-500/70 via-indigo-500/50 to-indigo-500/30 text-white shadow-[0_10px_25px_rgba(99,102,241,0.35)] backdrop-blur-md hover:border-indigo-300/50 hover:from-indigo-500/80 hover:via-indigo-500/60 hover:to-indigo-500/40 transition-all duration-300"
+                >
+                  <FilePlus2 className="h-4 w-4 shrink-0" />
+                  Create Invoice
+                </Button>
+              )
+            )}
             {!dataLoading &&
               order &&
               order.paymentStatus !== "paid" &&
@@ -544,6 +574,16 @@ export default function OrderDetailPage({
           >
             <div style={{ display: "none" }} aria-hidden />
           </OrderDialog>
+
+          {/* REQ-0061: InvoiceDialog create mode pre-selected with this order */}
+          {createInvoiceOpen && order && (
+            <InvoiceDialog
+              open={createInvoiceOpen}
+              onOpenChange={setCreateInvoiceOpen}
+              editingInvoice={null}
+              initialOrderId={order.id}
+            />
+          )}
         </div>
       </PageContentWrapper>
     </Navbar>

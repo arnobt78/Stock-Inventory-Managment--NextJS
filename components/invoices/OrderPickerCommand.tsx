@@ -1,0 +1,140 @@
+"use client";
+
+/**
+ * OrderPickerCommand — searchable order picker for InvoiceDialog (REQ-0060).
+ *
+ * Replaces the plain Select in create mode: a Popover + Command dropdown with
+ * type-to-filter (matches the ProductOwnerSelect pattern). Each row shows
+ * order # + total + status (+ placer name on the admin combined invoices page)
+ * and all of those fields are searchable.
+ */
+
+import * as React from "react";
+import { Button } from "@/components/ui/button";
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from "@/components/ui/command";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { Check, ChevronDown } from "lucide-react";
+import { cn } from "@/lib/utils";
+import type { Order } from "@/types";
+
+const fmt = (v: number) =>
+  `$${v.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+
+export type OrderPickerCommandProps = {
+  /** Non-cancelled orders eligible for invoicing */
+  orders: (Order & { _source?: string })[];
+  selectedOrderId: string;
+  onSelect: (orderId: string) => void;
+  /** Show placer name per row (admin combined invoices page) */
+  showPlacer?: boolean;
+  /** id forwarded to the trigger button (label htmlFor) */
+  triggerId?: string;
+  triggerClassName?: string;
+};
+
+export function OrderPickerCommand({
+  orders,
+  selectedOrderId,
+  onSelect,
+  showPlacer = false,
+  triggerId,
+  triggerClassName,
+}: OrderPickerCommandProps) {
+  const [open, setOpen] = React.useState(false);
+
+  const selected = React.useMemo(
+    () => orders.find((o) => o.id === selectedOrderId),
+    [orders, selectedOrderId],
+  );
+
+  const handleSelect = React.useCallback(
+    (orderId: string) => {
+      onSelect(orderId);
+      setOpen(false);
+    },
+    [onSelect],
+  );
+
+  return (
+    <Popover open={open} onOpenChange={setOpen}>
+      <PopoverTrigger asChild>
+        <Button
+          id={triggerId}
+          type="button"
+          variant="outline"
+          role="combobox"
+          aria-expanded={open}
+          className={cn(
+            "h-11 w-full justify-between font-normal",
+            triggerClassName,
+          )}
+        >
+          <span className="truncate">
+            {selected
+              ? `${selected.orderNumber} - ${fmt(selected.total)} (${selected.status})`
+              : "Select an order..."}
+          </span>
+          <ChevronDown className="h-4 w-4 shrink-0 opacity-60" />
+        </Button>
+      </PopoverTrigger>
+      {/* z-[100]: render above the dialog overlay (same as edit-form SelectContent) */}
+      <PopoverContent
+        align="start"
+        className="p-0 w-[min(100vw-2rem,420px)] z-[100] rounded-[20px] border border-indigo-400/20 dark:border-white/10 bg-white/90 dark:bg-popover/70 backdrop-blur-md"
+      >
+        <Command className="bg-transparent">
+          <CommandInput
+            placeholder="Search order #, customer, total..."
+            className="bg-transparent border-0 focus:ring-0 text-gray-700 dark:text-white/80 placeholder:text-gray-500 dark:placeholder:text-white/40"
+          />
+          <CommandList className="max-h-[min(60vh,280px)]">
+            <CommandEmpty className="text-gray-600 dark:text-white/60 text-sm text-center p-5">
+              No matching order found.
+            </CommandEmpty>
+            <CommandGroup>
+              {orders.map((order) => {
+                const placer =
+                  order.placedByName || order.placedByEmail || null;
+                const placerLabel = showPlacer && placer ? placer : null;
+                return (
+                  <CommandItem
+                    key={order.id}
+                    // Search across number + placer + total + status
+                    value={`${order.orderNumber} ${placer ?? ""} ${order.total} ${order.status}`}
+                    onSelect={() => handleSelect(order.id)}
+                    className="cursor-pointer text-gray-700 dark:text-white/80 focus:bg-indigo-100 dark:focus:bg-white/10 focus:text-gray-700 dark:focus:text-white"
+                  >
+                    <span className="flex min-w-0 flex-1 flex-col gap-0.5">
+                      <span className="truncate">
+                        {order.orderNumber} - {fmt(order.total)} ({order.status})
+                      </span>
+                      {placerLabel && (
+                        <span className="truncate text-xs text-muted-foreground dark:text-white/50">
+                          {placerLabel}
+                        </span>
+                      )}
+                    </span>
+                    {order.id === selectedOrderId && (
+                      <Check className="h-4 w-4 shrink-0 text-indigo-500 dark:text-indigo-400" />
+                    )}
+                  </CommandItem>
+                );
+              })}
+            </CommandGroup>
+          </CommandList>
+        </Command>
+      </PopoverContent>
+    </Popover>
+  );
+}

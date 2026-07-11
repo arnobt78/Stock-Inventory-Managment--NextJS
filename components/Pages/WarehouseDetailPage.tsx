@@ -42,6 +42,7 @@ import {
   PageSectionHeader,
 } from "@/components/shared";
 import WarehouseDialog from "@/components/warehouses/WarehouseDialog";
+import { ProductThumb } from "@/components/products/ProductOptionRow";
 import { AlertDialogWrapper } from "@/components/dialogs";
 import type { Warehouse as WarehouseType, StockAllocation } from "@/types";
 import { isDataSlotLoading } from "@/lib/react-query";
@@ -545,15 +546,23 @@ export default function WarehouseDetailPage({
                             background: `linear-gradient(to right, rgb(var(--${colorVariant === "sky" ? "14 165 233" : colorVariant === "emerald" ? "16 185 129" : colorVariant === "amber" ? "245 158 11" : colorVariant === "blue" ? "59 130 246" : "20 184 166"}) / 0.1), transparent)`,
                           }}
                         >
-                          <div className="flex-1 min-w-0">
-                            <p className="font-medium text-sm truncate text-gray-700 dark:text-white">
-                              {allocation.product?.name || "Unknown Product"}
-                            </p>
-                            {allocation.product?.sku && (
-                              <p className="text-xs text-gray-500 dark:text-gray-400">
-                                SKU: {allocation.product.sku}
+                          {/* REQ-0059: product thumbnail beside each allocation row */}
+                          <div className="flex flex-1 min-w-0 items-center gap-2">
+                            <ProductThumb
+                              name={allocation.product?.name || "Unknown Product"}
+                              imageUrl={allocation.product?.imageUrl}
+                              size="sm"
+                            />
+                            <div className="flex-1 min-w-0">
+                              <p className="font-medium text-sm truncate text-gray-700 dark:text-white">
+                                {allocation.product?.name || "Unknown Product"}
                               </p>
-                            )}
+                              {allocation.product?.sku && (
+                                <p className="text-xs text-gray-500 dark:text-gray-400">
+                                  SKU: {allocation.product.sku}
+                                </p>
+                              )}
+                            </div>
                           </div>
                           <div className="text-right ml-4">
                             <p className="font-medium text-sm text-emerald-600 dark:text-emerald-400">

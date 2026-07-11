@@ -40,6 +40,7 @@ import Navbar from "@/components/layouts/Navbar";
 import {
   ClientDateTime,
   ClientRelativeTime,
+  CopyableText,
   PageContentWrapper,
   DataSlotPulse,
   PageSectionHeader,
@@ -419,7 +420,13 @@ export default function InvoiceDetailPage({
                     className="inline-block w-32 align-middle"
                   />
                 ) : (
-                  invoice!.invoiceNumber
+                  // Copy icon next to the invoice number in the detail page title
+                  <CopyableText
+                    value={invoice!.invoiceNumber}
+                    className="align-middle"
+                  >
+                    {invoice!.invoiceNumber}
+                  </CopyableText>
                 )}
               </>
             }
@@ -512,11 +519,11 @@ export default function InvoiceDetailPage({
                   {dataLoading ? (
                     <DataSlotPulse variant="text-sm" className="w-40" />
                   ) : (
-                    <>
+                    <CopyableText value={invoice!.invoiceNumber}>
                       Invoice #{invoice!.invoiceNumber} -{" "}
                       {invoice!.status.charAt(0).toUpperCase() +
                         invoice!.status.slice(1)}
-                    </>
+                    </CopyableText>
                   )}
                 </p>
               </div>

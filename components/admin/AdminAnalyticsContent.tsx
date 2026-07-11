@@ -38,7 +38,7 @@ import {
 } from "recharts";
 import { ResponsiveChartContainer } from "@/components/ui/responsive-chart-container";
 import { DeferredChartSection } from "@/components/ui/deferred-chart-section";
-import { ClientCompactDateTime } from "@/components/shared";
+import { ClientCompactDateTime, CopyableText } from "@/components/shared";
 import { formatStableCurrency, formatClientCurrency } from "@/lib/format";
 import type { DashboardStats } from "@/types";
 import ForecastingSection from "@/components/admin/ForecastingSection";
@@ -1236,12 +1236,14 @@ export default function AdminAnalyticsContent({
                     {stats.recent.orders.slice(0, 5).map((o) => (
                       <li key={o.id} className={CARD_LIST_ROW_CLASS}>
                         <div className="min-w-0 flex-1">
-                          <Link
-                            href={`/admin/orders/${o.id}`}
-                            className="text-xs font-normal text-sky-600 dark:text-sky-400 hover:text-sky-500 dark:hover:text-sky-300 truncate block"
-                          >
-                            {o.orderNumber}
-                          </Link>
+                          <CopyableText value={o.orderNumber} className="max-w-full">
+                            <Link
+                              href={`/admin/orders/${o.id}`}
+                              className="text-xs font-normal text-sky-600 dark:text-sky-400 hover:text-sky-500 dark:hover:text-sky-300 truncate block"
+                            >
+                              {o.orderNumber}
+                            </Link>
+                          </CopyableText>
                           <p className={CARD_LIST_META_CLASS}>
                             <ClientCompactDateTime date={o.createdAt} />
                           </p>

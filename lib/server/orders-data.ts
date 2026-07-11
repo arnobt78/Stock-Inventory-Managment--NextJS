@@ -11,7 +11,28 @@ import {
   getOrdersContainingSupplierProducts,
   getOrdersContainingProductOwnerProducts,
 } from "@/prisma/order";
+import { getInvoicesByOrderIds } from "@/prisma/invoice";
 import { prisma } from "@/prisma/client";
+
+/** Linked invoice ref per order row (REQ-0061 — invoice actions in order table) */
+export type InvoiceLinkForOrder = { id: string; invoiceNumber: string } | null;
+
+/**
+ * Batch-resolve orderId → linked invoice {id, invoiceNumber} for list rows.
+ * One query for the whole page (uses existing getInvoicesByOrderIds helper).
+ */
+export async function getInvoiceLinkMap(
+  orderIds: string[],
+): Promise<Map<string, { id: string; invoiceNumber: string }>> {
+  if (orderIds.length === 0) return new Map();
+  const invoices = await getInvoicesByOrderIds(orderIds);
+  return new Map(
+    invoices.map((inv) => [
+      inv.orderId,
+      { id: inv.id, invoiceNumber: inv.invoiceNumber },
+    ]),
+  );
+}
 
 /** Order item shape (dates as ISO strings) */
 type OrderItemForPage = {
@@ -61,6 +82,8 @@ export type OrderForPage = {
   productOwnerName?: string | null;
   /** Product owner email (for client view) */
   productOwnerEmail?: string | null;
+  /** Linked invoice when this order has one (REQ-0061 — situation-based invoice actions) */
+  invoiceForOrder?: InvoiceLinkForOrder;
 };
 
 /**
@@ -78,13 +101,15 @@ export async function getOrdersForUser(
 
   const orders = await getOrdersByUser(userId);
   const firstOrder = orders[0];
-  const user =
+  const [user, invoiceLinkMap] = await Promise.all([
     firstOrder != null
-      ? await prisma.user.findUnique({
+      ? prisma.user.findUnique({
           where: { id: firstOrder.userId },
           select: { name: true, email: true },
         })
-      : null;
+      : Promise.resolve(null),
+    getInvoiceLinkMap(orders.map((o) => o.id)),
+  ]);
   const placedByName = user?.name ?? user?.email ?? null;
 
   const transformed: OrderForPage[] = orders.map((order) => ({
@@ -124,6 +149,7 @@ export async function getOrdersForUser(
       createdAt: item.createdAt.toISOString(),
     })),
     placedByName,
+    invoiceForOrder: invoiceLinkMap.get(order.id) ?? null,
   }));
 
   await setCache(cacheKey, transformed, 300);
@@ -146,13 +172,15 @@ export async function getOrdersForSupplierId(
   const orders = await getOrdersContainingSupplierProducts(supplierId);
 
   const userIds = [...new Set(orders.map((o) => o.userId))];
-  const users =
+  const [users, invoiceLinkMap] = await Promise.all([
     userIds.length > 0
-      ? await prisma.user.findMany({
+      ? prisma.user.findMany({
           where: { id: { in: userIds } },
           select: { id: true, name: true, email: true },
         })
-      : [];
+      : Promise.resolve([]),
+    getInvoiceLinkMap(orders.map((o) => o.id)),
+  ]);
   const userMap = new Map(users.map((u) => [u.id, u]));
 
   const transformed: OrderForPage[] = orders.map((order) => {
@@ -195,6 +223,7 @@ export async function getOrdersForSupplierId(
       })),
       placedByName: u?.name ?? u?.email ?? null,
       placedByEmail: u?.email ?? null,
+      invoiceForOrder: invoiceLinkMap.get(order.id) ?? null,
     };
   });
 
@@ -217,13 +246,15 @@ export async function getClientOrdersForProductOwner(
 
   const orders = await getOrdersContainingProductOwnerProducts(productOwnerUserId);
   const userIds = [...new Set(orders.map((o) => o.userId))];
-  const users =
+  const [users, invoiceLinkMap] = await Promise.all([
     userIds.length > 0
-      ? await prisma.user.findMany({
+      ? prisma.user.findMany({
           where: { id: { in: userIds } },
           select: { id: true, name: true, email: true },
         })
-      : [];
+      : Promise.resolve([]),
+    getInvoiceLinkMap(orders.map((o) => o.id)),
+  ]);
   const userMap = new Map(users.map((u) => [u.id, u]));
 
   const transformed: OrderForPage[] = orders.map((order) => {
@@ -266,6 +297,7 @@ export async function getClientOrdersForProductOwner(
         createdAt: item.createdAt.toISOString(),
       })),
       placedByName,
+      invoiceForOrder: invoiceLinkMap.get(order.id) ?? null,
     };
   });
 
@@ -300,12 +332,15 @@ export async function getOrdersForClientId(
     : [];
   const productOwnerIdMap = new Map(products.map((p) => [p.id, p.userId]));
   const ownerIds = [...new Set(products.map((p) => p.userId))];
-  const ownerUsers = ownerIds.length > 0
-    ? await prisma.user.findMany({
-        where: { id: { in: ownerIds } },
-        select: { id: true, name: true, email: true },
-      })
-    : [];
+  const [ownerUsers, invoiceLinkMap] = await Promise.all([
+    ownerIds.length > 0
+      ? prisma.user.findMany({
+          where: { id: { in: ownerIds } },
+          select: { id: true, name: true, email: true },
+        })
+      : Promise.resolve([]),
+    getInvoiceLinkMap(orders.map((o) => o.id)),
+  ]);
   const ownerUserMap = new Map(ownerUsers.map((u) => [u.id, u]));
 
   const transformed: OrderForPage[] = orders.map((order) => {
@@ -350,6 +385,7 @@ export async function getOrdersForClientId(
       })),
       productOwnerName: owner?.name ?? owner?.email ?? null,
       productOwnerEmail: owner?.email ?? null,
+      invoiceForOrder: invoiceLinkMap.get(order.id) ?? null,
     };
   });
 

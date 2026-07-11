@@ -28,6 +28,7 @@ import { isDataSlotLoading } from "@/lib/react-query";
 import { APP_SHELL_WIDTH_CLASS } from "@/lib/ui/shell-layout-styles";
 import OrderFilters from "./OrderFilters";
 import OrderDialog from "./OrderDialog";
+import InvoiceDialog from "@/components/invoices/InvoiceDialog";
 import { StatisticsCard } from "@/components/home/StatisticsCard";
 import {
   DollarSign,
@@ -215,10 +216,19 @@ const OrderList = React.memo(
     const [editDialogOpen, setEditDialogOpen] = useState(false);
     const [editingOrder, setEditingOrder] = useState<Order | null>(null);
 
+    // REQ-0061: "Create Invoice" from an order row opens InvoiceDialog pre-selected
+    const [invoiceDialogOpen, setInvoiceDialogOpen] = useState(false);
+    const [invoiceOrderId, setInvoiceOrderId] = useState<string>("");
+
     // Create table columns with edit handler
     const handleEditOrder = useCallback((order: Order) => {
       setEditingOrder(order);
       setEditDialogOpen(true);
+    }, []);
+
+    const handleCreateInvoiceForOrder = useCallback((order: Order) => {
+      setInvoiceOrderId(order.id);
+      setInvoiceDialogOpen(true);
     }, []);
 
     const columns = useMemo(
@@ -227,6 +237,7 @@ const OrderList = React.memo(
           showSourceBadge: dataSource === "adminCombined",
           showPlacedBy: isSupplierOrdersPage,
           showProductOwner: isClientOrdersPage,
+          onCreateInvoice: handleCreateInvoiceForOrder,
         }),
       [
         handleEditOrder,
@@ -234,6 +245,7 @@ const OrderList = React.memo(
         dataSource,
         isSupplierOrdersPage,
         isClientOrdersPage,
+        handleCreateInvoiceForOrder,
       ],
     );
 
@@ -1036,6 +1048,19 @@ const OrderList = React.memo(
           >
             <div style={{ display: "none" }} />
           </OrderDialog>
+        )}
+
+        {/* REQ-0061: InvoiceDialog create mode pre-selected from an order row */}
+        {isMounted && invoiceDialogOpen && (
+          <InvoiceDialog
+            open={invoiceDialogOpen}
+            onOpenChange={(open) => {
+              setInvoiceDialogOpen(open);
+              if (!open) setInvoiceOrderId("");
+            }}
+            editingInvoice={null}
+            initialOrderId={invoiceOrderId}
+          />
         )}
       </div>
     );

@@ -23,6 +23,7 @@ import { ArrowUpDown } from "lucide-react";
 import { IoMdArrowDown, IoMdArrowUp } from "react-icons/io";
 import { format } from "date-fns";
 import Link from "next/link";
+import { CopyableText } from "@/components/shared";
 import OrderActions from "./OrderActions";
 
 /**
@@ -89,6 +90,8 @@ type CreateOrderColumnsOptions = {
   showPlacedBy?: boolean;
   /** When true, show productOwnerName / productOwnerEmail under Order # (e.g. client view) */
   showProductOwner?: boolean;
+  /** Open InvoiceDialog create mode pre-selected with this order (REQ-0061) */
+  onCreateInvoice?: (order: Order) => void;
 };
 
 /**
@@ -118,12 +121,15 @@ export const createOrderColumns = (
         (order.productOwnerName || order.productOwnerEmail);
       return (
         <div className="flex flex-col gap-0.5">
-          <Link
-            href={href}
-            className="font-normal text-sky-600 dark:text-sky-400 hover:text-sky-500 dark:hover:text-sky-300"
-          >
-            {order.orderNumber}
-          </Link>
+          {/* CopyableText: click icon copies order # without triggering the row link */}
+          <CopyableText value={order.orderNumber}>
+            <Link
+              href={href}
+              className="font-normal text-sky-600 dark:text-sky-400 hover:text-sky-500 dark:hover:text-sky-300"
+            >
+              {order.orderNumber}
+            </Link>
+          </CopyableText>
           {showBadge && (
             <div className="flex items-center gap-1 flex-wrap">
               {order._displayName != null && order._displayName !== "" && (
@@ -216,6 +222,7 @@ export const createOrderColumns = (
           order={row.original}
           onEdit={onEdit}
           detailHrefBase={detailHrefBase}
+          onCreateInvoice={options?.onCreateInvoice}
         />
       );
     },

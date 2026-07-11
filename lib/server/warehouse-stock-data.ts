@@ -16,7 +16,7 @@ function transformAllocation(
     createdAt: Date;
     updatedAt: Date | null;
   },
-  productMap: Map<string, { name: string; sku: string }>,
+  productMap: Map<string, { name: string; sku: string; imageUrl: string | null }>,
   warehouseMap: Map<string, string>,
 ): StockAllocation {
   return {
@@ -58,7 +58,8 @@ export async function getStockByWarehouseForPage(
   const [products, warehouses] = await Promise.all([
     prisma.product.findMany({
       where: { id: { in: productIds } },
-      select: { id: true, name: true, sku: true },
+      // imageUrl → allocation row thumbnails (REQ-0059)
+      select: { id: true, name: true, sku: true, imageUrl: true },
     }),
     prisma.warehouse.findMany({
       where: { id: { in: warehouseIds } },
@@ -67,7 +68,10 @@ export async function getStockByWarehouseForPage(
   ]);
 
   const productMap = new Map(
-    products.map((p) => [p.id, { name: p.name, sku: p.sku }]),
+    products.map((p) => [
+      p.id,
+      { name: p.name, sku: p.sku, imageUrl: p.imageUrl ?? null },
+    ]),
   );
   const warehouseMap = new Map(warehouses.map((w) => [w.id, w.name]));
 
