@@ -8,7 +8,7 @@
 | **Last updated** | 2026-07-11 (REQ-0068 done; gates green) |
 | **Session** | ACTIVE — REQ-0068 complete; manual QA |
 | **Active REQ range** | REQ-0001 … REQ-0068 done |
-| **Prod deploy target** | `72647ed` (main) — REQ-0068 |
+| **Prod deploy target** | `f892b65` (main) — REQ-0068 + dead-code cleanup |
 | **Human Gate 1** | APPROVED (retroactive bootstrap) |
 | **Human Gate 2** | PENDING — Sentry 24h after prod deploy |
 | **Resume token** | `C2-post-mutation-cache` — see **Session handoff** + **Open backlog** |

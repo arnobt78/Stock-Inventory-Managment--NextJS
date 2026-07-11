@@ -48,4 +48,5 @@
 | 2026-07-10 | Hotfix: restore CTA gradients; AUTH_SUBMIT_BUTTON_EMERALD; SHELL_RESET fix | `73060a1` |
 | 2026-07-11 | REQ-0064–0067 polish, warehouse integration, AI insights | REQ-0064–0067 |
 | 2026-07-11 | REQ-0066 hardening: avail sync, role gates | `86421b8` |
-| 2026-07-11 | REQ-0068 per-warehouse order picking + pre-test gaps | `72647ed` |
+| 2026-07-11 | REQ-0068 picking + pre-test gaps | `72647ed` |
+| 2026-07-11 | Dead-code: unused deleteCache + getRateLimitStatus | `f892b65` |
