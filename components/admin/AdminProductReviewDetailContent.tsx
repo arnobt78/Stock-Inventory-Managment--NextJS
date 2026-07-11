@@ -2,7 +2,8 @@
 
 import React, { useCallback, useState, useEffect } from "react";
 import Link from "next/link";
-import { useParams, useRouter } from "next/navigation";
+import { useParams } from "next/navigation";
+import { useBackWithRefresh } from "@/hooks/use-back-with-refresh";
 import {
   Card,
   CardContent,
@@ -63,7 +64,7 @@ export default function AdminProductReviewDetailContent({
   initialReview,
 }: AdminProductReviewDetailContentProps = {}) {
   const params = useParams();
-  const router = useRouter();
+  const { navigateTo, handleBack } = useBackWithRefresh("product-review");
   const id = params?.id as string;
   const reviewQuery = useProductReview(id, initialReview);
   const review = reviewQuery.data;
@@ -112,20 +113,18 @@ export default function AdminProductReviewDetailContent({
     if (!id) return;
     deleteMutation.mutate(id, {
       onSuccess: () => {
-        router.push("/admin/product-reviews");
+        navigateTo("/admin/product-reviews");
       },
     });
-  }, [id, deleteMutation, router]);
+  }, [id, deleteMutation, navigateTo]);
 
   if (isError) {
     return (
       <PageContentWrapper>
         <div className="space-y-4">
-          <Button variant="ghost" size="sm" asChild>
-            <Link href="/admin/product-reviews" className="gap-2">
-              <ArrowLeft className="h-4 w-4" />
-              Back to Product Reviews
-            </Link>
+          <Button variant="ghost" size="sm" onClick={handleBack} className="gap-2">
+            <ArrowLeft className="h-4 w-4" />
+            Back to Product Reviews
           </Button>
           <Card>
             <CardContent className="py-8 text-center">
@@ -143,11 +142,9 @@ export default function AdminProductReviewDetailContent({
     return (
       <PageContentWrapper>
         <div className="space-y-4">
-          <Button variant="ghost" size="sm" asChild>
-            <Link href="/admin/product-reviews" className="gap-2">
-              <ArrowLeft className="h-4 w-4" />
-              Back to Product Reviews
-            </Link>
+          <Button variant="ghost" size="sm" onClick={handleBack} className="gap-2">
+            <ArrowLeft className="h-4 w-4" />
+            Back to Product Reviews
           </Button>
           <Card>
             <CardContent className="py-8 text-center">
@@ -171,10 +168,8 @@ export default function AdminProductReviewDetailContent({
     <PageContentWrapper>
       <div className="space-y-4">
         <div className="flex items-center gap-2">
-          <Button variant="ghost" size="icon" asChild>
-            <Link href="/admin/product-reviews" className="h-10 w-10">
-              <ArrowLeft className="h-5 w-5" />
-            </Link>
+          <Button variant="ghost" size="icon" onClick={handleBack} className="h-10 w-10">
+            <ArrowLeft className="h-5 w-5" />
           </Button>
           <div>
             <h1 className="text-sm sm:text-lg font-medium text-foreground">

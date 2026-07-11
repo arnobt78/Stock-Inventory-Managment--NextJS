@@ -25,9 +25,10 @@ export function useCreateCheckout() {
     onSuccess: (data: CheckoutSessionResponse) => {
       // Invalidate so when user returns from Stripe, all data refetches immediately
       invalidateAfterOrderGraphChange(queryClient);
-      // Redirect to Stripe Checkout URL
+      // Use replace() so the Stripe URL does not sit in browser history;
+      // clicking back after payment returns to the app page before checkout, not Stripe.
       if (data.url) {
-        window.location.href = data.url;
+        window.location.replace(data.url);
       } else {
         toast({
           title: "Payment Error",

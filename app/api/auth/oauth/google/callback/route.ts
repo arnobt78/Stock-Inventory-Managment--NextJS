@@ -236,7 +236,7 @@ export async function GET(request: NextRequest) {
       if (!user) {
         user = await createGoogleOAuthUser(profile);
         logger.info(`New user created via Google OAuth: ${email}`);
-    scheduleInvalidateAuthCaches();
+    await scheduleInvalidateAuthCaches();
       } else {
         user = await updateGoogleOAuthUser(user, profile);
       }
@@ -283,7 +283,7 @@ export async function GET(request: NextRequest) {
       // Clear OAuth cookies
       response.cookies.delete("oauth_state");
       response.cookies.delete("oauth_callback");
-    scheduleInvalidateAuthCaches();
+    await scheduleInvalidateAuthCaches();
       logger.info(`User authenticated via Google OAuth: ${email}`);
       return response;
     } catch (error) {

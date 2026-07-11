@@ -178,7 +178,7 @@ export async function POST(request: NextRequest) {
       },
       userId,
     );
-    scheduleInvalidateProductReviewCaches();
+    await scheduleInvalidateProductReviewCaches();
     const product = await prisma.product.findUnique({
       where: { id: data.productId },
       select: { userId: true, name: true },

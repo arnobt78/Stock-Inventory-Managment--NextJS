@@ -34,7 +34,7 @@ export async function PUT(request: NextRequest) {
 
     // Mark all notifications as read
     const count = await markAllNotificationsAsRead(userId);
-    scheduleInvalidateNotificationCaches();
+    await scheduleInvalidateNotificationCaches();
     logger.info("Marked all notifications as read", { userId, count });
 
     return NextResponse.json({

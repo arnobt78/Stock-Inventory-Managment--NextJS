@@ -283,7 +283,7 @@ export async function POST(request: NextRequest) {
         },
       });
     }
-    scheduleInvalidateOrderGraphCaches();
+    await scheduleInvalidateOrderGraphCaches();
     const response: CheckoutSessionResponse = {
       sessionId: checkoutSession.id,
       url: checkoutSession.url!,

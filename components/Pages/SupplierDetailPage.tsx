@@ -230,11 +230,6 @@ export default function SupplierDetailPage({
         description: supplier?.description ?? undefined,
         notes: supplier?.notes ?? undefined,
       },
-      {
-        onSuccess: () => {
-          router.refresh();
-        },
-      },
     );
   };
 

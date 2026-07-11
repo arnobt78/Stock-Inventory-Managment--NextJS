@@ -215,7 +215,7 @@ export async function POST(request: NextRequest) {
       },
       userId,
     );
-    scheduleInvalidateSupportTicketCaches();
+    await scheduleInvalidateSupportTicketCaches();
     createAuditLog({
       userId,
       action: "create",

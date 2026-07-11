@@ -150,7 +150,7 @@ export async function PUT(
     }
 
     const updated = await updateProductReview(id, updatePayload);
-    scheduleInvalidateProductReviewCaches();
+    await scheduleInvalidateProductReviewCaches();
     const productForAudit = await prisma.product.findUnique({
       where: { id: updated.productId },
       select: { name: true },
@@ -216,7 +216,7 @@ export async function DELETE(
     }
 
     await deleteProductReview(id);
-    scheduleInvalidateProductReviewCaches();
+    await scheduleInvalidateProductReviewCaches();
     createAuditLog({
       userId: session.id,
       action: "delete",

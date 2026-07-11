@@ -5,13 +5,13 @@
 | **Cycle** | C1 (closing) → **C2 open** |
 | **Phase** | `phases/07-shell-first-navigation` → C2 backlog |
 | **Infinity Loop stage** | Verify ◐ (code done; Human Gate 2 + manual QA open) |
-| **Last updated** | 2026-07-11 (session activated — Agile V resume) |
-| **Session** | ACTIVE — REQ-0052 shipped; REQ-0051 backlog |
-| **Active REQ range** | REQ-0001 … REQ-0050 done; **REQ-0052 done**; REQ-0051 backlog |
-| **Prod deploy target** | `73060a1` (main, pushed 2026-07-10) — confirm Vercel SHA |
+| **Last updated** | 2026-07-11 (REQ-0057 back-button sweep done; all gates green; commit-ready) |
+| **Session** | ACTIVE — REQ-0052–0057 code-complete + gates green, **uncommitted on main** |
+| **Active REQ range** | REQ-0001 … REQ-0050 done; **REQ-0052–0057 done**; REQ-0051 backlog |
+| **Prod deploy target** | `73060a1` (main, pushed 2026-07-10) — REQ-0052–0057 ahead of prod, uncommitted |
 | **Human Gate 1** | APPROVED (retroactive bootstrap) |
 | **Human Gate 2** | PENDING — Sentry 24h after prod deploy |
-| **Resume token** | `C2-glass-consistency` — see **Session handoff** + **Open backlog** |
+| **Resume token** | `C2-post-mutation-cache` — see **Session handoff** + **Open backlog** |
 
 ## Current focus
 
@@ -38,7 +38,13 @@
 21. **REQ-0050** — Glass shell-reset Batch B + dialog table titles + review submits (code-complete)
 22. **Hotfix** — CTA gradient restore `73060a1` (auth + page buttons; SHELL_RESET fix)
 23. **REQ-0051** — glass consistency backlog (planned — see handoff)
-24. **C2 backlog** — Gate 2 + manual QA (see below)
+24. **REQ-0052** — post-mutation deferred cache (`after()`) (code-complete, **uncommitted**)
+25. **REQ-0053** — scoped warehouse/stock Redis invalidation (code-complete, **uncommitted**)
+26. **REQ-0054** — scoped invalidation sweep, all 32 write routes (code-complete, **uncommitted**)
+27. **REQ-0055** — fix Redis race condition (sync await, not `after()`) + stale-UI fix (code-complete, **uncommitted**)
+28. **REQ-0056** — demo DB reset script + DRY seed source (code-complete, **uncommitted**)
+29. **REQ-0057** — back-button sweep + router.refresh() elimination (code-complete, **uncommitted**)
+30. **C2 backlog** — Gate 2 + manual QA + commit/push REQ-0052–0057 (see below)
 
 ## Session resume (every chat)
 
@@ -85,6 +91,18 @@
 | `3c01ad1` | REQ-0049/0050 | Dialog glass polish — tables, CTAs, submit gates, shell-reset |
 | `9aa2f1e` | REQ-0048 | Auth light mode, dialog tables, order product thumbs |
 | `3ebb4db` | REQ-0022–0029 | Detail SSR, glass badges, supplier catalog detail |
+
+## Session handoff (2026-07-11 — pick up next)
+
+**Found on resume:** working tree had REQ-0055 (Redis race fix, sync-await invalidation) code-complete with gates already logged in `DECISION_LOG.md` (test 352) but **not committed**. Also found untracked demo-DB-reset refactor (`lib/auth/demo-seed-users.ts`, `scripts/lib/delete-all-db-data.ts`, `scripts/reset-demo-db.ts`) with no REQ — assigned **REQ-0056** for traceability (Directive 2), reviewed diffs, confirmed coherent/complete.
+
+**Re-verified Red Team (2026-07-11):** lint ✓ test 352 ✓ invalidate 202 ✓ build ✓; `tsc --noEmit` clean on touched scripts.
+
+**Next action:** commit REQ-0052–0057 (currently uncommitted on `main`, all gates green) — push, confirm Vercel prod SHA, resume REQ-0051 glass backlog.
+
+**Do NOT repeat:** don't re-derive REQ-0053/0054/0055 content — already fully specified in `REQUIREMENTS.md`/`DECISION_LOG.md`; don't re-run full gate suite unless files change again (already green this session).
+
+---
 
 ## Session handoff (2026-07-10 — pick up tomorrow)
 

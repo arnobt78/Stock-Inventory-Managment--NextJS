@@ -231,7 +231,7 @@ export async function POST(request: NextRequest) {
     }).catch(() => {});
 
     // Global invalidation: orders affect product/category/supplier detail Recent Orders
-    invalidateOnOrderChange();
+    await invalidateOnOrderChange();
     // Create in-app notification for order confirmation (async, non-blocking)
     createOrderNotification(
       "order_confirmation",

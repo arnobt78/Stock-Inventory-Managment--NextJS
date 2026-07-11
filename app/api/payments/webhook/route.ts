@@ -170,7 +170,7 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
       }
 
       // Global invalidation: order payment affects product/category/supplier detail Recent Orders
-    invalidateOnOrderChange();
+    await invalidateOnOrderChange();
       logger.info(`Order ${orderIdToUpdate} marked as paid and confirmed`);
     }
   } else if (type === "invoice" && (invoiceId || referenceId)) {
@@ -239,7 +239,7 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
     }
 
     // Global invalidation: invoice payment updates order, affects all related caches
-    invalidateOnOrderChange();
+    await invalidateOnOrderChange();
     logger.info(`Invoice ${invoiceIdToUpdate} marked as paid`);
   }
 }
@@ -355,6 +355,6 @@ async function handleChargeRefunded(charge: Stripe.Charge) {
   }
 
   if (order || invoiceRecord) {
-    invalidateOnOrderChange();
+    await invalidateOnOrderChange();
   }
 }

@@ -93,7 +93,7 @@ export async function PUT(request: NextRequest) {
       userId,
       preferences
     );
-    scheduleInvalidateEmailPreferenceCaches();
+    await scheduleInvalidateEmailPreferenceCaches();
     // Return preferences directly (matching API client expectations)
     return NextResponse.json(updatedPreferences);
   } catch (error) {

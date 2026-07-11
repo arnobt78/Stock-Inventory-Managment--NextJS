@@ -66,7 +66,7 @@ export async function POST(request: NextRequest) {
         });
 
         // Invalidate caches
-    invalidateOnOrderChange();
+    await invalidateOnOrderChange();
         logger.info(
           `Order ${order.id} status updated to ${newStatus} via Shippo webhook`,
         );

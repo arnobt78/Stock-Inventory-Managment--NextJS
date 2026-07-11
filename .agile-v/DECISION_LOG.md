@@ -117,3 +117,13 @@ Format: `TIMESTAMP | AGENT | DECISION | RATIONALE | REQ-ID`
 2026-07-11T10:34:00Z | agile-v-core | session-activate | Infinity Loop resume; Red Team lint/test/invalidate/build PASS @ d397b4a; next REQ-0051 | REQ-0008, REQ-0051
 2026-07-11T10:45:00Z | build-agent | REQ-0052 post-mutation | after() deferred Redis + ImageKit; 32 API routes; maxDuration 60 | REQ-0052
 2026-07-11T10:46:00Z | red-team | REQ-0052 gates | lint ✓ test 346 ✓ invalidate 202 ✓ build ✓ | REQ-0052
+2026-07-11T11:32:00Z | debug-agent | REQ-0055 root-cause | Redis after() race: TanStack refetch fires before SCAN completes → stale data | REQ-0055
+2026-07-11T11:32:00Z | build-agent | REQ-0055 sync-invalidation | scheduleInvalidate* now async/sync (no after()); all 32 routes await before response | REQ-0055
+2026-07-11T11:33:00Z | build-agent | REQ-0055 stripe-history | window.location.replace() prevents Stripe URL polluting history | REQ-0055
+2026-07-11T11:33:00Z | build-agent | REQ-0055 order-cancel | Removed router.refresh() after cancel (mutation onSuccess handles invalidation) | REQ-0055
+2026-07-11T11:34:00Z | red-team | REQ-0055 gates | lint ✓ test 352 ✓ invalidate 202 ✓ build ✓ | REQ-0055
+2026-07-11T13:55:00Z | agile-v-core | session-resume | Found REQ-0055 code complete + gates logged but uncommitted; found untracked demo-DB-reset refactor with no REQ — assigned REQ-0056 for traceability | REQ-0055, REQ-0056
+2026-07-11T13:58:00Z | build-agent | REQ-0056 demo seed DRY | demo-seed-users.ts single source; scripts/lib/delete-all-db-data.ts shared wipe; reset-demo-db.ts one-command reseed; test-accounts.ts derives from seed source | REQ-0056
+2026-07-11T14:00:00Z | red-team | REQ-0055 + REQ-0056 combined gates | lint ✓ test 352 ✓ invalidate 202 ✓ build ✓; tsc --noEmit clean on touched scripts | REQ-0055, REQ-0056
+2026-07-11T14:10:00Z | build-agent | REQ-0057 back-button sweep | remove router.refresh() from 7 components; AdminOrderDetailContent → useBackWithRefresh("order"); InvoiceDetailPage delete → navigateTo; ProductActions/CategoryActions useRouter removed | REQ-0057
+2026-07-11T14:11:00Z | red-team | REQ-0057 gates | lint ✓ test 352 ✓ invalidate 202 ✓ | REQ-0057

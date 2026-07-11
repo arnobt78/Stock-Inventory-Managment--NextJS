@@ -149,7 +149,7 @@ export async function PUT(
       updateData,
       userId
     );
-    scheduleInvalidateNotificationCaches();
+    await scheduleInvalidateNotificationCaches();
     // Transform notification for response
     const transformedNotification = {
       id: notification.id,
@@ -215,7 +215,7 @@ export async function DELETE(
     }
 
     await deleteNotification(notificationId, userId);
-    scheduleInvalidateNotificationCaches();
+    await scheduleInvalidateNotificationCaches();
     logger.info("Notification deleted", { userId, notificationId });
 
     return NextResponse.json({

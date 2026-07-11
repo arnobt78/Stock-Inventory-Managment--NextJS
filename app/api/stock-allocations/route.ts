@@ -198,7 +198,7 @@ export async function POST(request: NextRequest) {
     }
 
     const allocation = await upsertStockAllocation(data, session.id);
-    scheduleInvalidateStockAllocationCaches();
+    await scheduleInvalidateStockAllocationCaches();
     const result: StockAllocation = {
       id: allocation.id,
       productId: allocation.productId,

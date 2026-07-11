@@ -204,7 +204,7 @@ export async function POST(
         });
       });
     }
-    scheduleInvalidateInvoiceCaches();
+    await scheduleInvalidateInvoiceCaches();
     logger.info("Invoice email sent successfully", {
       invoiceId,
       invoiceNumber: invoice.invoiceNumber,

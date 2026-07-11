@@ -1,10 +1,16 @@
 /**
- * Post-mutation side effects — run after the HTTP response is sent via Next.js `after()`.
- * Keeps CRUD routes fast on Vercel (avoids FUNCTION_INVOCATION_TIMEOUT on ImageKit / Redis SCAN).
- * Client TanStack `invalidateAllRelatedQueries` still runs immediately on mutation success.
+ * Post-mutation cache invalidation helpers.
  *
- * Each schedule* helper clears only Redis keys that domain can stale — mirrors TanStack scopes
- * in `lib/react-query/invalidate-all.ts` where applicable.
+ * Architecture:
+ * - Domain `scheduleInvalidate*Caches()` run synchronously (awaited by API routes before response).
+ *   This eliminates the race condition where TanStack refetches while Redis still holds stale data.
+ *   With scoped patterns (3–12 per domain vs 18 full-wipe), SCAN completes fast enough (< 200 ms
+ *   in production) to avoid Vercel FUNCTION_INVOCATION_TIMEOUT.
+ * - `scheduleAfterResponse()` uses `next/server after()` for external side-effects only (e.g.
+ *   ImageKit cleanup, email dispatch) — things that don't affect GET cache responses.
+ * - `scheduleInvalidateAllServerCaches()` keeps `after()` as escape hatch / scripts only.
+ *
+ * Client TanStack `invalidateAllRelatedQueries` fires immediately on mutation success (unchanged).
  */
 
 import { after } from "next/server";
@@ -17,19 +23,6 @@ import {
 
 async function invalidatePatterns(patterns: readonly string[]): Promise<void> {
   await Promise.all(patterns.map((pattern) => invalidateCache(pattern)));
-}
-
-function schedulePatterns(
-  patterns: readonly string[],
-  label: string,
-): void {
-  after(async () => {
-    try {
-      await invalidatePatterns(patterns);
-    } catch (error) {
-      logger.error(`Deferred ${label} cache invalidation failed:`, error);
-    }
-  });
 }
 
 /** Order / payment / shipping — catalog recentOrders + invoices + stock + portals. */
@@ -148,7 +141,10 @@ const STOCK_ALLOCATION_PATTERNS = [
   cacheKeys.portal.pattern,
 ] as const;
 
-/** Full Redis wipe — escape hatch / scripts only; avoid on hot CRUD paths. */
+/**
+ * Full Redis wipe — escape hatch / scripts only; avoid on hot CRUD paths.
+ * Still uses after() so it never blocks the response.
+ */
 export function scheduleInvalidateAllServerCaches(): void {
   after(async () => {
     try {
@@ -159,67 +155,136 @@ export function scheduleInvalidateAllServerCaches(): void {
   });
 }
 
-export function scheduleInvalidateProductCaches(): void {
-  schedulePatterns(PRODUCT_PATTERNS, "product");
+/**
+ * Synchronous scoped invalidation helpers.
+ * API routes MUST await these before returning NextResponse so the Redis keys
+ * are cleared before the client re-fetches and hits the cache.
+ *
+ * Race condition avoided: client TanStack refetch fires on mutation success;
+ * if Redis is cleared synchronously, the subsequent GET returns fresh DB data.
+ */
+
+export async function scheduleInvalidateProductCaches(): Promise<void> {
+  try {
+    await invalidatePatterns(PRODUCT_PATTERNS);
+  } catch (error) {
+    logger.error("Product cache invalidation failed:", error);
+  }
 }
 
-export function scheduleInvalidateCategoryCaches(): void {
-  schedulePatterns(CATEGORY_PATTERNS, "category");
+export async function scheduleInvalidateCategoryCaches(): Promise<void> {
+  try {
+    await invalidatePatterns(CATEGORY_PATTERNS);
+  } catch (error) {
+    logger.error("Category cache invalidation failed:", error);
+  }
 }
 
-export function scheduleInvalidateSupplierCaches(): void {
-  schedulePatterns(SUPPLIER_PATTERNS, "supplier");
+export async function scheduleInvalidateSupplierCaches(): Promise<void> {
+  try {
+    await invalidatePatterns(SUPPLIER_PATTERNS);
+  } catch (error) {
+    logger.error("Supplier cache invalidation failed:", error);
+  }
 }
 
-export function scheduleInvalidateWarehouseCaches(): void {
-  schedulePatterns(WAREHOUSE_PATTERNS, "warehouse");
+export async function scheduleInvalidateWarehouseCaches(): Promise<void> {
+  try {
+    await invalidatePatterns(WAREHOUSE_PATTERNS);
+  } catch (error) {
+    logger.error("Warehouse cache invalidation failed:", error);
+  }
 }
 
-export function scheduleInvalidateStockAllocationCaches(): void {
-  schedulePatterns(STOCK_ALLOCATION_PATTERNS, "stock-allocation");
+export async function scheduleInvalidateStockAllocationCaches(): Promise<void> {
+  try {
+    await invalidatePatterns(STOCK_ALLOCATION_PATTERNS);
+  } catch (error) {
+    logger.error("Stock-allocation cache invalidation failed:", error);
+  }
 }
 
-export function scheduleInvalidateOrderGraphCaches(): void {
-  schedulePatterns(ORDER_GRAPH_PATTERNS, "order-graph");
+export async function scheduleInvalidateOrderGraphCaches(): Promise<void> {
+  try {
+    await invalidatePatterns(ORDER_GRAPH_PATTERNS);
+  } catch (error) {
+    logger.error("Order-graph cache invalidation failed:", error);
+  }
 }
 
-export function scheduleInvalidateInvoiceCaches(): void {
-  schedulePatterns(INVOICE_PATTERNS, "invoice");
+export async function scheduleInvalidateInvoiceCaches(): Promise<void> {
+  try {
+    await invalidatePatterns(INVOICE_PATTERNS);
+  } catch (error) {
+    logger.error("Invoice cache invalidation failed:", error);
+  }
 }
 
-export function scheduleInvalidateSupportTicketCaches(): void {
-  schedulePatterns(SUPPORT_TICKET_PATTERNS, "support-ticket");
+export async function scheduleInvalidateSupportTicketCaches(): Promise<void> {
+  try {
+    await invalidatePatterns(SUPPORT_TICKET_PATTERNS);
+  } catch (error) {
+    logger.error("Support-ticket cache invalidation failed:", error);
+  }
 }
 
-export function scheduleInvalidateProductReviewCaches(): void {
-  schedulePatterns(PRODUCT_REVIEW_PATTERNS, "product-review");
+export async function scheduleInvalidateProductReviewCaches(): Promise<void> {
+  try {
+    await invalidatePatterns(PRODUCT_REVIEW_PATTERNS);
+  } catch (error) {
+    logger.error("Product-review cache invalidation failed:", error);
+  }
 }
 
-export function scheduleInvalidateUserCaches(): void {
-  schedulePatterns(USER_PATTERNS, "user");
+export async function scheduleInvalidateUserCaches(): Promise<void> {
+  try {
+    await invalidatePatterns(USER_PATTERNS);
+  } catch (error) {
+    logger.error("User cache invalidation failed:", error);
+  }
 }
 
-export function scheduleInvalidateNotificationCaches(): void {
-  schedulePatterns(NOTIFICATION_PATTERNS, "notification");
+export async function scheduleInvalidateNotificationCaches(): Promise<void> {
+  try {
+    await invalidatePatterns(NOTIFICATION_PATTERNS);
+  } catch (error) {
+    logger.error("Notification cache invalidation failed:", error);
+  }
 }
 
-export function scheduleInvalidateAuthCaches(): void {
-  schedulePatterns(AUTH_PATTERNS, "auth");
+export async function scheduleInvalidateAuthCaches(): Promise<void> {
+  try {
+    await invalidatePatterns(AUTH_PATTERNS);
+  } catch (error) {
+    logger.error("Auth cache invalidation failed:", error);
+  }
 }
 
-export function scheduleInvalidateEmailPreferenceCaches(): void {
-  schedulePatterns(EMAIL_PREFERENCE_PATTERNS, "email-preference");
+export async function scheduleInvalidateEmailPreferenceCaches(): Promise<void> {
+  try {
+    await invalidatePatterns(EMAIL_PREFERENCE_PATTERNS);
+  } catch (error) {
+    logger.error("Email-preference cache invalidation failed:", error);
+  }
 }
 
-export function scheduleInvalidateSystemConfigCaches(): void {
-  schedulePatterns(SYSTEM_CONFIG_PATTERNS, "system-config");
+export async function scheduleInvalidateSystemConfigCaches(): Promise<void> {
+  try {
+    await invalidatePatterns(SYSTEM_CONFIG_PATTERNS);
+  } catch (error) {
+    logger.error("System-config cache invalidation failed:", error);
+  }
 }
 
-export function scheduleInvalidateImportCaches(): void {
-  schedulePatterns(IMPORT_PATTERNS, "import");
+export async function scheduleInvalidateImportCaches(): Promise<void> {
+  try {
+    await invalidatePatterns(IMPORT_PATTERNS);
+  } catch (error) {
+    logger.error("Import cache invalidation failed:", error);
+  }
 }
 
-/** Arbitrary async work after response (ImageKit cleanup, etc.). */
+/** Arbitrary async work after response (ImageKit cleanup, email, etc.) — still deferred. */
 export function scheduleAfterResponse(
   task: () => Promise<void>,
   label: string,
@@ -233,39 +298,40 @@ export function scheduleAfterResponse(
   });
 }
 
-/** @deprecated Use scheduleInvalidateOrderGraphCaches — audit spec alias */
-export function invalidateOnOrderChange(): void {
-  scheduleInvalidateOrderGraphCaches();
+/** @deprecated Use scheduleInvalidateOrderGraphCaches (with await) — audit spec alias */
+export async function invalidateOnOrderChange(): Promise<void> {
+  await scheduleInvalidateOrderGraphCaches();
 }
 
-/** @deprecated Use scheduleInvalidateProductCaches — audit spec alias */
-export function invalidateOnProductChange(): void {
-  scheduleInvalidateProductCaches();
+/** @deprecated Use scheduleInvalidateProductCaches (with await) — audit spec alias */
+export async function invalidateOnProductChange(): Promise<void> {
+  await scheduleInvalidateProductCaches();
 }
 
-/** @deprecated Use scheduleInvalidateCategoryCaches — audit spec alias */
-export function invalidateOnCategoryChange(): void {
-  scheduleInvalidateCategoryCaches();
+/** @deprecated Use scheduleInvalidateCategoryCaches (with await) — audit spec alias */
+export async function invalidateOnCategoryChange(): Promise<void> {
+  await scheduleInvalidateCategoryCaches();
 }
 
-/** @deprecated Use scheduleInvalidateSupplierCaches — audit spec alias */
-export function invalidateOnSupplierChange(): void {
-  scheduleInvalidateSupplierCaches();
+/** @deprecated Use scheduleInvalidateSupplierCaches (with await) — audit spec alias */
+export async function invalidateOnSupplierChange(): Promise<void> {
+  await scheduleInvalidateSupplierCaches();
 }
 
 /** @deprecated Combined category+supplier — prefer entity-specific schedules */
-export function invalidateOnCategoryOrSupplierChange(): void {
-  schedulePatterns(
-    [
+export async function invalidateOnCategoryOrSupplierChange(): Promise<void> {
+  try {
+    await invalidatePatterns([
       ...CATEGORY_PATTERNS,
       cacheKeys.suppliers.pattern,
       cacheKeys.supplierPortal.pattern,
-    ],
-    "category-supplier",
-  );
+    ]);
+  } catch (error) {
+    logger.error("Category+supplier cache invalidation failed:", error);
+  }
 }
 
-/** @deprecated Use scheduleInvalidateWarehouseCaches — audit spec alias */
-export function invalidateOnWarehouseChange(): void {
-  scheduleInvalidateWarehouseCaches();
+/** @deprecated Use scheduleInvalidateWarehouseCaches (with await) — audit spec alias */
+export async function invalidateOnWarehouseChange(): Promise<void> {
+  await scheduleInvalidateWarehouseCaches();
 }

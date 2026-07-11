@@ -401,7 +401,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Invalidate caches
-    invalidateOnOrderChange();
+    await invalidateOnOrderChange();
     const response: GenerateLabelResponse = {
       orderId,
       trackingNumber,

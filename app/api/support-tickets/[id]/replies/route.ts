@@ -143,7 +143,7 @@ export async function POST(
       session.id,
       parsed.data.body,
     );
-    scheduleInvalidateSupportTicketCaches();
+    await scheduleInvalidateSupportTicketCaches();
     const updaterDisplay =
       session.name?.trim() || session.email || "Someone";
     const toNotify: string[] = [];

@@ -4,7 +4,8 @@ import React, { useCallback, useState, useEffect } from "react";
 import { SafeAvatarImage } from "@/components/ui/safe-avatar-image";
 import { resolveAvatarSourcesFromSeed } from "@/lib/ui/user-avatar-sources";
 import Link from "next/link";
-import { useParams, useRouter } from "next/navigation";
+import { useParams } from "next/navigation";
+import { useBackWithRefresh } from "@/hooks/use-back-with-refresh";
 import {
   Card,
   CardContent,
@@ -100,7 +101,7 @@ export default function AdminSupportTicketDetailContent({
   initialReplies,
 }: AdminSupportTicketDetailContentProps = {}) {
   const params = useParams();
-  const router = useRouter();
+  const { navigateTo, handleBack } = useBackWithRefresh("support-ticket");
   const id = params?.id as string;
   const ticketQuery = useSupportTicket(id, initialTicket);
   const ticket = ticketQuery.data;
@@ -152,12 +153,14 @@ export default function AdminSupportTicketDetailContent({
 
   const handleDelete = useCallback(() => {
     if (!id) return;
+    // useDeleteSupportTicket.onSuccess calls cancelOrRemoveDetailQuery + invalidateAllRelatedQueries;
+    // navigateTo triggers a second invalidation before push for belt-and-suspenders freshness.
     deleteMutation.mutate(id, {
       onSuccess: () => {
-        router.push("/admin/support-tickets");
+        navigateTo("/admin/support-tickets");
       },
     });
-  }, [id, deleteMutation, router]);
+  }, [id, deleteMutation, navigateTo]);
 
   const handleSubmitReply = (e: React.FormEvent) => {
     e.preventDefault();
@@ -172,11 +175,9 @@ export default function AdminSupportTicketDetailContent({
     return (
       <PageContentWrapper>
         <div className="space-y-4">
-          <Button variant="ghost" size="sm" asChild>
-            <Link href="/admin/support-tickets" className="gap-2">
-              <ArrowLeft className="h-4 w-4" />
-              Back to Support Tickets
-            </Link>
+          <Button variant="ghost" size="sm" onClick={handleBack} className="gap-2">
+            <ArrowLeft className="h-4 w-4" />
+            Back to Support Tickets
           </Button>
           <Card>
             <CardContent className="py-8 text-center">
@@ -194,11 +195,9 @@ export default function AdminSupportTicketDetailContent({
     return (
       <PageContentWrapper>
         <div className="space-y-4">
-          <Button variant="ghost" size="sm" asChild>
-            <Link href="/admin/support-tickets" className="gap-2">
-              <ArrowLeft className="h-4 w-4" />
-              Back to Support Tickets
-            </Link>
+          <Button variant="ghost" size="sm" onClick={handleBack} className="gap-2">
+            <ArrowLeft className="h-4 w-4" />
+            Back to Support Tickets
           </Button>
           <Card>
             <CardContent className="py-8 text-center">
@@ -222,10 +221,8 @@ export default function AdminSupportTicketDetailContent({
     <PageContentWrapper>
       <div className="space-y-4">
         <div className="flex items-center gap-2">
-          <Button variant="ghost" size="icon" asChild>
-            <Link href="/admin/support-tickets" className="h-10 w-10">
-              <ArrowLeft className="h-5 w-5" />
-            </Link>
+          <Button variant="ghost" size="icon" onClick={handleBack} className="h-10 w-10">
+            <ArrowLeft className="h-5 w-5" />
           </Button>
           <div>
             <h1 className="text-sm sm:text-lg font-medium text-foreground">

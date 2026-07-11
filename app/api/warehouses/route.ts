@@ -95,7 +95,7 @@ export async function POST(request: NextRequest) {
       entityId: warehouse.id,
       details: { name: warehouse.name },
     }).catch(() => {});
-    scheduleInvalidateWarehouseCaches();
+    await scheduleInvalidateWarehouseCaches();
     return NextResponse.json(warehouse, { status: 201 });
   } catch (error) {
     logger.error("Error creating warehouse:", error);
@@ -183,7 +183,7 @@ export async function PUT(request: NextRequest) {
       entityId: id,
       details: { name: warehouse.name },
     }).catch(() => {});
-    scheduleInvalidateWarehouseCaches();
+    await scheduleInvalidateWarehouseCaches();
     return NextResponse.json(warehouse);
   } catch (error) {
     logger.error("Error updating warehouse:", error);
@@ -238,7 +238,7 @@ export async function DELETE(request: NextRequest) {
       entityId: id,
       details: { name: existing.name },
     }).catch(() => {});
-    scheduleInvalidateWarehouseCaches();
+    await scheduleInvalidateWarehouseCaches();
     return NextResponse.json({ success: true });
   } catch (error) {
     logger.error("Error deleting warehouse:", error);

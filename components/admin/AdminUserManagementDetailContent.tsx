@@ -2,7 +2,8 @@
 
 import React, { useCallback, useState, useEffect } from "react";
 import Link from "next/link";
-import { useParams, useRouter } from "next/navigation";
+import { useParams } from "next/navigation";
+import { useBackWithRefresh } from "@/hooks/use-back-with-refresh";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -173,7 +174,7 @@ export default function AdminUserManagementDetailContent({
   initialUser,
 }: AdminUserManagementDetailContentProps = {}) {
   const params = useParams();
-  const router = useRouter();
+  const { navigateTo, handleBack } = useBackWithRefresh("user");
   const { user: currentUser } = useAuth();
   const id = params?.id as string;
   const userQuery = useUser(id, initialUser);
@@ -222,20 +223,18 @@ export default function AdminUserManagementDetailContent({
     if (!id) return;
     deleteMutation.mutate(id, {
       onSuccess: () => {
-        router.push("/admin/user-management");
+        navigateTo("/admin/user-management");
       },
     });
-  }, [id, deleteMutation, router]);
+  }, [id, deleteMutation, navigateTo]);
 
   if (isError) {
     return (
       <PageContentWrapper>
         <div className="space-y-4">
-          <Button variant="ghost" size="sm" asChild>
-            <Link href="/admin/user-management" className="gap-2">
-              <ArrowLeft className="h-4 w-4" />
-              Back to User Management
-            </Link>
+          <Button variant="ghost" size="sm" onClick={handleBack} className="gap-2">
+            <ArrowLeft className="h-4 w-4" />
+            Back to User Management
           </Button>
           <GlassCard variant="violet">
             <div className="py-8 text-center">
@@ -253,11 +252,9 @@ export default function AdminUserManagementDetailContent({
     return (
       <PageContentWrapper>
         <div className="space-y-4">
-          <Button variant="ghost" size="sm" asChild>
-            <Link href="/admin/user-management" className="gap-2">
-              <ArrowLeft className="h-4 w-4" />
-              Back to User Management
-            </Link>
+          <Button variant="ghost" size="sm" onClick={handleBack} className="gap-2">
+            <ArrowLeft className="h-4 w-4" />
+            Back to User Management
           </Button>
           <GlassCard variant="violet">
             <div className="py-8 text-center">
@@ -287,10 +284,8 @@ export default function AdminUserManagementDetailContent({
     <PageContentWrapper>
       <div className="space-y-4">
         <div className="flex items-center gap-2">
-          <Button variant="ghost" size="icon" asChild>
-            <Link href="/admin/user-management" className="h-10 w-10">
-              <ArrowLeft className="h-5 w-5" />
-            </Link>
+          <Button variant="ghost" size="icon" onClick={handleBack} className="h-10 w-10">
+            <ArrowLeft className="h-5 w-5" />
           </Button>
           <div>
             <h1 className="text-sm sm:text-base font-medium text-gray-700 dark:text-white">

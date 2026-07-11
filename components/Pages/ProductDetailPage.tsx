@@ -257,11 +257,6 @@ export default function ProductDetailPage({
         supplierId: product?.supplierId,
         userId: product?.userId,
       },
-      {
-        onSuccess: () => {
-          router.refresh();
-        },
-      },
     );
   };
 

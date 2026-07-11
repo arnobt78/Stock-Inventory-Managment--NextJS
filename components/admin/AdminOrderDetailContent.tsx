@@ -34,6 +34,7 @@ import {
   Truck,
 } from "lucide-react";
 import { useOrder, useUpdateOrder, useDeleteOrder } from "@/hooks/queries";
+import { useBackWithRefresh } from "@/hooks/use-back-with-refresh";
 import {
   ClientDateTime,
   DeferredSelectGate,
@@ -97,6 +98,8 @@ export default function AdminOrderDetailContent({
   const params = useParams();
   const orderId = params?.id as string;
   const { toast } = useToast();
+  // Invalidates order/invoice caches before navigating back so the list shows fresh data
+  const { handleBack, navigateTo } = useBackWithRefresh("order");
   const orderQuery = useOrder(orderId, initialOrder);
   const order = orderQuery.data;
   const dataLoading = isDataSlotLoading(orderQuery, initialOrder);
@@ -203,11 +206,9 @@ export default function AdminOrderDetailContent({
     return (
       <PageContentWrapper>
         <div className="space-y-4">
-          <Button variant="ghost" size="sm" asChild>
-            <Link href={backHref} className="gap-2">
-              <ArrowLeft className="h-4 w-4" />
-              Back to Orders
-            </Link>
+          <Button variant="ghost" size="sm" className="gap-2" onClick={() => navigateTo(backHref)}>
+            <ArrowLeft className="h-4 w-4" />
+            Back to Orders
           </Button>
           <div className="rounded-[20px] border border-gray-200/50 dark:border-white/10 bg-white/60 dark:bg-white/5 backdrop-blur-md p-4 sm:p-6 text-center">
             <p className="text-muted-foreground">
@@ -223,11 +224,9 @@ export default function AdminOrderDetailContent({
     return (
       <PageContentWrapper>
         <div className="space-y-4">
-          <Button variant="ghost" size="sm" asChild>
-            <Link href={backHref} className="gap-2">
-              <ArrowLeft className="h-4 w-4" />
-              Back to Orders
-            </Link>
+          <Button variant="ghost" size="sm" className="gap-2" onClick={() => navigateTo(backHref)}>
+            <ArrowLeft className="h-4 w-4" />
+            Back to Orders
           </Button>
           <div className="rounded-[20px] border border-gray-200/50 dark:border-white/10 bg-white/60 dark:bg-white/5 backdrop-blur-md p-4 sm:p-6 text-center">
             <p className="text-muted-foreground">
@@ -249,8 +248,9 @@ export default function AdminOrderDetailContent({
   return (
     <PageContentWrapper>
       <div className="mx-auto space-y-4">
+        {/* onBack invalidates order/invoice TanStack caches before navigating back */}
         <OrderDetailHeader
-          backHref={backHref}
+          onBack={handleBack}
           orderNumber={order?.orderNumber}
           createdAt={createdAt}
           dataLoading={dataLoading}

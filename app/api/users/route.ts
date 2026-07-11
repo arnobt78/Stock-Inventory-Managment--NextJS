@@ -130,7 +130,7 @@ export async function POST(request: NextRequest) {
       entityType: "user",
       entityId: created.id,
     }).catch(() => {});
-    scheduleInvalidateUserCaches();
+    await scheduleInvalidateUserCaches();
     return NextResponse.json(result, { status: 201 });
   } catch (error) {
     logger.error("Error creating user:", error);

@@ -99,7 +99,7 @@ export async function POST(request: NextRequest) {
     }).catch(() => {});
 
     // Global invalidation: categories affect products, dashboard
-    scheduleInvalidateCategoryCaches();
+    await scheduleInvalidateCategoryCaches();
     return NextResponse.json(category, { status: 201 });
   } catch (error) {
     logger.error("Error creating category:", error);
@@ -192,7 +192,7 @@ export async function PUT(request: NextRequest) {
     }).catch(() => {});
 
     // Global invalidation: categories affect products, dashboard
-    scheduleInvalidateCategoryCaches();
+    await scheduleInvalidateCategoryCaches();
     return NextResponse.json(category);
   } catch (error) {
     logger.error("Error updating category:", error);
@@ -250,7 +250,7 @@ export async function DELETE(request: NextRequest) {
     }).catch(() => {});
 
     // Global invalidation: categories affect products, dashboard
-    scheduleInvalidateCategoryCaches();
+    await scheduleInvalidateCategoryCaches();
     return NextResponse.json({ success: true });
   } catch (error) {
     logger.error("Error deleting category:", error);

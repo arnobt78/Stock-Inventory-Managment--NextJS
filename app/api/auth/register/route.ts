@@ -126,7 +126,7 @@ export async function POST(request: NextRequest) {
         { status: 500 }
       );
     }
-    scheduleInvalidateAuthCaches();
+    await scheduleInvalidateAuthCaches();
     return NextResponse.json(
       {
         id: createdUser.id,

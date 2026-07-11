@@ -1,7 +1,14 @@
 /**
  * useBackWithRefresh
- * Hook that invalidates all related queries before navigating back.
- * Ensures list/dashboard pages (user, admin, client, supplier) show fresh data.
+ * Central back-navigation hook used on ALL detail pages.
+ * Invalidates relevant TanStack Query caches before navigating so the list/dashboard
+ * always shows fresh data when the user returns — no manual page refresh needed.
+ *
+ * Supports every entity that has a detail page in the app.
+ * Usage:
+ *   const { handleBack, navigateTo } = useBackWithRefresh("order");
+ *   - handleBack()           → invalidate + router.back()
+ *   - navigateTo("/orders")  → invalidate + router.push("/orders")
  */
 
 import { useRouter } from "next/navigation";
@@ -11,32 +18,31 @@ import {
   invalidateAfterOrderGraphChange,
 } from "@/lib/react-query";
 
-type EntityType =
+/** All entity types that have a back-button detail page. */
+export type EntityType =
   | "order"
+  | "invoice"
   | "product"
   | "category"
   | "supplier"
-  | "invoice"
-  | "warehouse";
+  | "warehouse"
+  | "support-ticket"
+  | "product-review"
+  | "user";
 
 function runInvalidations(
   queryClient: ReturnType<typeof import("@tanstack/react-query").useQueryClient>,
   entity: EntityType,
 ) {
-  // Order/invoice flows embed order status on product/category/supplier detail APIs
+  // Order/invoice flows stale many cross-domain keys (stock, invoices, portals)
   if (entity === "order" || entity === "invoice") {
     invalidateAfterOrderGraphChange(queryClient);
     return;
   }
+  // All other entities: full cross-domain invalidation covers lists + dashboards
   invalidateAllRelatedQueries(queryClient);
 }
 
-/**
- * Returns:
- * - handleBack: invalidates relevant queries, then router.back()
- * - navigateTo: (path) => invalidates relevant queries, then router.push(path)
- * Use on back buttons in detail pages so list/dashboard shows fresh data.
- */
 export function useBackWithRefresh(entity: EntityType) {
   const router = useRouter();
   const queryClient = useQueryClient();

@@ -79,8 +79,6 @@ export default function SupplierActions({
         notes: row.original.notes,
       });
 
-      // Refresh router (toast is handled by mutation hook)
-      router.refresh();
     } catch (error) {
       // Error toast is handled by the mutation hook
       logger.error("Error copying supplier:", error);

@@ -187,7 +187,7 @@ export async function PUT(
     }).catch(() => {});
 
     // Global invalidation: orders affect product/category/supplier detail Recent Orders
-    invalidateOnOrderChange();
+    await invalidateOnOrderChange();
     // Track changes for notifications
     const statusChanged =
       updateData.status && updateData.status !== existingOrder.status;
@@ -448,7 +448,7 @@ export async function DELETE(
     }).catch(() => {});
 
     // Global invalidation: orders affect product/category/supplier detail Recent Orders
-    invalidateOnOrderChange();
+    await invalidateOnOrderChange();
     // Create in-app notification for order cancellation (async, non-blocking)
     createOrderNotification(
       "order_status_update",

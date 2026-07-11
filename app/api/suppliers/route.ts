@@ -112,7 +112,7 @@ export async function POST(request: NextRequest) {
     }).catch(() => {});
 
     // Global invalidation: suppliers affect products, dashboard
-    scheduleInvalidateSupplierCaches();
+    await scheduleInvalidateSupplierCaches();
     return NextResponse.json(supplier, { status: 201 });
   } catch (error) {
     logger.error("Error creating supplier:", error);
@@ -205,7 +205,7 @@ export async function PUT(request: NextRequest) {
     }).catch(() => {});
 
     // Global invalidation: suppliers affect products, dashboard
-    scheduleInvalidateSupplierCaches();
+    await scheduleInvalidateSupplierCaches();
     return NextResponse.json(supplier);
   } catch (error) {
     logger.error("Error updating supplier:", error);
@@ -263,7 +263,7 @@ export async function DELETE(request: NextRequest) {
     }).catch(() => {});
 
     // Global invalidation: suppliers affect products, dashboard
-    scheduleInvalidateSupplierCaches();
+    await scheduleInvalidateSupplierCaches();
     return NextResponse.json({ success: true });
   } catch (error) {
     logger.error("Error deleting supplier:", error);

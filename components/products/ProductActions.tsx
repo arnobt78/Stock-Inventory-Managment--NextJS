@@ -8,7 +8,6 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { useRouter } from "next/navigation";
 import {
   useCreateProduct,
   useDeleteProduct,
@@ -52,8 +51,6 @@ export default function ProductsDropDown({
   // Use TanStack Query mutations
   const createProductMutation = useCreateProduct();
   const deleteProductMutation = useDeleteProduct();
-
-  const router = useRouter();
 
   // Alert dialog state
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
@@ -106,8 +103,6 @@ export default function ProductsDropDown({
         userId: row.original.userId,
       });
 
-      // Refresh router (toast is handled by mutation hook)
-      router.refresh();
     } catch (error) {
       // Error toast is handled by the mutation hook
       logger.error("Error copying product:", error);
@@ -152,10 +147,10 @@ export default function ProductsDropDown({
   // does not await onAction, so mutateAsync would leave a rejected promise and
   // trigger the Next.js "1 Issue" overlay. Callbacks keep handling silent/graceful.
   const handleConfirmDeleteProduct = () => {
+    // useDeleteProduct.onSuccess already calls cancelOrRemoveDetailQuery + invalidateAllRelatedQueries
     deleteProductMutation.mutate(row.original.id, {
       onSuccess: () => {
         setDeleteDialogOpen(false);
-        router.refresh();
       },
       onError: () => {
         // Toast already shown by useDeleteProduct onError; close dialog gracefully

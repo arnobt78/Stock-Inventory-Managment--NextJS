@@ -1,73 +1,58 @@
 /**
- * Create Demo Accounts (Client & Supplier)
+ * Create Demo Accounts (legacy — admin + client + supplier)
  *
- * Creates two users in the DB for the login dropdown demo. Run this after you
- * have created your own admin account (e.g. via Register). Does not create
- * admin — new signups already get admin role.
+ * Prefer the all-in-one fresh reset:
+ *   npm run script:reset-demo-db
  *
- * Creates:
- *   - test@client.com  / 12345678  / "Test Client"  / role: client
- *   - test@supplier.com / 12345678 / "Test Supplier" / role: supplier
+ * This script only creates missing demo users (skips existing emails).
+ * Does not wipe data. Creates admin if missing; links supplier portal entity.
  *
- * For the supplier portal to work, links the first existing Supplier to
- * test@supplier.com (or creates a "Demo Supplier" if none exist).
- *
- * Usage (from project root, same DB as app/VPS):
+ * Usage:
  *   npx tsx scripts/create-demo-accounts.ts
  */
 
 import { PrismaClient } from "@prisma/client";
 import bcrypt from "bcryptjs";
+import { DEMO_PASSWORD, DEMO_SEED_USERS } from "@/lib/auth/demo-seed-users";
 
 const prisma = new PrismaClient();
 
-const PASSWORD_PLAIN = "12345678";
-
-const DEMO_USERS = [
-  {
-    email: "test@client.com",
-    name: "Test Client",
-    username: "testclient",
-    role: "client",
-    googleId: "demo-client", // unique placeholder so User_googleId_key is not violated
-  },
-  {
-    email: "test@supplier.com",
-    name: "Test Supplier",
-    username: "testsupplier",
-    role: "supplier",
-    googleId: "demo-supplier",
-  },
-] as const;
+const BCRYPT_ROUNDS = 10;
+const DEMO_SUPPLIER_NAME = "Demo Supplier";
 
 async function main() {
-  console.log("\n📦 Create demo accounts (client + supplier)\n");
+  console.log("\n📦 Create demo accounts (admin + client + supplier)\n");
+  console.log("   Tip: for a full wipe + seed use  npm run script:reset-demo-db\n");
 
-  const hashedPassword = await bcrypt.hash(PASSWORD_PLAIN, 10);
+  const hashedPassword = await bcrypt.hash(DEMO_PASSWORD, BCRYPT_ROUNDS);
+  const now = new Date();
 
-  for (const u of DEMO_USERS) {
+  for (const spec of DEMO_SEED_USERS) {
     const existing = await prisma.user.findUnique({
-      where: { email: u.email },
+      where: { email: spec.email },
       select: { id: true, name: true, role: true },
     });
 
     if (existing) {
-      console.log(`   ⏭ ${u.email} already exists (${existing.name}, role: ${existing.role ?? "—"}). Skipping.`);
+      console.log(
+        `   ⏭ ${spec.email} already exists (${existing.name}, role: ${existing.role ?? "—"}). Skipping.`,
+      );
       continue;
     }
 
     await prisma.user.create({
       data: {
-        email: u.email,
-        name: u.name,
-        username: u.username,
+        email: spec.email,
+        name: spec.name,
+        username: spec.username,
         password: hashedPassword,
-        role: u.role,
-        googleId: u.googleId,
-        createdAt: new Date(),
+        role: spec.role,
+        googleId: spec.googleId,
+        createdAt: now,
+        updatedAt: now,
       },
     });
-    console.log(`   ✅ Created ${u.email} (${u.name}, role: ${u.role})`);
+    console.log(`   ✅ Created ${spec.email} (${spec.name}, role: ${spec.role})`);
   }
 
   const supplierUser = await prisma.user.findUnique({
@@ -76,39 +61,47 @@ async function main() {
   });
 
   if (supplierUser) {
-    const firstSupplier = await prisma.supplier.findFirst({
-      orderBy: { createdAt: "asc" },
+    const linked = await prisma.supplier.findFirst({
+      where: { userId: supplierUser.id },
       select: { id: true, name: true },
     });
 
-    if (firstSupplier) {
-      await prisma.supplier.update({
-        where: { id: firstSupplier.id },
-        data: {
-          userId: supplierUser.id,
-          createdBy: supplierUser.id,
-          updatedBy: supplierUser.id,
-          updatedAt: new Date(),
-        },
-      });
-      console.log(`   ✅ Linked supplier "${firstSupplier.name}" to test@supplier.com`);
+    if (linked) {
+      console.log(`   ⏭ Supplier "${linked.name}" already linked to test@supplier.com`);
     } else {
-      await prisma.supplier.create({
-        data: {
-          name: "Demo Supplier",
-          userId: supplierUser.id,
-          status: true,
-          createdBy: supplierUser.id,
-          updatedBy: supplierUser.id,
-          updatedAt: new Date(),
-        },
+      const firstSupplier = await prisma.supplier.findFirst({
+        orderBy: { createdAt: "asc" },
+        select: { id: true, name: true },
       });
-      console.log(`   ✅ Created "Demo Supplier" and linked to test@supplier.com`);
+
+      if (firstSupplier) {
+        await prisma.supplier.update({
+          where: { id: firstSupplier.id },
+          data: {
+            userId: supplierUser.id,
+            createdBy: supplierUser.id,
+            updatedBy: supplierUser.id,
+            updatedAt: now,
+          },
+        });
+        console.log(`   ✅ Linked supplier "${firstSupplier.name}" to test@supplier.com`);
+      } else {
+        await prisma.supplier.create({
+          data: {
+            name: DEMO_SUPPLIER_NAME,
+            userId: supplierUser.id,
+            status: true,
+            createdBy: supplierUser.id,
+            updatedBy: supplierUser.id,
+            updatedAt: now,
+          },
+        });
+        console.log(`   ✅ Created "${DEMO_SUPPLIER_NAME}" and linked to test@supplier.com`);
+      }
     }
   }
 
-  console.log("\n   Password for both demo accounts: " + PASSWORD_PLAIN);
-  console.log("   Use the login dropdown to sign in as Admin (your account), Client, or Supplier.\n");
+  console.log(`\n   Password for all demo accounts: ${DEMO_PASSWORD}\n`);
 }
 
 main()

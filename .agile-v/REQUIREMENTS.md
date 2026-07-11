@@ -1117,6 +1117,79 @@ Canonical REQ source. All artifacts link via `REQ-XXXX`. Status: `done` | `verif
 
 ---
 
+## REQ-0055 — Fix Redis race condition + stale UI after mutation
+
+| Field | Value |
+|-------|-------|
+| **Priority** | P0 |
+| **Risk** | R1 |
+| **Status** | done |
+| **Cycle** | C2 |
+| **Parent** | REQ-0052, REQ-0054 |
+
+**Intent:** REQ-0054's `after()` deferral created a race: TanStack refetch fires on `onSuccess` (immediately after 201/200) before Redis SCAN completes → stale cached data returned → UI appears unchanged until manual refresh. Fix: make all domain `scheduleInvalidate*Caches()` synchronous async functions (no `after()` wrapper); API routes `await` them before response. Only `scheduleAfterResponse` and `scheduleInvalidateAllServerCaches` retain `after()`.
+
+**Acceptance criteria**
+- AC1: All 32 write routes `await` their domain invalidation before `NextResponse.json()`
+- AC2: Orders, tickets, reviews, invoices table updates immediately after CRUD (no page refresh needed)
+- AC3: Back button from any detail page shows updated data
+- AC4: Stripe checkout uses `window.location.replace()` so back button skips Stripe URL
+- AC5: `OrderDetailPage` cancel no longer calls `router.refresh()` (mutation `onSuccess` handles it)
+- AC6: lint ✓ test 352 ✓ invalidate 202 ✓ build ✓
+
+**Artifacts:** `lib/cache/post-mutation.ts`, all `app/api/**/route.ts` (32 files), `hooks/queries/use-payments.ts`, `components/Pages/OrderDetailPage.tsx`, `lib/cache/post-mutation.test.ts`
+
+---
+
+## REQ-0056 — Demo DB reset script + DRY seed source
+
+| Field | Value |
+|-------|-------|
+| **Priority** | P2 |
+| **Risk** | R1 |
+| **Status** | done |
+| **Cycle** | C2 |
+
+**Intent:** Single canonical source for the 3 demo accounts (admin/client/supplier) shared by login-dropdown UI and DB seed scripts; one-command full wipe + reseed for local/demo resets. Dev tooling only — no runtime/API/UI surface change.
+
+**Acceptance criteria**
+
+- AC1: `lib/auth/demo-seed-users.ts` — `DEMO_SEED_USERS`, `DEMO_PASSWORD`, `DemoRoleKey`; single source of truth
+- AC2: `lib/auth/test-accounts.ts` derives `testAccounts` from `DEMO_SEED_USERS` (no duplicated literals)
+- AC3: `scripts/lib/delete-all-db-data.ts` — shared dependency-ordered wipe (`deleteAllDbData`), used by `delete-all-data.ts` and `reset-demo-db.ts`
+- AC4: `scripts/reset-demo-db.ts` — wipe Mongo + optional Redis clear + reseed 3 demo users + link "Demo Supplier"; `npm run script:reset-demo-db`
+- AC5: `create-demo-accounts.ts` / `delete-all-data.ts` / `verify-demo-accounts.ts` updated to reference shared source, docs point to `reset-demo-db`
+- AC6: lint ✓ test 352 ✓ invalidate 202 ✓ build ✓ (scripts excluded from Next bundle; typecheck clean)
+
+**Artifacts:** `lib/auth/demo-seed-users.ts`, `scripts/lib/delete-all-db-data.ts`, `scripts/reset-demo-db.ts`, `scripts/{create-demo-accounts,delete-all-data,verify-demo-accounts}.ts`, `lib/auth/test-accounts.ts`, `package.json`
+
+---
+
+## REQ-0057 — Back-button sweep + router.refresh() elimination
+
+| Field | Value |
+|-------|-------|
+| **Priority** | P1 |
+| **Risk** | R1 |
+| **Status** | done |
+| **Cycle** | C2 |
+
+**Intent:** Every detail page back button must invalidate TanStack caches before navigating so the list always shows fresh data. Eliminate redundant `router.refresh()` calls that bypass TanStack and cause unnecessary SSR round-trips.
+
+**Acceptance criteria**
+
+- AC1: `useBackWithRefresh` covers all entity types: `order | invoice | product | category | supplier | warehouse | support-ticket | product-review | user`
+- AC2: All detail-page back buttons (top + bottom) use `handleBack` or `navigateTo` — no bare `<Link href>` for back navigation on pages with CRUD mutations
+- AC3: `AdminOrderDetailContent` switched from `backHref` Link to `onBack={handleBack}` via `useBackWithRefresh("order")`
+- AC4: `router.refresh()` removed from `ProductDetailPage`, `CategoryDetailPage`, `SupplierDetailPage` duplicate handlers + `ProductActions`, `CategoryActions`, `SupplierActions` copy handlers — mutation hooks already call `invalidateAllRelatedQueries`
+- AC5: `InvoiceDetailPage` delete-success uses `navigateTo("/invoices")` (invalidates before push)
+- AC6: `ProductActions`, `CategoryActions` — `useRouter` import + instance removed (unused after cleanup)
+- AC7: lint ✓ test 352 ✓ invalidate 202 ✓
+
+**Artifacts:** `hooks/use-back-with-refresh.ts`, `components/admin/AdminOrderDetailContent.tsx`, `components/Pages/{Product,Category,Supplier,Invoice}DetailPage.tsx`, `components/{products/ProductActions,category/CategoryActions,supplier/SupplierActions}.tsx`
+
+---
+
 ## REQ-0020 — Locale-aware admin formatting
 
 | Field | Value |

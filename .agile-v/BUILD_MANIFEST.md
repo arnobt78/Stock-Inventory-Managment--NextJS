@@ -137,6 +137,13 @@
 | ART-0130 | REQ-0052 | `vercel.json` | `maxDuration: 60` on API routes |
 | ART-0131 | REQ-0052 | `lib/cache/post-mutation.test.ts` | unit tests for after() scheduling |
 | ART-0127 | hotfix | `auth-glass-styles.ts`, Login/Register, page CTAs, `glass-button-styles.ts` | CTA gradient restore `73060a1` |
+| ART-0132 | REQ-0055 | `lib/cache/post-mutation.ts`, all `app/api/**/route.ts` | sync await invalidation before response; fixes stale-UI race |
+| ART-0133 | REQ-0055 | `hooks/queries/use-payments.ts` | `window.location.replace()` — Stripe URL not in history |
+| ART-0134 | REQ-0055 | `components/Pages/OrderDetailPage.tsx` | remove `router.refresh()` on cancel |
+| ART-0135 | REQ-0056 | `lib/auth/demo-seed-users.ts` | canonical `DEMO_SEED_USERS` + `DEMO_PASSWORD` |
+| ART-0136 | REQ-0056 | `scripts/lib/delete-all-db-data.ts` | shared dependency-ordered Mongo wipe |
+| ART-0137 | REQ-0056 | `scripts/reset-demo-db.ts` | one-command wipe + Redis clear + reseed |
+| ART-0138 | REQ-0056 | `lib/auth/test-accounts.ts`, `create-demo-accounts.ts`, `delete-all-data.ts`, `verify-demo-accounts.ts`, `package.json` | derive from shared source; `script:reset-demo-db` |
 
 ## Tests
 

@@ -139,7 +139,7 @@ export async function PUT(request: NextRequest) {
 
     // Invalidate cache
     await invalidateCache(CACHE_KEY);
-    scheduleInvalidateSystemConfigCaches();
+    await scheduleInvalidateSystemConfigCaches();
     logger.info("System configurations updated", {
       userId: session.id,
       updatedCount: updated.length,

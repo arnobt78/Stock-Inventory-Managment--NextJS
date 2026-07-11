@@ -122,7 +122,7 @@ export async function PUT(
     if (data.notes !== undefined) updatePayload.notes = data.notes;
 
     const updated = await updateSupportTicket(id, updatePayload);
-    scheduleInvalidateSupportTicketCaches();
+    await scheduleInvalidateSupportTicketCaches();
     createAuditLog({
       userId: session.id,
       action: "update",
@@ -224,7 +224,7 @@ export async function DELETE(
     }
 
     await deleteSupportTicket(id);
-    scheduleInvalidateSupportTicketCaches();
+    await scheduleInvalidateSupportTicketCaches();
     createAuditLog({
       userId: session.id,
       action: "delete",

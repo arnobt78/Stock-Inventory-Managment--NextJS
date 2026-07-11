@@ -241,7 +241,7 @@ export async function POST(request: NextRequest) {
       entityId: invoice.id,
       details: { invoiceNumber: invoice.invoiceNumber },
     }).catch(() => {});
-    scheduleInvalidateInvoiceCaches();
+    await scheduleInvalidateInvoiceCaches();
     // Transform invoice for response
     const transformedInvoice = {
       id: invoice.id,

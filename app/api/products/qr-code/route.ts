@@ -102,7 +102,7 @@ export async function POST(request: NextRequest) {
         );
       }
     }
-    scheduleInvalidateProductCaches();
+    await scheduleInvalidateProductCaches();
     return NextResponse.json(
       {
         qrCodeUrl: updatedProduct.qrCodeUrl,

@@ -13,7 +13,6 @@ import { useCreateCategory, useDeleteCategory } from "@/hooks/queries";
 import { useAuth } from "@/contexts";
 import { logger } from "@/lib/logger";
 import { AlertDialogWrapper } from "@/components/dialogs";
-import { useRouter } from "next/navigation";
 import { MoreVertical, Eye, Edit, Trash2, Copy } from "lucide-react";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
@@ -39,7 +38,6 @@ export default function CategoryActions({
 }: CategoryActionsProps) {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const { user } = useAuth();
-  const router = useRouter();
   const createCategoryMutation = useCreateCategory();
   const deleteCategoryMutation = useDeleteCategory();
   const isCopying = createCategoryMutation.isPending;
@@ -62,8 +60,6 @@ export default function CategoryActions({
         notes: row.original.notes,
       });
 
-      // Refresh router (toast is handled by mutation hook)
-      router.refresh();
     } catch (error) {
       // Error toast is handled by the mutation hook
       logger.error("Error copying category:", error);

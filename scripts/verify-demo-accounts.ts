@@ -2,8 +2,8 @@
  * Verify Demo Accounts
  *
  * Lists all users in the DB with email and role. Use after:
- *   1) Registering your admin account → confirm your user has role "admin"
- *   2) Running create-demo-accounts.ts → confirm 3 users: one admin, one client, one supplier
+ *   npm run script:reset-demo-db
+ * or legacy: register admin + create-demo-accounts.ts
  *
  * Usage:
  *   npx tsx scripts/verify-demo-accounts.ts

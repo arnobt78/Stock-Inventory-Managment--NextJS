@@ -135,16 +135,17 @@ export default function OrderDetailPage({
 
   const handleConfirmCancelOrder = useCallback(() => {
     if (!order) return;
+    // useDeleteOrder.onSuccess already calls invalidateAfterOrderGraphChange + cancelOrRemoveDetailQuery.
+    // No router.refresh() needed — clicking back will use handleBack which re-invalidates.
     deleteOrderMutation.mutate(order.id, {
       onSuccess: () => {
         setCancelDialogOpen(false);
-        router.refresh();
       },
       onError: () => {
         setCancelDialogOpen(false);
       },
     });
-  }, [order, deleteOrderMutation, router]);
+  }, [order, deleteOrderMutation]);
 
   useEffect(() => {
     if (!isCheckingAuth && !user) {

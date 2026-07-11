@@ -182,7 +182,7 @@ export async function POST(request: NextRequest) {
     }
 
     if (sentCount > 0) {
-    scheduleInvalidateInvoiceCaches();
+    await scheduleInvalidateInvoiceCaches();
     }
 
     return NextResponse.json({

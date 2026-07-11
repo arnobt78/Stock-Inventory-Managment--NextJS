@@ -228,11 +228,6 @@ export default function CategoryDetailPage({
         description: category.description ?? undefined,
         notes: category.notes ?? undefined,
       },
-      {
-        onSuccess: () => {
-          router.refresh();
-        },
-      },
     );
   };
 

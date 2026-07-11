@@ -286,16 +286,17 @@ export default function InvoiceDetailPage({
 
   const handleConfirmDeleteInvoice = useCallback(() => {
     if (!invoice) return;
+    // navigateTo invalidates TanStack invoice caches before navigating to the list
     deleteInvoiceMutation.mutate(invoice.id, {
       onSuccess: () => {
         setDeleteDialogOpen(false);
-        router.push("/invoices");
+        navigateTo("/invoices");
       },
       onError: () => {
         setDeleteDialogOpen(false);
       },
     });
-  }, [invoice, deleteInvoiceMutation, router]);
+  }, [invoice, deleteInvoiceMutation, navigateTo]);
 
   const handleConfirmSendInvoice = useCallback(() => {
     if (!invoice) return;

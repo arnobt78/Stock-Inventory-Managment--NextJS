@@ -180,7 +180,7 @@ export async function PUT(
       entityId: id,
       details: { invoiceNumber: invoice.invoiceNumber },
     }).catch(() => {});
-    scheduleInvalidateInvoiceCaches();
+    await scheduleInvalidateInvoiceCaches();
     // Transform invoice for response
     const transformedInvoice = {
       id: invoice.id,
@@ -281,7 +281,7 @@ export async function DELETE(
       entityId: invoiceId,
       details: existingInvoice ? { invoiceNumber: existingInvoice.invoiceNumber } : undefined,
     }).catch(() => {});
-    scheduleInvalidateInvoiceCaches();
+    await scheduleInvalidateInvoiceCaches();
     logger.info("Invoice deleted successfully", { invoiceId, userId });
 
     return NextResponse.json({

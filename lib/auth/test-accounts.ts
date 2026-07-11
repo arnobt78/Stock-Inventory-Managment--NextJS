@@ -1,27 +1,20 @@
 import { Shield, Store, ShoppingBag } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
+import { DEMO_PASSWORD, DEMO_SEED_USERS, type DemoRoleKey } from "./demo-seed-users";
 
 /** Demo test-account keys for login role Select (REQ-0030). */
-export type TestAccountRoleKey = "guest-user" | "guest-supplier" | "guest-client";
+export type TestAccountRoleKey = DemoRoleKey;
 
-/** Credentials for quick demo login — password shared across roles. */
+/** Credentials for quick demo login — sourced from demo-seed-users.ts. */
 export const testAccounts: Record<
   TestAccountRoleKey,
   { email: string; password: string }
-> = {
-  "guest-user": {
-    email: "test@admin.com",
-    password: "12345678",
-  },
-  "guest-supplier": {
-    email: "test@supplier.com",
-    password: "12345678",
-  },
-  "guest-client": {
-    email: "test@client.com",
-    password: "12345678",
-  },
-};
+> = Object.fromEntries(
+  DEMO_SEED_USERS.map((u) => [
+    u.roleKey,
+    { email: u.email, password: DEMO_PASSWORD },
+  ]),
+) as Record<TestAccountRoleKey, { email: string; password: string }>;
 
 export type RoleMetaHue = "sky" | "emerald" | "amber";
 

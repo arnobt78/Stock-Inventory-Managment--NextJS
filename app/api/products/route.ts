@@ -319,7 +319,7 @@ export async function POST(request: NextRequest) {
     });
 
     // Global invalidation: products affect categories, suppliers, dashboard
-    invalidateOnProductChange();
+    await invalidateOnProductChange();
     // Transform product to match expected format
     const transformedProduct = {
       id: product.id,
@@ -576,7 +576,7 @@ export async function PUT(request: NextRequest) {
     }
 
     // Global invalidation: products affect categories, suppliers, dashboard
-    invalidateOnProductChange();
+    await invalidateOnProductChange();
     // Transform product to match expected format
     const transformedProduct = {
       id: product.id,
@@ -771,7 +771,7 @@ export async function DELETE(request: NextRequest) {
         },
       }).catch(() => {});
 
-      invalidateOnProductChange();
+      await invalidateOnProductChange();
       return NextResponse.json({ success: true, mode: "soft" as const });
     }
 
@@ -806,7 +806,7 @@ export async function DELETE(request: NextRequest) {
       entityId: id,
       details: { productName: existingProduct.name, mode: "hard" },
     }).catch(() => {});
-    invalidateOnProductChange();
+    await invalidateOnProductChange();
     return NextResponse.json({ success: true, mode: "hard" as const });
   } catch (error) {
     logger.error("Error deleting product:", error);
