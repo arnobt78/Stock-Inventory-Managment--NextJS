@@ -49,7 +49,7 @@ import {
   ProductStockFromQuantityBadge,
 } from "@/lib/ui/semantic-badges";
 import { StatisticsCard } from "@/components/home/StatisticsCard";
-import { isDataSlotLoading } from "@/lib/react-query";
+import { isDataSlotLoading, queryKeys, useSyncSsrQueryData } from "@/lib/react-query";
 import { cn } from "@/lib/utils";
 import type { SupplierPortalDashboard } from "@/types";
 
@@ -61,8 +61,14 @@ export type SupplierPortalPageProps = {
 export default function SupplierPortalPage({
   initialDashboard,
 }: SupplierPortalPageProps = {}) {
-  const { isCheckingAuth } = useAuth();
+  const { isCheckingAuth, user } = useAuth();
   const dashboardQuery = useSupplierPortalDashboard(initialDashboard);
+
+  useSyncSsrQueryData(
+    [...queryKeys.portal.supplier(), user?.id ?? ""],
+    user?.id && initialDashboard !== undefined ? initialDashboard : undefined,
+  );
+
   const dashboard = dashboardQuery.data ?? initialDashboard;
   const dataLoading = isDataSlotLoading(dashboardQuery, initialDashboard);
   const showError =

@@ -174,6 +174,10 @@
 | ART-0166 | REQ-0069 | `PaymentDialog`, `CreateUserDialog`, detail CTAs, `dialog-footer-actions` | DialogSubmitButton sweep |
 | ART-0167 | REQ-0069 | `lib/stock-allocation/stock-allocation-enrich.test.ts` | Enrich unit tests |
 | ART-0168 | REQ-0069 | Removed `AdminPage.tsx`, `SidebarLayout.tsx` | Orphan deletion |
+| ART-0169 | REQ-0070 | `hooks/use-sync-ssr-query-data.ts` | Fingerprint-only Many + JSDoc |
+| ART-0170 | REQ-0070 | Client/portal components (5) | Browse + portal SSR sync |
+| ART-0171 | REQ-0070 | Admin/user list components (8) | List + activity + analytics sync |
+| ART-0172 | REQ-0070 | ProductDetail, ProductReviewsSection, ticket details | useSyncSsrQueryDataMany adoption |
 
 ## Tests
 

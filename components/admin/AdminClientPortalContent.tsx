@@ -17,7 +17,7 @@ import {
   DataSlotPulse,
 } from "@/components/shared";
 import { useClientPortal } from "@/hooks/queries";
-import { isDataSlotLoading } from "@/lib/react-query";
+import { isDataSlotLoading, queryKeys, useSyncSsrQueryData } from "@/lib/react-query";
 import {
   Users,
   ShoppingCart,
@@ -132,6 +132,11 @@ export default function AdminClientPortalContent({
   const portalQuery = useClientPortal(initialStats ?? undefined);
   const stats = portalQuery.data ?? initialStats ?? null;
   const dataLoading = isDataSlotLoading(portalQuery, initialStats);
+
+  useSyncSsrQueryData(
+    queryKeys.clientPortal.overview(),
+    initialStats ?? undefined,
+  );
 
   return (
     <PageContentWrapper>

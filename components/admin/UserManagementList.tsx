@@ -6,7 +6,7 @@
 
 import React, { useState, useEffect, useRef, useMemo } from "react";
 import { useUsers } from "@/hooks/queries";
-import { isDataSlotLoading } from "@/lib/react-query";
+import { isDataSlotLoading, queryKeys, useSyncSsrQueryData } from "@/lib/react-query";
 import { PaginationType } from "@/components/shared/PaginationSelector";
 import { PageSectionHeader } from "@/components/shared";
 import { createUserManagementColumns } from "./UserManagementTableColumns";
@@ -32,6 +32,8 @@ export default function UserManagementList({
   const [isMounted, setIsMounted] = useState(false);
   const usersQuery = useUsers(initialUsers);
   const { user } = useAuth();
+
+  useSyncSsrQueryData(queryKeys.userManagement.lists(), initialUsers);
 
   const allUsers = usersQuery.data ?? initialUsers ?? [];
 

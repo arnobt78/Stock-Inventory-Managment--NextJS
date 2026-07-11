@@ -58,7 +58,7 @@ import {
   DialogSubmitButton,
 } from "@/components/shared";
 import { TYPO_BODY, TYPO_BODY_MUTED } from "@/lib/ui/typography-scale";
-import { isDataSlotLoading, queryKeys, useSyncSsrQueryData } from "@/lib/react-query";
+import { isDataSlotLoading, queryKeys, useSyncSsrQueryDataMany } from "@/lib/react-query";
 import { format } from "date-fns";
 import type {
   SupportTicket,
@@ -112,11 +112,13 @@ export default function AdminSupportTicketDetailContent({
   const dataLoading = isDataSlotLoading(ticketQuery, initialTicket);
   const { isError, error } = ticketQuery;
 
-  useSyncSsrQueryData(queryKeys.supportTickets.detail(id), initialTicket);
-  useSyncSsrQueryData(
-    [...queryKeys.supportTickets.detail(id), "replies"],
-    initialReplies,
-  );
+  useSyncSsrQueryDataMany([
+    { queryKey: queryKeys.supportTickets.detail(id), serverData: initialTicket },
+    {
+      queryKey: [...queryKeys.supportTickets.detail(id), "replies"],
+      serverData: initialReplies,
+    },
+  ]);
 
   const updateMutation = useUpdateSupportTicket();
   const deleteMutation = useDeleteSupportTicket();

@@ -13,7 +13,7 @@ import {
 } from "@/hooks/queries";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
-import { queryKeys, useSyncSsrQueryData } from "@/lib/react-query";
+import { queryKeys, useSyncSsrQueryDataMany } from "@/lib/react-query";
 import type { ProductReview, ReviewEligibilitySlot } from "@/types";
 import WriteEditReviewDialog from "./WriteEditReviewDialog";
 import {
@@ -116,14 +116,16 @@ export default function ProductReviewsSection({
       initialData: initialEligibility,
     });
 
-  useSyncSsrQueryData(
-    queryKeys.productReviews.byProduct(productId, "all"),
-    initialReviews,
-  );
-  useSyncSsrQueryData(
-    queryKeys.productReviews.eligibility(productId, orderId),
-    initialEligibility,
-  );
+  useSyncSsrQueryDataMany([
+    {
+      queryKey: queryKeys.productReviews.byProduct(productId, "all"),
+      serverData: initialReviews,
+    },
+    {
+      queryKey: queryKeys.productReviews.eligibility(productId, orderId),
+      serverData: initialEligibility,
+    },
+  ]);
 
   const deleteReview = useDeleteProductReview();
 

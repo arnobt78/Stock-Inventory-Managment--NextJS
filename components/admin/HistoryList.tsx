@@ -7,7 +7,7 @@
 
 import React, { useState, useEffect, useRef, useMemo } from "react";
 import { useHistory } from "@/hooks/queries";
-import { isDataSlotLoading } from "@/lib/react-query";
+import { isDataSlotLoading, queryKeys, useSyncSsrQueryData } from "@/lib/react-query";
 import { APP_SHELL_WIDTH_CLASS } from "@/lib/ui/shell-layout-styles";
 import { PaginationType } from "@/components/shared/PaginationSelector";
 import { PageSectionHeader } from "@/components/shared";
@@ -29,6 +29,8 @@ export default function HistoryList({
   initialHistory,
 }: HistoryListProps = {}) {
   const historyQuery = useHistory(initialHistory);
+
+  useSyncSsrQueryData(queryKeys.history.lists(), initialHistory);
 
   const allRecords = historyQuery.data ?? initialHistory ?? [];
 

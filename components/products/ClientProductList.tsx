@@ -5,7 +5,7 @@ import dynamic from "next/dynamic";
 import { PaginationType } from "@/components/shared/PaginationSelector";
 import { columns } from "./ProductTableColumns";
 import { useClientBrowseMeta, useClientBrowseProducts } from "@/hooks/queries";
-import { isDataSlotLoading } from "@/lib/react-query";
+import { isDataSlotLoading, queryKeys, useSyncSsrQueryData } from "@/lib/react-query";
 import { APP_SHELL_WIDTH_CLASS } from "@/lib/ui/shell-layout-styles";
 import type {
   Product,
@@ -51,6 +51,12 @@ export default function ClientProductList({
   const metaQuery = useClientBrowseMeta(initialBrowseMeta);
   const productsQuery = useClientBrowseProducts(
     { ownerId: selectedOwnerId },
+    selectedOwnerId === initialOwnerId ? initialBrowseProducts : undefined,
+  );
+
+  useSyncSsrQueryData(queryKeys.portal.clientBrowseMeta(), initialBrowseMeta);
+  useSyncSsrQueryData(
+    queryKeys.portal.clientBrowseProducts({ ownerId: initialOwnerId }),
     selectedOwnerId === initialOwnerId ? initialBrowseProducts : undefined,
   );
 

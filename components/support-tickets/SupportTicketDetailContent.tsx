@@ -11,7 +11,7 @@ import {
   useSupportTicketReplies,
   useCreateSupportTicketReply,
 } from "@/hooks/queries";
-import { isDataSlotLoading, queryKeys, useSyncSsrQueryData } from "@/lib/react-query";
+import { isDataSlotLoading, queryKeys, useSyncSsrQueryDataMany } from "@/lib/react-query";
 import {
   MessageSquare,
   ArrowLeft,
@@ -52,14 +52,16 @@ export default function SupportTicketDetailContent({
   const [replyBody, setReplyBody] = useState("");
   const { data: ticket = initialTicket } = useSupportTicket(initialTicket.id);
 
-  useSyncSsrQueryData(
-    queryKeys.supportTickets.detail(initialTicket.id),
-    initialTicket,
-  );
-  useSyncSsrQueryData(
-    [...queryKeys.supportTickets.detail(initialTicket.id), "replies"],
-    initialReplies,
-  );
+  useSyncSsrQueryDataMany([
+    {
+      queryKey: queryKeys.supportTickets.detail(initialTicket.id),
+      serverData: initialTicket,
+    },
+    {
+      queryKey: [...queryKeys.supportTickets.detail(initialTicket.id), "replies"],
+      serverData: initialReplies,
+    },
+  ]);
 
   const repliesQuery = useSupportTicketReplies(ticket.id, initialReplies);
   const replies = repliesQuery.data ?? initialReplies ?? [];

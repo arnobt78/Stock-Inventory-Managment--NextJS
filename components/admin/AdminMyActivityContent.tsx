@@ -35,7 +35,7 @@ import {
   useUsers,
 } from "@/hooks/queries";
 import { cn } from "@/lib/utils";
-import { isAnyDataSlotLoading, isDataSlotLoading } from "@/lib/react-query";
+import { isAnyDataSlotLoading, isDataSlotLoading, queryKeys, useSyncSsrQueryDataMany } from "@/lib/react-query";
 import { useAuth } from "@/contexts";
 import { PageContentWrapper, PageSectionHeader } from "@/components/shared";
 import { FILTER_SEARCH_INPUT_SKY_CLASS } from "@/lib/ui/filter-toolbar-styles";
@@ -84,6 +84,19 @@ export default function AdminMyActivityContent({
   const invoicesQuery = useInvoices(undefined, initialInvoices);
   const categoriesQuery = useCategories(initialCategories);
   const usersQuery = useUsers(initialUsers);
+
+  useSyncSsrQueryDataMany([
+    { queryKey: queryKeys.orders.lists(), serverData: initialOrders },
+    { queryKey: queryKeys.products.lists(), serverData: initialProducts },
+    { queryKey: queryKeys.suppliers.lists(), serverData: initialSuppliers },
+    { queryKey: queryKeys.warehouses.lists(), serverData: initialWarehouses },
+    {
+      queryKey: queryKeys.invoices.list(undefined),
+      serverData: initialInvoices,
+    },
+    { queryKey: queryKeys.categories.lists(), serverData: initialCategories },
+    { queryKey: queryKeys.userManagement.lists(), serverData: initialUsers },
+  ]);
 
   const orders = ordersQuery.data ?? initialOrders ?? [];
   const products = productsQuery.data ?? initialProducts ?? [];

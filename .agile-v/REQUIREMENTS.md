@@ -637,13 +637,13 @@ Canonical REQ source. All artifacts link via `REQ-XXXX`. Status: `done` | `verif
 **Acceptance criteria**
 
 - AC1: Email/password login → welcome toast on role destination (`/`, `/client`, `/supplier`)
-- AC2: Logout from Navbar/AdminSidebar/SidebarLayout → goodbye toast on `/login`
+- AC2: Logout from Navbar/AdminSidebar → goodbye toast on `/login` (legacy SidebarLayout removed REQ-0069)
 - AC3: `Toaster` mounts before `AuthSessionToasts`; `AuthSessionToasts` uses `useEffect`; `useToast` syncs `memoryState` on subscribe
 - AC4: Remove dead `use-post-login-welcome-toast.ts` hook
 - AC5: No TanStack/CRUD changes
 - AC6: Red Team pass
 
-**Artifacts:** `app/layout.tsx`, `AuthSessionToasts.tsx`, `hooks/use-toast.ts`, `lib/auth/post-login-welcome.ts`, `lib/auth/post-logout-goodbye.ts`, `LoginPage.tsx`, `Navbar.tsx`, `AdminSidebar.tsx`, `SidebarLayout.tsx`
+**Artifacts:** `app/layout.tsx`, `AuthSessionToasts.tsx`, `hooks/use-toast.ts`, `lib/auth/post-login-welcome.ts`, `lib/auth/post-logout-goodbye.ts`, `LoginPage.tsx`, `Navbar.tsx`, `AdminSidebar.tsx`
 
 ---
 
@@ -686,13 +686,13 @@ Canonical REQ source. All artifacts link via `REQ-XXXX`. Status: `done` | `verif
 
 **Acceptance criteria**
 
-- AC1: Navbar, Footer, SidebarLayout, and all list/detail inner wrappers have no `max-w-9xl`
+- AC1: Navbar, Footer, and all list/detail inner wrappers have no `max-w-9xl` (legacy SidebarLayout removed REQ-0069)
 - AC2: Login + register still `max-w-7xl` via `AuthPageShell`
 - AC3: Unused `9xl` token removed from `tailwind.config.ts`
 - AC4: Shared `APP_SHELL_WIDTH_CLASS` + `APP_SHELL_DETAIL_CLASS` in `lib/ui/shell-layout-styles.ts`
 - AC5: No TanStack / CRUD / hydration changes; Red Team pass
 
-**Artifacts:** `lib/ui/shell-layout-styles.ts`, `Navbar.tsx`, `Footer.tsx`, `SidebarLayout.tsx`, list/detail page components, `tailwind.config.ts`
+**Artifacts:** `lib/ui/shell-layout-styles.ts`, `Navbar.tsx`, `Footer.tsx`, list/detail page components, `tailwind.config.ts`
 
 ---
 
@@ -760,12 +760,12 @@ Canonical REQ source. All artifacts link via `REQ-XXXX`. Status: `done` | `verif
 **Acceptance criteria**
 
 - AC1: Navbar desktop + mobile avatars use `SafeAvatarImage` with separate `src` + `fallbackSrc`
-- AC2: SidebarLayout avatar uses same pattern
+- AC2: Navbar desktop + mobile avatars use `SafeAvatarImage` (legacy SidebarLayout removed REQ-0069)
 - AC3: Shared `resolveUserAvatarSources` + `getRoboHashAvatarUrl` in `lib/ui/user-avatar-sources.ts`
 - AC4: `remotePatterns` covers `**.googleusercontent.com`
 - AC5: No TanStack / CRUD / hydration changes; Red Team pass
 
-**Artifacts:** `lib/ui/user-avatar-sources.ts`, `Navbar.tsx`, `SidebarLayout.tsx`, `safe-avatar-image.tsx`, `next.config.ts`
+**Artifacts:** `lib/ui/user-avatar-sources.ts`, `Navbar.tsx`, `safe-avatar-image.tsx`, `next.config.ts`
 
 ---
 
@@ -1470,6 +1470,29 @@ Canonical REQ source. All artifacts link via `REQ-XXXX`. Status: `done` | `verif
 - AC5: Orphan `AdminPage.tsx` + `SidebarLayout.tsx` deleted; `invalidate-coverage` allowlist updated; doc refs note legacy removal
 
 **Artifacts:** `hooks/use-sync-ssr-query-data.ts`, `hooks/use-back-with-refresh.ts`, detail/list pages, `components/dialogs/dialog-footer-actions.tsx`, `lib/stock-allocation/stock-allocation-enrich.test.ts`
+
+---
+
+## REQ-0070 — SSR sync completion + doc consistency
+
+| Field | Value |
+|-------|-------|
+| **Priority** | P1 |
+| **Risk** | R2 |
+| **Status** | done |
+| **Cycle** | C2 |
+
+**Intent:** Close remaining SSR→TanStack stale-cache gaps (client browse, portal pages, admin lists); harden batch sync hook; adopt `useSyncSsrQueryDataMany`; scrub legacy SidebarLayout doc refs.
+
+**Acceptance criteria**
+
+- AC1: `useSyncSsrQueryDataMany` fingerprint-only deps + JSDoc in `hooks/use-sync-ssr-query-data.ts`
+- AC2: Client/portal SSR sync — `ClientProductList`, `ClientPortalPage`, `SupplierPortalPage`, `AdminClientPortalContent`, `AdminSupplierPortalContent`
+- AC3: Admin/user list SSR sync — `ProductReviewList`, `SupportTicketList`, `SupportTicketsPageContent`, `UserManagementList`, `HistoryList`, `AdminMyActivityContent`, `AdminAnalyticsContent`, `ForecastingSection`
+- AC4: Multi-key pages use `useSyncSsrQueryDataMany` — `ProductDetailPage`, `ProductReviewsSection`, support ticket detail components
+- AC5: Historical REQ-0034/36/39 SidebarLayout artifact lines updated; Agile V + walkthrough write-through
+
+**Artifacts:** `hooks/use-sync-ssr-query-data.ts`, client/portal/admin list components, `.agile-v/*`, `docs/PROJECT_WALKTHROUGH.md`
 
 ---
 

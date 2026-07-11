@@ -58,7 +58,7 @@ import {
   ProductStockStatusBadge,
 } from "@/lib/ui/semantic-badges";
 import { StatisticsCard } from "@/components/home/StatisticsCard";
-import { isDataSlotLoading } from "@/lib/react-query";
+import { isDataSlotLoading, queryKeys, useSyncSsrQueryData } from "@/lib/react-query";
 import { cn } from "@/lib/utils";
 import type { ClientPortalDashboard, ClientCatalogOverview } from "@/types";
 
@@ -81,9 +81,19 @@ export default function ClientPortalPage({
   initialDashboard,
   initialCatalog,
 }: ClientPortalPageProps = {}) {
-  const { isCheckingAuth } = useAuth();
+  const { isCheckingAuth, user } = useAuth();
   const dashboardQuery = useClientPortalDashboard(initialDashboard);
   const catalogQuery = useClientCatalogOverview(initialCatalog);
+
+  useSyncSsrQueryData(
+    [...queryKeys.portal.client(), user?.id ?? ""],
+    user?.id && initialDashboard !== undefined ? initialDashboard : undefined,
+  );
+  useSyncSsrQueryData(
+    [...queryKeys.portal.clientCatalog(), user?.id ?? ""],
+    user?.id && initialCatalog !== undefined ? initialCatalog : undefined,
+  );
+
   const dashboard = dashboardQuery.data ?? initialDashboard;
   const catalog = catalogQuery.data ?? initialCatalog;
   const dashboardLoading = isDataSlotLoading(dashboardQuery, initialDashboard);

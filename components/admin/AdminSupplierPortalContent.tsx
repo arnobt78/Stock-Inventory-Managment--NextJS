@@ -21,7 +21,7 @@ import {
   DataSlotPulse,
 } from "@/components/shared";
 import { useSupplierPortal } from "@/hooks/queries";
-import { isDataSlotLoading } from "@/lib/react-query";
+import { isDataSlotLoading, queryKeys, useSyncSsrQueryData } from "@/lib/react-query";
 import {
   Truck,
   Package,
@@ -136,6 +136,11 @@ export default function AdminSupplierPortalContent({
   const portalQuery = useSupplierPortal(initialStats ?? undefined);
   const stats = portalQuery.data ?? initialStats ?? null;
   const dataLoading = isDataSlotLoading(portalQuery, initialStats);
+
+  useSyncSsrQueryData(
+    queryKeys.supplierPortal.overview(),
+    initialStats ?? undefined,
+  );
 
   return (
     <PageContentWrapper>

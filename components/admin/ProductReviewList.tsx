@@ -7,7 +7,8 @@
 
 import React, { useState, useEffect, useRef, useMemo } from "react";
 import { useProductReviews, useDashboard } from "@/hooks/queries";
-import { isDataSlotLoading } from "@/lib/react-query";
+import { isDataSlotLoading, queryKeys, useSyncSsrQueryData } from "@/lib/react-query";
+import { useAuth } from "@/contexts";
 import { APP_SHELL_WIDTH_CLASS } from "@/lib/ui/shell-layout-styles";
 import { PaginationType } from "@/components/shared/PaginationSelector";
 import { PageSectionHeader } from "@/components/shared";
@@ -34,11 +35,18 @@ export default function ProductReviewList({
   initialReviews,
   initialStats,
 }: ProductReviewListProps = {}) {
+  const { user } = useAuth();
   const isMountedRef = useRef(false);
   const [isMounted, setIsMounted] = useState(false);
   const reviewsQuery = useProductReviews(initialReviews);
   const dashboardQuery = useDashboard(initialStats);
   const dashboard = dashboardQuery.data ?? null;
+
+  useSyncSsrQueryData(queryKeys.productReviews.lists(), initialReviews);
+  useSyncSsrQueryData(
+    queryKeys.dashboard.overview(user?.id ?? ""),
+    user?.id && initialStats !== undefined ? initialStats : undefined,
+  );
 
   const allReviews = reviewsQuery.data ?? initialReviews ?? [];
 

@@ -158,3 +158,8 @@ Format: `TIMESTAMP | AGENT | DECISION | RATIONALE | REQ-ID`
 2026-07-11T17:08:00Z | build-agent | stock-allocation-enrich tests | transformStockAllocationRow + fetchStockAllocationProductMap empty early return | REQ-0069
 2026-07-11T17:15:00Z | red-team | REQ-0069 gates | lint ✓ test 376 ✓ invalidate 206 ✓ build ✓ | REQ-0069
 2026-07-11T17:20:00Z | red-team | REQ-0069 post-audit | All AC1–AC5 wired; dead import cleanup; prod SHA 29b9675 | REQ-0069
+2026-07-11T17:30:00Z | build-agent | REQ-0070 client/portal sync | ClientProductList + portal pages + admin portal content | REQ-0070
+2026-07-11T17:32:00Z | build-agent | REQ-0070 admin list sync | 8 list/activity/analytics surfaces wired | REQ-0070
+2026-07-11T17:34:00Z | build-agent | REQ-0070 Many adoption + hook harden | fingerprint-only deps; ProductDetail/reviews/tickets | REQ-0070
+2026-07-11T17:36:00Z | build-agent | REQ-0070 doc scrub | SidebarLayout refs removed from REQ-0034/36/39 | REQ-0070
+2026-07-11T17:40:00Z | red-team | REQ-0070 gates | lint ✓ test 376 ✓ invalidate 206 ✓ build ✓ | REQ-0070

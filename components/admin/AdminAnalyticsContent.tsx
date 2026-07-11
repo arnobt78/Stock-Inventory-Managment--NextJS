@@ -7,7 +7,8 @@ import { ChartCard } from "@/components/ui/chart-card";
 import { StatisticsCard } from "@/components/home/StatisticsCard";
 import { PageContentWrapper, PageSectionHeader } from "@/components/shared";
 import { useDashboard } from "@/hooks/queries";
-import { isDataSlotLoading } from "@/lib/react-query";
+import { isDataSlotLoading, queryKeys, useSyncSsrQueryData } from "@/lib/react-query";
+import { useAuth } from "@/contexts";
 import { useToast } from "@/hooks/use-toast";
 import {
   Package,
@@ -69,9 +70,15 @@ export default function AdminAnalyticsContent({
   initialForecasting,
 }: AdminAnalyticsContentProps = {}) {
   const { toast } = useToast();
+  const { user } = useAuth();
   const dashboardQuery = useDashboard(initialStats ?? undefined);
   const stats = dashboardQuery.data ?? initialStats ?? null;
   const dataLoading = isDataSlotLoading(dashboardQuery, initialStats);
+
+  useSyncSsrQueryData(
+    queryKeys.dashboard.overview(user?.id ?? ""),
+    user?.id && initialStats != null ? initialStats : undefined,
+  );
 
   const [aiText, setAiText] = useState<string | null>(null);
   const [aiLoading, setAiLoading] = useState(false);

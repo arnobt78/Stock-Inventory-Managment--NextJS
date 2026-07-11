@@ -10,7 +10,7 @@ import {
   useSupportTickets,
   type SupportTicketViewFilter,
 } from "@/hooks/queries";
-import { isDataSlotLoading } from "@/lib/react-query";
+import { isDataSlotLoading, queryKeys, useSyncSsrQueryData } from "@/lib/react-query";
 import { APP_SHELL_WIDTH_CLASS } from "@/lib/ui/shell-layout-styles";
 import { PaginationType } from "@/components/shared/PaginationSelector";
 import { PageSectionHeader } from "@/components/shared";
@@ -40,6 +40,11 @@ export default function SupportTicketList({
   const [isMounted, setIsMounted] = useState(false);
   const [viewFilter, setViewFilter] = useState<SupportTicketViewFilter>("all");
   const supportTicketsQuery = useSupportTickets(viewFilter, initialTickets);
+
+  useSyncSsrQueryData(
+    queryKeys.supportTickets.list({ view: "all" }),
+    viewFilter === "all" ? initialTickets : undefined,
+  );
 
   const allTickets = supportTicketsQuery.data ?? initialTickets ?? [];
 

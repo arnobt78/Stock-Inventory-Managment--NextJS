@@ -26,7 +26,7 @@ import {
 import { TableBodyPulseRows } from "@/components/ui/table-data-skeleton";
 import { DataSlotPulse } from "@/components/shared/DataSlotPulse";
 import { useForecastingSummary } from "@/hooks/queries";
-import { isDataSlotLoading } from "@/lib/react-query";
+import { isDataSlotLoading, queryKeys, useSyncSsrQueryData } from "@/lib/react-query";
 import {
   AlertTriangle,
   TrendingUp,
@@ -124,6 +124,11 @@ export default function ForecastingSection({
   const forecastingQuery = useForecastingSummary(initialForecasting);
   const summary = forecastingQuery.data ?? initialForecasting;
   const dataLoading = isDataSlotLoading(forecastingQuery, initialForecasting);
+
+  useSyncSsrQueryData(
+    queryKeys.forecasting.summary(),
+    initialForecasting,
+  );
 
   if (!dataLoading && (forecastingQuery.isError || !summary)) {
     return (

@@ -5,7 +5,7 @@ import Navbar from "@/components/layouts/Navbar";
 import { PageContentWrapper } from "@/components/shared";
 import { PaginationType } from "@/components/shared/PaginationSelector";
 import { useSupportTickets } from "@/hooks/queries";
-import { isDataSlotLoading } from "@/lib/react-query";
+import { isDataSlotLoading, queryKeys, useSyncSsrQueryData } from "@/lib/react-query";
 import { APP_SHELL_WIDTH_CLASS } from "@/lib/ui/shell-layout-styles";
 import { MessageSquare, MessageCircle, Plus } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -29,6 +29,12 @@ export default function SupportTicketsPageContent({
   productOwners,
 }: SupportTicketsPageContentProps) {
   const ticketsQuery = useSupportTickets("all", initialTickets);
+
+  useSyncSsrQueryData(
+    queryKeys.supportTickets.list({ view: "all" }),
+    initialTickets,
+  );
+
   const list = ticketsQuery.data ?? initialTickets ?? [];
 
   const ticketStats = useMemo(() => {
