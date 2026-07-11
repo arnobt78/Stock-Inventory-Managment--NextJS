@@ -24,11 +24,12 @@ export function useSyncSsrQueryData<T>(
   serverData: T | undefined,
 ): void {
   const queryClient = useQueryClient();
+  const fingerprint = JSON.stringify({ key: queryKey, data: serverData });
 
   useLayoutEffect(() => {
     if (serverData === undefined) return;
     queryClient.setQueryData(queryKey, serverData);
-  }, [queryClient, serverData, queryKey]);
+  }, [queryClient, fingerprint]);
 }
 
 /** Batch SSR sync — fingerprint-only deps avoid re-sync on inline array identity churn. */

@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 import {
   Package,
   Tag,
@@ -39,23 +40,32 @@ interface FloatingActionButtonsProps {
   selectedOwnerId?: string;
 }
 
-function FabButton({
-  hue,
-  expanded,
-  disabled,
-  children,
-}: {
-  hue: GlassFocusHue;
-  expanded: boolean;
-  disabled?: boolean;
-  children: React.ReactNode;
-}) {
+const FabButton = React.forwardRef<
+  HTMLButtonElement,
+  {
+    hue: GlassFocusHue;
+    expanded: boolean;
+    disabled?: boolean;
+    children: React.ReactNode;
+  } & React.ButtonHTMLAttributes<HTMLButtonElement>
+>(function FabButton(
+  { hue, expanded, disabled, children, className, onClick, ...props },
+  ref,
+) {
   return (
-    <Button disabled={disabled} className={fabButtonClass(hue, expanded)}>
+    <Button
+      ref={ref}
+      type="button"
+      disabled={disabled}
+      className={cn(fabButtonClass(hue, expanded), className)}
+      onClick={onClick}
+      {...props}
+    >
       {children}
     </Button>
   );
-}
+});
+FabButton.displayName = "FabButton";
 
 export default function FloatingActionButtons({
   variant = "home",
