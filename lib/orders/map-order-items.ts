@@ -16,6 +16,8 @@ export type OrderItemRaw = {
   price: number;
   subtotal: number;
   createdAt: Date;
+  warehouseId?: string | null;
+  warehouseName?: string | null;
   product?: {
     categoryId?: string | null;
     supplierId?: string | null;
@@ -36,6 +38,8 @@ export function mapOrderItemsFromRaw(items: OrderItemRaw[] | undefined): OrderIt
     price: item.price,
     subtotal: item.subtotal,
     createdAt: item.createdAt.toISOString(),
+    warehouseId: item.warehouseId ?? null,
+    warehouseName: item.warehouseName ?? null,
     categoryId: item.product?.categoryId ?? null,
     supplierId: item.product?.supplierId ?? null,
     imageUrl: item.product?.imageUrl ?? null,

@@ -32,7 +32,7 @@ export async function buildStockProductWhere(
   const role = session.role ?? "client";
 
   if (role === "client") {
-    if (mode === "write") return null;
+    if (mode === "write" && !clientMayWriteStock(role)) return null;
     return mergeProductListWhere({ id: productId });
   }
 
@@ -55,7 +55,8 @@ export async function findAccessibleProduct(
   productId: string,
   mode: StockProductAccessMode = "read",
 ): Promise<{ id: string; name: string; sku: string } | null> {
-  if ((session.role ?? "client") === "client" && mode === "write") {
+  const role = session.role ?? "client";
+  if (mode === "write" && !clientMayWriteStock(role)) {
     return null;
   }
 

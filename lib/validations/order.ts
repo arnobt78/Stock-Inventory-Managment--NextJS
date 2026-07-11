@@ -33,6 +33,8 @@ export const billingAddressSchema = z.object({
 export const orderItemSchema = z.object({
   productId: z.string().min(1, "Product ID is required"),
   quantity: z.number().int().positive("Quantity must be a positive integer"),
+  /** REQ-0068 — optional in Zod; server requires when product has allocations */
+  warehouseId: z.string().min(1).optional(),
 });
 
 /**

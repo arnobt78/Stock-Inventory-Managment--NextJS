@@ -163,6 +163,7 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
             order.items.map((item) => ({
               productId: item.productId,
               quantity: item.quantity,
+              warehouseId: item.warehouseId,
             })),
           );
         } catch (allocErr) {
@@ -247,6 +248,7 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
               order.items.map((item) => ({
                 productId: item.productId,
                 quantity: item.quantity,
+                warehouseId: item.warehouseId,
               })),
             );
           } catch (allocErr) {

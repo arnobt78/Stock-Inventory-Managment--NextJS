@@ -1428,7 +1428,26 @@ Canonical REQ source. All artifacts link via `REQ-XXXX`. Status: `done` | `verif
 
 ---
 
-## REQ-0020 — Locale-aware admin formatting
+## REQ-0068 — Per-warehouse order picking
+
+| Field | Value |
+|-------|-------|
+| **Priority** | P1 |
+| **Risk** | R2 |
+| **Status** | done |
+| **Cycle** | C2 |
+
+**Intent:** Choose source warehouse per order line; reserve/fulfill/restore StockAllocation in sync with order lifecycle.
+
+**Acceptance criteria**
+
+- AC1: `OrderItem.warehouseId` + `warehouseName` snapshot; required on create when product has allocations
+- AC2: `stock-allocation-order-sync.ts` — reserve pending, fulfill confirm, release cancel, restore confirmed cancel
+- AC3: `OrderLineWarehouseSelect` in OrderDialog; `ProductLineItemsList` shows warehouse name
+- AC4: Invoice-paid + Stripe webhook pass `warehouseId` to allocation fulfill
+- AC5: Pre-test gaps — `clientMayWriteStock` wired; `WAREHOUSE_PATTERNS` includes `products:*`; delete hook `invalidateAfterStockChange`
+
+---
 
 | Field | Value |
 |-------|-------|

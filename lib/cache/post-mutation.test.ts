@@ -95,6 +95,7 @@ describe("post-mutation cache invalidation", () => {
     await scheduleInvalidateWarehouseCaches();
     expect(after).not.toHaveBeenCalled();
     expect(invalidateCache).toHaveBeenCalled();
+    expect(invalidateCache).toHaveBeenCalledWith("products:*");
   });
 
   it("scheduleInvalidateSupportTicketCaches calls invalidateCache directly (no after)", async () => {

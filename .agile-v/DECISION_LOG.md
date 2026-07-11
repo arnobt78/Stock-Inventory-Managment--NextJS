@@ -147,3 +147,6 @@ Format: `TIMESTAMP | AGENT | DECISION | RATIONALE | REQ-ID`
 2026-07-11T15:45:00Z | red-team | REQ-0064–0067 gates | lint ✓ test 361 ✓ invalidate 207 ✓ build ✓ | REQ-0064, REQ-0051, REQ-0065, REQ-0066, REQ-0067
 2026-07-11T16:00:00Z | build-agent | REQ-0066 hardening | avail−reserved decrement planner; role-aware stock product access; 5 unit tests | REQ-0066
 2026-07-11T16:02:00Z | red-team | REQ-0066 hardening gates | lint ✓ test 366 ✓ invalidate 207 ✓ build ✓ | REQ-0066
+2026-07-11T15:38:00Z | build-agent | Pre-test gaps | clientMayWriteStock wired; WAREHOUSE_PATTERNS + products; delete hook invalidateAfterStockChange | REQ-0068 prep
+2026-07-11T15:45:00Z | build-agent | REQ-0068 picking | OrderItem warehouse pick; stock-allocation-order-sync; OrderDialog UI; invoice/webhook gap | REQ-0068
+2026-07-11T15:46:00Z | red-team | REQ-0068 gates | lint ✓ test 371 ✓ invalidate 207 ✓ build ✓ | REQ-0068

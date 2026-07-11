@@ -46,5 +46,6 @@
 | 2026-07-10 | Dialog table dual-theme; glass CTA fix; submit gates; column slim | REQ-0049 |
 | 2026-07-10 | Glass shell-reset Batch B; dialog table titles; review submit tokens | REQ-0050 |
 | 2026-07-10 | Hotfix: restore CTA gradients; AUTH_SUBMIT_BUTTON_EMERALD; SHELL_RESET fix | `73060a1` |
-| _pending_ | REQ-0051 glass consistency (detail pages, FABs, shipping) | backlog |
-| _pending_ | Human Gate 2 Sentry 24h sign-off | REQ-0009 |
+| 2026-07-11 | REQ-0064–0067 polish, warehouse integration, AI insights | REQ-0064–0067 |
+| 2026-07-11 | REQ-0066 hardening: avail sync, role gates | `86421b8` |
+| 2026-07-11 | REQ-0068 per-warehouse order picking + pre-test gaps | pending commit |

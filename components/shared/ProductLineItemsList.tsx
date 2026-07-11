@@ -89,6 +89,11 @@ export function ProductLineItemsList({
                   SKU: {item.sku}
                 </p>
               )}
+              {item.warehouseName && (
+                <p className="text-sm text-gray-600 dark:text-gray-400">
+                  Warehouse: {item.warehouseName}
+                </p>
+              )}
               <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
                 Quantity: {item.quantity} × ${Number(item.price).toFixed(2)}
               </p>

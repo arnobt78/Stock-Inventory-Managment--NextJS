@@ -59,6 +59,9 @@ export interface OrderItem {
   categoryId?: string | null;
   /** Supplier ID for link to supplier detail (from product) */
   supplierId?: string | null;
+  /** REQ-0068 — source warehouse when product has allocations */
+  warehouseId?: string | null;
+  warehouseName?: string | null;
   /** Current product image for line-item thumbnails (REQ-0059; null when product deleted) */
   imageUrl?: string | null;
 }
@@ -118,6 +121,8 @@ export interface CreateOrderInput {
   items: Array<{
     productId: string;
     quantity: number;
+    /** REQ-0068 — required server-side when product has warehouse allocations */
+    warehouseId?: string;
   }>;
   shippingAddress?: ShippingAddress;
   billingAddress?: BillingAddress;

@@ -20,6 +20,7 @@ import { createAuditLog } from "@/prisma/audit-log";
 import type { UpdateInvoiceInput } from "@/types";
 import { getInvoiceDetailForPage } from "@/lib/server/invoice-detail-data";
 import { scheduleInvalidateInvoiceCaches } from "@/lib/cache";
+import { decrementStockAllocations } from "@/lib/products/decrement-stock-allocations";
 
 /**
  * GET /api/invoices/:id
@@ -163,6 +164,20 @@ export async function PUT(
                 reservedQuantity: { decrement: item.quantity },
               },
             });
+          }
+          try {
+            await decrementStockAllocations(
+              linkedOrder.items.map((item) => ({
+                productId: item.productId,
+                quantity: item.quantity,
+                warehouseId: item.warehouseId,
+              })),
+            );
+          } catch (allocErr) {
+            logger.warn(
+              "Failed to decrement stock allocations for invoice-paid order",
+              { orderId: invoice.orderId, error: allocErr },
+            );
           }
         }
       } else if (linkedOrder && linkedOrder.paymentStatus === "paid" && linkedOrder.status === "pending") {

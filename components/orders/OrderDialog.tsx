@@ -73,8 +73,12 @@ import type {
 import { logger } from "@/lib/logger";
 import { Plus, Trash2, X, Package } from "lucide-react";
 import { ProductOptionRow } from "@/components/products/ProductOptionRow";
+import { OrderLineWarehouseSelect } from "@/components/orders/OrderLineWarehouseSelect";
 import { useAuth } from "@/contexts";
 import { useToast } from "@/hooks/use-toast";
+import { useQueryClient } from "@tanstack/react-query";
+import { queryKeys } from "@/lib/react-query";
+import type { StockAllocation } from "@/types";
 
 interface OrderDialogProps {
   children?: React.ReactNode;
@@ -93,6 +97,8 @@ interface OrderFormData {
   items: Array<{
     productId: string;
     quantity?: number | undefined;
+    /** REQ-0068 — required when product has warehouse allocations */
+    warehouseId?: string;
   }>;
   shippingAddress?: {
     street: string;
@@ -189,6 +195,7 @@ export default function OrderDialog({
   const dialogCloseRef = useRef<HTMLButtonElement | null>(null);
   const { user } = useAuth();
   const { toast } = useToast();
+  const queryClient = useQueryClient();
 
   // Use controlled or internal state
   const isControlled = controlledOpen !== undefined;
@@ -404,21 +411,48 @@ export default function OrderDialog({
       }, 0);
       const fees = getOrderFeesFromSubtotal(submitSubtotal);
 
-      // Check stock availability for each item
+      // Check stock availability for each item (product + warehouse pick when allocated)
       for (const item of validItems) {
         const product = availableProducts.find((p) => p.id === item.productId);
         if (!product) {
           throw new Error(`Product not found: ${item.productId}`);
         }
-        const availableStock = Number(product.quantity);
         const requestedQty =
           item.quantity !== undefined && item.quantity !== null
             ? Number(item.quantity)
             : 0;
-        if (requestedQty > availableStock) {
-          throw new Error(
-            `Insufficient stock for ${product.name}. Available: ${availableStock}, Requested: ${requestedQty}`,
+
+        const allocations = queryClient.getQueryData<StockAllocation[]>(
+          queryKeys.stockAllocation.byProduct(item.productId),
+        );
+        const hasAllocations = (allocations?.length ?? 0) > 0;
+
+        if (hasAllocations) {
+          if (!item.warehouseId) {
+            throw new Error(
+              `Select a warehouse for ${product.name} (product has warehouse stock)`,
+            );
+          }
+          const pick = allocations?.find(
+            (a) => a.warehouseId === item.warehouseId,
           );
+          const warehouseAvail =
+            Number(pick?.quantity ?? 0) -
+            Number(pick?.reservedQuantity ?? 0);
+          if (requestedQty > warehouseAvail) {
+            throw new Error(
+              `Insufficient stock at warehouse for ${product.name}. Available: ${warehouseAvail}, Requested: ${requestedQty}`,
+            );
+          }
+        } else {
+          const availableStock =
+            Number(product.quantity) -
+            Number(product.reservedQuantity ?? 0);
+          if (requestedQty > availableStock) {
+            throw new Error(
+              `Insufficient stock for ${product.name}. Available: ${availableStock}, Requested: ${requestedQty}`,
+            );
+          }
         }
       }
 
@@ -449,6 +483,7 @@ export default function OrderDialog({
           return {
             productId: item.productId,
             quantity: qty,
+            ...(item.warehouseId ? { warehouseId: item.warehouseId } : {}),
           };
         }),
         shippingAddress: hasValidAddress(data.shippingAddress)
@@ -500,7 +535,11 @@ export default function OrderDialog({
 
   // Add new order item
   const handleAddItem = () => {
-    append({ productId: "", quantity: undefined as number | undefined });
+    append({
+      productId: "",
+      quantity: undefined as number | undefined,
+      warehouseId: undefined,
+    });
   };
 
   // Remove order item
@@ -1110,6 +1149,10 @@ export default function OrderDialog({
                                         `items.${index}.quantity`,
                                         1,
                                       );
+                                      createSetValue(
+                                        `items.${index}.warehouseId`,
+                                        undefined,
+                                      );
                                     }}
                                     disabled={
                                       isClientCreatingOrder &&
@@ -1236,6 +1279,22 @@ export default function OrderDialog({
                               )}
                             </div>
                           </div>
+
+                          {/* REQ-0068 — warehouse pick when product has allocations */}
+                          {productId ? (
+                            <OrderLineWarehouseSelect
+                              productId={productId}
+                              value={createWatch(`items.${index}.warehouseId`)}
+                              onChange={(whId) =>
+                                createSetValue(
+                                  `items.${index}.warehouseId`,
+                                  whId,
+                                )
+                              }
+                              quantity={quantity}
+                              dialogOpen={open}
+                            />
+                          ) : null}
 
                           {/* Remove Button */}
                           {fields.length > 1 && (

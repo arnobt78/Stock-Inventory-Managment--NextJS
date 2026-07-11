@@ -8,6 +8,7 @@ import { apiClient, getErrorMessage } from "@/lib/api";
 import {
   queryKeys,
   invalidateAllRelatedQueries,
+  invalidateAfterStockChange,
   cancelOrRemoveDetailQuery,
   withInitialData,
 } from "@/lib/react-query";
@@ -137,6 +138,7 @@ export function useDeleteWarehouse() {
         queryKeys.warehouses.detail(deletedData.id),
       );
       invalidateAllRelatedQueries(queryClient);
+      invalidateAfterStockChange(queryClient);
       toast({
         title: "Success",
         description: `Warehouse "${deletedData.name}" deleted successfully`,

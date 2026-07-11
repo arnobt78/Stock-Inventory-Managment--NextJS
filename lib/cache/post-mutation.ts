@@ -128,6 +128,7 @@ const SUPPLIER_PATTERNS = [
 
 const WAREHOUSE_PATTERNS = [
   cacheKeys.stockAllocation.pattern,
+  cacheKeys.products.pattern,
   cacheKeys.dashboard.pattern,
   cacheKeys.portal.pattern,
   cacheKeys.clientPortal.pattern,

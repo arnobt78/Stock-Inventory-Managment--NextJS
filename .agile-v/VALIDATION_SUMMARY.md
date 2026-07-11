@@ -2,8 +2,8 @@
 
 **Generated:** 2026-07-11  
 **eval_gate_status:** PENDING (Human Gate 2)  
-**Prod target SHA:** `73060a1` (main, pushed 2026-07-10) — REQ-0053–0062 uncommitted, gates pass  
-**Red Team:** lint ✓ test 366 ✓ invalidate 207 ✓ build ✓ (REQ-0066 hardening 2026-07-11 PM)
+**Prod target SHA:** pending post-REQ-0068 commit  
+**Red Team:** lint ✓ test 371 ✓ invalidate 207 ✓ build ✓ (REQ-0068 2026-07-11 PM)
 
 ---
 
@@ -12,8 +12,8 @@
 | Check | Command | Result | REQ-IDs |
 |-------|---------|--------|---------|
 | Lint | `npm run lint` | PASS | ALL |
-| Unit tests | `npm run test` | PASS (366) | REQ-0021–REQ-0067 |
-| Invalidation audit | `npm run test:invalidate` | PASS (207) | REQ-0066 stock-transfers |
+| Unit tests | `npm run test` | PASS (371) | REQ-0068 |
+| Invalidation audit | `npm run test:invalidate` | PASS (207) | REQ-0068 |
 | Build | `npm run build` | PASS | ALL |
 | Typecheck (touched scripts) | `tsc --noEmit` | PASS | REQ-0056 |
 

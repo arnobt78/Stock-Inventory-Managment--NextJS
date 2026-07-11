@@ -184,3 +184,4 @@
 | TC-0013 | REQ-0029 | `lib/server/catalog-entity-access.test.ts` |
 | TC-0014 | REQ-0039 | `lib/ui/user-avatar-sources.test.ts` |
 | TC-0015 | REQ-0040 | `lib/ui/user-avatar-sources.test.ts` (seed resolver) |
+| TC-0016 | REQ-0068 | `lib/products/stock-allocation-order-sync.test.ts` |

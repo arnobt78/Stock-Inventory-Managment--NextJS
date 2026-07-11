@@ -9,6 +9,15 @@ import type { Prisma } from "@prisma/client";
 import type { CreateOrderInput, UpdateOrderInput } from "@/types/order";
 import { invalidateCache, cacheKeys } from "@/lib/cache";
 import { decrementStockAllocations } from "@/lib/products/decrement-stock-allocations";
+import {
+  productRequiresWarehousePick,
+  reserveAllocationForOrderItem,
+  resolveWarehouseName,
+  validateWarehousePick,
+  syncReleasePendingOrderAllocations,
+  syncRestoreConfirmedOrderAllocations,
+  syncFulfillReactivatedOrderAllocations,
+} from "@/lib/products/stock-allocation-order-sync";
 import { logger } from "@/lib/logger";
 
 /**
@@ -60,7 +69,11 @@ export async function createOrder(data: CreateOrderInput, userId: string) {
   const orderItemsData = [];
 
   // Fetch products and calculate line items
-  const productsToReserve: { id: string; qty: number }[] = [];
+  const productsToReserve: {
+    id: string;
+    qty: number;
+    warehouseId: string | null;
+  }[] = [];
 
   for (const item of data.items) {
     const product = await prisma.product.findUnique({
@@ -84,6 +97,30 @@ export async function createOrder(data: CreateOrderInput, userId: string) {
     const lineSubtotal = price * item.quantity;
     subtotal += lineSubtotal;
 
+    const ownerUserId = product.userId;
+    const needsPick = await productRequiresWarehousePick(
+      item.productId,
+      ownerUserId,
+    );
+
+    let warehouseId: string | null = item.warehouseId ?? null;
+    let warehouseName: string | null = null;
+
+    if (needsPick) {
+      if (!warehouseId) {
+        throw new Error(
+          `Warehouse pick required for product ${product.name} (has warehouse allocations)`,
+        );
+      }
+      await validateWarehousePick(item.productId, warehouseId, item.quantity);
+      warehouseName = await resolveWarehouseName(warehouseId, ownerUserId);
+      if (!warehouseName) {
+        throw new Error(`Warehouse not found or unauthorized: ${warehouseId}`);
+      }
+    } else {
+      warehouseId = null;
+    }
+
     orderItemsData.push({
       productId: item.productId,
       productName: product.name,
@@ -91,9 +128,15 @@ export async function createOrder(data: CreateOrderInput, userId: string) {
       quantity: item.quantity,
       price,
       subtotal: lineSubtotal,
+      warehouseId,
+      warehouseName,
     });
 
-    productsToReserve.push({ id: item.productId, qty: item.quantity });
+    productsToReserve.push({
+      id: item.productId,
+      qty: item.quantity,
+      warehouseId,
+    });
   }
 
   // Calculate total
@@ -145,10 +188,16 @@ export async function createOrder(data: CreateOrderInput, userId: string) {
         reservedQuantity: { increment: p.qty },
       },
     });
+    if (p.warehouseId) {
+      await reserveAllocationForOrderItem(p.id, p.warehouseId, p.qty);
+    }
   }
 
-  // Invalidate product cache so UI shows updated reserved stock
-  await invalidateCache(cacheKeys.products.pattern).catch((error) => {
+  // Invalidate product + allocation cache so UI shows updated reserved stock
+  await Promise.all([
+    invalidateCache(cacheKeys.products.pattern),
+    invalidateCache(cacheKeys.stockAllocation.pattern),
+  ]).catch((error) => {
     console.error(
       "Failed to invalidate product cache after order creation:",
       error,
@@ -588,6 +637,12 @@ export async function updateOrder(
   });
 
   // Handle stock adjustments based on status changes
+  const allocationItems = orderWithItems.items.map((item) => ({
+    productId: item.productId,
+    warehouseId: item.warehouseId ?? null,
+    quantity: item.quantity,
+  }));
+
   if (isBeingCancelled) {
     if (wasConfirmedOrPaid) {
       // Order was confirmed/paid, now cancelled: restore actual stock
@@ -599,6 +654,14 @@ export async function updateOrder(
           },
         });
       }
+      try {
+        await syncRestoreConfirmedOrderAllocations(allocationItems);
+      } catch (error) {
+        logger.warn("Failed to restore allocation stock on order cancel", {
+          orderId,
+          error,
+        });
+      }
     } else if (wasPending) {
       // Order was pending, now cancelled: release reserved stock only
       for (const item of orderWithItems.items) {
@@ -607,6 +670,14 @@ export async function updateOrder(
           data: {
             reservedQuantity: { decrement: item.quantity },
           },
+        });
+      }
+      try {
+        await syncReleasePendingOrderAllocations(allocationItems);
+      } catch (error) {
+        logger.warn("Failed to release allocation reservation on order cancel", {
+          orderId,
+          error,
         });
       }
     }
@@ -627,6 +698,7 @@ export async function updateOrder(
         orderWithItems.items.map((item) => ({
           productId: item.productId,
           quantity: item.quantity,
+          warehouseId: item.warehouseId,
         })),
       );
     } catch (error) {
@@ -646,15 +718,36 @@ export async function updateOrder(
         },
       });
     }
+
+    try {
+      await syncFulfillReactivatedOrderAllocations(allocationItems);
+      await decrementStockAllocations(
+        orderWithItems.items
+          .filter((item) => !item.warehouseId)
+          .map((item) => ({
+            productId: item.productId,
+            quantity: item.quantity,
+          })),
+      );
+    } catch (error) {
+      logger.warn("Failed to fulfill allocation stock on order reactivation", {
+        orderId,
+        error,
+      });
+    }
   }
 
-  // Invalidate product cache to reflect stock changes
+  // Invalidate product + allocation cache to reflect stock changes
   if (
     (isBeingCancelled && wasConfirmedOrPaid) ||
     isBecomingConfirmedOrPaid ||
-    isBeingReactivated
+    isBeingReactivated ||
+    (isBeingCancelled && wasPending)
   ) {
-    await invalidateCache(cacheKeys.products.pattern).catch((error) => {
+    await Promise.all([
+      invalidateCache(cacheKeys.products.pattern),
+      invalidateCache(cacheKeys.stockAllocation.pattern),
+    ]).catch((error) => {
       // Log error but don't fail the request - cache invalidation is not critical
       console.error(
         "Failed to invalidate product cache after order update:",
@@ -769,6 +862,12 @@ export async function cancelOrder(orderId: string, userId: string) {
     orderWithItems.paymentStatus === "paid";
 
   if (orderWithItems.status !== "cancelled") {
+    const allocationItems = orderWithItems.items.map((item) => ({
+      productId: item.productId,
+      warehouseId: item.warehouseId ?? null,
+      quantity: item.quantity,
+    }));
+
     if (wasConfirmedOrPaid) {
       // Order was confirmed/paid: restore actual stock
       for (const item of orderWithItems.items) {
@@ -777,6 +876,14 @@ export async function cancelOrder(orderId: string, userId: string) {
           data: {
             quantity: { increment: item.quantity },
           },
+        });
+      }
+      try {
+        await syncRestoreConfirmedOrderAllocations(allocationItems);
+      } catch (error) {
+        logger.warn("Failed to restore allocation stock on cancelOrder", {
+          orderId,
+          error,
         });
       }
     } else if (wasPending) {
@@ -789,12 +896,22 @@ export async function cancelOrder(orderId: string, userId: string) {
           },
         });
       }
+      try {
+        await syncReleasePendingOrderAllocations(allocationItems);
+      } catch (error) {
+        logger.warn("Failed to release allocation reservation on cancelOrder", {
+          orderId,
+          error,
+        });
+      }
     }
   }
 
-  // Invalidate product cache so product table and product detail show correct quantity
-  // (after restore for confirmed/paid orders, or to clear any stale cache for pending cancels)
-  await invalidateCache(cacheKeys.products.pattern).catch((error) => {
+  // Invalidate product + allocation cache
+  await Promise.all([
+    invalidateCache(cacheKeys.products.pattern),
+    invalidateCache(cacheKeys.stockAllocation.pattern),
+  ]).catch((error) => {
     // Log error but don't fail the request - cache invalidation is not critical
     console.error(
       "Failed to invalidate product cache after order cancellation:",

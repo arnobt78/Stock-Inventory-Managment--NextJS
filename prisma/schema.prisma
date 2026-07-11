@@ -102,8 +102,11 @@ model OrderItem {
   sku         String? // Product SKU at time of order (snapshot)
   quantity    Int // Quantity ordered
   price       Float // Unit price at time of order (snapshot)
-  subtotal    Float // Line item subtotal (quantity * price)
-  createdAt   DateTime @default(now()) @db.Date
+  subtotal      Float // Line item subtotal (quantity * price)
+  /** REQ-0068 — picked source warehouse when product has allocations */
+  warehouseId   String?  @db.ObjectId
+  warehouseName String? // Warehouse name snapshot at order time
+  createdAt     DateTime @default(now()) @db.Date
   order       Order    @relation(fields: [orderId], references: [id], onDelete: Cascade) // Cascade delete when order is deleted
   product     Product  @relation(fields: [productId], references: [id]) // Reference to product
 }
