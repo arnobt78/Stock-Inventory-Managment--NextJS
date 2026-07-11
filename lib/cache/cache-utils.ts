@@ -89,28 +89,6 @@ export async function setCache<T>(
 }
 
 /**
- * Delete value from cache
- *
- * @param key - Cache key
- * @returns Promise<boolean> - True if successful
- */
-export async function deleteCache(key: string): Promise<boolean> {
-  const redis = getRedis();
-  if (!redis) {
-    return false; // Graceful degradation: return false if Redis not available
-  }
-
-  try {
-    const cacheKey = getCacheKey(key);
-    await redis.del(cacheKey);
-    return true;
-  } catch (error) {
-    logger.error(`Failed to delete cache for key ${key}:`, error);
-    return false; // Graceful degradation: return false on error
-  }
-}
-
-/**
  * Delete multiple cache keys by pattern
  *
  * @param pattern - Cache key pattern (e.g., "products:*")

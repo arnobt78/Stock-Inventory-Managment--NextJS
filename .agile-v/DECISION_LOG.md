@@ -149,4 +149,4 @@ Format: `TIMESTAMP | AGENT | DECISION | RATIONALE | REQ-ID`
 2026-07-11T16:02:00Z | red-team | REQ-0066 hardening gates | lint ✓ test 366 ✓ invalidate 207 ✓ build ✓ | REQ-0066
 2026-07-11T15:38:00Z | build-agent | Pre-test gaps | clientMayWriteStock wired; WAREHOUSE_PATTERNS + products; delete hook invalidateAfterStockChange | REQ-0068 prep
 2026-07-11T15:45:00Z | build-agent | REQ-0068 picking | OrderItem warehouse pick; stock-allocation-order-sync; OrderDialog UI; invoice/webhook gap | REQ-0068
-2026-07-11T15:46:00Z | red-team | REQ-0068 gates | lint ✓ test 371 ✓ invalidate 207 ✓ build ✓ | REQ-0068
+2026-07-11T15:48:00Z | build-agent | dead-code cleanup | removed unused deleteCache + getRateLimitStatus (zero importers); kept post-mutation aliases + legacy components | REQ-0068
