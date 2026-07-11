@@ -20,6 +20,8 @@ import {
   Clock,
   Building2,
   Boxes,
+  ArrowRightLeft,
+  Plus,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -40,8 +42,15 @@ import {
   PageContentWrapper,
   DataSlotPulse,
   PageSectionHeader,
+  GLASS_BUTTON_DISABLED,
+  GLASS_BUTTON_ICON_HOVER,
+  GLASS_BUTTON_SHELL_RESET,
+  GLASS_GHOST_BUTTON,
+  GLASS_PRIMARY_BUTTON,
 } from "@/components/shared";
 import WarehouseDialog from "@/components/warehouses/WarehouseDialog";
+import AllocateStockDialog from "@/components/warehouses/AllocateStockDialog";
+import TransferStockDialog from "@/components/warehouses/TransferStockDialog";
 import { ProductThumb } from "@/components/products/ProductOptionRow";
 import { AlertDialogWrapper } from "@/components/dialogs";
 import type { Warehouse as WarehouseType, StockAllocation } from "@/types";
@@ -218,6 +227,8 @@ export default function WarehouseDetailPage({
   const [editingWarehouse, setEditingWarehouse] =
     useState<WarehouseType | null>(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [allocateOpen, setAllocateOpen] = useState(false);
+  const [transferOpen, setTransferOpen] = useState(false);
 
   const isDeleting = deleteWarehouseMutation.isPending;
 
@@ -608,30 +619,93 @@ export default function WarehouseDetailPage({
           {/* Action Buttons */}
           <div className="flex flex-col sm:flex-row flex-wrap gap-2">
             <Button
-              variant="outline"
+              variant="ghost"
               onClick={() => navigateTo(warehousesListHref)}
-              className="w-full sm:w-auto gap-2 rounded-xl border border-gray-300/30 bg-white/50 dark:bg-white/5 dark:border-white/10 hover:bg-gray-100/50 dark:hover:bg-white/10 text-gray-700 dark:text-white transition-all duration-300"
+              className={cn("w-full sm:w-auto gap-2", GLASS_GHOST_BUTTON)}
             >
               <ArrowLeft className="h-4 w-4 shrink-0" />
               Back
             </Button>
             <Button
+              variant="ghost"
+              onClick={() => setAllocateOpen(true)}
+              disabled={dataLoading || !warehouse}
+              className={cn(
+                "group w-full sm:w-auto gap-2",
+                GLASS_BUTTON_ICON_HOVER,
+                GLASS_BUTTON_SHELL_RESET,
+                GLASS_PRIMARY_BUTTON.violet,
+              )}
+            >
+              <Plus className="h-4 w-4 shrink-0" />
+              Allocate Stock
+            </Button>
+            <Button
+              variant="ghost"
+              onClick={() => setTransferOpen(true)}
+              disabled={
+                dataLoading ||
+                !warehouse ||
+                !stockAllocations?.some(
+                  (a) => a.quantity - a.reservedQuantity > 0,
+                )
+              }
+              className={cn(
+                "group w-full sm:w-auto gap-2",
+                GLASS_BUTTON_ICON_HOVER,
+                GLASS_BUTTON_SHELL_RESET,
+                GLASS_BUTTON_DISABLED,
+                GLASS_PRIMARY_BUTTON.teal,
+              )}
+            >
+              <ArrowRightLeft className="h-4 w-4 shrink-0" />
+              Transfer Stock
+            </Button>
+            <Button
+              variant="ghost"
               onClick={handleEdit}
-              className="w-full sm:w-auto gap-2 rounded-xl border border-blue-400/30 bg-gradient-to-r from-blue-500/70 via-blue-500/50 to-blue-500/30 text-white shadow-[0_10px_25px_rgba(59,130,246,0.35)] backdrop-blur-md hover:border-blue-300/50 hover:from-blue-500/80 hover:via-blue-500/60 hover:to-blue-500/40 transition-all duration-300"
+              className={cn(
+                "group w-full sm:w-auto gap-2",
+                GLASS_BUTTON_ICON_HOVER,
+                GLASS_BUTTON_SHELL_RESET,
+                GLASS_PRIMARY_BUTTON.blue,
+              )}
             >
               <Edit className="h-4 w-4 shrink-0" />
               Edit Warehouse
             </Button>
             <Button
+              variant="ghost"
               onClick={() => setDeleteDialogOpen(true)}
               disabled={isDeleting}
-              className="w-full sm:w-auto gap-2 rounded-xl border border-rose-400/30 bg-gradient-to-r from-rose-500/70 via-rose-500/50 to-rose-500/30 text-white shadow-[0_10px_25px_rgba(225,29,72,0.35)] backdrop-blur-md hover:border-rose-300/50 hover:from-rose-500/80 hover:via-rose-500/60 hover:to-rose-500/40 transition-all duration-300 disabled:opacity-50"
+              className={cn(
+                "group w-full sm:w-auto gap-2",
+                GLASS_BUTTON_ICON_HOVER,
+                GLASS_BUTTON_SHELL_RESET,
+                GLASS_BUTTON_DISABLED,
+                GLASS_PRIMARY_BUTTON.rose,
+              )}
             >
               <Trash2 className="h-4 w-4 shrink-0" />
               {isDeleting ? "Deleting..." : "Delete Warehouse"}
             </Button>
           </div>
         </div>
+
+        <AllocateStockDialog
+          open={allocateOpen}
+          onOpenChange={setAllocateOpen}
+          warehouseId={warehouseId}
+          warehouseName={warehouse?.name}
+        />
+
+        <TransferStockDialog
+          open={transferOpen}
+          onOpenChange={setTransferOpen}
+          fromWarehouseId={warehouseId}
+          fromWarehouseName={warehouse?.name}
+          stockAllocations={stockAllocations}
+        />
 
         <WarehouseDialog
           open={editDialogOpen}

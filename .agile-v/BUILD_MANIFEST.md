@@ -158,6 +158,11 @@
 | ART-0150 | REQ-0063 | `components/shared/ProductLineItemsList.tsx` | shared line-item rows (order + invoice detail) |
 | ART-0151 | REQ-0063 | `components/Pages/InvoiceDetailPage.tsx` | Order Items card + Related Order copy + admin href |
 | ART-0152 | REQ-0063 | `components/shipping/{ShippingManagement,OrderTrackingInfo}.tsx` | CopyableText order#/tracking |
+| ART-0153 | REQ-0064 | `types/order.ts`, `lib/ui/typography-scale.ts`, `PaymentDialog.tsx` | OrderItem ISO string; TYPO_BODY; copyable ref |
+| ART-0154 | REQ-0051 | detail pages + `FloatingActionButtons.tsx` | Glass CTA backlog complete |
+| ART-0155 | REQ-0065 | `components/admin/Admin*DetailContent.tsx` | Admin detail header/action parity |
+| ART-0156 | REQ-0066 | `app/api/stock-transfers/route.ts`, `lib/products/decrement-stock-allocations.ts`, warehouse dialogs | Warehouse integration |
+| ART-0157 | REQ-0067 | `app/api/ai/insights/route.ts` | Warehouse summary in AI payload |
 
 ## Tests
 

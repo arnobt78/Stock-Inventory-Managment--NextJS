@@ -18,3 +18,9 @@ export const TYPO_SUBTITLE =
 /** Metric/stat primary value — do not use on titles */
 export const TYPO_STAT_VALUE =
   "text-sm sm:text-lg font-medium text-gray-700 dark:text-white";
+
+/** REQ-0064 — default body text color (use when no explicit tone is set) */
+export const TYPO_BODY = "text-gray-700 dark:text-white";
+
+/** REQ-0064 — muted body text color (secondary copy, meta labels) */
+export const TYPO_BODY_MUTED = "text-gray-600 dark:text-gray-400";

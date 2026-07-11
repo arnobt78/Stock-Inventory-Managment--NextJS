@@ -1330,6 +1330,104 @@ Canonical REQ source. All artifacts link via `REQ-XXXX`. Status: `done` | `verif
 
 ---
 
+## REQ-0064 — Polish + tokens + types
+
+| Field | Value |
+|-------|-------|
+| **Priority** | P2 |
+| **Risk** | R1 |
+| **Status** | done |
+| **Cycle** | C2 |
+
+**Intent:** Small polish: copyable payment reference, OrderItem.createdAt as ISO string, TYPO_BODY tokens.
+
+**Acceptance criteria**
+
+- AC1: `PaymentDialog` — `CopyableText` on reference number
+- AC2: `OrderItem.createdAt: string`; remove cast in `map-order-items.ts`
+- AC3: `TYPO_BODY` / `TYPO_BODY_MUTED` in `typography-scale.ts`
+
+---
+
+## REQ-0051 — Glass button backlog (completion)
+
+| Field | Value |
+|-------|-------|
+| **Priority** | P2 |
+| **Risk** | R1 |
+| **Status** | done |
+| **Cycle** | C2 |
+
+**Intent:** Finish deferred glass CTA sweep on detail pages, FABs, ShippingManagement, WriteEditReview cancel.
+
+**Acceptance criteria**
+
+- AC1: Detail CTAs on Order/Invoice/Category/Warehouse detail → `GLASS_*` tokens
+- AC2: `FloatingActionButtons` → glass tokens
+- AC3: `ShippingManagement` remaining gradients → `GLASS_PRIMARY_BUTTON`
+- AC4: `WriteEditReviewDialog` cancel → `GLASS_GHOST_BUTTON`
+
+---
+
+## REQ-0065 — Admin detail page parity
+
+| Field | Value |
+|-------|-------|
+| **Priority** | P2 |
+| **Risk** | R1 |
+| **Status** | done |
+| **Cycle** | C2 |
+
+**Intent:** Bring admin support/review/user/order detail pages to catalog-detail pattern (headers, action rows, status cards).
+
+**Acceptance criteria**
+
+- AC1: `PageSectionHeader` + icons on support/review/user admin detail pages
+- AC2: Bottom Back + Delete rows (glass); order detail bottom Back
+- AC3: Pattern A card headers; status Selects in labeled glass cards
+- AC4: `TYPO_BODY` tokens where missing
+
+---
+
+## REQ-0066 — Warehouse real-world integration
+
+| Field | Value |
+|-------|-------|
+| **Priority** | P1 |
+| **Risk** | R2 |
+| **Status** | done |
+| **Cycle** | C2 |
+
+**Intent:** Connect warehouses to allocations, transfers, product breakdown, list utilization, order sync.
+
+**Acceptance criteria**
+
+- AC1: `GET /api/stock-allocations?productId=`; `POST /api/stock-transfers` create+complete; warehouse DELETE cleans allocations
+- AC2: Best-effort allocation decrement on order confirm/paid + Stripe webhook
+- AC3: `useStockByProduct`, `useCreateStockTransfer`; Allocate/Transfer dialogs on warehouse detail
+- AC4: Product detail warehouse stock card (SSR); warehouses list stock-share column
+- AC5: Invalidation spec includes stock-transfers route
+
+---
+
+## REQ-0067 — AI warehouse insights
+
+| Field | Value |
+|-------|-------|
+| **Priority** | P2 |
+| **Risk** | R1 |
+| **Status** | done |
+| **Cycle** | C2 |
+
+**Intent:** Enrich AI insights payload with per-warehouse summary; prompt mentions rebalancing/transfers.
+
+**Acceptance criteria**
+
+- AC1: `POST /api/ai/insights` appends warehouse summary via `getWarehouseStockSummary`
+- AC2: System prompt mentions warehouse rebalancing and transfers
+
+---
+
 ## REQ-0020 — Locale-aware admin formatting
 
 | Field | Value |

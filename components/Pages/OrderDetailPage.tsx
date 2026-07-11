@@ -35,6 +35,11 @@ import {
   ClientDateTime,
   PageContentWrapper,
   DataSlotPulse,
+  GLASS_BUTTON_DISABLED,
+  GLASS_BUTTON_ICON_HOVER,
+  GLASS_BUTTON_SHELL_RESET,
+  GLASS_GHOST_BUTTON,
+  GLASS_PRIMARY_BUTTON,
 } from "@/components/shared";
 import type { Order } from "@/types";
 import type { OrderReviewContext } from "@/lib/server/order-review-context-data";
@@ -411,9 +416,9 @@ export default function OrderDetailPage({
 
           <div className="flex flex-col sm:flex-row flex-wrap gap-2">
             <Button
-              variant="outline"
+              variant="ghost"
               onClick={handleBack}
-              className="w-full sm:w-auto gap-2 rounded-xl border border-gray-300/30 bg-white/50 dark:bg-white/5 dark:border-white/10 hover:bg-gray-100/50 dark:hover:bg-white/10 text-gray-700 dark:text-white transition-all duration-300"
+              className={cn("w-full sm:w-auto gap-2", GLASS_GHOST_BUTTON)}
             >
               <ArrowLeft className="h-4 w-4 shrink-0" />
               Back
@@ -422,9 +427,16 @@ export default function OrderDetailPage({
               <TooltipTrigger asChild>
                 <span className="inline-block">
                   <Button
+                    variant="ghost"
                     onClick={handleUpdateOrder}
                     disabled={actionsDisabled}
-                    className="w-full sm:w-auto gap-2 rounded-xl border border-blue-400/30 bg-gradient-to-r from-blue-500/70 via-blue-500/50 to-blue-500/30 text-white shadow-[0_10px_25px_rgba(59,130,246,0.35)] backdrop-blur-md hover:border-blue-300/50 hover:from-blue-500/80 hover:via-blue-500/60 hover:to-blue-500/40 transition-all duration-300 disabled:opacity-50"
+                    className={cn(
+                      "group w-full sm:w-auto gap-2",
+                      GLASS_BUTTON_ICON_HOVER,
+                      GLASS_BUTTON_SHELL_RESET,
+                      GLASS_BUTTON_DISABLED,
+                      GLASS_PRIMARY_BUTTON.blue,
+                    )}
                   >
                     <Edit className="h-4 w-4 shrink-0" />
                     Update Order
@@ -441,7 +453,13 @@ export default function OrderDetailPage({
             {!dataLoading && order && order.invoiceForOrder ? (
               <Button
                 asChild
-                className="w-full sm:w-auto gap-2 rounded-xl border border-indigo-400/30 bg-gradient-to-r from-indigo-500/70 via-indigo-500/50 to-indigo-500/30 text-white shadow-[0_10px_25px_rgba(99,102,241,0.35)] backdrop-blur-md hover:border-indigo-300/50 hover:from-indigo-500/80 hover:via-indigo-500/60 hover:to-indigo-500/40 transition-all duration-300"
+                variant="ghost"
+                className={cn(
+                  "group w-full sm:w-auto gap-2",
+                  GLASS_BUTTON_ICON_HOVER,
+                  GLASS_BUTTON_SHELL_RESET,
+                  GLASS_PRIMARY_BUTTON.indigo,
+                )}
               >
                 <Link href={`/invoices/${order.invoiceForOrder.id}`}>
                   <FileText className="h-4 w-4 shrink-0" />
@@ -454,8 +472,14 @@ export default function OrderDetailPage({
               order.status !== "cancelled" &&
               !disableOrderActions && (
                 <Button
+                  variant="ghost"
                   onClick={() => setCreateInvoiceOpen(true)}
-                  className="w-full sm:w-auto gap-2 rounded-xl border border-indigo-400/30 bg-gradient-to-r from-indigo-500/70 via-indigo-500/50 to-indigo-500/30 text-white shadow-[0_10px_25px_rgba(99,102,241,0.35)] backdrop-blur-md hover:border-indigo-300/50 hover:from-indigo-500/80 hover:via-indigo-500/60 hover:to-indigo-500/40 transition-all duration-300"
+                  className={cn(
+                    "group w-full sm:w-auto gap-2",
+                    GLASS_BUTTON_ICON_HOVER,
+                    GLASS_BUTTON_SHELL_RESET,
+                    GLASS_PRIMARY_BUTTON.indigo,
+                  )}
                 >
                   <FilePlus2 className="h-4 w-4 shrink-0" />
                   Create Invoice
@@ -485,8 +509,15 @@ export default function OrderDetailPage({
                         disabled={isSupplierRole}
                         trigger={
                           <Button
+                            variant="ghost"
                             disabled={isSupplierRole}
-                            className="w-full sm:w-auto gap-2 rounded-xl border border-emerald-400/30 bg-gradient-to-r from-emerald-500/70 via-emerald-500/50 to-emerald-500/30 text-white shadow-[0_10px_25px_rgba(16,185,129,0.35)] backdrop-blur-md hover:border-emerald-300/50 hover:from-emerald-500/80 hover:via-emerald-500/60 hover:to-emerald-500/40 transition-all duration-300 disabled:opacity-50"
+                            className={cn(
+                              "group w-full sm:w-auto gap-2",
+                              GLASS_BUTTON_ICON_HOVER,
+                              GLASS_BUTTON_SHELL_RESET,
+                              GLASS_BUTTON_DISABLED,
+                              GLASS_PRIMARY_BUTTON.emerald,
+                            )}
                           >
                             <CreditCard className="h-4 w-4 shrink-0" />
                             Pay ${order.total.toFixed(2)}
@@ -513,8 +544,15 @@ export default function OrderDetailPage({
                   disabled={disableOrderActions}
                   trigger={
                     <Button
+                      variant="ghost"
                       disabled={disableOrderActions}
-                      className="w-full sm:w-auto gap-2 rounded-xl border border-violet-400/30 bg-gradient-to-r from-violet-500/70 via-violet-500/50 to-violet-500/30 text-white shadow-[0_10px_25px_rgba(139,92,246,0.35)] backdrop-blur-md hover:border-violet-300/50 hover:from-violet-500/80 hover:via-violet-500/60 hover:to-violet-500/40 transition-all duration-300 disabled:opacity-50"
+                      className={cn(
+                        "group w-full sm:w-auto gap-2",
+                        GLASS_BUTTON_ICON_HOVER,
+                        GLASS_BUTTON_SHELL_RESET,
+                        GLASS_BUTTON_DISABLED,
+                        GLASS_PRIMARY_BUTTON.violet,
+                      )}
                     >
                       <Truck className="h-4 w-4 shrink-0" />
                       Ship Order
@@ -527,9 +565,16 @@ export default function OrderDetailPage({
                 <TooltipTrigger asChild>
                   <span className="inline-block">
                     <Button
+                      variant="ghost"
                       onClick={() => setCancelDialogOpen(true)}
                       disabled={isCancelling || actionsDisabled}
-                      className="w-full sm:w-auto gap-2 rounded-xl border border-rose-400/30 bg-gradient-to-r from-rose-500/70 via-rose-500/50 to-rose-500/30 text-white shadow-[0_10px_25px_rgba(225,29,72,0.35)] backdrop-blur-md hover:border-rose-300/50 hover:from-rose-500/80 hover:via-rose-500/60 hover:to-rose-500/40 transition-all duration-300 disabled:opacity-50"
+                      className={cn(
+                        "group w-full sm:w-auto gap-2",
+                        GLASS_BUTTON_ICON_HOVER,
+                        GLASS_BUTTON_SHELL_RESET,
+                        GLASS_BUTTON_DISABLED,
+                        GLASS_PRIMARY_BUTTON.rose,
+                      )}
                     >
                       <Trash2 className="h-4 w-4 shrink-0" />
                       {isCancelling ? "Cancelling..." : "Cancel Order"}

@@ -53,7 +53,8 @@ export interface OrderItem {
   quantity: number;
   price: number;
   subtotal: number;
-  createdAt: Date;
+  /** ISO string from API/SSR transforms (REQ-0064) */
+  createdAt: string;
   /** Category ID for link to category detail (from product) */
   categoryId?: string | null;
   /** Supplier ID for link to supplier detail (from product) */

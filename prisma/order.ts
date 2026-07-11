@@ -8,6 +8,8 @@ import { createStripeRefund } from "@/lib/stripe";
 import type { Prisma } from "@prisma/client";
 import type { CreateOrderInput, UpdateOrderInput } from "@/types/order";
 import { invalidateCache, cacheKeys } from "@/lib/cache";
+import { decrementStockAllocations } from "@/lib/products/decrement-stock-allocations";
+import { logger } from "@/lib/logger";
 
 /**
  * Generate unique order number
@@ -617,6 +619,20 @@ export async function updateOrder(
           quantity: { decrement: item.quantity },
           reservedQuantity: { decrement: item.quantity },
         },
+      });
+    }
+
+    try {
+      await decrementStockAllocations(
+        orderWithItems.items.map((item) => ({
+          productId: item.productId,
+          quantity: item.quantity,
+        })),
+      );
+    } catch (error) {
+      logger.warn("Failed to decrement stock allocations for order", {
+        orderId,
+        error,
       });
     }
   } else if (isBeingReactivated) {

@@ -29,6 +29,7 @@ import {
   ArrowLeft,
   Loader2,
   User,
+  UserCog,
   Trash2,
   ShoppingCart,
   FileText,
@@ -37,6 +38,7 @@ import {
   Truck,
   Tag,
   Building2,
+  Shield,
 } from "lucide-react";
 import { useUser, useUpdateUser, useDeleteUser } from "@/hooks/queries";
 import { useAuth } from "@/contexts";
@@ -44,7 +46,13 @@ import {
   DeferredSelectGate,
   PageContentWrapper,
   DataSlotPulse,
+  PageSectionHeader,
+  SectionCardHeader,
+  GLASS_BUTTON_SHELL_RESET,
+  GLASS_GHOST_BUTTON,
+  GLASS_PRIMARY_BUTTON,
 } from "@/components/shared";
+import { TYPO_BODY, TYPO_BODY_MUTED, TYPO_STAT_VALUE } from "@/lib/ui/typography-scale";
 import { isDataSlotLoading } from "@/lib/react-query";
 import { format } from "date-fns";
 import type { UserForAdmin, UserRole } from "@/types";
@@ -187,7 +195,6 @@ export default function AdminUserManagementDetailContent({
   const isProtected = user
     ? PROTECTED_EMAILS.includes((user.email ?? "").toLowerCase())
     : false;
-  const canDelete = isOwner && !isProtected;
 
   const [name, setName] = useState("");
   const [nameTouched, setNameTouched] = useState(false);
@@ -283,54 +290,46 @@ export default function AdminUserManagementDetailContent({
   return (
     <PageContentWrapper>
       <div className="space-y-4">
-        <div className="flex items-center gap-2">
-          <Button variant="ghost" size="icon" onClick={handleBack} className="h-10 w-10">
-            <ArrowLeft className="h-5 w-5" />
-          </Button>
-          <div>
-            <h1 className="text-sm sm:text-base font-medium text-gray-700 dark:text-white">
-              User Details
-            </h1>
-            <p className="text-sm text-gray-600 dark:text-gray-400">
-              {dataLoading ? (
-                <DataSlotPulse variant="text-sm" className="w-48" />
-              ) : (
-                <>
-                  {u!.name} · {u!.email}
-                </>
-              )}
-            </p>
-          </div>
-        </div>
+        <PageSectionHeader
+          as="h1"
+          tone="violet"
+          icon={UserCog}
+          leading={
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={handleBack}
+              className="h-10 w-10 shrink-0 self-center rounded-xl border border-gray-300/30 bg-white/50 dark:bg-white/5 dark:border-white/10 hover:bg-gray-100/50 dark:hover:bg-white/10"
+            >
+              <ArrowLeft className="h-5 w-5" />
+            </Button>
+          }
+          title="User Details"
+          description={
+            dataLoading ? (
+              <DataSlotPulse variant="text-sm" className="w-48" />
+            ) : (
+              <>
+                {u!.name} · {u!.email}
+              </>
+            )
+          }
+        />
 
         <GlassCard variant="violet">
-          <div className="flex items-center gap-2 mb-4">
-            <div
-              className={cn(
-                "p-2 rounded-xl border",
-                variantConfig.violet.iconBg,
-                "dark:border-violet-400/30 dark:bg-violet-500/20",
-              )}
-            >
-              <User className="h-5 w-5 text-violet-600 dark:text-violet-400" />
-            </div>
-            <div>
-              <h3 className="text-sm sm:text-base font-medium text-gray-700 dark:text-white">
-                Profile
-              </h3>
-              <p className="text-xs text-gray-600 dark:text-gray-400">
-                View and update name and role. Email and username are read-only.
-              </p>
-            </div>
-          </div>
+          <SectionCardHeader
+            title="Profile"
+            description="View and update name. Email and username are read-only."
+            icon={User}
+            tone="violet"
+            className="mb-4"
+          />
           <div className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-2 sm:gap-4">
               <div className="space-y-4">
                 <div>
-                  <Label className="text-gray-600 dark:text-gray-400">
-                    Email
-                  </Label>
-                  <p className="font-medium mt-1 text-gray-700 dark:text-white">
+                  <Label className={TYPO_BODY_MUTED}>Email</Label>
+                  <p className={cn("font-medium mt-1", TYPO_BODY)}>
                     {dataLoading ? (
                       <DataSlotPulse variant="text-md" className="w-48" />
                     ) : (
@@ -339,10 +338,8 @@ export default function AdminUserManagementDetailContent({
                   </p>
                 </div>
                 <div>
-                  <Label className="text-gray-600 dark:text-gray-400">
-                    Username
-                  </Label>
-                  <p className="font-medium mt-1 text-gray-700 dark:text-white">
+                  <Label className={TYPO_BODY_MUTED}>Username</Label>
+                  <p className={cn("font-medium mt-1", TYPO_BODY)}>
                     {dataLoading ? (
                       <DataSlotPulse variant="text-sm" className="w-32" />
                     ) : (
@@ -351,10 +348,8 @@ export default function AdminUserManagementDetailContent({
                   </p>
                 </div>
                 <div>
-                  <Label className="text-gray-600 dark:text-gray-400">
-                    Joined
-                  </Label>
-                  <p className="font-medium mt-1 text-gray-700 dark:text-white">
+                  <Label className={TYPO_BODY_MUTED}>Joined</Label>
+                  <p className={cn("font-medium mt-1", TYPO_BODY)}>
                     {dataLoading ? (
                       <DataSlotPulse variant="date" />
                     ) : (
@@ -363,10 +358,8 @@ export default function AdminUserManagementDetailContent({
                   </p>
                 </div>
                 <div>
-                  <Label className="text-gray-600 dark:text-gray-400">
-                    Last Updated
-                  </Label>
-                  <p className="font-medium mt-1 text-gray-700 dark:text-white">
+                  <Label className={TYPO_BODY_MUTED}>Last Updated</Label>
+                  <p className={cn("font-medium mt-1", TYPO_BODY)}>
                     {dataLoading ? (
                       <DataSlotPulse variant="date" />
                     ) : u!.updatedAt ? (
@@ -379,14 +372,11 @@ export default function AdminUserManagementDetailContent({
               </div>
               <div className="space-y-4">
                 <div>
-                  <Label
-                    htmlFor="um-name"
-                    className="text-gray-600 dark:text-gray-400"
-                  >
+                  <Label htmlFor="um-name" className={TYPO_BODY_MUTED}>
                     Name
                   </Label>
                   {isProtectedResolved ? (
-                    <p className="font-medium mt-1 text-gray-700 dark:text-white">
+                    <p className={cn("font-medium mt-1", TYPO_BODY)}>
                       {dataLoading ? (
                         <DataSlotPulse variant="text-md" className="w-32" />
                       ) : (
@@ -421,87 +411,73 @@ export default function AdminUserManagementDetailContent({
                     </div>
                   )}
                 </div>
-                <div>
-                  <Label
-                    htmlFor="um-role"
-                    className="text-gray-600 dark:text-gray-400"
-                  >
-                    Role
-                  </Label>
-                  {dataLoading ? (
-                    <DataSlotPulse
-                      variant="badge"
-                      className="h-9 w-[140px] rounded-[28px] mt-1"
-                    />
-                  ) : (
-                    <DeferredSelectGate
-                      placeholder={
-                        <div id="um-role" className="mt-1" aria-hidden>
-                          <UserRoleBadge role={u!.role ?? "user"} />
-                        </div>
-                      }
-                    >
-                      {({ selectRemountKey }) => (
-                        <Select
-                          key={selectRemountKey}
-                          value={u!.role ?? "null"}
-                          onValueChange={handleRoleChange}
-                          disabled={
-                            isUpdating || isProtectedResolved || actionsDisabled
-                          }
-                        >
-                          <SelectTrigger
-                            id="um-role"
-                            className={cn(
-                              "w-auto min-w-[140px] rounded-full mt-1 h-auto py-1 px-2",
-                              userRoleBadgeClass(u!.role),
-                            )}
-                          >
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {ROLE_OPTIONS.map((opt) => (
-                              <SelectItem key={opt.value} value={opt.value}>
-                                {opt.label}
-                              </SelectItem>
-                            ))}
-                            <SelectItem value="null">(none)</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      )}
-                    </DeferredSelectGate>
-                  )}
-                </div>
               </div>
             </div>
           </div>
         </GlassCard>
 
-        {/* Overview — shell visible while loading (REQ-0023) */}
+        <GlassCard variant="violet">
+          <SectionCardHeader
+            title="Role"
+            description="Changes apply immediately"
+            icon={Shield}
+            tone="violet"
+            className="mb-4"
+          />
+          {dataLoading ? (
+            <DataSlotPulse
+              variant="badge"
+              className="h-9 w-[140px] rounded-[28px]"
+            />
+          ) : (
+            <DeferredSelectGate
+              placeholder={
+                <div id="um-role" aria-hidden>
+                  <UserRoleBadge role={u!.role ?? "user"} />
+                </div>
+              }
+            >
+              {({ selectRemountKey }) => (
+                <Select
+                  key={selectRemountKey}
+                  value={u!.role ?? "null"}
+                  onValueChange={handleRoleChange}
+                  disabled={
+                    isUpdating || isProtectedResolved || actionsDisabled
+                  }
+                >
+                  <SelectTrigger
+                    id="um-role"
+                    className={cn(
+                      "w-auto min-w-[140px] rounded-full h-auto py-1 px-2",
+                      userRoleBadgeClass(u!.role),
+                    )}
+                  >
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {ROLE_OPTIONS.map((opt) => (
+                      <SelectItem key={opt.value} value={opt.value}>
+                        {opt.label}
+                      </SelectItem>
+                    ))}
+                    <SelectItem value="null">(none)</SelectItem>
+                  </SelectContent>
+                </Select>
+              )}
+            </DeferredSelectGate>
+          )}
+        </GlassCard>
+
         {(dataLoading || overview) && (
           <GlassCard variant="sky">
-            <div className="flex items-center gap-2 mb-4">
-              <div
-                className={cn(
-                  "p-2 rounded-xl border",
-                  variantConfig.sky.iconBg,
-                  "dark:border-sky-400/30 dark:bg-sky-500/20",
-                )}
-              >
-                <DollarSign className="h-5 w-5 text-sky-600 dark:text-sky-400" />
-              </div>
-              <div>
-                <h3 className="text-sm sm:text-base font-medium text-gray-700 dark:text-white">
-                  Overview
-                </h3>
-                <p className="text-xs text-gray-600 dark:text-gray-400">
-                  Orders, invoices, and activity linked to this user. Revenue =
-                  orders you created + sales from your supplier products;
-                  Spent/Due = orders/invoices where you are the buyer (userId or
-                  clientId).
-                </p>
-              </div>
-            </div>
+            <SectionCardHeader
+              title="Overview"
+              description="Orders, invoices, and activity linked to this user. Revenue = orders you created + sales from your supplier products; Spent/Due = orders/invoices where you are the buyer (userId or clientId)."
+              icon={DollarSign}
+              tone="sky"
+              className="mb-4"
+            />
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
               <Link
                 href="/admin/orders"
@@ -509,16 +485,14 @@ export default function AdminUserManagementDetailContent({
               >
                 <ShoppingCart className="h-5 w-5 text-sky-600 dark:text-sky-400" />
                 <div>
-                  <p className="text-sm sm:text-base font-medium text-gray-700 dark:text-white">
+                  <p className={TYPO_STAT_VALUE}>
                     {dataLoading ? (
                       <DataSlotPulse variant="metric" />
                     ) : (
                       overview!.orderCount
                     )}
                   </p>
-                  <p className="text-xs text-gray-600 dark:text-gray-400">
-                    Orders
-                  </p>
+                  <p className={cn("text-xs", TYPO_BODY_MUTED)}>Orders</p>
                 </div>
               </Link>
               <Link
@@ -527,61 +501,53 @@ export default function AdminUserManagementDetailContent({
               >
                 <FileText className="h-5 w-5 text-sky-600 dark:text-sky-400" />
                 <div>
-                  <p className="text-sm sm:text-base font-medium text-gray-700 dark:text-white">
+                  <p className={TYPO_STAT_VALUE}>
                     {dataLoading ? (
                       <DataSlotPulse variant="metric" />
                     ) : (
                       overview!.invoiceCount
                     )}
                   </p>
-                  <p className="text-xs text-gray-600 dark:text-gray-400">
-                    Invoices
-                  </p>
+                  <p className={cn("text-xs", TYPO_BODY_MUTED)}>Invoices</p>
                 </div>
               </Link>
               <div className="flex items-center gap-2 p-2 rounded-xl border border-violet-200/40 dark:border-white/10 bg-white/30 dark:bg-white/5">
                 <DollarSign className="h-5 w-5 text-violet-600 dark:text-violet-400" />
                 <div>
-                  <p className="text-sm sm:text-base font-medium text-gray-700 dark:text-white">
+                  <p className={TYPO_STAT_VALUE}>
                     {dataLoading ? (
                       <DataSlotPulse variant="currency" />
                     ) : (
                       `$${(overview!.totalRevenue ?? 0).toLocaleString()}`
                     )}
                   </p>
-                  <p className="text-xs text-gray-600 dark:text-gray-400">
-                    Total Revenue
-                  </p>
+                  <p className={cn("text-xs", TYPO_BODY_MUTED)}>Total Revenue</p>
                 </div>
               </div>
               <div className="flex items-center gap-2 p-2 rounded-xl border border-emerald-200/40 dark:border-white/10 bg-white/30 dark:bg-white/5">
                 <DollarSign className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
                 <div>
-                  <p className="text-sm sm:text-base font-medium text-gray-700 dark:text-white">
+                  <p className={TYPO_STAT_VALUE}>
                     {dataLoading ? (
                       <DataSlotPulse variant="currency" />
                     ) : (
                       `$${overview!.totalSpent.toLocaleString()}`
                     )}
                   </p>
-                  <p className="text-xs text-gray-600 dark:text-gray-400">
-                    Total Spent
-                  </p>
+                  <p className={cn("text-xs", TYPO_BODY_MUTED)}>Total Spent</p>
                 </div>
               </div>
               <div className="flex items-center gap-2 p-2 rounded-xl border border-amber-200/40 dark:border-white/10 bg-white/30 dark:bg-white/5">
                 <DollarSign className="h-5 w-5 text-amber-600 dark:text-amber-400" />
                 <div>
-                  <p className="text-sm sm:text-base font-medium text-gray-700 dark:text-white">
+                  <p className={TYPO_STAT_VALUE}>
                     {dataLoading ? (
                       <DataSlotPulse variant="currency" />
                     ) : (
                       `$${overview!.totalDue.toLocaleString()}`
                     )}
                   </p>
-                  <p className="text-xs text-gray-600 dark:text-gray-400">
-                    Total Due
-                  </p>
+                  <p className={cn("text-xs", TYPO_BODY_MUTED)}>Total Due</p>
                 </div>
               </div>
             </div>
@@ -592,16 +558,14 @@ export default function AdminUserManagementDetailContent({
               >
                 <Package className="h-5 w-5 text-violet-600 dark:text-violet-400" />
                 <div>
-                  <p className="text-sm sm:text-lg font-medium text-gray-700 dark:text-white">
+                  <p className={TYPO_STAT_VALUE}>
                     {dataLoading ? (
                       <DataSlotPulse variant="metric" />
                     ) : (
                       overview!.productCount
                     )}
                   </p>
-                  <p className="text-xs text-gray-600 dark:text-gray-400">
-                    Products
-                  </p>
+                  <p className={cn("text-xs", TYPO_BODY_MUTED)}>Products</p>
                 </div>
               </Link>
               <Link
@@ -610,16 +574,14 @@ export default function AdminUserManagementDetailContent({
               >
                 <Truck className="h-5 w-5 text-violet-600 dark:text-violet-400" />
                 <div>
-                  <p className="text-sm sm:text-lg font-medium text-gray-700 dark:text-white">
+                  <p className={TYPO_STAT_VALUE}>
                     {dataLoading ? (
                       <DataSlotPulse variant="metric" />
                     ) : (
                       overview!.supplierCount
                     )}
                   </p>
-                  <p className="text-xs text-gray-600 dark:text-gray-400">
-                    Suppliers
-                  </p>
+                  <p className={cn("text-xs", TYPO_BODY_MUTED)}>Suppliers</p>
                 </div>
               </Link>
               <Link
@@ -628,16 +590,14 @@ export default function AdminUserManagementDetailContent({
               >
                 <Tag className="h-5 w-5 text-violet-600 dark:text-violet-400" />
                 <div>
-                  <p className="text-sm sm:text-lg font-medium text-gray-700 dark:text-white">
+                  <p className={TYPO_STAT_VALUE}>
                     {dataLoading ? (
                       <DataSlotPulse variant="metric" />
                     ) : (
                       overview!.categoryCount
                     )}
                   </p>
-                  <p className="text-xs text-gray-600 dark:text-gray-400">
-                    Categories
-                  </p>
+                  <p className={cn("text-xs", TYPO_BODY_MUTED)}>Categories</p>
                 </div>
               </Link>
               <Link
@@ -646,54 +606,44 @@ export default function AdminUserManagementDetailContent({
               >
                 <Building2 className="h-5 w-5 text-violet-600 dark:text-violet-400" />
                 <div>
-                  <p className="text-sm sm:text-lg font-medium text-gray-700 dark:text-white">
+                  <p className={TYPO_STAT_VALUE}>
                     {dataLoading ? (
                       <DataSlotPulse variant="metric" />
                     ) : (
                       overview!.warehouseCount
                     )}
                   </p>
-                  <p className="text-xs text-gray-600 dark:text-gray-400">
-                    Warehouses
-                  </p>
+                  <p className={cn("text-xs", TYPO_BODY_MUTED)}>Warehouses</p>
                 </div>
               </Link>
             </div>
           </GlassCard>
         )}
 
-        {/* Danger Zone */}
-        <GlassCard variant="rose" className="border-rose-300/30">
-          <div className="flex items-center gap-2 mb-4">
-            <div
-              className={cn(
-                "p-2 rounded-xl border border-rose-300/30 bg-rose-100/50",
-                "dark:border-rose-400/30 dark:bg-rose-500/20",
-              )}
-            >
-              <Trash2 className="h-5 w-5 text-rose-600 dark:text-rose-400" />
-            </div>
-            <div>
-              <h3 className="text-sm sm:text-base font-medium text-rose-600 dark:text-rose-400">
-                Danger Zone
-              </h3>
-              <p className="text-xs text-gray-600 dark:text-gray-400">
-                Permanently delete this user. Only the account owner can delete
-                their account. This action cannot be undone.
-              </p>
-            </div>
-          </div>
+        <div className="flex flex-col sm:flex-row flex-wrap gap-2">
+          <Button
+            variant="ghost"
+            onClick={handleBack}
+            className={cn("w-full sm:w-auto gap-2 px-8", GLASS_GHOST_BUTTON)}
+          >
+            <ArrowLeft className="h-4 w-4 shrink-0" />
+            Back
+          </Button>
           <AlertDialog>
             <AlertDialogTrigger asChild>
               <Button
-                variant="destructive"
-                className="gap-2"
+                variant="ghost"
                 disabled={!canDeleteResolved || isDeleting || isUpdating}
+                className={cn(
+                  "w-full sm:w-auto gap-2 px-8",
+                  GLASS_BUTTON_SHELL_RESET,
+                  GLASS_PRIMARY_BUTTON.rose,
+                )}
               >
                 {isDeleting ? (
                   <Loader2 className="h-4 w-4 animate-spin" />
                 ) : (
-                  <Trash2 className="h-4 w-4" />
+                  <Trash2 className="h-4 w-4 shrink-0" />
                 )}
                 Delete User
               </Button>
@@ -728,7 +678,7 @@ export default function AdminUserManagementDetailContent({
               </AlertDialogFooter>
             </AlertDialogContent>
           </AlertDialog>
-        </GlassCard>
+        </div>
       </div>
     </PageContentWrapper>
   );

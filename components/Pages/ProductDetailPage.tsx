@@ -26,6 +26,7 @@ import {
   Edit,
   Copy,
   Trash2,
+  Building2,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -38,6 +39,7 @@ import {
   useCreateProduct,
   useDeleteProduct,
   useProducts,
+  useStockByProduct,
 } from "@/hooks/queries";
 import { useBackWithRefresh } from "@/hooks/use-back-with-refresh";
 import { useAuth } from "@/contexts";
@@ -53,7 +55,7 @@ import {
   PageSectionHeader,
 } from "@/components/shared";
 import { isDataSlotLoading } from "@/lib/react-query";
-import type { Product, ProductStatus, ProductReview } from "@/types";
+import type { Product, ProductStatus, ProductReview, StockAllocation } from "@/types";
 import type { ReviewEligibilityResult } from "@/lib/server/product-reviews-detail-data";
 import { cn } from "@/lib/utils";
 import { APP_SHELL_DETAIL_CLASS } from "@/lib/ui/shell-layout-styles";
@@ -193,6 +195,8 @@ export type ProductDetailPageProps = {
   /** REQ-0026 — SSR reviews for product detail */
   initialReviews?: ProductReview[];
   initialEligibility?: ReviewEligibilityResult;
+  /** REQ-0066 — per-warehouse stock breakdown */
+  initialStockByProduct?: StockAllocation[];
 };
 
 export default function ProductDetailPage({
@@ -200,6 +204,7 @@ export default function ProductDetailPage({
   initialProduct,
   initialReviews,
   initialEligibility,
+  initialStockByProduct,
 }: ProductDetailPageProps = {}) {
   const params = useParams();
   const router = useRouter();
@@ -213,6 +218,15 @@ export default function ProductDetailPage({
   const productQuery = useProduct(productId, initialProduct);
   const product = productQuery.data;
   const dataLoading = isDataSlotLoading(productQuery, initialProduct);
+  const stockByProductQuery = useStockByProduct(
+    productId,
+    initialStockByProduct,
+  );
+  const warehouseAllocations = stockByProductQuery.data ?? [];
+  const warehouseStockLoading = isDataSlotLoading(
+    stockByProductQuery,
+    initialStockByProduct,
+  );
   const { data: allProducts = [] } = useProducts();
   const { setSelectedProduct, setOpenProductDialog } = useProductStore();
   const createProductMutation = useCreateProduct();
@@ -224,6 +238,8 @@ export default function ProductDetailPage({
   const isSupplierRole = user?.role === "supplier";
   const isClientRole = user?.role === "client";
   const disableCrud = isSupplierRole || isClientRole;
+  const showWarehouseStockCard =
+    !isClientRole || warehouseAllocations.length > 0;
 
   // Edit: open product form dialog with current product (same as ProductActions)
   const handleEditProduct = () => {
@@ -673,6 +689,66 @@ export default function ProductDetailPage({
               </div>
             </GlassCard>
           </div>
+
+          {showWarehouseStockCard && (
+            <GlassCard variant="teal">
+              <div className="p-4 sm:p-5">
+                <div className="flex items-center gap-2 mb-2">
+                  <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-teal-300/30 bg-teal-100/50 dark:border-white/15 dark:bg-white/10">
+                    <Building2 className="h-4 w-4 text-gray-700 dark:text-white" />
+                  </div>
+                  <div>
+                    <h3 className="text-sm sm:text-base font-medium text-gray-700 dark:text-white">
+                      Warehouse Stock
+                    </h3>
+                    <p className="text-xs text-gray-600 dark:text-white/60">
+                      Quantity allocated per warehouse location
+                    </p>
+                  </div>
+                </div>
+                {warehouseStockLoading ? (
+                  <DataSlotPulse variant="text-sm" className="mt-4 h-16" />
+                ) : warehouseAllocations.length > 0 ? (
+                  <div className="space-y-2 mt-4">
+                    {warehouseAllocations.map((row) => {
+                      const avail = row.quantity - row.reservedQuantity;
+                      const whHref = embedInAdmin
+                        ? `/admin/warehouses/${row.warehouseId}`
+                        : `/warehouses/${row.warehouseId}`;
+                      return (
+                        <div
+                          key={row.id}
+                          className="flex items-center justify-between gap-2 p-3 rounded-xl border border-teal-200/30 dark:border-teal-400/10 bg-gradient-to-r from-teal-100/40 via-teal-50/20 to-transparent dark:from-teal-500/10 dark:via-teal-500/5 dark:to-transparent"
+                        >
+                          <Link
+                            href={whHref}
+                            className="font-medium text-sm text-sky-600 dark:text-sky-400 hover:text-sky-500"
+                          >
+                            {row.warehouse?.name ?? "Warehouse"}
+                          </Link>
+                          <span className="text-sm text-gray-700 dark:text-white">
+                            {avail}{" "}
+                            <span className="text-gray-500 dark:text-gray-400">
+                              avail
+                            </span>
+                            {row.reservedQuantity > 0 ? (
+                              <span className="text-xs text-amber-600 dark:text-amber-400 ml-2">
+                                ({row.reservedQuantity} reserved)
+                              </span>
+                            ) : null}
+                          </span>
+                        </div>
+                      );
+                    })}
+                  </div>
+                ) : (
+                  <p className="text-sm text-gray-600 dark:text-gray-400 mt-4">
+                    No warehouse allocations for this product yet.
+                  </p>
+                )}
+              </div>
+            </GlassCard>
+          )}
 
           {/* Recent Orders */}
           {product?.recentOrders && product?.recentOrders.length > 0 && (

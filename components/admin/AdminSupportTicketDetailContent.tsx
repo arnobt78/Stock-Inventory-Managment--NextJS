@@ -6,13 +6,7 @@ import { resolveAvatarSourcesFromSeed } from "@/lib/ui/user-avatar-sources";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useBackWithRefresh } from "@/hooks/use-back-with-refresh";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import {
@@ -35,12 +29,16 @@ import {
 } from "@/components/ui/alert-dialog";
 import {
   ArrowLeft,
+  LifeBuoy,
   Loader2,
   MessageSquare,
+  NotebookPen,
   Trash2,
   Send,
   User,
   Mail,
+  Flag,
+  CircleDot,
 } from "lucide-react";
 import {
   useSupportTicket,
@@ -53,7 +51,13 @@ import {
   DeferredSelectGate,
   PageContentWrapper,
   DataSlotPulse,
+  PageSectionHeader,
+  SectionCardHeader,
+  GLASS_BUTTON_SHELL_RESET,
+  GLASS_GHOST_BUTTON,
+  GLASS_PRIMARY_BUTTON,
 } from "@/components/shared";
+import { TYPO_BODY, TYPO_BODY_MUTED } from "@/lib/ui/typography-scale";
 import { isDataSlotLoading } from "@/lib/react-query";
 import { format } from "date-fns";
 import type {
@@ -220,22 +224,166 @@ export default function AdminSupportTicketDetailContent({
   return (
     <PageContentWrapper>
       <div className="space-y-4">
-        <div className="flex items-center gap-2">
-          <Button variant="ghost" size="icon" onClick={handleBack} className="h-10 w-10">
-            <ArrowLeft className="h-5 w-5" />
-          </Button>
-          <div>
-            <h1 className="text-sm sm:text-lg font-medium text-foreground">
-              Support Ticket Details
-            </h1>
-            <p className="text-sm text-muted-foreground">
-              {dataLoading ? (
-                <DataSlotPulse variant="text-md" className="w-64" />
-              ) : (
-                t!.subject
-              )}
-            </p>
-          </div>
+        <PageSectionHeader
+          as="h1"
+          tone="violet"
+          icon={LifeBuoy}
+          leading={
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={handleBack}
+              className="h-10 w-10 shrink-0 self-center rounded-xl border border-gray-300/30 bg-white/50 dark:bg-white/5 dark:border-white/10 hover:bg-gray-100/50 dark:hover:bg-white/10"
+            >
+              <ArrowLeft className="h-5 w-5" />
+            </Button>
+          }
+          title="Support Ticket Details"
+          description={
+            dataLoading ? (
+              <DataSlotPulse variant="text-md" className="w-64" />
+            ) : (
+              t!.subject
+            )
+          }
+        />
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-2 sm:gap-4">
+          <Card
+            className={cn(
+              "rounded-[20px] border backdrop-blur-md",
+              variantConfig.border,
+              variantConfig.gradient,
+              variantConfig.shadow,
+            )}
+          >
+            <CardContent className="p-4 sm:p-5">
+              <SectionCardHeader
+                title="Status"
+                description="Changes apply immediately"
+                icon={CircleDot}
+                tone="amber"
+                className="mb-4"
+              />
+              <div className="flex flex-wrap items-center gap-2">
+                {dataLoading ? (
+                  <DataSlotPulse
+                    variant="badge"
+                    className="h-6 w-20 rounded-full"
+                  />
+                ) : (
+                  <TicketStatusBadge status={t!.status} size="detail" />
+                )}
+                {!dataLoading && (
+                  <DeferredSelectGate
+                    placeholder={
+                      <div
+                        className="w-[160px] h-9 rounded-md border border-border flex items-center px-2 text-sm"
+                        aria-hidden
+                      >
+                        {STATUS_OPTIONS.find((o) => o.value === t!.status)
+                          ?.label ?? t!.status}
+                      </div>
+                    }
+                  >
+                    {({ selectRemountKey }) => (
+                      <Select
+                        key={selectRemountKey}
+                        value={t!.status}
+                        onValueChange={(v) =>
+                          handleStatusChange(v as SupportTicketStatus)
+                        }
+                        disabled={isUpdating || actionsDisabled}
+                      >
+                        <SelectTrigger className="w-[160px]">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {STATUS_OPTIONS.map((opt) => (
+                            <SelectItem key={opt.value} value={opt.value}>
+                              <TicketStatusBadge
+                                status={opt.value}
+                                label={opt.label}
+                                size="detail"
+                              />
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    )}
+                  </DeferredSelectGate>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card
+            className={cn(
+              "rounded-[20px] border backdrop-blur-md",
+              variantConfig.border,
+              variantConfig.gradient,
+              variantConfig.shadow,
+            )}
+          >
+            <CardContent className="p-4 sm:p-5">
+              <SectionCardHeader
+                title="Priority"
+                description="Changes apply immediately"
+                icon={Flag}
+                tone="rose"
+                className="mb-4"
+              />
+              <div className="flex flex-wrap items-center gap-2">
+                {dataLoading ? (
+                  <DataSlotPulse
+                    variant="badge"
+                    className="h-6 w-16 rounded-full"
+                  />
+                ) : (
+                  <TicketPriorityBadge status={t!.priority} size="detail" />
+                )}
+                {!dataLoading && (
+                  <DeferredSelectGate
+                    placeholder={
+                      <div
+                        className="w-[140px] h-9 rounded-md border border-border flex items-center px-2 text-sm"
+                        aria-hidden
+                      >
+                        {PRIORITY_OPTIONS.find((o) => o.value === t!.priority)
+                          ?.label ?? t!.priority}
+                      </div>
+                    }
+                  >
+                    {({ selectRemountKey }) => (
+                      <Select
+                        key={selectRemountKey}
+                        value={t!.priority}
+                        onValueChange={(v) =>
+                          handlePriorityChange(v as SupportTicketPriority)
+                        }
+                        disabled={isUpdating || actionsDisabled}
+                      >
+                        <SelectTrigger className="w-[140px]">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {PRIORITY_OPTIONS.map((opt) => (
+                            <SelectItem key={opt.value} value={opt.value}>
+                              <TicketPriorityBadge
+                                status={opt.value}
+                                label={opt.label}
+                                size="detail"
+                              />
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    )}
+                  </DeferredSelectGate>
+                )}
+              </div>
+            </CardContent>
+          </Card>
         </div>
 
         <Card
@@ -246,24 +394,25 @@ export default function AdminSupportTicketDetailContent({
             variantConfig.shadow,
           )}
         >
-          <CardContent className="p-2 sm:p-4">
+          <CardContent className="p-4 sm:p-5">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-2 sm:gap-4">
               <div>
-                <h2 className="text-sm sm:text-base font-medium mb-4 flex items-center gap-2">
-                  <MessageSquare className="h-5 w-5" />
-                  Ticket Information
-                </h2>
-                <dl className="space-y-2 text-sm">
+                <SectionCardHeader
+                  title="Ticket Information"
+                  description="Creator, dates, and ticket number"
+                  icon={MessageSquare}
+                  tone="violet"
+                  className="mb-4"
+                />
+                <dl className={cn("space-y-2 text-sm", TYPO_BODY)}>
                   {!dataLoading && t!.ticketNumber && (
                     <div>
-                      <dt className="text-muted-foreground">Ticket number</dt>
-                      <dd className="font-mono text-xs text-foreground">
-                        {t!.ticketNumber}
-                      </dd>
+                      <dt className={TYPO_BODY_MUTED}>Ticket number</dt>
+                      <dd className="font-mono text-xs">{t!.ticketNumber}</dd>
                     </div>
                   )}
                   <div>
-                    <dt className="text-muted-foreground">Subject</dt>
+                    <dt className={TYPO_BODY_MUTED}>Subject</dt>
                     <dd className="font-medium">
                       {dataLoading ? (
                         <DataSlotPulse variant="text-md" className="w-48" />
@@ -273,7 +422,7 @@ export default function AdminSupportTicketDetailContent({
                     </dd>
                   </div>
                   <div>
-                    <dt className="text-muted-foreground">Creator</dt>
+                    <dt className={TYPO_BODY_MUTED}>Creator</dt>
                     <dd className="flex flex-col gap-0.5">
                       {dataLoading ? (
                         <DataSlotPulse variant="text-md" className="w-36" />
@@ -287,12 +436,22 @@ export default function AdminSupportTicketDetailContent({
                             {t!.creatorName ?? t!.userId}
                           </Link>
                           {t!.creatorEmail && (
-                            <span className="text-muted-foreground text-xs inline-flex items-center gap-1">
+                            <span
+                              className={cn(
+                                "text-xs inline-flex items-center gap-1",
+                                TYPO_BODY_MUTED,
+                              )}
+                            >
                               <Mail className="h-3 w-3" />
                               {t!.creatorEmail}
                             </span>
                           )}
-                          <span className="font-mono text-xs text-muted-foreground">
+                          <span
+                            className={cn(
+                              "font-mono text-xs",
+                              TYPO_BODY_MUTED,
+                            )}
+                          >
                             ID: {t!.userId}
                           </span>
                         </>
@@ -300,7 +459,7 @@ export default function AdminSupportTicketDetailContent({
                     </dd>
                   </div>
                   <div>
-                    <dt className="text-muted-foreground">Created</dt>
+                    <dt className={TYPO_BODY_MUTED}>Created</dt>
                     <dd>
                       {dataLoading ? (
                         <DataSlotPulse variant="date" />
@@ -314,7 +473,7 @@ export default function AdminSupportTicketDetailContent({
                   </div>
                   {!dataLoading && t!.updatedAt && (
                     <div>
-                      <dt className="text-muted-foreground">Updated</dt>
+                      <dt className={TYPO_BODY_MUTED}>Updated</dt>
                       <dd>
                         {format(
                           new Date(t!.updatedAt),
@@ -323,119 +482,22 @@ export default function AdminSupportTicketDetailContent({
                       </dd>
                     </div>
                   )}
-                  <div>
-                    <dt className="text-muted-foreground">Status</dt>
-                    <dd className="mt-1 flex flex-wrap items-center gap-2">
-                      {dataLoading ? (
-                        <DataSlotPulse
-                          variant="badge"
-                          className="h-6 w-20 rounded-full"
-                        />
-                      ) : (
-                        <TicketStatusBadge status={t!.status} size="detail" />
-                      )}
-                      {!dataLoading && (
-                        <DeferredSelectGate
-                          placeholder={
-                            <div
-                              className="w-[160px] h-9 rounded-md border border-border flex items-center px-2 text-sm"
-                              aria-hidden
-                            >
-                              {STATUS_OPTIONS.find((o) => o.value === t!.status)
-                                ?.label ?? t!.status}
-                            </div>
-                          }
-                        >
-                          {({ selectRemountKey }) => (
-                            <Select
-                              key={selectRemountKey}
-                              value={t!.status}
-                              onValueChange={(v) =>
-                                handleStatusChange(v as SupportTicketStatus)
-                              }
-                              disabled={isUpdating || actionsDisabled}
-                            >
-                              <SelectTrigger className="w-[160px]">
-                                <SelectValue />
-                              </SelectTrigger>
-                              <SelectContent>
-                                {STATUS_OPTIONS.map((opt) => (
-                                  <SelectItem key={opt.value} value={opt.value}>
-                                    <TicketStatusBadge
-                                      status={opt.value}
-                                      label={opt.label}
-                                      size="detail"
-                                    />
-                                  </SelectItem>
-                                ))}
-                              </SelectContent>
-                            </Select>
-                          )}
-                        </DeferredSelectGate>
-                      )}
-                    </dd>
-                  </div>
-                  <div>
-                    <dt className="text-muted-foreground">Priority</dt>
-                    <dd className="mt-1 flex flex-wrap items-center gap-2">
-                      {dataLoading ? (
-                        <DataSlotPulse
-                          variant="badge"
-                          className="h-6 w-16 rounded-full"
-                        />
-                      ) : (
-                        <TicketPriorityBadge
-                          status={t!.priority}
-                          size="detail"
-                        />
-                      )}
-                      {!dataLoading && (
-                        <DeferredSelectGate
-                          placeholder={
-                            <div
-                              className="w-[140px] h-9 rounded-md border border-border flex items-center px-2 text-sm"
-                              aria-hidden
-                            >
-                              {PRIORITY_OPTIONS.find(
-                                (o) => o.value === t!.priority,
-                              )?.label ?? t!.priority}
-                            </div>
-                          }
-                        >
-                          {({ selectRemountKey }) => (
-                            <Select
-                              key={selectRemountKey}
-                              value={t!.priority}
-                              onValueChange={(v) =>
-                                handlePriorityChange(v as SupportTicketPriority)
-                              }
-                              disabled={isUpdating || actionsDisabled}
-                            >
-                              <SelectTrigger className="w-[140px]">
-                                <SelectValue />
-                              </SelectTrigger>
-                              <SelectContent>
-                                {PRIORITY_OPTIONS.map((opt) => (
-                                  <SelectItem key={opt.value} value={opt.value}>
-                                    <TicketPriorityBadge
-                                      status={opt.value}
-                                      label={opt.label}
-                                      size="detail"
-                                    />
-                                  </SelectItem>
-                                ))}
-                              </SelectContent>
-                            </Select>
-                          )}
-                        </DeferredSelectGate>
-                      )}
-                    </dd>
-                  </div>
                 </dl>
               </div>
               <div>
-                <h2 className="text-sm sm:text-base font-medium mb-4">Description</h2>
-                <p className="text-sm text-muted-foreground whitespace-pre-wrap rounded-lg border border-border/50 bg-muted/30 p-4">
+                <SectionCardHeader
+                  title="Description"
+                  description="Message submitted with the ticket"
+                  icon={MessageSquare}
+                  tone="neutral"
+                  className="mb-4"
+                />
+                <p
+                  className={cn(
+                    "text-sm whitespace-pre-wrap rounded-lg border border-border/50 bg-muted/30 p-4",
+                    TYPO_BODY_MUTED,
+                  )}
+                >
                   {dataLoading ? (
                     <DataSlotPulse
                       variant="text-md"
@@ -458,14 +520,14 @@ export default function AdminSupportTicketDetailContent({
             variantConfig.shadow,
           )}
         >
-          <CardHeader>
-            <CardTitle>Reply to user</CardTitle>
-            <CardDescription>
-              Send a message to the ticket creator. They will see this in the
-              ticket thread and get a notification.
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-2">
+          <CardContent className="p-4 sm:p-5 space-y-2">
+            <SectionCardHeader
+              title="Reply to user"
+              description="Send a message to the ticket creator. They will see this in the ticket thread and get a notification."
+              icon={Send}
+              tone="violet"
+              className="mb-2"
+            />
             {repliesLoading ? (
               <ul className="space-y-2 mb-4">
                 {[1, 2].map((i) => (
@@ -479,7 +541,7 @@ export default function AdminSupportTicketDetailContent({
                 ))}
               </ul>
             ) : replies.length === 0 ? (
-              <p className="text-sm text-muted-foreground py-2">
+              <p className={cn("text-sm py-2", TYPO_BODY_MUTED)}>
                 No replies yet. Add a reply below.
               </p>
             ) : (
@@ -498,7 +560,7 @@ export default function AdminSupportTicketDetailContent({
                       key={r.id}
                       className="rounded-xl border border-border/50 bg-muted/20 p-4 text-sm"
                     >
-                      <p className="whitespace-pre-wrap text-foreground">
+                      <p className={cn("whitespace-pre-wrap", TYPO_BODY)}>
                         {r.body}
                       </p>
                       <div className="flex items-center gap-2 mt-2 flex-wrap">
@@ -510,15 +572,15 @@ export default function AdminSupportTicketDetailContent({
                           height={32}
                           className="h-8 w-8 rounded-full object-cover border border-border flex-shrink-0"
                         />
-                        <span className="text-xs font-medium text-foreground">
+                        <span className={cn("text-xs font-medium", TYPO_BODY)}>
                           {displayName}
                         </span>
                         {r.userEmail && (
-                          <span className="text-xs text-muted-foreground">
+                          <span className={cn("text-xs", TYPO_BODY_MUTED)}>
                             {r.userEmail}
                           </span>
                         )}
-                        <span className="text-xs text-muted-foreground">
+                        <span className={cn("text-xs", TYPO_BODY_MUTED)}>
                           {format(
                             new Date(r.createdAt),
                             "MMM d, yyyy 'at' h:mm a",
@@ -564,13 +626,14 @@ export default function AdminSupportTicketDetailContent({
             variantConfig.shadow,
           )}
         >
-          <CardHeader>
-            <CardTitle>Internal Notes</CardTitle>
-            <CardDescription>
-              Admin-only notes. Not visible to the ticket creator.
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-2">
+          <CardContent className="p-4 sm:p-5 space-y-2">
+            <SectionCardHeader
+              title="Internal Notes"
+              description="Admin-only notes. Not visible to the ticket creator."
+              icon={NotebookPen}
+              tone="neutral"
+              className="mb-2"
+            />
             <Textarea
               placeholder="Add internal notes..."
               value={notesValue}
@@ -592,56 +655,53 @@ export default function AdminSupportTicketDetailContent({
           </CardContent>
         </Card>
 
-        <Card
-          className={cn(
-            "rounded-[20px] border backdrop-blur-md",
-            variantConfig.border,
-            variantConfig.gradient,
-            variantConfig.shadow,
-          )}
-        >
-          <CardHeader>
-            <CardTitle>Danger Zone</CardTitle>
-            <CardDescription>
-              Permanently delete this support ticket.
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <AlertDialog>
-              <AlertDialogTrigger asChild>
-                <Button
-                  variant="destructive"
+        <div className="flex flex-col sm:flex-row flex-wrap gap-2">
+          <Button
+            variant="ghost"
+            onClick={handleBack}
+            className={cn("w-full sm:w-auto gap-2 px-8", GLASS_GHOST_BUTTON)}
+          >
+            <ArrowLeft className="h-4 w-4 shrink-0" />
+            Back
+          </Button>
+          <AlertDialog>
+            <AlertDialogTrigger asChild>
+              <Button
+                variant="ghost"
+                disabled={isDeleting || actionsDisabled}
+                className={cn(
+                  "w-full sm:w-auto gap-2 px-8",
+                  GLASS_BUTTON_SHELL_RESET,
+                  GLASS_PRIMARY_BUTTON.rose,
+                )}
+              >
+                <Trash2 className="h-4 w-4 shrink-0" />
+                {isDeleting ? "Deleting..." : "Delete Ticket"}
+              </Button>
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Delete support ticket?</AlertDialogTitle>
+                <AlertDialogDescription>
+                  This will permanently delete this ticket. This action cannot
+                  be undone.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel disabled={isDeleting}>
+                  Cancel
+                </AlertDialogCancel>
+                <AlertDialogAction
+                  onClick={handleDelete}
                   disabled={isDeleting || actionsDisabled}
-                  className="gap-2"
+                  className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
                 >
-                  <Trash2 className="h-4 w-4" />
-                  {isDeleting ? "Deleting..." : "Delete Ticket"}
-                </Button>
-              </AlertDialogTrigger>
-              <AlertDialogContent>
-                <AlertDialogHeader>
-                  <AlertDialogTitle>Delete support ticket?</AlertDialogTitle>
-                  <AlertDialogDescription>
-                    This will permanently delete this ticket. This action cannot
-                    be undone.
-                  </AlertDialogDescription>
-                </AlertDialogHeader>
-                <AlertDialogFooter>
-                  <AlertDialogCancel disabled={isDeleting}>
-                    Cancel
-                  </AlertDialogCancel>
-                  <AlertDialogAction
-                    onClick={handleDelete}
-                    disabled={isDeleting || actionsDisabled}
-                    className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-                  >
-                    {isDeleting ? "Deleting..." : "Delete"}
-                  </AlertDialogAction>
-                </AlertDialogFooter>
-              </AlertDialogContent>
-            </AlertDialog>
-          </CardContent>
-        </Card>
+                  {isDeleting ? "Deleting..." : "Delete"}
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
+        </div>
       </div>
     </PageContentWrapper>
   );

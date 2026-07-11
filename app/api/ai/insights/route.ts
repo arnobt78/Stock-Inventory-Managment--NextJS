@@ -14,8 +14,44 @@ import {
 import { logger } from "@/lib/logger";
 import { aiInsightsBodySchema } from "@/lib/validations/ai";
 import { LLM_INSIGHTS_MAX_TOKENS } from "@/lib/ai/constants";
+import { getWarehouseStockSummary } from "@/prisma/stock-allocation";
 
-const SYSTEM_PROMPT = `You are a concise inventory advisor. Given a short summary of inventory metrics, reply with 2-4 brief, actionable recommendations (one short sentence each). Focus on reorder suggestions, low-stock attention, and value optimization. Keep the tone professional and direct. Do not use markdown or bullet symbols.`;
+const SYSTEM_PROMPT = `You are a concise inventory advisor. Given a short summary of inventory metrics, reply with 2-4 brief, actionable recommendations (one short sentence each). Focus on reorder suggestions, low-stock attention, value optimization, warehouse rebalancing, and inter-warehouse transfer opportunities when warehouse data is present. Keep the tone professional and direct. Do not use markdown or bullet symbols.`;
+
+function buildWarehouseSummaryAppendix(
+  rows: Awaited<ReturnType<typeof getWarehouseStockSummary>>,
+): string {
+  const withStock = rows.filter((r) => r.totalQuantity > 0);
+  if (withStock.length === 0) {
+    return " Warehouse stock: no allocations yet.";
+  }
+  const totalQty = withStock.reduce((sum, r) => sum + r.totalQuantity, 0);
+  const top = [...withStock]
+    .sort((a, b) => b.totalQuantity - a.totalQuantity)
+    .slice(0, 5)
+    .map((r) => {
+      const share =
+        totalQty > 0
+          ? Math.round((r.totalQuantity / totalQty) * 100)
+          : 0;
+      return `${r.warehouseName} ${r.totalQuantity} units (${share}% of allocated stock, ${r.totalProducts} SKUs)`;
+    })
+    .join("; ");
+  const under = withStock.filter(
+    (r) => totalQty > 0 && r.totalQuantity / totalQty < 0.15,
+  );
+  const over = withStock.filter(
+    (r) => totalQty > 0 && r.totalQuantity / totalQty > 0.4,
+  );
+  let extra = "";
+  if (under.length > 0) {
+    extra += ` Under-utilized locations: ${under.map((r) => r.warehouseName).join(", ")}.`;
+  }
+  if (over.length > 0) {
+    extra += ` Concentrated stock: ${over.map((r) => r.warehouseName).join(", ")}.`;
+  }
+  return ` Per-warehouse stock: ${top}.${extra}`;
+}
 
 const LLM_NOT_CONFIGURED =
   "AI insights are not configured. Set OPENROUTER_API_KEY and/or GROQ_API_KEY in .env.";
@@ -52,10 +88,18 @@ export async function POST(request: NextRequest) {
 
     const { summary } = validationResult.data;
 
+    let enrichedSummary = summary;
+    try {
+      const warehouseRows = await getWarehouseStockSummary(user.id);
+      enrichedSummary += buildWarehouseSummaryAppendix(warehouseRows);
+    } catch (warehouseErr) {
+      logger.warn("AI insights warehouse summary skipped", { warehouseErr });
+    }
+
     const result = await createChatCompletion(
       [
         { role: "system", content: SYSTEM_PROMPT },
-        { role: "user", content: summary },
+        { role: "user", content: enrichedSummary },
       ],
       { max_tokens: LLM_INSIGHTS_MAX_TOKENS, temperature: 0.5 },
     );

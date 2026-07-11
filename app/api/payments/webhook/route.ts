@@ -13,6 +13,7 @@ import {
 } from "@/lib/stripe";
 import { prisma } from "@/prisma/client";
 import { ensureInvoiceForPaidOrder } from "@/prisma/invoice";
+import { decrementStockAllocations } from "@/lib/products/decrement-stock-allocations";
 
 import { invalidateOnOrderChange } from "@/lib/cache";
 /**
@@ -156,6 +157,20 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
             },
           });
         }
+
+        try {
+          await decrementStockAllocations(
+            order.items.map((item) => ({
+              productId: item.productId,
+              quantity: item.quantity,
+            })),
+          );
+        } catch (allocErr) {
+          logger.warn("Failed to decrement stock allocations for paid order", {
+            orderId: orderIdToUpdate,
+            error: allocErr,
+          });
+        }
       }
 
       // Enterprise: auto-create or mark invoice for this order (every paid order has an invoice for records)
@@ -225,6 +240,23 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
                 reservedQuantity: { decrement: item.quantity },
               },
             });
+          }
+
+          try {
+            await decrementStockAllocations(
+              order.items.map((item) => ({
+                productId: item.productId,
+                quantity: item.quantity,
+              })),
+            );
+          } catch (allocErr) {
+            logger.warn(
+              "Failed to decrement stock allocations for invoice-paid order",
+              {
+                orderId: invoice.orderId,
+                error: allocErr,
+              },
+            );
           }
         }
       } else if (order && order.paymentStatus === "paid" && order.status === "pending") {

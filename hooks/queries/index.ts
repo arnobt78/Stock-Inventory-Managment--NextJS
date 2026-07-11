@@ -127,8 +127,10 @@ export { useSupplierPortal } from "./use-supplier-portal";
 export {
   useStockAllocations,
   useWarehouseStockSummary,
+  useStockByProduct,
   useStockByWarehouse,
   useCreateStockAllocation,
+  useCreateStockTransfer,
 } from "./use-stock-allocation";
 
 // System Configuration hooks

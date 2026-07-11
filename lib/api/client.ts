@@ -63,6 +63,8 @@ import type {
   SupplierPortalStats,
   StockAllocation,
   CreateStockAllocationInput,
+  StockTransfer,
+  CreateStockTransferInput,
   WarehouseStockSummary,
   ForecastingSummary,
   SupplierPortalDashboard,
@@ -919,11 +921,43 @@ class ApiClient {
       };
     },
 
+    getByProduct: async (
+      productId: string,
+    ): Promise<ApiResponse<StockAllocation[]>> => {
+      const response = await this.client.get<StockAllocation[]>(
+        `${API_ENDPOINTS.stockAllocations.base}?productId=${productId}`,
+      );
+      return {
+        data: response.data,
+        status: response.status,
+        statusText: response.statusText,
+      };
+    },
+
     create: async (
       data: CreateStockAllocationInput,
     ): Promise<ApiResponse<StockAllocation>> => {
       const response = await this.client.post<StockAllocation>(
         API_ENDPOINTS.stockAllocations.base,
+        data,
+      );
+      return {
+        data: response.data,
+        status: response.status,
+        statusText: response.statusText,
+      };
+    },
+  };
+
+  /**
+   * Stock Transfers API methods
+   */
+  stockTransfers = {
+    create: async (
+      data: CreateStockTransferInput,
+    ): Promise<ApiResponse<StockTransfer>> => {
+      const response = await this.client.post<StockTransfer>(
+        API_ENDPOINTS.stockTransfers.base,
         data,
       );
       return {

@@ -32,7 +32,9 @@ import {
 } from "@/hooks/queries";
 import { DeferredSelectGate, DIALOG_FORM_FIELD_EMERALD, CopyableText } from "@/components/shared";
 import {
+  GLASS_BUTTON_DISABLED,
   GLASS_BUTTON_ICON_HOVER,
+  GLASS_BUTTON_SHELL_RESET,
   GLASS_PRIMARY_BUTTON,
 } from "@/lib/ui/glass-button-styles";
 import { cn } from "@/lib/utils";
@@ -262,9 +264,16 @@ export default function ShippingManagement({
               </div>
 
               <Button
+                variant="ghost"
                 onClick={handleGenerateLabel}
                 disabled={isLoading}
-                className={cn(GLASS_BUTTON_ICON_HOVER, "w-full", GLASS_PRIMARY_BUTTON.emerald)}
+                className={cn(
+                  "group w-full",
+                  GLASS_BUTTON_ICON_HOVER,
+                  GLASS_BUTTON_SHELL_RESET,
+                  GLASS_BUTTON_DISABLED,
+                  GLASS_PRIMARY_BUTTON.emerald,
+                )}
               >
                 {generateLabelMutation.isPending ? (
                   <>
@@ -355,9 +364,16 @@ export default function ShippingManagement({
               </div>
 
               <Button
+                variant="ghost"
                 onClick={handleAddTracking}
                 disabled={isLoading || !manualTrackingNumber.trim()}
-                className={cn(GLASS_BUTTON_ICON_HOVER, "w-full", GLASS_PRIMARY_BUTTON.emerald)}
+                className={cn(
+                  "group w-full",
+                  GLASS_BUTTON_ICON_HOVER,
+                  GLASS_BUTTON_SHELL_RESET,
+                  GLASS_BUTTON_DISABLED,
+                  GLASS_PRIMARY_BUTTON.emerald,
+                )}
               >
                 {addTrackingMutation.isPending ? (
                   <>

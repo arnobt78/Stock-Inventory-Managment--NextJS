@@ -9,6 +9,7 @@ import { getSessionFromRequest } from "@/utils/auth";
 import { logger } from "@/lib/logger";
 import {
   getStockAllocations,
+  getStockAllocationsByProduct,
   upsertStockAllocation,
   getWarehouseStockSummary,
 } from "@/prisma/stock-allocation";
@@ -46,6 +47,7 @@ function transform(
  * GET /api/stock-allocations
  * Query params:
  *   ?summary=true for warehouse summary
+ *   ?productId=xxx for stock in specific product
  *   ?warehouseId=xxx for stock in specific warehouse
  */
 export async function GET(request: NextRequest) {
@@ -63,6 +65,7 @@ export async function GET(request: NextRequest) {
 
     const { searchParams } = new URL(request.url);
     const summary = searchParams.get("summary") === "true";
+    const productId = searchParams.get("productId");
     const warehouseId = searchParams.get("warehouseId");
 
     if (summary) {
@@ -76,11 +79,27 @@ export async function GET(request: NextRequest) {
       return NextResponse.json(result);
     }
 
-    // Get allocations - either by warehouse or all
+    // Get allocations - by product, warehouse, or all
     let allocations;
     let cacheKey: string;
 
-    if (warehouseId) {
+    if (productId) {
+      const product = await prisma.product.findFirst({
+        where: mergeProductListWhere({
+          id: productId,
+          userId: session.id,
+        }),
+      });
+      if (!product) {
+        return NextResponse.json({ error: "Product not found" }, { status: 404 });
+      }
+
+      cacheKey = cacheKeys.stockAllocation.byProduct(productId);
+      const cached = await getCache<StockAllocation[]>(cacheKey);
+      if (cached) return NextResponse.json(cached);
+
+      allocations = await getStockAllocationsByProduct(productId);
+    } else if (warehouseId) {
       // Verify warehouse belongs to user
       const warehouse = await prisma.warehouse.findFirst({
         where: { id: warehouseId, userId: session.id },

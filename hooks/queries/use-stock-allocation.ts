@@ -9,6 +9,8 @@ import { useToast } from "@/hooks/use-toast";
 import type {
   StockAllocation,
   CreateStockAllocationInput,
+  CreateStockTransferInput,
+  StockTransfer,
   WarehouseStockSummary,
 } from "@/types";
 
@@ -28,13 +30,35 @@ export function useStockAllocations() {
 /**
  * Get warehouse stock summary
  */
-export function useWarehouseStockSummary() {
+export function useWarehouseStockSummary(
+  initialData?: WarehouseStockSummary[],
+) {
   return useQuery({
     queryKey: queryKeys.stockAllocation.summary(),
     queryFn: async () => {
       const response = await apiClient.stockAllocations.getSummary();
       return response.data;
     },
+    ...withInitialData(initialData),
+  });
+}
+
+/**
+ * Get stock allocations for a specific product
+ */
+export function useStockByProduct(
+  productId: string,
+  initialData?: StockAllocation[],
+) {
+  return useQuery({
+    queryKey: queryKeys.stockAllocation.byProduct(productId),
+    queryFn: async () => {
+      const response =
+        await apiClient.stockAllocations.getByProduct(productId);
+      return response.data;
+    },
+    enabled: !!productId,
+    ...withInitialData(initialData),
   });
 }
 
@@ -81,6 +105,36 @@ export function useCreateStockAllocation() {
         title: "Allocation failed",
         description:
           getErrorMessage(error) || "Failed to save stock allocation.",
+        variant: "destructive",
+      });
+    },
+  });
+}
+
+/**
+ * Create and complete a stock transfer between warehouses
+ */
+export function useCreateStockTransfer() {
+  const queryClient = useQueryClient();
+  const { toast } = useToast();
+
+  return useMutation({
+    mutationFn: async (data: CreateStockTransferInput) => {
+      const response = await apiClient.stockTransfers.create(data);
+      return response.data;
+    },
+    onSuccess: (data: StockTransfer) => {
+      invalidateAfterStockChange(queryClient);
+      toast({
+        title: "Stock transferred",
+        description: `Moved ${data.quantity} unit(s) to ${data.toWarehouse?.name ?? "destination warehouse"}.`,
+      });
+    },
+    onError: (error: unknown) => {
+      toast({
+        title: "Transfer failed",
+        description:
+          getErrorMessage(error) || "Failed to transfer stock between warehouses.",
         variant: "destructive",
       });
     },

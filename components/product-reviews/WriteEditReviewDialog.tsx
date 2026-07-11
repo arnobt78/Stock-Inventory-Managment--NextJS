@@ -18,6 +18,7 @@ import {
   GLASS_BUTTON_DISABLED,
   GLASS_BUTTON_ICON_HOVER,
   GLASS_BUTTON_SHELL_RESET,
+  GLASS_GHOST_BUTTON,
   GLASS_PRIMARY_BUTTON,
 } from "@/components/shared";
 import { cn } from "@/lib/utils";
@@ -172,10 +173,10 @@ export default function WriteEditReviewDialog({
           <DialogFooter className="mt-6 flex flex-col sm:flex-row items-center gap-2">
             <Button
               type="button"
-              variant="secondary"
+              variant="ghost"
               onClick={() => onOpenChange(false)}
               disabled={isPending}
-              className="h-11 rounded-xl border border-white/20 bg-white/15 text-white hover:bg-white/25 backdrop-blur-md"
+              className={cn("h-11 rounded-xl", GLASS_GHOST_BUTTON)}
             >
               Cancel
             </Button>

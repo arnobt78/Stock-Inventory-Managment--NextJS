@@ -139,3 +139,9 @@ Format: `TIMESTAMP | AGENT | DECISION | RATIONALE | REQ-ID`
 2026-07-11T15:10:00Z | build-agent | REQ-0063 ProductLineItemsList | shared line-item rows; OrderItemsCard + InvoiceDetailPage reuse | REQ-0063
 2026-07-11T15:12:00Z | build-agent | REQ-0063 copy shipping | CopyableText on ShippingManagement order#/tracking + OrderTrackingInfo | REQ-0063
 2026-07-11T15:15:00Z | red-team | REQ-0063 gates | lint ✓ test 356 ✓ invalidate 202 ✓ build ✓ | REQ-0063
+2026-07-11T15:30:00Z | build-agent | REQ-0064 polish | CopyableText payment ref; OrderItem.createdAt string; TYPO_BODY tokens | REQ-0064
+2026-07-11T15:32:00Z | build-agent | REQ-0051 glass sweep | Detail CTAs + FABs + ShippingManagement + WriteEditReview cancel → GLASS_* tokens | REQ-0051
+2026-07-11T15:35:00Z | build-agent | REQ-0065 admin parity | PageSectionHeader + bottom action rows on admin detail pages | REQ-0065
+2026-07-11T15:40:00Z | build-agent | REQ-0066 warehouse integration | stock-transfers API; allocation UI; product warehouse card; order sync | REQ-0066
+2026-07-11T15:42:00Z | build-agent | REQ-0067 AI warehouse | insights route appends getWarehouseStockSummary; prompt rebalancing | REQ-0067
+2026-07-11T15:45:00Z | red-team | REQ-0064–0067 gates | lint ✓ test 361 ✓ invalidate 207 ✓ build ✓ | REQ-0064, REQ-0051, REQ-0065, REQ-0066, REQ-0067

@@ -11,7 +11,7 @@ import dynamic from "next/dynamic";
 import { usePathname } from "next/navigation";
 import { PaginationType } from "@/components/shared/PaginationSelector";
 import { createWarehouseColumns } from "./WarehouseTableColumns";
-import { useWarehouses, useDashboard } from "@/hooks/queries";
+import { useWarehouses, useDashboard, useWarehouseStockSummary } from "@/hooks/queries";
 import { isDataSlotLoading } from "@/lib/react-query";
 import { APP_SHELL_WIDTH_CLASS } from "@/lib/ui/shell-layout-styles";
 import WarehouseFilters from "./WarehouseFilters";
@@ -22,6 +22,7 @@ import { PageSectionHeader } from "@/components/shared";
 import { Warehouse } from "@/types";
 import type { WarehouseForPage } from "@/lib/server/warehouses-data";
 import type { DashboardStats } from "@/types";
+import type { WarehouseStockSummary } from "@/types/stock-allocation";
 
 const WarehouseTable = dynamic(
   () =>
@@ -36,17 +37,21 @@ export type WarehouseListProps = {
   initialWarehouses?: Warehouse[] | WarehouseForPage[];
   /** SSR dashboard stats for warehouse stat cards (REQ-0025 P2) */
   initialStats?: DashboardStats;
+  /** REQ-0066 — warehouse stock summary for utilization column */
+  initialWarehouseSummary?: WarehouseStockSummary[];
 };
 
 export default function WarehouseList({
   initialWarehouses,
   initialStats,
+  initialWarehouseSummary,
 }: WarehouseListProps = {}) {
   const pathname = usePathname();
   const isMountedRef = useRef(false);
   const [isMounted, setIsMounted] = useState(false);
 
   const warehousesQuery = useWarehouses(initialWarehouses);
+  const summaryQuery = useWarehouseStockSummary(initialWarehouseSummary);
   const dashboardQuery = useDashboard(initialStats);
   const allWarehouses = warehousesQuery.data ?? [];
 
@@ -138,9 +143,27 @@ export default function WarehouseList({
   }, []);
 
   const detailBase = pathname?.startsWith("/admin") ? "/admin" : "";
+  const summaryById = useMemo(
+    () =>
+      new Map(
+        (summaryQuery.data ?? []).map((s) => [s.warehouseId, s] as const),
+      ),
+    [summaryQuery.data],
+  );
+  const totalAllocatedQty = useMemo(
+    () =>
+      (summaryQuery.data ?? []).reduce((sum, s) => sum + s.totalQuantity, 0),
+    [summaryQuery.data],
+  );
   const columns = useMemo(
-    () => createWarehouseColumns(handleEditWarehouse, detailBase),
-    [handleEditWarehouse, detailBase],
+    () =>
+      createWarehouseColumns(
+        handleEditWarehouse,
+        detailBase,
+        summaryById,
+        totalAllocatedQty,
+      ),
+    [handleEditWarehouse, detailBase, summaryById, totalAllocatedQty],
   );
 
   return (
@@ -152,7 +175,7 @@ export default function WarehouseList({
         tone="violet"
         className="pb-6"
         title="Warehouse Management"
-        description="Manage warehouse locations. Add, edit, and track warehouses for multi-location inventory. Stock allocation and inter-warehouse transfers are not yet implemented—you can create and edit warehouses now; assigning stock to locations and moving stock between warehouses will be available in a future update."
+        description="Manage warehouse locations, allocate stock, and transfer inventory between warehouses."
       />
 
       {/* Store-wide state cards — only on /warehouses page (user), same style as homepage/products */}

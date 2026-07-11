@@ -227,6 +227,10 @@ export async function DELETE(request: NextRequest) {
       );
     }
 
+    await prisma.stockAllocation.deleteMany({
+      where: { warehouseId: id },
+    });
+
     await prisma.warehouse.delete({
       where: { id },
     });

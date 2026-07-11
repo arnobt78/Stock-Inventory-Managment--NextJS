@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { Warehouse } from "@/types";
+import type { Warehouse, WarehouseStockSummary } from "@/types";
 import { Column, ColumnDef } from "@tanstack/react-table";
 import WarehouseActions from "./WarehouseActions";
 import { ActiveInactiveBadge } from "@/lib/ui/semantic-badges";
@@ -67,6 +67,8 @@ const truncateText = (
 export const createWarehouseColumns = (
   onEdit: (warehouse: Warehouse) => void,
   detailBase: string = "",
+  summaryById?: Map<string, WarehouseStockSummary>,
+  totalAllocatedQty?: number,
 ): ColumnDef<Warehouse>[] => [
   {
     accessorKey: "name",
@@ -116,6 +118,26 @@ export const createWarehouseColumns = (
     cell: ({ row }) => {
       const status = row.original.status ?? true;
       return <ActiveInactiveBadge active={status} />;
+    },
+    size: 10,
+  },
+  {
+    id: "utilization",
+    header: ({ column }) => (
+      <SortableHeader column={column} label="Stock share" />
+    ),
+    cell: ({ row }) => {
+      const summary = summaryById?.get(row.original.id);
+      const qty = summary?.totalQuantity ?? 0;
+      const pct =
+        totalAllocatedQty && totalAllocatedQty > 0
+          ? Math.round((qty / totalAllocatedQty) * 100)
+          : 0;
+      return (
+        <span className="text-gray-700 dark:text-white" title={`${qty} units allocated`}>
+          {qty > 0 ? `${pct}%` : "—"}
+        </span>
+      );
     },
     size: 10,
   },

@@ -43,6 +43,7 @@ import {
   DeferredSelectGate,
   PageContentWrapper,
   DataSlotPulse,
+  GLASS_GHOST_BUTTON,
 } from "@/components/shared";
 import { isDataSlotLoading } from "@/lib/react-query";
 import { useToast } from "@/hooks/use-toast";
@@ -652,6 +653,17 @@ export default function AdminOrderDetailContent({
             </AlertDialog>
           </GlassCard>
         )}
+
+        <div className="flex flex-col sm:flex-row flex-wrap gap-2">
+          <Button
+            variant="ghost"
+            onClick={handleBack}
+            className={cn("w-full sm:w-auto gap-2 px-8", GLASS_GHOST_BUTTON)}
+          >
+            <ArrowLeft className="h-4 w-4 shrink-0" />
+            Back
+          </Button>
+        </div>
       </div>
 
       {/* REQ-0061: InvoiceDialog create mode pre-selected with this order */}

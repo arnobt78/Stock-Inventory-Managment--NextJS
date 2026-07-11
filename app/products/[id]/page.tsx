@@ -6,6 +6,7 @@ import {
   getReviewEligibilityForProduct,
 } from "@/lib/server/product-reviews-detail-data";
 import ProductDetailPage from "@/components/Pages/ProductDetailPage";
+import { getStockByProductForPage } from "@/lib/server/product-stock-data";
 import type { Product } from "@/types";
 
 type Props = { params: Promise<{ id: string }> };
@@ -18,11 +19,13 @@ export default async function ProductDetailRoute({ params }: Props) {
   if (!user) redirect("/login");
   const { id } = await params;
 
-  const [initialProduct, initialReviews, initialEligibility] = await Promise.all([
-    getProductDetailForPage({ id: user.id, role: user.role }, id),
-    getReviewsForProductPage(id, "all"),
-    getReviewEligibilityForProduct(user.id, id),
-  ]);
+  const [initialProduct, initialReviews, initialEligibility, initialStockByProduct] =
+    await Promise.all([
+      getProductDetailForPage({ id: user.id, role: user.role }, id),
+      getReviewsForProductPage(id, "all"),
+      getReviewEligibilityForProduct(user.id, id),
+      getStockByProductForPage({ id: user.id, role: user.role }, id),
+    ]);
   if (!initialProduct) notFound();
 
   return (
@@ -30,6 +33,7 @@ export default async function ProductDetailRoute({ params }: Props) {
       initialProduct={initialProduct as unknown as Product}
       initialReviews={initialReviews}
       initialEligibility={initialEligibility}
+      initialStockByProduct={initialStockByProduct ?? undefined}
     />
   );
 }

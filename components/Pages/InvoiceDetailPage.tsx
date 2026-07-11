@@ -46,6 +46,11 @@ import {
   DataSlotPulse,
   PageSectionHeader,
   ProductLineItemsList,
+  GLASS_BUTTON_DISABLED,
+  GLASS_BUTTON_ICON_HOVER,
+  GLASS_BUTTON_SHELL_RESET,
+  GLASS_GHOST_BUTTON,
+  GLASS_PRIMARY_BUTTON,
 } from "@/components/shared";
 import type { InvoiceStatus } from "@/types";
 import type { Invoice } from "@/types";
@@ -994,17 +999,24 @@ export default function InvoiceDetailPage({
           {/* Actions — Back, Edit Invoice, Send Invoice, Delete Invoice; same layout as order detail */}
           <div className="flex flex-col sm:flex-row flex-wrap gap-2">
             <Button
-              variant="outline"
+              variant="ghost"
               onClick={onBack}
-              className="w-full sm:w-auto gap-2 rounded-xl border border-gray-300/30 bg-white/50 dark:bg-white/5 dark:border-white/10 hover:bg-gray-100/50 dark:hover:bg-white/10 text-gray-700 dark:text-white transition-all duration-300"
+              className={cn("w-full sm:w-auto gap-2", GLASS_GHOST_BUTTON)}
             >
               <ArrowLeft className="h-4 w-4 shrink-0" />
               Back
             </Button>
             <Button
+              variant="ghost"
               onClick={handleEditInvoice}
               disabled={actionsDisabled}
-              className="w-full sm:w-auto gap-2 rounded-xl border border-blue-400/30 bg-gradient-to-r from-blue-500/70 via-blue-500/50 to-blue-500/30 text-white shadow-[0_10px_25px_rgba(59,130,246,0.35)] backdrop-blur-md hover:border-blue-300/50 hover:from-blue-500/80 hover:via-blue-500/60 hover:to-blue-500/40 transition-all duration-300 disabled:opacity-50"
+              className={cn(
+                "group w-full sm:w-auto gap-2",
+                GLASS_BUTTON_ICON_HOVER,
+                GLASS_BUTTON_SHELL_RESET,
+                GLASS_BUTTON_DISABLED,
+                GLASS_PRIMARY_BUTTON.blue,
+              )}
             >
               <Edit className="h-4 w-4 shrink-0" />
               Edit Invoice
@@ -1012,7 +1024,13 @@ export default function InvoiceDetailPage({
             {!dataLoading && invoice && (
               <Button
                 asChild
-                className="w-full sm:w-auto gap-2 rounded-xl border border-teal-400/30 bg-gradient-to-r from-teal-500/70 via-teal-500/50 to-teal-500/30 text-white shadow-[0_10px_25px_rgba(20,184,166,0.35)] backdrop-blur-md hover:border-teal-300/50 hover:from-teal-500/80 hover:via-teal-500/60 hover:to-teal-500/40 transition-all duration-300"
+                variant="ghost"
+                className={cn(
+                  "group w-full sm:w-auto gap-2",
+                  GLASS_BUTTON_ICON_HOVER,
+                  GLASS_BUTTON_SHELL_RESET,
+                  GLASS_PRIMARY_BUTTON.teal,
+                )}
               >
                 <a
                   href={`/api/invoices/${invoice.id}/pdf`}
@@ -1025,9 +1043,16 @@ export default function InvoiceDetailPage({
             )}
             {!dataLoading && invoice && invoice.status === "draft" && (
               <Button
+                variant="ghost"
                 onClick={() => setSendDialogOpen(true)}
                 disabled={isSending}
-                className="w-full sm:w-auto gap-2 rounded-xl border border-sky-400/30 bg-gradient-to-r from-sky-500/70 via-sky-500/50 to-sky-500/30 text-white shadow-[0_10px_25px_rgba(2,132,199,0.35)] backdrop-blur-md hover:border-sky-300/50 hover:from-sky-500/80 hover:via-sky-500/60 hover:to-sky-500/40 transition-all duration-300 disabled:opacity-50"
+                className={cn(
+                  "group w-full sm:w-auto gap-2",
+                  GLASS_BUTTON_ICON_HOVER,
+                  GLASS_BUTTON_SHELL_RESET,
+                  GLASS_BUTTON_DISABLED,
+                  GLASS_PRIMARY_BUTTON.sky,
+                )}
               >
                 <Send className="h-4 w-4 shrink-0" />
                 {isSending ? "Sending..." : "Send Invoice"}
@@ -1035,9 +1060,16 @@ export default function InvoiceDetailPage({
             )}
             {!dataLoading && invoice && invoice.status !== "cancelled" && (
               <Button
+                variant="ghost"
                 onClick={() => setDeleteDialogOpen(true)}
                 disabled={isDeleting}
-                className="w-full sm:w-auto gap-2 rounded-xl border border-rose-400/30 bg-gradient-to-r from-rose-500/70 via-rose-500/50 to-rose-500/30 text-white shadow-[0_10px_25px_rgba(225,29,72,0.35)] backdrop-blur-md hover:border-rose-300/50 hover:from-rose-500/80 hover:via-rose-500/60 hover:to-rose-500/40 transition-all duration-300 disabled:opacity-50"
+                className={cn(
+                  "group w-full sm:w-auto gap-2",
+                  GLASS_BUTTON_ICON_HOVER,
+                  GLASS_BUTTON_SHELL_RESET,
+                  GLASS_BUTTON_DISABLED,
+                  GLASS_PRIMARY_BUTTON.rose,
+                )}
               >
                 <Trash2 className="h-4 w-4 shrink-0" />
                 {isDeleting ? "Deleting..." : "Delete Invoice"}
@@ -1046,7 +1078,13 @@ export default function InvoiceDetailPage({
             {!dataLoading && invoice?.orderId && (
               <Button
                 asChild
-                className="w-full sm:w-auto gap-2 rounded-xl border border-violet-400/30 bg-gradient-to-r from-violet-500/70 via-violet-500/50 to-violet-500/30 text-white shadow-[0_10px_25px_rgba(139,92,246,0.35)] backdrop-blur-md hover:border-violet-300/50 hover:from-violet-500/80 hover:via-violet-500/60 hover:to-violet-500/40 transition-all duration-300"
+                variant="ghost"
+                className={cn(
+                  "group w-full sm:w-auto gap-2",
+                  GLASS_BUTTON_ICON_HOVER,
+                  GLASS_BUTTON_SHELL_RESET,
+                  GLASS_PRIMARY_BUTTON.violet,
+                )}
               >
                 <Link href={`/orders/${invoice!.orderId}`}>
                   <FileText className="h-4 w-4 shrink-0" />
@@ -1068,7 +1106,15 @@ export default function InvoiceDetailPage({
                   shipping={invoice.shipping ?? undefined}
                   discount={invoice.discount ?? undefined}
                   trigger={
-                    <Button className="w-full sm:w-auto gap-2 rounded-xl border border-emerald-400/30 bg-gradient-to-r from-emerald-500/70 via-emerald-500/50 to-emerald-500/30 text-white shadow-[0_10px_25px_rgba(16,185,129,0.35)] backdrop-blur-md hover:border-emerald-300/50 hover:from-emerald-500/80 hover:via-emerald-500/60 hover:to-emerald-500/40 transition-all duration-300">
+                    <Button
+                      variant="ghost"
+                      className={cn(
+                        "group w-full sm:w-auto gap-2",
+                        GLASS_BUTTON_ICON_HOVER,
+                        GLASS_BUTTON_SHELL_RESET,
+                        GLASS_PRIMARY_BUTTON.emerald,
+                      )}
+                    >
                       <CreditCard className="h-4 w-4 shrink-0" />
                       Pay ${invoice.amountDue.toFixed(2)}
                     </Button>

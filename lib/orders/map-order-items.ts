@@ -39,5 +39,5 @@ export function mapOrderItemsFromRaw(items: OrderItemRaw[] | undefined): OrderIt
     categoryId: item.product?.categoryId ?? null,
     supplierId: item.product?.supplierId ?? null,
     imageUrl: item.product?.imageUrl ?? null,
-  })) as unknown as OrderItem[];
+  }));
 }

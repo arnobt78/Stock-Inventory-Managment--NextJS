@@ -22,6 +22,7 @@ import TestCredentialsCard from "./TestCredentialsCard";
 import type { CheckoutType } from "@/types";
 import { cn } from "@/lib/utils";
 import {
+  CopyableText,
   GLASS_BUTTON_ICON_HOVER,
   GLASS_BUTTON_SHELL_RESET,
   GLASS_PRIMARY_BUTTON,
@@ -132,9 +133,10 @@ export default function PaymentDialog({
                 </div>
               ) : (
                 <div className="text-sm">
-                  <span className="text-white">
+                  {/* REQ-0064: copyable reference number (matches order/invoice number pattern) */}
+                  <CopyableText value={referenceNumber} className="text-white">
                     {type === "order" ? "Order" : "Invoice"} #{referenceNumber}
-                  </span>
+                  </CopyableText>
                 </div>
               )}
 

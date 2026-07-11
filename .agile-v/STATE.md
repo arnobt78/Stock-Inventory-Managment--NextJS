@@ -5,9 +5,9 @@
 | **Cycle** | C1 (closing) → **C2 open** |
 | **Phase** | `phases/07-shell-first-navigation` → C2 backlog |
 | **Infinity Loop stage** | Verify ◐ (code done; Human Gate 2 + manual QA open) |
-| **Last updated** | 2026-07-11 (REQ-0063 detail polish done; all gates green; commit-ready) |
-| **Session** | ACTIVE — REQ-0052–0063 code-complete + gates green |
-| **Active REQ range** | REQ-0001 … REQ-0050 done; **REQ-0052–0063 done**; REQ-0051 backlog |
+| **Last updated** | 2026-07-11 (REQ-0064–0067 done; gates green) |
+| **Session** | ACTIVE — REQ-0051 + REQ-0064–0067 code-complete |
+| **Active REQ range** | REQ-0001 … REQ-0050 done; **REQ-0051 + REQ-0052–0067 done** |
 | **Prod deploy target** | `57d97d4` (main) — REQ-0063 ahead of prod |
 | **Human Gate 1** | APPROVED (retroactive bootstrap) |
 | **Human Gate 2** | PENDING — Sentry 24h after prod deploy |
