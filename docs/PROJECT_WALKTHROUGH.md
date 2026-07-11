@@ -211,6 +211,7 @@ flowchart LR
 | Warehouse integration (REQ-0066) | transfers, dialogs, SSR, order sync; AC6: dialog shell parity, `StockQuantityField`, `DialogSubmitButton`, FAB restore, SSR→TanStack stock sync, `stock-allocation-enrich` |
 | SSR cache sync + submit UX (REQ-0069) | `useSyncSsrQueryData` on all detail + primary list pages; `useBackWithRefresh` stock invalidation; `DialogSubmitButton` sweep; enrich tests; orphan shell deleted |
 | SSR sync completion (REQ-0070) | Client browse + portal pages; admin lists/activity/analytics; `useSyncSsrQueryDataMany` adoption; hook fingerprint hardening; SidebarLayout doc scrub |
+| Portal & detail UX (REQ-0071/0072) | PageSectionHeader portals; `glassDetailFooterButtonClass`; `DetailInfoRow`; Stripe back; `enrichOrderItemsCatalogNames`; REQ-0072 admin/header/catalog sweep |
 | AI warehouse insights (REQ-0067) | `POST /api/ai/insights` enriches payload with `getWarehouseStockSummary` |
 | Per-warehouse order picking (REQ-0068) | `OrderItem.warehouseId`; `stock-allocation-order-sync.ts`; `OrderLineWarehouseSelect`; reserve/fulfill/cancel sync; invoice-paid gap; `f892b65` removed unused `deleteCache`/`getRateLimitStatus` |
 | Demo reset | `npm run script:reset-demo-db` — wipe Mongo + optional Redis + reseed test@admin/client/supplier |

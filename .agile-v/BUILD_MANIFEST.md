@@ -185,6 +185,9 @@
 | ART-0177 | REQ-0071 | `stripe-return.ts`, `use-back-with-refresh.ts`, order/invoice detail | Stripe back-nav fix |
 | ART-0178 | REQ-0071 | `glassDetailFooterButtonClass`, detail pages sweep | Readable glass detail CTAs |
 | ART-0179 | REQ-0071 | `DetailInfoRow`, order/invoice detail cards | Richer information cards |
+| ART-0180 | REQ-0072 | `DETAIL_HEADER_BACK_ICON_CLASS`, admin detail glass sweep | Shared back token + admin embed parity |
+| ART-0181 | REQ-0072 | catalog detail pages | Product/Category/Supplier/Warehouse `DetailInfoRow` |
+| ART-0182 | REQ-0072 | `enrich-order-items-catalog.test.ts` | Catalog name enrich unit tests |
 
 ## Tests
 
@@ -207,3 +210,4 @@
 | TC-0015 | REQ-0040 | `lib/ui/user-avatar-sources.test.ts` (seed resolver) |
 | TC-0016 | REQ-0068 | `lib/products/stock-allocation-order-sync.test.ts` |
 | TC-0017 | REQ-0069 | `lib/stock-allocation/stock-allocation-enrich.test.ts` |
+| TC-0018 | REQ-0072 | `lib/orders/enrich-order-items-catalog.test.ts` |

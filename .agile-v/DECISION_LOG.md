@@ -167,3 +167,7 @@ Format: `TIMESTAMP | AGENT | DECISION | RATIONALE | REQ-ID`
 2026-07-11T18:10:00Z | build-agent | REQ-0071 portal UX | PageSectionHeader; View All icons; Quick Links removed | REQ-0071
 2026-07-11T18:20:00Z | build-agent | REQ-0071 detail polish | glassDetailFooterButtonClass; DetailInfoRow; Stripe back-nav; catalog names enrich | REQ-0071
 2026-07-11T18:30:00Z | red-team | REQ-0071 gates | lint ✓ test 376 ✓ invalidate 206 ✓ build ✓ | REQ-0071
+2026-07-11T19:00:00Z | build-agent | REQ-0072 header back token | DETAIL_HEADER_BACK_ICON_CLASS centralizes 8+ detail headers | REQ-0072
+2026-07-11T19:10:00Z | build-agent | REQ-0072 admin glass sweep | AdminOrder + 3 embeds + History; dead GLASS_PRIMARY removed | REQ-0072
+2026-07-11T19:20:00Z | build-agent | REQ-0072 catalog DetailInfoRow | Product/Category/Supplier/Warehouse info cards; partial→invoice link | REQ-0072
+2026-07-11T19:30:00Z | build-agent | REQ-0072 enrich test | enrich-order-items-catalog.test.ts with prisma mocks | REQ-0072

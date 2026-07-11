@@ -1524,6 +1524,32 @@ Canonical REQ source. All artifacts link via `REQ-XXXX`. Status: `done` | `verif
 
 ---
 
+## REQ-0072 — REQ-0071 completion sweep
+
+| Field | Value |
+|-------|-------|
+| **Priority** | P2 |
+| **Risk** | R1 |
+| **Status** | done |
+| **Cycle** | C2 |
+| **Parent** | REQ-0071 |
+
+**Intent:** Close REQ-0071 audit gaps — shared header back token, admin detail glass parity, catalog `DetailInfoRow` cards, dead-import cleanup, enrich-order-items test, walkthrough doc. CSS/docs/tests only.
+
+**Acceptance criteria**
+
+- AC1: `DETAIL_HEADER_BACK_ICON_CLASS` in `glass-button-styles.ts`; 8+ detail headers use token
+- AC2: Admin detail glass sweep — `AdminOrderDetailContent` + 3 admin embeds + History parity; dead `GLASS_PRIMARY_BUTTON` removed
+- AC3: Product/Category/Supplier/Warehouse info cards use `DetailInfoRow` inside existing `GlassCard` shells
+- AC4: Order partial payment row links to invoice when `invoiceForOrder` present (no schema change)
+- AC5: Dead `GLASS_BUTTON_*` imports removed from Order/Category detail pages
+- AC6: `lib/orders/enrich-order-items-catalog.test.ts` with prisma mocks
+- AC7: `docs/PROJECT_WALKTHROUGH.md` row; Red Team lint/test/invalidate/build pass
+
+**Artifacts:** catalog detail pages, admin detail embeds, `lib/ui/glass-button-styles.ts`, `lib/orders/enrich-order-items-catalog.test.ts`, `docs/PROJECT_WALKTHROUGH.md`
+
+---
+
 | Field | Value |
 |-------|-------|
 | **Priority** | P1 |

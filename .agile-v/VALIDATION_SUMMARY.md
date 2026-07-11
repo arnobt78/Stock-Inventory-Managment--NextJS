@@ -2,8 +2,8 @@
 
 **Generated:** 2026-07-11  
 **eval_gate_status:** PENDING (Human Gate 2)  
-**Prod target SHA:** pending — REQ-0071  
-**Red Team:** lint ✓ test 376 ✓ invalidate 206 ✓ build ✓ (2026-07-11 REQ-0071)
+**Prod target SHA:** pending — REQ-0072  
+**Red Team:** lint ✓ test ✓ invalidate ✓ build ✓ (2026-07-11 REQ-0072)
 
 ---
 
@@ -12,8 +12,8 @@
 | Check | Command | Result | REQ-IDs |
 |-------|---------|--------|---------|
 | Lint | `npm run lint` | PASS | ALL |
-| Unit tests | `npm run test` | PASS (376) | REQ-0071 |
-| Invalidation audit | `npm run test:invalidate` | PASS (206) | REQ-0071 |
+| Unit tests | `npm run test` | PASS (380) | REQ-0072 |
+| Invalidation audit | `npm run test:invalidate` | PASS (206) | REQ-0072 |
 | Build | `npm run build` | PASS | ALL |
 | Typecheck (touched scripts) | `tsc --noEmit` | PASS | REQ-0056 |
 
