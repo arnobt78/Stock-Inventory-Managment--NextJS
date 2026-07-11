@@ -2,7 +2,7 @@
  * Invoice-related type definitions
  */
 
-import type { BillingAddress } from "./order";
+import type { BillingAddress, OrderItem } from "./order";
 
 /**
  * Invoice status types
@@ -63,6 +63,10 @@ export interface Invoice {
   client?: { name: string | null; email: string } | null;
   /** Product owner(s) for items in the order (for detail Parties section) */
   invoiceProductOwners?: { userId: string; name: string | null; email: string }[];
+  /** REQ-0063 — linked order number for Related Order row + copy */
+  linkedOrderNumber?: string | null;
+  /** REQ-0063 — line items from linked order (thumbnails on invoice detail) */
+  linkedOrderItems?: OrderItem[];
 }
 
 /**

@@ -206,6 +206,8 @@ flowchart LR
 | ProductThumb | `ProductOptionRow` extract; `imageUrl` on order detail items + warehouse allocations + catalog grids |
 | OrderPickerCommand | searchable order select in `InvoiceDialog` create mode; `initialOrderId` pre-select |
 | Cross-domain menus | `invoiceForOrder` on order lists (`getInvoiceLinkMap` batch); invoice actions in `OrderActions`; View/Cancel order in `InvoiceActions` |
+| Invoice line items | REQ-0063 — `linkedOrderItems` + `ProductLineItemsList` on invoice detail; `mapOrderItemsFromRaw` shared mapper |
+| Shipping copy | REQ-0063 — `CopyableText` on order#/tracking in `ShippingManagement` + `OrderTrackingInfo` |
 | Demo reset | `npm run script:reset-demo-db` — wipe Mongo + optional Redis + reseed test@admin/client/supplier |
 
 **Invalidation on REQ-0058–0062:** no new write routes; existing invoice/order mutation hooks + `INVOICE_PATTERNS` Redis scope already cover UI refresh.
@@ -223,9 +225,9 @@ flowchart LR
 |-------|--------|
 | `npm run lint` | pass |
 | `npm run build` | pass |
-| `npm run test` | 352 passed |
+| `npm run test` | 356 passed |
 | `npm run test:invalidate` | 202 passed |
-| Prod commit | `21f172f` (REQ-0058–0062) on `main` |
+| Prod commit | REQ-0063 on `main` |
 | Radix table Select | `useDeferredRadixSelect` + `PaginationSelector` (11 tables) |
 | Pagination clamp + page-size reset | `useClampPaginationIndex` + `PaginationSelector` pageIndex 0 |
 | Sentry | tunnel + translate scrub + `syncSentryUserFromAuth` |

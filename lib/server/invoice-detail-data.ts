@@ -12,6 +12,7 @@ import {
   transformInvoiceDetail,
   type InvoiceDetailEnrichment,
 } from "@/lib/invoices/transform-invoice-detail";
+import { mapOrderItemsFromRaw } from "@/lib/orders/map-order-items";
 import type { Invoice } from "@/types";
 import type { SessionForDetail } from "@/lib/server/order-detail-data";
 
@@ -23,7 +24,15 @@ async function enrichInvoice(
     include: {
       items: {
         include: {
-          product: { select: { userId: true } },
+          // REQ-0063: widen select for line-item thumbs + party owners (single order query)
+          product: {
+            select: {
+              userId: true,
+              categoryId: true,
+              supplierId: true,
+              imageUrl: true,
+            },
+          },
         },
       },
     },
@@ -102,6 +111,8 @@ async function enrichInvoice(
     orderedBy,
     client,
     invoiceProductOwners,
+    linkedOrderNumber: order?.orderNumber ?? null,
+    linkedOrderItems: mapOrderItemsFromRaw(order?.items),
   };
 }
 

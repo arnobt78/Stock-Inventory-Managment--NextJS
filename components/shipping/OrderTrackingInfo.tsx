@@ -19,6 +19,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { formatStableDate } from "@/lib/date/format-stable";
+import { CopyableText } from "@/components/shared";
 
 interface Order {
   status: string;
@@ -162,7 +163,11 @@ export default function OrderTrackingInfo({
               Tracking Number
             </p>
             <p className="font-mono font-medium text-sm text-gray-700 dark:text-white truncate">
-              {order.trackingNumber}
+              {order.trackingNumber ? (
+                <CopyableText value={order.trackingNumber}>
+                  {order.trackingNumber}
+                </CopyableText>
+              ) : null}
             </p>
           </div>
         </div>

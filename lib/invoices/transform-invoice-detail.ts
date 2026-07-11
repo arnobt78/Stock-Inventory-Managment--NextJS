@@ -3,6 +3,7 @@
  */
 
 import type { Invoice } from "@/types";
+import type { OrderItem } from "@/types";
 
 type InvoiceRaw = {
   id: string;
@@ -41,6 +42,9 @@ export type InvoiceDetailEnrichment = {
     name: string | null;
     email: string;
   }[];
+  /** REQ-0063 — from linked order (same query as party enrichment) */
+  linkedOrderNumber: string | null;
+  linkedOrderItems: OrderItem[];
 };
 
 export function transformInvoiceDetail(
@@ -77,5 +81,7 @@ export function transformInvoiceDetail(
     orderedBy: enrichment.orderedBy,
     client: enrichment.client,
     invoiceProductOwners: enrichment.invoiceProductOwners,
+    linkedOrderNumber: enrichment.linkedOrderNumber,
+    linkedOrderItems: enrichment.linkedOrderItems,
   } as unknown as Invoice;
 }

@@ -5,10 +5,10 @@
 | **Cycle** | C1 (closing) → **C2 open** |
 | **Phase** | `phases/07-shell-first-navigation` → C2 backlog |
 | **Infinity Loop stage** | Verify ◐ (code done; Human Gate 2 + manual QA open) |
-| **Last updated** | 2026-07-11 (REQ-0058–0062 order/invoice UX done; all gates green; commit-ready) |
-| **Session** | ACTIVE — REQ-0052–0062 code-complete + gates green, **uncommitted on main** |
-| **Active REQ range** | REQ-0001 … REQ-0050 done; **REQ-0052–0062 done**; REQ-0051 backlog |
-| **Prod deploy target** | `73060a1` (main, pushed 2026-07-10) — REQ-0052–0062 ahead of prod, uncommitted |
+| **Last updated** | 2026-07-11 (REQ-0063 detail polish done; all gates green; commit-ready) |
+| **Session** | ACTIVE — REQ-0052–0063 code-complete + gates green |
+| **Active REQ range** | REQ-0001 … REQ-0050 done; **REQ-0052–0063 done**; REQ-0051 backlog |
+| **Prod deploy target** | `57d97d4` (main) — REQ-0063 ahead of prod |
 | **Human Gate 1** | APPROVED (retroactive bootstrap) |
 | **Human Gate 2** | PENDING — Sentry 24h after prod deploy |
 | **Resume token** | `C2-post-mutation-cache` — see **Session handoff** + **Open backlog** |
@@ -48,8 +48,9 @@
 31. **REQ-0059** — ProductThumb on detail line items / allocations / catalog grids (code-complete, **uncommitted**)
 32. **REQ-0060** — OrderPickerCommand searchable invoice-dialog picker (code-complete, **uncommitted**)
 33. **REQ-0061** — situation-based invoice actions on orders (+ invoiceForOrder on list rows) (code-complete, **uncommitted**)
-34. **REQ-0062** — order actions in invoice table + role gating (code-complete, **uncommitted**)
-35. **C2 backlog** — Gate 2 + manual QA + commit/push REQ-0052–0062 (see below)
+34. **REQ-0062** — order actions in invoice table + role gating (done)
+35. **REQ-0063** — detail copy + invoice line items parity (done)
+36. **C2 backlog** — Gate 2 + manual QA + push REQ-0063 (see below)
 
 ## Session resume (every chat)
 
@@ -103,9 +104,9 @@
 
 **Re-verified Red Team (2026-07-11):** lint ✓ test 352 ✓ invalidate 202 ✓ build ✓; `tsc --noEmit` clean on touched scripts.
 
-**Next action:** commit REQ-0052–0062 (currently uncommitted on `main`, all gates green) — push, confirm Vercel prod SHA, resume REQ-0051 glass backlog.
+**Next action:** push REQ-0063, confirm Vercel prod SHA, resume REQ-0051 glass backlog.
 
-**REQ-0058–0062 (2026-07-11 PM):** order/invoice UX — `CopyableText` (shared), `ProductThumb` (extracted), `OrderPickerCommand` (searchable), `invoiceForOrder` on order list rows via `getInvoiceLinkMap` (batch), situation-based invoice actions in `OrderActions`/detail pages, order actions in `InvoiceActions`. No invalidation changes needed — `INVOICE_PATTERNS` already clears `orders:*`; TanStack `invalidateAfterOrderGraphChange` covers all new mutations. Gates: lint ✓ test 352 ✓ invalidate 202 ✓ build ✓.
+**REQ-0063 (2026-07-11 PM):** invoice detail linked order line items (`linkedOrderItems` via widened enrichInvoice query — no extra DB round-trip); `ProductLineItemsList` shared with `OrderItemsCard`; CopyableText on shipping order#/tracking; Related Order shows order # + admin-aware href. Gates: lint ✓ test 356 ✓ invalidate 202 ✓ build ✓.
 
 **Do NOT repeat:** don't re-derive REQ-0053/0054/0055 content — already fully specified in `REQUIREMENTS.md`/`DECISION_LOG.md`; don't re-run full gate suite unless files change again (already green this session).
 

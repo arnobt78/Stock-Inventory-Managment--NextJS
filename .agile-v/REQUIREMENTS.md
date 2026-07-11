@@ -1306,6 +1306,30 @@ Canonical REQ source. All artifacts link via `REQ-XXXX`. Status: `done` | `verif
 
 ---
 
+## REQ-0063 — Detail copy + invoice line items parity
+
+| Field | Value |
+|-------|-------|
+| **Priority** | P2 |
+| **Risk** | R1 |
+| **Status** | done |
+| **Cycle** | C2 |
+
+**Intent:** Close REQ-0058–0062 polish gaps: copyable order/tracking numbers in shipping UI; invoice detail shows linked order line items with ProductThumb; Related Order row shows order # + admin-aware href.
+
+**Acceptance criteria**
+
+- AC1: `mapOrderItemsFromRaw` shared helper — `lib/orders/map-order-items.ts`; used by `transformOrderDetail` + invoice enrichment
+- AC2: `enrichInvoice` widens product select (`imageUrl`, `categoryId`, `supplierId`) — no extra DB query; `linkedOrderNumber` + `linkedOrderItems` on Invoice type/transform
+- AC3: `ProductLineItemsList` shared component; `OrderItemsCard` delegates item rows
+- AC4: `InvoiceDetailPage` — Order Items card + Related Order CopyableText + `/admin/orders` when `embedInAdmin`
+- AC5: `ShippingManagement` + `OrderTrackingInfo` — CopyableText on order # and tracking #
+- AC6: Tests — `map-order-items.test.ts`, `transform-invoice-detail.test.ts`; lint ✓ test 356 ✓ invalidate 202 ✓ build ✓
+
+**Artifacts:** `lib/orders/map-order-items.ts`, `lib/server/invoice-detail-data.ts`, `lib/invoices/transform-invoice-detail.ts`, `types/invoice.ts`, `components/shared/ProductLineItemsList.tsx`, `components/Pages/InvoiceDetailPage.tsx`, `components/shipping/{ShippingManagement,OrderTrackingInfo}.tsx`
+
+---
+
 ## REQ-0020 — Locale-aware admin formatting
 
 | Field | Value |

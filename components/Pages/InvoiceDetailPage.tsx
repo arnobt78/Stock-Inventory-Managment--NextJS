@@ -23,6 +23,7 @@ import {
   Trash2,
   Download,
   ExternalLink,
+  Package,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { InvoiceStatusBadge } from "@/lib/ui/semantic-badges";
@@ -44,6 +45,7 @@ import {
   PageContentWrapper,
   DataSlotPulse,
   PageSectionHeader,
+  ProductLineItemsList,
 } from "@/components/shared";
 import type { InvoiceStatus } from "@/types";
 import type { Invoice } from "@/types";
@@ -220,6 +222,8 @@ export default function InvoiceDetailPage({
       }
     : handleBack;
   const Wrapper = embedInAdmin ? React.Fragment : Navbar;
+  /** REQ-0063 — admin invoice detail links to /admin/orders (matches InvoiceActions) */
+  const linkedOrderHrefBase = embedInAdmin ? "/admin/orders" : "/orders";
   const { user, isCheckingAuth } = useAuth();
 
   // Fetch invoice details — shell-first: layout always visible; pulse dynamic slots only (REQ-0022)
@@ -614,17 +618,32 @@ export default function InvoiceDetailPage({
                 </div>
               )}
               {!dataLoading && invoice?.orderId && (
-                <div className="flex items-center gap-2 text-sm p-2 rounded-xl bg-gradient-to-r from-violet-100/50 via-violet-50/30 to-transparent dark:from-violet-500/10 dark:via-violet-500/5 dark:to-transparent border border-violet-200/30 dark:border-violet-400/10">
-                  <FileText className="h-4 w-4 text-violet-500 dark:text-violet-400" />
+                <div className="flex flex-wrap items-center gap-2 text-sm p-2 rounded-xl bg-gradient-to-r from-violet-100/50 via-violet-50/30 to-transparent dark:from-violet-500/10 dark:via-violet-500/5 dark:to-transparent border border-violet-200/30 dark:border-violet-400/10">
+                  <FileText className="h-4 w-4 text-violet-500 dark:text-violet-400 shrink-0" />
                   <span className="text-gray-600 dark:text-gray-400">
                     Related Order:
                   </span>
-                  <Link
-                    href={`/orders/${invoice!.orderId}`}
-                    className="font-medium text-sky-600 dark:text-sky-400 hover:text-sky-500 dark:hover:text-sky-300 flex items-center gap-1"
-                  >
-                    View Order <ExternalLink className="h-3 w-3" />
-                  </Link>
+                  {invoice!.linkedOrderNumber ? (
+                    <CopyableText
+                      value={invoice!.linkedOrderNumber}
+                      className="font-medium"
+                    >
+                      <Link
+                        href={`${linkedOrderHrefBase}/${invoice!.orderId}`}
+                        className="text-sky-600 dark:text-sky-400 hover:text-sky-500 dark:hover:text-sky-300 inline-flex items-center gap-1"
+                      >
+                        {invoice!.linkedOrderNumber}
+                        <ExternalLink className="h-3 w-3" />
+                      </Link>
+                    </CopyableText>
+                  ) : (
+                    <Link
+                      href={`${linkedOrderHrefBase}/${invoice!.orderId}`}
+                      className="font-medium text-sky-600 dark:text-sky-400 hover:text-sky-500 dark:hover:text-sky-300 flex items-center gap-1"
+                    >
+                      View Order <ExternalLink className="h-3 w-3" />
+                    </Link>
+                  )}
                 </div>
               )}
               {!dataLoading && invoice?.paymentLink && (
@@ -655,6 +674,62 @@ export default function InvoiceDetailPage({
               )}
             </div>
           </GlassCard>
+
+          {/* REQ-0063 — linked order line items with product thumbnails (SSR via linkedOrderItems) */}
+          {(dataLoading ||
+            (invoice?.linkedOrderItems && invoice.linkedOrderItems.length > 0)) && (
+            <GlassCard variant="sky">
+              <div className="flex items-center gap-2 mb-2">
+                <div
+                  className={cn(
+                    "p-2 rounded-xl border",
+                    variantConfig.sky.iconBg,
+                    "dark:border-sky-400/30 dark:bg-sky-500/20",
+                  )}
+                >
+                  <Package className="h-5 w-5 text-sky-600 dark:text-sky-400" />
+                </div>
+                <div>
+                  <h3 className="text-sm sm:text-base font-medium text-gray-700 dark:text-white">
+                    Order Items
+                  </h3>
+                  <p className="text-xs text-gray-600 dark:text-gray-400">
+                    {dataLoading ? (
+                      <DataSlotPulse variant="text-sm" className="w-28" />
+                    ) : (
+                      <>
+                        {invoice!.linkedOrderItems!.length} item
+                        {invoice!.linkedOrderItems!.length !== 1 ? "s" : ""} on
+                        this invoice
+                      </>
+                    )}
+                  </p>
+                </div>
+              </div>
+              <div className="space-y-2 mt-4">
+                {dataLoading ? (
+                  [1, 2, 3].map((i) => (
+                    <div
+                      key={i}
+                      className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 p-4 rounded-xl border border-sky-200/40 dark:border-sky-400/20 bg-gradient-to-r from-sky-100/40 via-sky-50/20 to-transparent dark:from-sky-500/10 dark:via-sky-500/5 dark:to-transparent"
+                    >
+                      <div className="flex-1 space-y-2">
+                        <DataSlotPulse variant="text-md" className="w-40" />
+                        <DataSlotPulse variant="text-sm" className="w-24" />
+                      </div>
+                      <DataSlotPulse variant="currency" />
+                    </div>
+                  ))
+                ) : (
+                  <ProductLineItemsList
+                    items={invoice!.linkedOrderItems ?? []}
+                    linkMode={embedInAdmin ? "admin" : "none"}
+                    emptyMessage="No items on linked order"
+                  />
+                )}
+              </div>
+            </GlassCard>
+          )}
 
           {/* Parties & roles — shell visible while loading (REQ-0022) */}
           {(dataLoading ||

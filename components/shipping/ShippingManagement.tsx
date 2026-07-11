@@ -30,7 +30,7 @@ import {
   useGenerateShippingLabel,
   useAddTrackingNumber,
 } from "@/hooks/queries";
-import { DeferredSelectGate, DIALOG_FORM_FIELD_EMERALD } from "@/components/shared";
+import { DeferredSelectGate, DIALOG_FORM_FIELD_EMERALD, CopyableText } from "@/components/shared";
 import {
   GLASS_BUTTON_ICON_HOVER,
   GLASS_PRIMARY_BUTTON,
@@ -122,7 +122,12 @@ export default function ShippingManagement({
       <div className="flex items-center gap-2 text-sm">
         <CheckCircle className="h-4 w-4 text-green-500" />
         <span className="text-muted-foreground">
-          Tracking: {order.trackingNumber}
+          Tracking:{" "}
+          {order.trackingNumber ? (
+            <CopyableText value={order.trackingNumber} className="inline">
+              {order.trackingNumber}
+            </CopyableText>
+          ) : null}
         </span>
         <Badge variant="secondary" className="text-xs">
           {order.trackingCarrier?.toUpperCase() || "Unknown"}
@@ -158,9 +163,12 @@ export default function ShippingManagement({
           </DialogTitle>
           <DialogDescription className="text-white/80">
             Generate a shipping label or add a tracking number for order{" "}
-            <span className="font-mono font-medium text-white">
+            <CopyableText
+              value={order.orderNumber}
+              className="font-mono font-medium text-white inline"
+            >
               {order.orderNumber}
-            </span>
+            </CopyableText>
           </DialogDescription>
         </DialogHeader>
 

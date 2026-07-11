@@ -134,3 +134,8 @@ Format: `TIMESTAMP | AGENT | DECISION | RATIONALE | REQ-ID`
 2026-07-11T14:55:00Z | build-agent | REQ-0062 order actions on invoices | InvoiceActions: View Order (all roles), Cancel Order (admin/owner, AlertDialog); Edit/Send/Delete invoice now role-gated for client/supplier | REQ-0062
 2026-07-11T14:58:00Z | agile-v-core | REQ-0061 invalidation audit | INVOICE_PATTERNS already clears orders:* in Redis; invalidateAfterOrderGraphChange covers TanStack — no invalidation changes needed | REQ-0061
 2026-07-11T15:00:00Z | red-team | REQ-0058–0062 gates | lint ✓ test 352 ✓ invalidate 202 ✓ build ✓ | REQ-0058, REQ-0059, REQ-0060, REQ-0061, REQ-0062
+2026-07-11T15:05:00Z | build-agent | REQ-0063 mapOrderItemsFromRaw | shared Prisma→OrderItem mapper; transform-order-detail DRY | REQ-0063
+2026-07-11T15:08:00Z | build-agent | REQ-0063 invoice line items | enrichInvoice widens product select (no extra query); linkedOrderNumber + linkedOrderItems on invoice detail SSR/API | REQ-0063
+2026-07-11T15:10:00Z | build-agent | REQ-0063 ProductLineItemsList | shared line-item rows; OrderItemsCard + InvoiceDetailPage reuse | REQ-0063
+2026-07-11T15:12:00Z | build-agent | REQ-0063 copy shipping | CopyableText on ShippingManagement order#/tracking + OrderTrackingInfo | REQ-0063
+2026-07-11T15:15:00Z | red-team | REQ-0063 gates | lint ✓ test 356 ✓ invalidate 202 ✓ build ✓ | REQ-0063

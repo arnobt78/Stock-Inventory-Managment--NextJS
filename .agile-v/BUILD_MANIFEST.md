@@ -153,6 +153,11 @@
 | ART-0145 | REQ-0061 | `lib/server/orders-data.ts`, `app/api/orders/route.ts` | `getInvoiceLinkMap` + `invoiceForOrder` on list rows |
 | ART-0146 | REQ-0061 | `components/orders/{OrderActions,OrderTableColumns,OrderList}.tsx`, `OrderDetailPage.tsx`, `AdminOrderDetailContent.tsx` | situation-based invoice actions |
 | ART-0147 | REQ-0062 | `components/invoices/InvoiceActions.tsx` | View/Cancel Order + role gating |
+| ART-0148 | REQ-0063 | `lib/orders/map-order-items.ts` | shared Prisma→OrderItem mapper |
+| ART-0149 | REQ-0063 | `lib/server/invoice-detail-data.ts`, `lib/invoices/transform-invoice-detail.ts`, `types/invoice.ts` | linkedOrderNumber + linkedOrderItems enrichment |
+| ART-0150 | REQ-0063 | `components/shared/ProductLineItemsList.tsx` | shared line-item rows (order + invoice detail) |
+| ART-0151 | REQ-0063 | `components/Pages/InvoiceDetailPage.tsx` | Order Items card + Related Order copy + admin href |
+| ART-0152 | REQ-0063 | `components/shipping/{ShippingManagement,OrderTrackingInfo}.tsx` | CopyableText order#/tracking |
 
 ## Tests
 

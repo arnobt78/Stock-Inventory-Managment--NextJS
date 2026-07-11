@@ -28,6 +28,8 @@ export { CopyCodeButton } from "./CopyCodeButton";
 export type { CopyCodeButtonProps } from "./CopyCodeButton";
 export { CopyableText } from "./CopyableText";
 export type { CopyableTextProps } from "./CopyableText";
+export { ProductLineItemsList } from "./ProductLineItemsList";
+export type { ProductLineItemsListProps } from "./ProductLineItemsList";
 export {
   DIALOG_FORM_FIELD_AMBER,
   DIALOG_FORM_FIELD_BLUE,
