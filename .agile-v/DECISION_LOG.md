@@ -171,3 +171,7 @@ Format: `TIMESTAMP | AGENT | DECISION | RATIONALE | REQ-ID`
 2026-07-11T19:10:00Z | build-agent | REQ-0072 admin glass sweep | AdminOrder + 3 embeds + History; dead GLASS_PRIMARY removed | REQ-0072
 2026-07-11T19:20:00Z | build-agent | REQ-0072 catalog DetailInfoRow | Product/Category/Supplier/Warehouse info cards; partial→invoice link | REQ-0072
 2026-07-11T19:30:00Z | build-agent | REQ-0072 enrich test | enrich-order-items-catalog.test.ts with prisma mocks | REQ-0072
+2026-07-11T20:00:00Z | build-agent | REQ-0073 portal spacing + cards | header gap fix; CARD_LIST recent orders/invoices | REQ-0073
+2026-07-11T20:10:00Z | build-agent | REQ-0073 owner avatars + FAB | ProductOwnerSelect SafeAvatarImage; FAB click-toggle | REQ-0073
+2026-07-11T20:20:00Z | build-agent | REQ-0073 order detail UX | line-item layout; paidAt; icon parity | REQ-0073
+2026-07-11T20:30:00Z | red-team | REQ-0073 gates | lint ✓ test 381 ✓ invalidate 206 ✓ build ✓ | REQ-0073

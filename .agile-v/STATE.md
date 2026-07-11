@@ -5,10 +5,10 @@
 | **Cycle** | C1 (closing) → **C2 open** |
 | **Phase** | `phases/07-shell-first-navigation` → C2 backlog |
 | **Infinity Loop stage** | Verify ◐ (code done; Human Gate 2 + manual QA open) |
-| **Last updated** | 2026-07-11 (REQ-0072 completion sweep) |
-| **Session** | ACTIVE — REQ-0072 |
-| **Active REQ range** | REQ-0001 … REQ-0072 done |
-| **Prod deploy target** | pending — REQ-0072 |
+| **Last updated** | 2026-07-11 (REQ-0073 portal/browse/order UX) |
+| **Session** | ACTIVE — REQ-0073 |
+| **Active REQ range** | REQ-0001 … REQ-0073 done |
+| **Prod deploy target** | pending — REQ-0073 |
 | **Human Gate 1** | APPROVED (retroactive bootstrap) |
 | **Human Gate 2** | PENDING — Sentry 24h after prod deploy |
 | **Resume token** | `C2-post-mutation-cache` — see **Session handoff** + **Open backlog** |

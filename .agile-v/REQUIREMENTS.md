@@ -1550,6 +1550,33 @@ Canonical REQ source. All artifacts link via `REQ-XXXX`. Status: `done` | `verif
 
 ---
 
+## REQ-0073 — Portal, browse, FAB & order-detail UX fixes
+
+| Field | Value |
+|-------|-------|
+| **Priority** | P1 |
+| **Risk** | R2 |
+| **Status** | done |
+| **Cycle** | C2 |
+| **Parent** | REQ-0071/0072 |
+
+**Intent:** Fix portal header gap, recent-card badge clip + dates, product-owner avatars, FAB click-toggle collapse, order line-item layout, dedicated paid timestamp, order detail icon parity.
+
+**Acceptance criteria**
+
+- AC1: Client/Supplier portal header double-gap removed (`flex flex-col` + `pb-0` on header)
+- AC2: Recent Orders/Invoices use `CARD_LIST_*` + `ClientCompactDateTime`; badge overflow visible
+- AC3: Single-row product owner UI with `SafeAvatarImage` (SSR `image` on browse meta)
+- AC4: FAB expands on click, collapses on dialog close (no hover expansion)
+- AC5: `ProductLineItemsList` two-row thumb layout + inline category/supplier/warehouse with role-based warehouse link
+- AC6: Order `paidAt` from linked invoice; separate Paid row from Updated
+- AC7: Icons on Notes, Parties, Order Summary, status cards; `DialogSubmitButton` icon on cancel/delete
+- AC8: Red Team lint/test/invalidate/build pass
+
+**Artifacts:** `ClientPortalPage`, `ProductLineItemsList`, `FloatingActionButtons`, `order-detail-data.ts`, order detail cards, `DialogSubmitButton`
+
+---
+
 | Field | Value |
 |-------|-------|
 | **Priority** | P1 |

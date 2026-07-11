@@ -188,6 +188,10 @@
 | ART-0180 | REQ-0072 | `DETAIL_HEADER_BACK_ICON_CLASS`, admin detail glass sweep | Shared back token + admin embed parity |
 | ART-0181 | REQ-0072 | catalog detail pages | Product/Category/Supplier/Warehouse `DetailInfoRow` |
 | ART-0182 | REQ-0072 | `enrich-order-items-catalog.test.ts` | Catalog name enrich unit tests |
+| ART-0183 | REQ-0073 | `ClientPortalPage`, `SupplierPortalPage` | Portal spacing + recent card lists |
+| ART-0184 | REQ-0073 | `ProductOwnerSelect`, `client-browse-data.ts` | Owner row avatars |
+| ART-0185 | REQ-0073 | `FloatingActionButtons.tsx`, dialog shells | FAB click-toggle collapse |
+| ART-0186 | REQ-0073 | `ProductLineItemsList`, order detail cards | Line-item layout + icons + paidAt |
 
 ## Tests
 
@@ -211,3 +215,4 @@
 | TC-0016 | REQ-0068 | `lib/products/stock-allocation-order-sync.test.ts` |
 | TC-0017 | REQ-0069 | `lib/stock-allocation/stock-allocation-enrich.test.ts` |
 | TC-0018 | REQ-0072 | `lib/orders/enrich-order-items-catalog.test.ts` |
+| TC-0019 | REQ-0073 | `lib/orders/transform-order-detail.test.ts` (paidAt) |
