@@ -113,7 +113,6 @@ const API_WRITE_EXEMPT = new Set([
 const SERVER_INVALIDATE_PATTERNS = [
   "invalidateOnProductChange",
   "invalidateOnOrderChange",
-  "invalidateOnCategoryOrSupplierChange",
   "scheduleInvalidateProductCaches",
   "scheduleInvalidateCategoryCaches",
   "scheduleInvalidateSupplierCaches",

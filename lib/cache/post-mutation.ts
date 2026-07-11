@@ -309,30 +309,3 @@ export async function invalidateOnProductChange(): Promise<void> {
   await scheduleInvalidateProductCaches();
 }
 
-/** @deprecated Use scheduleInvalidateCategoryCaches (with await) — audit spec alias */
-export async function invalidateOnCategoryChange(): Promise<void> {
-  await scheduleInvalidateCategoryCaches();
-}
-
-/** @deprecated Use scheduleInvalidateSupplierCaches (with await) — audit spec alias */
-export async function invalidateOnSupplierChange(): Promise<void> {
-  await scheduleInvalidateSupplierCaches();
-}
-
-/** @deprecated Combined category+supplier — prefer entity-specific schedules */
-export async function invalidateOnCategoryOrSupplierChange(): Promise<void> {
-  try {
-    await invalidatePatterns([
-      ...CATEGORY_PATTERNS,
-      cacheKeys.suppliers.pattern,
-      cacheKeys.supplierPortal.pattern,
-    ]);
-  } catch (error) {
-    logger.error("Category+supplier cache invalidation failed:", error);
-  }
-}
-
-/** @deprecated Use scheduleInvalidateWarehouseCaches (with await) — audit spec alias */
-export async function invalidateOnWarehouseChange(): Promise<void> {
-  await scheduleInvalidateWarehouseCaches();
-}
