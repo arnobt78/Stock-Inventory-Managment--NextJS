@@ -53,6 +53,9 @@ import {
   PageContentWrapper,
   DataSlotPulse,
   PageSectionHeader,
+  GLASS_GHOST_BUTTON,
+  glassDetailFooterButtonClass,
+  DialogSubmitButton,
 } from "@/components/shared";
 import { isDataSlotLoading, queryKeys, useSyncSsrQueryDataMany } from "@/lib/react-query";
 import type { Product, ProductStatus, ProductReview, StockAllocation } from "@/types";
@@ -843,39 +846,38 @@ export default function ProductDetailPage({
           {/* Actions — Back, Edit, Duplicate, Delete; responsive (stack on small, row on larger) */}
           <div className="flex flex-col sm:flex-row flex-wrap gap-2">
             <Button
-              variant="outline"
               onClick={handleBack}
-              className="w-full sm:w-auto gap-2 rounded-xl border-gray-400/30 bg-white/50 dark:bg-white/5 hover:bg-gray-100/50 dark:hover:bg-white/10"
+              className={cn("w-full sm:w-auto gap-2", GLASS_GHOST_BUTTON)}
             >
               <ArrowLeft className="h-4 w-4 shrink-0" />
               Back
             </Button>
             <Button
-              variant="outline"
               onClick={handleEditProduct}
               disabled={disableCrud}
-              className="w-full sm:w-auto gap-2 rounded-xl border-blue-400/30 bg-gradient-to-r from-blue-500/20 via-blue-500/10 to-transparent hover:from-blue-500/30 shadow-[0_5px_20px_rgba(59,130,246,0.15)]"
+              className={glassDetailFooterButtonClass("blue")}
             >
               <Edit className="h-4 w-4 shrink-0" />
               Edit Product
             </Button>
             <Button
-              variant="outline"
               onClick={handleDuplicateProduct}
               disabled={isCopying || disableCrud}
-              className="w-full sm:w-auto gap-2 rounded-xl border-violet-400/30 bg-gradient-to-r from-violet-500/20 via-violet-500/10 to-transparent hover:from-violet-500/30 shadow-[0_5px_20px_rgba(139,92,246,0.15)]"
+              className={glassDetailFooterButtonClass("violet")}
             >
               <Copy className="h-4 w-4 shrink-0" />
               {isCopying ? "Duplicating..." : "Create Duplicate"}
             </Button>
-            <Button
+            <DialogSubmitButton
+              type="button"
               onClick={() => setDeleteDialogOpen(true)}
-              disabled={isDeleting || disableCrud}
-              className="w-full sm:w-auto gap-2 rounded-xl border border-rose-400/30 bg-gradient-to-r from-rose-500/20 via-rose-500/10 to-transparent text-white hover:from-rose-500/30 shadow-[0_5px_20px_rgba(225,29,72,0.15)]"
-            >
-              <Trash2 className="h-4 w-4 shrink-0" />
-              {isDeleting ? "Deleting..." : "Delete Product"}
-            </Button>
+              isPending={isDeleting}
+              pendingLabel="Deleting…"
+              label="Delete Product"
+              hue="rose"
+              disabled={disableCrud}
+              className="w-full sm:w-auto gap-2"
+            />
           </div>
 
           {/* Delete confirmation — same pattern as ProductActions */}

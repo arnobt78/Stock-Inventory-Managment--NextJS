@@ -178,6 +178,13 @@
 | ART-0170 | REQ-0070 | Client/portal components (5) | Browse + portal SSR sync |
 | ART-0171 | REQ-0070 | Admin/user list components (8) | List + activity + analytics sync |
 | ART-0172 | REQ-0070 | ProductDetail, ProductReviewsSection, ticket details | useSyncSsrQueryDataMany adoption |
+| ART-0173 | REQ-0071 | `hooks/use-sync-ssr-query-data.ts`, `FloatingActionButtons.tsx` | Phase 0 hotfixes (fingerprint deps, forwardRef) |
+| ART-0174 | REQ-0071 | `ClientPortalPage`, `SupplierPortalPage`, `ClientProductList` | Portal headers, View All, Quick Links removal |
+| ART-0175 | REQ-0071 | `client-browse-data.ts`, `ProductFilters.tsx` | Store owner counts helper |
+| ART-0176 | REQ-0071 | `enrich-order-items-catalog.ts`, `ProductLineItemsList.tsx` | Line-item category/supplier |
+| ART-0177 | REQ-0071 | `stripe-return.ts`, `use-back-with-refresh.ts`, order/invoice detail | Stripe back-nav fix |
+| ART-0178 | REQ-0071 | `glassDetailFooterButtonClass`, detail pages sweep | Readable glass detail CTAs |
+| ART-0179 | REQ-0071 | `DetailInfoRow`, order/invoice detail cards | Richer information cards |
 
 ## Tests
 

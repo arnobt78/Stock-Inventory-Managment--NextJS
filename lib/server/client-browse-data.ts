@@ -30,6 +30,7 @@ export async function getProductOwnerAdminsForBrowse() {
 export async function getClientBrowseMetaForPage(): Promise<ClientBrowseMeta> {
   const [
     admins,
+    totalStoreOwners,
     clientsCount,
     supplierActive,
     supplierInactive,
@@ -39,6 +40,7 @@ export async function getClientBrowseMetaForPage(): Promise<ClientBrowseMeta> {
     warehouseInactive,
   ] = await Promise.all([
     getProductOwnerAdminsForBrowse(),
+    prisma.user.count({ where: { role: { in: ["admin", "user"] } } }),
     prisma.user.count({ where: { role: "client" } }),
     prisma.supplier.count({ where: { status: true } }),
     prisma.supplier.count({ where: { status: false } }),
@@ -55,6 +57,10 @@ export async function getClientBrowseMetaForPage(): Promise<ClientBrowseMeta> {
       email: a.email ?? "",
     })),
     stats: {
+      storeOwners: {
+        total: totalStoreOwners,
+        withProducts: admins.length,
+      },
       admins: admins.length,
       clients: clientsCount,
       suppliers: {

@@ -80,9 +80,41 @@ export function ProductLineItemsList({
                   )}
                 </div>
               ) : (
-                <h4 className="font-medium text-gray-700 dark:text-white">
-                  {item.productName}
-                </h4>
+                <>
+                  <h4 className="font-medium text-gray-700 dark:text-white">
+                    {item.productName}
+                  </h4>
+                  {(item.categoryName || item.categoryId) && (
+                    <p className="text-sm text-gray-600 dark:text-gray-400">
+                      Category:{" "}
+                      {item.categoryId ? (
+                        <Link
+                          href={`/categories/${item.categoryId}`}
+                          className="text-sky-600 dark:text-sky-400 hover:text-sky-500 dark:hover:text-sky-300"
+                        >
+                          {item.categoryName ?? "View category"}
+                        </Link>
+                      ) : (
+                        (item.categoryName ?? "—")
+                      )}
+                    </p>
+                  )}
+                  {(item.supplierName || item.supplierId) && (
+                    <p className="text-sm text-gray-600 dark:text-gray-400">
+                      Supplier:{" "}
+                      {item.supplierId ? (
+                        <Link
+                          href={`/suppliers/${item.supplierId}`}
+                          className="text-sky-600 dark:text-sky-400 hover:text-sky-500 dark:hover:text-sky-300"
+                        >
+                          {item.supplierName ?? "View supplier"}
+                        </Link>
+                      ) : (
+                        (item.supplierName ?? "—")
+                      )}
+                    </p>
+                  )}
+                </>
               )}
               {item.sku && (
                 <p className="text-sm text-gray-600 dark:text-gray-400">

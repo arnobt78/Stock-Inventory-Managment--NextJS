@@ -16,6 +16,7 @@ import {
   transformOrderDetail,
   type OrderDetailEnrichment,
 } from "@/lib/orders/transform-order-detail";
+import { enrichOrderItemsCatalogNames } from "@/lib/orders/enrich-order-items-catalog";
 import type { Order } from "@/types";
 
 export type SessionForDetail = {
@@ -99,5 +100,7 @@ export async function getOrderDetailForPage(
   if (!order) return null;
 
   const enrichment = await enrichOrder(orderId, order);
-  return transformOrderDetail(order, enrichment);
+  const detail = transformOrderDetail(order, enrichment);
+  const items = await enrichOrderItemsCatalogNames(detail.items);
+  return { ...detail, items };
 }

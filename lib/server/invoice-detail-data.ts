@@ -13,6 +13,7 @@ import {
   type InvoiceDetailEnrichment,
 } from "@/lib/invoices/transform-invoice-detail";
 import { mapOrderItemsFromRaw } from "@/lib/orders/map-order-items";
+import { enrichOrderItemsCatalogNames } from "@/lib/orders/enrich-order-items-catalog";
 import type { Invoice } from "@/types";
 import type { SessionForDetail } from "@/lib/server/order-detail-data";
 
@@ -112,7 +113,9 @@ async function enrichInvoice(
     client,
     invoiceProductOwners,
     linkedOrderNumber: order?.orderNumber ?? null,
-    linkedOrderItems: mapOrderItemsFromRaw(order?.items),
+    linkedOrderItems: await enrichOrderItemsCatalogNames(
+      mapOrderItemsFromRaw(order?.items),
+    ),
   };
 }
 

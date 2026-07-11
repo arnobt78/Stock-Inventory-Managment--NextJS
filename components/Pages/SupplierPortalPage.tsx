@@ -26,6 +26,8 @@ import {
   AlertTriangle,
   TrendingUp,
   Clock,
+  Truck,
+  ArrowRight,
 } from "lucide-react";
 import {
   Area,
@@ -43,6 +45,10 @@ import {
   PageContentWrapper,
   DataSlotPulse,
   SectionCardHeader,
+  PageSectionHeader,
+  GLASS_ACTION_BUTTON,
+  GLASS_BUTTON_ICON_HOVER,
+  GLASS_BUTTON_SHELL_RESET,
 } from "@/components/shared";
 import {
   OrderStatusBadge,
@@ -108,19 +114,22 @@ export default function SupplierPortalPage({
     <Navbar>
       <PageContentWrapper>
         <div className="space-y-4">
-          <div className="">
-            <h1 className="text-sm sm:text-base font-medium text-gray-700 dark:text-white">
-              Supplier Portal
-            </h1>
-            <p className="text-xs sm:text-sm text-muted-foreground">
-              Welcome,{" "}
-              {dataLoading ? (
-                <DataSlotPulse variant="text-sm" />
-              ) : (
-                dashboard?.supplierName
-              )}
-            </p>
-          </div>
+          <PageSectionHeader
+            as="h1"
+            icon={Truck}
+            tone="emerald"
+            title="Supplier Portal"
+            description={
+              <>
+                Welcome,{" "}
+                {dataLoading ? (
+                  <DataSlotPulse variant="text-sm" />
+                ) : (
+                  dashboard?.supplierName
+                )}
+              </>
+            }
+          />
 
           {/* Summary Cards — supplier's products/orders/revenue only */}
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-2">
@@ -413,6 +422,24 @@ export default function SupplierPortalPage({
                     </Table>
                   </div>
                 )}
+                <div className="mt-4">
+                  <Button
+                    asChild
+                    variant="ghost"
+                    size="sm"
+                    className={cn(
+                      "group w-full gap-2",
+                      GLASS_BUTTON_ICON_HOVER,
+                      GLASS_BUTTON_SHELL_RESET,
+                      GLASS_ACTION_BUTTON.sky,
+                    )}
+                  >
+                    <Link href="/orders">
+                      <ArrowRight className="h-4 w-4 shrink-0" />
+                      View All Orders
+                    </Link>
+                  </Button>
+                </div>
               </div>
             </article>
 
@@ -492,44 +519,27 @@ export default function SupplierPortalPage({
                     </Table>
                   </div>
                 )}
+                <div className="mt-4">
+                  <Button
+                    asChild
+                    variant="ghost"
+                    size="sm"
+                    className={cn(
+                      "group w-full gap-2",
+                      GLASS_BUTTON_ICON_HOVER,
+                      GLASS_BUTTON_SHELL_RESET,
+                      GLASS_ACTION_BUTTON.amber,
+                    )}
+                  >
+                    <Link href="/products">
+                      <ArrowRight className="h-4 w-4 shrink-0" />
+                      View All Products
+                    </Link>
+                  </Button>
+                </div>
               </div>
             </article>
           </div>
-
-          {/* Quick Links — glassmorphic */}
-          <article
-            className={cn(
-              "rounded-[28px] border border-violet-400/20 dark:border-violet-400/30 p-2 sm:p-4 backdrop-blur-md transition-all",
-              "bg-white/60 dark:bg-white/5",
-              "bg-gradient-to-br from-violet-500/15 via-violet-500/5 to-transparent dark:from-violet-500/25 dark:via-violet-500/10 dark:to-violet-500/5",
-              "shadow-[0_15px_40px_rgba(139,92,246,0.15)] dark:shadow-[0_30px_80px_rgba(139,92,246,0.25)]",
-              "hover:border-violet-300/40",
-            )}
-          >
-            <h3 className="text-sm sm:text-base font-medium text-gray-700 dark:text-white mb-4">
-              Quick Links
-            </h3>
-            <div className="flex flex-wrap gap-2">
-              <Button asChild variant="outline" className="gap-2">
-                <Link href="/products">
-                  <Package className="h-4 w-4" />
-                  View Products
-                </Link>
-              </Button>
-              <Button asChild variant="outline" className="gap-2">
-                <Link href="/orders">
-                  <ShoppingCart className="h-4 w-4" />
-                  View Orders
-                </Link>
-              </Button>
-              <Button asChild variant="outline" className="gap-2">
-                <Link href="/">
-                  <TrendingUp className="h-4 w-4" />
-                  Dashboard
-                </Link>
-              </Button>
-            </div>
-          </article>
         </div>
       </PageContentWrapper>
     </Navbar>

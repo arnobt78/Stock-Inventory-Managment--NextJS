@@ -5,7 +5,8 @@
 
 "use client";
 
-import React, { useCallback, useEffect, useState } from "react";
+import { markStripeCheckoutReturn } from "@/lib/payments/stripe-return";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import {
   ArrowLeft,
@@ -16,6 +17,8 @@ import {
   FileText,
   Truck,
   Edit,
+  Hash,
+  Ban,
 } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
@@ -39,9 +42,11 @@ import {
   GLASS_BUTTON_ICON_HOVER,
   GLASS_BUTTON_SHELL_RESET,
   GLASS_GHOST_BUTTON,
-  GLASS_PRIMARY_BUTTON,
+  glassDetailFooterButtonClass,
+  CopyableText,
   DialogSubmitButton,
 } from "@/components/shared";
+import { OrderStatusBadge, PaymentStatusBadge } from "@/lib/ui/semantic-badges";
 import type { Order } from "@/types";
 import type { OrderReviewContext } from "@/lib/server/order-review-context-data";
 import { cn } from "@/lib/utils";
@@ -58,6 +63,7 @@ import {
 } from "@/components/ui/tooltip";
 import {
   formatAddress,
+  DetailInfoRow,
   GlassCard,
   OrderDetailHeader,
   OrderItemsCard,
@@ -82,9 +88,15 @@ export default function OrderDetailPage({
   const router = useRouter();
   const searchParams = useSearchParams();
   const queryClient = useQueryClient();
-  const { handleBack } = useBackWithRefresh("order");
-  const orderId = params?.id as string;
   const { user, isCheckingAuth } = useAuth();
+  const ordersListPath = useMemo(() => {
+    if (user?.role === "admin" || user?.role === "user") return "/admin/orders";
+    return "/orders";
+  }, [user?.role]);
+  const { handleBack } = useBackWithRefresh("order", {
+    fallbackPath: ordersListPath,
+  });
+  const orderId = params?.id as string;
 
   const orderQuery = useOrder(orderId, initialOrder);
   const order = orderQuery.data;
@@ -101,6 +113,8 @@ export default function OrderDetailPage({
       (payment !== "success" && payment !== "cancelled")
     )
       return;
+
+    markStripeCheckoutReturn();
 
     const detailKey = queryKeys.orders.detail(orderId);
     invalidateAfterOrderGraphChange(queryClient);
@@ -120,7 +134,7 @@ export default function OrderDetailPage({
       const path =
         window.location.pathname +
         (next.toString() ? `?${next.toString()}` : "");
-      router.replace(path, { scroll: false });
+      window.location.replace(path);
     }, 1500);
 
     return () => {
@@ -222,6 +236,7 @@ export default function OrderDetailPage({
   const updatedAt = order?.updatedAt ? new Date(order.updatedAt) : null;
   const shippedAt = order?.shippedAt ? new Date(order.shippedAt) : null;
   const deliveredAt = order?.deliveredAt ? new Date(order.deliveredAt) : null;
+  const cancelledAt = order?.cancelledAt ? new Date(order.cancelledAt) : null;
   const estimatedDelivery = order?.estimatedDelivery
     ? new Date(order.estimatedDelivery)
     : null;
@@ -291,84 +306,81 @@ export default function OrderDetailPage({
               </div>
 
               <div className="space-y-2">
-                <div className="flex items-center gap-2 text-sm p-2 rounded-xl bg-gradient-to-r from-orange-100/50 via-orange-50/30 to-transparent dark:from-orange-500/10 dark:via-orange-500/5 dark:to-transparent border border-orange-200/30 dark:border-orange-400/10">
-                  <Calendar className="h-4 w-4 text-orange-500 dark:text-orange-400" />
-                  <span className="text-gray-600 dark:text-gray-400">
-                    Created:
-                  </span>
-                  <span className="font-medium text-gray-700 dark:text-white">
-                    {dataLoading ? (
-                      <DataSlotPulse variant="date" />
-                    ) : (
-                      <ClientDateTime date={createdAt} />
+                {!dataLoading && order && (
+                  <>
+                    <DetailInfoRow icon={FileText} label="Order #:" tone="orange">
+                      <CopyableText value={order.orderNumber}>
+                        {order.orderNumber}
+                      </CopyableText>
+                    </DetailInfoRow>
+                    <DetailInfoRow icon={Hash} label="Order ID:" tone="violet">
+                      <span className="font-mono text-xs">{order.id}</span>
+                    </DetailInfoRow>
+                    <DetailInfoRow icon={Package} label="Status:" tone="sky">
+                      <span className="inline-flex flex-wrap items-center gap-2">
+                        <OrderStatusBadge status={order.status} />
+                        <PaymentStatusBadge status={order.paymentStatus} />
+                      </span>
+                    </DetailInfoRow>
+                    {order.paymentStatus === "partial" && (
+                      <DetailInfoRow icon={CreditCard} label="Payment:" tone="amber">
+                        Partial payment — total ${order.total.toFixed(2)}
+                      </DetailInfoRow>
                     )}
-                  </span>
-                </div>
-                {!dataLoading && updatedAt && (
-                  <div className="flex items-center gap-2 text-sm p-2 rounded-xl bg-gradient-to-r from-amber-100/50 via-amber-50/30 to-transparent dark:from-amber-500/10 dark:via-amber-500/5 dark:to-transparent border border-amber-200/30 dark:border-amber-400/10">
-                    <Calendar className="h-4 w-4 text-amber-500 dark:text-amber-400" />
-                    <span className="text-gray-600 dark:text-gray-400">
-                      Updated:
-                    </span>
-                    <span className="font-medium text-gray-700 dark:text-white">
-                      <ClientDateTime date={updatedAt} />
-                    </span>
-                  </div>
+                    {order.stripePaymentIntentId && (
+                      <DetailInfoRow icon={CreditCard} label="Stripe:" tone="blue">
+                        <span className="font-mono text-xs break-all">
+                          {order.stripePaymentIntentId}
+                        </span>
+                      </DetailInfoRow>
+                    )}
+                  </>
                 )}
-                {!dataLoading && shippedAt && (
-                  <div className="flex items-center gap-2 text-sm p-2 rounded-xl bg-gradient-to-r from-sky-100/50 via-sky-50/30 to-transparent dark:from-sky-500/10 dark:via-sky-500/5 dark:to-transparent border border-sky-200/30 dark:border-sky-400/10">
-                    <Truck className="h-4 w-4 text-sky-500 dark:text-sky-400" />
-                    <span className="text-gray-600 dark:text-gray-400">
-                      Shipped:
-                    </span>
-                    <span className="font-medium text-gray-700 dark:text-white">
-                      <ClientDateTime date={shippedAt} />
-                    </span>
-                  </div>
+                <DetailInfoRow icon={Calendar} label="Created:" tone="orange" loading={dataLoading}>
+                  {!dataLoading && <ClientDateTime date={createdAt} />}
+                </DetailInfoRow>
+                {(dataLoading || updatedAt) && (
+                  <DetailInfoRow icon={Calendar} label="Updated:" tone="amber" loading={dataLoading}>
+                    {!dataLoading && updatedAt && <ClientDateTime date={updatedAt} />}
+                  </DetailInfoRow>
                 )}
-                {!dataLoading && deliveredAt && (
-                  <div className="flex items-center gap-2 text-sm p-2 rounded-xl bg-gradient-to-r from-emerald-100/50 via-emerald-50/30 to-transparent dark:from-emerald-500/10 dark:via-emerald-500/5 dark:to-transparent border border-emerald-200/30 dark:border-emerald-400/10">
-                    <Package className="h-4 w-4 text-emerald-500 dark:text-emerald-400" />
-                    <span className="text-gray-600 dark:text-gray-400">
-                      Delivered:
-                    </span>
-                    <span className="font-medium text-gray-700 dark:text-white">
-                      <ClientDateTime date={deliveredAt} />
-                    </span>
-                  </div>
+                {(dataLoading || shippedAt) && (
+                  <DetailInfoRow icon={Truck} label="Shipped:" tone="sky" loading={dataLoading}>
+                    {!dataLoading && shippedAt && <ClientDateTime date={shippedAt} />}
+                  </DetailInfoRow>
                 )}
-                {!dataLoading && estimatedDelivery && (
-                  <div className="flex items-center gap-2 text-sm p-2 rounded-xl bg-gradient-to-r from-violet-100/50 via-violet-50/30 to-transparent dark:from-violet-500/10 dark:via-violet-500/5 dark:to-transparent border border-violet-200/30 dark:border-violet-400/10">
-                    <Calendar className="h-4 w-4 text-violet-500 dark:text-violet-400" />
-                    <span className="text-gray-600 dark:text-gray-400">
-                      Estimated Delivery:
-                    </span>
-                    <span className="font-medium text-gray-700 dark:text-white">
+                {(dataLoading || deliveredAt) && (
+                  <DetailInfoRow icon={Package} label="Delivered:" tone="emerald" loading={dataLoading}>
+                    {!dataLoading && deliveredAt && <ClientDateTime date={deliveredAt} />}
+                  </DetailInfoRow>
+                )}
+                {(dataLoading || cancelledAt) && (
+                  <DetailInfoRow icon={Ban} label="Cancelled:" tone="rose" loading={dataLoading}>
+                    {!dataLoading && cancelledAt && <ClientDateTime date={cancelledAt} />}
+                  </DetailInfoRow>
+                )}
+                {(dataLoading || estimatedDelivery) && (
+                  <DetailInfoRow icon={Calendar} label="Estimated Delivery:" tone="violet" loading={dataLoading}>
+                    {!dataLoading && estimatedDelivery && (
                       <ClientDate date={estimatedDelivery} />
-                    </span>
-                  </div>
+                    )}
+                  </DetailInfoRow>
                 )}
                 {!dataLoading && order?.trackingNumber && (
-                  <div className="flex items-center gap-2 text-sm p-2 rounded-xl bg-gradient-to-r from-blue-100/50 via-blue-50/30 to-transparent dark:from-blue-500/10 dark:via-blue-500/5 dark:to-transparent border border-blue-200/30 dark:border-blue-400/10">
-                    <Truck className="h-4 w-4 text-blue-500 dark:text-blue-400" />
-                    <span className="text-gray-600 dark:text-gray-400">
-                      Tracking:
-                    </span>
-                    {order!.trackingUrl ? (
+                  <DetailInfoRow icon={Truck} label="Tracking:" tone="blue">
+                    {order.trackingUrl ? (
                       <a
-                        href={order!.trackingUrl}
+                        href={order.trackingUrl}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="font-medium text-sky-600 dark:text-sky-400 hover:text-sky-500 dark:hover:text-sky-300"
+                        className="text-sky-600 dark:text-sky-400 hover:text-sky-500 dark:hover:text-sky-300"
                       >
-                        {order!.trackingNumber}
+                        {order.trackingNumber}
                       </a>
                     ) : (
-                      <span className="font-medium text-gray-700 dark:text-white">
-                        {order!.trackingNumber}
-                      </span>
+                      order.trackingNumber
                     )}
-                  </div>
+                  </DetailInfoRow>
                 )}
                 {!dataLoading && order?.notes && (
                   <div className="p-2 rounded-xl bg-gradient-to-r from-teal-100/50 via-teal-50/30 to-transparent dark:from-teal-500/10 dark:via-teal-500/5 dark:to-transparent border border-teal-200/30 dark:border-teal-400/10">
@@ -376,7 +388,7 @@ export default function OrderDetailPage({
                       Notes:
                     </p>
                     <p className="text-sm text-gray-700 dark:text-white">
-                      {order!.notes}
+                      {order.notes}
                     </p>
                   </div>
                 )}
@@ -430,16 +442,9 @@ export default function OrderDetailPage({
               <TooltipTrigger asChild>
                 <span className="inline-block">
                   <Button
-                    variant="ghost"
                     onClick={handleUpdateOrder}
                     disabled={actionsDisabled}
-                    className={cn(
-                      "group w-full sm:w-auto gap-2",
-                      GLASS_BUTTON_ICON_HOVER,
-                      GLASS_BUTTON_SHELL_RESET,
-                      GLASS_BUTTON_DISABLED,
-                      GLASS_PRIMARY_BUTTON.blue,
-                    )}
+                    className={glassDetailFooterButtonClass("blue")}
                   >
                     <Edit className="h-4 w-4 shrink-0" />
                     Update Order
@@ -456,13 +461,7 @@ export default function OrderDetailPage({
             {!dataLoading && order && order.invoiceForOrder ? (
               <Button
                 asChild
-                variant="ghost"
-                className={cn(
-                  "group w-full sm:w-auto gap-2",
-                  GLASS_BUTTON_ICON_HOVER,
-                  GLASS_BUTTON_SHELL_RESET,
-                  GLASS_PRIMARY_BUTTON.indigo,
-                )}
+                className={glassDetailFooterButtonClass("indigo")}
               >
                 <Link href={`/invoices/${order.invoiceForOrder.id}`}>
                   <FileText className="h-4 w-4 shrink-0" />
@@ -475,14 +474,8 @@ export default function OrderDetailPage({
               order.status !== "cancelled" &&
               !disableOrderActions && (
                 <Button
-                  variant="ghost"
                   onClick={() => setCreateInvoiceOpen(true)}
-                  className={cn(
-                    "group w-full sm:w-auto gap-2",
-                    GLASS_BUTTON_ICON_HOVER,
-                    GLASS_BUTTON_SHELL_RESET,
-                    GLASS_PRIMARY_BUTTON.indigo,
-                  )}
+                  className={glassDetailFooterButtonClass("indigo")}
                 >
                   <FilePlus2 className="h-4 w-4 shrink-0" />
                   Create Invoice
@@ -512,15 +505,8 @@ export default function OrderDetailPage({
                         disabled={isSupplierRole}
                         trigger={
                           <Button
-                            variant="ghost"
                             disabled={isSupplierRole}
-                            className={cn(
-                              "group w-full sm:w-auto gap-2",
-                              GLASS_BUTTON_ICON_HOVER,
-                              GLASS_BUTTON_SHELL_RESET,
-                              GLASS_BUTTON_DISABLED,
-                              GLASS_PRIMARY_BUTTON.emerald,
-                            )}
+                            className={glassDetailFooterButtonClass("emerald")}
                           >
                             <CreditCard className="h-4 w-4 shrink-0" />
                             Pay ${order.total.toFixed(2)}
@@ -547,15 +533,8 @@ export default function OrderDetailPage({
                   disabled={disableOrderActions}
                   trigger={
                     <Button
-                      variant="ghost"
                       disabled={disableOrderActions}
-                      className={cn(
-                        "group w-full sm:w-auto gap-2",
-                        GLASS_BUTTON_ICON_HOVER,
-                        GLASS_BUTTON_SHELL_RESET,
-                        GLASS_BUTTON_DISABLED,
-                        GLASS_PRIMARY_BUTTON.violet,
-                      )}
+                      className={glassDetailFooterButtonClass("violet")}
                     >
                       <Truck className="h-4 w-4 shrink-0" />
                       Ship Order

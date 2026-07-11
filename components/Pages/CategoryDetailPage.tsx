@@ -42,7 +42,7 @@ import {
   GLASS_BUTTON_ICON_HOVER,
   GLASS_BUTTON_SHELL_RESET,
   GLASS_GHOST_BUTTON,
-  GLASS_PRIMARY_BUTTON,
+  glassDetailFooterButtonClass,
 } from "@/components/shared";
 import {
   ActiveInactiveBadge,
@@ -726,16 +726,9 @@ export default function CategoryDetailPage({
               Back
             </Button>
             <Button
-              variant="ghost"
               onClick={handleEditCategory}
               disabled={disableCrud}
-              className={cn(
-                "group w-full sm:w-auto gap-2",
-                GLASS_BUTTON_ICON_HOVER,
-                GLASS_BUTTON_SHELL_RESET,
-                GLASS_BUTTON_DISABLED,
-                GLASS_PRIMARY_BUTTON.blue,
-              )}
+              className={glassDetailFooterButtonClass("blue")}
             >
               <Edit className="h-4 w-4 shrink-0" />
               Edit Category

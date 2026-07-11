@@ -7,6 +7,7 @@ import {
   GLASS_FOCUS_RING,
   type GlassFocusHue,
 } from "@/lib/ui/focus-ring-styles";
+import { cn } from "@/lib/utils";
 
 /** Parent must include `group` — scales child svg on hover. */
 export const GLASS_BUTTON_ICON_HOVER =
@@ -101,4 +102,19 @@ export function glassPrimaryButtonClass(hue: GlassFocusHue): string {
 
 export function glassActionButtonClass(hue: GlassFocusHue): string {
   return GLASS_ACTION_BUTTON[hue];
+}
+
+/** Detail page footer CTA — omit variant="ghost"; readable contrast on light backgrounds (REQ-0071). */
+export function glassDetailFooterButtonClass(
+  hue: GlassFocusHue,
+  extra?: string,
+): string {
+  return cn(
+    GLASS_BUTTON_ICON_HOVER,
+    GLASS_BUTTON_SHELL_RESET,
+    GLASS_BUTTON_DISABLED,
+    "group w-full sm:w-auto gap-2 !text-white",
+    GLASS_PRIMARY_BUTTON[hue],
+    extra,
+  );
 }

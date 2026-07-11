@@ -25,6 +25,7 @@ type InvoiceRaw = {
   paidAt?: Date | null;
   cancelledAt?: Date | null;
   paymentLink: string | null;
+  stripePaymentIntentId?: string | null;
   notes: string | null;
   billingAddress: unknown;
   createdAt: Date;
@@ -71,6 +72,7 @@ export function transformInvoiceDetail(
     paidAt: invoice.paidAt?.toISOString() || null,
     cancelledAt: invoice.cancelledAt?.toISOString() || null,
     paymentLink: invoice.paymentLink,
+    stripePaymentIntentId: invoice.stripePaymentIntentId ?? null,
     notes: invoice.notes,
     billingAddress: invoice.billingAddress,
     createdAt: invoice.createdAt.toISOString(),

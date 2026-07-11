@@ -18,6 +18,12 @@ import {
   invalidateAfterOrderGraphChange,
   invalidateAfterStockChange,
 } from "@/lib/react-query";
+import { consumeStripeCheckoutReturn } from "@/lib/payments/stripe-return";
+
+export type UseBackWithRefreshOptions = {
+  /** When set, used instead of router.back() after Stripe checkout return. */
+  fallbackPath?: string;
+};
 
 /** All entity types that have a back-button detail page. */
 export type EntityType =
@@ -49,12 +55,20 @@ function runInvalidations(
   invalidateAllRelatedQueries(queryClient);
 }
 
-export function useBackWithRefresh(entity: EntityType) {
+export function useBackWithRefresh(
+  entity: EntityType,
+  options?: UseBackWithRefreshOptions,
+) {
   const router = useRouter();
   const queryClient = useQueryClient();
+  const fallbackPath = options?.fallbackPath;
 
   const handleBack = () => {
     runInvalidations(queryClient, entity);
+    if (consumeStripeCheckoutReturn() && fallbackPath) {
+      router.push(fallbackPath);
+      return;
+    }
     router.back();
   };
 

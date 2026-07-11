@@ -59,6 +59,10 @@ export interface OrderItem {
   categoryId?: string | null;
   /** Supplier ID for link to supplier detail (from product) */
   supplierId?: string | null;
+  /** Display name from product.category (REQ-0071) */
+  categoryName?: string | null;
+  /** Display name from product.supplier (REQ-0071) */
+  supplierName?: string | null;
   /** REQ-0068 — source warehouse when product has allocations */
   warehouseId?: string | null;
   warehouseName?: string | null;
@@ -93,6 +97,8 @@ export interface Order {
   shippedAt?: Date | null;
   deliveredAt?: Date | null;
   cancelledAt?: Date | null;
+  /** Stripe PaymentIntent ID when paid via Stripe (REQ-0071 detail card) */
+  stripePaymentIntentId?: string | null;
   createdAt: Date;
   updatedAt?: Date | null;
   createdBy: string;

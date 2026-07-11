@@ -37,6 +37,8 @@ export interface Invoice {
   paidAt?: Date | null;
   cancelledAt?: Date | null;
   paymentLink?: string | null;
+  /** Stripe PaymentIntent ID for refunds (REQ-0071 detail card) */
+  stripePaymentIntentId?: string | null;
   notes?: string | null;
   billingAddress?: BillingAddress | null;
   createdAt: Date;

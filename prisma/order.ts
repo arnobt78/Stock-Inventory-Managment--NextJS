@@ -263,7 +263,7 @@ export async function getOrderById(orderId: string, userId: string) {
               userId: true,
               categoryId: true,
               supplierId: true,
-              imageUrl: true, // REQ-0059: line-item thumbnails on detail pages
+              imageUrl: true,
             },
           },
         },
@@ -396,7 +396,7 @@ export async function getOrderByIdForAdmin(orderId: string) {
               userId: true,
               categoryId: true,
               supplierId: true,
-              imageUrl: true, // REQ-0059: line-item thumbnails on detail pages
+              imageUrl: true,
             },
           },
         },
@@ -426,7 +426,7 @@ export async function getOrderByIdForProductOwner(
               userId: true,
               categoryId: true,
               supplierId: true,
-              imageUrl: true, // REQ-0059: line-item thumbnails on detail pages
+              imageUrl: true,
             },
           },
         },
@@ -460,7 +460,7 @@ export async function getOrderByIdForClient(orderId: string, clientId: string) {
               price: true,
               categoryId: true,
               supplierId: true,
-              imageUrl: true, // REQ-0059: line-item thumbnails on detail pages
+              imageUrl: true,
             },
           },
         },
@@ -489,7 +489,7 @@ export async function getOrderByIdForSupplier(
               price: true,
               userId: true,
               supplierId: true,
-              imageUrl: true, // REQ-0059: line-item thumbnails on detail pages
+              imageUrl: true,
             },
           },
         },

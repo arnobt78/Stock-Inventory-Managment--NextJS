@@ -2,6 +2,7 @@ export {
   type CardVariant,
   variantConfig,
   GlassCard,
+  DetailInfoRow,
   formatAddress,
   getCustomerDisplay,
   getCustomerEmail,

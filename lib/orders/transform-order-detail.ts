@@ -32,6 +32,7 @@ type OrderRaw = {
   shippedAt?: Date | null;
   deliveredAt?: Date | null;
   cancelledAt?: Date | null;
+  stripePaymentIntentId?: string | null;
   createdAt: Date;
   updatedAt?: Date | null;
   createdBy: string | null;
@@ -74,6 +75,7 @@ export function transformOrderDetail(
     shippedAt: order.shippedAt?.toISOString() || null,
     deliveredAt: order.deliveredAt?.toISOString() || null,
     cancelledAt: order.cancelledAt?.toISOString() || null,
+    stripePaymentIntentId: order.stripePaymentIntentId ?? null,
     createdAt: order.createdAt.toISOString(),
     updatedAt: order.updatedAt?.toISOString() || null,
     createdBy: order.createdBy,

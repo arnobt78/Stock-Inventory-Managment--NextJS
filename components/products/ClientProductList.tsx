@@ -15,7 +15,8 @@ import type {
   ClientBrowseProductsResponse,
 } from "@/types";
 import { StatisticsCard } from "@/components/home/StatisticsCard";
-import { Users, Truck, FolderTree, Warehouse } from "lucide-react";
+import { Users, Truck, FolderTree, Warehouse, ShoppingBag } from "lucide-react";
+import { PageSectionHeader } from "@/components/shared";
 import ProductFilters from "./ProductFilters";
 
 const ProductTable = dynamic(
@@ -65,6 +66,7 @@ export default function ClientProductList({
 
   const admins = meta?.admins ?? [];
   const stats = meta?.stats ?? {
+    storeOwners: { total: 0, withProducts: 0 },
     admins: 0,
     clients: 0,
     suppliers: { total: 0, active: 0, inactive: 0 },
@@ -158,15 +160,13 @@ export default function ClientProductList({
       </div>
 
       {/* Product Inventory Section — client-facing copy */}
-      <div className="pb-6 flex flex-col items-start text-left">
-        <h2 className="text-sm sm:text-base font-medium text-gray-700 dark:text-white ">
-          Browse & Purchase Products
-        </h2>
-        <p className="text-base text-gray-600 dark:text-gray-400">
-          Explore products from our store. Filter by category, supplier, or
-          status, or choose a product owner to browse their catalog.
-        </p>
-      </div>
+      <PageSectionHeader
+        as="h2"
+        icon={ShoppingBag}
+        tone="sky"
+        title="Browse & Purchase Products"
+        description="Explore products from our store. Filter by category, supplier, or status, or choose a product owner to browse their catalog."
+      />
 
       <div className="pb-6 flex justify-center">
         <div className={APP_SHELL_WIDTH_CLASS}>
@@ -199,6 +199,7 @@ export default function ClientProductList({
             setSelectedSuppliers={setSelectedSuppliers}
             userId=""
             productOwnerOptions={admins}
+            storeOwnerCounts={stats.storeOwners}
             selectedOwnerId={selectedOwnerId}
             onOwnerChange={setSelectedOwnerId}
           />

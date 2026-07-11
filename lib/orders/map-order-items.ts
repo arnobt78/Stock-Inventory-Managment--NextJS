@@ -23,6 +23,8 @@ export type OrderItemRaw = {
     supplierId?: string | null;
     imageUrl?: string | null;
     userId?: string | null;
+    category?: { id?: string; name?: string } | null;
+    supplier?: { id?: string; name?: string } | null;
   } | null;
 };
 
@@ -42,6 +44,8 @@ export function mapOrderItemsFromRaw(items: OrderItemRaw[] | undefined): OrderIt
     warehouseName: item.warehouseName ?? null,
     categoryId: item.product?.categoryId ?? null,
     supplierId: item.product?.supplierId ?? null,
+    categoryName: item.product?.category?.name ?? null,
+    supplierName: item.product?.supplier?.name ?? null,
     imageUrl: item.product?.imageUrl ?? null,
   }));
 }

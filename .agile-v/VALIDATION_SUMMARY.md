@@ -2,8 +2,8 @@
 
 **Generated:** 2026-07-11  
 **eval_gate_status:** PENDING (Human Gate 2)  
-**Prod target SHA:** pending — REQ-0070  
-**Red Team:** lint ✓ test 376 ✓ invalidate 206 ✓ build ✓ (2026-07-11 REQ-0070)
+**Prod target SHA:** pending — REQ-0071  
+**Red Team:** lint ✓ test 376 ✓ invalidate 206 ✓ build ✓ (2026-07-11 REQ-0071)
 
 ---
 
@@ -12,8 +12,8 @@
 | Check | Command | Result | REQ-IDs |
 |-------|---------|--------|---------|
 | Lint | `npm run lint` | PASS | ALL |
-| Unit tests | `npm run test` | PASS (376) | REQ-0070 |
-| Invalidation audit | `npm run test:invalidate` | PASS (206) | REQ-0070 |
+| Unit tests | `npm run test` | PASS (376) | REQ-0071 |
+| Invalidation audit | `npm run test:invalidate` | PASS (206) | REQ-0071 |
 | Build | `npm run build` | PASS | ALL |
 | Typecheck (touched scripts) | `tsc --noEmit` | PASS | REQ-0056 |
 
@@ -62,6 +62,7 @@
 | VS-029 | INFO | Google OAuth welcome toast (REQ-0035) | PASS (automated) |
 | VS-030 | INFO | Glass button tokens + Batch A/B migration (REQ-0047) | PASS (automated) |
 | VS-031 | INFO | Auth light mode + dialog tables + order thumbs (REQ-0048) | PASS (automated) |
+| VS-032 | INFO | Portal & detail UX polish (REQ-0071) | PASS (automated) |
 
 ---
 

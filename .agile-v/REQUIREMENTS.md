@@ -1496,6 +1496,34 @@ Canonical REQ source. All artifacts link via `REQ-XXXX`. Status: `done` | `verif
 
 ---
 
+## REQ-0071 — Client/supplier portal & detail UX polish
+
+| Field | Value |
+|-------|-------|
+| **Priority** | P1 |
+| **Risk** | R2 |
+| **Status** | done |
+| **Cycle** | C2 |
+| **Parent** | REQ-0070; extends REQ-0058–0063 |
+
+**Intent:** Portal headers, owner-picker clarity, richer detail cards, readable glass detail CTAs with icons, order line-item category/supplier, Quick Links removal, Stripe post-payment back-nav fix.
+
+**Acceptance criteria**
+
+- AC1: `PageSectionHeader` on client + supplier portal pages (icon beside title/welcome)
+- AC2: View All Orders/Invoices (and supplier parity) with left icons + `GLASS_ACTION_BUTTON`
+- AC3: Quick Links sections removed from client + supplier portals
+- AC4: Browse section uses `PageSectionHeader` with icon in `ClientProductList`
+- AC5: `storeOwners` counts in browse meta + helper text on Product Owner select
+- AC6: Order/invoice line items show category + supplier via `enrichOrderItemsCatalogNames` + `ProductLineItemsList`
+- AC7: `glassDetailFooterButtonClass` — detail footer CTAs omit `variant="ghost"`; icons on all detail actions
+- AC8: `DetailInfoRow` + expanded order/invoice information cards (payment, dates, Stripe refs)
+- AC9: Stripe return — `markStripeCheckoutReturn` + `window.location.replace` + `useBackWithRefresh` fallback path
+
+**Artifacts:** portal pages, detail pages, `lib/ui/glass-button-styles.ts`, `lib/payments/stripe-return.ts`, `lib/orders/enrich-order-items-catalog.ts`, `hooks/use-back-with-refresh.ts`
+
+---
+
 | Field | Value |
 |-------|-------|
 | **Priority** | P1 |

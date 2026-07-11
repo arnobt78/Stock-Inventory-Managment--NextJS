@@ -45,7 +45,7 @@ import {
   GLASS_BUTTON_ICON_HOVER,
   GLASS_BUTTON_SHELL_RESET,
   GLASS_GHOST_BUTTON,
-  GLASS_PRIMARY_BUTTON,
+  glassDetailFooterButtonClass,
   DialogSubmitButton,
 } from "@/components/shared";
 import WarehouseDialog from "@/components/warehouses/WarehouseDialog";
@@ -637,12 +637,7 @@ export default function WarehouseDetailPage({
             <Button
               onClick={() => setAllocateOpen(true)}
               disabled={dataLoading || !warehouse}
-              className={cn(
-                "group w-full sm:w-auto gap-2 !text-white",
-                GLASS_BUTTON_ICON_HOVER,
-                GLASS_BUTTON_SHELL_RESET,
-                GLASS_PRIMARY_BUTTON.violet,
-              )}
+              className={glassDetailFooterButtonClass("violet")}
             >
               <Plus className="h-4 w-4 shrink-0" />
               Allocate Stock
@@ -656,25 +651,14 @@ export default function WarehouseDetailPage({
                   (a) => a.quantity - a.reservedQuantity > 0,
                 )
               }
-              className={cn(
-                "group w-full sm:w-auto gap-2 !text-white",
-                GLASS_BUTTON_ICON_HOVER,
-                GLASS_BUTTON_SHELL_RESET,
-                GLASS_BUTTON_DISABLED,
-                GLASS_PRIMARY_BUTTON.teal,
-              )}
+              className={glassDetailFooterButtonClass("teal")}
             >
               <ArrowRightLeft className="h-4 w-4 shrink-0" />
               Transfer Stock
             </Button>
             <Button
               onClick={handleEdit}
-              className={cn(
-                "group w-full sm:w-auto gap-2 !text-white",
-                GLASS_BUTTON_ICON_HOVER,
-                GLASS_BUTTON_SHELL_RESET,
-                GLASS_PRIMARY_BUTTON.blue,
-              )}
+              className={glassDetailFooterButtonClass("blue")}
             >
               <Edit className="h-4 w-4 shrink-0" />
               Edit Warehouse

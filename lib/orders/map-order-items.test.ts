@@ -19,6 +19,8 @@ describe("mapOrderItemsFromRaw", () => {
           categoryId: "cat1",
           supplierId: "sup1",
           imageUrl: "https://ik.imagekit.io/example/widget.jpg",
+          category: { id: "cat1", name: "Electronics" },
+          supplier: { id: "sup1", name: "Acme Supply" },
         },
       },
     ]);
@@ -29,6 +31,8 @@ describe("mapOrderItemsFromRaw", () => {
       productName: "Widget",
       categoryId: "cat1",
       supplierId: "sup1",
+      categoryName: "Electronics",
+      supplierName: "Acme Supply",
       imageUrl: "https://ik.imagekit.io/example/widget.jpg",
       createdAt: createdAt.toISOString(),
     });
@@ -57,5 +61,7 @@ describe("mapOrderItemsFromRaw", () => {
     expect(result[0].imageUrl).toBeNull();
     expect(result[0].categoryId).toBeNull();
     expect(result[0].supplierId).toBeNull();
+    expect(result[0].categoryName).toBeNull();
+    expect(result[0].supplierName).toBeNull();
   });
 });

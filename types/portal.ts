@@ -209,6 +209,10 @@ export interface ClientCatalogOverview {
 export interface ClientBrowseMeta {
   admins: Array<{ id: string; name: string; email: string }>;
   stats: {
+    storeOwners: {
+      total: number;
+      withProducts: number;
+    };
     admins: number;
     clients: number;
     suppliers: { total: number; active: number; inactive: number };

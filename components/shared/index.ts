@@ -109,6 +109,7 @@ export {
   GLASS_GHOST_BUTTON,
   GLASS_PRIMARY_BUTTON,
   glassActionButtonClass,
+  glassDetailFooterButtonClass,
   glassPrimaryButtonClass,
 } from "@/lib/ui/glass-button-styles";
 export { DialogSubmitButton } from "./DialogSubmitButton";
