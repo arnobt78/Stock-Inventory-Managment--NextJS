@@ -54,7 +54,7 @@ async function enrichInvoice(
     uniqueIds.length > 0
       ? await prisma.user.findMany({
           where: { id: { in: uniqueIds } },
-          select: { id: true, name: true, email: true },
+          select: { id: true, name: true, email: true, image: true },
         })
       : [];
   const userMap = new Map(partyUsers.map((u) => [u.id, u]));
@@ -71,24 +71,30 @@ async function enrichInvoice(
 
   const invoiceCreatedBy = userMap.get(resolvedIssuerId)
     ? {
+        userId: resolvedIssuerId,
         name: userMap.get(resolvedIssuerId)!.name ?? null,
         email: userMap.get(resolvedIssuerId)!.email,
+        image: userMap.get(resolvedIssuerId)!.image ?? null,
       }
     : null;
 
   const orderedBy =
     order && userMap.get(order.userId)
       ? {
+          userId: order.userId,
           name: userMap.get(order.userId)!.name ?? null,
           email: userMap.get(order.userId)!.email,
+          image: userMap.get(order.userId)!.image ?? null,
         }
       : null;
 
   const client =
     invoice.clientId && userMap.get(invoice.clientId)
       ? {
+          userId: invoice.clientId,
           name: userMap.get(invoice.clientId)!.name ?? null,
           email: userMap.get(invoice.clientId)!.email,
+          image: userMap.get(invoice.clientId)!.image ?? null,
         }
       : null;
 
@@ -103,7 +109,14 @@ async function enrichInvoice(
   const invoiceProductOwners = productOwnerIds
     .map((id) => {
       const u = userMap.get(id);
-      return u ? { userId: u.id, name: u.name ?? null, email: u.email } : null;
+      return u
+        ? {
+            userId: u.id,
+            name: u.name ?? null,
+            email: u.email,
+            image: u.image ?? null,
+          }
+        : null;
     })
     .filter(Boolean) as InvoiceDetailEnrichment["invoiceProductOwners"];
 

@@ -6,7 +6,7 @@ import { PaginationType } from "@/components/shared/PaginationSelector";
 import { columns } from "./ProductTableColumns";
 import { useClientBrowseMeta, useClientBrowseProducts } from "@/hooks/queries";
 import { isDataSlotLoading, queryKeys, useSyncSsrQueryData } from "@/lib/react-query";
-import { APP_SHELL_WIDTH_CLASS } from "@/lib/ui/shell-layout-styles";
+import { PAGE_STATS_GRID_CLASS, APP_SHELL_WIDTH_CLASS } from "@/lib/ui/shell-layout-styles";
 import type {
   Product,
   Category,
@@ -17,6 +17,7 @@ import type {
 import { StatisticsCard } from "@/components/home/StatisticsCard";
 import { Users, Truck, FolderTree, Warehouse, ShoppingBag } from "lucide-react";
 import { PageSectionHeader } from "@/components/shared";
+import { cn } from "@/lib/utils";
 import ProductFilters from "./ProductFilters";
 
 const ProductTable = dynamic(
@@ -112,7 +113,7 @@ export default function ClientProductList({
   return (
     <div className="flex flex-col poppins space-y-4">
       {/* Stat Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2 items-stretch">
+      <div className={cn(PAGE_STATS_GRID_CLASS, "grid-cols-1 sm:grid-cols-2 lg:grid-cols-4")}>
         <StatisticsCard
           title="Product Owners"
           value={stats.admins}

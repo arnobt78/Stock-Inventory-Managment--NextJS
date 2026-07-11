@@ -303,7 +303,7 @@ export default function FiltersAndActions({
     <div className="flex flex-col gap-2">
       {/* Row 1: Select Product Owner (when client) - centered */}
       {productOwnerOptions && onOwnerChange && (
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 w-full">
+        <div className="flex flex-wrap items-center justify-center gap-3 w-full py-1">
           <p className="text-sm text-gray-700 dark:text-white/80 flex items-center gap-2 min-w-0">
             <Users className="h-4 w-4 text-violet-500 dark:text-violet-400 shrink-0" />
             <span className="truncate">

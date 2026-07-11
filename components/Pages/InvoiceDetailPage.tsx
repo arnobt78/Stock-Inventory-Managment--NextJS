@@ -25,6 +25,7 @@ import {
   Package,
   Hash,
   Trash2,
+  StickyNote,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { InvoiceStatusBadge } from "@/lib/ui/semantic-badges";
@@ -54,6 +55,11 @@ import {
   DETAIL_HEADER_BACK_ICON_CLASS,
   DialogSubmitButton,
 } from "@/components/shared";
+import {
+  PartiesRolesCard,
+  mapOrderProductOwners,
+} from "@/components/shared/PartiesRolesCard";
+import { InvoiceSummaryCard } from "@/components/invoices/detail/InvoiceSummaryCard";
 import { DetailInfoRow } from "@/components/orders/detail/order-detail-primitives";
 import type { InvoiceStatus } from "@/types";
 import type { Invoice } from "@/types";
@@ -650,14 +656,9 @@ export default function InvoiceDetailPage({
                 </DetailInfoRow>
               )}
               {!dataLoading && invoice?.notes && (
-                <div className="p-2 rounded-xl bg-gradient-to-r from-teal-100/50 via-teal-50/30 to-transparent dark:from-teal-500/10 dark:via-teal-500/5 dark:to-transparent border border-teal-200/30 dark:border-teal-400/10">
-                  <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">
-                    Notes:
-                  </p>
-                  <p className="text-sm text-gray-700 dark:text-white">
-                    {invoice.notes}
-                  </p>
-                </div>
+                <DetailInfoRow icon={StickyNote} label="Notes:" tone="teal">
+                  {invoice.notes}
+                </DetailInfoRow>
               )}
             </div>
           </GlassCard>
@@ -710,7 +711,26 @@ export default function InvoiceDetailPage({
                 ) : (
                   <ProductLineItemsList
                     items={invoice!.linkedOrderItems ?? []}
-                    linkMode={embedInAdmin ? "admin" : "none"}
+                    linkMode={
+                      embedInAdmin
+                        ? "admin"
+                        : isClientRole || user?.role === "supplier"
+                          ? "portal"
+                          : "none"
+                    }
+                    warehouseLinkMode={
+                      user?.role === "admin"
+                        ? "admin"
+                        : user?.role === "user"
+                          ? "owner"
+                          : "none"
+                    }
+                    showReviews={invoice!.status === "paid"}
+                    order={{
+                      id: invoice!.orderId,
+                      paymentStatus:
+                        invoice!.status === "paid" ? "paid" : "unpaid",
+                    }}
                     emptyMessage="No items on linked order"
                   />
                 )}
@@ -718,7 +738,6 @@ export default function InvoiceDetailPage({
             </GlassCard>
           )}
 
-          {/* Parties & roles — shell visible while loading (REQ-0022) */}
           {(dataLoading ||
             invoice?.invoiceCreatedBy != null ||
             invoice?.orderedBy != null ||
@@ -726,111 +745,17 @@ export default function InvoiceDetailPage({
             (invoice?.invoiceProductOwners &&
               invoice.invoiceProductOwners.length > 0)) && (
             <GlassCard variant="teal">
-              <div className="flex items-center gap-2 mb-4">
-                <div
-                  className={cn(
-                    "p-2 rounded-xl border",
-                    variantConfig.teal.iconBg,
-                    "dark:border-teal-400/30 dark:bg-teal-500/20",
-                  )}
-                >
-                  <FileText className="h-5 w-5 text-teal-600 dark:text-teal-400" />
-                </div>
-                <h3 className="text-sm sm:text-base font-medium text-gray-700 dark:text-white">
-                  Parties &amp; roles
-                </h3>
-              </div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm">
-                {(dataLoading || invoice?.invoiceCreatedBy) && (
-                  <div className="p-2 rounded-xl bg-gradient-to-r from-teal-100/50 via-teal-50/30 to-transparent dark:from-teal-500/10 dark:via-teal-500/5 dark:to-transparent border border-teal-200/30 dark:border-teal-400/10">
-                    <p className="text-gray-600 dark:text-gray-400 font-medium mb-0.5">
-                      Invoice created by
-                    </p>
-                    {dataLoading ? (
-                      <DataSlotPulse variant="text-md" className="w-36" />
-                    ) : (
-                      <>
-                        <p className="text-gray-700 dark:text-white">
-                          {invoice!.invoiceCreatedBy!.name ??
-                            invoice!.invoiceCreatedBy!.email}
-                        </p>
-                        {invoice!.invoiceCreatedBy!.name && (
-                          <p className="text-gray-500 dark:text-gray-400 text-xs">
-                            {invoice!.invoiceCreatedBy!.email}
-                          </p>
-                        )}
-                      </>
-                    )}
-                  </div>
+              <PartiesRolesCard
+                dataLoading={dataLoading}
+                headerIcon={FileText}
+                invoiceCreatedBy={invoice?.invoiceCreatedBy ?? null}
+                orderedBy={invoice?.orderedBy ?? null}
+                customer={invoice?.client ?? null}
+                customerLabel="Customer / Bill to"
+                productOwners={mapOrderProductOwners(
+                  invoice?.invoiceProductOwners ?? [],
                 )}
-                {(dataLoading || invoice?.orderedBy) && (
-                  <div className="p-2 rounded-xl bg-gradient-to-r from-teal-100/50 via-teal-50/30 to-transparent dark:from-teal-500/10 dark:via-teal-500/5 dark:to-transparent border border-teal-200/30 dark:border-teal-400/10">
-                    <p className="text-gray-600 dark:text-gray-400 font-medium mb-0.5">
-                      Ordered by
-                    </p>
-                    {dataLoading ? (
-                      <DataSlotPulse variant="text-md" className="w-36" />
-                    ) : (
-                      <>
-                        <p className="text-gray-700 dark:text-white">
-                          {invoice!.orderedBy!.name ??
-                            invoice!.orderedBy!.email}
-                        </p>
-                        {invoice!.orderedBy!.name && (
-                          <p className="text-gray-500 dark:text-gray-400 text-xs">
-                            {invoice!.orderedBy!.email}
-                          </p>
-                        )}
-                      </>
-                    )}
-                  </div>
-                )}
-                {(dataLoading || invoice?.client) && (
-                  <div className="p-2 rounded-xl bg-gradient-to-r from-teal-100/50 via-teal-50/30 to-transparent dark:from-teal-500/10 dark:via-teal-500/5 dark:to-transparent border border-teal-200/30 dark:border-teal-400/10">
-                    <p className="text-gray-600 dark:text-gray-400 font-medium mb-0.5">
-                      Customer / Bill to
-                    </p>
-                    {dataLoading ? (
-                      <DataSlotPulse variant="text-md" className="w-36" />
-                    ) : (
-                      <>
-                        <p className="text-gray-700 dark:text-white">
-                          {invoice!.client!.name ?? invoice!.client!.email}
-                        </p>
-                        {invoice!.client!.name && (
-                          <p className="text-gray-500 dark:text-gray-400 text-xs">
-                            {invoice!.client!.email}
-                          </p>
-                        )}
-                      </>
-                    )}
-                  </div>
-                )}
-                {!dataLoading &&
-                  invoice!.invoiceProductOwners &&
-                  invoice!.invoiceProductOwners.length > 0 && (
-                    <div className="sm:col-span-2 p-2 rounded-xl bg-gradient-to-r from-teal-100/50 via-teal-50/30 to-transparent dark:from-teal-500/10 dark:via-teal-500/5 dark:to-transparent border border-teal-200/30 dark:border-teal-400/10">
-                      <p className="text-gray-600 dark:text-gray-400 font-medium mb-2">
-                        Product owner(s)
-                      </p>
-                      <div className="flex flex-wrap gap-2">
-                        {invoice!.invoiceProductOwners.map((owner) => (
-                          <span
-                            key={owner.userId}
-                            className="inline-flex items-center gap-1 rounded-md bg-white/50 dark:bg-white/10 px-2 py-1 text-xs border border-teal-200/30 dark:border-teal-400/20"
-                          >
-                            {owner.name ?? owner.email}
-                            {owner.name && (
-                              <span className="text-gray-500 dark:text-gray-400">
-                                ({owner.email})
-                              </span>
-                            )}
-                          </span>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-              </div>
+              />
             </GlassCard>
           )}
 
@@ -863,119 +788,7 @@ export default function InvoiceDetailPage({
               </GlassCard>
             )}
 
-            {/* Invoice Totals */}
-            <GlassCard variant="teal">
-              <div className="flex items-center gap-2 mb-4">
-                <div
-                  className={cn(
-                    "p-2 rounded-xl border",
-                    variantConfig.teal.iconBg,
-                    "dark:border-teal-400/30 dark:bg-teal-500/20",
-                  )}
-                >
-                  <DollarSign className="h-5 w-5 text-teal-600 dark:text-teal-400" />
-                </div>
-                <h3 className="text-sm sm:text-base font-medium text-gray-700 dark:text-white">
-                  Invoice Summary
-                </h3>
-              </div>
-
-              <div className="space-y-2">
-                <div className="flex justify-between text-sm p-2 rounded-lg bg-gradient-to-r from-sky-100/40 via-sky-50/20 to-transparent dark:from-sky-500/10 dark:via-sky-500/5 dark:to-transparent">
-                  <span className="text-gray-600 dark:text-gray-400">
-                    Subtotal:
-                  </span>
-                  <span className="font-medium text-gray-700 dark:text-white">
-                    {dataLoading ? (
-                      <DataSlotPulse variant="currency" />
-                    ) : (
-                      `$${invoice!.subtotal.toFixed(2)}`
-                    )}
-                  </span>
-                </div>
-                {!dataLoading && invoice!.tax && invoice!.tax > 0 && (
-                  <div className="flex justify-between text-sm p-2 rounded-lg bg-gradient-to-r from-amber-100/40 via-amber-50/20 to-transparent dark:from-amber-500/10 dark:via-amber-500/5 dark:to-transparent">
-                    <span className="text-gray-600 dark:text-gray-400">
-                      Tax:
-                    </span>
-                    <span className="font-medium text-gray-700 dark:text-white">
-                      ${invoice!.tax.toFixed(2)}
-                    </span>
-                  </div>
-                )}
-                {!dataLoading &&
-                  invoice!.shipping != null &&
-                  invoice!.shipping > 0 && (
-                    <div className="flex justify-between text-sm p-2 rounded-lg bg-gradient-to-r from-violet-100/40 via-violet-50/20 to-transparent dark:from-violet-500/10 dark:via-violet-500/5 dark:to-transparent">
-                      <span className="text-gray-600 dark:text-gray-400">
-                        Shipping:
-                      </span>
-                      <span className="font-medium text-gray-700 dark:text-white">
-                        ${invoice!.shipping.toFixed(2)}
-                      </span>
-                    </div>
-                  )}
-                {!dataLoading && invoice!.discount && invoice!.discount > 0 && (
-                  <div className="flex justify-between text-sm p-2 rounded-lg bg-gradient-to-r from-rose-100/40 via-rose-50/20 to-transparent dark:from-rose-500/10 dark:via-rose-500/5 dark:to-transparent">
-                    <span className="text-gray-600 dark:text-gray-400">
-                      Discount:
-                    </span>
-                    <span className="font-medium text-rose-600 dark:text-rose-400">
-                      -${invoice!.discount.toFixed(2)}
-                    </span>
-                  </div>
-                )}
-                <Separator className="my-2 bg-teal-200/50 dark:bg-teal-400/20" />
-                <div className="flex justify-between text-sm sm:text-lg font-medium p-2 rounded-xl bg-gradient-to-r from-blue-100/50 via-blue-50/30 to-transparent dark:from-blue-500/15 dark:via-blue-500/10 dark:to-transparent border border-blue-200/30 dark:border-blue-400/20">
-                  <span className="text-gray-700 dark:text-white">Total:</span>
-                  <span className="text-blue-600 dark:text-blue-400">
-                    {dataLoading ? (
-                      <DataSlotPulse variant="currency" />
-                    ) : (
-                      `$${invoice!.total.toFixed(2)}`
-                    )}
-                  </span>
-                </div>
-                {!dataLoading && invoice!.amountPaid > 0 && (
-                  <>
-                    <Separator className="my-2 bg-teal-200/50 dark:bg-teal-400/20" />
-                    <div className="flex justify-between text-sm p-2 rounded-lg bg-gradient-to-r from-emerald-100/40 via-emerald-50/20 to-transparent dark:from-emerald-500/10 dark:via-emerald-500/5 dark:to-transparent">
-                      <span className="text-gray-600 dark:text-gray-400">
-                        Amount Paid:
-                      </span>
-                      <span className="font-medium text-emerald-600 dark:text-emerald-400">
-                        ${invoice!.amountPaid.toFixed(2)}
-                      </span>
-                    </div>
-                    <div
-                      className={cn(
-                        "flex justify-between text-sm sm:text-lg font-medium p-2 rounded-xl border",
-                        invoice!.amountDue > 0 && isOverdue
-                          ? "bg-gradient-to-r from-rose-100/50 via-rose-50/30 to-transparent dark:from-rose-500/15 dark:via-rose-500/10 dark:to-transparent border-rose-200/30 dark:border-rose-400/20"
-                          : invoice!.amountDue > 0
-                            ? "bg-gradient-to-r from-amber-100/50 via-amber-50/30 to-transparent dark:from-amber-500/15 dark:via-amber-500/10 dark:to-transparent border-amber-200/30 dark:border-amber-400/20"
-                            : "bg-gradient-to-r from-emerald-100/50 via-emerald-50/30 to-transparent dark:from-emerald-500/15 dark:via-emerald-500/10 dark:to-transparent border-emerald-200/30 dark:border-emerald-400/20",
-                      )}
-                    >
-                      <span className="text-gray-700 dark:text-white">
-                        Amount Due:
-                      </span>
-                      <span
-                        className={cn(
-                          invoice!.amountDue > 0 && isOverdue
-                            ? "text-rose-600 dark:text-rose-400"
-                            : invoice!.amountDue > 0
-                              ? "text-amber-600 dark:text-amber-400"
-                              : "text-emerald-600 dark:text-emerald-400",
-                        )}
-                      >
-                        ${invoice!.amountDue.toFixed(2)}
-                      </span>
-                    </div>
-                  </>
-                )}
-              </div>
-            </GlassCard>
+            <InvoiceSummaryCard invoice={invoice} dataLoading={dataLoading} />
           </div>
 
           {/* Actions — Back, Edit Invoice, Send Invoice, Delete Invoice; same layout as order detail */}

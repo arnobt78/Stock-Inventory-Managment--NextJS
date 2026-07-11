@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import {
@@ -20,7 +20,6 @@ import WarehouseDialog from "@/components/warehouses/WarehouseDialog";
 import { Product } from "@/types";
 import { fabButtonClass } from "@/lib/ui/fab-button-styles";
 import type { GlassFocusHue } from "@/lib/ui/focus-ring-styles";
-import { useProductStore } from "@/stores";
 
 export type FloatingActionButtonsVariant =
   | "home"
@@ -33,11 +32,9 @@ export type FloatingActionButtonsVariant =
   | "products-client";
 
 interface FloatingActionButtonsProps {
-  /** "home" = all FABs (Product, Category, Supplier, Order); "orders" = Create Order only; "products-client" = Create Order only (client, tied to product owner select) */
   variant?: FloatingActionButtonsVariant;
   allProducts?: Product[];
   userId?: string;
-  /** For variant "products-client": product owner ID - button disabled when empty */
   selectedOwnerId?: string;
 }
 
@@ -75,20 +72,29 @@ export default function FloatingActionButtons({
   selectedOwnerId = "",
 }: FloatingActionButtonsProps) {
   const [expandRequested, setExpandRequested] = useState(false);
-  const openProductDialog = useProductStore((s) => s.openProductDialog);
+  const anyDialogOpenRef = useRef(false);
 
-  const usesProductFab =
-    variant === "home" || variant === "products";
-  const isExpanded = usesProductFab
-    ? expandRequested && openProductDialog
-    : expandRequested;
+  const isExpanded = expandRequested;
 
   const handleFabPointerDown = useCallback(() => {
     setExpandRequested(true);
   }, []);
 
+  const handleMouseEnter = useCallback(() => {
+    setExpandRequested(true);
+  }, []);
+
+  const handleMouseLeave = useCallback(() => {
+    if (!anyDialogOpenRef.current) {
+      setExpandRequested(false);
+    }
+  }, []);
+
   const handleDialogOpenChange = useCallback((open: boolean) => {
-    setExpandRequested(open);
+    anyDialogOpenRef.current = open;
+    if (!open) {
+      setExpandRequested(false);
+    }
   }, []);
 
   const labelClass = (expanded: boolean) =>
@@ -104,7 +110,11 @@ export default function FloatingActionButtons({
   const fabClickProps = { onPointerDown: handleFabPointerDown };
 
   return (
-    <div className="fixed right-4 top-1/2 -translate-y-1/2 z-50 hidden md:flex flex-col gap-2">
+    <div
+      className="fixed right-4 top-1/2 -translate-y-1/2 z-50 hidden md:flex flex-col gap-2"
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
+    >
       {variant === "home" && (
         <div className={wrapClass(isExpanded)}>
           <AddProductDialog allProducts={allProducts} userId={userId}>

@@ -168,6 +168,7 @@ export default function ProductReviewsSection({
               onClick={handleWriteNew}
               className={cn(
                 "rounded-lg h-8 text-amber-600 dark:text-amber-400",
+                "border border-amber-400/30 bg-amber-500/5 hover:bg-amber-500/10",
               )}
             >
               <MessageSquare className="h-3.5 w-3.5 mr-1" />

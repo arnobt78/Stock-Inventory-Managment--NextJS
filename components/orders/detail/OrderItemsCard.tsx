@@ -11,7 +11,7 @@ import type { OrderReviewContext } from "@/lib/server/order-review-context-data"
 export type OrderItemsCardProps = {
   order?: Order;
   dataLoading: boolean;
-  linkMode: "admin" | "none";
+  linkMode: "admin" | "portal" | "none";
   warehouseLinkMode?: "admin" | "owner" | "none";
   /** REQ-0026 — batch SSR review context keyed by productId */
   initialReviewContext?: OrderReviewContext;

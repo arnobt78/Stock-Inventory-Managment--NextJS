@@ -43,7 +43,14 @@ type OrderRaw = {
 export type OrderDetailEnrichment = {
   placedByName: string | null;
   placedByEmail: string | null;
-  orderProductOwners: { userId: string; name: string | null; email: string }[];
+  placedByUserId?: string | null;
+  placedByImage?: string | null;
+  orderProductOwners: {
+    userId: string;
+    name: string | null;
+    email: string;
+    image?: string | null;
+  }[];
   invoiceForOrder: { id: string; invoiceNumber: string; paidAt?: string | null } | null;
 };
 
@@ -82,6 +89,8 @@ export function transformOrderDetail(
     updatedBy: order.updatedBy,
     placedByName: enrichment.placedByName,
     placedByEmail: enrichment.placedByEmail,
+    placedByUserId: enrichment.placedByUserId ?? null,
+    placedByImage: enrichment.placedByImage ?? null,
     orderProductOwners: enrichment.orderProductOwners,
     invoiceForOrder: enrichment.invoiceForOrder,
     paidAt:

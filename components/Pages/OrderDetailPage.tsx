@@ -283,7 +283,13 @@ export default function OrderDetailPage({
           <OrderItemsCard
             order={order}
             dataLoading={dataLoading}
-            linkMode="none"
+            linkMode={
+              user?.role === "admin"
+                ? "admin"
+                : user?.role === "client" || user?.role === "supplier"
+                  ? "portal"
+                  : "none"
+            }
             warehouseLinkMode={
               user?.role === "admin"
                 ? "admin"
@@ -322,11 +328,11 @@ export default function OrderDetailPage({
                     <DetailInfoRow icon={Hash} label="Order ID:" tone="violet">
                       <span className="font-mono text-xs">{order.id}</span>
                     </DetailInfoRow>
-                    <DetailInfoRow icon={Package} label="Status:" tone="sky">
-                      <span className="inline-flex flex-wrap items-center gap-2">
-                        <OrderStatusBadge status={order.status} />
-                        <PaymentStatusBadge status={order.paymentStatus} />
-                      </span>
+                    <DetailInfoRow icon={Package} label="Order Status:" tone="sky">
+                      <OrderStatusBadge status={order.status} />
+                    </DetailInfoRow>
+                    <DetailInfoRow icon={CreditCard} label="Payment Status:" tone="emerald">
+                      <PaymentStatusBadge status={order.paymentStatus} />
                     </DetailInfoRow>
                     {order.paymentStatus === "partial" && (
                       <DetailInfoRow icon={CreditCard} label="Payment:" tone="amber">

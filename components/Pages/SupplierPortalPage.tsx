@@ -63,6 +63,8 @@ import {
 import { StatisticsCard } from "@/components/home/StatisticsCard";
 import { isDataSlotLoading, queryKeys, useSyncSsrQueryData } from "@/lib/react-query";
 import { cn } from "@/lib/utils";
+import { PAGE_STATS_GRID_CLASS } from "@/lib/ui/shell-layout-styles";
+import { createChartDotLabelRenderer } from "@/lib/ui/chart-point-label";
 import type { SupplierPortalDashboard } from "@/types";
 
 export type SupplierPortalPageProps = {
@@ -124,7 +126,6 @@ export default function SupplierPortalPage({
             as="h1"
             icon={Truck}
             tone="emerald"
-            className="pb-0"
             title="Supplier Portal"
             description={
               <>
@@ -139,7 +140,7 @@ export default function SupplierPortalPage({
           />
 
           {/* Summary Cards — supplier's products/orders/revenue only */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-2">
+          <div className={cn(PAGE_STATS_GRID_CLASS, "grid-cols-1 sm:grid-cols-2 md:grid-cols-4")}>
             <StatisticsCard
               title="Total Products"
               value={dashboard?.totalProducts ?? 0}
@@ -307,6 +308,7 @@ export default function SupplierPortalPage({
           </div>
 
           {/* Revenue Chart — glassmorphic card */}
+          <div className="pb-6">
           <article
             className={cn(
               "rounded-[28px] border border-emerald-400/20 dark:border-emerald-400/30 p-2 sm:p-4 backdrop-blur-md transition-all",
@@ -316,16 +318,13 @@ export default function SupplierPortalPage({
               "hover:border-emerald-300/40",
             )}
           >
-            <div className="mb-4">
-              <h3 className="flex items-center gap-2 text-sm sm:text-base font-medium text-gray-700 dark:text-white">
-                <TrendingUp className="h-5 w-5 text-emerald-500 dark:text-emerald-400" />
-                Monthly Revenue
-              </h3>
-              <p className="text-sm text-gray-600 dark:text-white/70 mt-1">
-                Revenue from your products over the last 6 months (grouped by
-                month)
-              </p>
-            </div>
+            <SectionCardHeader
+              className="mb-4"
+              icon={TrendingUp}
+              tone="emerald"
+              title="Monthly Revenue"
+              description="Revenue from your products over the last 6 months (grouped by month)"
+            />
             <DeferredChartSection
               loading={dataLoading}
               hasData={(dashboard?.monthlyRevenue.length ?? 0) > 0}
@@ -338,7 +337,7 @@ export default function SupplierPortalPage({
               <ResponsiveChartContainer>
                 <AreaChart
                   data={dashboard!.monthlyRevenue}
-                  margin={{ top: 10, right: 30, left: 0, bottom: 0 }}
+                  margin={{ top: 24, right: 30, left: 0, bottom: 0 }}
                 >
                   <CartesianGrid strokeDasharray="3 3" />
                   <XAxis dataKey="month" />
@@ -354,12 +353,18 @@ export default function SupplierPortalPage({
                     dataKey="revenue"
                     stroke="#10b981"
                     fill="#10b98133"
+                    dot={{ r: 4, fill: "#10b981", strokeWidth: 0 }}
+                    label={createChartDotLabelRenderer(
+                      dashboard!.monthlyRevenue.length,
+                    )}
                   />
                 </AreaChart>
               </ResponsiveChartContainer>
             </DeferredChartSection>
           </article>
+          </div>
 
+          <div className="pb-6">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-2 sm:gap-4">
             {/* Recent Orders — glassmorphic */}
             <article
@@ -537,6 +542,7 @@ export default function SupplierPortalPage({
                 </div>
               </div>
             </article>
+          </div>
           </div>
         </div>
       </PageContentWrapper>

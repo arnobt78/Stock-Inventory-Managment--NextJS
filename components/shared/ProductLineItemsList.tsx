@@ -15,7 +15,7 @@ import type { OrderReviewContext } from "@/lib/server/order-review-context-data"
 
 export type ProductLineItemsListProps = {
   items: OrderItem[];
-  linkMode: "admin" | "none";
+  linkMode: "admin" | "portal" | "none";
   /** REQ-0073 — warehouse link for admin/owner; plain text for client/supplier */
   warehouseLinkMode?: "admin" | "owner" | "none";
   emptyMessage?: string;
@@ -93,7 +93,9 @@ export function ProductLineItemsList({
         const productHref =
           linkMode === "admin" && item.productId
             ? `/admin/products/${item.productId}`
-            : null;
+            : linkMode === "portal" && item.productId
+              ? `/products/${item.productId}`
+              : null;
 
         const warehouseHref =
           item.warehouseId && warehouseLinkMode === "admin"
@@ -115,22 +117,24 @@ export function ProductLineItemsList({
                 className="shrink-0 self-stretch min-h-[3rem]"
               />
               <div className="flex-1 min-w-0 space-y-1">
-                <h4 className="font-medium text-gray-700 dark:text-white truncate">
+                <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5 min-w-0">
                   {productHref ? (
                     <Link
                       href={productHref}
-                      className="text-sky-600 dark:text-sky-400 hover:text-sky-500 dark:hover:text-sky-300"
+                      className="font-medium text-sky-600 dark:text-sky-400 hover:text-sky-500 dark:hover:text-sky-300 truncate"
                     >
                       {item.productName}
                     </Link>
                   ) : (
-                    item.productName
+                    <span className="font-medium text-gray-700 dark:text-white truncate">
+                      {item.productName}
+                    </span>
                   )}
-                </h4>
-                <p className="flex items-center gap-1 text-sm text-gray-600 dark:text-gray-400">
-                  <Hash className="h-3.5 w-3.5 shrink-0" />
-                  SKU: {item.sku ?? "—"}
-                </p>
+                  <span className="inline-flex items-center gap-1 text-sm text-gray-600 dark:text-gray-400 shrink-0">
+                    <Hash className="h-3.5 w-3.5 shrink-0" />
+                    SKU: {item.sku ?? "—"}
+                  </span>
+                </div>
                 <p className="flex items-center gap-1 text-sm text-gray-600 dark:text-gray-400">
                   <Package className="h-3.5 w-3.5 shrink-0" />
                   Quantity: {item.quantity} × ${Number(item.price).toFixed(2)}

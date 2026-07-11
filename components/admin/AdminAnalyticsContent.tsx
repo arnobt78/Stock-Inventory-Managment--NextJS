@@ -54,6 +54,11 @@ import {
   CARD_LIST_ROW_CLASS,
   CARD_LIST_META_CLASS,
 } from "@/lib/ui/card-list-styles";
+import {
+  createChartBarLabelRenderer,
+  createChartDotLabelRenderer,
+  formatChartCountLabel,
+} from "@/lib/ui/chart-point-label";
 
 /** Hydration-safe USD — en-US locale on server and client (REQ-0019). */
 function formatCurrency(value: number): string {
@@ -506,7 +511,7 @@ export default function AdminAnalyticsContent({
                 hasData={(stats.trends?.length ?? 0) > 0}
               >
                 <ResponsiveChartContainer>
-                  <AreaChart data={stats.trends}>
+                  <AreaChart data={stats.trends} margin={{ top: 20, right: 8, left: 0, bottom: 0 }}>
                     <CartesianGrid
                       strokeDasharray="3 3"
                       className="stroke-muted"
@@ -551,6 +556,12 @@ export default function AdminAnalyticsContent({
                       stroke="hsl(var(--chart-1))"
                       fill="hsl(var(--chart-1) / 0.2)"
                       name="orders"
+                      dot={{ r: 3 }}
+                      label={createChartDotLabelRenderer(
+                        stats.trends?.length ?? 0,
+                        formatChartCountLabel,
+                        false,
+                      )}
                     />
                     <Area
                       yAxisId="right"
@@ -559,6 +570,12 @@ export default function AdminAnalyticsContent({
                       stroke="hsl(var(--chart-2))"
                       fill="hsl(var(--chart-2) / 0.2)"
                       name="revenue"
+                      dot={{ r: 3 }}
+                      label={createChartDotLabelRenderer(
+                        stats.trends?.length ?? 0,
+                        undefined,
+                        false,
+                      )}
                     />
                   </AreaChart>
                 </ResponsiveChartContainer>
@@ -817,7 +834,11 @@ export default function AdminAnalyticsContent({
                         }}
                         formatter={(value) => [value, "Orders"]}
                       />
-                      <Bar dataKey="count" radius={[0, 4, 4, 0]} />
+                      <Bar
+                        dataKey="count"
+                        radius={[0, 4, 4, 0]}
+                        label={createChartBarLabelRenderer(formatChartCountLabel)}
+                      />
                     </BarChart>
                   </ResponsiveChartContainer>
                 </DeferredChartSection>
@@ -1077,7 +1098,11 @@ export default function AdminAnalyticsContent({
                       }}
                       formatter={(value) => [value, "Invoices"]}
                     />
-                    <Bar dataKey="count" radius={[0, 4, 4, 0]} />
+                    <Bar
+                      dataKey="count"
+                      radius={[0, 4, 4, 0]}
+                      label={createChartBarLabelRenderer(formatChartCountLabel)}
+                    />
                   </BarChart>
                 </ResponsiveChartContainer>
               </DeferredChartSection>
@@ -1206,7 +1231,11 @@ export default function AdminAnalyticsContent({
                             }}
                             formatter={(value) => [value, "Warehouses"]}
                           />
-                          <Bar dataKey="count" radius={[0, 4, 4, 0]} />
+                          <Bar
+                        dataKey="count"
+                        radius={[0, 4, 4, 0]}
+                        label={createChartBarLabelRenderer(formatChartCountLabel)}
+                      />
                         </BarChart>
                       </ResponsiveChartContainer>
                     </DeferredChartSection>

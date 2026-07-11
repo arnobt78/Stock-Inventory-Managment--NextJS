@@ -19,6 +19,7 @@ import { ChevronDown } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { SafeAvatarImage } from "@/components/ui/safe-avatar-image";
 import { resolveAvatarSourcesFromSeed } from "@/lib/ui/user-avatar-sources";
+import { AVATAR_RING_CLASS } from "@/lib/ui/avatar-ring-styles";
 
 export type ProductOwnerOption = {
   id: string;
@@ -50,7 +51,7 @@ function OwnerAvatar({
       fallbackSrc={avatar.fallbackSrc}
       width={size}
       height={size}
-      className={cn("rounded-full object-cover shrink-0", className)}
+      className={cn("rounded-full object-cover shrink-0", AVATAR_RING_CLASS, className)}
       alt=""
     />
   );

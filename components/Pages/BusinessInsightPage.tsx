@@ -50,6 +50,11 @@ import {
 } from "recharts";
 import { ResponsiveChartContainer } from "@/components/ui/responsive-chart-container";
 import { DeferredChartSection } from "@/components/ui/deferred-chart-section";
+import {
+  createChartBarLabelRenderer,
+  createChartDotLabelRenderer,
+  formatChartCountLabel,
+} from "@/lib/ui/chart-point-label";
 import { useAuth } from "@/contexts";
 import Navbar from "@/components/layouts/Navbar";
 import PageWithSidebar from "@/components/layouts/PageWithSidebar";
@@ -1053,7 +1058,7 @@ export default function BusinessInsightPage({
                         pulseClassName="min-h-[300px]"
                       >
                         <ResponsiveChartContainer>
-                          <AreaChart data={analyticsData.monthlyTrend}>
+                          <AreaChart data={analyticsData.monthlyTrend} margin={{ top: 20, right: 8, left: 0, bottom: 0 }}>
                             <CartesianGrid strokeDasharray="3 3" />
                             <XAxis dataKey="month" />
                             <YAxis />
@@ -1063,6 +1068,12 @@ export default function BusinessInsightPage({
                               dataKey="products"
                               stroke="#8884d8"
                               fill="#8884d8"
+                              dot={{ r: 3, fill: "#8884d8" }}
+                              label={createChartDotLabelRenderer(
+                                analyticsData.monthlyTrend.length,
+                                formatChartCountLabel,
+                                false,
+                              )}
                             />
                           </AreaChart>
                         </ResponsiveChartContainer>
@@ -1082,7 +1093,7 @@ export default function BusinessInsightPage({
                           pulseClassName="min-h-[300px]"
                         >
                           <ResponsiveChartContainer>
-                            <AreaChart data={orderTrendByMonth}>
+                            <AreaChart data={orderTrendByMonth} margin={{ top: 20, right: 8, left: 0, bottom: 0 }}>
                               <CartesianGrid strokeDasharray="3 3" />
                               <XAxis dataKey="month" />
                               <YAxis />
@@ -1099,6 +1110,10 @@ export default function BusinessInsightPage({
                                 dataKey="totalValue"
                                 stroke="#00C49F"
                                 fill="#00C49F"
+                                dot={{ r: 3, fill: "#00C49F" }}
+                                label={createChartDotLabelRenderer(
+                                  orderTrendByMonth.length,
+                                )}
                               />
                             </AreaChart>
                           </ResponsiveChartContainer>
@@ -1120,7 +1135,7 @@ export default function BusinessInsightPage({
                               <XAxis dataKey="month" />
                               <YAxis />
                               <Tooltip />
-                              <Bar dataKey="orderCount" fill="#8884D8" />
+                              <Bar dataKey="orderCount" fill="#8884D8" label={createChartBarLabelRenderer(formatChartCountLabel)} />
                             </BarChart>
                           </ResponsiveChartContainer>
                         </DeferredChartSection>
@@ -1148,7 +1163,7 @@ export default function BusinessInsightPage({
                             <XAxis dataKey="name" />
                             <YAxis />
                             <Tooltip />
-                            <Bar dataKey="value" fill="#8884d8" />
+                            <Bar dataKey="value" fill="#8884d8" label={createChartBarLabelRenderer()} />
                           </BarChart>
                         </ResponsiveChartContainer>
                       </DeferredChartSection>
@@ -1173,7 +1188,7 @@ export default function BusinessInsightPage({
                             <XAxis dataKey="name" />
                             <YAxis />
                             <Tooltip />
-                            <Bar dataKey="value" fill="#00C49F" />
+                            <Bar dataKey="value" fill="#00C49F" label={createChartBarLabelRenderer()} />
                           </BarChart>
                         </ResponsiveChartContainer>
                       </DeferredChartSection>
@@ -1206,7 +1221,7 @@ export default function BusinessInsightPage({
                                 "Value",
                               ]}
                             />
-                            <Bar dataKey="totalValue" fill="#FFBB28" />
+                            <Bar dataKey="totalValue" fill="#FFBB28" label={createChartBarLabelRenderer()} />
                           </BarChart>
                         </ResponsiveChartContainer>
                       </DeferredChartSection>
@@ -1239,7 +1254,7 @@ export default function BusinessInsightPage({
                                 "Value",
                               ]}
                             />
-                            <Bar dataKey="totalValue" fill="#FF8042" />
+                            <Bar dataKey="totalValue" fill="#FF8042" label={createChartBarLabelRenderer()} />
                           </BarChart>
                         </ResponsiveChartContainer>
                       </DeferredChartSection>
@@ -1277,7 +1292,7 @@ export default function BusinessInsightPage({
                               ]}
                               labelFormatter={(label) => `Product: ${label}`}
                             />
-                            <Bar dataKey="value" fill="#FFBB28" />
+                            <Bar dataKey="value" fill="#FFBB28" label={createChartBarLabelRenderer()} />
                           </BarChart>
                         </ResponsiveChartContainer>
                       </DeferredChartSection>
@@ -1295,7 +1310,7 @@ export default function BusinessInsightPage({
                         pulseClassName="min-h-[300px]"
                       >
                         <ResponsiveChartContainer>
-                          <LineChart data={analyticsData.monthlyTrend}>
+                          <LineChart data={analyticsData.monthlyTrend} margin={{ top: 20, right: 8, left: 0, bottom: 0 }}>
                             <CartesianGrid strokeDasharray="3 3" />
                             <XAxis dataKey="month" />
                             <YAxis />
@@ -1305,6 +1320,12 @@ export default function BusinessInsightPage({
                               dataKey="monthlyAdded"
                               stroke="#FF8042"
                               strokeWidth={2}
+                              dot={{ r: 3, fill: "#FF8042" }}
+                              label={createChartDotLabelRenderer(
+                                analyticsData.monthlyTrend.length,
+                                formatChartCountLabel,
+                                false,
+                              )}
                             />
                           </LineChart>
                         </ResponsiveChartContainer>

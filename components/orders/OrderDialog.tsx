@@ -69,7 +69,7 @@ import type {
   CreateOrderInput,
 } from "@/types";
 import { logger } from "@/lib/logger";
-import { Plus, Trash2, X, Package } from "lucide-react";
+import { Plus, Trash2, X, Package, Layers } from "lucide-react";
 import { ProductOptionRow } from "@/components/products/ProductOptionRow";
 import { OrderLineWarehouseSelect } from "@/components/orders/OrderLineWarehouseSelect";
 import { useAuth } from "@/contexts";
@@ -1101,7 +1101,7 @@ export default function OrderDialog({
                         className="p-4 border border-violet-400/20 rounded-lg bg-white/5 space-y-2"
                       >
                         <div className="flex items-start justify-between gap-2">
-                          <div className="flex-1 grid grid-cols-1 sm:grid-cols-2 gap-2">
+                          <div className="flex-1 grid grid-cols-1 md:grid-cols-[minmax(0,1fr)_100px_minmax(0,1fr)] gap-2 items-start">
                             {/* Product Selection */}
                             <div className="flex flex-col gap-2">
                               <Label className="flex items-center gap-2 text-white/80 text-sm">
@@ -1212,7 +1212,8 @@ export default function OrderDialog({
 
                             {/* Quantity */}
                             <div className="flex flex-col gap-2">
-                              <Label className="text-white/80 text-sm">
+                              <Label className="flex items-center gap-2 text-white/80 text-sm">
+                                <Layers className="h-4 w-4 shrink-0 text-violet-400" />
                                 Quantity
                               </Label>
                               <Input
@@ -1272,10 +1273,8 @@ export default function OrderDialog({
                                 </p>
                               )}
                             </div>
-                          </div>
 
-                          {/* REQ-0068 — warehouse pick when product has allocations */}
-                          {productId ? (
+                            {/* REQ-0068 — warehouse in same grid row (REQ-0074 alignment) */}
                             <OrderLineWarehouseSelect
                               productId={productId}
                               value={createWatch(`items.${index}.warehouseId`)}
@@ -1288,7 +1287,7 @@ export default function OrderDialog({
                               quantity={quantity}
                               dialogOpen={open}
                             />
-                          ) : null}
+                          </div>
 
                           {/* Remove Button */}
                           {fields.length > 1 && (

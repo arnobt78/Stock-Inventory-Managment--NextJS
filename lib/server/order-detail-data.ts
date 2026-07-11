@@ -29,7 +29,7 @@ async function enrichOrder(orderId: string, order: NonNullable<Awaited<ReturnTyp
     order.userId != null
       ? await prisma.user.findUnique({
           where: { id: order.userId },
-          select: { name: true, email: true },
+          select: { name: true, email: true, image: true },
         })
       : null;
 
@@ -48,7 +48,7 @@ async function enrichOrder(orderId: string, order: NonNullable<Awaited<ReturnTyp
     productOwnerIds.length > 0
       ? await prisma.user.findMany({
           where: { id: { in: productOwnerIds } },
-          select: { id: true, name: true, email: true },
+          select: { id: true, name: true, email: true, image: true },
         })
       : [];
 
@@ -60,10 +60,13 @@ async function enrichOrder(orderId: string, order: NonNullable<Awaited<ReturnTyp
   return {
     placedByName: placedBy?.name ?? placedBy?.email ?? null,
     placedByEmail: placedBy?.email ?? null,
+    placedByUserId: order.userId ?? null,
+    placedByImage: placedBy?.image ?? null,
     orderProductOwners: productOwnerUsers.map((u) => ({
       userId: u.id,
       name: u.name ?? null,
       email: u.email,
+      image: u.image ?? null,
     })),
     invoiceForOrder: invoiceForOrder
       ? {

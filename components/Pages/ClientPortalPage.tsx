@@ -71,6 +71,8 @@ import {
 import { StatisticsCard } from "@/components/home/StatisticsCard";
 import { isDataSlotLoading, queryKeys, useSyncSsrQueryData } from "@/lib/react-query";
 import { cn } from "@/lib/utils";
+import { PAGE_STATS_GRID_CLASS } from "@/lib/ui/shell-layout-styles";
+import { createChartDotLabelRenderer } from "@/lib/ui/chart-point-label";
 import type { ClientPortalDashboard, ClientCatalogOverview } from "@/types";
 
 /** Normalize catalog product status label → semantic badge key */
@@ -150,7 +152,6 @@ export default function ClientPortalPage({
             as="h1"
             icon={Store}
             tone="sky"
-            className="pb-0"
             title="Client Portal"
             description={
               <>
@@ -164,8 +165,8 @@ export default function ClientPortalPage({
             }
           />
 
-          {/* Summary Cards — glassmorphic round-28px, same style as business-insights / homepage */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-2">
+          {/* Summary Cards — admin-aligned pb-6 rhythm (REQ-0074) */}
+          <div className={cn(PAGE_STATS_GRID_CLASS, "grid-cols-1 sm:grid-cols-2 md:grid-cols-4")}>
             <StatisticsCard
               title="Total Orders"
               value={dashboard?.totalOrders ?? 0}
@@ -339,6 +340,7 @@ export default function ClientPortalPage({
             />
           </div>
 
+          <div className="pb-6">
           <article
             className={cn(
               "rounded-[28px] border border-emerald-400/20 dark:border-emerald-400/30 p-2 sm:p-4 backdrop-blur-md transition-all",
@@ -348,15 +350,13 @@ export default function ClientPortalPage({
               "hover:border-emerald-300/40",
             )}
           >
-            <div className="mb-4">
-              <h3 className="flex items-center gap-2 text-sm sm:text-base font-medium text-gray-700 dark:text-white">
-                <TrendingUp className="h-5 w-5 text-emerald-500 dark:text-emerald-400" />
-                Monthly Spending
-              </h3>
-              <p className="text-sm text-gray-600 dark:text-white/70 mt-1">
-                Your spending over the last 6 months (grouped by month)
-              </p>
-            </div>
+            <SectionCardHeader
+              className="mb-4"
+              icon={TrendingUp}
+              tone="emerald"
+              title="Monthly Spending"
+              description="Your spending over the last 6 months (grouped by month)"
+            />
             <DeferredChartSection
               loading={dashboardLoading}
               hasData={(dashboard?.monthlySpending.length ?? 0) > 0}
@@ -369,7 +369,7 @@ export default function ClientPortalPage({
               <ResponsiveChartContainer>
                 <AreaChart
                   data={dashboard!.monthlySpending}
-                  margin={{ top: 10, right: 30, left: 0, bottom: 0 }}
+                  margin={{ top: 24, right: 30, left: 0, bottom: 0 }}
                 >
                   <CartesianGrid strokeDasharray="3 3" />
                   <XAxis dataKey="month" />
@@ -385,13 +385,19 @@ export default function ClientPortalPage({
                     dataKey="spent"
                     stroke="#3b82f6"
                     fill="#3b82f633"
+                    dot={{ r: 4, fill: "#3b82f6", strokeWidth: 0 }}
+                    label={createChartDotLabelRenderer(
+                      dashboard!.monthlySpending.length,
+                    )}
                   />
                 </AreaChart>
               </ResponsiveChartContainer>
             </DeferredChartSection>
           </article>
+          </div>
 
           {/* Catalog — glassmorphic */}
+          <div className="pb-6">
           <article
             id="catalog"
             className={cn(
@@ -402,15 +408,13 @@ export default function ClientPortalPage({
               "hover:border-sky-300/40",
             )}
           >
-            <div className="mb-6">
-              <h3 className="flex items-center gap-2 text-sm sm:text-base font-medium text-gray-700 dark:text-white">
-                <Store className="h-5 w-5 text-sky-500 dark:text-sky-400" />
-                Catalog — What&apos;s available
-              </h3>
-              <p className="text-sm text-gray-600 dark:text-white/70 mt-1">
-                Browse suppliers, categories, and products
-              </p>
-            </div>
+            <SectionCardHeader
+              className="mb-6"
+              icon={Store}
+              tone="sky"
+              title="Catalog — What's available"
+              description="Browse suppliers, categories, and products"
+            />
             <div className="space-y-4">
               {catalogLoading ? (
                 <>
@@ -691,7 +695,9 @@ export default function ClientPortalPage({
               )}
             </div>
           </article>
+          </div>
 
+          <div className="pb-6">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-2 sm:gap-4">
             {/* Recent Orders — glassmorphic */}
             <article
@@ -857,6 +863,7 @@ export default function ClientPortalPage({
                 </div>
               </div>
             </article>
+          </div>
           </div>
         </div>
       </PageContentWrapper>

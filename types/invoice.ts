@@ -58,13 +58,13 @@ export interface Invoice {
   /** User who placed the linked order (for admin self/client source tagging) */
   orderUserId?: string | null;
   /** Who created the invoice (for detail Parties section) */
-  invoiceCreatedBy?: { name: string | null; email: string } | null;
+  invoiceCreatedBy?: { userId?: string; name: string | null; email: string; image?: string | null } | null;
   /** Who placed the order (for detail Parties section) */
-  orderedBy?: { name: string | null; email: string } | null;
+  orderedBy?: { userId?: string; name: string | null; email: string; image?: string | null } | null;
   /** Client the invoice is for (for detail Parties section) */
-  client?: { name: string | null; email: string } | null;
+  client?: { userId?: string; name: string | null; email: string; image?: string | null } | null;
   /** Product owner(s) for items in the order (for detail Parties section) */
-  invoiceProductOwners?: { userId: string; name: string | null; email: string }[];
+  invoiceProductOwners?: { userId: string; name: string | null; email: string; image?: string | null }[];
   /** REQ-0063 — linked order number for Related Order row + copy */
   linkedOrderNumber?: string | null;
   /** REQ-0063 — line items from linked order (thumbnails on invoice detail) */

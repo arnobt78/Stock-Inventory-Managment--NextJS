@@ -113,7 +113,10 @@ export interface Order {
   /** Product owner email (for client view) */
   productOwnerEmail?: string | null;
   /** Product owner(s) for items in this order (for Parties section) */
-  orderProductOwners?: { userId: string; name: string | null; email: string }[];
+  orderProductOwners?: { userId: string; name: string | null; email: string; image?: string | null }[];
+  /** REQ-0074 — party avatar SSR */
+  placedByUserId?: string | null;
+  placedByImage?: string | null;
   /** Linked invoice when order has an invoice (for admin detail link) */
   invoiceForOrder?: { id: string; invoiceNumber: string; paidAt?: string | null } | null;
   /** REQ-0073 — payment timestamp from linked invoice (not order.updatedAt) */
