@@ -8,7 +8,7 @@
 | **Last updated** | 2026-07-11 (REQ-0066 AC6 warehouse UX) |
 | **Session** | ACTIVE — manual QA warehouse dialogs + transfer nav |
 | **Active REQ range** | REQ-0001 … REQ-0068 done |
-| **Prod deploy target** | pending commit — REQ-0066 AC6 |
+| **Prod deploy target** | `8de6f09` (main) — REQ-0066 AC6 warehouse UX |
 | **Human Gate 1** | APPROVED (retroactive bootstrap) |
 | **Human Gate 2** | PENDING — Sentry 24h after prod deploy |
 | **Resume token** | `C2-post-mutation-cache` — see **Session handoff** + **Open backlog** |
