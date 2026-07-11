@@ -98,9 +98,9 @@ Details: `docs/Redis_Sentry_PostHog_INTEGRATION_GUIDE.md`
 | Broad invalidation | `lib/react-query/invalidate-all.ts` — `lists()` for catalog entities; `.all` for invoices, reviews, tickets, history, portal, etc. |
 | Safe delete cleanup | `lib/react-query/cancel-or-remove-detail.ts` — used by all 9 delete hooks |
 | Static audit | `lib/react-query/invalidate-coverage.test.ts` — run `npm run test:invalidate` |
-| Server Redis | `lib/cache/cache-utils.ts` → `invalidateAllServerCaches` / domain helpers on API writes |
+| Server Redis | `lib/cache/post-mutation.ts` — `scheduleInvalidateAllServerCaches()` via Next.js `after()` (non-blocking); `lib/cache/cache-utils.ts` for SCAN patterns |
 
-**Rules:** new mutation hook → `invalidateAllRelatedQueries` on success (or document exception). New API write → server cache invalidation. New delete hook → `cancelOrRemoveDetailQuery` + broad invalidation.
+**Rules:** new mutation hook → `invalidateAllRelatedQueries` on success. New API write → `scheduleInvalidateAllServerCaches()` or scoped schedule (never `await` full Redis wipe before response). Product hard-delete → DB first, ImageKit in `scheduleAfterResponse`. `vercel.json` `maxDuration: 60` on API routes.
 
 **Exempt webhooks (no Redis/TanStack):** `app/api/email/queue/process/route.ts`, auth, AI insights, shipping rates, notifications POST — see `API_WRITE_EXEMPT` in invalidate-coverage test.
 

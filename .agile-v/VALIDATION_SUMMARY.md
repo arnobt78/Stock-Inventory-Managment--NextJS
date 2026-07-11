@@ -1,9 +1,9 @@
 # Validation Summary — Cycle C1
 
-**Generated:** 2026-07-10  
+**Generated:** 2026-07-11  
 **eval_gate_status:** PENDING (Human Gate 2)  
 **Prod target SHA:** `73060a1` (main, pushed 2026-07-10)  
-**Red Team:** lint ✓ test 343 ✓ invalidate 202 ✓ build ✓ (`73060a1` hotfix 2026-07-10)
+**Red Team:** lint ✓ test 346 ✓ invalidate 202 ✓ build ✓ (REQ-0052 2026-07-11)
 
 ---
 
@@ -12,7 +12,7 @@
 | Check | Command | Result | REQ-IDs |
 |-------|---------|--------|---------|
 | Lint | `npm run lint` | PASS | ALL |
-| Unit tests | `npm run test` | PASS (343) | REQ-0021–REQ-0050 |
+| Unit tests | `npm run test` | PASS (346) | REQ-0021–REQ-0052 |
 | Invalidation audit | `npm run test:invalidate` | PASS (202) | — |
 | Build | `npm run build` | PASS | ALL |
 
@@ -29,6 +29,7 @@
 | Sentry 24h regression | PENDING (checklist in REVALIDATION_LOG) | REQ-0009 |
 | Gmail OAuth login + navbar avatar before/after profile dropdown click | PASS (user screenshot 2026-07-10) | REQ-0039, REQ-0040 |
 | Vercel prod SHA = `73060a1` | PENDING confirm | ALL |
+| CRUD delete fast (no 504) | PASS (local dev: category/supplier/warehouse DELETE ~150ms) | REQ-0052 |
 
 ---
 

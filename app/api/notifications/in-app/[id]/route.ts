@@ -15,6 +15,7 @@ import { withRateLimit, defaultRateLimits } from "@/lib/api/rate-limit";
 import { updateInAppNotificationBodySchema } from "@/lib/validations/notification";
 import type { UpdateNotificationInput } from "@/types";
 
+import { scheduleInvalidateAllServerCaches } from "@/lib/cache";
 /**
  * GET /api/notifications/in-app/:id
  * Fetch a single notification by ID
@@ -148,10 +149,7 @@ export async function PUT(
       updateData,
       userId
     );
-
-    const { invalidateAllServerCaches } = await import("@/lib/cache");
-    await invalidateAllServerCaches().catch(() => {});
-
+    scheduleInvalidateAllServerCaches();
     // Transform notification for response
     const transformedNotification = {
       id: notification.id,
@@ -217,10 +215,7 @@ export async function DELETE(
     }
 
     await deleteNotification(notificationId, userId);
-
-    const { invalidateAllServerCaches } = await import("@/lib/cache");
-    await invalidateAllServerCaches().catch(() => {});
-
+    scheduleInvalidateAllServerCaches();
     logger.info("Notification deleted", { userId, notificationId });
 
     return NextResponse.json({

@@ -15,6 +15,7 @@ import type { ShippingNotificationData } from "@/lib/email/types";
 import { addTrackingBodySchema } from "@/lib/validations/shipping";
 import type { GenerateLabelResponse } from "@/types";
 
+import { invalidateOnOrderChange } from "@/lib/cache";
 /**
  * POST /api/shipping/tracking
  * Add manual tracking number to an order
@@ -161,9 +162,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Invalidate caches
-    const { invalidateOnOrderChange } = await import("@/lib/cache");
-    await invalidateOnOrderChange();
-
+    invalidateOnOrderChange();
     const response: GenerateLabelResponse = {
       orderId,
       trackingNumber,

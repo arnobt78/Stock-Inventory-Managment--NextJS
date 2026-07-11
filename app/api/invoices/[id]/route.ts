@@ -20,6 +20,7 @@ import { createAuditLog } from "@/prisma/audit-log";
 import type { UpdateInvoiceInput } from "@/types";
 import { getInvoiceDetailForPage } from "@/lib/server/invoice-detail-data";
 
+import { scheduleInvalidateAllServerCaches } from "@/lib/cache";
 /**
  * GET /api/invoices/:id
  * Fetch a single invoice by ID
@@ -179,10 +180,7 @@ export async function PUT(
       entityId: id,
       details: { invoiceNumber: invoice.invoiceNumber },
     }).catch(() => {});
-
-    const { invalidateAllServerCaches } = await import("@/lib/cache");
-    await invalidateAllServerCaches().catch(() => {});
-
+    scheduleInvalidateAllServerCaches();
     // Transform invoice for response
     const transformedInvoice = {
       id: invoice.id,
@@ -283,10 +281,7 @@ export async function DELETE(
       entityId: invoiceId,
       details: existingInvoice ? { invoiceNumber: existingInvoice.invoiceNumber } : undefined,
     }).catch(() => {});
-
-    const { invalidateAllServerCaches } = await import("@/lib/cache");
-    await invalidateAllServerCaches().catch(() => {});
-
+    scheduleInvalidateAllServerCaches();
     logger.info("Invoice deleted successfully", { invoiceId, userId });
 
     return NextResponse.json({

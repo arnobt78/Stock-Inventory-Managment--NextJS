@@ -21,6 +21,7 @@ import type { UpdateProductReviewInput } from "@/types";
 import { getProductReviewDetailForPage } from "@/lib/server/product-review-detail-data";
 import { transformProductReviewDetail } from "@/lib/product-reviews/transform-product-review-detail";
 
+import { scheduleInvalidateAllServerCaches } from "@/lib/cache";
 /**
  * GET /api/product-reviews/:id
  * Returns review with reviewer name/email when available. Admin may only access reviews for their own products.
@@ -149,9 +150,7 @@ export async function PUT(
     }
 
     const updated = await updateProductReview(id, updatePayload);
-    const { invalidateAllServerCaches } = await import("@/lib/cache");
-    await invalidateAllServerCaches().catch(() => {});
-
+    scheduleInvalidateAllServerCaches();
     const productForAudit = await prisma.product.findUnique({
       where: { id: updated.productId },
       select: { name: true },
@@ -217,9 +216,7 @@ export async function DELETE(
     }
 
     await deleteProductReview(id);
-    const { invalidateAllServerCaches } = await import("@/lib/cache");
-    await invalidateAllServerCaches().catch(() => {});
-
+    scheduleInvalidateAllServerCaches();
     createAuditLog({
       userId: session.id,
       action: "delete",

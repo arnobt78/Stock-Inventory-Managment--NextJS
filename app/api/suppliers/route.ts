@@ -15,6 +15,7 @@ import {
   updateSupplierBodySchema,
 } from "@/lib/validations/supplier";
 
+import { invalidateOnCategoryOrSupplierChange } from "@/lib/cache";
 /**
  * GET /api/suppliers
  * Fetch all suppliers for the authenticated user.
@@ -111,11 +112,7 @@ export async function POST(request: NextRequest) {
     }).catch(() => {});
 
     // Global invalidation: suppliers affect products, dashboard
-    const { invalidateOnCategoryOrSupplierChange } = await import("@/lib/cache");
-    await invalidateOnCategoryOrSupplierChange().catch((err) => {
-      logger.warn("Failed to invalidate cache after supplier create:", err);
-    });
-
+    invalidateOnCategoryOrSupplierChange();
     return NextResponse.json(supplier, { status: 201 });
   } catch (error) {
     logger.error("Error creating supplier:", error);
@@ -208,11 +205,7 @@ export async function PUT(request: NextRequest) {
     }).catch(() => {});
 
     // Global invalidation: suppliers affect products, dashboard
-    const { invalidateOnCategoryOrSupplierChange } = await import("@/lib/cache");
-    await invalidateOnCategoryOrSupplierChange().catch((err) => {
-      logger.warn("Failed to invalidate cache after supplier update:", err);
-    });
-
+    invalidateOnCategoryOrSupplierChange();
     return NextResponse.json(supplier);
   } catch (error) {
     logger.error("Error updating supplier:", error);
@@ -270,11 +263,7 @@ export async function DELETE(request: NextRequest) {
     }).catch(() => {});
 
     // Global invalidation: suppliers affect products, dashboard
-    const { invalidateOnCategoryOrSupplierChange } = await import("@/lib/cache");
-    await invalidateOnCategoryOrSupplierChange().catch((err) => {
-      logger.warn("Failed to invalidate cache after supplier delete:", err);
-    });
-
+    invalidateOnCategoryOrSupplierChange();
     return NextResponse.json({ success: true });
   } catch (error) {
     logger.error("Error deleting supplier:", error);

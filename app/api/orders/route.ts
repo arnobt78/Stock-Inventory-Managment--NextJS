@@ -14,7 +14,7 @@ import {
 } from "@/prisma/order";
 import { getSupplierByUserId } from "@/prisma/supplier";
 import { createOrderSchema } from "@/lib/validations";
-import { getCache, setCache, cacheKeys } from "@/lib/cache";
+import { getCache, setCache, cacheKeys, invalidateOnOrderChange } from "@/lib/cache";
 import { withRateLimit, defaultRateLimits } from "@/lib/api/rate-limit";
 import { sendOrderConfirmation } from "@/lib/email/notifications";
 import { createOrderNotification, createClientOrderReceivedNotification } from "@/lib/notifications/in-app";
@@ -231,9 +231,7 @@ export async function POST(request: NextRequest) {
     }).catch(() => {});
 
     // Global invalidation: orders affect product/category/supplier detail Recent Orders
-    const { invalidateOnOrderChange } = await import("@/lib/cache");
-    await invalidateOnOrderChange();
-
+    invalidateOnOrderChange();
     // Create in-app notification for order confirmation (async, non-blocking)
     createOrderNotification(
       "order_confirmation",

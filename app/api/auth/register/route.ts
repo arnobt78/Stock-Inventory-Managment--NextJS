@@ -11,6 +11,7 @@ import { registerSchema } from "@/lib/validations";
 import { logger } from "@/lib/logger";
 import { prisma } from "@/prisma/client";
 
+import { scheduleInvalidateAllServerCaches } from "@/lib/cache";
 /**
  * Attempt to insert a user document. If a non-sparse unique index on
  * `googleId` blocks the insert (E11000 dup key: { googleId: null }),
@@ -125,10 +126,7 @@ export async function POST(request: NextRequest) {
         { status: 500 }
       );
     }
-
-    const { invalidateAllServerCaches } = await import("@/lib/cache");
-    await invalidateAllServerCaches().catch(() => {});
-
+    scheduleInvalidateAllServerCaches();
     return NextResponse.json(
       {
         id: createdUser.id,

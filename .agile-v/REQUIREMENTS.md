@@ -1061,6 +1061,30 @@ Canonical REQ source. All artifacts link via `REQ-XXXX`. Status: `done` | `verif
 
 ---
 
+## REQ-0052 — CRUD post-mutation fast response (deferred cache + ImageKit)
+
+| Field | Value |
+|-------|-------|
+| **Priority** | P0 |
+| **Risk** | R2 |
+| **Status** | done |
+| **Cycle** | C2 |
+
+**Intent:** Prevent Vercel `FUNCTION_INVOCATION_TIMEOUT` (504) on DELETE/CRUD by returning HTTP response immediately after DB commit; defer Redis SCAN invalidation and ImageKit cleanup via Next.js `after()`.
+
+**Acceptance criteria**
+
+- AC1: `lib/cache/post-mutation.ts` — `scheduleInvalidateAllServerCaches`, scoped schedules, `scheduleAfterResponse`
+- AC2: All API write routes use non-blocking invalidation (no `await invalidateAllServerCaches` before response)
+- AC3: Product hard-delete: DB first, ImageKit cleanup deferred
+- AC4: `vercel.json` `maxDuration: 60` on `app/api/**/route.ts`
+- AC5: Client TanStack `invalidateAllRelatedQueries` unchanged — UI updates immediately
+- AC6: Red Team lint ✓ test ✓ invalidate ✓ build ✓
+
+**Artifacts:** `lib/cache/post-mutation.ts`, `lib/cache/post-mutation.test.ts`, `vercel.json`, all `app/api/**/route.ts` write handlers
+
+---
+
 ## REQ-0020 — Locale-aware admin formatting
 
 | Field | Value |

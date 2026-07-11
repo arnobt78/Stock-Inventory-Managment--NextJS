@@ -13,6 +13,7 @@ import { logger } from "@/lib/logger";
 import { generateProductQrCodeBodySchema } from "@/lib/validations/product";
 import { prisma } from "@/prisma/client";
 
+import { scheduleInvalidateAllServerCaches } from "@/lib/cache";
 /**
  * POST /api/products/qr-code
  * Generate QR code for a product and upload to ImageKit
@@ -101,10 +102,7 @@ export async function POST(request: NextRequest) {
         );
       }
     }
-
-    const { invalidateAllServerCaches } = await import("@/lib/cache");
-    await invalidateAllServerCaches().catch(() => {});
-
+    scheduleInvalidateAllServerCaches();
     return NextResponse.json(
       {
         qrCodeUrl: updatedProduct.qrCodeUrl,

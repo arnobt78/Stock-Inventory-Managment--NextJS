@@ -24,6 +24,7 @@ import { createOrderNotification } from "@/lib/notifications/in-app";
 import { createAuditLog } from "@/prisma/audit-log";
 import { getOrderDetailForPage } from "@/lib/server/order-detail-data";
 
+import { invalidateOnOrderChange } from "@/lib/cache";
 /**
  * GET /api/orders/:id
  * Get order details by ID
@@ -186,9 +187,7 @@ export async function PUT(
     }).catch(() => {});
 
     // Global invalidation: orders affect product/category/supplier detail Recent Orders
-    const { invalidateOnOrderChange } = await import("@/lib/cache");
-    await invalidateOnOrderChange();
-
+    invalidateOnOrderChange();
     // Track changes for notifications
     const statusChanged =
       updateData.status && updateData.status !== existingOrder.status;
@@ -449,9 +448,7 @@ export async function DELETE(
     }).catch(() => {});
 
     // Global invalidation: orders affect product/category/supplier detail Recent Orders
-    const { invalidateOnOrderChange } = await import("@/lib/cache");
-    await invalidateOnOrderChange();
-
+    invalidateOnOrderChange();
     // Create in-app notification for order cancellation (async, non-blocking)
     createOrderNotification(
       "order_status_update",

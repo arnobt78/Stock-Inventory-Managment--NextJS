@@ -17,6 +17,7 @@ import { Prisma } from "@prisma/client";
 import bcrypt from "bcryptjs";
 import type { User } from "@prisma/client";
 
+import { scheduleInvalidateAllServerCaches } from "@/lib/cache";
 type GoogleOAuthProfile = {
   email: string;
   name?: string | null;
@@ -235,8 +236,7 @@ export async function GET(request: NextRequest) {
       if (!user) {
         user = await createGoogleOAuthUser(profile);
         logger.info(`New user created via Google OAuth: ${email}`);
-        const { invalidateAllServerCaches } = await import("@/lib/cache");
-        await invalidateAllServerCaches().catch(() => {});
+    scheduleInvalidateAllServerCaches();
       } else {
         user = await updateGoogleOAuthUser(user, profile);
       }
@@ -283,10 +283,7 @@ export async function GET(request: NextRequest) {
       // Clear OAuth cookies
       response.cookies.delete("oauth_state");
       response.cookies.delete("oauth_callback");
-
-      const { invalidateAllServerCaches } = await import("@/lib/cache");
-      await invalidateAllServerCaches().catch(() => {});
-
+    scheduleInvalidateAllServerCaches();
       logger.info(`User authenticated via Google OAuth: ${email}`);
       return response;
     } catch (error) {

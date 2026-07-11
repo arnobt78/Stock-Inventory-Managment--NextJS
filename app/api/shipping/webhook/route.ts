@@ -10,6 +10,7 @@ import { sendOrderStatusUpdate } from "@/lib/email";
 import type { OrderStatusUpdateData } from "@/lib/email/types";
 import type { ShippoWebhookPayload } from "@/types";
 
+import { invalidateOnOrderChange } from "@/lib/cache";
 /**
  * POST /api/shipping/webhook
  * Handles Shippo webhook events (tracking updates)
@@ -65,9 +66,7 @@ export async function POST(request: NextRequest) {
         });
 
         // Invalidate caches
-        const { invalidateOnOrderChange } = await import("@/lib/cache");
-        await invalidateOnOrderChange();
-
+    invalidateOnOrderChange();
         logger.info(
           `Order ${order.id} status updated to ${newStatus} via Shippo webhook`,
         );

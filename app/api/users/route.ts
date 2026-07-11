@@ -13,7 +13,7 @@ import {
   emailExists,
   usernameExists,
 } from "@/prisma/user-admin";
-import { getCache, setCache, cacheKeys } from "@/lib/cache";
+import { getCache, setCache, cacheKeys, scheduleInvalidateAllServerCaches } from "@/lib/cache";
 import { createAuditLog } from "@/prisma/audit-log";
 import { withRateLimit, defaultRateLimits } from "@/lib/api/rate-limit";
 import { createUserAdminSchema } from "@/lib/validations/user-management";
@@ -130,10 +130,7 @@ export async function POST(request: NextRequest) {
       entityType: "user",
       entityId: created.id,
     }).catch(() => {});
-
-    const { invalidateAllServerCaches } = await import("@/lib/cache");
-    await invalidateAllServerCaches().catch(() => {});
-
+    scheduleInvalidateAllServerCaches();
     return NextResponse.json(result, { status: 201 });
   } catch (error) {
     logger.error("Error creating user:", error);

@@ -3,6 +3,7 @@
  * Handles product data import from CSV/Excel files
  */
 
+import { scheduleInvalidateAllServerCaches } from "@/lib/cache";
 import { NextRequest, NextResponse } from "next/server";
 import { getSessionFromRequest } from "@/utils/auth";
 import { logger } from "@/lib/logger";
@@ -318,10 +319,7 @@ export async function POST(request: NextRequest) {
         errors: errors.length > 0 ? errors : undefined,
         status: failCount === 0 ? "completed" : "completed",
       });
-
-      const { invalidateAllServerCaches } = await import("@/lib/cache");
-      await invalidateAllServerCaches().catch(() => {});
-
+    scheduleInvalidateAllServerCaches();
       // Check and send stock alerts for newly imported products
       // This is done asynchronously to not block the response
       // Note: We check alerts for all products, not just imported ones
@@ -363,9 +361,7 @@ export async function POST(request: NextRequest) {
           },
         ],
       });
-      const { invalidateAllServerCaches } = await import("@/lib/cache");
-      await invalidateAllServerCaches().catch(() => {});
-
+    scheduleInvalidateAllServerCaches();
       logger.error("Product import failed:", error);
       return NextResponse.json(
         {

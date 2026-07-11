@@ -22,6 +22,7 @@ import type { UpdateSupportTicketInput } from "@/types";
 import { getSupportTicketDetailForPage } from "@/lib/server/support-ticket-detail-data";
 import { transformSupportTicketDetail } from "@/lib/support-tickets/transform-support-ticket-detail";
 
+import { scheduleInvalidateAllServerCaches } from "@/lib/cache";
 /**
  * GET /api/support-tickets/:id
  */
@@ -121,9 +122,7 @@ export async function PUT(
     if (data.notes !== undefined) updatePayload.notes = data.notes;
 
     const updated = await updateSupportTicket(id, updatePayload);
-    const { invalidateAllServerCaches } = await import("@/lib/cache");
-    await invalidateAllServerCaches().catch(() => {});
-
+    scheduleInvalidateAllServerCaches();
     createAuditLog({
       userId: session.id,
       action: "update",
@@ -225,9 +224,7 @@ export async function DELETE(
     }
 
     await deleteSupportTicket(id);
-    const { invalidateAllServerCaches } = await import("@/lib/cache");
-    await invalidateAllServerCaches().catch(() => {});
-
+    scheduleInvalidateAllServerCaches();
     createAuditLog({
       userId: session.id,
       action: "delete",

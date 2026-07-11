@@ -23,7 +23,7 @@ import { mergeProductListWhere } from "@/lib/products/product-query";
 import { prisma } from "@/prisma/client";
 import { getSupplierByUserId } from "@/prisma/supplier";
 import { checkAndSendStockAlerts } from "@/lib/email/notifications";
-import { getCache, setCache, invalidateCache, cacheKeys } from "@/lib/cache";
+import { getCache, setCache, invalidateCache, cacheKeys, invalidateOnProductChange, scheduleAfterResponse } from "@/lib/cache";
 import { withRateLimit, defaultRateLimits } from "@/lib/api/rate-limit";
 import { createAuditLog } from "@/prisma/audit-log";
 import {
@@ -319,11 +319,7 @@ export async function POST(request: NextRequest) {
     });
 
     // Global invalidation: products affect categories, suppliers, dashboard
-    const { invalidateOnProductChange } = await import("@/lib/cache");
-    await invalidateOnProductChange().catch((error) => {
-      logger.error("Failed to invalidate cache after product creation:", error);
-    });
-
+    invalidateOnProductChange();
     // Transform product to match expected format
     const transformedProduct = {
       id: product.id,
@@ -580,11 +576,7 @@ export async function PUT(request: NextRequest) {
     }
 
     // Global invalidation: products affect categories, suppliers, dashboard
-    const { invalidateOnProductChange } = await import("@/lib/cache");
-    await invalidateOnProductChange().catch((error) => {
-      logger.error("Failed to invalidate cache after product update:", error);
-    });
-
+    invalidateOnProductChange();
     // Transform product to match expected format
     const transformedProduct = {
       id: product.id,
@@ -779,34 +771,33 @@ export async function DELETE(request: NextRequest) {
         },
       }).catch(() => {});
 
-      const { invalidateOnProductChange } = await import("@/lib/cache");
-      await invalidateOnProductChange().catch((error) => {
-        logger.error(
-          "Failed to invalidate cache after product archive:",
-          error,
-        );
-      });
-
+      invalidateOnProductChange();
       return NextResponse.json({ success: true, mode: "soft" as const });
     }
 
-    // Hard delete: no order history — remove ImageKit assets then DB row
-    try {
-      await cleanupProductMediaFromImageKit(existingProduct);
-    } catch (error) {
-      if (!isImageKitNotFoundError(error)) {
-        logger.warn(
-          `ImageKit cleanup before hard delete failed for product ${id}:`,
-          error,
-        );
-      }
-    }
-
+    // Hard delete: DB first (fast response), ImageKit cleanup deferred after response
     await prisma.stockAllocation.deleteMany({ where: { productId: id } });
 
     await prisma.product.delete({
       where: { id },
     });
+
+    const mediaSnapshot = {
+      qrCodeFileId: existingProduct.qrCodeFileId,
+      imageFileId: existingProduct.imageFileId,
+    };
+    scheduleAfterResponse(async () => {
+      try {
+        await cleanupProductMediaFromImageKit(mediaSnapshot);
+      } catch (error) {
+        if (!isImageKitNotFoundError(error)) {
+          logger.warn(
+            `Deferred ImageKit cleanup after hard delete failed for product ${id}:`,
+            error,
+          );
+        }
+      }
+    }, "product-hard-delete-imagekit");
 
     createAuditLog({
       userId: session.id,
@@ -815,12 +806,7 @@ export async function DELETE(request: NextRequest) {
       entityId: id,
       details: { productName: existingProduct.name, mode: "hard" },
     }).catch(() => {});
-
-    const { invalidateOnProductChange } = await import("@/lib/cache");
-    await invalidateOnProductChange().catch((error) => {
-      logger.error("Failed to invalidate cache after product deletion:", error);
-    });
-
+    invalidateOnProductChange();
     return NextResponse.json({ success: true, mode: "hard" as const });
   } catch (error) {
     logger.error("Error deleting product:", error);

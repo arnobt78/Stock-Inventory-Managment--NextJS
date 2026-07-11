@@ -14,6 +14,7 @@ import { sendInvoiceEmail } from "@/lib/email/notifications";
 import { withRateLimit, defaultRateLimits } from "@/lib/api/rate-limit";
 import type { InvoiceEmailData, BillingAddress } from "@/types";
 
+import { scheduleInvalidateAllServerCaches } from "@/lib/cache";
 /**
  * POST /api/invoices/reminders
  * Send payment reminders for overdue and soon-due invoices
@@ -181,8 +182,7 @@ export async function POST(request: NextRequest) {
     }
 
     if (sentCount > 0) {
-      const { invalidateAllServerCaches } = await import("@/lib/cache");
-      await invalidateAllServerCaches().catch(() => {});
+    scheduleInvalidateAllServerCaches();
     }
 
     return NextResponse.json({

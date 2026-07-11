@@ -12,6 +12,7 @@ import { withRateLimit, defaultRateLimits } from "@/lib/api/rate-limit";
 import { createCheckoutBodySchema } from "@/lib/validations/payment";
 import type { CheckoutSessionResponse } from "@/types";
 
+import { scheduleInvalidateAllServerCaches } from "@/lib/cache";
 /**
  * POST /api/payments/checkout
  * Creates a Stripe Checkout session for an order or invoice
@@ -282,10 +283,7 @@ export async function POST(request: NextRequest) {
         },
       });
     }
-
-    const { invalidateAllServerCaches } = await import("@/lib/cache");
-    await invalidateAllServerCaches().catch(() => {});
-
+    scheduleInvalidateAllServerCaches();
     const response: CheckoutSessionResponse = {
       sessionId: checkoutSession.id,
       url: checkoutSession.url!,

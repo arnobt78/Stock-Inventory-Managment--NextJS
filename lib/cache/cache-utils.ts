@@ -361,9 +361,9 @@ export const cacheKeys = {
  * stat card, badge, table, detail page, and portal dashboard shows fresh
  * data on the next client-side refetch.
  *
- * Call from every mutation API route (create/update/delete) so the
- * subsequent TanStack Query refetch (triggered by invalidateAllRelatedQueries
- * on the client) always hits the database, not stale Redis.
+ * API routes: prefer scheduleInvalidateAllServerCaches() from post-mutation.ts
+ * (runs via next/server after() — avoids Vercel 504 on write handlers).
+ * Direct await here is for deferred callbacks / scripts only.
  */
 export async function invalidateAllServerCaches(): Promise<void> {
   await Promise.all([
@@ -388,17 +388,3 @@ export async function invalidateAllServerCaches(): Promise<void> {
   ]);
 }
 
-/** @deprecated Use invalidateAllServerCaches instead */
-export async function invalidateOnOrderChange(): Promise<void> {
-  await invalidateAllServerCaches();
-}
-
-/** @deprecated Use invalidateAllServerCaches instead */
-export async function invalidateOnProductChange(): Promise<void> {
-  await invalidateAllServerCaches();
-}
-
-/** @deprecated Use invalidateAllServerCaches instead */
-export async function invalidateOnCategoryOrSupplierChange(): Promise<void> {
-  await invalidateAllServerCaches();
-}

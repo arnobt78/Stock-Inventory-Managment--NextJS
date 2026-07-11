@@ -15,6 +15,7 @@ import { createInvoiceSentNotification } from "@/lib/notifications/in-app";
 import { prisma } from "@/prisma/client";
 import type { InvoiceEmailData, BillingAddress } from "@/types";
 
+import { scheduleInvalidateAllServerCaches } from "@/lib/cache";
 /**
  * POST /api/invoices/:id/send
  * Send invoice via email to client
@@ -203,10 +204,7 @@ export async function POST(
         });
       });
     }
-
-    const { invalidateAllServerCaches } = await import("@/lib/cache");
-    await invalidateAllServerCaches().catch(() => {});
-
+    scheduleInvalidateAllServerCaches();
     logger.info("Invoice email sent successfully", {
       invoiceId,
       invoiceNumber: invoice.invoiceNumber,

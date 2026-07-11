@@ -18,6 +18,7 @@ import { createSupportTicketRepliedNotification } from "@/lib/notifications/in-a
 import { prisma } from "@/prisma/client";
 import type { SupportTicketReply } from "@/types";
 
+import { scheduleInvalidateAllServerCaches } from "@/lib/cache";
 function transform(
   r: Awaited<ReturnType<typeof getSupportTicketReplies>>[number],
   user?: { name: string | null; email: string | null; image: string | null } | null,
@@ -142,9 +143,7 @@ export async function POST(
       session.id,
       parsed.data.body,
     );
-    const { invalidateAllServerCaches } = await import("@/lib/cache");
-    await invalidateAllServerCaches().catch(() => {});
-
+    scheduleInvalidateAllServerCaches();
     const updaterDisplay =
       session.name?.trim() || session.email || "Someone";
     const toNotify: string[] = [];
