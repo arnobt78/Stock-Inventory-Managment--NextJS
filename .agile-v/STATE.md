@@ -8,7 +8,7 @@
 | **Last updated** | 2026-07-11 (REQ-0069 SSR sync + submit UX) |
 | **Session** | ACTIVE — REQ-0069 backlog closure |
 | **Active REQ range** | REQ-0001 … REQ-0069 done |
-| **Prod deploy target** | pending — REQ-0069 |
+| **Prod deploy target** | `29b9675` (main) — REQ-0069 |
 | **Human Gate 1** | APPROVED (retroactive bootstrap) |
 | **Human Gate 2** | PENDING — Sentry 24h after prod deploy |
 | **Resume token** | `C2-post-mutation-cache` — see **Session handoff** + **Open backlog** |

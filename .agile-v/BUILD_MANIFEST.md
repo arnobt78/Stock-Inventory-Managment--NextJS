@@ -89,7 +89,7 @@
 | ART-0082 | REQ-0033 | `AuthInfoPanel.tsx`, `AuthInfoListItem.tsx` | Tighter space-y-1 / py-2 spacing |
 | ART-0083 | REQ-0034 | `app/layout.tsx`, `AuthSessionToasts.tsx`, `use-toast.ts` | Deferred welcome/goodbye toasts |
 | ART-0084 | REQ-0035 | `oauth-success-url.ts`, `auth-welcome-toast.ts`, `AuthSessionToasts.tsx` | OAuth welcome toast on role destinations |
-| ART-0085 | REQ-0036 | `lib/ui/shell-layout-styles.ts`, `Navbar.tsx`, `Footer.tsx`, `SidebarLayout.tsx` | APP_SHELL_WIDTH_CLASS full bleed |
+| ART-0085 | REQ-0036 | `lib/ui/shell-layout-styles.ts`, `Navbar.tsx`, `Footer.tsx` | APP_SHELL full bleed (SidebarLayout removed REQ-0069) |
 | ART-0086 | REQ-0036 | list/detail page components | Remove max-w-9xl inner caps |
 | ART-0087 | REQ-0036 | `tailwind.config.ts` | Remove unused 9xl token |
 | ART-0088 | REQ-0036 | `shell-layout-styles.ts` | `APP_SHELL_DETAIL_CLASS` DRY on 6 detail pages |
@@ -97,7 +97,7 @@
 | ART-0090 | REQ-0038 | `safe-image.tsx`, `safe-avatar-image.tsx` | next/image + native fallback |
 | ART-0091 | REQ-0038 | 12 image consumer components | SafeImage / SafeAvatarImage migration |
 | ART-0092 | REQ-0039 | `user-avatar-sources.ts` | Shared Google + robohash resolver |
-| ART-0093 | REQ-0039 | `Navbar.tsx`, `SidebarLayout.tsx` | SafeAvatarImage with fallbackSrc |
+| ART-0093 | REQ-0039 | `Navbar.tsx` | SafeAvatarImage (SidebarLayout removed REQ-0069) |
 | ART-0094 | REQ-0039 | `next.config.ts`, `safe-avatar-image.tsx` | googleusercontent wildcard + referrerPolicy |
 | ART-0095 | REQ-0040 | `user-avatar-sources.ts` | resolveAvatarSourcesFromSeed |
 | ART-0096 | REQ-0040 | reviews + ticket reply components | DRY robohash via shared resolver |

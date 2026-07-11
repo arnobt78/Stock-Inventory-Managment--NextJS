@@ -157,3 +157,4 @@ Format: `TIMESTAMP | AGENT | DECISION | RATIONALE | REQ-ID`
 2026-07-11T17:06:00Z | build-agent | DialogSubmitButton sweep | PaymentDialog, CreateUserDialog, dialog-footer-actions, detail CTAs | REQ-0069
 2026-07-11T17:08:00Z | build-agent | stock-allocation-enrich tests | transformStockAllocationRow + fetchStockAllocationProductMap empty early return | REQ-0069
 2026-07-11T17:15:00Z | red-team | REQ-0069 gates | lint ✓ test 376 ✓ invalidate 206 ✓ build ✓ | REQ-0069
+2026-07-11T17:20:00Z | red-team | REQ-0069 post-audit | All AC1–AC5 wired; dead import cleanup; prod SHA 29b9675 | REQ-0069

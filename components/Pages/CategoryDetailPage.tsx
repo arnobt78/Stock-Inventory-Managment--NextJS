@@ -18,8 +18,6 @@ import {
   User,
   Mail,
   Edit,
-  Copy,
-  Trash2,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";

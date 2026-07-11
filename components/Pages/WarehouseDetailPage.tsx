@@ -14,7 +14,6 @@ import {
   Tag,
   CheckCircle2,
   Edit,
-  Trash2,
   Package,
   Calendar,
   Clock,

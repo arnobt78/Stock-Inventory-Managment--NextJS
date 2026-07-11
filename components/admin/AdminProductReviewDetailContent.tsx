@@ -25,7 +25,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { ArrowLeft, Loader2, Star, Package, Trash2, CircleDot } from "lucide-react";
+import { ArrowLeft, Loader2, Star, Package, CircleDot } from "lucide-react";
 import {
   useProductReview,
   useUpdateProductReview,

@@ -33,7 +33,6 @@ import {
   Loader2,
   MessageSquare,
   NotebookPen,
-  Trash2,
   Send,
   User,
   Mail,

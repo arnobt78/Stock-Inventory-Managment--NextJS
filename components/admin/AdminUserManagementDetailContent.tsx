@@ -30,7 +30,6 @@ import {
   Loader2,
   User,
   UserCog,
-  Trash2,
   ShoppingCart,
   FileText,
   DollarSign,

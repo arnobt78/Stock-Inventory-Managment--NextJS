@@ -20,7 +20,6 @@ import {
   AlertTriangle,
   XCircle,
   Edit,
-  Trash2,
   Download,
   ExternalLink,
   Package,
