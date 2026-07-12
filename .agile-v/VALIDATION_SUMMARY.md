@@ -3,7 +3,7 @@
 **Generated:** 2026-07-12  
 **eval_gate_status:** PENDING (Human Gate 2)  
 **Prod target SHA:** `ce7c80b` (main = origin/main)  
-**Red Team:** lint ✓ test 392 ✓ invalidate 206 ✓ build ✓ (2026-07-12 REQ-0080)
+**Red Team:** lint ✓ test 394 ✓ invalidate 206 ✓ build ✓ (2026-07-12 REQ-0081)
 
 ---
 
@@ -68,6 +68,7 @@
 | VS-035 | INFO | Badge nesting hydration fix on /client (REQ-0078) | PASS (automated) |
 | VS-036 | INFO | Client UI polish — badges, spacing, avatars (REQ-0079) | PASS (automated) |
 | VS-037 | INFO | Stat badge revert + slate section counters (REQ-0080) | PASS (automated) |
+| VS-038 | INFO | Client owner picker + category detail parity (REQ-0081) | PASS (automated) |
 
 ---
 

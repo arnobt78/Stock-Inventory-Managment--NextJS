@@ -35,25 +35,46 @@ type ProductOwnerSelectProps = {
   triggerClassName?: string;
 };
 
-function OwnerAvatar({
+/** REQ-0081 — stacked name + email; avatar aligns to dynamic row height. */
+function OwnerPickerRow({
   owner,
-  size = 24,
-  className,
+  avatarSize = 32,
+  showEmail = true,
 }: {
   owner: ProductOwnerOption;
-  size?: number;
-  className?: string;
+  avatarSize?: number;
+  showEmail?: boolean;
 }) {
   const avatar = resolveAvatarSourcesFromSeed(owner.id, owner.image);
   return (
-    <SafeAvatarImage
-      src={avatar.src}
-      fallbackSrc={avatar.fallbackSrc}
-      width={size}
-      height={size}
-      className={cn("rounded-full object-cover shrink-0", AVATAR_RING_CLASS, className)}
-      alt=""
-    />
+    <span className="flex min-w-0 flex-1 items-stretch gap-2 text-left">
+      <span
+        className={cn(
+          "relative shrink-0 self-stretch aspect-square overflow-hidden rounded-full",
+          AVATAR_RING_CLASS,
+        )}
+        style={{ width: avatarSize, minHeight: avatarSize }}
+      >
+        <SafeAvatarImage
+          src={avatar.src}
+          fallbackSrc={avatar.fallbackSrc}
+          alt=""
+          width={avatarSize}
+          height={avatarSize}
+          className="absolute inset-0 h-full w-full object-cover"
+        />
+      </span>
+      <span className="flex min-w-0 flex-1 flex-col justify-center gap-0.5 py-0.5">
+        <span className="truncate text-sm text-gray-700 dark:text-white">
+          {owner.name}
+        </span>
+        {showEmail && owner.email ? (
+          <span className="truncate text-xs text-muted-foreground dark:text-white/50">
+            {owner.email}
+          </span>
+        ) : null}
+      </span>
+    </span>
   );
 }
 
@@ -87,13 +108,13 @@ export function ProductOwnerSelect({
       <PopoverTrigger asChild>
         <Button
           variant="outline"
-          className={cn("w-full sm:w-auto gap-2", triggerClassName)}
+          className={cn(
+            "h-auto min-h-10 w-full gap-2 py-2 sm:w-auto",
+            triggerClassName,
+          )}
         >
           {selectedOwner ? (
-            <>
-              <OwnerAvatar owner={selectedOwner} size={24} className="h-6 w-6" />
-              <span className="truncate">{selectedOwner.name}</span>
-            </>
+            <OwnerPickerRow owner={selectedOwner} avatarSize={28} />
           ) : (
             <span>Product Owner</span>
           )}
@@ -119,15 +140,9 @@ export function ProductOwnerSelect({
                   key={owner.id}
                   value={`${owner.name} ${owner.email}`}
                   onSelect={() => handleSelect(owner.id)}
-                  className="cursor-pointer text-gray-700 dark:text-white/80 focus:bg-violet-100 dark:focus:bg-white/10 focus:text-gray-700 dark:focus:text-white gap-2"
+                  className="cursor-pointer items-start gap-2 py-2 text-gray-700 dark:text-white/80 focus:bg-violet-100 dark:focus:bg-white/10 focus:text-gray-700 dark:focus:text-white"
                 >
-                  <OwnerAvatar owner={owner} size={20} className="h-5 w-5" />
-                  <span className="truncate min-w-0">
-                    {owner.name}
-                    <span className="text-muted-foreground">
-                      . {owner.email}
-                    </span>
-                  </span>
+                  <OwnerPickerRow owner={owner} avatarSize={32} />
                 </CommandItem>
               ))}
             </CommandGroup>

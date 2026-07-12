@@ -1,7 +1,7 @@
 /**
  * Server-side category detail fetch for SSR prefetch.
  * Mirrors GET /api/categories/:id auth + response shape (includes Redis cache).
- * REQ-0024
+ * REQ-0024, REQ-0081 — party enrichment + category insights + admin forecast rollup.
  */
 
 import { getCategoryById } from "@/prisma/category";
@@ -15,43 +15,199 @@ import {
   resolveSupplierEntityForSession,
   supplierCanAccessCategory,
 } from "@/lib/server/catalog-entity-access";
+import { getForecastingForUser } from "@/lib/server/forecasting-data";
+import type {
+  CategoryForecastRollup,
+  CategoryInsights,
+  CategoryPartySnapshot,
+  CategorySalesTrendPoint,
+} from "@/types/category";
+import type { ForecastingSummary, ProductDemandForecast } from "@/types";
 
-function transformCategoryDetail(
-  category: NonNullable<Awaited<ReturnType<typeof getCategoryById>>>,
-  products: Awaited<
-    ReturnType<
-      typeof prisma.product.findMany<{
-        include: {
-          orderItems: {
-            include: {
-              order: {
-                select: {
-                  id: true;
-                  orderNumber: true;
-                  status: true;
-                  subtotal: true;
-                  total: true;
-                  createdAt: true;
-                };
+/** Low-stock threshold aligned with BusinessInsightPage (qty ≤ 20). */
+export const CATEGORY_LOW_STOCK_THRESHOLD = 20;
+
+type UserRow = {
+  id: string;
+  email: string;
+  name: string | null;
+  image?: string | null;
+};
+
+type SupplierRow = {
+  id: string;
+  name: string;
+};
+
+type ProductWithOrders = Awaited<
+  ReturnType<
+    typeof prisma.product.findMany<{
+      include: {
+        orderItems: {
+          include: {
+            order: {
+              select: {
+                id: true;
+                orderNumber: true;
+                status: true;
+                subtotal: true;
+                total: true;
+                createdAt: true;
+                userId: true;
               };
             };
           };
         };
-      }>
-    >
-  >,
-  creatorUser: {
-    id: string;
-    email: string;
-    name: string | null;
-    image?: string | null;
-  } | null,
-  updaterUser: {
-    id: string;
-    email: string;
-    name: string | null;
-    image?: string | null;
-  } | null,
+      };
+    }>
+  >
+>[number];
+
+function toParty(user: UserRow | null | undefined): CategoryPartySnapshot | null {
+  if (!user) return null;
+  return {
+    id: user.id,
+    email: user.email,
+    name: user.name,
+    image: user.image ?? null,
+  };
+}
+
+/** REQ-0081 — filter cached forecast summary to category product IDs. */
+export function buildCategoryForecastRollup(
+  forecasts: ProductDemandForecast[],
+  productIds: Set<string>,
+): CategoryForecastRollup {
+  const scoped = forecasts.filter((f) => productIds.has(f.productId));
+  const urgent = scoped.filter((f) => f.reorderRecommendation === "urgent");
+  const soon = scoped.filter((f) => f.reorderRecommendation === "soon");
+  const topUrgent = [...urgent]
+    .sort((a, b) => {
+      const daysA = a.daysUntilStockout ?? Number.MAX_SAFE_INTEGER;
+      const daysB = b.daysUntilStockout ?? Number.MAX_SAFE_INTEGER;
+      return daysA - daysB;
+    })
+    .slice(0, 5)
+    .map((f) => ({
+      productId: f.productId,
+      productName: f.productName,
+      sku: f.sku,
+      availableStock: f.availableStock,
+      daysUntilStockout: f.daysUntilStockout,
+      reorderRecommendation: f.reorderRecommendation,
+    }));
+
+  return {
+    urgentReorderCount: urgent.length,
+    soonReorderCount: soon.length,
+    predictedDailyDemand: scoped.reduce(
+      (sum, f) => sum + f.predictedDailySales,
+      0,
+    ),
+    topUrgent,
+  };
+}
+
+function monthKey(date: Date): string {
+  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}`;
+}
+
+function buildSalesTrend(
+  orderEntries: Array<{ date: Date; revenue: number; units: number }>,
+): CategorySalesTrendPoint[] {
+  const bucket = new Map<string, { revenue: number; units: number }>();
+  for (const entry of orderEntries) {
+    const key = monthKey(entry.date);
+    const prev = bucket.get(key) ?? { revenue: 0, units: 0 };
+    bucket.set(key, {
+      revenue: prev.revenue + entry.revenue,
+      units: prev.units + entry.units,
+    });
+  }
+  const sortedKeys = [...bucket.keys()].sort();
+  const lastSix = sortedKeys.slice(-6);
+  return lastSix.map((month) => ({
+    month,
+    revenue: bucket.get(month)?.revenue ?? 0,
+    units: bucket.get(month)?.units ?? 0,
+  }));
+}
+
+/** REQ-0081 — derived KPIs from loaded products + order items (no extra DB). */
+export function computeCategoryInsights(
+  products: ProductWithOrders[],
+  totalRevenue: number,
+  uniqueOrders: number,
+  totalQuantitySold: number,
+): CategoryInsights {
+  let lowStockCount = 0;
+  let outOfStockCount = 0;
+  let available = 0;
+  let low = 0;
+  let out = 0;
+
+  const orderEntries: Array<{ date: Date; revenue: number; units: number }> =
+    [];
+
+  products.forEach((product) => {
+    const qty = Number(product.quantity);
+    if (qty <= 0) {
+      outOfStockCount += 1;
+      out += 1;
+    } else if (qty <= CATEGORY_LOW_STOCK_THRESHOLD) {
+      lowStockCount += 1;
+      low += 1;
+    } else {
+      available += 1;
+    }
+
+    product.orderItems?.forEach((item) => {
+      const order = item.order;
+      if (!order?.createdAt) return;
+      const orderSubtotal = order.subtotal ?? 0;
+      const share =
+        orderSubtotal > 0
+          ? (item.subtotal / orderSubtotal) * order.total
+          : item.subtotal;
+      orderEntries.push({
+        date: order.createdAt,
+        revenue: share,
+        units: item.quantity,
+      });
+    });
+  });
+
+  const avgOrderValue =
+    uniqueOrders > 0 ? totalRevenue / uniqueOrders : 0;
+
+  const dates = orderEntries.map((e) => e.date.getTime());
+  const minDate = dates.length ? Math.min(...dates) : Date.now();
+  const maxDate = dates.length ? Math.max(...dates) : Date.now();
+  const daySpan = Math.max(
+    1,
+    Math.ceil((maxDate - minDate) / (1000 * 60 * 60 * 24)),
+  );
+  const demandVelocity = totalQuantitySold / daySpan;
+
+  return {
+    lowStockCount,
+    outOfStockCount,
+    avgOrderValue,
+    demandVelocity,
+    salesTrend: buildSalesTrend(orderEntries),
+    stockBreakdown: { available, low, out },
+  };
+}
+
+function transformCategoryDetail(
+  category: NonNullable<Awaited<ReturnType<typeof getCategoryById>>>,
+  products: ProductWithOrders[],
+  creatorUser: UserRow | null,
+  updaterUser: UserRow | null,
+  ownerMap: Map<string, UserRow>,
+  supplierMap: Map<string, SupplierRow>,
+  orderUserMap: Map<string, UserRow>,
+  categoryForecast: CategoryForecastRollup | null,
 ) {
   const totalProducts = products.length;
   let totalQuantitySold = 0;
@@ -64,19 +220,20 @@ function transformCategoryDetail(
   products.forEach((product) => {
     product.orderItems?.forEach((item) => {
       totalQuantitySold += item.quantity;
-      const order = item.order as { subtotal?: number; total: number };
+      const order = item.order;
+      if (!order) return;
       const orderSubtotal = order.subtotal ?? 0;
       const share =
         orderSubtotal > 0
           ? (item.subtotal / orderSubtotal) * order.total
           : item.subtotal;
       totalRevenue += share;
-      if (item.order && !orderMap.has(item.order.id)) {
-        orderMap.set(item.order.id, {
-          orderNumber: item.order.orderNumber,
-          status: item.order.status,
-          total: item.order.total,
-          createdAt: item.order.createdAt,
+      if (!orderMap.has(order.id)) {
+        orderMap.set(order.id, {
+          orderNumber: order.orderNumber,
+          status: order.status,
+          total: order.total,
+          createdAt: order.createdAt,
         });
       }
     });
@@ -87,33 +244,51 @@ function transformCategoryDetail(
     0,
   );
 
-  const allOrderItems = products.flatMap((product) =>
-    (product.orderItems || []).map((item) => {
-      const order = item.order as { subtotal?: number; total: number } | null;
+  const categoryInsights = computeCategoryInsights(
+    products,
+    totalRevenue,
+    orderMap.size,
+    totalQuantitySold,
+  );
+
+  const allOrderItems = products.flatMap((product) => {
+    const owner = toParty(ownerMap.get(product.userId));
+    const supplierRow = supplierMap.get(product.supplierId);
+    return (product.orderItems || []).map((item) => {
+      const order = item.order;
       const orderSubtotal = order?.subtotal ?? 0;
       const orderTotal = order?.total ?? 0;
       const proportionalAmount =
         orderSubtotal > 0
           ? (item.subtotal / orderSubtotal) * orderTotal
           : item.subtotal;
+      const placedBy = order?.userId
+        ? toParty(orderUserMap.get(order.userId))
+        : null;
       return {
         id: item.id,
-        orderId: item.order?.id || "",
-        orderNumber: item.order?.orderNumber || "",
-        orderStatus: item.order?.status || "",
+        orderId: order?.id || "",
+        orderNumber: order?.orderNumber || "",
+        orderStatus: order?.status || "",
         productId: product.id,
         productName: product.name,
         productSku: product.sku,
+        productImageUrl: product.imageUrl || null,
         quantity: item.quantity,
         price: item.price,
         subtotal: item.subtotal,
         proportionalAmount,
         orderTotal,
-        orderDate: item.order?.createdAt || item.createdAt,
+        orderDate: (order?.createdAt || item.createdAt).toISOString(),
         createdAt: item.createdAt,
+        owner,
+        placedBy,
+        supplier: supplierRow
+          ? { id: supplierRow.id, name: supplierRow.name }
+          : null,
       };
-    }),
-  );
+    });
+  });
 
   const recentOrders = allOrderItems
     .sort((a, b) => {
@@ -121,7 +296,8 @@ function transformCategoryDetail(
       const dateB = new Date(b.orderDate).getTime();
       return dateB - dateA;
     })
-    .slice(0, 10);
+    .slice(0, 10)
+    .map(({ createdAt: _c, supplier: _s, ...row }) => row);
 
   return {
     id: category.id,
@@ -132,22 +308,8 @@ function transformCategoryDetail(
     userId: category.userId,
     createdBy: category.createdBy,
     updatedBy: category.updatedBy || null,
-    creator: creatorUser
-      ? {
-          id: creatorUser.id,
-          email: creatorUser.email,
-          name: creatorUser.name,
-          image: creatorUser.image ?? null,
-        }
-      : null,
-    updater: updaterUser
-      ? {
-          id: updaterUser.id,
-          email: updaterUser.email,
-          name: updaterUser.name,
-          image: updaterUser.image ?? null,
-        }
-      : null,
+    creator: toParty(creatorUser),
+    updater: toParty(updaterUser),
     createdAt: category.createdAt.toISOString(),
     updatedAt: category.updatedAt?.toISOString() || null,
     statistics: {
@@ -157,15 +319,26 @@ function transformCategoryDetail(
       uniqueOrders: orderMap.size,
       totalValue,
     },
-    products: products.map((product) => ({
-      id: product.id,
-      name: product.name,
-      sku: product.sku,
-      price: Number(product.price),
-      quantity: Number(product.quantity),
-      status: product.status,
-      imageUrl: product.imageUrl || null,
-    })),
+    categoryInsights,
+    categoryForecast,
+    products: products.map((product) => {
+      const owner = toParty(ownerMap.get(product.userId));
+      const supplierRow = supplierMap.get(product.supplierId);
+      return {
+        id: product.id,
+        name: product.name,
+        sku: product.sku,
+        price: Number(product.price),
+        quantity: Number(product.quantity),
+        reservedQuantity: Number(product.reservedQuantity ?? 0),
+        status: product.status,
+        imageUrl: product.imageUrl || null,
+        owner,
+        supplier: supplierRow
+          ? { id: supplierRow.id, name: supplierRow.name }
+          : null,
+      };
+    }),
     recentOrders,
   };
 }
@@ -232,6 +405,7 @@ export async function getCategoryDetailForPage(
               subtotal: true,
               total: true,
               createdAt: true,
+              userId: true,
             },
           },
         },
@@ -239,26 +413,72 @@ export async function getCategoryDetailForPage(
     },
   });
 
-  const [creatorUser, updaterUser] = await Promise.all([
-    category.createdBy
-      ? prisma.user.findUnique({
-          where: { id: category.createdBy },
-          select: { id: true, email: true, name: true, image: true },
-        })
-      : null,
-    category.updatedBy
-      ? prisma.user.findUnique({
-          where: { id: category.updatedBy },
-          select: { id: true, email: true, name: true, image: true },
-        })
-      : null,
-  ]);
+  const ownerIds = [...new Set(products.map((p) => p.userId))];
+  const supplierIds = [...new Set(products.map((p) => p.supplierId))];
+  const orderUserIds = [
+    ...new Set(
+      products.flatMap((p) =>
+        (p.orderItems ?? [])
+          .map((item) => item.order?.userId)
+          .filter((uid): uid is string => Boolean(uid)),
+      ),
+    ),
+  ];
+
+  const [creatorUser, updaterUser, owners, suppliers, orderUsers, forecastSummary] =
+    await Promise.all([
+      category.createdBy
+        ? prisma.user.findUnique({
+            where: { id: category.createdBy },
+            select: { id: true, email: true, name: true, image: true },
+          })
+        : null,
+      category.updatedBy
+        ? prisma.user.findUnique({
+            where: { id: category.updatedBy },
+            select: { id: true, email: true, name: true, image: true },
+          })
+        : null,
+      ownerIds.length
+        ? prisma.user.findMany({
+            where: { id: { in: ownerIds } },
+            select: { id: true, email: true, name: true, image: true },
+          })
+        : [],
+      supplierIds.length
+        ? prisma.supplier.findMany({
+            where: { id: { in: supplierIds } },
+            select: { id: true, name: true },
+          })
+        : [],
+      orderUserIds.length
+        ? prisma.user.findMany({
+            where: { id: { in: orderUserIds } },
+            select: { id: true, email: true, name: true, image: true },
+          })
+        : [],
+      isAdmin ? getForecastingForUser(userId) : Promise.resolve(null),
+    ]);
+
+  const ownerMap = new Map(owners.map((u) => [u.id, u]));
+  const supplierMap = new Map(suppliers.map((s) => [s.id, s]));
+  const orderUserMap = new Map(orderUsers.map((u) => [u.id, u]));
+
+  const productIdSet = new Set(products.map((p) => p.id));
+  const categoryForecast =
+    isAdmin && forecastSummary
+      ? buildCategoryForecastRollup(forecastSummary.forecasts, productIdSet)
+      : null;
 
   const transformedCategory = transformCategoryDetail(
     category,
     products,
     creatorUser,
     updaterUser,
+    ownerMap,
+    supplierMap,
+    orderUserMap,
+    categoryForecast,
   );
 
   await setCache(cacheKey, transformedCategory, 300);

@@ -5,7 +5,7 @@
 
 "use client";
 
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import {
@@ -20,9 +20,22 @@ import {
   Edit,
   Hash,
   Trash2,
+  Copy,
+  DollarSign,
+  Wallet,
+  FileText,
+  StickyNote,
+  Truck,
+  Clock,
+  AlertTriangle,
+  PackageX,
+  TrendingUp,
+  AlertCircle,
+  Sparkles,
+  PieChart as PieChartIcon,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Separator } from "@/components/ui/separator";
+import { Badge } from "@/components/ui/badge";
 import {
   useCategory,
   useCreateCategory,
@@ -40,12 +53,30 @@ import {
   DataSlotPulse,
   PageSectionHeader,
   DialogSubmitButton,
-  GLASS_GHOST_BUTTON,
   glassDetailBackButtonClass,
   glassDetailFooterButtonClass,
   DETAIL_HEADER_BACK_ICON_CLASS,
   AvatarInlineLink,
+  SectionTitleRow,
+  ListIndexBadge,
 } from "@/components/shared";
+import { ProductThumb } from "@/components/products/ProductOptionRow";
+import { ChartCard } from "@/components/ui/chart-card";
+import { DeferredChartSection } from "@/components/ui/deferred-chart-section";
+import { ResponsiveChartContainer } from "@/components/ui/responsive-chart-container";
+import { CHART_LABEL_TOP_MARGIN } from "@/lib/ui/chart-point-label";
+import { CARD_EMPTY_MESSAGE_CLASS } from "@/lib/ui/card-empty-styles";
+import {
+  Bar,
+  BarChart,
+  CartesianGrid,
+  Cell,
+  Pie,
+  PieChart,
+  Tooltip,
+  XAxis,
+  YAxis,
+} from "recharts";
 import { DetailInfoRow } from "@/components/orders/detail";
 import {
   ActiveInactiveBadge,
@@ -54,7 +85,14 @@ import {
 import CategoryDialog from "@/components/category/CategoryDialog";
 import { AlertDialogWrapper } from "@/components/dialogs";
 import type { Category } from "@/types";
-import { SafeImage } from "@/components/ui/safe-image";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import {
   isDataSlotLoading,
   queryKeys,
@@ -175,7 +213,7 @@ function GlassCard({
   return (
     <article
       className={cn(
-        "group rounded-[20px] border p-4 sm:p-5 backdrop-blur-md transition-all duration-300",
+        "group rounded-[20px] border p-2 sm:p-4 backdrop-blur-md transition-all duration-300",
         "bg-white/60 dark:bg-white/5",
         config.border,
         config.gradient,
@@ -223,12 +261,24 @@ export default function CategoryDetailPage({
   const isDeleting = deleteCategoryMutation.isPending;
   const isClientRole = user?.role === "client";
   const isSupplierRole = user?.role === "supplier";
+  const isAdminRole = user?.role === "admin" || embedInAdmin;
   const disableCrud = isClientRole || isSupplierRole;
 
   const ownerProductsHref = (ownerId: string) =>
     embedInAdmin
       ? `/admin/products?ownerId=${ownerId}`
       : `/products?ownerId=${ownerId}`;
+
+  const productHref = (productId: string) =>
+    embedInAdmin ? `/admin/products/${productId}` : `/products/${productId}`;
+
+  const supplierHref = (supplierId: string) =>
+    embedInAdmin
+      ? `/admin/suppliers/${supplierId}`
+      : `/suppliers/${supplierId}`;
+
+  const orderHref = (orderId: string) =>
+    embedInAdmin ? `/admin/orders/${orderId}` : `/orders/${orderId}`;
 
   // Edit: open category dialog with current category (same as CategoryActions via onEdit)
   const handleEditCategory = () => {
@@ -335,6 +385,28 @@ export default function CategoryDetailPage({
     totalValue: 0,
   };
 
+  const insights = category?.categoryInsights;
+  const categoryForecast = category?.categoryForecast;
+  const products = category?.products ?? [];
+  const recentOrders = category?.recentOrders ?? [];
+
+  const salesChartData =
+    insights?.salesTrend.map((point) => ({
+      label: point.month,
+      revenue: Number(point.revenue.toFixed(2)),
+      units: point.units,
+    })) ?? [];
+
+  const stockChartData = insights
+    ? [
+        { name: "Available", value: insights.stockBreakdown.available },
+        { name: "Low stock", value: insights.stockBreakdown.low },
+        { name: "Out of stock", value: insights.stockBreakdown.out },
+      ].filter((row) => row.value > 0)
+    : [];
+
+  const STOCK_PIE_COLORS = ["#10b981", "#f59e0b", "#ef4444"];
+
   return (
     <PageWrapper>
       <PageContentWrapper>
@@ -424,24 +496,14 @@ export default function CategoryDetailPage({
                   </DetailInfoRow>
                 )}
                 {!dataLoading && category?.description && (
-                  <div className="p-2 rounded-xl bg-gradient-to-r from-amber-100/50 via-amber-50/30 to-transparent dark:from-amber-500/10 dark:via-amber-500/5 dark:to-transparent border border-amber-200/30 dark:border-amber-400/10">
-                    <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">
-                      Description:
-                    </p>
-                    <p className="text-sm text-gray-700 dark:text-white">
-                      {category.description}
-                    </p>
-                  </div>
+                  <DetailInfoRow icon={FileText} label="Description:" tone="amber">
+                    {category.description}
+                  </DetailInfoRow>
                 )}
                 {!dataLoading && category?.notes && (
-                  <div className="p-2 rounded-xl bg-gradient-to-r from-yellow-100/50 via-yellow-50/30 to-transparent dark:from-yellow-500/10 dark:via-yellow-500/5 dark:to-transparent border border-yellow-200/30 dark:border-yellow-400/10">
-                    <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">
-                      Notes:
-                    </p>
-                    <p className="text-sm text-gray-700 dark:text-white">
-                      {category.notes}
-                    </p>
-                  </div>
+                  <DetailInfoRow icon={StickyNote} label="Notes:" tone="teal">
+                    {category.notes}
+                  </DetailInfoRow>
                 )}
                 <DetailInfoRow
                   icon={Calendar}
@@ -505,226 +567,560 @@ export default function CategoryDetailPage({
               </div>
             </GlassCard>
 
-            {/* Statistics */}
+            {/* Statistics — REQ-0081 DetailInfoRow parity with ProductDetailPage */}
             <GlassCard variant="teal">
-              <div className="flex items-center gap-2 mb-2">
-                <div
-                  className={cn(
-                    "p-2 rounded-xl border",
-                    variantConfig.teal.iconBg,
-                    "dark:border-teal-400/30 dark:bg-teal-500/20",
-                  )}
-                >
-                  <BarChart3 className="h-5 w-5 text-teal-600 dark:text-teal-400" />
-                </div>
-                <div>
-                  <h3 className="text-sm sm:text-base font-medium text-gray-700 dark:text-white">
-                    Statistics
-                  </h3>
-                  <p className="text-xs text-gray-600 dark:text-gray-400">
-                    Summary of products and sales data
-                  </p>
-                </div>
-              </div>
-
-              <div className="space-y-2 mt-4">
-                <div className="flex justify-between items-center p-2 rounded-xl bg-gradient-to-r from-sky-100/50 via-sky-50/30 to-transparent dark:from-sky-500/10 dark:via-sky-500/5 dark:to-transparent border border-sky-200/30 dark:border-sky-400/10">
-                  <span className="text-sm text-gray-600 dark:text-gray-400">
-                    Total Products:
-                  </span>
-                  <span className="text-sm sm:text-lg font-medium text-sky-600 dark:text-sky-400">
-                    {stats.totalProducts}
-                  </span>
-                </div>
-
-                <div className="flex justify-between items-center p-2 rounded-xl bg-gradient-to-r from-violet-100/50 via-violet-50/30 to-transparent dark:from-violet-500/10 dark:via-violet-500/5 dark:to-transparent border border-violet-200/30 dark:border-violet-400/10">
-                  <span className="text-sm text-gray-600 dark:text-gray-400">
-                    Total Quantity Sold:
-                  </span>
-                  <span className="text-sm sm:text-lg font-medium text-violet-600 dark:text-violet-400">
-                    {stats.totalQuantitySold}
-                  </span>
-                </div>
-
-                <div className="flex justify-between items-center p-2 rounded-xl bg-gradient-to-r from-emerald-100/50 via-emerald-50/30 to-transparent dark:from-emerald-500/10 dark:via-emerald-500/5 dark:to-transparent border border-emerald-200/30 dark:border-emerald-400/10">
-                  <span className="text-sm text-gray-600 dark:text-gray-400">
-                    Total Revenue:
-                  </span>
-                  <span className="text-sm sm:text-lg font-medium text-emerald-600 dark:text-emerald-400">
-                    ${stats.totalRevenue.toFixed(2)}
-                  </span>
-                </div>
-
-                <div className="flex justify-between items-center p-2 rounded-xl bg-gradient-to-r from-amber-100/50 via-amber-50/30 to-transparent dark:from-amber-500/10 dark:via-amber-500/5 dark:to-transparent border border-amber-200/30 dark:border-amber-400/10">
-                  <span className="text-sm text-gray-600 dark:text-gray-400">
-                    Orders Containing Products:
-                  </span>
-                  <span className="text-sm sm:text-lg font-medium text-amber-600 dark:text-amber-400">
-                    {stats.uniqueOrders}
-                  </span>
-                </div>
-
-                <Separator className="my-3 bg-teal-200/50 dark:bg-teal-400/20" />
-
-                <div className="flex justify-between items-center p-2 rounded-xl bg-gradient-to-r from-blue-100/50 via-blue-50/30 to-transparent dark:from-blue-500/10 dark:via-blue-500/5 dark:to-transparent border border-blue-200/30 dark:border-blue-400/10">
-                  <span className="text-sm text-gray-600 dark:text-gray-400">
-                    Current Stock Value:
-                  </span>
-                  <span className="text-sm sm:text-lg font-medium text-blue-600 dark:text-blue-400">
-                    ${stats.totalValue.toFixed(2)}
-                  </span>
-                </div>
-              </div>
-            </GlassCard>
-          </div>
-
-          {/* Products in this Category */}
-          {!dataLoading &&
-            category?.products &&
-            category.products.length > 0 && (
-              <GlassCard variant="sky">
+              <div className="p-2 sm:p-4">
                 <div className="flex items-center gap-2 mb-2">
-                  <div
-                    className={cn(
-                      "p-2 rounded-xl border",
-                      variantConfig.sky.iconBg,
-                      "dark:border-sky-400/30 dark:bg-sky-500/20",
-                    )}
-                  >
-                    <Package className="h-5 w-5 text-sky-600 dark:text-sky-400" />
+                  <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-teal-300/30 bg-teal-100/50 dark:border-white/15 dark:bg-white/10">
+                    <BarChart3 className="h-4 w-4 text-gray-700 dark:text-white" />
                   </div>
                   <div>
                     <h3 className="text-sm sm:text-base font-medium text-gray-700 dark:text-white">
-                      Products in this Category
+                      Statistics
                     </h3>
-                    <p className="text-xs text-gray-600 dark:text-gray-400">
-                      {category.products.length} product
-                      {category.products.length !== 1 ? "s" : ""} in this
-                      category
-                    </p>
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2 mt-4">
-                  {category.products.map((product) => (
-                    <Link
-                      key={product.id}
-                      href={`/products/${product.id}`}
-                      className="flex items-center gap-2 p-4 rounded-xl border border-sky-200/40 dark:border-sky-400/20 bg-gradient-to-r from-sky-100/40 via-sky-50/20 to-transparent dark:from-sky-500/10 dark:via-sky-500/5 dark:to-transparent hover:border-sky-300/60 dark:hover:border-sky-400/40 hover:from-sky-100/60 dark:hover:from-sky-500/20 transition-all duration-300"
-                    >
-                      {/* REQ-0059: Package-icon fallback so rows without image stay aligned */}
-                      <div className="relative w-16 h-16 rounded-xl overflow-hidden bg-white/50 dark:bg-white/5 border border-sky-200/30 dark:border-sky-400/20 flex-shrink-0 flex items-center justify-center">
-                        {product.imageUrl ? (
-                          <SafeImage
-                            src={product.imageUrl}
-                            width={64}
-                            height={64}
-                            alt={product.name}
-                            className="w-full h-full object-contain"
-                          />
-                        ) : (
-                          <Package
-                            className="h-6 w-6 text-gray-400 dark:text-gray-500"
-                            aria-hidden
-                          />
-                        )}
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <h4 className="font-medium text-gray-700 dark:text-white truncate">
-                          {product.name}
-                        </h4>
-                        <p className="text-sm text-gray-600 dark:text-gray-400">
-                          SKU: {product.sku}
-                        </p>
-                        <p className="text-sm text-gray-600 dark:text-gray-400">
-                          Stock: {product.quantity} • $
-                          {(product.price ?? 0).toFixed(2)}
-                        </p>
-                      </div>
-                    </Link>
-                  ))}
-                </div>
-              </GlassCard>
-            )}
-
-          {/* Recent Orders */}
-          {!dataLoading &&
-            category?.recentOrders &&
-            category.recentOrders.length > 0 && (
-              <GlassCard variant="violet">
-                <div className="flex items-center gap-2 mb-2">
-                  <div
-                    className={cn(
-                      "p-2 rounded-xl border",
-                      variantConfig.violet.iconBg,
-                      "dark:border-violet-400/30 dark:bg-violet-500/20",
-                    )}
-                  >
-                    <ShoppingCart className="h-5 w-5 text-violet-600 dark:text-violet-400" />
-                  </div>
-                  <div>
-                    <h3 className="text-sm sm:text-base font-medium text-gray-700 dark:text-white">
-                      Recent Orders
-                    </h3>
-                    <p className="text-xs text-gray-600 dark:text-gray-400">
-                      Latest orders containing products in this category
+                    <p className="text-xs text-gray-600 dark:text-white/60">
+                      Summary of products and sales data
                     </p>
                   </div>
                 </div>
 
                 <div className="space-y-2 mt-4">
-                  {category.recentOrders.map((order) => (
-                    <Link
-                      key={order.id}
-                      href={`/orders/${order.orderId}`}
-                      className="flex flex-col sm:flex-row sm:items-center justify-between p-4 rounded-xl border border-violet-200/40 dark:border-violet-400/20 bg-gradient-to-r from-violet-100/40 via-violet-50/20 to-transparent dark:from-violet-500/10 dark:via-violet-500/5 dark:to-transparent hover:border-violet-300/60 dark:hover:border-violet-400/40 hover:from-violet-100/60 dark:hover:from-violet-500/20 transition-all duration-300"
+                  <DetailInfoRow
+                    icon={Package}
+                    label="Total Products:"
+                    tone="sky"
+                    loading={dataLoading}
+                  >
+                    {!dataLoading && stats.totalProducts}
+                  </DetailInfoRow>
+                  <DetailInfoRow
+                    icon={Package}
+                    label="Total Quantity Sold:"
+                    tone="violet"
+                    loading={dataLoading}
+                  >
+                    {!dataLoading && stats.totalQuantitySold}
+                  </DetailInfoRow>
+                  <DetailInfoRow
+                    icon={DollarSign}
+                    label="Total Revenue:"
+                    tone="emerald"
+                    loading={dataLoading}
+                  >
+                    {!dataLoading && (
+                      <span className="text-emerald-600 dark:text-emerald-400">
+                        ${stats.totalRevenue.toFixed(2)}
+                      </span>
+                    )}
+                  </DetailInfoRow>
+                  <DetailInfoRow
+                    icon={ShoppingCart}
+                    label="Orders Containing Products:"
+                    tone="amber"
+                    loading={dataLoading}
+                  >
+                    {!dataLoading && stats.uniqueOrders}
+                  </DetailInfoRow>
+                  <DetailInfoRow
+                    icon={Wallet}
+                    label="Current Stock Value:"
+                    tone="blue"
+                    loading={dataLoading}
+                  >
+                    {!dataLoading && (
+                      <span className="text-blue-600 dark:text-blue-400">
+                        ${stats.totalValue.toFixed(2)}
+                      </span>
+                    )}
+                  </DetailInfoRow>
+                </div>
+              </div>
+            </GlassCard>
+          </div>
+
+          {/* REQ-0081 — Category insights + charts */}
+          {insights && (
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-2 sm:gap-4">
+              <GlassCard variant="emerald">
+                <div className="p-2 sm:p-4">
+                  <div className="flex items-center gap-2 mb-2">
+                    <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-emerald-300/30 bg-emerald-100/50 dark:border-white/15 dark:bg-white/10">
+                      <TrendingUp className="h-4 w-4 text-gray-700 dark:text-white" />
+                    </div>
+                    <div>
+                      <h3 className="text-sm sm:text-base font-medium text-gray-700 dark:text-white">
+                        Category Insights
+                      </h3>
+                      <p className="text-xs text-gray-600 dark:text-white/60">
+                        Derived demand and inventory signals
+                      </p>
+                    </div>
+                  </div>
+                  <div className="space-y-2 mt-4">
+                    <DetailInfoRow
+                      icon={AlertTriangle}
+                      label="Low stock products:"
+                      tone="amber"
+                      loading={dataLoading}
                     >
-                      <div className="flex-1">
-                        <h4 className="font-medium text-gray-700 dark:text-white">
-                          <CopyableText value={order.orderNumber}>
-                            Order {order.orderNumber}
-                          </CopyableText>
-                        </h4>
-                        <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
-                          Product: {order.productName} (SKU: {order.productSku})
-                        </p>
-                        <p className="text-sm text-gray-600 dark:text-gray-400">
-                          Quantity: {order.quantity} × ${order.price.toFixed(2)}{" "}
-                          • Date: <ClientDate date={order.orderDate} />
-                        </p>
-                      </div>
-                      <div className="text-left sm:text-right mt-3 sm:mt-0">
-                        {/* Sale price style: crossed-out subtotal + actual proportional amount */}
-                        <p className="font-medium text-gray-700 dark:text-white">
-                          {typeof order.proportionalAmount === "number" &&
-                          order.proportionalAmount !== order.subtotal ? (
-                            <>
-                              <span className="text-gray-500 dark:text-white/50 line-through mr-2">
-                                ${order.subtotal.toFixed(2)}
-                              </span>
-                              <span className="text-rose-600 dark:text-rose-400">
-                                ${order.proportionalAmount.toFixed(2)}
-                              </span>
-                            </>
-                          ) : (
-                            `$${order.subtotal.toFixed(2)}`
-                          )}
-                        </p>
-                        <OrderStatusBadge
-                          status={order.orderStatus ?? "pending"}
-                          className="mt-1"
-                        />
-                      </div>
-                    </Link>
-                  ))}
+                      {!dataLoading && insights.lowStockCount}
+                    </DetailInfoRow>
+                    <DetailInfoRow
+                      icon={PackageX}
+                      label="Out of stock:"
+                      tone="rose"
+                      loading={dataLoading}
+                    >
+                      {!dataLoading && insights.outOfStockCount}
+                    </DetailInfoRow>
+                    <DetailInfoRow
+                      icon={DollarSign}
+                      label="Avg order value:"
+                      tone="emerald"
+                      loading={dataLoading}
+                    >
+                      {!dataLoading && (
+                        <span className="text-emerald-600 dark:text-emerald-400">
+                          ${insights.avgOrderValue.toFixed(2)}
+                        </span>
+                      )}
+                    </DetailInfoRow>
+                    <DetailInfoRow
+                      icon={TrendingUp}
+                      label="Demand velocity (units/day):"
+                      tone="violet"
+                      loading={dataLoading}
+                    >
+                      {!dataLoading && insights.demandVelocity.toFixed(2)}
+                    </DetailInfoRow>
+                    {isAdminRole && categoryForecast && (
+                      <>
+                        <DetailInfoRow
+                          icon={AlertCircle}
+                          label="Urgent reorder:"
+                          tone="rose"
+                          loading={dataLoading}
+                        >
+                          {!dataLoading && categoryForecast.urgentReorderCount}
+                        </DetailInfoRow>
+                        <DetailInfoRow
+                          icon={Sparkles}
+                          label="Predicted daily demand:"
+                          tone="sky"
+                          loading={dataLoading}
+                        >
+                          {!dataLoading &&
+                            categoryForecast.predictedDailyDemand.toFixed(1)}
+                        </DetailInfoRow>
+                      </>
+                    )}
+                  </div>
                 </div>
               </GlassCard>
-            )}
 
-          {/* Actions — Back, Edit, Duplicate, Delete; responsive (stack on small, row on larger) */}
+              <ChartCard
+                title="Sales trend (6 months)"
+                description="Revenue from category order lines"
+                icon={BarChart3}
+                variant="sky"
+              >
+                <DeferredChartSection
+                  loading={dataLoading}
+                  hasData={salesChartData.length > 0}
+                >
+                  <ResponsiveChartContainer>
+                    <BarChart
+                      data={salesChartData}
+                      margin={{
+                        top: CHART_LABEL_TOP_MARGIN,
+                        right: 8,
+                        left: 8,
+                        bottom: 8,
+                      }}
+                    >
+                      <CartesianGrid
+                        strokeDasharray="3 3"
+                        className="stroke-muted"
+                      />
+                      <XAxis
+                        dataKey="label"
+                        tick={{ fontSize: 11 }}
+                        className="text-muted-foreground"
+                      />
+                      <YAxis
+                        tick={{ fontSize: 11 }}
+                        className="text-muted-foreground"
+                      />
+                      <Tooltip
+                        contentStyle={{
+                          backgroundColor: "hsl(var(--card))",
+                          border: "1px solid hsl(var(--border))",
+                          borderRadius: "8px",
+                        }}
+                      />
+                      <Bar
+                        dataKey="revenue"
+                        fill="hsl(var(--chart-1))"
+                        name="Revenue"
+                        radius={[4, 4, 0, 0]}
+                      />
+                    </BarChart>
+                  </ResponsiveChartContainer>
+                </DeferredChartSection>
+              </ChartCard>
+
+              <ChartCard
+                title="Stock breakdown"
+                description="Available vs low vs out of stock"
+                icon={PieChartIcon}
+                variant="amber"
+              >
+                <DeferredChartSection
+                  loading={dataLoading}
+                  hasData={stockChartData.length > 0}
+                >
+                  <ResponsiveChartContainer>
+                    <PieChart>
+                      <Pie
+                        data={stockChartData}
+                        dataKey="value"
+                        nameKey="name"
+                        cx="50%"
+                        cy="50%"
+                        outerRadius={80}
+                        label={({ name, value }) => `${name}: ${value}`}
+                      >
+                        {stockChartData.map((_, index) => (
+                          <Cell
+                            key={`cell-${index}`}
+                            fill={
+                              STOCK_PIE_COLORS[index % STOCK_PIE_COLORS.length]
+                            }
+                          />
+                        ))}
+                      </Pie>
+                      <Tooltip />
+                    </PieChart>
+                  </ResponsiveChartContainer>
+                </DeferredChartSection>
+              </ChartCard>
+
+              {isAdminRole &&
+                categoryForecast &&
+                categoryForecast.topUrgent.length > 0 && (
+                  <GlassCard variant="rose" className="lg:col-span-2">
+                    <div className="p-2 sm:p-4">
+                      <SectionTitleRow
+                        as="h3"
+                        title="Urgent reorder forecast"
+                        count={categoryForecast.topUrgent.length}
+                      />
+                      <div className="mt-4 overflow-x-auto">
+                        <Table>
+                          <TableHeader>
+                            <TableRow>
+                              <TableHead>Product</TableHead>
+                              <TableHead>SKU</TableHead>
+                              <TableHead>Available</TableHead>
+                              <TableHead>Days left</TableHead>
+                              <TableHead>Status</TableHead>
+                            </TableRow>
+                          </TableHeader>
+                          <TableBody>
+                            {categoryForecast.topUrgent.map((row) => (
+                              <TableRow key={row.productId}>
+                                <TableCell>
+                                  <Link
+                                    href={productHref(row.productId)}
+                                    className="text-sm font-normal text-sky-600 dark:text-sky-400 hover:text-sky-500 truncate"
+                                  >
+                                    {row.productName}
+                                  </Link>
+                                </TableCell>
+                                <TableCell className="font-mono text-xs">
+                                  {row.sku}
+                                </TableCell>
+                                <TableCell>{row.availableStock}</TableCell>
+                                <TableCell>
+                                  {row.daysUntilStockout ?? "∞"}
+                                </TableCell>
+                                <TableCell>
+                                  <Badge variant="destructive">
+                                    {row.reorderRecommendation}
+                                  </Badge>
+                                </TableCell>
+                              </TableRow>
+                            ))}
+                          </TableBody>
+                        </Table>
+                      </div>
+                    </div>
+                  </GlassCard>
+                )}
+            </div>
+          )}
+
+          {/* Products in this Category — REQ-0081 always visible */}
+          <GlassCard variant="sky">
+            <div className="p-2 sm:p-4">
+              <SectionTitleRow
+                as="h3"
+                title="Products in this Category"
+                count={
+                  !dataLoading && products.length > 0
+                    ? products.length
+                    : undefined
+                }
+              />
+              {dataLoading ? (
+                <div className="mt-4 space-y-2">
+                  <DataSlotPulse variant="text-md" />
+                  <DataSlotPulse variant="text-md" />
+                </div>
+              ) : products.length === 0 ? (
+                <p className={cn(CARD_EMPTY_MESSAGE_CLASS, "mt-4")}>
+                  No products in this category yet.
+                </p>
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2 mt-4">
+                  {products.map((product) => (
+                    <div
+                      key={product.id}
+                      className="flex flex-col gap-2 p-4 rounded-xl border border-gray-300/20 dark:border-white/10 bg-white/30 dark:bg-white/5"
+                    >
+                      <div className="flex items-start gap-2 min-w-0">
+                        <ProductThumb
+                          name={product.name}
+                          imageUrl={product.imageUrl}
+                          size="lg"
+                          className="rounded-xl shrink-0"
+                        />
+                        <div className="flex min-w-0 flex-1 flex-col gap-1">
+                          <Link
+                            href={productHref(product.id)}
+                            className="text-sm font-normal text-sky-600 dark:text-sky-400 hover:text-sky-500 truncate"
+                          >
+                            {product.name}
+                          </Link>
+                          <p className="text-xs text-gray-600 dark:text-white/60 flex items-center gap-1.5 flex-wrap min-w-0">
+                            <Hash className="h-3.5 w-3.5 shrink-0" />
+                            <CopyableText value={product.sku ?? ""}>
+                              <span className="font-mono">{product.sku}</span>
+                            </CopyableText>
+                          </p>
+                          <p className="text-xs text-gray-600 dark:text-white/60 flex items-center gap-1.5 flex-wrap">
+                            <Package className="h-3.5 w-3.5 shrink-0" />
+                            Stock: {product.quantity ?? 0}
+                            {(product.reservedQuantity ?? 0) > 0 && (
+                              <>
+                                <span className="text-gray-400">•</span>
+                                <Clock className="h-3.5 w-3.5 shrink-0" />
+                                {product.reservedQuantity} reserved
+                              </>
+                            )}
+                            <span className="text-gray-400">•</span>
+                            <DollarSign className="h-3.5 w-3.5 shrink-0" />$
+                            {(product.price ?? 0).toFixed(2)}
+                          </p>
+                        </div>
+                      </div>
+                      {(product.owner || product.supplier) && (
+                        <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-gray-600 dark:text-white/60">
+                          {product.owner && (
+                            <span className="inline-flex items-center gap-1.5 min-w-0">
+                              <User className="h-3.5 w-3.5 shrink-0" />
+                              Owner:{" "}
+                              <AvatarInlineLink
+                                seed={product.owner.id}
+                                image={product.owner.image}
+                                label={
+                                  product.owner.name ??
+                                  product.owner.email ??
+                                  "Owner"
+                                }
+                                href={ownerProductsHref(product.owner.id)}
+                                size={20}
+                              />
+                            </span>
+                          )}
+                          {product.supplier && (
+                            <span className="inline-flex items-center gap-1.5 min-w-0">
+                              <Truck className="h-3.5 w-3.5 shrink-0" />
+                              Supplier:{" "}
+                              <AvatarInlineLink
+                                seed={product.supplier.id}
+                                label={product.supplier.name}
+                                href={supplierHref(product.supplier.id)}
+                                size={20}
+                              />
+                            </span>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </GlassCard>
+
+          {/* Recent Orders — REQ-0081 ProductDetail parity */}
+          <GlassCard variant="violet">
+            <div className="p-2 sm:p-4">
+              <SectionTitleRow
+                as="h3"
+                title="Recent Orders"
+                count={
+                  !dataLoading && recentOrders.length > 0
+                    ? recentOrders.length
+                    : undefined
+                }
+              />
+              {dataLoading ? (
+                <div className="mt-4 space-y-2">
+                  <DataSlotPulse variant="text-md" />
+                  <DataSlotPulse variant="text-md" />
+                </div>
+              ) : recentOrders.length === 0 ? (
+                <p className={cn(CARD_EMPTY_MESSAGE_CLASS, "mt-4")}>
+                  No recent orders for products in this category.
+                </p>
+              ) : (
+                <div className="space-y-2 mt-4">
+                  {recentOrders.map((order, index) => {
+                    const buyerLabel =
+                      order.placedBy?.name?.trim() ||
+                      order.placedBy?.email ||
+                      "Unknown buyer";
+                    return (
+                      <div
+                        key={order.id}
+                        className="flex flex-col gap-2 p-4 rounded-xl border border-gray-300/20 dark:border-white/10 bg-white/30 dark:bg-white/5"
+                      >
+                        <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-2">
+                          <div className="flex-1 min-w-0 space-y-2">
+                            <div className="flex items-center gap-2 min-w-0">
+                              <ListIndexBadge index={index + 1} />
+                              <CopyableText
+                                value={order.orderNumber}
+                                className="min-w-0"
+                              >
+                                <Link
+                                  href={orderHref(order.orderId)}
+                                  className="font-normal text-sm text-sky-600 dark:text-sky-400 hover:text-sky-500 dark:hover:text-sky-300 truncate"
+                                >
+                                  {order.orderNumber}
+                                </Link>
+                              </CopyableText>
+                            </div>
+                            <p className="text-sm text-gray-600 dark:text-white/60 flex items-center gap-1.5 flex-wrap min-w-0">
+                              <ProductThumb
+                                name={order.productName}
+                                imageUrl={order.productImageUrl}
+                                size="sm"
+                                className="rounded-lg shrink-0"
+                              />
+                              <Link
+                                href={productHref(order.productId)}
+                                className="font-normal text-sm text-sky-600 dark:text-sky-400 hover:text-sky-500 truncate"
+                              >
+                                {order.productName}
+                              </Link>
+                              {order.productSku && (
+                                <>
+                                  <span className="text-gray-400">•</span>
+                                  <Hash className="h-3.5 w-3.5 shrink-0" />
+                                  <CopyableText value={order.productSku}>
+                                    <span className="font-mono text-xs">
+                                      {order.productSku}
+                                    </span>
+                                  </CopyableText>
+                                </>
+                              )}
+                              <span className="text-gray-400">•</span>
+                              <Package className="h-3.5 w-3.5 shrink-0" />
+                              Qty: {order.quantity} × ${order.price.toFixed(2)}
+                              <span className="text-gray-400">•</span>
+                              <Calendar className="h-3.5 w-3.5 shrink-0" />
+                              <ClientDate date={order.orderDate} />
+                            </p>
+                            {(order.owner || order.placedBy) && (
+                              <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-gray-600 dark:text-white/60">
+                                {order.owner && (
+                                  <span className="inline-flex items-center gap-1.5 min-w-0">
+                                    <User className="h-3.5 w-3.5 shrink-0" />
+                                    Owner:{" "}
+                                    <AvatarInlineLink
+                                      seed={order.owner.id}
+                                      image={order.owner.image}
+                                      label={
+                                        order.owner.name ??
+                                        order.owner.email ??
+                                        "Owner"
+                                      }
+                                      href={ownerProductsHref(order.owner.id)}
+                                      size={20}
+                                    />
+                                  </span>
+                                )}
+                                {order.placedBy && (
+                                  <span className="inline-flex items-center gap-1.5 min-w-0">
+                                    <User className="h-3.5 w-3.5 shrink-0" />
+                                    Buyer:{" "}
+                                    {isAdminRole ? (
+                                      <AvatarInlineLink
+                                        seed={order.placedBy.id}
+                                        image={order.placedBy.image}
+                                        label={buyerLabel}
+                                        href={`/admin/user-management/${order.placedBy.id}`}
+                                        size={20}
+                                      />
+                                    ) : (
+                                      <AvatarInlineLink
+                                        seed={order.placedBy.id}
+                                        image={order.placedBy.image}
+                                        label={buyerLabel}
+                                        size={20}
+                                      />
+                                    )}
+                                  </span>
+                                )}
+                              </div>
+                            )}
+                          </div>
+                          <div className="text-left sm:text-right shrink-0">
+                            <p className="font-medium text-gray-700 dark:text-white">
+                              {typeof order.proportionalAmount === "number" &&
+                              order.proportionalAmount !== order.subtotal ? (
+                                <>
+                                  <span className="text-gray-500 dark:text-white/50 line-through mr-2">
+                                    ${order.subtotal.toFixed(2)}
+                                  </span>
+                                  <span className="text-rose-600 dark:text-rose-400">
+                                    ${order.proportionalAmount.toFixed(2)}
+                                  </span>
+                                </>
+                              ) : (
+                                `$${order.subtotal.toFixed(2)}`
+                              )}
+                            </p>
+                            <OrderStatusBadge
+                              status={order.orderStatus ?? "pending"}
+                              className="mt-1"
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+          </GlassCard>
+
+          {/* Actions — REQ-0081 glass footer parity with ProductDetailPage */}
           <div className="flex flex-col sm:flex-row flex-wrap gap-2">
             <Button
-              variant="ghost"
               onClick={handleBack}
               className={glassDetailBackButtonClass("w-full sm:w-auto gap-2")}
             >
@@ -739,16 +1135,14 @@ export default function CategoryDetailPage({
               <Edit className="h-4 w-4 shrink-0" />
               Edit Category
             </Button>
-            <DialogSubmitButton
-              type="button"
+            <Button
               onClick={handleDuplicateCategory}
-              isPending={isCopying}
-              pendingLabel="Duplicating…"
-              label="Create Duplicate"
-              hue="violet"
-              disabled={disableCrud}
-              className="group w-full sm:w-auto gap-2"
-            />
+              disabled={isCopying || disableCrud}
+              className={glassDetailFooterButtonClass("violet")}
+            >
+              <Copy className="h-4 w-4 shrink-0" />
+              {isCopying ? "Duplicating..." : "Create Duplicate"}
+            </Button>
             <DialogSubmitButton
               type="button"
               onClick={() => setDeleteDialogOpen(true)}

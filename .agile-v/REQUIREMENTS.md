@@ -6,11 +6,11 @@ Canonical REQ source. All artifacts link via `REQ-XXXX`. Status: `done` | `verif
 
 ## REQ-0001 — Radix Select `removeChild` mitigation
 
-| Field | Value |
-|-------|-------|
-| **Priority** | P1 |
-| **Risk** | R2 |
-| **Status** | verify |
+| Field        | Value  |
+| ------------ | ------ |
+| **Priority** | P1     |
+| **Risk**     | R2     |
+| **Status**   | verify |
 
 **Intent:** Prevent `NotFoundError: removeChild` when navigating with open Radix Select portals.
 
@@ -26,11 +26,11 @@ Canonical REQ source. All artifacts link via `REQ-XXXX`. Status: `done` | `verif
 
 ## REQ-0002 — OpenRouter billing / upstream errors (no Sentry 502 spam)
 
-| Field | Value |
-|-------|-------|
-| **Priority** | P1 |
-| **Risk** | R2 |
-| **Status** | done |
+| Field        | Value |
+| ------------ | ----- |
+| **Priority** | P1    |
+| **Risk**     | R2    |
+| **Status**   | done  |
 
 **Acceptance criteria**
 
@@ -42,11 +42,11 @@ Canonical REQ source. All artifacts link via `REQ-XXXX`. Status: `done` | `verif
 
 ## REQ-0003 — OAuth Google username P2002 recovery
 
-| Field | Value |
-|-------|-------|
-| **Priority** | P1 |
-| **Risk** | R2 |
-| **Status** | done |
+| Field        | Value |
+| ------------ | ----- |
+| **Priority** | P1    |
+| **Risk**     | R2    |
+| **Status**   | done  |
 
 **Acceptance criteria**
 
@@ -57,11 +57,11 @@ Canonical REQ source. All artifacts link via `REQ-XXXX`. Status: `done` | `verif
 
 ## REQ-0004 — Home route hydration (SSR-first)
 
-| Field | Value |
-|-------|-------|
-| **Priority** | P1 |
-| **Risk** | R2 |
-| **Status** | done |
+| Field        | Value |
+| ------------ | ----- |
+| **Priority** | P1    |
+| **Risk**     | R2    |
+| **Status**   | done  |
 
 **Acceptance criteria**
 
@@ -73,11 +73,11 @@ Canonical REQ source. All artifacts link via `REQ-XXXX`. Status: `done` | `verif
 
 ## REQ-0005 — Groq LLM fallback (OpenRouter primary)
 
-| Field | Value |
-|-------|-------|
-| **Priority** | P1 |
-| **Risk** | R2 |
-| **Status** | verify |
+| Field        | Value  |
+| ------------ | ------ |
+| **Priority** | P1     |
+| **Risk**     | R2     |
+| **Status**   | verify |
 
 **Acceptance criteria**
 
@@ -91,11 +91,11 @@ Canonical REQ source. All artifacts link via `REQ-XXXX`. Status: `done` | `verif
 
 ## REQ-0006 — DeferredSelectGate on all remaining Select surfaces
 
-| Field | Value |
-|-------|-------|
-| **Priority** | P1 |
-| **Risk** | R2 |
-| **Status** | verify |
+| Field        | Value  |
+| ------------ | ------ |
+| **Priority** | P1     |
+| **Risk**     | R2     |
+| **Status**   | verify |
 
 **Acceptance criteria**
 
@@ -107,11 +107,11 @@ Canonical REQ source. All artifacts link via `REQ-XXXX`. Status: `done` | `verif
 
 ## REQ-0007 — Notification bell dropdown layout
 
-| Field | Value |
-|-------|-------|
-| **Priority** | P1 |
-| **Risk** | R2 |
-| **Status** | done |
+| Field        | Value |
+| ------------ | ----- |
+| **Priority** | P1    |
+| **Risk**     | R2    |
+| **Status**   | done  |
 
 **Acceptance criteria**
 
@@ -125,11 +125,11 @@ Canonical REQ source. All artifacts link via `REQ-XXXX`. Status: `done` | `verif
 
 ## REQ-0008 — Agile V state persistence (`.agile-v/`)
 
-| Field | Value |
-|-------|-------|
-| **Priority** | P2 |
-| **Risk** | R1 |
-| **Status** | done |
+| Field        | Value |
+| ------------ | ----- |
+| **Priority** | P2    |
+| **Risk**     | R1    |
+| **Status**   | done  |
 
 **Acceptance criteria**
 
@@ -141,11 +141,11 @@ Canonical REQ source. All artifacts link via `REQ-XXXX`. Status: `done` | `verif
 
 ## REQ-0009 — Post-deploy Sentry regression watch (planned)
 
-| Field | Value |
-|-------|-------|
-| **Priority** | P2 |
-| **Risk** | R1 |
-| **Status** | planned |
+| Field        | Value   |
+| ------------ | ------- |
+| **Priority** | P2      |
+| **Risk**     | R1      |
+| **Status**   | planned |
 
 **Acceptance criteria**
 
@@ -157,11 +157,11 @@ Canonical REQ source. All artifacts link via `REQ-XXXX`. Status: `done` | `verif
 
 ## REQ-0010 — Products API Zod validation (POST + PUT)
 
-| Field | Value |
-|-------|-------|
-| **Priority** | P1 |
-| **Risk** | R2 |
-| **Status** | done |
+| Field        | Value |
+| ------------ | ----- |
+| **Priority** | P1    |
+| **Risk**     | R2    |
+| **Status**   | done  |
 
 **Acceptance criteria**
 
@@ -176,11 +176,11 @@ Canonical REQ source. All artifacts link via `REQ-XXXX`. Status: `done` | `verif
 
 ## REQ-0011 — Central 4xx-aware logging (Sentry noise reduction)
 
-| Field | Value |
-|-------|-------|
-| **Priority** | P1 |
-| **Risk** | R2 |
-| **Status** | done |
+| Field        | Value |
+| ------------ | ----- |
+| **Priority** | P1    |
+| **Risk**     | R2    |
+| **Status**   | done  |
 
 **Acceptance criteria**
 
@@ -196,11 +196,11 @@ Canonical REQ source. All artifacts link via `REQ-XXXX`. Status: `done` | `verif
 
 ## REQ-0012 — Catalog API Zod validation (categories, suppliers, warehouses)
 
-| Field | Value |
-|-------|-------|
-| **Priority** | P1 |
-| **Risk** | R2 |
-| **Status** | done |
+| Field        | Value |
+| ------------ | ----- |
+| **Priority** | P1    |
+| **Risk**     | R2    |
+| **Status**   | done  |
 
 **Acceptance criteria**
 
@@ -216,11 +216,11 @@ Canonical REQ source. All artifacts link via `REQ-XXXX`. Status: `done` | `verif
 
 ## REQ-0014 — ChunkLoadError auto-reload in ErrorBoundary
 
-| Field | Value |
-|-------|-------|
-| **Priority** | P1 |
-| **Risk** | R2 |
-| **Status** | done |
+| Field        | Value |
+| ------------ | ----- |
+| **Priority** | P1    |
+| **Risk**     | R2    |
+| **Status**   | done  |
 
 **Intent:** After a Vercel deploy, users with stale tab/page receive `ChunkLoadError` when a lazy import tries to fetch a now-invalidated chunk hash. Currently `ErrorBoundary.componentDidCatch` logs and reports to Sentry and shows a crash UI. The correct fix is to silently auto-reload on `ChunkLoadError`, restoring the user to the fresh deploy without a Sentry event.
 
@@ -237,11 +237,11 @@ Canonical REQ source. All artifacts link via `REQ-XXXX`. Status: `done` | `verif
 
 ## REQ-0015 — OrderDialog RHF validation logger level
 
-| Field | Value |
-|-------|-------|
-| **Priority** | P1 |
-| **Risk** | R1 |
-| **Status** | done |
+| Field        | Value |
+| ------------ | ----- |
+| **Priority** | P1    |
+| **Risk**     | R1    |
+| **Status**   | done  |
 
 **Intent:** `OrderDialog.tsx:949` calls `logger.error("Order form validation errors:", errors)` in the RHF `handleSubmit` invalid callback. This fires for pure client-side form validation failures (missing fields, wrong type) — it never reaches any API. `logger.error` routes through Sentry; `logger.warn` does not. Client-side form validation is expected UX feedback, not a production error.
 
@@ -258,11 +258,11 @@ Canonical REQ source. All artifacts link via `REQ-XXXX`. Status: `done` | `verif
 
 ## REQ-0018 — Groq model deprecation migration
 
-| Field | Value |
-|-------|-------|
-| **Priority** | P1 |
-| **Risk** | R2 |
-| **Status** | done |
+| Field        | Value |
+| ------------ | ----- |
+| **Priority** | P1    |
+| **Risk**     | R2    |
+| **Status**   | done  |
 
 **Intent:** Replace deprecated `llama-3.3-70b-versatile` (Groq shutdown Aug 16, 2026) with fast-first multi-model chain.
 
@@ -280,11 +280,11 @@ Canonical REQ source. All artifacts link via `REQ-XXXX`. Status: `done` | `verif
 
 ## REQ-0019 — Admin dashboard AI truncation + hydration
 
-| Field | Value |
-|-------|-------|
-| **Priority** | P1 |
-| **Risk** | R2 |
-| **Status** | done |
+| Field        | Value |
+| ------------ | ----- |
+| **Priority** | P1    |
+| **Risk**     | R2    |
+| **Status**   | done  |
 
 **Intent:** Fix clipped forecasting AI insights (`max_tokens: 200`) and React #418 hydration on `/admin/dashboard-overall-insights`.
 
@@ -303,11 +303,11 @@ Canonical REQ source. All artifacts link via `REQ-XXXX`. Status: `done` | `verif
 
 ## REQ-0021 — Shell-first navigation + data-slot pulse skeletons
 
-| Field | Value |
-|-------|-------|
-| **Priority** | P1 |
-| **Risk** | R2 |
-| **Status** | done |
+| Field        | Value |
+| ------------ | ----- |
+| **Priority** | P1    |
+| **Risk**     | R2    |
+| **Status**   | done  |
 
 **Intent:** Instant layout shell on navbar/sidebar navigation; pulse skeletons only on dynamic values (metrics, counts, table cells, charts) while SSR/RQ loads. No `loading.tsx`.
 
@@ -327,12 +327,12 @@ Canonical REQ source. All artifacts link via `REQ-XXXX`. Status: `done` | `verif
 
 ## REQ-0022 — Tier-3 user detail shell-first gap closure
 
-| Field | Value |
-|-------|-------|
-| **Priority** | P1 |
-| **Risk** | R2 |
-| **Status** | done |
-| **Parent** | REQ-0021 |
+| Field        | Value    |
+| ------------ | -------- |
+| **Priority** | P1       |
+| **Risk**     | R2       |
+| **Status**   | done     |
+| **Parent**   | REQ-0021 |
 
 **Intent:** Close remaining REQ-0021 gaps: user-facing Order/Invoice detail pages use shell-first + `DataSlotPulse` (no full-page skeleton gate); remove dead `StatisticsCardSkeleton`.
 
@@ -350,12 +350,12 @@ Canonical REQ source. All artifacts link via `REQ-XXXX`. Status: `done` | `verif
 
 ## REQ-0023 — Admin detail shell-first gap closure
 
-| Field | Value |
-|-------|-------|
-| **Priority** | P1 |
-| **Risk** | R2 |
-| **Status** | done |
-| **Parent** | REQ-0021 / REQ-0022 |
+| Field        | Value               |
+| ------------ | ------------------- |
+| **Priority** | P1                  |
+| **Risk**     | R2                  |
+| **Status**   | done                |
+| **Parent**   | REQ-0021 / REQ-0022 |
 
 **Intent:** Migrate all 5 `Admin*DetailContent` components from full-page `Loader2` spinner gates to shell-first + `DataSlotPulse` (matching REQ-0022 user detail pattern).
 
@@ -374,12 +374,12 @@ Canonical REQ source. All artifacts link via `REQ-XXXX`. Status: `done` | `verif
 
 ## REQ-0024 — Shell-first consistency, detail SSR prefetch, order detail DRY
 
-| Field | Value |
-|-------|-------|
-| **Priority** | P1 |
-| **Risk** | R2 |
-| **Status** | done |
-| **Parent** | REQ-0021 / REQ-0022 / REQ-0023 |
+| Field        | Value                          |
+| ------------ | ------------------------------ |
+| **Priority** | P1                             |
+| **Risk**     | R2                             |
+| **Status**   | done                           |
+| **Parent**   | REQ-0021 / REQ-0022 / REQ-0023 |
 
 **Intent:** Close deferred gaps: admin settings shell-first + SSR; detail-route SSR prefetch (role-scoped); Order detail DRY via shared subcomponents.
 
@@ -398,12 +398,12 @@ Canonical REQ source. All artifacts link via `REQ-XXXX`. Status: `done` | `verif
 
 ## REQ-0025 — Blocking SSR prefetch, no shell flash, warm cache
 
-| Field | Value |
-|-------|-------|
-| **Priority** | P1 |
-| **Risk** | R2 |
-| **Status** | done |
-| **Parent** | REQ-0021 / REQ-0024 |
+| Field        | Value               |
+| ------------ | ------------------- |
+| **Priority** | P1                  |
+| **Risk**     | R2                  |
+| **Status**   | done                |
+| **Parent**   | REQ-0021 / REQ-0024 |
 
 **Intent:** Eliminate Suspense fallback skeleton flash on refresh; remove RSC+client double-fetch; SSR all list/detail/portal gaps; warm TanStack cache after login.
 
@@ -423,12 +423,12 @@ Canonical REQ source. All artifacts link via `REQ-XXXX`. Status: `done` | `verif
 
 ## REQ-0026 — P3 SSR gaps: secondary detail data, client browse, ghost fetches
 
-| Field | Value |
-|-------|-------|
-| **Priority** | P3 |
-| **Risk** | R2 |
-| **Status** | done |
-| **Parent** | REQ-0025 |
+| Field        | Value    |
+| ------------ | -------- |
+| **Priority** | P3       |
+| **Risk**     | R2       |
+| **Status**   | done     |
+| **Parent**   | REQ-0025 |
 
 **Intent:** Close P3 performance gaps: stop ghost list-page API fetches, SSR secondary detail data (reviews, stock, order eligibility batch), SSR client browse/catalog, defer RouteWarmPrefetch, tune notifications, remove dev instrumentation.
 
@@ -450,12 +450,12 @@ Canonical REQ source. All artifacts link via `REQ-XXXX`. Status: `done` | `verif
 
 ## REQ-0027 — C2 perf polish (backlog)
 
-| Field | Value |
-|-------|-------|
-| **Priority** | P3 |
-| **Risk** | R1 |
-| **Status** | done |
-| **Parent** | REQ-0026 |
+| Field        | Value    |
+| ------------ | -------- |
+| **Priority** | P3       |
+| **Risk**     | R1       |
+| **Status**   | done     |
+| **Parent**   | REQ-0026 |
 
 **Intent:** Post-REQ-0026 polish — shareable client owner deep links; trim login API storm.
 
@@ -472,12 +472,12 @@ Canonical REQ source. All artifacts link via `REQ-XXXX`. Status: `done` | `verif
 
 ## REQ-0028 — UI consistency (scrollbar, login, tables, glass badges)
 
-| Field | Value |
-|-------|-------|
-| **Priority** | P2 |
-| **Risk** | R1 |
-| **Status** | done |
-| **Parent** | REQ-0027 |
+| Field        | Value    |
+| ------------ | -------- |
+| **Priority** | P2       |
+| **Risk**     | R1       |
+| **Status**   | done     |
+| **Parent**   | REQ-0027 |
 
 **Intent:** Stable scrollbar gutter; login form persist; unified table typography; glass semantic badges across orders/invoices/tickets/reviews/admin filters; invoice list scope fixes.
 
@@ -499,12 +499,12 @@ Canonical REQ source. All artifacts link via `REQ-XXXX`. Status: `done` | `verif
 
 ## REQ-0029 — Supplier read-only catalog entity detail access
 
-| Field | Value |
-|-------|-------|
-| **Priority** | P1 |
-| **Risk** | R2 |
-| **Status** | done |
-| **Parent** | REQ-0024 / REQ-0025 |
+| Field        | Value               |
+| ------------ | ------------------- |
+| **Priority** | P1                  |
+| **Risk**     | R2                  |
+| **Status**   | done                |
+| **Parent**   | REQ-0024 / REQ-0025 |
 
 **Intent:** Suppliers can open category/supplier detail pages linked from their products (read-only, product-scoped) without 404; role-scoped Redis cache prevents cross-role payload leak.
 
@@ -524,12 +524,12 @@ Canonical REQ source. All artifacts link via `REQ-XXXX`. Status: `done` | `verif
 
 ## REQ-0030 — Auth login/register UX polish
 
-| Field | Value |
-|-------|-------|
-| **Priority** | P1 |
-| **Risk** | R1 |
-| **Status** | done |
-| **Cycle** | C2 |
+| Field        | Value |
+| ------------ | ----- |
+| **Priority** | P1    |
+| **Risk**     | R1    |
+| **Status**   | done  |
+| **Cycle**    | C2    |
 
 **Intent:** Polish login/register UX: role dropdown icons in menu items, smooth chevron rotation, max-w-7xl auth layout, viewport-centered background illustration, CSS-only staggered entrance animations.
 
@@ -549,13 +549,13 @@ Canonical REQ source. All artifacts link via `REQ-XXXX`. Status: `done` | `verif
 
 ## REQ-0031 — Auth left panel list redesign
 
-| Field | Value |
-|-------|-------|
-| **Priority** | P1 |
-| **Risk** | R1 |
-| **Status** | done |
-| **Cycle** | C2 |
-| **Parent** | REQ-0030 |
+| Field        | Value    |
+| ------------ | -------- |
+| **Priority** | P1       |
+| **Risk**     | R1       |
+| **Status**   | done     |
+| **Cycle**    | C2       |
+| **Parent**   | REQ-0030 |
 
 **Intent:** Replace login/register left-column 2x2 promo grid with navbar-style brand header (Stockly + Stock Inventory Management subtitle) and a single professional list-view panel.
 
@@ -574,13 +574,13 @@ Canonical REQ source. All artifacts link via `REQ-XXXX`. Status: `done` | `verif
 
 ## REQ-0032 — Auth glass parity, flat list, BG animation
 
-| Field | Value |
-|-------|-------|
-| **Priority** | P1 |
-| **Risk** | R1 |
-| **Status** | done |
-| **Cycle** | C2 |
-| **Parent** | REQ-0031 |
+| Field        | Value    |
+| ------------ | -------- |
+| **Priority** | P1       |
+| **Risk**     | R1       |
+| **Status**   | done     |
+| **Cycle**    | C2       |
+| **Parent**   | REQ-0031 |
 
 **Intent:** Match right form glass blur to left, flatten left column (no outer card, space-y-2 rows), expand list copy to 6 items, animate viewport BG illustration (zoom + nudge).
 
@@ -599,13 +599,13 @@ Canonical REQ source. All artifacts link via `REQ-XXXX`. Status: `done` | `verif
 
 ## REQ-0033 — Auth login/register polish (copy, scroll shift, icon glow, spacing)
 
-| Field | Value |
-|-------|-------|
-| **Priority** | P1 |
-| **Risk** | R1 |
-| **Status** | done |
-| **Cycle** | C2 |
-| **Parent** | REQ-0032 |
+| Field        | Value    |
+| ------------ | -------- |
+| **Priority** | P1       |
+| **Risk**     | R1       |
+| **Status**   | done     |
+| **Cycle**    | C2       |
+| **Parent**   | REQ-0032 |
 
 **Intent:** Polish auth left panel copy (no exposed demo password), prevent layout shift when test-account Select opens, glassmorphic glow on list icon pills, tighter list spacing.
 
@@ -624,13 +624,13 @@ Canonical REQ source. All artifacts link via `REQ-XXXX`. Status: `done` | `verif
 
 ## REQ-0034 — Auth welcome/goodbye session toasts
 
-| Field | Value |
-|-------|-------|
-| **Priority** | P1 |
-| **Risk** | R1 |
-| **Status** | done |
-| **Cycle** | C2 |
-| **Parent** | REQ-0030 |
+| Field        | Value    |
+| ------------ | -------- |
+| **Priority** | P1       |
+| **Risk**     | R1       |
+| **Status**   | done     |
+| **Cycle**    | C2       |
+| **Parent**   | REQ-0030 |
 
 **Intent:** Restore deferred welcome toast after login redirect and goodbye toast after logout redirect.
 
@@ -649,13 +649,13 @@ Canonical REQ source. All artifacts link via `REQ-XXXX`. Status: `done` | `verif
 
 ## REQ-0035 — Google OAuth welcome toast
 
-| Field | Value |
-|-------|-------|
-| **Priority** | P1 |
-| **Risk** | R1 |
-| **Status** | done |
-| **Cycle** | C2 |
-| **Parent** | REQ-0034 |
+| Field        | Value    |
+| ------------ | -------- |
+| **Priority** | P1       |
+| **Risk**     | R1       |
+| **Status**   | done     |
+| **Cycle**    | C2       |
+| **Parent**   | REQ-0034 |
 
 **Intent:** Show welcome toast after Google OAuth redirect on role destinations (`/`, `/client`, `/supplier`) via centralized `AuthSessionToasts` handler.
 
@@ -674,13 +674,13 @@ Canonical REQ source. All artifacts link via `REQ-XXXX`. Status: `done` | `verif
 
 ## REQ-0036 — App shell full bleed (auth stays max-w-7xl)
 
-| Field | Value |
-|-------|-------|
-| **Priority** | P1 |
-| **Risk** | R1 |
-| **Status** | done |
-| **Cycle** | C2 |
-| **Parent** | REQ-0030 |
+| Field        | Value    |
+| ------------ | -------- |
+| **Priority** | P1       |
+| **Risk**     | R1       |
+| **Status**   | done     |
+| **Cycle**    | C2       |
+| **Parent**   | REQ-0030 |
 
 **Intent:** Restore pre-REQ-0030 ultrawide layout: logged-in app uses full viewport width (padding only). Login/register remain capped at `max-w-7xl` via `AuthPageShell`.
 
@@ -698,13 +698,13 @@ Canonical REQ source. All artifacts link via `REQ-XXXX`. Status: `done` | `verif
 
 ## REQ-0037 — Product status filter glass badges
 
-| Field | Value |
-|-------|-------|
-| **Priority** | P2 |
-| **Risk** | R1 |
-| **Status** | done |
-| **Cycle** | C2 |
-| **Parent** | REQ-0028 |
+| Field        | Value    |
+| ------------ | -------- |
+| **Priority** | P2       |
+| **Risk**     | R1       |
+| **Status**   | done     |
+| **Cycle**    | C2       |
+| **Parent**   | REQ-0028 |
 
 **Intent:** Product status filter dropdown uses same glass `ProductStockStatusBadge` as table/detail (closes REQ-0028 AC7 gap).
 
@@ -723,13 +723,13 @@ Canonical REQ source. All artifacts link via `REQ-XXXX`. Status: `done` | `verif
 
 ## REQ-0038 — SafeImage rollout (remote + local fallback)
 
-| Field | Value |
-|-------|-------|
-| **Priority** | P1 |
-| **Risk** | R1 |
-| **Status** | done |
-| **Cycle** | C2 |
-| **Parent** | REQ-0028 |
+| Field        | Value    |
+| ------------ | -------- |
+| **Priority** | P1       |
+| **Risk**     | R1       |
+| **Status**   | done     |
+| **Cycle**    | C2       |
+| **Parent**   | REQ-0028 |
 
 **Intent:** Adopt `SafeImage` for all UI images; `next/image` first, native `<img>` fallback on optimizer/upstream failure (Vercel 402).
 
@@ -747,13 +747,13 @@ Canonical REQ source. All artifacts link via `REQ-XXXX`. Status: `done` | `verif
 
 ## REQ-0039 — Navbar Google avatar SafeAvatarImage
 
-| Field | Value |
-|-------|-------|
-| **Priority** | P1 |
-| **Risk** | R1 |
-| **Status** | done |
-| **Cycle** | C2 |
-| **Parent** | REQ-0038 |
+| Field        | Value    |
+| ------------ | -------- |
+| **Priority** | P1       |
+| **Risk**     | R1       |
+| **Status**   | done     |
+| **Cycle**    | C2       |
+| **Parent**   | REQ-0038 |
 
 **Intent:** Close REQ-0038 AC2 gap — Navbar/Sidebar used SafeImage with merged avatarUrl so Google profile images never fell back to robohash on error.
 
@@ -771,13 +771,13 @@ Canonical REQ source. All artifacts link via `REQ-XXXX`. Status: `done` | `verif
 
 ## REQ-0040 — Avatar URL DRY (reviews/tickets)
 
-| Field | Value |
-|-------|-------|
-| **Priority** | P2 |
-| **Risk** | R1 |
-| **Status** | done |
-| **Cycle** | C2 |
-| **Parent** | REQ-0039 |
+| Field        | Value    |
+| ------------ | -------- |
+| **Priority** | P2       |
+| **Risk**     | R1       |
+| **Status**   | done     |
+| **Cycle**    | C2       |
+| **Parent**   | REQ-0039 |
 
 **Intent:** DRY inline robohash strings in reviews/tickets; shared `resolveAvatarSourcesFromSeed`; manual Gmail avatar QA sign-off.
 
@@ -796,13 +796,13 @@ Canonical REQ source. All artifacts link via `REQ-XXXX`. Status: `done` | `verif
 
 ## REQ-0041 — Catalog filter icons, chips, export chevron
 
-| Field | Value |
-|-------|-------|
-| **Priority** | P2 |
-| **Risk** | R1 |
-| **Status** | done |
-| **Cycle** | C2 |
-| **Parent** | REQ-0028 |
+| Field        | Value    |
+| ------------ | -------- |
+| **Priority** | P2       |
+| **Risk**     | R1       |
+| **Status**   | done     |
+| **Cycle**    | C2       |
+| **Parent**   | REQ-0028 |
 
 **Intent:** Entity icons + ActiveInactiveBadge in catalog status selects; borderless dismissible filter chips; shared export menu with rotating muted chevron.
 
@@ -821,13 +821,13 @@ Canonical REQ source. All artifacts link via `REQ-XXXX`. Status: `done` | `verif
 
 ## REQ-0042 — Catalog select inline layout + orders/invoices export chevron
 
-| Field | Value |
-|-------|-------|
-| **Priority** | P2 |
-| **Risk** | R1 |
-| **Status** | done |
-| **Cycle** | C2 |
-| **Parent** | REQ-0041 |
+| Field        | Value    |
+| ------------ | -------- |
+| **Priority** | P2       |
+| **Risk**     | R1       |
+| **Status**   | done     |
+| **Cycle**    | C2       |
+| **Parent**   | REQ-0041 |
 
 **Intent:** Fix REQ-0041 gaps: catalog status select icon+text inline (SelectTrigger line-clamp on span); wire ExportMenuButton to orders/invoices with muted rotating chevron.
 
@@ -845,13 +845,13 @@ Canonical REQ source. All artifacts link via `REQ-XXXX`. Status: `done` | `verif
 
 ## REQ-0043 — Unified filter chip row + reset (all list filters)
 
-| Field | Value |
-|-------|-------|
-| **Priority** | P2 |
-| **Risk** | R1 |
-| **Status** | done |
-| **Cycle** | C2 |
-| **Parent** | REQ-0041 |
+| Field        | Value    |
+| ------------ | -------- |
+| **Priority** | P2       |
+| **Risk**     | R1       |
+| **Status**   | done     |
+| **Cycle**    | C2       |
+| **Parent**   | REQ-0041 |
 
 **Intent:** Extend REQ-0041 borderless chip row to products, orders, invoices, reviews, tickets, history, user-mgmt; shared `DismissibleFilterChips`; rose hover on X, sky hover on Reset.
 
@@ -870,13 +870,13 @@ Canonical REQ source. All artifacts link via `REQ-XXXX`. Status: `done` | `verif
 
 ## REQ-0044 — Unified responsive typography scale
 
-| Field | Value |
-|-------|-------|
-| **Priority** | P2 |
-| **Risk** | R1 |
-| **Status** | done |
-| **Cycle** | C2 |
-| **Parent** | REQ-0028 |
+| Field        | Value    |
+| ------------ | -------- |
+| **Priority** | P2       |
+| **Risk**     | R1       |
+| **Status**   | done     |
+| **Cycle**    | C2       |
+| **Parent**   | REQ-0028 |
 
 **Intent:** Centralize responsive typography: page headers `text-sm sm:text-lg`, card titles `text-sm sm:text-base`, subtitles `text-xs sm:text-sm`; stat values keep `text-sm sm:text-lg`.
 
@@ -894,13 +894,13 @@ Canonical REQ source. All artifacts link via `REQ-XXXX`. Status: `done` | `verif
 
 ## REQ-0045 — Filter row UX + invoice status perf + page header spacing
 
-| Field | Value |
-|-------|-------|
-| **Priority** | P1 |
-| **Risk** | R2 |
-| **Status** | done |
-| **Cycle** | C2 |
-| **Parent** | REQ-0043 |
+| Field        | Value    |
+| ------------ | -------- |
+| **Priority** | P1       |
+| **Risk**     | R2       |
+| **Status**   | done     |
+| **Cycle**    | C2       |
+| **Parent**   | REQ-0043 |
 
 **Intent:** Whole-row clickable multi-select filter rows (no cmdk+Checkbox double-toggle hang); invoice status filters client-side like orders; consistent `pb-6` page header / stats grid spacing; quieter invoice list API logs.
 
@@ -919,13 +919,13 @@ Canonical REQ source. All artifacts link via `REQ-XXXX`. Status: `done` | `verif
 
 ## REQ-0046 — Catalog filter / export button class parity
 
-| Field | Value |
-|-------|-------|
-| **Priority** | P2 |
-| **Risk** | R1 |
-| **Status** | done |
-| **Cycle** | C2 |
-| **Parent** | REQ-0041 |
+| Field        | Value    |
+| ------------ | -------- |
+| **Priority** | P2       |
+| **Risk**     | R1       |
+| **Status**   | done     |
+| **Cycle**    | C2       |
+| **Parent**   | REQ-0041 |
 
 **Intent:** All Categories/Suppliers/Warehouses filter triggers match Export toolbar buttons: `px-4`, `gap-2`, `h-10`, `sm:w-auto`.
 
@@ -944,13 +944,13 @@ Canonical REQ source. All artifacts link via `REQ-XXXX`. Status: `done` | `verif
 
 ## REQ-0047 — Glass button tokens + page consistency
 
-| Field | Value |
-|-------|-------|
-| **Priority** | P2 |
-| **Risk** | R1 |
-| **Status** | done |
-| **Cycle** | C2 |
-| **Parent** | REQ-0046 |
+| Field        | Value    |
+| ------------ | -------- |
+| **Priority** | P2       |
+| **Risk**     | R1       |
+| **Status**   | done     |
+| **Cycle**    | C2       |
+| **Parent**   | REQ-0046 |
 
 **Intent:** Centralize glass CTA/action button styles (shadow glow + hue focus ring + icon hover) in `glass-button-styles.ts`; migrate audit-gap pages and dialog submit/cancel pairs; Email Preferences UX polish (icons `h-4 w-4 mr-2`).
 
@@ -969,13 +969,13 @@ Canonical REQ source. All artifacts link via `REQ-XXXX`. Status: `done` | `verif
 
 ## REQ-0048 — Auth light mode + dialog tables + order product thumbs
 
-| Field | Value |
-|-------|-------|
-| **Priority** | P2 |
-| **Risk** | R1 |
-| **Status** | done |
-| **Cycle** | C2 |
-| **Parent** | REQ-0032 |
+| Field        | Value    |
+| ------------ | -------- |
+| **Priority** | P2       |
+| **Risk**     | R1       |
+| **Status**   | done     |
+| **Cycle**    | C2       |
+| **Parent**   | REQ-0032 |
 
 **Intent:** Fix light-mode auth readability (placeholders, Google button); category/supplier dialog embedded table text/zebra after x-scroll; order product Select with inline SafeImage thumbs.
 
@@ -992,13 +992,13 @@ Canonical REQ source. All artifacts link via `REQ-XXXX`. Status: `done` | `verif
 
 ## REQ-0049 — Dialog UX polish (tables, glass CTAs, submit gates)
 
-| Field | Value |
-|-------|-------|
-| **Priority** | P2 |
-| **Risk** | R1 |
-| **Status** | done |
-| **Cycle** | C2 |
-| **Parent** | REQ-0048 |
+| Field        | Value    |
+| ------------ | -------- |
+| **Priority** | P2       |
+| **Risk**     | R1       |
+| **Status**   | done     |
+| **Cycle**    | C2       |
+| **Parent**   | REQ-0048 |
 
 **Intent:** Fix light-mode dialog embedded table parity with list pages; glass CTA button visibility; slim dialog columns; submit disabled until valid; backlog ghost/primary migrations.
 
@@ -1018,13 +1018,13 @@ Canonical REQ source. All artifacts link via `REQ-XXXX`. Status: `done` | `verif
 
 ## REQ-0050 — Glass shell-reset + dialog table title polish
 
-| Field | Value |
-|-------|-------|
-| **Priority** | P2 |
-| **Risk** | R1 |
-| **Status** | done |
-| **Cycle** | C2 |
-| **Parent** | REQ-0049 |
+| Field        | Value    |
+| ------------ | -------- |
+| **Priority** | P2       |
+| **Risk**     | R1       |
+| **Status**   | done     |
+| **Cycle**    | C2       |
+| **Parent**   | REQ-0049 |
 
 **Intent:** Complete REQ-0049 deferred polish — `GLASS_BUTTON_SHELL_RESET` on remaining Batch B primary buttons; review dialog submit tokens; dual-theme embedded table section titles; ESLint cleanup.
 
@@ -1045,13 +1045,13 @@ Canonical REQ source. All artifacts link via `REQ-XXXX`. Status: `done` | `verif
 
 ## REQ-0051 — Glass consistency backlog (planned)
 
-| Field | Value |
-|-------|-------|
-| **Priority** | P2 |
-| **Risk** | R1 |
-| **Status** | backlog |
-| **Cycle** | C2 |
-| **Parent** | REQ-0050 |
+| Field        | Value    |
+| ------------ | -------- |
+| **Priority** | P2       |
+| **Risk**     | R1       |
+| **Status**   | backlog  |
+| **Cycle**    | C2       |
+| **Parent**   | REQ-0050 |
 
 **Intent:** Finish inline glass gradient migrations for detail pages, FABs, ShippingManagement, WriteEditReview cancel; smoke Batch B dialog submits in light/dark.
 
@@ -1063,12 +1063,12 @@ Canonical REQ source. All artifacts link via `REQ-XXXX`. Status: `done` | `verif
 
 ## REQ-0052 — CRUD post-mutation fast response (deferred cache + ImageKit)
 
-| Field | Value |
-|-------|-------|
-| **Priority** | P0 |
-| **Risk** | R2 |
-| **Status** | done |
-| **Cycle** | C2 |
+| Field        | Value |
+| ------------ | ----- |
+| **Priority** | P0    |
+| **Risk**     | R2    |
+| **Status**   | done  |
+| **Cycle**    | C2    |
 
 **Intent:** Prevent Vercel `FUNCTION_INVOCATION_TIMEOUT` (504) on DELETE/CRUD by returning HTTP response immediately after DB commit; defer Redis SCAN invalidation and ImageKit cleanup via Next.js `after()`.
 
@@ -1087,13 +1087,13 @@ Canonical REQ source. All artifacts link via `REQ-XXXX`. Status: `done` | `verif
 
 ## REQ-0053 — Scoped warehouse + stock Redis invalidation
 
-| Field | Value |
-|-------|-------|
-| **Priority** | P2 |
-| **Risk** | R1 |
-| **Status** | done |
-| **Cycle** | C2 |
-| **Parent** | REQ-0052 |
+| Field        | Value    |
+| ------------ | -------- |
+| **Priority** | P2       |
+| **Risk**     | R1       |
+| **Status**   | done     |
+| **Cycle**    | C2       |
+| **Parent**   | REQ-0052 |
 
 **Intent:** Replace full `scheduleInvalidateAllServerCaches` on warehouse/stock routes with targeted deferred patterns.
 
@@ -1103,13 +1103,13 @@ Canonical REQ source. All artifacts link via `REQ-XXXX`. Status: `done` | `verif
 
 ## REQ-0054 — Scoped invalidation sweep (all API write routes)
 
-| Field | Value |
-|-------|-------|
-| **Priority** | P1 |
-| **Risk** | R1 |
-| **Status** | done |
-| **Cycle** | C2 |
-| **Parent** | REQ-0052 |
+| Field        | Value    |
+| ------------ | -------- |
+| **Priority** | P1       |
+| **Risk**     | R1       |
+| **Status**   | done     |
+| **Cycle**    | C2       |
+| **Parent**   | REQ-0052 |
 
 **Intent:** Replace remaining `scheduleInvalidateAllServerCaches` on CRUD routes with domain-scoped deferred patterns (invoice, ticket, review, user, notification, auth, import, order graph).
 
@@ -1119,17 +1119,18 @@ Canonical REQ source. All artifacts link via `REQ-XXXX`. Status: `done` | `verif
 
 ## REQ-0055 — Fix Redis race condition + stale UI after mutation
 
-| Field | Value |
-|-------|-------|
-| **Priority** | P0 |
-| **Risk** | R1 |
-| **Status** | done |
-| **Cycle** | C2 |
-| **Parent** | REQ-0052, REQ-0054 |
+| Field        | Value              |
+| ------------ | ------------------ |
+| **Priority** | P0                 |
+| **Risk**     | R1                 |
+| **Status**   | done               |
+| **Cycle**    | C2                 |
+| **Parent**   | REQ-0052, REQ-0054 |
 
 **Intent:** REQ-0054's `after()` deferral created a race: TanStack refetch fires on `onSuccess` (immediately after 201/200) before Redis SCAN completes → stale cached data returned → UI appears unchanged until manual refresh. Fix: make all domain `scheduleInvalidate*Caches()` synchronous async functions (no `after()` wrapper); API routes `await` them before response. Only `scheduleAfterResponse` and `scheduleInvalidateAllServerCaches` retain `after()`.
 
 **Acceptance criteria**
+
 - AC1: All 32 write routes `await` their domain invalidation before `NextResponse.json()`
 - AC2: Orders, tickets, reviews, invoices table updates immediately after CRUD (no page refresh needed)
 - AC3: Back button from any detail page shows updated data
@@ -1143,12 +1144,12 @@ Canonical REQ source. All artifacts link via `REQ-XXXX`. Status: `done` | `verif
 
 ## REQ-0056 — Demo DB reset script + DRY seed source
 
-| Field | Value |
-|-------|-------|
-| **Priority** | P2 |
-| **Risk** | R1 |
-| **Status** | done |
-| **Cycle** | C2 |
+| Field        | Value |
+| ------------ | ----- |
+| **Priority** | P2    |
+| **Risk**     | R1    |
+| **Status**   | done  |
+| **Cycle**    | C2    |
 
 **Intent:** Single canonical source for the 3 demo accounts (admin/client/supplier) shared by login-dropdown UI and DB seed scripts; one-command full wipe + reseed for local/demo resets. Dev tooling only — no runtime/API/UI surface change.
 
@@ -1167,12 +1168,12 @@ Canonical REQ source. All artifacts link via `REQ-XXXX`. Status: `done` | `verif
 
 ## REQ-0057 — Back-button sweep + router.refresh() elimination
 
-| Field | Value |
-|-------|-------|
-| **Priority** | P1 |
-| **Risk** | R1 |
-| **Status** | done |
-| **Cycle** | C2 |
+| Field        | Value |
+| ------------ | ----- |
+| **Priority** | P1    |
+| **Risk**     | R1    |
+| **Status**   | done  |
+| **Cycle**    | C2    |
 
 **Intent:** Every detail page back button must invalidate TanStack caches before navigating so the list always shows fresh data. Eliminate redundant `router.refresh()` calls that bypass TanStack and cause unnecessary SSR round-trips.
 
@@ -1192,12 +1193,12 @@ Canonical REQ source. All artifacts link via `REQ-XXXX`. Status: `done` | `verif
 
 ## REQ-0058 — Copy-to-clipboard order/invoice numbers
 
-| Field | Value |
-|-------|-------|
-| **Priority** | P2 |
-| **Risk** | R1 |
-| **Status** | done |
-| **Cycle** | C2 |
+| Field        | Value |
+| ------------ | ----- |
+| **Priority** | P2    |
+| **Risk**     | R1    |
+| **Status**   | done  |
+| **Cycle**    | C2    |
 
 **Intent:** Inline copy icon next to every rendered order/invoice number (tables, detail headers, portal lists, catalog recent-order cards) — click copies, check icon ~1.5s, no toast. Safe inside `<Link>` cells.
 
@@ -1216,12 +1217,12 @@ Canonical REQ source. All artifacts link via `REQ-XXXX`. Status: `done` | `verif
 
 ## REQ-0059 — Product thumbnails on detail line items
 
-| Field | Value |
-|-------|-------|
-| **Priority** | P2 |
-| **Risk** | R1 |
-| **Status** | done |
-| **Cycle** | C2 |
+| Field        | Value |
+| ------------ | ----- |
+| **Priority** | P2    |
+| **Risk**     | R1    |
+| **Status**   | done  |
+| **Cycle**    | C2    |
 
 **Intent:** Same product-thumbnail treatment as the products table (SafeImage + Package fallback) on order detail line items, warehouse allocation rows, and category/supplier detail product grids.
 
@@ -1240,12 +1241,12 @@ Canonical REQ source. All artifacts link via `REQ-XXXX`. Status: `done` | `verif
 
 ## REQ-0060 — Searchable order picker in InvoiceDialog
 
-| Field | Value |
-|-------|-------|
-| **Priority** | P1 |
-| **Risk** | R1 |
-| **Status** | done |
-| **Cycle** | C2 |
+| Field        | Value |
+| ------------ | ----- |
+| **Priority** | P1    |
+| **Risk**     | R1    |
+| **Status**   | done  |
+| **Cycle**    | C2    |
 
 **Intent:** Replace the plain Select in invoice create mode with a type-to-filter Command dropdown (ProductOwnerSelect pattern) — scales past ~20 orders; search across order #, placer, total, status.
 
@@ -1262,12 +1263,12 @@ Canonical REQ source. All artifacts link via `REQ-XXXX`. Status: `done` | `verif
 
 ## REQ-0061 — Situation-based invoice actions on orders
 
-| Field | Value |
-|-------|-------|
-| **Priority** | P1 |
-| **Risk** | R2 |
-| **Status** | done |
-| **Cycle** | C2 |
+| Field        | Value |
+| ------------ | ----- |
+| **Priority** | P1    |
+| **Risk**     | R2    |
+| **Status**   | done  |
+| **Cycle**    | C2    |
 
 **Intent:** Create/View/Edit/Delete invoice directly from order rows and order detail pages, gated by invoice existence and role (client/supplier = view only).
 
@@ -1286,12 +1287,12 @@ Canonical REQ source. All artifacts link via `REQ-XXXX`. Status: `done` | `verif
 
 ## REQ-0062 — Order actions in invoice table
 
-| Field | Value |
-|-------|-------|
-| **Priority** | P2 |
-| **Risk** | R2 |
-| **Status** | done |
-| **Cycle** | C2 |
+| Field        | Value |
+| ------------ | ----- |
+| **Priority** | P2    |
+| **Risk**     | R2    |
+| **Status**   | done  |
+| **Cycle**    | C2    |
 
 **Intent:** From invoice rows: "View Order" for all roles; "Cancel Order" (AlertDialog + `useDeleteOrder`) for admin/owner. Add missing role gating to invoice Edit/Send/Delete (match order table pattern).
 
@@ -1308,12 +1309,12 @@ Canonical REQ source. All artifacts link via `REQ-XXXX`. Status: `done` | `verif
 
 ## REQ-0063 — Detail copy + invoice line items parity
 
-| Field | Value |
-|-------|-------|
-| **Priority** | P2 |
-| **Risk** | R1 |
-| **Status** | done |
-| **Cycle** | C2 |
+| Field        | Value |
+| ------------ | ----- |
+| **Priority** | P2    |
+| **Risk**     | R1    |
+| **Status**   | done  |
+| **Cycle**    | C2    |
 
 **Intent:** Close REQ-0058–0062 polish gaps: copyable order/tracking numbers in shipping UI; invoice detail shows linked order line items with ProductThumb; Related Order row shows order # + admin-aware href.
 
@@ -1332,12 +1333,12 @@ Canonical REQ source. All artifacts link via `REQ-XXXX`. Status: `done` | `verif
 
 ## REQ-0064 — Polish + tokens + types
 
-| Field | Value |
-|-------|-------|
-| **Priority** | P2 |
-| **Risk** | R1 |
-| **Status** | done |
-| **Cycle** | C2 |
+| Field        | Value |
+| ------------ | ----- |
+| **Priority** | P2    |
+| **Risk**     | R1    |
+| **Status**   | done  |
+| **Cycle**    | C2    |
 
 **Intent:** Small polish: copyable payment reference, OrderItem.createdAt as ISO string, TYPO_BODY tokens.
 
@@ -1351,12 +1352,12 @@ Canonical REQ source. All artifacts link via `REQ-XXXX`. Status: `done` | `verif
 
 ## REQ-0051 — Glass button backlog (completion)
 
-| Field | Value |
-|-------|-------|
-| **Priority** | P2 |
-| **Risk** | R1 |
-| **Status** | done |
-| **Cycle** | C2 |
+| Field        | Value |
+| ------------ | ----- |
+| **Priority** | P2    |
+| **Risk**     | R1    |
+| **Status**   | done  |
+| **Cycle**    | C2    |
 
 **Intent:** Finish deferred glass CTA sweep on detail pages, FABs, ShippingManagement, WriteEditReview cancel.
 
@@ -1371,12 +1372,12 @@ Canonical REQ source. All artifacts link via `REQ-XXXX`. Status: `done` | `verif
 
 ## REQ-0065 — Admin detail page parity
 
-| Field | Value |
-|-------|-------|
-| **Priority** | P2 |
-| **Risk** | R1 |
-| **Status** | done |
-| **Cycle** | C2 |
+| Field        | Value |
+| ------------ | ----- |
+| **Priority** | P2    |
+| **Risk**     | R1    |
+| **Status**   | done  |
+| **Cycle**    | C2    |
 
 **Intent:** Bring admin support/review/user/order detail pages to catalog-detail pattern (headers, action rows, status cards).
 
@@ -1391,12 +1392,12 @@ Canonical REQ source. All artifacts link via `REQ-XXXX`. Status: `done` | `verif
 
 ## REQ-0066 — Warehouse real-world integration
 
-| Field | Value |
-|-------|-------|
-| **Priority** | P1 |
-| **Risk** | R2 |
-| **Status** | done |
-| **Cycle** | C2 |
+| Field        | Value |
+| ------------ | ----- |
+| **Priority** | P1    |
+| **Risk**     | R2    |
+| **Status**   | done  |
+| **Cycle**    | C2    |
 
 **Intent:** Connect warehouses to allocations, transfers, product breakdown, list utilization, order sync.
 
@@ -1413,12 +1414,12 @@ Canonical REQ source. All artifacts link via `REQ-XXXX`. Status: `done` | `verif
 
 ## REQ-0067 — AI warehouse insights
 
-| Field | Value |
-|-------|-------|
-| **Priority** | P2 |
-| **Risk** | R1 |
-| **Status** | done |
-| **Cycle** | C2 |
+| Field        | Value |
+| ------------ | ----- |
+| **Priority** | P2    |
+| **Risk**     | R1    |
+| **Status**   | done  |
+| **Cycle**    | C2    |
 
 **Intent:** Enrich AI insights payload with per-warehouse summary; prompt mentions rebalancing/transfers.
 
@@ -1431,12 +1432,12 @@ Canonical REQ source. All artifacts link via `REQ-XXXX`. Status: `done` | `verif
 
 ## REQ-0068 — Per-warehouse order picking
 
-| Field | Value |
-|-------|-------|
-| **Priority** | P1 |
-| **Risk** | R2 |
-| **Status** | done |
-| **Cycle** | C2 |
+| Field        | Value |
+| ------------ | ----- |
+| **Priority** | P1    |
+| **Risk**     | R2    |
+| **Status**   | done  |
+| **Cycle**    | C2    |
 
 **Intent:** Choose source warehouse per order line; reserve/fulfill/restore StockAllocation in sync with order lifecycle.
 
@@ -1452,12 +1453,12 @@ Canonical REQ source. All artifacts link via `REQ-XXXX`. Status: `done` | `verif
 
 ## REQ-0069 — SSR cache sync + submit UX backlog closure
 
-| Field | Value |
-|-------|-------|
-| **Priority** | P1 |
-| **Risk** | R2 |
-| **Status** | done |
-| **Cycle** | C2 |
+| Field        | Value |
+| ------------ | ----- |
+| **Priority** | P1    |
+| **Risk**     | R2    |
+| **Status**   | done  |
+| **Cycle**    | C2    |
 
 **Intent:** After CRUD + App Router navigation, fresh RSC props must win over stale TanStack cache (`withInitialData` + `refetchOnMount: false`). Complete deferred DialogSubmitButton sweep, enrich unit tests, remove confirmed orphan shell files.
 
@@ -1475,12 +1476,12 @@ Canonical REQ source. All artifacts link via `REQ-XXXX`. Status: `done` | `verif
 
 ## REQ-0070 — SSR sync completion + doc consistency
 
-| Field | Value |
-|-------|-------|
-| **Priority** | P1 |
-| **Risk** | R2 |
-| **Status** | done |
-| **Cycle** | C2 |
+| Field        | Value |
+| ------------ | ----- |
+| **Priority** | P1    |
+| **Risk**     | R2    |
+| **Status**   | done  |
+| **Cycle**    | C2    |
 
 **Intent:** Close remaining SSR→TanStack stale-cache gaps (client browse, portal pages, admin lists); harden batch sync hook; adopt `useSyncSsrQueryDataMany`; scrub legacy SidebarLayout doc refs.
 
@@ -1498,13 +1499,13 @@ Canonical REQ source. All artifacts link via `REQ-XXXX`. Status: `done` | `verif
 
 ## REQ-0071 — Client/supplier portal & detail UX polish
 
-| Field | Value |
-|-------|-------|
-| **Priority** | P1 |
-| **Risk** | R2 |
-| **Status** | done |
-| **Cycle** | C2 |
-| **Parent** | REQ-0070; extends REQ-0058–0063 |
+| Field        | Value                           |
+| ------------ | ------------------------------- |
+| **Priority** | P1                              |
+| **Risk**     | R2                              |
+| **Status**   | done                            |
+| **Cycle**    | C2                              |
+| **Parent**   | REQ-0070; extends REQ-0058–0063 |
 
 **Intent:** Portal headers, owner-picker clarity, richer detail cards, readable glass detail CTAs with icons, order line-item category/supplier, Quick Links removal, Stripe post-payment back-nav fix.
 
@@ -1526,13 +1527,13 @@ Canonical REQ source. All artifacts link via `REQ-XXXX`. Status: `done` | `verif
 
 ## REQ-0072 — REQ-0071 completion sweep
 
-| Field | Value |
-|-------|-------|
-| **Priority** | P2 |
-| **Risk** | R1 |
-| **Status** | done |
-| **Cycle** | C2 |
-| **Parent** | REQ-0071 |
+| Field        | Value    |
+| ------------ | -------- |
+| **Priority** | P2       |
+| **Risk**     | R1       |
+| **Status**   | done     |
+| **Cycle**    | C2       |
+| **Parent**   | REQ-0071 |
 
 **Intent:** Close REQ-0071 audit gaps — shared header back token, admin detail glass parity, catalog `DetailInfoRow` cards, dead-import cleanup, enrich-order-items test, walkthrough doc. CSS/docs/tests only.
 
@@ -1552,13 +1553,13 @@ Canonical REQ source. All artifacts link via `REQ-XXXX`. Status: `done` | `verif
 
 ## REQ-0073 — Portal, browse, FAB & order-detail UX fixes
 
-| Field | Value |
-|-------|-------|
-| **Priority** | P1 |
-| **Risk** | R2 |
-| **Status** | done |
-| **Cycle** | C2 |
-| **Parent** | REQ-0071/0072 |
+| Field        | Value         |
+| ------------ | ------------- |
+| **Priority** | P1            |
+| **Risk**     | R2            |
+| **Status**   | done          |
+| **Cycle**    | C2            |
+| **Parent**   | REQ-0071/0072 |
 
 **Intent:** Fix portal header gap, recent-card badge clip + dates, product-owner avatars, FAB click-toggle collapse, order line-item layout, dedicated paid timestamp, order detail icon parity.
 
@@ -1579,13 +1580,13 @@ Canonical REQ source. All artifacts link via `REQ-XXXX`. Status: `done` | `verif
 
 ## REQ-0074 — Portal, charts, FAB & detail parity sweep
 
-| Field | Value |
-|-------|-------|
-| **Priority** | P1 |
-| **Risk** | R2 |
-| **Status** | done |
-| **Cycle** | C2 |
-| **Parent** | REQ-0073 |
+| Field        | Value    |
+| ------------ | -------- |
+| **Priority** | P1       |
+| **Risk**     | R2       |
+| **Status**   | done     |
+| **Cycle**    | C2       |
+| **Parent**   | REQ-0073 |
 
 **Intent:** Close REQ-0073 QA gaps — portal pb-6 rhythm, SectionCardHeader charts, chart point labels, owner row center + avatar rings, FAB hover+click, order dialog grid, invoice/order detail parity.
 
@@ -1606,13 +1607,13 @@ Canonical REQ source. All artifacts link via `REQ-XXXX`. Status: `done` | `verif
 
 ## REQ-0075 — Supplier warehouse display + UI parity sweep
 
-| Field | Value |
-|-------|-------|
-| **Priority** | P1 |
-| **Risk** | R2 |
-| **Status** | done |
-| **Cycle** | C2 |
-| **Parent** | REQ-0066, REQ-0074 |
+| Field        | Value              |
+| ------------ | ------------------ |
+| **Priority** | P1                 |
+| **Risk**     | R2                 |
+| **Status**   | done               |
+| **Cycle**    | C2                 |
+| **Parent**   | REQ-0066, REQ-0074 |
 
 **Intent:** Fix supplier-role warehouse/stock display bugs on product detail and table actions; align static/admin detail page headers and cards with established `PageSectionHeader` / glass patterns.
 
@@ -1631,13 +1632,13 @@ Canonical REQ source. All artifacts link via `REQ-XXXX`. Status: `done` | `verif
 
 ## REQ-0076 — REQ-0075 gap closure
 
-| Field | Value |
-|-------|-------|
-| **Priority** | P2 |
-| **Risk** | R1 |
-| **Status** | done |
-| **Cycle** | C2 |
-| **Parent** | REQ-0075 |
+| Field        | Value    |
+| ------------ | -------- |
+| **Priority** | P2       |
+| **Risk**     | R1       |
+| **Status**   | done     |
+| **Cycle**    | C2       |
+| **Parent**   | REQ-0075 |
 
 **Intent:** Close five post-REQ-0075 audit gaps — inner section headers, admin `DetailInfoRow` parity, supplier Pay gate, supplier invoice test, dead SSR prefetch.
 
@@ -1656,13 +1657,13 @@ Canonical REQ source. All artifacts link via `REQ-XXXX`. Status: `done` | `verif
 
 ## REQ-0077 — Chart labels, client portal, product detail UX polish
 
-| Field | Value |
-|-------|-------|
-| **Priority** | P2 |
-| **Risk** | R1 |
-| **Status** | done |
-| **Cycle** | C2 |
-| **Parent** | REQ-0076 |
+| Field        | Value    |
+| ------------ | -------- |
+| **Priority** | P2       |
+| **Risk**     | R1       |
+| **Status**   | done     |
+| **Cycle**    | C2       |
+| **Parent**   | REQ-0076 |
 
 **Intent:** Close ten cross-cutting UI/UX gaps — chart label styling/clipping, client portal catalog headers with meta totals, shared `AvatarInlineLink` + `CopyableText` sweeps, product detail enrichment (warehouse/orders/reviews/sales stats), centered empty states, detail back-button contrast. CSS/UI + read-only SSR field additions only.
 
@@ -1685,13 +1686,13 @@ Canonical REQ source. All artifacts link via `REQ-XXXX`. Status: `done` | `verif
 
 ## REQ-0078 — Badge nesting hydration fix (client portal)
 
-| Field | Value |
-|-------|-------|
-| **Priority** | P1 |
-| **Risk** | R1 |
-| **Status** | done |
-| **Cycle** | C2 |
-| **Parent** | REQ-0077 |
+| Field        | Value    |
+| ------------ | -------- |
+| **Priority** | P1       |
+| **Risk**     | R1       |
+| **Status**   | done     |
+| **Cycle**    | C2       |
+| **Parent**   | REQ-0077 |
 
 **Intent:** Fix `/client` hydration mismatch from invalid HTML — shadcn `Badge` (`<div>`) nested inside `<p>` / `<h3>` in catalog subsection titles and detail section headers.
 
@@ -1708,13 +1709,13 @@ Canonical REQ source. All artifacts link via `REQ-XXXX`. Status: `done` | `verif
 
 ## REQ-0079 — Client-role UI polish + shared tokens
 
-| Field | Value |
-|-------|-------|
-| **Priority** | P1 |
-| **Risk** | R1 |
-| **Status** | done |
-| **Cycle** | C2 |
-| **Parent** | REQ-0077 |
+| Field        | Value    |
+| ------------ | -------- |
+| **Priority** | P1       |
+| **Risk**     | R1       |
+| **Status**   | done     |
+| **Cycle**    | C2       |
+| **Parent**   | REQ-0077 |
 
 **Intent:** Client portal/browse/detail UX from QA screenshots — font-normal catalog links, glass counter badges, supplier avatars, owner dropdown email format, consistent section spacing, product detail recent-orders polish.
 
@@ -1736,13 +1737,13 @@ Canonical REQ source. All artifacts link via `REQ-XXXX`. Status: `done` | `verif
 
 ## REQ-0080 — Stat badge revert + REQ-0079 gap closure
 
-| Field | Value |
-|-------|-------|
-| **Priority** | P1 |
-| **Risk** | R1 |
-| **Status** | done |
-| **Cycle** | C2 |
-| **Parent** | REQ-0079 |
+| Field        | Value    |
+| ------------ | -------- |
+| **Priority** | P1       |
+| **Risk**     | R1       |
+| **Status**   | done     |
+| **Cycle**    | C2       |
+| **Parent**   | REQ-0079 |
 
 **Intent:** Close REQ-0079 gaps from QA — stat card sub-badges stay neutral gray; section-title counters use slate `SectionCountBadge` only; remove redundant list-header `pb-6`; revert incidental padding/format diffs outside REQ-0079 scope.
 
@@ -1751,20 +1752,47 @@ Canonical REQ source. All artifacts link via `REQ-XXXX`. Status: `done` | `verif
 - AC1: `StatisticsCard` sub-badges revert to neutral gray `Badge` (not `SectionCountBadge`)
 - AC2: All section-title numeric counters use default slate `SectionCountBadge` (no `countHue` overrides)
 - AC3: Remove duplicate `className="pb-6"` from 10 list `PageSectionHeader` call sites
-- AC4: Restore `p-4 sm:p-5` on shared GlassCard surfaces changed incidentally in REQ-0079; revert `BusinessInsightPage` prettier-only diff
+- AC4: Restore `p-2 sm:p-4` on shared GlassCard surfaces changed incidentally in REQ-0079; revert `BusinessInsightPage` prettier-only diff
 - AC5: Red Team lint/test/invalidate/build pass
 
 **Artifacts:** `StatisticsCard.tsx`, `SectionCountBadge.tsx`, `section-title-row.tsx`, `ClientPortalPage.tsx`, `ProductDetailPage.tsx`, `ProductReviewsSection.tsx`, 10 `*List.tsx`, `order-detail-primitives.tsx`, `OrderTrackingInfo.tsx`, `analytics-card.tsx`, `CategoryDetailPage.tsx`, `AdminClientPortalContent.tsx`, `AdminSupplierPortalContent.tsx`, `BusinessInsightPage.tsx`
 
 ---
 
-## REQ-0020 — Locale-aware admin format (hydration-safe)
+## REQ-0081 — Client owner picker + Category detail parity
 
 | Field | Value |
 |-------|-------|
 | **Priority** | P1 |
-| **Risk** | R2 |
+| **Risk** | R1 |
 | **Status** | done |
+| **Cycle** | C2 |
+| **Parent** | REQ-0077 |
+
+**Intent:** Client browse owner dropdown stacked name/email; CategoryDetailPage parity with ProductDetailPage — DetailInfoRow stats, enriched product/order rows, insights charts, admin forecast rollup, glass footer CTAs.
+
+**Acceptance criteria**
+
+- AC1: `ProductOwnerSelect` — avatar left, name `text-sm`, email `text-xs` muted below; trigger `h-auto min-h-10`
+- AC2: Category description/notes → `DetailInfoRow` with icons; statistics → `DetailInfoRow` + loading pulse
+- AC3: SSR enrich category products (owner, supplier, reserved) + recent orders (placedBy, productImageUrl)
+- AC4: Products card always visible — `SectionTitleRow`, `ProductThumb`, SKU copy, owner/supplier links, `embedInAdmin` hrefs
+- AC5: Recent orders — `ListIndexBadge`, ProductDetail row pattern, buyer admin-only link
+- AC6: Category insights KPIs + sales/stock charts + admin forecast mini-table
+- AC7: Footer Back/Edit/Duplicate glass buttons match ProductDetailPage
+- AC8: Red Team lint/test/invalidate/build pass; `category-detail-data.test.ts`
+
+**Artifacts:** `ProductOwnerSelect.tsx`, `ProductFilters.tsx`, `CategoryDetailPage.tsx`, `category-detail-data.ts`, `types/category.ts`, `category-detail-data.test.ts`
+
+---
+
+## REQ-0020 — Locale-aware admin format (hydration-safe)
+
+| Field        | Value |
+| ------------ | ----- |
+| **Priority** | P1    |
+| **Risk**     | R2    |
+| **Status**   | done  |
 
 **Intent:** Hydration-safe first paint + browser locale/TZ after mount for global demo users on admin dashboard pages.
 
@@ -1783,11 +1811,11 @@ Canonical REQ source. All artifacts link via `REQ-XXXX`. Status: `done` | `verif
 
 ## REQ-0016 — OAuth state mismatch log level
 
-| Field | Value |
-|-------|-------|
-| **Priority** | P2 |
-| **Risk** | R1 |
-| **Status** | done |
+| Field        | Value |
+| ------------ | ----- |
+| **Priority** | P2    |
+| **Risk**     | R1    |
+| **Status**   | done  |
 
 **Intent:** Expired/missing `oauth_state` cookie on Google callback is expected UX (back-button, interrupted flow), not a server failure.
 
@@ -1800,11 +1828,11 @@ Canonical REQ source. All artifacts link via `REQ-XXXX`. Status: `done` | `verif
 
 ## REQ-0017 — Radix portal removeChild (Safari + Chrome)
 
-| Field | Value |
-|-------|-------|
-| **Priority** | P1 |
-| **Risk** | R2 |
-| **Status** | done |
+| Field        | Value |
+| ------------ | ----- |
+| **Priority** | P1    |
+| **Risk**     | R2    |
+| **Status**   | done  |
 
 **Intent:** Radix `SelectPortal` teardown during App Router navigation throws `NotFoundError` on `removeChild` (Safari: "can not be found here"; Chrome: "not a child"). Stop Sentry noise and silent-recover in ErrorBoundary.
 
@@ -1822,11 +1850,11 @@ Canonical REQ source. All artifacts link via `REQ-XXXX`. Status: `done` | `verif
 
 ## REQ-0013 — Remaining API Zod consistency
 
-| Field | Value |
-|-------|-------|
-| **Priority** | P1 |
-| **Risk** | R2 |
-| **Status** | done |
+| Field        | Value |
+| ------------ | ----- |
+| **Priority** | P1    |
+| **Risk**     | R2    |
+| **Status**   | done  |
 
 **Acceptance criteria**
 

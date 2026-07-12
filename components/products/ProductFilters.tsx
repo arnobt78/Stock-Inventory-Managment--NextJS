@@ -20,6 +20,7 @@ import { ProductImportDialog } from "./ProductImportDialog";
 import { ProductOwnerSelect } from "./ProductOwnerSelect";
 import { ProductStockStatusBadge } from "@/lib/ui/semantic-badges";
 import { FILTER_CHIP_COLLAPSED_CLASS } from "@/lib/ui/filter-chip-styles";
+import { cn } from "@/lib/utils";
 
 type FiltersAndActionsProps = {
   allProducts: Product[];
@@ -321,7 +322,7 @@ export default function FiltersAndActions({
             options={productOwnerOptions}
             selectedOwnerId={selectedOwnerId}
             onOwnerChange={onOwnerChange}
-            triggerClassName={exportButtonClass}
+            triggerClassName={cn(exportButtonClass, "h-auto min-h-10")}
           />
         </div>
       )}

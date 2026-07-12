@@ -125,7 +125,7 @@ export function AnalyticsCard({
   return (
     <article
       className={cn(
-        "group rounded-[20px] border min-h-[140px] h-full p-4 sm:p-5 backdrop-blur-md transition",
+        "group rounded-[20px] border min-h-[140px] h-full p-2 sm:p-4 backdrop-blur-md transition",
         config.border,
         config.gradient,
         config.shadow,
