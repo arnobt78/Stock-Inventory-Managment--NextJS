@@ -3,10 +3,10 @@
  * Used by category and supplier detail SSR; product uses product-insights.ts.
  */
 
+import { CATALOG_LOW_STOCK_THRESHOLD } from "@/lib/insights/constants";
 import type { CatalogEntityInsights, CatalogSalesTrendPoint } from "@/types/catalog-insights";
 
-/** Low-stock threshold aligned with BusinessInsightPage (qty ≤ 20). */
-export const CATALOG_LOW_STOCK_THRESHOLD = 20;
+export { CATALOG_LOW_STOCK_THRESHOLD };
 
 /** @deprecated Use CATALOG_LOW_STOCK_THRESHOLD — kept for category-detail-data re-export. */
 export const CATEGORY_LOW_STOCK_THRESHOLD = CATALOG_LOW_STOCK_THRESHOLD;

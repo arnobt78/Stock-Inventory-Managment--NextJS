@@ -67,6 +67,7 @@ import {
   CatalogInsightsSection,
 } from "@/components/shared";
 import { findProductForecast } from "@/lib/forecasting/entity-forecast";
+import { enrichProductInsightsWithWarehouseStock } from "@/lib/insights/product-insights-enrich";
 import {
   buildSalesChartData,
   buildWarehouseAllocationStockChartData,
@@ -303,20 +304,16 @@ export default function ProductDetailPage({
   }, [isAdminRole, forecastQuery.data, productId]);
 
   const baseInsights = product?.productInsights;
-  const insights = useMemo(() => {
-    if (!baseInsights) return null;
-    if (warehouseAllocations.length === 0) return baseInsights;
-    let available = 0;
-    let reserved = 0;
-    for (const row of warehouseAllocations) {
-      reserved += row.reservedQuantity;
-      available += Math.max(0, row.quantity - row.reservedQuantity);
-    }
-    return {
-      ...baseInsights,
-      warehouseStock: { available, reserved },
-    };
-  }, [baseInsights, warehouseAllocations]);
+  const insights = useMemo(
+    () =>
+      baseInsights
+        ? enrichProductInsightsWithWarehouseStock(
+            baseInsights,
+            warehouseAllocations,
+          )
+        : null,
+    [baseInsights, warehouseAllocations],
+  );
 
   const warehouseLinkAllowed = !isSupplierRole && !isClientRole;
   const showWarehouseStockCard =

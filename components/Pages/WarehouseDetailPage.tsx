@@ -53,7 +53,7 @@ import {
   WarehouseInsightsSection,
 } from "@/components/shared";
 import { buildCategoryForecastRollup } from "@/lib/forecasting/category-forecast-rollup";
-import { computeWarehouseInsights } from "@/lib/server/warehouse-insights";
+import { computeWarehouseInsights } from "@/lib/insights/warehouse-insights-compute";
 import { DetailInfoRow } from "@/components/orders/detail";
 import WarehouseDialog from "@/components/warehouses/WarehouseDialog";
 import AllocateStockDialog from "@/components/warehouses/AllocateStockDialog";

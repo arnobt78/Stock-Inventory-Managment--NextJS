@@ -447,7 +447,7 @@ export default function CategoryDetailPage({
 
           {/* Category Status Card — same style as supplier detail page */}
           <GlassCard variant="emerald">
-            <div className="">
+            <div className="p-2 sm:p-4">
               <p className="text-xs uppercase tracking-[0.2em] text-gray-600 dark:text-white/60 mb-3">
                 Status
               </p>

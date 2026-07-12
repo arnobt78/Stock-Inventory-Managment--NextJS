@@ -2,10 +2,9 @@
  * REQ-0084 — single-product insights from order items + optional warehouse allocations.
  */
 
-import {
-  buildSalesTrend,
-  CATALOG_LOW_STOCK_THRESHOLD,
-} from "@/lib/server/catalog-insights";
+import { CATALOG_LOW_STOCK_THRESHOLD } from "@/lib/insights/constants";
+import { aggregateWarehouseStockFromAllocations } from "@/lib/insights/warehouse-stock-aggregate";
+import { buildSalesTrend } from "@/lib/server/catalog-insights";
 import type { CatalogEntityInsights } from "@/types/catalog-insights";
 import type { StockAllocation } from "@/types";
 
@@ -80,18 +79,9 @@ export function computeProductInsights(
   );
   const demandVelocity = totalQuantitySold / daySpan;
 
-  let warehouseStock: { available: number; reserved: number } | undefined;
-  if (stockAllocations && stockAllocations.length > 0) {
-    let availableUnits = 0;
-    let reservedUnits = 0;
-    for (const row of stockAllocations) {
-      const reserved = Number(row.reservedQuantity ?? 0);
-      const total = Number(row.quantity ?? 0);
-      reservedUnits += reserved;
-      availableUnits += Math.max(0, total - reserved);
-    }
-    warehouseStock = { available: availableUnits, reserved: reservedUnits };
-  }
+  const warehouseStock = aggregateWarehouseStockFromAllocations(
+    stockAllocations ?? [],
+  );
 
   return {
     lowStockCount,

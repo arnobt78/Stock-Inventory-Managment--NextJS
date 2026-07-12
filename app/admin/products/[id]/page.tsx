@@ -7,6 +7,7 @@ import {
 } from "@/lib/server/product-reviews-detail-data";
 import { getCachedForecastingSummary } from "@/lib/server/forecasting-data";
 import ProductDetailPage from "@/components/Pages/ProductDetailPage";
+import { enrichProductInsightsWithWarehouseStock } from "@/lib/insights/product-insights-enrich";
 import { getStockByProductForPage } from "@/lib/server/product-stock-data";
 import type { Product } from "@/types";
 
@@ -32,10 +33,20 @@ export default async function AdminProductDetailPage({ params }: Props) {
     ]);
   if (!initialProduct) notFound();
 
+  const enrichedProduct = {
+    ...initialProduct,
+    productInsights: initialProduct.productInsights
+      ? enrichProductInsightsWithWarehouseStock(
+          initialProduct.productInsights,
+          initialStockByProduct ?? [],
+        )
+      : initialProduct.productInsights,
+  };
+
   return (
     <ProductDetailPage
       embedInAdmin
-      initialProduct={initialProduct as unknown as Product}
+      initialProduct={enrichedProduct as unknown as Product}
       initialReviews={initialReviews}
       initialEligibility={initialEligibility}
       initialStockByProduct={initialStockByProduct ?? undefined}

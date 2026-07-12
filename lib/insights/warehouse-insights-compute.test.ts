@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { computeWarehouseInsights } from "@/lib/server/warehouse-insights";
+import { computeWarehouseInsights } from "@/lib/insights/warehouse-insights-compute";
 
 describe("computeWarehouseInsights", () => {
   it("aggregates SKU counts and category mix", () => {

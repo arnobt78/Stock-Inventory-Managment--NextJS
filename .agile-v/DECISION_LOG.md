@@ -211,3 +211,5 @@ Format: `TIMESTAMP | AGENT | DECISION | RATIONALE | REQ-ID`
 2026-07-12T15:18:00Z | red-team | REQ-0083 gates | lint ✓ test 394 ✓ invalidate 206 ✓ build ✓ | REQ-0083
 2026-07-12T15:32:00Z | build-agent | REQ-0084 AC1–AC5 | Detail insights charts + forecast SSR sync on 4 entity pages | REQ-0084
 2026-07-12T15:32:00Z | red-team | REQ-0084 gates | lint ✓ test 397 ✓ invalidate 206 ✓ build ✓ | REQ-0084
+2026-07-12T15:40:00Z | build-agent | REQ-0085 AC1–AC4 | lib/insights client-safe compute; Supplier h1 CopyableText; product pie SSR enrich | REQ-0085
+2026-07-12T15:40:00Z | red-team | REQ-0085 gates | lint ✓ test 399 ✓ invalidate 206 ✓ build ✓ | REQ-0085

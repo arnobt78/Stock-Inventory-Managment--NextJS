@@ -375,7 +375,17 @@ export default function SupplierDetailPage({
                 <ArrowLeft className="h-5 w-5" />
               </Button>
             }
-            title={supplier?.name}
+            title={
+              dataLoading ? (
+                <DataSlotPulse variant="text-lg" className="w-48" />
+              ) : (
+                supplier?.name && (
+                  <CopyableText value={supplier.name}>
+                    {supplier.name}
+                  </CopyableText>
+                )
+              )
+            }
             description={
               <ClientRelativeTime date={createdAt} prefix="Created " />
             }

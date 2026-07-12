@@ -1859,6 +1859,30 @@ Canonical REQ source. All artifacts link via `REQ-XXXX`. Status: `done` | `verif
 
 ---
 
+## REQ-0085 — Supplier header + insights lib hygiene + product warehouse pie SSR
+
+| Field | Value |
+|-------|-------|
+| **Priority** | P2 |
+| **Risk** | R1 |
+| **Status** | done |
+| **Cycle** | C2 |
+| **Parent** | REQ-0084 |
+
+**Intent:** Close REQ-0084 audit backlog — Supplier h1 CopyableText; move pure warehouse insights compute to client-safe `lib/insights/`; SSR-enrich product warehouse pie via shared helper (client keeps live merge after stock CRUD).
+
+**Acceptance criteria**
+
+- AC1: Supplier detail h1 uses `CopyableText` + loading pulse (matches Product/Category)
+- AC2: `computeWarehouseInsights` lives under `lib/insights/`; no client imports from `lib/server/` for insights compute
+- AC3: Product detail SSR passes warehouse-enriched `productInsights`; client uses same `enrichProductInsightsWithWarehouseStock` helper
+- AC4: `CATALOG_LOW_STOCK_THRESHOLD` single source in `lib/insights/constants.ts`
+- AC5: Red Team lint/test/invalidate/build pass
+
+**Artifacts:** `lib/insights/*`, `SupplierDetailPage.tsx`, `ProductDetailPage.tsx`, `WarehouseDetailPage.tsx`, `app/products/[id]/page.tsx`, `app/admin/products/[id]/page.tsx`
+
+---
+
 ## REQ-0020 — Locale-aware admin format (hydration-safe)
 
 | Field        | Value |

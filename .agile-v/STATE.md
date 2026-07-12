@@ -3,15 +3,15 @@
 | Field | Value |
 |-------|-------|
 | **Cycle** | C1 (closing) → **C2 open** |
-| **Phase** | C2 — REQ-0084 **done** |
+| **Phase** | C2 — REQ-0085 **done** |
 | **Infinity Loop stage** | Verify ✓ (Gate 2 open) |
-| **Last updated** | 2026-07-12 (REQ-0084 detail insights + forecast SSR sync) |
-| **Session** | **ACTIVE** — REQ-0084 complete |
-| **Active REQ range** | REQ-0001 … REQ-0084 **done** |
-| **Prod deploy target** | `830021e` — REQ-0083 (REQ-0084 pending push) |
+| **Last updated** | 2026-07-12 (REQ-0085 supplier header + insights lib + product pie SSR) |
+| **Session** | **ACTIVE** — REQ-0085 complete |
+| **Active REQ range** | REQ-0001 … REQ-0085 **done** |
+| **Prod deploy target** | `b3e2434` — REQ-0084 (REQ-0085 pending push) |
 | **Human Gate 1** | APPROVED (retroactive bootstrap) |
 | **Human Gate 2** | PENDING — Sentry 24h after prod deploy |
-| **Resume token** | `REQ-0085-supplier-ui-sweep` — supplier role UX backlog |
+| **Resume token** | `REQ-0086` — next backlog item |
 
 ## Current focus
 

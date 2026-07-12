@@ -1,12 +1,14 @@
 /**
- * REQ-0084 — warehouse insights from enriched stock allocation rows (no extra DB).
+ * REQ-0085 — warehouse KPIs, stock pie, and category mix from allocation rows (no DB).
+ * Client-safe: imported by WarehouseDetailPage for live stock CRUD updates.
  */
 
-import { CATALOG_LOW_STOCK_THRESHOLD } from "@/lib/server/catalog-insights";
+import { CATALOG_LOW_STOCK_THRESHOLD } from "@/lib/insights/constants";
+import { aggregateWarehouseStockFromAllocations } from "@/lib/insights/warehouse-stock-aggregate";
 import type { WarehouseInsights } from "@/types/warehouse-insights";
 import type { StockAllocation } from "@/types";
 
-/** Aggregate warehouse KPIs, stock pie, and category mix from allocation SSR rows. */
+/** Aggregate warehouse KPIs, stock pie, and category mix from enriched allocation rows. */
 export function computeWarehouseInsights(
   allocations: StockAllocation[],
 ): WarehouseInsights {
@@ -39,13 +41,18 @@ export function computeWarehouseInsights(
     .sort((a, b) => b.count - a.count)
     .slice(0, 8);
 
+  const stockBreakdown = aggregateWarehouseStockFromAllocations(allocations) ?? {
+    available: availableUnits,
+    reserved: reservedUnits,
+  };
+
   return {
     totalSkus: productIds.size,
     totalUnits,
     availableUnits,
     reservedUnits,
     lowStockSkuCount,
-    stockBreakdown: { available: availableUnits, reserved: reservedUnits },
+    stockBreakdown,
     categoryMix,
   };
 }
