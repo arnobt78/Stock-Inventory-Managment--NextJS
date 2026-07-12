@@ -2,6 +2,8 @@
  * Supplier-related type definitions
  */
 
+import type { CatalogEntityInsights } from "@/types/catalog-insights";
+
 /**
  * Supplier interface matching Prisma schema
  */
@@ -61,6 +63,8 @@ export interface Supplier {
     orderTotal?: number;
     orderStatus: string;
   }> | null;
+  /** REQ-0084 — derived KPIs + sales trend from supplier products (SSR). */
+  supplierInsights?: CatalogEntityInsights | null;
 }
 
 /**

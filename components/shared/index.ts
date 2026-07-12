@@ -135,3 +135,7 @@ export { SectionCountBadge } from "./SectionCountBadge";
 export type { SectionCountBadgeProps } from "./SectionCountBadge";
 export { ListIndexBadge } from "./ListIndexBadge";
 export type { ListIndexBadgeProps } from "./ListIndexBadge";
+export { CatalogInsightsSection } from "./CatalogInsightsSection";
+export type { CatalogInsightsSectionProps } from "./CatalogInsightsSection";
+export { WarehouseInsightsSection } from "./WarehouseInsightsSection";
+export type { WarehouseInsightsSectionProps } from "./WarehouseInsightsSection";

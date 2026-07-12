@@ -27,15 +27,8 @@ import {
   StickyNote,
   Truck,
   Clock,
-  AlertTriangle,
-  PackageX,
-  TrendingUp,
-  AlertCircle,
-  Sparkles,
-  PieChart as PieChartIcon,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import {
   useCategory,
   useCreateCategory,
@@ -60,30 +53,16 @@ import {
   AvatarInlineLink,
   SectionTitleRow,
   ListIndexBadge,
+  CatalogInsightsSection,
 } from "@/components/shared";
 import { ProductThumb } from "@/components/products/ProductOptionRow";
-import { ChartCard } from "@/components/ui/chart-card";
-import { DeferredChartSection } from "@/components/ui/deferred-chart-section";
-import { ResponsiveChartContainer } from "@/components/ui/responsive-chart-container";
-import {
-  CHART_LABEL_TOP_MARGIN,
-  createChartBarLabelRenderer,
-  formatChartCurrencyLabel,
-} from "@/lib/ui/chart-point-label";
-import { CARD_EMPTY_MESSAGE_CLASS } from "@/lib/ui/card-empty-styles";
 import { buildCategoryForecastRollup } from "@/lib/forecasting/category-forecast-rollup";
-import type { ForecastingSummary } from "@/types";
 import {
-  Bar,
-  BarChart,
-  CartesianGrid,
-  Cell,
-  Pie,
-  PieChart,
-  Tooltip,
-  XAxis,
-  YAxis,
-} from "recharts";
+  buildCatalogStockChartData,
+  buildSalesChartData,
+} from "@/lib/ui/catalog-insights-chart-data";
+import { CARD_EMPTY_MESSAGE_CLASS } from "@/lib/ui/card-empty-styles";
+import type { ForecastingSummary } from "@/types";
 import { DetailInfoRow } from "@/components/orders/detail";
 import {
   ActiveInactiveBadge,
@@ -100,7 +79,6 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { TableBodyPulseRows } from "@/components/ui/table-data-skeleton";
 import {
   isDataSlotLoading,
   queryKeys,
@@ -256,7 +234,7 @@ export default function CategoryDetailPage({
   const PageWrapper = embedInAdmin ? React.Fragment : Navbar;
   const isClientRole = user?.role === "client";
   const isSupplierRole = user?.role === "supplier";
-  const isAdminRole = user?.role === "admin" || embedInAdmin;
+  const isAdminRole = user?.role === "admin" || Boolean(embedInAdmin);
   const disableCrud = isClientRole || isSupplierRole;
 
   // Fetch category details
@@ -265,6 +243,11 @@ export default function CategoryDetailPage({
   const dataLoading = isDataSlotLoading(categoryQuery, initialCategory);
 
   useSyncSsrQueryData(queryKeys.categories.detail(categoryId), initialCategory);
+
+  useSyncSsrQueryData(
+    queryKeys.forecasting.summary(),
+    initialForecasting ?? undefined,
+  );
 
   const forecastQuery = useForecastingSummary(initialForecasting ?? undefined, {
     enabled: isAdminRole,
@@ -424,22 +407,8 @@ export default function CategoryDetailPage({
   const products = category?.products ?? [];
   const recentOrders = category?.recentOrders ?? [];
 
-  const salesChartData =
-    insights?.salesTrend.map((point) => ({
-      label: point.month,
-      revenue: Number(point.revenue.toFixed(2)),
-      units: point.units,
-    })) ?? [];
-
-  const stockChartData = insights
-    ? [
-        { name: "Available", value: insights.stockBreakdown.available },
-        { name: "Low stock", value: insights.stockBreakdown.low },
-        { name: "Out of stock", value: insights.stockBreakdown.out },
-      ].filter((row) => row.value > 0)
-    : [];
-
-  const STOCK_PIE_COLORS = ["#10b981", "#f59e0b", "#ef4444"];
+  const salesChartData = insights ? buildSalesChartData(insights) : [];
+  const stockChartData = insights ? buildCatalogStockChartData(insights) : [];
 
   return (
     <PageWrapper>
@@ -679,239 +648,29 @@ export default function CategoryDetailPage({
             </GlassCard>
           </div>
 
-          {/* REQ-0081 — Category insights + charts */}
+          {/* REQ-0081/0084 — Category insights + charts */}
           {insights && (
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-2 sm:gap-4">
-              <GlassCard variant="emerald">
-                <div className="p-2 sm:p-4">
-                  <div className="flex items-center gap-2 mb-2">
-                    <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-emerald-300/30 bg-emerald-100/50 dark:border-white/15 dark:bg-white/10">
-                      <TrendingUp className="h-4 w-4 text-gray-700 dark:text-white" />
-                    </div>
-                    <div>
-                      <h3 className="text-sm sm:text-base font-medium text-gray-700 dark:text-white">
-                        Category Insights
-                      </h3>
-                      <p className="text-xs text-gray-600 dark:text-white/60">
-                        Derived demand and inventory signals
-                      </p>
-                    </div>
-                  </div>
-                  <div className="space-y-2 mt-4">
-                    <DetailInfoRow
-                      icon={AlertTriangle}
-                      label="Low stock products:"
-                      tone="amber"
-                      loading={dataLoading}
-                    >
-                      {!dataLoading && insights.lowStockCount}
-                    </DetailInfoRow>
-                    <DetailInfoRow
-                      icon={PackageX}
-                      label="Out of stock:"
-                      tone="rose"
-                      loading={dataLoading}
-                    >
-                      {!dataLoading && insights.outOfStockCount}
-                    </DetailInfoRow>
-                    <DetailInfoRow
-                      icon={DollarSign}
-                      label="Avg order value:"
-                      tone="emerald"
-                      loading={dataLoading}
-                    >
-                      {!dataLoading && (
-                        <span className="text-emerald-600 dark:text-emerald-400">
-                          ${insights.avgOrderValue.toFixed(2)}
-                        </span>
-                      )}
-                    </DetailInfoRow>
-                    <DetailInfoRow
-                      icon={TrendingUp}
-                      label="Demand velocity (units/day):"
-                      tone="violet"
-                      loading={dataLoading}
-                    >
-                      {!dataLoading && insights.demandVelocity.toFixed(2)}
-                    </DetailInfoRow>
-                    {isAdminRole && (
-                      <>
-                        <DetailInfoRow
-                          icon={AlertCircle}
-                          label="Urgent reorder:"
-                          tone="rose"
-                          loading={forecastLoading}
-                        >
-                          {!forecastLoading &&
-                            categoryForecast?.urgentReorderCount}
-                        </DetailInfoRow>
-                        <DetailInfoRow
-                          icon={Sparkles}
-                          label="Predicted daily demand:"
-                          tone="sky"
-                          loading={forecastLoading}
-                        >
-                          {!forecastLoading &&
-                            categoryForecast?.predictedDailyDemand.toFixed(1)}
-                        </DetailInfoRow>
-                      </>
-                    )}
-                  </div>
-                </div>
-              </GlassCard>
-
-              <ChartCard
-                title="Sales trend (6 months)"
-                description="Revenue from category order lines"
-                icon={BarChart3}
-                variant="sky"
-              >
-                <DeferredChartSection
-                  loading={dataLoading}
-                  hasData={salesChartData.length > 0}
-                >
-                  <ResponsiveChartContainer>
-                    <BarChart
-                      data={salesChartData}
-                      margin={{
-                        top: CHART_LABEL_TOP_MARGIN,
-                        right: 8,
-                        left: 8,
-                        bottom: 8,
-                      }}
-                    >
-                      <CartesianGrid
-                        strokeDasharray="3 3"
-                        className="stroke-muted"
-                      />
-                      <XAxis
-                        dataKey="label"
-                        tick={{ fontSize: 11 }}
-                        className="text-muted-foreground"
-                      />
-                      <YAxis
-                        tick={{ fontSize: 11 }}
-                        className="text-muted-foreground"
-                      />
-                      <Tooltip
-                        contentStyle={{
-                          backgroundColor: "hsl(var(--card))",
-                          border: "1px solid hsl(var(--border))",
-                          borderRadius: "8px",
-                        }}
-                      />
-                      <Bar
-                        dataKey="revenue"
-                        fill="hsl(var(--chart-1))"
-                        name="Revenue"
-                        radius={[4, 4, 0, 0]}
-                        label={createChartBarLabelRenderer(
-                          formatChartCurrencyLabel,
-                        )}
-                      />
-                    </BarChart>
-                  </ResponsiveChartContainer>
-                </DeferredChartSection>
-              </ChartCard>
-
-              <ChartCard
-                title="Stock breakdown"
-                description="Available vs low vs out of stock"
-                icon={PieChartIcon}
-                variant="amber"
-              >
-                <DeferredChartSection
-                  loading={dataLoading}
-                  hasData={stockChartData.length > 0}
-                >
-                  <ResponsiveChartContainer>
-                    <PieChart>
-                      <Pie
-                        data={stockChartData}
-                        dataKey="value"
-                        nameKey="name"
-                        cx="50%"
-                        cy="50%"
-                        outerRadius={80}
-                        label={({ name, value }) => `${name}: ${value}`}
-                      >
-                        {stockChartData.map((_, index) => (
-                          <Cell
-                            key={`cell-${index}`}
-                            fill={
-                              STOCK_PIE_COLORS[index % STOCK_PIE_COLORS.length]
-                            }
-                          />
-                        ))}
-                      </Pie>
-                      <Tooltip />
-                    </PieChart>
-                  </ResponsiveChartContainer>
-                </DeferredChartSection>
-              </ChartCard>
-
-              {isAdminRole &&
+            <CatalogInsightsSection
+              insights={insights}
+              dataLoading={dataLoading}
+              isAdminRole={isAdminRole}
+              forecastLoading={forecastLoading}
+              title="Category Insights"
+              subtitle="Derived demand and inventory signals"
+              salesChartTitle="Sales trend (6 months)"
+              salesChartDescription="Revenue from category order lines"
+              salesChartData={salesChartData}
+              stockChartData={stockChartData}
+              urgentReorderCount={categoryForecast?.urgentReorderCount}
+              predictedDailyDemand={categoryForecast?.predictedDailyDemand}
+              urgentRows={categoryForecast?.topUrgent}
+              productHref={productHref}
+              showUrgentForecastTable={
+                isAdminRole &&
                 (forecastLoading ||
-                  (categoryForecast &&
-                    categoryForecast.topUrgent.length > 0)) && (
-                  <GlassCard variant="rose" className="lg:col-span-2">
-                    <div className="p-2 sm:p-4">
-                      <SectionTitleRow
-                        as="h3"
-                        title="Urgent reorder forecast"
-                        count={
-                          !forecastLoading
-                            ? categoryForecast?.topUrgent.length
-                            : undefined
-                        }
-                      />
-                      <div className="mt-4 overflow-x-auto">
-                        <Table>
-                          <TableHeader>
-                            <TableRow>
-                              <TableHead>Product</TableHead>
-                              <TableHead>SKU</TableHead>
-                              <TableHead>Available</TableHead>
-                              <TableHead>Days left</TableHead>
-                              <TableHead>Status</TableHead>
-                            </TableRow>
-                          </TableHeader>
-                          {forecastLoading ? (
-                            <TableBodyPulseRows rows={5} columnCount={5} />
-                          ) : (
-                            <TableBody>
-                              {categoryForecast!.topUrgent.map((row) => (
-                                <TableRow key={row.productId}>
-                                  <TableCell>
-                                    <Link
-                                      href={productHref(row.productId)}
-                                      className="text-sm font-normal text-sky-600 dark:text-sky-400 hover:text-sky-500 truncate"
-                                    >
-                                      {row.productName}
-                                    </Link>
-                                  </TableCell>
-                                  <TableCell className="font-mono text-xs">
-                                    {row.sku}
-                                  </TableCell>
-                                  <TableCell>{row.availableStock}</TableCell>
-                                  <TableCell>
-                                    {row.daysUntilStockout ?? "∞"}
-                                  </TableCell>
-                                  <TableCell>
-                                    <Badge variant="destructive">
-                                      {row.reorderRecommendation}
-                                    </Badge>
-                                  </TableCell>
-                                </TableRow>
-                              ))}
-                            </TableBody>
-                          )}
-                        </Table>
-                      </div>
-                    </div>
-                  </GlassCard>
-                )}
-            </div>
+                  (categoryForecast?.topUrgent.length ?? 0) > 0)
+              }
+            />
           )}
 
           {/* Products in this Category — REQ-0081 always visible */}

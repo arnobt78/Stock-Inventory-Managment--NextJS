@@ -5,7 +5,7 @@
 
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import {
   ArrowLeft,
@@ -33,6 +33,7 @@ import {
   useWarehouse,
   useDeleteWarehouse,
   useStockByWarehouse,
+  useForecastingSummary,
 } from "@/hooks/queries";
 import { useBackWithRefresh } from "@/hooks/use-back-with-refresh";
 import { useAuth } from "@/contexts";
@@ -49,14 +50,21 @@ import {
   glassDetailFooterButtonClass,
   DETAIL_HEADER_BACK_ICON_CLASS,
   DialogSubmitButton,
+  WarehouseInsightsSection,
 } from "@/components/shared";
+import { buildCategoryForecastRollup } from "@/lib/forecasting/category-forecast-rollup";
+import { computeWarehouseInsights } from "@/lib/server/warehouse-insights";
 import { DetailInfoRow } from "@/components/orders/detail";
 import WarehouseDialog from "@/components/warehouses/WarehouseDialog";
 import AllocateStockDialog from "@/components/warehouses/AllocateStockDialog";
 import TransferStockDialog from "@/components/warehouses/TransferStockDialog";
 import { ProductThumb } from "@/components/products/ProductOptionRow";
 import { AlertDialogWrapper } from "@/components/dialogs";
-import type { Warehouse as WarehouseType, StockAllocation } from "@/types";
+import type {
+  ForecastingSummary,
+  Warehouse as WarehouseType,
+  StockAllocation,
+} from "@/types";
 import {
   isDataSlotLoading,
   queryKeys,
@@ -206,12 +214,15 @@ export type WarehouseDetailPageProps = {
   initialWarehouse?: WarehouseType;
   /** REQ-0026 — SSR stock allocations for warehouse detail */
   initialStockAllocations?: StockAllocation[];
+  /** REQ-0084 — cache-read forecast for admin (non-blocking SSR). */
+  initialForecasting?: ForecastingSummary | null;
 };
 
 export default function WarehouseDetailPage({
   embedInAdmin,
   initialWarehouse,
   initialStockAllocations,
+  initialForecasting,
 }: WarehouseDetailPageProps = {}) {
   const params = useParams();
   const router = useRouter();
@@ -248,6 +259,43 @@ export default function WarehouseDetailPage({
     queryKeys.stockAllocation.byWarehouse(warehouseId),
     initialStockAllocations,
   );
+  useSyncSsrQueryData(
+    queryKeys.forecasting.summary(),
+    initialForecasting ?? undefined,
+  );
+
+  const isAdminRole = user?.role === "admin" || Boolean(embedInAdmin);
+  const forecastQuery = useForecastingSummary(initialForecasting ?? undefined, {
+    enabled: isAdminRole,
+  });
+  const forecastLoading = isDataSlotLoading(
+    forecastQuery,
+    initialForecasting ?? undefined,
+  );
+
+  const allocationRows = stockAllocations ?? initialStockAllocations ?? [];
+  const productIdSet = useMemo(
+    () => new Set(allocationRows.map((row) => row.productId)),
+    [allocationRows],
+  );
+
+  const warehouseForecast = useMemo(() => {
+    if (!isAdminRole || !forecastQuery.data || productIdSet.size === 0) {
+      return null;
+    }
+    return buildCategoryForecastRollup(
+      forecastQuery.data.forecasts,
+      productIdSet,
+    );
+  }, [isAdminRole, forecastQuery.data, productIdSet]);
+
+  const warehouseInsights = useMemo(() => {
+    const rows = stockAllocations ?? initialStockAllocations ?? [];
+    return computeWarehouseInsights(rows);
+  }, [stockAllocations, initialStockAllocations]);
+
+  const productHref = (productId: string) =>
+    embedInAdmin ? `/admin/products/${productId}` : `/products/${productId}`;
 
   const handleEdit = () => {
     if (!warehouse) return;
@@ -436,6 +484,22 @@ export default function WarehouseDetailPage({
                 </p>
               </GlassCard>
             </div>
+          )}
+
+          {!isLoadingStock && (
+            <WarehouseInsightsSection
+              insights={warehouseInsights}
+              dataLoading={isLoadingStock}
+              isAdminRole={isAdminRole}
+              forecastLoading={forecastLoading}
+              urgentRows={warehouseForecast?.topUrgent}
+              productHref={productHref}
+              showUrgentForecastTable={
+                isAdminRole &&
+                (forecastLoading ||
+                  (warehouseForecast?.topUrgent.length ?? 0) > 0)
+              }
+            />
           )}
 
           {/* Warehouse Information & Stock */}

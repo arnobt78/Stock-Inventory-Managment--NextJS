@@ -1,21 +1,23 @@
 /**
  * SSR stock allocations for warehouse detail pages (REQ-0026).
- * Mirrors GET /api/stock-allocations?warehouseId=xxx.
+ * REQ-0084 — admin can load any warehouse allocations (mirrors warehouse detail access).
  */
 import { prisma } from "@/prisma/client";
 import {
   fetchStockAllocationProductMap,
   transformStockAllocationRow,
 } from "@/lib/stock-allocation/stock-allocation-enrich";
+import type { SessionForDetail } from "@/lib/server/order-detail-data";
 import type { StockAllocation } from "@/types";
 
-/** Stock rows for a warehouse owned by the session user. */
+/** Stock rows for a warehouse the session user can access. */
 export async function getStockByWarehouseForPage(
-  userId: string,
+  session: SessionForDetail,
   warehouseId: string,
 ): Promise<StockAllocation[] | null> {
+  const isAdmin = session.role === "admin";
   const warehouse = await prisma.warehouse.findFirst({
-    where: { id: warehouseId, userId },
+    where: isAdmin ? { id: warehouseId } : { id: warehouseId, userId: session.id },
   });
   if (!warehouse) return null;
 

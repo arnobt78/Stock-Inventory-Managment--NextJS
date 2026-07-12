@@ -5,7 +5,7 @@
 
 "use client";
 
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import {
@@ -16,7 +16,6 @@ import {
   Tag,
   Truck,
   DollarSign,
-  TrendingUp,
   ShoppingCart,
   BarChart3,
   QrCode,
@@ -43,6 +42,7 @@ import {
   useDeleteProduct,
   useProducts,
   useStockByProduct,
+  useForecastingSummary,
 } from "@/hooks/queries";
 import { useBackWithRefresh } from "@/hooks/use-back-with-refresh";
 import { useAuth } from "@/contexts";
@@ -64,11 +64,19 @@ import {
   SectionTitleRow,
   SectionCountBadge,
   ListIndexBadge,
+  CatalogInsightsSection,
 } from "@/components/shared";
+import { findProductForecast } from "@/lib/forecasting/entity-forecast";
+import {
+  buildSalesChartData,
+  buildWarehouseAllocationStockChartData,
+  WAREHOUSE_STOCK_PIE_COLORS,
+} from "@/lib/ui/catalog-insights-chart-data";
 import { DetailInfoRow } from "@/components/orders/detail";
 import {
   isDataSlotLoading,
   queryKeys,
+  useSyncSsrQueryData,
   useSyncSsrQueryDataMany,
 } from "@/lib/react-query";
 import type {
@@ -76,6 +84,7 @@ import type {
   ProductStatus,
   ProductReview,
   StockAllocation,
+  ForecastingSummary,
 } from "@/types";
 import type { ReviewEligibilityResult } from "@/lib/server/product-reviews-detail-data";
 import { cn } from "@/lib/utils";
@@ -219,6 +228,8 @@ export type ProductDetailPageProps = {
   initialEligibility?: ReviewEligibilityResult;
   /** REQ-0066 — per-warehouse stock breakdown */
   initialStockByProduct?: StockAllocation[];
+  /** REQ-0084 — cache-read forecast for admin embed (non-blocking SSR). */
+  initialForecasting?: ForecastingSummary | null;
 };
 
 export default function ProductDetailPage({
@@ -227,6 +238,7 @@ export default function ProductDetailPage({
   initialReviews,
   initialEligibility,
   initialStockByProduct,
+  initialForecasting,
 }: ProductDetailPageProps = {}) {
   const params = useParams();
   const router = useRouter();
@@ -271,8 +283,41 @@ export default function ProductDetailPage({
   const isDeleting = deleteProductMutation.isPending;
   const isSupplierRole = user?.role === "supplier";
   const isClientRole = user?.role === "client";
-  const isAdminRole = user?.role === "admin" || embedInAdmin;
+  const isAdminRole = user?.role === "admin" || Boolean(embedInAdmin);
   const disableCrud = isSupplierRole || isClientRole;
+
+  useSyncSsrQueryData(
+    queryKeys.forecasting.summary(),
+    initialForecasting ?? undefined,
+  );
+  const forecastQuery = useForecastingSummary(initialForecasting ?? undefined, {
+    enabled: isAdminRole,
+  });
+  const forecastLoading = isDataSlotLoading(
+    forecastQuery,
+    initialForecasting ?? undefined,
+  );
+  const productForecast = useMemo(() => {
+    if (!isAdminRole || !forecastQuery.data) return null;
+    return findProductForecast(forecastQuery.data.forecasts, productId);
+  }, [isAdminRole, forecastQuery.data, productId]);
+
+  const baseInsights = product?.productInsights;
+  const insights = useMemo(() => {
+    if (!baseInsights) return null;
+    if (warehouseAllocations.length === 0) return baseInsights;
+    let available = 0;
+    let reserved = 0;
+    for (const row of warehouseAllocations) {
+      reserved += row.reservedQuantity;
+      available += Math.max(0, row.quantity - row.reservedQuantity);
+    }
+    return {
+      ...baseInsights,
+      warehouseStock: { available, reserved },
+    };
+  }, [baseInsights, warehouseAllocations]);
+
   const warehouseLinkAllowed = !isSupplierRole && !isClientRole;
   const showWarehouseStockCard =
     !isClientRole || warehouseAllocations.length > 0;
@@ -379,6 +424,14 @@ export default function ProductDetailPage({
     uniqueOrders: 0,
     totalValue: 0,
   };
+
+  const salesChartData = insights ? buildSalesChartData(insights) : [];
+  const stockChartData = insights
+    ? buildWarehouseAllocationStockChartData(insights)
+    : [];
+
+  const productHref = (id: string) =>
+    embedInAdmin ? `/admin/products/${id}` : `/products/${id}`;
 
   return (
     <PageWrapper>
@@ -793,6 +846,38 @@ export default function ProductDetailPage({
               </div>
             </GlassCard>
           </div>
+
+          {insights && (
+            <CatalogInsightsSection
+              insights={insights}
+              dataLoading={dataLoading}
+              isAdminRole={isAdminRole}
+              forecastLoading={forecastLoading}
+              title="Product Insights"
+              subtitle="Sales velocity and stock signals for this SKU"
+              salesChartTitle="Sales trend (6 months)"
+              salesChartDescription="Revenue from this product's order lines"
+              stockChartTitle={
+                insights.warehouseStock
+                  ? "Warehouse stock"
+                  : "Stock status"
+              }
+              stockChartDescription={
+                insights.warehouseStock
+                  ? "Available vs reserved across warehouses"
+                  : "On-hand stock status"
+              }
+              salesChartData={salesChartData}
+              stockChartData={stockChartData}
+              stockPieColors={
+                insights.warehouseStock
+                  ? WAREHOUSE_STOCK_PIE_COLORS
+                  : undefined
+              }
+              productForecast={productForecast}
+              productHref={productHref}
+            />
+          )}
 
           {showWarehouseStockCard && (
             <GlassCard variant="teal">

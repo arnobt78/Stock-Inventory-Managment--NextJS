@@ -42,26 +42,20 @@ export type CategoryRecentOrder = {
   placedBy?: CategoryPartySnapshot | null;
 };
 
-export type CategorySalesTrendPoint = {
-  month: string;
-  revenue: number;
-  units: number;
-};
+import type {
+  CatalogEntityInsights,
+  CatalogSalesTrendPoint,
+  CatalogStockBreakdown,
+} from "@/types/catalog-insights";
 
-export type CategoryStockBreakdown = {
-  available: number;
-  low: number;
-  out: number;
-};
+/** @deprecated Use CatalogSalesTrendPoint from catalog-insights. */
+export type CategorySalesTrendPoint = CatalogSalesTrendPoint;
 
-export type CategoryInsights = {
-  lowStockCount: number;
-  outOfStockCount: number;
-  avgOrderValue: number;
-  demandVelocity: number;
-  salesTrend: CategorySalesTrendPoint[];
-  stockBreakdown: CategoryStockBreakdown;
-};
+/** @deprecated Use CatalogStockBreakdown from catalog-insights. */
+export type CategoryStockBreakdown = CatalogStockBreakdown;
+
+/** @deprecated Use CatalogEntityInsights from catalog-insights. */
+export type CategoryInsights = CatalogEntityInsights;
 
 export type CategoryForecastUrgentRow = {
   productId: string;

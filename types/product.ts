@@ -2,6 +2,8 @@
  * Product-related type definitions
  */
 
+import type { CatalogEntityInsights } from "@/types/catalog-insights";
+
 /**
  * Product status types
  */
@@ -77,6 +79,8 @@ export interface Product {
       image?: string | null;
     } | null;
   }> | null;
+  /** REQ-0084 — derived KPIs + sales trend from order history (SSR). */
+  productInsights?: CatalogEntityInsights | null;
 }
 
 /**

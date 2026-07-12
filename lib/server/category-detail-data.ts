@@ -16,14 +16,14 @@ import {
   resolveSupplierEntityForSession,
   supplierCanAccessCategory,
 } from "@/lib/server/catalog-entity-access";
-import type {
-  CategoryInsights,
-  CategoryPartySnapshot,
-  CategorySalesTrendPoint,
-} from "@/types/category";
+import type { CategoryPartySnapshot } from "@/types/category";
+import {
+  computeCatalogInsights,
+  CATEGORY_LOW_STOCK_THRESHOLD,
+} from "@/lib/server/catalog-insights";
 
-/** Low-stock threshold aligned with BusinessInsightPage (qty ≤ 20). */
-export const CATEGORY_LOW_STOCK_THRESHOLD = 20;
+export { CATEGORY_LOW_STOCK_THRESHOLD };
+export { computeCatalogInsights as computeCategoryInsights } from "@/lib/server/catalog-insights";
 
 type UserRow = {
   id: string;
@@ -71,97 +71,6 @@ function toParty(user: UserRow | null | undefined): CategoryPartySnapshot | null
   };
 }
 
-function monthKey(date: Date): string {
-  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}`;
-}
-
-function buildSalesTrend(
-  orderEntries: Array<{ date: Date; revenue: number; units: number }>,
-): CategorySalesTrendPoint[] {
-  const bucket = new Map<string, { revenue: number; units: number }>();
-  for (const entry of orderEntries) {
-    const key = monthKey(entry.date);
-    const prev = bucket.get(key) ?? { revenue: 0, units: 0 };
-    bucket.set(key, {
-      revenue: prev.revenue + entry.revenue,
-      units: prev.units + entry.units,
-    });
-  }
-  const sortedKeys = [...bucket.keys()].sort();
-  const lastSix = sortedKeys.slice(-6);
-  return lastSix.map((month) => ({
-    month,
-    revenue: bucket.get(month)?.revenue ?? 0,
-    units: bucket.get(month)?.units ?? 0,
-  }));
-}
-
-/** REQ-0081 — derived KPIs from loaded products + order items (no extra DB). */
-export function computeCategoryInsights(
-  products: ProductWithOrders[],
-  totalRevenue: number,
-  uniqueOrders: number,
-  totalQuantitySold: number,
-): CategoryInsights {
-  let lowStockCount = 0;
-  let outOfStockCount = 0;
-  let available = 0;
-  let low = 0;
-  let out = 0;
-
-  const orderEntries: Array<{ date: Date; revenue: number; units: number }> =
-    [];
-
-  products.forEach((product) => {
-    const qty = Number(product.quantity);
-    if (qty <= 0) {
-      outOfStockCount += 1;
-      out += 1;
-    } else if (qty <= CATEGORY_LOW_STOCK_THRESHOLD) {
-      lowStockCount += 1;
-      low += 1;
-    } else {
-      available += 1;
-    }
-
-    product.orderItems?.forEach((item) => {
-      const order = item.order;
-      if (!order?.createdAt) return;
-      const orderSubtotal = order.subtotal ?? 0;
-      const share =
-        orderSubtotal > 0
-          ? (item.subtotal / orderSubtotal) * order.total
-          : item.subtotal;
-      orderEntries.push({
-        date: order.createdAt,
-        revenue: share,
-        units: item.quantity,
-      });
-    });
-  });
-
-  const avgOrderValue =
-    uniqueOrders > 0 ? totalRevenue / uniqueOrders : 0;
-
-  const dates = orderEntries.map((e) => e.date.getTime());
-  const minDate = dates.length ? Math.min(...dates) : Date.now();
-  const maxDate = dates.length ? Math.max(...dates) : Date.now();
-  const daySpan = Math.max(
-    1,
-    Math.ceil((maxDate - minDate) / (1000 * 60 * 60 * 24)),
-  );
-  const demandVelocity = totalQuantitySold / daySpan;
-
-  return {
-    lowStockCount,
-    outOfStockCount,
-    avgOrderValue,
-    demandVelocity,
-    salesTrend: buildSalesTrend(orderEntries),
-    stockBreakdown: { available, low, out },
-  };
-}
-
 function transformCategoryDetail(
   category: NonNullable<Awaited<ReturnType<typeof getCategoryById>>>,
   products: ProductWithOrders[],
@@ -206,7 +115,7 @@ function transformCategoryDetail(
     0,
   );
 
-  const categoryInsights = computeCategoryInsights(
+  const categoryInsights = computeCatalogInsights(
     products,
     totalRevenue,
     orderMap.size,

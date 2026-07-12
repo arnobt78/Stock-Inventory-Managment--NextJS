@@ -5,7 +5,7 @@
 
 "use client";
 
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import {
@@ -34,6 +34,7 @@ import {
   useSupplier,
   useCreateSupplier,
   useDeleteSupplier,
+  useForecastingSummary,
 } from "@/hooks/queries";
 import { useBackWithRefresh } from "@/hooks/use-back-with-refresh";
 import { useAuth } from "@/contexts";
@@ -52,11 +53,17 @@ import {
   DETAIL_HEADER_BACK_ICON_CLASS,
   DialogSubmitButton,
   AvatarInlineLink,
+  CatalogInsightsSection,
 } from "@/components/shared";
+import { buildCategoryForecastRollup } from "@/lib/forecasting/category-forecast-rollup";
+import {
+  buildCatalogStockChartData,
+  buildSalesChartData,
+} from "@/lib/ui/catalog-insights-chart-data";
 import { DetailInfoRow } from "@/components/orders/detail";
 import SupplierDialog from "@/components/supplier/SupplierDialog";
 import { AlertDialogWrapper } from "@/components/dialogs";
-import type { Supplier } from "@/types";
+import type { ForecastingSummary, Supplier } from "@/types";
 import { SafeImage } from "@/components/ui/safe-image";
 import {
   isDataSlotLoading,
@@ -194,11 +201,14 @@ function GlassCard({
 export type SupplierDetailPageProps = {
   embedInAdmin?: boolean;
   initialSupplier?: Supplier;
+  /** REQ-0084 — cache-read forecast for admin (non-blocking SSR). */
+  initialForecasting?: ForecastingSummary | null;
 };
 
 export default function SupplierDetailPage({
   embedInAdmin,
   initialSupplier,
+  initialForecasting,
 }: SupplierDetailPageProps = {}) {
   const params = useParams();
   const router = useRouter();
@@ -214,6 +224,35 @@ export default function SupplierDetailPage({
   const dataLoading = isDataSlotLoading(supplierQuery, initialSupplier);
 
   useSyncSsrQueryData(queryKeys.suppliers.detail(supplierId), initialSupplier);
+  useSyncSsrQueryData(
+    queryKeys.forecasting.summary(),
+    initialForecasting ?? undefined,
+  );
+
+  const isAdminRole = user?.role === "admin" || Boolean(embedInAdmin);
+  const forecastQuery = useForecastingSummary(initialForecasting ?? undefined, {
+    enabled: isAdminRole,
+  });
+  const forecastLoading = isDataSlotLoading(
+    forecastQuery,
+    initialForecasting ?? undefined,
+  );
+
+  const productsForForecast = supplier?.products ?? [];
+  const productIdSet = useMemo(
+    () => new Set(productsForForecast.map((p) => p.id)),
+    [productsForForecast],
+  );
+
+  const supplierForecast = useMemo(() => {
+    if (!isAdminRole || !forecastQuery.data || productIdSet.size === 0) {
+      return null;
+    }
+    return buildCategoryForecastRollup(
+      forecastQuery.data.forecasts,
+      productIdSet,
+    );
+  }, [isAdminRole, forecastQuery.data, productIdSet]);
 
   const createSupplierMutation = useCreateSupplier();
   const deleteSupplierMutation = useDeleteSupplier();
@@ -309,6 +348,12 @@ export default function SupplierDetailPage({
     uniqueOrders: 0,
     totalValue: 0,
   };
+
+  const insights = supplier?.supplierInsights;
+  const salesChartData = insights ? buildSalesChartData(insights) : [];
+  const stockChartData = insights ? buildCatalogStockChartData(insights) : [];
+  const productHref = (productId: string) =>
+    embedInAdmin ? `/admin/products/${productId}` : `/products/${productId}`;
 
   return (
     <PageWrapper>
@@ -545,6 +590,30 @@ export default function SupplierDetailPage({
               </div>
             </GlassCard>
           </div>
+
+          {insights && (
+            <CatalogInsightsSection
+              insights={insights}
+              dataLoading={dataLoading}
+              isAdminRole={isAdminRole}
+              forecastLoading={forecastLoading}
+              title="Supplier Insights"
+              subtitle="Derived demand and inventory signals"
+              salesChartTitle="Sales trend (6 months)"
+              salesChartDescription="Revenue from supplier order lines"
+              salesChartData={salesChartData}
+              stockChartData={stockChartData}
+              urgentReorderCount={supplierForecast?.urgentReorderCount}
+              predictedDailyDemand={supplierForecast?.predictedDailyDemand}
+              urgentRows={supplierForecast?.topUrgent}
+              productHref={productHref}
+              showUrgentForecastTable={
+                isAdminRole &&
+                (forecastLoading ||
+                  (supplierForecast?.topUrgent.length ?? 0) > 0)
+              }
+            />
+          )}
 
           {/* Products from this Supplier */}
           {supplier?.products && supplier?.products.length > 0 && (

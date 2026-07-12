@@ -2,6 +2,8 @@
  * Warehouse-related type definitions
  */
 
+import type { WarehouseInsights } from "@/types/warehouse-insights";
+
 /**
  * Warehouse interface matching Prisma schema
  */
@@ -16,6 +18,8 @@ export interface Warehouse {
   updatedAt?: Date | null;
   createdBy: string;
   updatedBy?: string | null;
+  /** REQ-0084 — stock allocation KPIs (SSR from allocations). */
+  warehouseInsights?: WarehouseInsights | null;
 }
 
 /**

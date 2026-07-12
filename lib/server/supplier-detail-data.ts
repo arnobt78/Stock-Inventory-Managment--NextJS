@@ -4,6 +4,7 @@
  * REQ-0024
  */
 
+import { computeCatalogInsights } from "@/lib/server/catalog-insights";
 import { getSupplierById, getDemoSupplierUserId } from "@/prisma/supplier";
 import { getCache, setCache, cacheKeys } from "@/lib/cache";
 import { prisma } from "@/prisma/client";
@@ -88,6 +89,13 @@ function transformSupplierDetail(
     0,
   );
 
+  const supplierInsights = computeCatalogInsights(
+    products,
+    totalRevenue,
+    orderMap.size,
+    totalQuantitySold,
+  );
+
   const allOrderItems = products.flatMap((product) =>
     (product.orderItems || []).map((item) => {
       const order = item.order as { subtotal?: number; total: number } | null;
@@ -158,6 +166,7 @@ function transformSupplierDetail(
       uniqueOrders: orderMap.size,
       totalValue,
     },
+    supplierInsights,
     products: products.map((product) => ({
       id: product.id,
       name: product.name,

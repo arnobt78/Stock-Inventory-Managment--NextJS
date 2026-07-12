@@ -11,6 +11,7 @@ import { prisma } from "@/prisma/client";
 import { mergeProductListWhere } from "@/lib/products/product-query";
 import { logger } from "@/lib/logger";
 import type { SessionForDetail } from "@/lib/server/order-detail-data";
+import { computeProductInsights } from "@/lib/server/product-insights";
 
 const productInclude = {
   orderItems: {
@@ -78,6 +79,22 @@ function transformProductDetail(
   }, 0);
   const uniqueOrders = new Set(orderItems.map((item) => item.orderId)).size;
 
+  const productInsights = computeProductInsights(
+    Number(product.quantity),
+    orderItems.map((item) => ({
+      quantity: item.quantity,
+      subtotal: item.subtotal,
+      orderId: item.orderId,
+      order: item.order
+        ? {
+            createdAt: item.order.createdAt,
+            subtotal: item.order.subtotal,
+            total: item.order.total,
+          }
+        : null,
+    })),
+  );
+
   return {
     id: product.id,
     name: product.name,
@@ -136,6 +153,7 @@ function transformProductDetail(
       uniqueOrders,
       totalValue: Number(product.price) * Number(product.quantity),
     },
+    productInsights,
     recentOrders: orderItems.slice(0, 10).map((item) => {
       const order = item.order as {
         subtotal?: number;

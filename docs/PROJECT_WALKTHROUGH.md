@@ -223,7 +223,8 @@ flowchart LR
 | Category detail parity (REQ-0081) | OwnerPickerRow; CategoryDetail DetailInfoRow + charts; SSR insights/forecast; product/order row enrichment |
 | Category gap closure (REQ-0082) | CopyableText h1; ChartBarLabel; cache-read forecast; TanStack fallback |
 | Category forecast shell (REQ-0083) | Urgent table TableBodyPulseRows; admin `/categories/[id]` cache-read forecast SSR |
-| Next backlog | REQ-0084 supplier UI sweep |
+| Detail insights parity (REQ-0084) | Product/supplier/warehouse insights charts; forecast SSR sync; CatalogInsightsSection |
+| Next backlog | REQ-0085 supplier UI sweep |
 | AI warehouse insights (REQ-0067) | `POST /api/ai/insights` enriches payload with `getWarehouseStockSummary` |
 | Per-warehouse order picking (REQ-0068) | `OrderItem.warehouseId`; `stock-allocation-order-sync.ts`; `OrderLineWarehouseSelect`; reserve/fulfill/cancel sync; invoice-paid gap; `f892b65` removed unused `deleteCache`/`getRateLimitStatus` |
 | Demo reset | `npm run script:reset-demo-db` — wipe Mongo + optional Redis + reseed test@admin/client/supplier |

@@ -1,8 +1,8 @@
 import { describe, expect, it } from "vitest";
 import {
-  computeCategoryInsights,
-  CATEGORY_LOW_STOCK_THRESHOLD,
-} from "@/lib/server/category-detail-data";
+  computeCatalogInsights,
+  CATALOG_LOW_STOCK_THRESHOLD,
+} from "@/lib/server/catalog-insights";
 import { buildCategoryForecastRollup } from "@/lib/forecasting/category-forecast-rollup";
 import type { ProductDemandForecast } from "@/types";
 
@@ -62,7 +62,7 @@ describe("buildCategoryForecastRollup", () => {
   });
 });
 
-describe("computeCategoryInsights", () => {
+describe("computeCatalogInsights", () => {
   it("counts low and out of stock products", () => {
     const products = [
       {
@@ -74,7 +74,7 @@ describe("computeCategoryInsights", () => {
         reservedQuantity: BigInt(0),
       },
       {
-        quantity: BigInt(CATEGORY_LOW_STOCK_THRESHOLD),
+        quantity: BigInt(CATALOG_LOW_STOCK_THRESHOLD),
         price: 10,
         orderItems: [],
         userId: "u1",
@@ -89,9 +89,9 @@ describe("computeCategoryInsights", () => {
         supplierId: "s1",
         reservedQuantity: BigInt(0),
       },
-    ] as Parameters<typeof computeCategoryInsights>[0];
+    ] as Parameters<typeof computeCatalogInsights>[0];
 
-    const insights = computeCategoryInsights(products, 200, 2, 50);
+    const insights = computeCatalogInsights(products, 200, 2, 50);
     expect(insights.outOfStockCount).toBe(1);
     expect(insights.lowStockCount).toBe(1);
     expect(insights.stockBreakdown.out).toBe(1);

@@ -1834,6 +1834,31 @@ Canonical REQ source. All artifacts link via `REQ-XXXX`. Status: `done` | `verif
 
 ---
 
+## REQ-0084 — Detail insights parity + forecast SSR sync
+
+| Field | Value |
+|-------|-------|
+| **Priority** | P1 |
+| **Risk** | R2 |
+| **Status** | done |
+| **Cycle** | C2 |
+| **Parent** | REQ-0083 |
+
+**Intent:** Shared catalog insights + charts on product/supplier/warehouse detail; forecast `useSyncSsrQueryData` on all forecast detail pages; admin cache-read SSR prefetch on 6 routes.
+
+**Acceptance criteria**
+
+- AC1: `computeCatalogInsights` / `computeProductInsights` / `computeWarehouseInsights` extracted; category SSR refactored
+- AC2: `CatalogInsightsSection` + `WarehouseInsightsSection` shared UI; CategoryDetailPage refactored
+- AC3: Product/Supplier detail insights + charts + admin forecast (rollup or single-product)
+- AC4: Warehouse insights (stock pie + category mix) + admin forecast; admin stock scope fix
+- AC5: `useSyncSsrQueryData(queryKeys.forecasting.summary())` on Category/Product/Supplier/Warehouse detail
+- AC6: Red Team lint/test 397/invalidate 206/build pass
+
+**Artifacts:** `catalog-insights.ts`, `CatalogInsightsSection.tsx`, `ProductDetailPage.tsx`, `SupplierDetailPage.tsx`, `WarehouseDetailPage.tsx`, 6 detail routes
+
+---
+
 ## REQ-0020 — Locale-aware admin format (hydration-safe)
 
 | Field        | Value |

@@ -5,13 +5,14 @@ import {
   getReviewsForProductPage,
   getReviewEligibilityForProduct,
 } from "@/lib/server/product-reviews-detail-data";
+import { getCachedForecastingSummary } from "@/lib/server/forecasting-data";
 import ProductDetailPage from "@/components/Pages/ProductDetailPage";
 import { getStockByProductForPage } from "@/lib/server/product-stock-data";
 import type { Product } from "@/types";
 
 type Props = { params: Promise<{ id: string }> };
 
-/** REQ-0025 — blocking SSR detail prefetch (no Suspense shell flash). */
+/** REQ-0025 — blocking SSR detail prefetch. REQ-0084 — admin cache-read forecast. */
 export const dynamic = "force-dynamic";
 
 export default async function ProductDetailRoute({ params }: Props) {
@@ -19,12 +20,15 @@ export default async function ProductDetailRoute({ params }: Props) {
   if (!user) redirect("/login");
   const { id } = await params;
 
-  const [initialProduct, initialReviews, initialEligibility, initialStockByProduct] =
+  const [initialProduct, initialReviews, initialEligibility, initialStockByProduct, initialForecasting] =
     await Promise.all([
       getProductDetailForPage({ id: user.id, role: user.role }, id),
       getReviewsForProductPage(id, "all"),
       getReviewEligibilityForProduct(user.id, id),
       getStockByProductForPage({ id: user.id, role: user.role }, id),
+      user.role === "admin"
+        ? getCachedForecastingSummary(user.id)
+        : Promise.resolve(null),
     ]);
   if (!initialProduct) notFound();
 
@@ -34,6 +38,7 @@ export default async function ProductDetailRoute({ params }: Props) {
       initialReviews={initialReviews}
       initialEligibility={initialEligibility}
       initialStockByProduct={initialStockByProduct ?? undefined}
+      initialForecasting={initialForecasting}
     />
   );
 }
