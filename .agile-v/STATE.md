@@ -8,7 +8,7 @@
 | **Last updated** | 2026-07-12 (REQ-0085 supplier header + insights lib + product pie SSR) |
 | **Session** | **ACTIVE** — REQ-0085 complete |
 | **Active REQ range** | REQ-0001 … REQ-0085 **done** |
-| **Prod deploy target** | `b3e2434` — REQ-0084 (REQ-0085 pending push) |
+| **Prod deploy target** | `02db284` — REQ-0085 (pending prod deploy) |
 | **Human Gate 1** | APPROVED (retroactive bootstrap) |
 | **Human Gate 2** | PENDING — Sentry 24h after prod deploy |
 | **Resume token** | `REQ-0086` — next backlog item |
