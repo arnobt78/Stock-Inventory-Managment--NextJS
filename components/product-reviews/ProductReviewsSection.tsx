@@ -5,6 +5,7 @@ import { SafeAvatarImage } from "@/components/ui/safe-avatar-image";
 import { resolveAvatarSourcesFromSeed } from "@/lib/ui/user-avatar-sources";
 import { Badge } from "@/components/ui/badge";
 import { CARD_EMPTY_MESSAGE_CLASS } from "@/lib/ui/card-empty-styles";
+import { SectionTitleRow } from "@/lib/ui/section-title-row";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts";
 import {
@@ -235,14 +236,17 @@ export default function ProductReviewsSection({
           <div className={cn("p-2 rounded-xl border", config.iconBg)}>
             <Star className="h-5 w-5 text-amber-500" />
           </div>
-          <h3 className="text-sm sm:text-base font-medium text-gray-700 dark:text-white flex items-center gap-2 flex-wrap">
-            Reviews
-            {!reviewsLoading && (
-              <Badge variant="secondary" className="font-normal text-xs">
-                {reviewsToShow.length}
-              </Badge>
-            )}
-          </h3>
+          <SectionTitleRow
+            as="h3"
+            title="Reviews"
+            trailing={
+              !reviewsLoading ? (
+                <Badge variant="secondary" className="font-normal text-xs">
+                  {reviewsToShow.length}
+                </Badge>
+              ) : undefined
+            }
+          />
         </div>
         {user && (
           <div className="flex items-center gap-2">

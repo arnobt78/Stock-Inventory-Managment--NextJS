@@ -126,3 +126,8 @@ export type {
   StockQuantityFieldProps,
   StockQuantityMode,
 } from "./StockQuantityField";
+export {
+  SectionTitleRow,
+  SECTION_TITLE_ROW_CLASS,
+} from "@/lib/ui/section-title-row";
+export type { SectionTitleRowProps } from "@/lib/ui/section-title-row";

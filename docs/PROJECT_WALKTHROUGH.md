@@ -216,8 +216,9 @@ flowchart LR
 | Portal/chart/detail parity (REQ-0074) | pb-6 rhythm; chart point labels; FAB hover; order dialog grid; PartiesRolesCard; InvoiceSummaryCard |
 | Supplier UI sweep (REQ-0075) | product-stock owner scope; supplier invoice SSR/API; role gating; admin/static header parity |
 | REQ-0075 gap closure (REQ-0076) | SectionCardHeader inner sections; admin DetailInfoRow; supplier Pay gate; invoices-data test; dead prefetch trim |
-| Chart/portal/product UX (REQ-0077) | Chart labels; catalog meta badges; AvatarInlineLink; CopyableText; product detail enrichment; glass back; gap: warehouse status badge, catalog v2 cache, PartiesRolesCard, AdminHistory footer Back |
-| Next backlog | REQ-0078 supplier → REQ-0079 admin |
+| Chart/portal/product UX (REQ-0077) | Chart labels; catalog meta badges; AvatarInlineLink; CopyableText; product detail enrichment; glass back; gap closure |
+| Badge hydration (REQ-0078) | `SectionTitleRow` — Badge as sibling not inside p/h3; ClientPortal + ProductReviews + ProductDetail |
+| Next backlog | REQ-0079 client-role sweep |
 | AI warehouse insights (REQ-0067) | `POST /api/ai/insights` enriches payload with `getWarehouseStockSummary` |
 | Per-warehouse order picking (REQ-0068) | `OrderItem.warehouseId`; `stock-allocation-order-sync.ts`; `OrderLineWarehouseSelect`; reserve/fulfill/cancel sync; invoice-paid gap; `f892b65` removed unused `deleteCache`/`getRateLimitStatus` |
 | Demo reset | `npm run script:reset-demo-db` — wipe Mongo + optional Redis + reseed test@admin/client/supplier |

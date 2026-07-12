@@ -197,3 +197,5 @@ Format: `TIMESTAMP | AGENT | DECISION | RATIONALE | REQ-ID`
 2026-07-12T13:25:00Z | red-team | REQ-0077 gates | lint ✓ test 391 ✓ invalidate 206 ✓ build ✓ | REQ-0077
 2026-07-12T13:30:00Z | build-agent | REQ-0077 gap closure | AdminHistory footer Back; warehouse status badge SSR+UI; PartiesRolesCard AvatarInlineLink; catalog v2 cache; product-detail test | REQ-0077
 2026-07-12T13:31:00Z | red-team | REQ-0077 gap gates | lint ✓ test 392 ✓ invalidate 206 ✓ build ✓ | REQ-0077
+2026-07-12T13:45:00Z | build-agent | REQ-0078 AC1–AC3 | SectionTitleRow; fix Badge nesting in ClientPortal, ProductReviews, ProductDetail | REQ-0078
+2026-07-12T13:46:00Z | red-team | REQ-0078 gates | lint ✓ test 392 ✓ invalidate 206 ✓ build ✓ | REQ-0078

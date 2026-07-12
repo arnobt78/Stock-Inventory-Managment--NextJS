@@ -3,15 +3,15 @@
 | Field | Value |
 |-------|-------|
 | **Cycle** | C1 (closing) → **C2 open** |
-| **Phase** | C2 — REQ-0077 **done** |
+| **Phase** | C2 — REQ-0078 **done** |
 | **Infinity Loop stage** | Verify ✓ (Gate 2 open) |
-| **Last updated** | 2026-07-12 (REQ-0077 + gap closure shipped) |
-| **Session** | **ACTIVE** — REQ-0077 complete |
-| **Active REQ range** | REQ-0001 … REQ-0077 **done** |
-| **Prod deploy target** | `ce7c80b` — main synced with origin/main |
+| **Last updated** | 2026-07-12 (REQ-0078 hydration fix shipped) |
+| **Session** | **ACTIVE** — REQ-0078 complete |
+| **Active REQ range** | REQ-0001 … REQ-0078 **done** |
+| **Prod deploy target** | `7656eef` — REQ-0077 on main |
 | **Human Gate 1** | APPROVED (retroactive bootstrap) |
 | **Human Gate 2** | PENDING — Sentry 24h after prod deploy |
-| **Resume token** | `REQ-0078-supplier-ui-sweep` — see **Session handoff (2026-07-12 PM)** |
+| **Resume token** | `REQ-0079-client-role-sweep` — client portal UX backlog |
 
 ## Current focus
 

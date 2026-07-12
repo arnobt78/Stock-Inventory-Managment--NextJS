@@ -62,6 +62,7 @@ import {
   glassDetailFooterButtonClass,
   DETAIL_HEADER_BACK_ICON_CLASS,
   DialogSubmitButton,
+  SectionTitleRow,
 } from "@/components/shared";
 import { DetailInfoRow } from "@/components/orders/detail";
 import { isDataSlotLoading, queryKeys, useSyncSsrQueryDataMany } from "@/lib/react-query";
@@ -702,19 +703,22 @@ export default function ProductDetailPage({
                       <Building2 className="h-4 w-4 text-gray-700 dark:text-white" />
                     </div>
                     <div>
-                      <h3 className="text-sm sm:text-base font-medium text-gray-700 dark:text-white flex items-center gap-2 flex-wrap">
-                        Warehouse Stock
-                        {!warehouseStockLoading && warehouseAllocations.length > 0 && (
-                          <>
-                            <Badge variant="secondary" className="font-normal text-xs">
-                              {warehouseAllocations.length} warehouses
-                            </Badge>
-                            <Badge variant="secondary" className="font-normal text-xs">
-                              {totalWarehouseAvailable} available
-                            </Badge>
-                          </>
-                        )}
-                      </h3>
+                      <SectionTitleRow
+                        as="h3"
+                        title="Warehouse Stock"
+                        trailing={
+                          !warehouseStockLoading && warehouseAllocations.length > 0 ? (
+                            <>
+                              <Badge variant="secondary" className="font-normal text-xs">
+                                {warehouseAllocations.length} warehouses
+                              </Badge>
+                              <Badge variant="secondary" className="font-normal text-xs">
+                                {totalWarehouseAvailable} available
+                              </Badge>
+                            </>
+                          ) : undefined
+                        }
+                      />
                       <p className="text-xs text-gray-600 dark:text-white/60">
                         Quantity allocated per warehouse location
                       </p>
@@ -785,14 +789,17 @@ export default function ProductDetailPage({
                   <ShoppingCart className="h-4 w-4 text-gray-700 dark:text-white" />
                 </div>
                 <div>
-                  <h3 className="text-sm sm:text-base font-medium text-gray-700 dark:text-white flex items-center gap-2 flex-wrap">
-                    Recent Orders
-                    {!dataLoading && recentOrderCount > 0 && (
-                      <Badge variant="secondary" className="font-normal text-xs">
-                        {recentOrderCount}
-                      </Badge>
-                    )}
-                  </h3>
+                  <SectionTitleRow
+                    as="h3"
+                    title="Recent Orders"
+                    trailing={
+                      !dataLoading && recentOrderCount > 0 ? (
+                        <Badge variant="secondary" className="font-normal text-xs">
+                          {recentOrderCount}
+                        </Badge>
+                      ) : undefined
+                    }
+                  />
                   <p className="text-xs text-gray-600 dark:text-white/60">
                     Latest orders containing this product
                   </p>

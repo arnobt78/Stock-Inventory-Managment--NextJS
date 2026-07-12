@@ -1683,6 +1683,29 @@ Canonical REQ source. All artifacts link via `REQ-XXXX`. Status: `done` | `verif
 
 ---
 
+## REQ-0078 — Badge nesting hydration fix (client portal)
+
+| Field | Value |
+|-------|-------|
+| **Priority** | P1 |
+| **Risk** | R1 |
+| **Status** | done |
+| **Cycle** | C2 |
+| **Parent** | REQ-0077 |
+
+**Intent:** Fix `/client` hydration mismatch from invalid HTML — shadcn `Badge` (`<div>`) nested inside `<p>` / `<h3>` in catalog subsection titles and detail section headers.
+
+**Acceptance criteria**
+
+- AC1: Shared `SectionTitleRow` in `lib/ui/section-title-row.tsx` — title + trailing badges as siblings (valid HTML)
+- AC2: `ClientPortalPage` `CatalogSubsectionTitle` refactored — no `<p>` wrapping Badge
+- AC3: `ProductReviewsSection` + `ProductDetailPage` warehouse/recent-order headers refactored
+- AC4: Red Team lint/test/invalidate/build pass; manual `/client` no hydration console errors
+
+**Artifacts:** `section-title-row.tsx`, `ClientPortalPage.tsx`, `ProductReviewsSection.tsx`, `ProductDetailPage.tsx`, `components/shared/index.ts`
+
+---
+
 | Field | Value |
 |-------|-------|
 | **Priority** | P1 |

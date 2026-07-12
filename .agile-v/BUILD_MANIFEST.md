@@ -213,6 +213,8 @@
 | ART-0205 | REQ-0077 | `stock-allocation-enrich.ts`, product-stock/API | Warehouse status on allocation rows |
 | ART-0206 | REQ-0077 | `PartiesRolesCard.tsx` | AvatarInlineLink parity |
 | ART-0207 | REQ-0077 | `app/api/portal/client/catalog/route.ts` | Redis v2 + meta guard |
+| ART-0208 | REQ-0078 | `section-title-row.tsx` | Valid HTML title + Badge sibling row |
+| ART-0209 | REQ-0078 | ClientPortal, ProductReviews, ProductDetail | Badge nesting hydration fix |
 
 ## Tests
 

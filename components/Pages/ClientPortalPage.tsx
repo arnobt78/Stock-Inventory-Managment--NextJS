@@ -58,6 +58,7 @@ import {
   GLASS_BUTTON_ICON_HOVER,
   GLASS_BUTTON_SHELL_RESET,
   ClientCompactDateTime,
+  SectionTitleRow,
 } from "@/components/shared";
 import {
   CARD_LIST_DIVIDE_CLASS,
@@ -78,9 +79,9 @@ import { createChartDotLabelRenderer, CHART_LABEL_TOP_MARGIN } from "@/lib/ui/ch
 import type { ClientPortalDashboard, ClientCatalogOverview } from "@/types";
 import type { LucideIcon } from "lucide-react";
 
-/** REQ-0077 — catalog subsection title + aggregate count badge */
+/** REQ-0077/0078 — catalog subsection title + count badge (valid HTML nesting) */
 function CatalogSubsectionTitle({
-  icon: Icon,
+  icon,
   iconClassName,
   label,
   count,
@@ -91,15 +92,21 @@ function CatalogSubsectionTitle({
   count?: number;
 }) {
   return (
-    <p className="text-gray-700 dark:text-white text-sm sm:text-base font-medium mb-2 flex items-center gap-2 flex-wrap">
-      <Icon className={cn("h-4 w-4 shrink-0", iconClassName)} />
-      <span>{label}</span>
-      {count != null && (
-        <Badge variant="secondary" className="font-normal text-xs">
-          {count}
-        </Badge>
-      )}
-    </p>
+    <div className="mb-2">
+      <SectionTitleRow
+        title={label}
+        as="span"
+        icon={icon}
+        iconClassName={iconClassName}
+        trailing={
+          count != null ? (
+            <Badge variant="secondary" className="font-normal text-xs">
+              {count}
+            </Badge>
+          ) : undefined
+        }
+      />
+    </div>
   );
 }
 
