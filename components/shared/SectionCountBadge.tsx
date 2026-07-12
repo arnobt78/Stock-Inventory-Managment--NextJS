@@ -1,6 +1,6 @@
 /**
- * REQ-0079 — glass counter badge for section titles and stat cards.
- * Uses GLASS_BADGE_CLASS for visible border + shadow glow in light and dark mode.
+ * REQ-0079/0080 — glass counter badge for section title numeric counts only.
+ * Default slate/gray hue — visible in light + dark. Not used on StatisticsCard sub-badges.
  * Render as sibling of title text (never inside p/h3) — see SectionTitleRow.
  */
 import React from "react";
@@ -12,7 +12,7 @@ import { cn } from "@/lib/utils";
 
 export type SectionCountBadgeProps = {
   children: React.ReactNode;
-  /** Hue matches parent section/card tone */
+  /** Optional hue override; default slate for all section counters (REQ-0080) */
   hue?: GlassBadgeHue;
   className?: string;
 };

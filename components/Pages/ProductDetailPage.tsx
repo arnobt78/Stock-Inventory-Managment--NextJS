@@ -810,10 +810,10 @@ export default function ProductDetailPage({
                           !warehouseStockLoading &&
                           warehouseAllocations.length > 0 ? (
                             <>
-                              <SectionCountBadge hue="teal">
+                              <SectionCountBadge>
                                 {warehouseAllocations.length} warehouses
                               </SectionCountBadge>
-                              <SectionCountBadge hue="teal">
+                              <SectionCountBadge>
                                 {totalWarehouseAvailable} available
                               </SectionCountBadge>
                             </>
@@ -900,7 +900,6 @@ export default function ProductDetailPage({
                         ? recentOrderCount
                         : undefined
                     }
-                    countHue="rose"
                   />
                   <p className="text-xs text-gray-600 dark:text-white/60">
                     Latest orders containing this product

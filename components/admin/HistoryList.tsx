@@ -56,7 +56,6 @@ export default function HistoryList({
         as="h2"
         icon={Upload}
         tone="blue"
-        className="pb-6"
         title="Import History"
         description="Bulk import runs (CSV/Excel). Data appears here when you use Import for products, orders, suppliers, or categories. View details, success/failed rows, and error logs."
       />

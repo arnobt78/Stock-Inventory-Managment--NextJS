@@ -1734,6 +1734,30 @@ Canonical REQ source. All artifacts link via `REQ-XXXX`. Status: `done` | `verif
 
 ---
 
+## REQ-0080 — Stat badge revert + REQ-0079 gap closure
+
+| Field | Value |
+|-------|-------|
+| **Priority** | P1 |
+| **Risk** | R1 |
+| **Status** | done |
+| **Cycle** | C2 |
+| **Parent** | REQ-0079 |
+
+**Intent:** Close REQ-0079 gaps from QA — stat card sub-badges stay neutral gray; section-title counters use slate `SectionCountBadge` only; remove redundant list-header `pb-6`; revert incidental padding/format diffs outside REQ-0079 scope.
+
+**Acceptance criteria**
+
+- AC1: `StatisticsCard` sub-badges revert to neutral gray `Badge` (not `SectionCountBadge`)
+- AC2: All section-title numeric counters use default slate `SectionCountBadge` (no `countHue` overrides)
+- AC3: Remove duplicate `className="pb-6"` from 10 list `PageSectionHeader` call sites
+- AC4: Restore `p-4 sm:p-5` on shared GlassCard surfaces changed incidentally in REQ-0079; revert `BusinessInsightPage` prettier-only diff
+- AC5: Red Team lint/test/invalidate/build pass
+
+**Artifacts:** `StatisticsCard.tsx`, `SectionCountBadge.tsx`, `section-title-row.tsx`, `ClientPortalPage.tsx`, `ProductDetailPage.tsx`, `ProductReviewsSection.tsx`, 10 `*List.tsx`, `order-detail-primitives.tsx`, `OrderTrackingInfo.tsx`, `analytics-card.tsx`, `CategoryDetailPage.tsx`, `AdminClientPortalContent.tsx`, `AdminSupplierPortalContent.tsx`, `BusinessInsightPage.tsx`
+
+---
+
 ## REQ-0020 — Locale-aware admin format (hydration-safe)
 
 | Field | Value |

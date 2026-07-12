@@ -187,7 +187,6 @@ export default function WarehouseList({
         as="h2"
         icon={WarehouseIcon}
         tone="violet"
-        className="pb-6"
         title="Warehouse Management"
         description="Manage warehouse locations, allocate stock, and transfer inventory between warehouses."
       />

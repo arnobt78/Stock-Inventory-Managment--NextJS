@@ -128,7 +128,6 @@ const SupplierList = React.memo(function SupplierList({
         as="h2"
         icon={Truck}
         tone="teal"
-        className="pb-6"
         title="Supplier Management"
         description="Manage your supplier relationships efficiently. Track supplier information, status, and maintain detailed records for better inventory management and procurement planning."
       />

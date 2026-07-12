@@ -330,7 +330,6 @@ const InvoiceList = React.memo(
           as="h2"
           icon={FileText}
           tone="emerald"
-          className="pb-6"
           title={
             isAdminCombined
               ? "Store Invoices Management (self + client)"

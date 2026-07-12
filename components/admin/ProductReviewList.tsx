@@ -109,7 +109,6 @@ export default function ProductReviewList({
         as="h2"
         icon={Star}
         tone="amber"
-        className="pb-6"
         title="Store Product Reviews (your products)"
         description="Manage and moderate product reviews. Approve or reject, view by product, rating, and status. Add reviews for products."
       />

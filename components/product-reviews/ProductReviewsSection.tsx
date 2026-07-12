@@ -239,7 +239,6 @@ export default function ProductReviewsSection({
             as="h3"
             title="Reviews"
             count={!reviewsLoading ? reviewsToShow.length : undefined}
-            countHue="amber"
           />
         </div>
         {user && (

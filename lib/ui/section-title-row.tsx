@@ -1,6 +1,6 @@
 /**
  * REQ-0078 — section title row with optional trailing badges.
- * REQ-0079 — count + countHue render SectionCountBadge (glass glow, valid HTML sibling).
+ * REQ-0079 — count + optional countHue render SectionCountBadge (default slate per REQ-0080).
  * Badge (shadcn) renders a <div>; never nest it inside <p> or heading phrasing-only tags.
  */
 import React from "react";

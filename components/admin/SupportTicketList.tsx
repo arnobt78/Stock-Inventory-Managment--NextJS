@@ -90,7 +90,6 @@ export default function SupportTicketList({
         as="h2"
         icon={MessageSquare}
         tone="violet"
-        className="pb-6"
         title="Store Support Tickets (assigned to you)"
         description="Manage customer support tickets. Create, view, update status and priority, and add internal notes."
       />

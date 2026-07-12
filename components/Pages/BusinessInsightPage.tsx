@@ -1010,7 +1010,13 @@ export default function BusinessInsightPage({
                               cx="50%"
                               cy="50%"
                               labelLine={false}
-                              label={({ name, percent, x, y, textAnchor }) => (
+                              label={({
+                                name,
+                                percent,
+                                x,
+                                y,
+                                textAnchor,
+                              }) => (
                                 <text
                                   x={x}
                                   y={y}
@@ -1051,15 +1057,7 @@ export default function BusinessInsightPage({
                         pulseClassName="min-h-[300px]"
                       >
                         <ResponsiveChartContainer>
-                          <AreaChart
-                            data={analyticsData.monthlyTrend}
-                            margin={{
-                              top: CHART_LABEL_TOP_MARGIN,
-                              right: 8,
-                              left: 0,
-                              bottom: 0,
-                            }}
-                          >
+                          <AreaChart data={analyticsData.monthlyTrend} margin={{ top: CHART_LABEL_TOP_MARGIN, right: 8, left: 0, bottom: 0 }}>
                             <CartesianGrid strokeDasharray="3 3" />
                             <XAxis dataKey="month" />
                             <YAxis />
@@ -1094,15 +1092,7 @@ export default function BusinessInsightPage({
                           pulseClassName="min-h-[300px]"
                         >
                           <ResponsiveChartContainer>
-                            <AreaChart
-                              data={orderTrendByMonth}
-                              margin={{
-                                top: CHART_LABEL_TOP_MARGIN,
-                                right: 8,
-                                left: 0,
-                                bottom: 0,
-                              }}
-                            >
+                            <AreaChart data={orderTrendByMonth} margin={{ top: CHART_LABEL_TOP_MARGIN, right: 8, left: 0, bottom: 0 }}>
                               <CartesianGrid strokeDasharray="3 3" />
                               <XAxis dataKey="month" />
                               <YAxis />
@@ -1144,13 +1134,7 @@ export default function BusinessInsightPage({
                               <XAxis dataKey="month" />
                               <YAxis />
                               <Tooltip />
-                              <Bar
-                                dataKey="orderCount"
-                                fill="#8884D8"
-                                label={createChartBarLabelRenderer(
-                                  formatChartCountLabel,
-                                )}
-                              />
+                              <Bar dataKey="orderCount" fill="#8884D8" label={createChartBarLabelRenderer(formatChartCountLabel)} />
                             </BarChart>
                           </ResponsiveChartContainer>
                         </DeferredChartSection>
@@ -1178,11 +1162,7 @@ export default function BusinessInsightPage({
                             <XAxis dataKey="name" />
                             <YAxis />
                             <Tooltip />
-                            <Bar
-                              dataKey="value"
-                              fill="#8884d8"
-                              label={createChartBarLabelRenderer()}
-                            />
+                            <Bar dataKey="value" fill="#8884d8" label={createChartBarLabelRenderer()} />
                           </BarChart>
                         </ResponsiveChartContainer>
                       </DeferredChartSection>
@@ -1207,11 +1187,7 @@ export default function BusinessInsightPage({
                             <XAxis dataKey="name" />
                             <YAxis />
                             <Tooltip />
-                            <Bar
-                              dataKey="value"
-                              fill="#00C49F"
-                              label={createChartBarLabelRenderer()}
-                            />
+                            <Bar dataKey="value" fill="#00C49F" label={createChartBarLabelRenderer()} />
                           </BarChart>
                         </ResponsiveChartContainer>
                       </DeferredChartSection>
@@ -1231,12 +1207,7 @@ export default function BusinessInsightPage({
                         <ResponsiveChartContainer>
                           <BarChart
                             data={analyticsData.categoryDistribution}
-                            margin={{
-                              top: CHART_LABEL_TOP_MARGIN,
-                              right: 30,
-                              left: 20,
-                              bottom: 5,
-                            }}
+                            margin={{ top: CHART_LABEL_TOP_MARGIN, right: 30, left: 20, bottom: 5 }}
                           >
                             <CartesianGrid strokeDasharray="3 3" />
                             <XAxis dataKey="name" />
@@ -1249,11 +1220,7 @@ export default function BusinessInsightPage({
                                 "Value",
                               ]}
                             />
-                            <Bar
-                              dataKey="totalValue"
-                              fill="#FFBB28"
-                              label={createChartBarLabelRenderer()}
-                            />
+                            <Bar dataKey="totalValue" fill="#FFBB28" label={createChartBarLabelRenderer()} />
                           </BarChart>
                         </ResponsiveChartContainer>
                       </DeferredChartSection>
@@ -1273,12 +1240,7 @@ export default function BusinessInsightPage({
                         <ResponsiveChartContainer>
                           <BarChart
                             data={analyticsData.supplierDistribution}
-                            margin={{
-                              top: CHART_LABEL_TOP_MARGIN,
-                              right: 30,
-                              left: 20,
-                              bottom: 5,
-                            }}
+                            margin={{ top: CHART_LABEL_TOP_MARGIN, right: 30, left: 20, bottom: 5 }}
                           >
                             <CartesianGrid strokeDasharray="3 3" />
                             <XAxis dataKey="name" />
@@ -1291,11 +1253,7 @@ export default function BusinessInsightPage({
                                 "Value",
                               ]}
                             />
-                            <Bar
-                              dataKey="totalValue"
-                              fill="#FF8042"
-                              label={createChartBarLabelRenderer()}
-                            />
+                            <Bar dataKey="totalValue" fill="#FF8042" label={createChartBarLabelRenderer()} />
                           </BarChart>
                         </ResponsiveChartContainer>
                       </DeferredChartSection>
@@ -1319,12 +1277,7 @@ export default function BusinessInsightPage({
                         <ResponsiveChartContainer>
                           <BarChart
                             data={analyticsData.topProducts}
-                            margin={{
-                              top: CHART_LABEL_TOP_MARGIN,
-                              right: 30,
-                              left: 20,
-                              bottom: 5,
-                            }}
+                            margin={{ top: CHART_LABEL_TOP_MARGIN, right: 30, left: 20, bottom: 5 }}
                           >
                             <CartesianGrid strokeDasharray="3 3" />
                             <XAxis dataKey="name" />
@@ -1338,11 +1291,7 @@ export default function BusinessInsightPage({
                               ]}
                               labelFormatter={(label) => `Product: ${label}`}
                             />
-                            <Bar
-                              dataKey="value"
-                              fill="#FFBB28"
-                              label={createChartBarLabelRenderer()}
-                            />
+                            <Bar dataKey="value" fill="#FFBB28" label={createChartBarLabelRenderer()} />
                           </BarChart>
                         </ResponsiveChartContainer>
                       </DeferredChartSection>
@@ -1360,15 +1309,7 @@ export default function BusinessInsightPage({
                         pulseClassName="min-h-[300px]"
                       >
                         <ResponsiveChartContainer>
-                          <LineChart
-                            data={analyticsData.monthlyTrend}
-                            margin={{
-                              top: CHART_LABEL_TOP_MARGIN,
-                              right: 8,
-                              left: 0,
-                              bottom: 0,
-                            }}
-                          >
+                          <LineChart data={analyticsData.monthlyTrend} margin={{ top: CHART_LABEL_TOP_MARGIN, right: 8, left: 0, bottom: 0 }}>
                             <CartesianGrid strokeDasharray="3 3" />
                             <XAxis dataKey="month" />
                             <YAxis />
@@ -1446,7 +1387,7 @@ export default function BusinessInsightPage({
           {/* Additional Insights */}
           <div className="pb-6 grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-4 gap-2">
             {/* Quick Insights Card */}
-            <article className="rounded-[20px] border border-sky-400/20 bg-gradient-to-br from-sky-500/15 via-sky-500/5 to-transparent p-2 sm:p-4 backdrop-blur-md shadow-[0_15px_40px_rgba(2,132,199,0.15)] dark:shadow-[0_15px_40px_rgba(2,132,199,0.1)] transition hover:border-sky-300/40">
+            <article className="rounded-[20px] border border-sky-400/20 bg-gradient-to-br from-sky-500/15 via-sky-500/5 to-transparent p-4 sm:p-5 backdrop-blur-md shadow-[0_15px_40px_rgba(2,132,199,0.15)] dark:shadow-[0_15px_40px_rgba(2,132,199,0.1)] transition hover:border-sky-300/40">
               <div className="flex items-center gap-2 mb-4">
                 <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-sky-300/30 bg-sky-100/50 dark:border-white/15 dark:bg-white/10">
                   <Eye className="h-4 w-4 text-gray-700 dark:text-white" />
@@ -1496,7 +1437,7 @@ export default function BusinessInsightPage({
             </article>
 
             {/* Performance Card */}
-            <article className="rounded-[20px] border border-emerald-400/20 bg-gradient-to-br from-emerald-500/15 via-emerald-500/5 to-transparent p-2 sm:p-4 backdrop-blur-md shadow-[0_15px_40px_rgba(16,185,129,0.15)] dark:shadow-[0_15px_40px_rgba(16,185,129,0.1)] transition hover:border-emerald-300/40">
+            <article className="rounded-[20px] border border-emerald-400/20 bg-gradient-to-br from-emerald-500/15 via-emerald-500/5 to-transparent p-4 sm:p-5 backdrop-blur-md shadow-[0_15px_40px_rgba(16,185,129,0.15)] dark:shadow-[0_15px_40px_rgba(16,185,129,0.1)] transition hover:border-emerald-300/40">
               <div className="flex items-center gap-2 mb-4">
                 <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-emerald-300/30 bg-emerald-100/50 dark:border-white/15 dark:bg-white/10">
                   <Users className="h-4 w-4 text-gray-700 dark:text-white" />
@@ -1554,7 +1495,7 @@ export default function BusinessInsightPage({
             </article>
 
             {/* QR Code Card */}
-            <article className="rounded-[20px] border border-violet-400/20 bg-gradient-to-br from-violet-500/15 via-violet-500/5 to-transparent p-2 sm:p-4 backdrop-blur-md shadow-[0_15px_40px_rgba(139,92,246,0.15)] dark:shadow-[0_15px_40px_rgba(139,92,246,0.1)] transition hover:border-violet-300/40">
+            <article className="rounded-[20px] border border-violet-400/20 bg-gradient-to-br from-violet-500/15 via-violet-500/5 to-transparent p-4 sm:p-5 backdrop-blur-md shadow-[0_15px_40px_rgba(139,92,246,0.15)] dark:shadow-[0_15px_40px_rgba(139,92,246,0.1)] transition hover:border-violet-300/40">
               <div className="flex items-center gap-2 mb-4">
                 <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-violet-300/30 bg-violet-100/50 dark:border-white/15 dark:bg-white/10">
                   <QrCode className="h-4 w-4 text-gray-700 dark:text-white" />
@@ -1572,7 +1513,7 @@ export default function BusinessInsightPage({
             </article>
 
             {/* AI Insights Card */}
-            <article className="rounded-[20px] border border-amber-400/20 bg-gradient-to-br from-amber-500/15 via-amber-500/5 to-transparent p-2 sm:p-4 backdrop-blur-md shadow-[0_15px_40px_rgba(245,158,11,0.12)] dark:shadow-[0_15px_40px_rgba(245,158,11,0.08)] transition hover:border-amber-300/40">
+            <article className="rounded-[20px] border border-amber-400/20 bg-gradient-to-br from-amber-500/15 via-amber-500/5 to-transparent p-4 sm:p-5 backdrop-blur-md shadow-[0_15px_40px_rgba(245,158,11,0.12)] dark:shadow-[0_15px_40px_rgba(245,158,11,0.08)] transition hover:border-amber-300/40">
               <div className="flex items-center gap-2 mb-4">
                 <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-amber-300/30 bg-amber-100/50 dark:border-white/15 dark:bg-white/10">
                   <Sparkles className="h-4 w-4 text-gray-700 dark:text-white" />

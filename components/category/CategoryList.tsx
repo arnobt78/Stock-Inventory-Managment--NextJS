@@ -93,7 +93,6 @@ const CategoryList = React.memo(function CategoryList({
         as="h2"
         icon={FolderTree}
         tone="amber"
-        className="pb-6"
         title="Category Management"
         description="Organize your inventory with a comprehensive category system. Create, manage, and maintain product categories to streamline your inventory organization and improve product discoverability."
       />

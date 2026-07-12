@@ -219,7 +219,8 @@ flowchart LR
 | Chart/portal/product UX (REQ-0077) | Chart labels; catalog meta badges; AvatarInlineLink; CopyableText; product detail enrichment; glass back; gap closure |
 | Badge hydration (REQ-0078) | `SectionTitleRow` — Badge as sibling not inside p/h3; ClientPortal + ProductReviews + ProductDetail |
 | Client UI polish (REQ-0079) | `SectionCountBadge`, `ListIndexBadge`; font-normal catalog links; supplier avatars; detail gap-6 spacing; recent orders polish |
-| Next backlog | REQ-0080 supplier UI sweep |
+| Stat badge gap closure (REQ-0080) | StatisticsCard neutral sub-badges; slate-only section counters; list header pb-6 dedupe; GlassCard padding revert |
+| Next backlog | REQ-0081 supplier UI sweep |
 | AI warehouse insights (REQ-0067) | `POST /api/ai/insights` enriches payload with `getWarehouseStockSummary` |
 | Per-warehouse order picking (REQ-0068) | `OrderItem.warehouseId`; `stock-allocation-order-sync.ts`; `OrderLineWarehouseSelect`; reserve/fulfill/cancel sync; invoice-paid gap; `f892b65` removed unused `deleteCache`/`getRateLimitStatus` |
 | Demo reset | `npm run script:reset-demo-db` — wipe Mongo + optional Redis + reseed test@admin/client/supplier |

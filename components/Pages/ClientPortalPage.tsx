@@ -74,24 +74,21 @@ import { StatisticsCard } from "@/components/home/StatisticsCard";
 import { isDataSlotLoading, queryKeys, useSyncSsrQueryData } from "@/lib/react-query";
 import { cn } from "@/lib/utils";
 import { PAGE_STATS_GRID_CLASS, PAGE_SECTION_SPACING_CLASS } from "@/lib/ui/shell-layout-styles";
-import type { GlassBadgeHue } from "@/lib/ui/glass-badge-styles";
 import { createChartDotLabelRenderer, CHART_LABEL_TOP_MARGIN } from "@/lib/ui/chart-point-label";
 import type { ClientPortalDashboard, ClientCatalogOverview } from "@/types";
 import type { LucideIcon } from "lucide-react";
 
-/** REQ-0077/0078/0079 — catalog subsection title + glass count badge */
+/** REQ-0077/0078/0079/0080 — catalog subsection title + slate glass count badge */
 function CatalogSubsectionTitle({
   icon,
   iconClassName,
   label,
   count,
-  countHue = "slate",
 }: {
   icon: LucideIcon;
   iconClassName: string;
   label: string;
   count?: number;
-  countHue?: GlassBadgeHue;
 }) {
   return (
     <div className="mb-2">
@@ -101,7 +98,6 @@ function CatalogSubsectionTitle({
         icon={icon}
         iconClassName={iconClassName}
         count={count}
-        countHue={countHue}
       />
     </div>
   );
@@ -530,7 +526,6 @@ export default function ClientPortalPage({
                       iconClassName="text-sky-500"
                       label="Suppliers"
                       count={catalog.meta?.totalSuppliers ?? catalog.suppliers.length}
-                      countHue="sky"
                     />
                     <div className="overflow-x-auto rounded-md border">
                       <Table>
@@ -585,7 +580,6 @@ export default function ClientPortalPage({
                       iconClassName="text-violet-500"
                       label="Categories"
                       count={catalog.meta?.totalCategories ?? catalog.categories.length}
-                      countHue="violet"
                     />
                     <div className="overflow-x-auto rounded-md border">
                       <Table>
@@ -653,7 +647,6 @@ export default function ClientPortalPage({
                       iconClassName="text-emerald-500"
                       label="Products"
                       count={catalog.meta?.totalProducts ?? catalog.products.length}
-                      countHue="emerald"
                     />
                     <div className="overflow-x-auto rounded-md border">
                       <Table>

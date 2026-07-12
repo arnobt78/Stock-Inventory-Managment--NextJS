@@ -201,3 +201,5 @@ Format: `TIMESTAMP | AGENT | DECISION | RATIONALE | REQ-ID`
 2026-07-12T13:46:00Z | red-team | REQ-0078 gates | lint ✓ test 392 ✓ invalidate 206 ✓ build ✓ | REQ-0078
 2026-07-12T14:21:00Z | build-agent | REQ-0079 AC1–AC9 | SectionCountBadge, ListIndexBadge, spacing tokens, client browse/detail polish | REQ-0079
 2026-07-12T14:21:00Z | red-team | REQ-0079 gates | lint ✓ test 392 ✓ invalidate 206 ✓ build ✓ | REQ-0079
+2026-07-12T14:35:00Z | build-agent | REQ-0080 AC1–AC4 | Revert StatisticsCard sub-badges; slate-only section counters; list pb-6 cleanup; padding revert | REQ-0080
+2026-07-12T14:35:00Z | red-team | REQ-0080 gates | lint ✓ test 392 ✓ invalidate 206 ✓ build ✓ | REQ-0080

@@ -6,10 +6,9 @@
 
 import React from "react";
 import { LucideIcon } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { DataSlotPulse } from "@/components/shared/DataSlotPulse";
-import { SectionCountBadge } from "@/components/shared/SectionCountBadge";
-import type { GlassBadgeHue } from "@/lib/ui/glass-badge-styles";
 import { TYPO_STAT_VALUE, TYPO_SUBTITLE } from "@/lib/ui/typography-scale";
 
 /**
@@ -153,18 +152,6 @@ const variantConfig: Record<
   },
 };
 
-/** REQ-0079 — map card variant to glass counter badge hue */
-const variantBadgeHue: Record<CardVariant, GlassBadgeHue> = {
-  sky: "sky",
-  emerald: "emerald",
-  amber: "amber",
-  rose: "rose",
-  violet: "violet",
-  blue: "blue",
-  orange: "orange",
-  teal: "teal",
-};
-
 /**
  * StatisticsCard component
  * Displays a glassmorphism card with statistics, icon, and badges
@@ -218,21 +205,22 @@ export function StatisticsCard({
         )}
         {badges.length > 0 && (
           <div className="mt-3 flex w-full min-w-0 flex-wrap gap-2 overflow-visible">
+            {/* REQ-0080 — neutral sub-badges; glass counters are section-title only (SectionCountBadge) */}
             {badges.map((badge, index) => (
-              <SectionCountBadge
+              <Badge
                 key={index}
-                hue={variantBadgeHue[variant]}
-                className="gap-1"
+                variant={badge.variant || "outline"}
+                className="text-xs border-gray-300/50 bg-gray-100/80 text-gray-700 backdrop-blur-md shadow-[0_10px_30px_rgba(0,0,0,0.1)] dark:border-white/10 dark:bg-white/5 dark:text-white/80"
               >
-                <span className="font-normal">{badge.label}:</span>
-                <span>
+                <span className="font-normal">{badge.label}:</span>{" "}
+                <span className="ml-1">
                   {badgeValuesLoading ? (
                     <DataSlotPulse variant="badge" />
                   ) : (
                     badge.value
                   )}
                 </span>
-              </SectionCountBadge>
+              </Badge>
             ))}
           </div>
         )}

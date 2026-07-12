@@ -320,7 +320,6 @@ const OrderList = React.memo(
           as="h2"
           icon={ShoppingCart}
           tone="sky"
-          className="pb-6"
           title={
             isAdminCombined
               ? "Store Orders Management (self + client)"

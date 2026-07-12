@@ -3,15 +3,15 @@
 | Field | Value |
 |-------|-------|
 | **Cycle** | C1 (closing) → **C2 open** |
-| **Phase** | C2 — REQ-0079 **done** |
+| **Phase** | C2 — REQ-0080 **done** |
 | **Infinity Loop stage** | Verify ✓ (Gate 2 open) |
-| **Last updated** | 2026-07-12 (REQ-0079 client UI polish shipped) |
-| **Session** | **ACTIVE** — REQ-0079 complete |
-| **Active REQ range** | REQ-0001 … REQ-0079 **done** |
-| **Prod deploy target** | `ffda049` — REQ-0078 on main |
+| **Last updated** | 2026-07-12 (REQ-0080 stat badge revert + gap closure) |
+| **Session** | **ACTIVE** — REQ-0080 complete |
+| **Active REQ range** | REQ-0001 … REQ-0080 **done** |
+| **Prod deploy target** | `6395df0` — REQ-0079 on main (REQ-0080 pending push) |
 | **Human Gate 1** | APPROVED (retroactive bootstrap) |
 | **Human Gate 2** | PENDING — Sentry 24h after prod deploy |
-| **Resume token** | `REQ-0080-supplier-ui-sweep` — supplier role UX backlog |
+| **Resume token** | `REQ-0081-supplier-ui-sweep` — supplier role UX backlog |
 
 ## Current focus
 

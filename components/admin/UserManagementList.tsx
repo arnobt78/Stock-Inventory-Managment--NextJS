@@ -78,7 +78,6 @@ export default function UserManagementList({
         as="h2"
         icon={Users}
         tone="violet"
-        className="pb-6"
         title="User Management"
         description="Manage users and roles. View and update name, role, and profile."
       />

@@ -227,7 +227,6 @@ const ProductList = React.memo(function ProductList({
         as="h2"
         icon={Package}
         tone="rose"
-        className="pb-6"
         title={
           isSupplierProductsPage ? "My Products" : "Product Inventory Management"
         }
