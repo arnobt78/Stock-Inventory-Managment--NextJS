@@ -58,9 +58,13 @@ import SupplierDialog from "@/components/supplier/SupplierDialog";
 import { AlertDialogWrapper } from "@/components/dialogs";
 import type { Supplier } from "@/types";
 import { SafeImage } from "@/components/ui/safe-image";
-import { isDataSlotLoading, queryKeys, useSyncSsrQueryData } from "@/lib/react-query";
+import {
+  isDataSlotLoading,
+  queryKeys,
+  useSyncSsrQueryData,
+} from "@/lib/react-query";
 import { cn } from "@/lib/utils";
-import { APP_SHELL_DETAIL_CLASS } from "@/lib/ui/shell-layout-styles";
+import { APP_SHELL_DETAIL_CLASS, DETAIL_PAGE_HEADER_SPACING_CLASS } from "@/lib/ui/shell-layout-styles";
 
 /**
  * Color variants for glassmorphic cards
@@ -209,10 +213,7 @@ export default function SupplierDetailPage({
   const supplier = supplierQuery.data;
   const dataLoading = isDataSlotLoading(supplierQuery, initialSupplier);
 
-  useSyncSsrQueryData(
-    queryKeys.suppliers.detail(supplierId),
-    initialSupplier,
-  );
+  useSyncSsrQueryData(queryKeys.suppliers.detail(supplierId), initialSupplier);
 
   const createSupplierMutation = useCreateSupplier();
   const deleteSupplierMutation = useDeleteSupplier();
@@ -242,15 +243,13 @@ export default function SupplierDetailPage({
   // Duplicate: create a copy (same as SupplierActions, use mutate + callbacks to avoid unhandled rejection)
   const handleDuplicateSupplier = () => {
     if (!supplier || !user?.id) return;
-    createSupplierMutation.mutate(
-      {
-        name: `${supplier?.name} (copy)`,
-        userId: user.id,
-        status: supplier?.status ?? true,
-        description: supplier?.description ?? undefined,
-        notes: supplier?.notes ?? undefined,
-      },
-    );
+    createSupplierMutation.mutate({
+      name: `${supplier?.name} (copy)`,
+      userId: user.id,
+      status: supplier?.status ?? true,
+      description: supplier?.description ?? undefined,
+      notes: supplier?.notes ?? undefined,
+    });
   };
 
   // Delete: confirm then delete (same pattern as ProductActions / SupplierActions)
@@ -318,6 +317,7 @@ export default function SupplierDetailPage({
           {/* Header */}
           <PageSectionHeader
             as="h1"
+            className={DETAIL_PAGE_HEADER_SPACING_CLASS}
             tone="teal"
             icon={Truck}
             leading={
@@ -338,7 +338,7 @@ export default function SupplierDetailPage({
 
           {/* Supplier Status Card */}
           <GlassCard variant="emerald">
-            <div className="p-4 sm:p-5">
+            <div className="p-2 sm:p-4">
               <p className="text-xs uppercase tracking-[0.2em] text-gray-600 dark:text-white/60 mb-3">
                 Status
               </p>
@@ -353,7 +353,7 @@ export default function SupplierDetailPage({
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-2 sm:gap-4">
             {/* Supplier Information */}
             <GlassCard variant="orange">
-              <div className="p-4 sm:p-5">
+              <div className="p-2 sm:p-4">
                 <div className="flex items-center gap-2 mb-4">
                   <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-orange-300/30 bg-orange-100/50 dark:border-white/15 dark:bg-white/10">
                     <Truck className="h-4 w-4 text-gray-700 dark:text-white" />
@@ -364,15 +364,26 @@ export default function SupplierDetailPage({
                 </div>
                 <div className="space-y-2">
                   {!dataLoading && supplier && (
-                    <DetailInfoRow icon={Hash} label="Supplier ID:" tone="violet">
+                    <DetailInfoRow
+                      icon={Hash}
+                      label="Supplier ID:"
+                      tone="violet"
+                    >
                       <CopyableText value={supplier.id}>
                         <span className="font-mono text-xs">{supplier.id}</span>
                       </CopyableText>
                     </DetailInfoRow>
                   )}
-                  <DetailInfoRow icon={Truck} label="Name:" tone="orange" loading={dataLoading}>
+                  <DetailInfoRow
+                    icon={Truck}
+                    label="Name:"
+                    tone="orange"
+                    loading={dataLoading}
+                  >
                     {!dataLoading && supplier?.name && (
-                      <CopyableText value={supplier.name}>{supplier.name}</CopyableText>
+                      <CopyableText value={supplier.name}>
+                        {supplier.name}
+                      </CopyableText>
                     )}
                   </DetailInfoRow>
                   {!dataLoading && supplier && (
@@ -400,25 +411,47 @@ export default function SupplierDetailPage({
                       </p>
                     </div>
                   )}
-                  <DetailInfoRow icon={Calendar} label="Created:" tone="teal" loading={dataLoading}>
+                  <DetailInfoRow
+                    icon={Calendar}
+                    label="Created:"
+                    tone="teal"
+                    loading={dataLoading}
+                  >
                     {!dataLoading && <ClientDateTime date={createdAt} />}
                   </DetailInfoRow>
                   {(dataLoading || updatedAt) && (
-                    <DetailInfoRow icon={Calendar} label="Updated:" tone="sky" loading={dataLoading}>
-                      {!dataLoading && updatedAt && <ClientDateTime date={updatedAt} />}
+                    <DetailInfoRow
+                      icon={Calendar}
+                      label="Updated:"
+                      tone="sky"
+                      loading={dataLoading}
+                    >
+                      {!dataLoading && updatedAt && (
+                        <ClientDateTime date={updatedAt} />
+                      )}
                     </DetailInfoRow>
                   )}
                   {!dataLoading && supplier?.creator && (
                     <>
-                      <DetailInfoRow icon={User} label="Created by:" tone="violet">
+                      <DetailInfoRow
+                        icon={User}
+                        label="Created by:"
+                        tone="violet"
+                      >
                         <AvatarInlineLink
                           seed={supplier.creator.id}
                           image={supplier.creator.image}
-                          label={supplier.creator.name ?? supplier.creator.email}
+                          label={
+                            supplier.creator.name ?? supplier.creator.email
+                          }
                           href={ownerProductsHref(supplier.creator.id)}
                         />
                       </DetailInfoRow>
-                      <DetailInfoRow icon={Mail} label="Creator email:" tone="violet">
+                      <DetailInfoRow
+                        icon={Mail}
+                        label="Creator email:"
+                        tone="violet"
+                      >
                         <CopyableText value={supplier.creator.email}>
                           {supplier.creator.email}
                         </CopyableText>
@@ -427,10 +460,18 @@ export default function SupplierDetailPage({
                   )}
                   {!dataLoading && supplier?.updater && (
                     <>
-                      <DetailInfoRow icon={User} label="Updated by:" tone="blue">
+                      <DetailInfoRow
+                        icon={User}
+                        label="Updated by:"
+                        tone="blue"
+                      >
                         {supplier.updater.name}
                       </DetailInfoRow>
-                      <DetailInfoRow icon={Mail} label="Updater email:" tone="blue">
+                      <DetailInfoRow
+                        icon={Mail}
+                        label="Updater email:"
+                        tone="blue"
+                      >
                         {supplier.updater.email}
                       </DetailInfoRow>
                     </>
@@ -441,7 +482,7 @@ export default function SupplierDetailPage({
 
             {/* Statistics */}
             <GlassCard variant="teal">
-              <div className="p-4 sm:p-5">
+              <div className="p-2 sm:p-4">
                 <div className="flex items-center gap-2 mb-2">
                   <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-teal-300/30 bg-teal-100/50 dark:border-white/15 dark:bg-white/10">
                     <BarChart3 className="h-4 w-4 text-gray-700 dark:text-white" />
@@ -508,7 +549,7 @@ export default function SupplierDetailPage({
           {/* Products from this Supplier */}
           {supplier?.products && supplier?.products.length > 0 && (
             <GlassCard variant="sky">
-              <div className="p-4 sm:p-5">
+              <div className="p-2 sm:p-4">
                 <div className="flex items-center gap-2 mb-2">
                   <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-sky-300/30 bg-sky-100/50 dark:border-white/15 dark:bg-white/10">
                     <Package className="h-4 w-4 text-gray-700 dark:text-white" />
@@ -573,7 +614,7 @@ export default function SupplierDetailPage({
           {/* Recent Orders */}
           {supplier?.recentOrders && supplier?.recentOrders.length > 0 && (
             <GlassCard variant="violet">
-              <div className="p-4 sm:p-5">
+              <div className="p-2 sm:p-4">
                 <div className="flex items-center gap-2 mb-2">
                   <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-violet-300/30 bg-violet-100/50 dark:border-white/15 dark:bg-white/10">
                     <ShoppingCart className="h-4 w-4 text-gray-700 dark:text-white" />

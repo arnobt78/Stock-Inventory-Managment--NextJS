@@ -24,7 +24,15 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { ArrowLeft, Loader2, Star, Package, CircleDot, User, Calendar } from "lucide-react";
+import {
+  ArrowLeft,
+  Loader2,
+  Star,
+  Package,
+  CircleDot,
+  User,
+  Calendar,
+} from "lucide-react";
 import {
   useProductReview,
   useUpdateProductReview,
@@ -44,12 +52,16 @@ import {
   ClientDateTime,
 } from "@/components/shared";
 import { TYPO_BODY, TYPO_BODY_MUTED } from "@/lib/ui/typography-scale";
-import { isDataSlotLoading, queryKeys, useSyncSsrQueryData } from "@/lib/react-query";
+import {
+  isDataSlotLoading,
+  queryKeys,
+  useSyncSsrQueryData,
+} from "@/lib/react-query";
 import type { ProductReview, ProductReviewStatus } from "@/types";
 import { cn } from "@/lib/utils";
 import { ReviewStatusBadge } from "@/lib/ui/semantic-badges";
 import { GlassCard, DetailInfoRow } from "@/components/orders/detail";
-import { APP_SHELL_DETAIL_CLASS } from "@/lib/ui/shell-layout-styles";
+import { APP_SHELL_DETAIL_CLASS, DETAIL_PAGE_HEADER_SPACING_CLASS } from "@/lib/ui/shell-layout-styles";
 
 const STATUS_OPTIONS: { value: ProductReviewStatus; label: string }[] = [
   { value: "pending", label: "Pending" },
@@ -138,7 +150,7 @@ export default function AdminProductReviewDetailContent({
           </Button>
           <GlassCard variant="rose">
             <p className="py-8 text-center text-gray-600 dark:text-white/70">
-                {error instanceof Error ? error.message : "Review not found"}
+              {error instanceof Error ? error.message : "Review not found"}
             </p>
           </GlassCard>
         </div>
@@ -160,7 +172,7 @@ export default function AdminProductReviewDetailContent({
           </Button>
           <GlassCard variant="rose">
             <p className="py-8 text-center text-gray-600 dark:text-white/70">
-                The review you are looking for does not exist or was removed.
+              The review you are looking for does not exist or was removed.
             </p>
           </GlassCard>
         </div>
@@ -179,6 +191,7 @@ export default function AdminProductReviewDetailContent({
       <div className={APP_SHELL_DETAIL_CLASS}>
         <PageSectionHeader
           as="h1"
+          className={DETAIL_PAGE_HEADER_SPACING_CLASS}
           tone="amber"
           icon={Star}
           leading={
@@ -206,7 +219,7 @@ export default function AdminProductReviewDetailContent({
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-2 sm:gap-4">
           <GlassCard variant="amber">
-            <div className="p-4 sm:p-5">
+            <div className="p-2 sm:p-4">
               <SectionCardHeader
                 title="Status"
                 description="Changes apply immediately"
@@ -267,7 +280,7 @@ export default function AdminProductReviewDetailContent({
           </GlassCard>
 
           <GlassCard variant="amber">
-            <div className="p-4 sm:p-5">
+            <div className="p-2 sm:p-4">
               <SectionCardHeader
                 title="Rating"
                 description="Changes apply immediately"
@@ -317,7 +330,7 @@ export default function AdminProductReviewDetailContent({
         </div>
 
         <GlassCard variant="amber">
-          <div className="p-4 sm:p-5">
+          <div className="p-2 sm:p-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-2 sm:gap-4">
               <div>
                 <SectionCardHeader
@@ -328,7 +341,12 @@ export default function AdminProductReviewDetailContent({
                   className="mb-4"
                 />
                 <div className="space-y-2">
-                  <DetailInfoRow icon={Package} label="Product:" tone="sky" loading={dataLoading}>
+                  <DetailInfoRow
+                    icon={Package}
+                    label="Product:"
+                    tone="sky"
+                    loading={dataLoading}
+                  >
                     {!dataLoading && (
                       <>
                         <Link
@@ -345,7 +363,12 @@ export default function AdminProductReviewDetailContent({
                       </>
                     )}
                   </DetailInfoRow>
-                  <DetailInfoRow icon={User} label="Reviewer:" tone="violet" loading={dataLoading}>
+                  <DetailInfoRow
+                    icon={User}
+                    label="Reviewer:"
+                    tone="violet"
+                    loading={dataLoading}
+                  >
                     {!dataLoading && (
                       <div className="space-y-0.5">
                         <Link
@@ -357,7 +380,9 @@ export default function AdminProductReviewDetailContent({
                             "View user"}
                         </Link>
                         {r!.reviewerEmail && (
-                          <span className={cn("block text-xs", TYPO_BODY_MUTED)}>
+                          <span
+                            className={cn("block text-xs", TYPO_BODY_MUTED)}
+                          >
                             {r!.reviewerEmail}
                           </span>
                         )}
@@ -372,13 +397,22 @@ export default function AdminProductReviewDetailContent({
                       </div>
                     )}
                   </DetailInfoRow>
-                  <DetailInfoRow icon={Calendar} label="Created:" tone="orange" loading={dataLoading}>
+                  <DetailInfoRow
+                    icon={Calendar}
+                    label="Created:"
+                    tone="orange"
+                    loading={dataLoading}
+                  >
                     {!dataLoading && (
                       <ClientDateTime date={new Date(r!.createdAt)} />
                     )}
                   </DetailInfoRow>
                   {!dataLoading && r!.updatedAt && (
-                    <DetailInfoRow icon={Calendar} label="Updated:" tone="amber">
+                    <DetailInfoRow
+                      icon={Calendar}
+                      label="Updated:"
+                      tone="amber"
+                    >
                       <ClientDateTime date={new Date(r!.updatedAt)} />
                     </DetailInfoRow>
                   )}
@@ -408,7 +442,9 @@ export default function AdminProductReviewDetailContent({
                           )}
                         />
                       ))}
-                      <span className={cn("ml-2 text-sm font-medium", TYPO_BODY)}>
+                      <span
+                        className={cn("ml-2 text-sm font-medium", TYPO_BODY)}
+                      >
                         {r!.rating}/5
                       </span>
                     </>
@@ -435,7 +471,7 @@ export default function AdminProductReviewDetailContent({
         </GlassCard>
 
         <GlassCard variant="amber">
-          <div className="p-4 sm:p-5 space-y-2">
+          <div className="p-2 sm:p-4 space-y-2">
             <SectionCardHeader
               title="Edit Comment"
               description="Update the review comment. Changes apply after Save."
@@ -472,7 +508,9 @@ export default function AdminProductReviewDetailContent({
         <div className="flex flex-col sm:flex-row flex-wrap gap-2">
           <Button
             onClick={handleBack}
-            className={glassDetailBackButtonClass("w-full sm:w-auto gap-2 px-8")}
+            className={glassDetailBackButtonClass(
+              "w-full sm:w-auto gap-2 px-8",
+            )}
           >
             <ArrowLeft className="h-4 w-4 shrink-0" />
             Back

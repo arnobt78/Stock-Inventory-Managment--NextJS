@@ -122,8 +122,11 @@ export function ProductOwnerSelect({
                   className="cursor-pointer text-gray-700 dark:text-white/80 focus:bg-violet-100 dark:focus:bg-white/10 focus:text-gray-700 dark:focus:text-white gap-2"
                 >
                   <OwnerAvatar owner={owner} size={20} className="h-5 w-5" />
-                  <span className="truncate">
-                    {owner.name} ({owner.email})
+                  <span className="truncate min-w-0">
+                    {owner.name}
+                    <span className="text-muted-foreground">
+                      . {owner.email}
+                    </span>
                   </span>
                 </CommandItem>
               ))}

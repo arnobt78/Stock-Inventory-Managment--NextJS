@@ -215,6 +215,9 @@
 | ART-0207 | REQ-0077 | `app/api/portal/client/catalog/route.ts` | Redis v2 + meta guard |
 | ART-0208 | REQ-0078 | `section-title-row.tsx` | Valid HTML title + Badge sibling row |
 | ART-0209 | REQ-0078 | ClientPortal, ProductReviews, ProductDetail | Badge nesting hydration fix |
+| ART-0210 | REQ-0079 | `SectionCountBadge`, `ListIndexBadge` | Glass counter + list index badges |
+| ART-0211 | REQ-0079 | shell-layout-styles, detail pages, ApiDocs/ApiStatus | gap-6 detail spacing; header pb-0 |
+| ART-0212 | REQ-0079 | ClientPortal, ClientProductList, ProductTableColumns, filters | Client browse UX polish |
 
 ## Tests
 

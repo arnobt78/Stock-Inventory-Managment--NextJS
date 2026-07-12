@@ -57,9 +57,13 @@ import TransferStockDialog from "@/components/warehouses/TransferStockDialog";
 import { ProductThumb } from "@/components/products/ProductOptionRow";
 import { AlertDialogWrapper } from "@/components/dialogs";
 import type { Warehouse as WarehouseType, StockAllocation } from "@/types";
-import { isDataSlotLoading, queryKeys, useSyncSsrQueryData } from "@/lib/react-query";
+import {
+  isDataSlotLoading,
+  queryKeys,
+  useSyncSsrQueryData,
+} from "@/lib/react-query";
 import { cn } from "@/lib/utils";
-import { APP_SHELL_DETAIL_CLASS } from "@/lib/ui/shell-layout-styles";
+import { APP_SHELL_DETAIL_CLASS, DETAIL_PAGE_HEADER_SPACING_CLASS } from "@/lib/ui/shell-layout-styles";
 
 /**
  * Color variants for glassmorphic cards
@@ -183,7 +187,7 @@ function GlassCard({
   return (
     <article
       className={cn(
-        "group rounded-[20px] border p-4 sm:p-5 backdrop-blur-md transition-all duration-300",
+        "group rounded-[20px] border p-2 sm:p-4 backdrop-blur-md transition-all duration-300",
         "bg-white/60 dark:bg-white/5",
         config.border,
         config.gradient,
@@ -329,6 +333,7 @@ export default function WarehouseDetailPage({
         <div className={APP_SHELL_DETAIL_CLASS}>
           <PageSectionHeader
             as="h1"
+            className={DETAIL_PAGE_HEADER_SPACING_CLASS}
             tone="violet"
             icon={Warehouse}
             leading={
@@ -453,7 +458,11 @@ export default function WarehouseDetailPage({
 
               <div className="space-y-2">
                 {warehouse && (
-                  <DetailInfoRow icon={Hash} label="Warehouse ID:" tone="violet">
+                  <DetailInfoRow
+                    icon={Hash}
+                    label="Warehouse ID:"
+                    tone="violet"
+                  >
                     <CopyableText value={warehouse.id}>
                       <span className="font-mono text-xs">{warehouse.id}</span>
                     </CopyableText>
@@ -461,7 +470,9 @@ export default function WarehouseDetailPage({
                 )}
                 <DetailInfoRow icon={Warehouse} label="Name:" tone="teal">
                   {warehouse?.name && (
-                    <CopyableText value={warehouse.name}>{warehouse.name}</CopyableText>
+                    <CopyableText value={warehouse.name}>
+                      {warehouse.name}
+                    </CopyableText>
                   )}
                 </DetailInfoRow>
                 {warehouse?.address && (
@@ -477,7 +488,11 @@ export default function WarehouseDetailPage({
                     />
                   </DetailInfoRow>
                 )}
-                <DetailInfoRow icon={CheckCircle2} label="Status:" tone="emerald">
+                <DetailInfoRow
+                  icon={CheckCircle2}
+                  label="Status:"
+                  tone="emerald"
+                >
                   <ActiveInactiveBadge active={Boolean(warehouse?.status)} />
                 </DetailInfoRow>
                 <DetailInfoRow icon={Calendar} label="Created:" tone="orange">
@@ -490,8 +505,9 @@ export default function WarehouseDetailPage({
                 )}
                 {stockSummary && (
                   <DetailInfoRow icon={Boxes} label="Allocations:" tone="sky">
-                    {stockSummary.totalProducts} products · {stockSummary.totalQuantity}{" "}
-                    total · {stockSummary.availableQuantity} available ·{" "}
+                    {stockSummary.totalProducts} products ·{" "}
+                    {stockSummary.totalQuantity} total ·{" "}
+                    {stockSummary.availableQuantity} available ·{" "}
                     {stockSummary.reservedQuantity} reserved
                   </DetailInfoRow>
                 )}
@@ -556,7 +572,8 @@ export default function WarehouseDetailPage({
                                   SKU: {product.sku}
                                 </p>
                               ) : null}
-                              {product?.categoryName || product?.supplierName ? (
+                              {product?.categoryName ||
+                              product?.supplierName ? (
                                 <p className="truncate text-xs text-gray-500 dark:text-gray-400">
                                   {[product.categoryName, product.supplierName]
                                     .filter(Boolean)

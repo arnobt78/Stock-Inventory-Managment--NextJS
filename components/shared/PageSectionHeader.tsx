@@ -1,6 +1,8 @@
 /**
  * Page-level section header — meaningful icon beside title/subtitle (list + detail pages).
  * Excludes StatisticsCard summary badges/cards.
+ * REQ-0079: inside APP_SHELL_DETAIL_CLASS pass className={DETAIL_PAGE_HEADER_SPACING_CLASS}
+ * so gap-6 owns vertical rhythm (avoids double pb-6 + space-y stack).
  */
 
 import React from "react";

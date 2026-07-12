@@ -65,7 +65,7 @@ import { DetailInfoRow } from "@/components/orders/detail/order-detail-primitive
 import type { InvoiceStatus } from "@/types";
 import type { Invoice } from "@/types";
 import { cn } from "@/lib/utils";
-import { APP_SHELL_DETAIL_CLASS } from "@/lib/ui/shell-layout-styles";
+import { APP_SHELL_DETAIL_CLASS, DETAIL_PAGE_HEADER_SPACING_CLASS } from "@/lib/ui/shell-layout-styles";
 import InvoiceDialog from "@/components/invoices/InvoiceDialog";
 import { AlertDialogWrapper } from "@/components/dialogs";
 import { PaymentDialog } from "@/components/payments";
@@ -182,7 +182,7 @@ function GlassCard({
   return (
     <article
       className={cn(
-        "group rounded-[20px] border p-4 sm:p-5 backdrop-blur-md transition-all duration-300",
+        "group rounded-[20px] border p-2 sm:p-4 backdrop-blur-md transition-all duration-300",
         "bg-white/60 dark:bg-white/5",
         config.border,
         config.gradient,
@@ -431,6 +431,7 @@ export default function InvoiceDetailPage({
         <div className={APP_SHELL_DETAIL_CLASS}>
           <PageSectionHeader
             as="h1"
+            className={DETAIL_PAGE_HEADER_SPACING_CLASS}
             tone="emerald"
             icon={FileText}
             leading={
@@ -567,10 +568,20 @@ export default function InvoiceDetailPage({
                   <span className="font-mono text-xs">{invoice.id}</span>
                 </DetailInfoRow>
               )}
-              <DetailInfoRow icon={DollarSign} label="Amount Paid:" tone="emerald" loading={dataLoading}>
+              <DetailInfoRow
+                icon={DollarSign}
+                label="Amount Paid:"
+                tone="emerald"
+                loading={dataLoading}
+              >
                 {!dataLoading && invoice && `$${invoice.amountPaid.toFixed(2)}`}
               </DetailInfoRow>
-              <DetailInfoRow icon={DollarSign} label="Amount Due:" tone={!dataLoading && isOverdue ? "rose" : "amber"} loading={dataLoading}>
+              <DetailInfoRow
+                icon={DollarSign}
+                label="Amount Due:"
+                tone={!dataLoading && isOverdue ? "rose" : "amber"}
+                loading={dataLoading}
+              >
                 {!dataLoading && invoice && (
                   <>
                     ${invoice.amountDue.toFixed(2)}
@@ -578,7 +589,12 @@ export default function InvoiceDetailPage({
                   </>
                 )}
               </DetailInfoRow>
-              <DetailInfoRow icon={Calendar} label="Issued:" tone="orange" loading={dataLoading}>
+              <DetailInfoRow
+                icon={Calendar}
+                label="Issued:"
+                tone="orange"
+                loading={dataLoading}
+              >
                 {!dataLoading && <ClientDateTime date={issuedAt} />}
               </DetailInfoRow>
               <DetailInfoRow
@@ -589,34 +605,56 @@ export default function InvoiceDetailPage({
               >
                 {!dataLoading && <ClientDateTime date={dueDate} />}
               </DetailInfoRow>
-              <DetailInfoRow icon={Send} label="Sent:" tone="blue" loading={dataLoading}>
-                {!dataLoading && (sentAt ? <ClientDateTime date={sentAt} /> : "—")}
-              </DetailInfoRow>
-              <DetailInfoRow icon={CheckCircle} label="Paid:" tone="emerald" loading={dataLoading}>
+              <DetailInfoRow
+                icon={Send}
+                label="Sent:"
+                tone="blue"
+                loading={dataLoading}
+              >
                 {!dataLoading &&
-                  (paidAt ? (
-                    <ClientDateTime date={paidAt} />
-                  ) : (
-                    "—"
-                  ))}
+                  (sentAt ? <ClientDateTime date={sentAt} /> : "—")}
               </DetailInfoRow>
-              <DetailInfoRow icon={XCircle} label="Cancelled:" tone="rose" loading={dataLoading}>
+              <DetailInfoRow
+                icon={CheckCircle}
+                label="Paid:"
+                tone="emerald"
+                loading={dataLoading}
+              >
                 {!dataLoading &&
-                  (cancelledAt ? (
-                    <ClientDateTime date={cancelledAt} />
-                  ) : (
-                    "—"
-                  ))}
+                  (paidAt ? <ClientDateTime date={paidAt} /> : "—")}
+              </DetailInfoRow>
+              <DetailInfoRow
+                icon={XCircle}
+                label="Cancelled:"
+                tone="rose"
+                loading={dataLoading}
+              >
+                {!dataLoading &&
+                  (cancelledAt ? <ClientDateTime date={cancelledAt} /> : "—")}
               </DetailInfoRow>
               {(dataLoading || updatedAt) && (
-                <DetailInfoRow icon={Calendar} label="Updated:" tone="sky" loading={dataLoading}>
-                  {!dataLoading && updatedAt && <ClientDateTime date={updatedAt} />}
+                <DetailInfoRow
+                  icon={Calendar}
+                  label="Updated:"
+                  tone="sky"
+                  loading={dataLoading}
+                >
+                  {!dataLoading && updatedAt && (
+                    <ClientDateTime date={updatedAt} />
+                  )}
                 </DetailInfoRow>
               )}
               {!dataLoading && invoice?.orderId && (
-                <DetailInfoRow icon={FileText} label="Related Order:" tone="violet">
+                <DetailInfoRow
+                  icon={FileText}
+                  label="Related Order:"
+                  tone="violet"
+                >
                   {invoice.linkedOrderNumber ? (
-                    <CopyableText value={invoice.linkedOrderNumber} className="font-medium">
+                    <CopyableText
+                      value={invoice.linkedOrderNumber}
+                      className="font-medium"
+                    >
                       <Link
                         href={`${linkedOrderHrefBase}/${invoice.orderId}`}
                         className="text-sky-600 dark:text-sky-400 hover:text-sky-500 dark:hover:text-sky-300 inline-flex items-center gap-1"
@@ -636,7 +674,11 @@ export default function InvoiceDetailPage({
                 </DetailInfoRow>
               )}
               {!dataLoading && invoice && (
-                <DetailInfoRow icon={CreditCard} label="Payment Link:" tone="sky">
+                <DetailInfoRow
+                  icon={CreditCard}
+                  label="Payment Link:"
+                  tone="sky"
+                >
                   {invoice.paymentLink ? (
                     <a
                       href={invoice.paymentLink}
@@ -668,7 +710,8 @@ export default function InvoiceDetailPage({
 
           {/* REQ-0063 — linked order line items with product thumbnails (SSR via linkedOrderItems) */}
           {(dataLoading ||
-            (invoice?.linkedOrderItems && invoice.linkedOrderItems.length > 0)) && (
+            (invoice?.linkedOrderItems &&
+              invoice.linkedOrderItems.length > 0)) && (
             <GlassCard variant="sky">
               <div className="flex items-center gap-2 mb-2">
                 <div
@@ -813,10 +856,7 @@ export default function InvoiceDetailPage({
               Edit Invoice
             </Button>
             {!dataLoading && invoice && (
-              <Button
-                asChild
-                className={glassDetailFooterButtonClass("teal")}
-              >
+              <Button asChild className={glassDetailFooterButtonClass("teal")}>
                 <a
                   href={`/api/invoices/${invoice.id}/pdf`}
                   download={`invoice-${invoice.invoiceNumber}.pdf`}
@@ -826,29 +866,35 @@ export default function InvoiceDetailPage({
                 </a>
               </Button>
             )}
-            {!dataLoading && invoice && invoice.status === "draft" && !disableInvoiceMutations && (
-              <DialogSubmitButton
-                type="button"
-                onClick={() => setSendDialogOpen(true)}
-                isPending={isSending}
-                pendingLabel="Sending…"
-                label="Send Invoice"
-                hue="sky"
-                className="group w-full sm:w-auto gap-2"
-              />
-            )}
-            {!dataLoading && invoice && invoice.status !== "cancelled" && !disableInvoiceMutations && (
-              <DialogSubmitButton
-                type="button"
-                onClick={() => setDeleteDialogOpen(true)}
-                isPending={isDeleting}
-                pendingLabel="Deleting…"
-                label="Delete Invoice"
-                icon={Trash2}
-                hue="rose"
-                className="group w-full sm:w-auto gap-2"
-              />
-            )}
+            {!dataLoading &&
+              invoice &&
+              invoice.status === "draft" &&
+              !disableInvoiceMutations && (
+                <DialogSubmitButton
+                  type="button"
+                  onClick={() => setSendDialogOpen(true)}
+                  isPending={isSending}
+                  pendingLabel="Sending…"
+                  label="Send Invoice"
+                  hue="sky"
+                  className="group w-full sm:w-auto gap-2"
+                />
+              )}
+            {!dataLoading &&
+              invoice &&
+              invoice.status !== "cancelled" &&
+              !disableInvoiceMutations && (
+                <DialogSubmitButton
+                  type="button"
+                  onClick={() => setDeleteDialogOpen(true)}
+                  isPending={isDeleting}
+                  pendingLabel="Deleting…"
+                  label="Delete Invoice"
+                  icon={Trash2}
+                  hue="rose"
+                  className="group w-full sm:w-auto gap-2"
+                />
+              )}
             {!dataLoading && invoice?.orderId && (
               <Button
                 asChild

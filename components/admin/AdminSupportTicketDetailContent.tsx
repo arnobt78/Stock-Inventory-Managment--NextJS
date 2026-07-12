@@ -7,7 +7,7 @@ import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useBackWithRefresh } from "@/hooks/use-back-with-refresh";
 import { GlassCard, DetailInfoRow } from "@/components/orders/detail";
-import { APP_SHELL_DETAIL_CLASS } from "@/lib/ui/shell-layout-styles";
+import { APP_SHELL_DETAIL_CLASS, DETAIL_PAGE_HEADER_SPACING_CLASS } from "@/lib/ui/shell-layout-styles";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import {
@@ -63,7 +63,11 @@ import {
   ClientDateTime,
 } from "@/components/shared";
 import { TYPO_BODY, TYPO_BODY_MUTED } from "@/lib/ui/typography-scale";
-import { isDataSlotLoading, queryKeys, useSyncSsrQueryDataMany } from "@/lib/react-query";
+import {
+  isDataSlotLoading,
+  queryKeys,
+  useSyncSsrQueryDataMany,
+} from "@/lib/react-query";
 import { format } from "date-fns";
 import type {
   SupportTicket,
@@ -110,7 +114,10 @@ export default function AdminSupportTicketDetailContent({
   const { isError, error } = ticketQuery;
 
   useSyncSsrQueryDataMany([
-    { queryKey: queryKeys.supportTickets.detail(id), serverData: initialTicket },
+    {
+      queryKey: queryKeys.supportTickets.detail(id),
+      serverData: initialTicket,
+    },
     {
       queryKey: [...queryKeys.supportTickets.detail(id), "replies"],
       serverData: initialReplies,
@@ -236,6 +243,7 @@ export default function AdminSupportTicketDetailContent({
       <div className={APP_SHELL_DETAIL_CLASS}>
         <PageSectionHeader
           as="h1"
+          className={DETAIL_PAGE_HEADER_SPACING_CLASS}
           tone="violet"
           icon={LifeBuoy}
           leading={
@@ -260,7 +268,7 @@ export default function AdminSupportTicketDetailContent({
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-2 sm:gap-4">
           <GlassCard variant="violet">
-            <div className="p-4 sm:p-5">
+            <div className="p-2 sm:p-4">
               <SectionCardHeader
                 title="Status"
                 description="Changes apply immediately"
@@ -321,7 +329,7 @@ export default function AdminSupportTicketDetailContent({
           </GlassCard>
 
           <GlassCard variant="violet">
-            <div className="p-4 sm:p-5">
+            <div className="p-2 sm:p-4">
               <SectionCardHeader
                 title="Priority"
                 description="Changes apply immediately"
@@ -383,7 +391,7 @@ export default function AdminSupportTicketDetailContent({
         </div>
 
         <GlassCard variant="violet">
-          <div className="p-4 sm:p-5">
+          <div className="p-2 sm:p-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-2 sm:gap-4">
               <div>
                 <SectionCardHeader
@@ -396,13 +404,25 @@ export default function AdminSupportTicketDetailContent({
                 <div className="space-y-2">
                   {!dataLoading && t!.ticketNumber && (
                     <DetailInfoRow icon={Hash} label="Ticket #:" tone="blue">
-                      <span className="font-mono text-xs">{t!.ticketNumber}</span>
+                      <span className="font-mono text-xs">
+                        {t!.ticketNumber}
+                      </span>
                     </DetailInfoRow>
                   )}
-                  <DetailInfoRow icon={MessageSquare} label="Subject:" tone="violet" loading={dataLoading}>
+                  <DetailInfoRow
+                    icon={MessageSquare}
+                    label="Subject:"
+                    tone="violet"
+                    loading={dataLoading}
+                  >
                     {!dataLoading && t!.subject}
                   </DetailInfoRow>
-                  <DetailInfoRow icon={User} label="Creator:" tone="sky" loading={dataLoading}>
+                  <DetailInfoRow
+                    icon={User}
+                    label="Creator:"
+                    tone="sky"
+                    loading={dataLoading}
+                  >
                     {!dataLoading && (
                       <div className="flex flex-col gap-0.5">
                         <Link
@@ -424,23 +444,29 @@ export default function AdminSupportTicketDetailContent({
                           </span>
                         )}
                         <span
-                          className={cn(
-                            "font-mono text-xs",
-                            TYPO_BODY_MUTED,
-                          )}
+                          className={cn("font-mono text-xs", TYPO_BODY_MUTED)}
                         >
                           ID: {t!.userId}
                         </span>
                       </div>
                     )}
                   </DetailInfoRow>
-                  <DetailInfoRow icon={Calendar} label="Created:" tone="orange" loading={dataLoading}>
+                  <DetailInfoRow
+                    icon={Calendar}
+                    label="Created:"
+                    tone="orange"
+                    loading={dataLoading}
+                  >
                     {!dataLoading && (
                       <ClientDateTime date={new Date(t!.createdAt)} />
                     )}
                   </DetailInfoRow>
                   {!dataLoading && t!.updatedAt && (
-                    <DetailInfoRow icon={Calendar} label="Updated:" tone="amber">
+                    <DetailInfoRow
+                      icon={Calendar}
+                      label="Updated:"
+                      tone="amber"
+                    >
                       <ClientDateTime date={new Date(t!.updatedAt)} />
                     </DetailInfoRow>
                   )}
@@ -475,7 +501,7 @@ export default function AdminSupportTicketDetailContent({
         </GlassCard>
 
         <GlassCard variant="violet">
-          <div className="p-4 sm:p-5 space-y-2">
+          <div className="p-2 sm:p-4 space-y-2">
             <SectionCardHeader
               title="Reply to user"
               description="Send a message to the ticket creator. They will see this in the ticket thread and get a notification."
@@ -569,7 +595,7 @@ export default function AdminSupportTicketDetailContent({
         </GlassCard>
 
         <GlassCard variant="violet">
-          <div className="p-4 sm:p-5 space-y-2">
+          <div className="p-2 sm:p-4 space-y-2">
             <SectionCardHeader
               title="Internal Notes"
               description="Admin-only notes. Not visible to the ticket creator."
@@ -601,7 +627,9 @@ export default function AdminSupportTicketDetailContent({
         <div className="flex flex-col sm:flex-row flex-wrap gap-2">
           <Button
             onClick={handleBack}
-            className={glassDetailBackButtonClass("w-full sm:w-auto gap-2 px-8")}
+            className={glassDetailBackButtonClass(
+              "w-full sm:w-auto gap-2 px-8",
+            )}
           >
             <ArrowLeft className="h-4 w-4 shrink-0" />
             Back

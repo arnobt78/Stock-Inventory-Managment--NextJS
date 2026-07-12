@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
+import { DETAIL_PAGE_HEADER_SPACING_CLASS } from "@/lib/ui/shell-layout-styles";
 import {
   GLASS_BUTTON_ICON_HOVER,
   GLASS_PRIMARY_BUTTON,
@@ -28,7 +29,11 @@ import {
   FiHardDrive,
 } from "react-icons/fi";
 import Navbar from "@/components/layouts/Navbar";
-import { PageContentWrapper, PageSectionHeader, SectionCardHeader } from "@/components/shared";
+import {
+  PageContentWrapper,
+  PageSectionHeader,
+  SectionCardHeader,
+} from "@/components/shared";
 import {
   Activity,
   Cloud,
@@ -459,10 +464,11 @@ export default function ApiStatusPage() {
   return (
     <Navbar>
       <PageContentWrapper>
-        <div className="space-y-4">
+        <div className="flex flex-col gap-6">
           {/* Header — PageSectionHeader parity (REQ-0075 AC3) */}
           <PageSectionHeader
             as="h1"
+            className={DETAIL_PAGE_HEADER_SPACING_CLASS}
             icon={Activity}
             tone="emerald"
             title="API & Project Status"
@@ -495,7 +501,7 @@ export default function ApiStatusPage() {
                     ["blue", "violet", "amber", "teal"][i - 1] as CardVariant
                   }
                 >
-                  <div className="p-4 sm:p-5">
+                  <div className="p-2 sm:p-4">
                     <Skeleton className="h-4 w-24 mb-2" />
                     <Skeleton className="h-8 w-32" />
                   </div>
@@ -505,7 +511,7 @@ export default function ApiStatusPage() {
           ) : systemStatus ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-2">
               <GlassCard variant="blue">
-                <div className="p-4 sm:p-5">
+                <div className="p-2 sm:p-4">
                   <p className="text-xs uppercase tracking-[0.2em] text-gray-600 dark:text-white/60 mb-2">
                     Project
                   </p>
@@ -516,7 +522,7 @@ export default function ApiStatusPage() {
               </GlassCard>
 
               <GlassCard variant="violet">
-                <div className="p-4 sm:p-5">
+                <div className="p-2 sm:p-4">
                   <p className="text-xs uppercase tracking-[0.2em] text-gray-600 dark:text-white/60 mb-2">
                     Environment
                   </p>
@@ -527,7 +533,7 @@ export default function ApiStatusPage() {
               </GlassCard>
 
               <GlassCard variant="amber">
-                <div className="p-4 sm:p-5">
+                <div className="p-2 sm:p-4">
                   <p className="text-xs uppercase tracking-[0.2em] text-gray-600 dark:text-white/60 mb-2">
                     Current Time
                   </p>
@@ -538,7 +544,7 @@ export default function ApiStatusPage() {
               </GlassCard>
 
               <GlassCard variant="teal">
-                <div className="p-4 sm:p-5">
+                <div className="p-2 sm:p-4">
                   <p className="text-xs uppercase tracking-[0.2em] text-gray-600 dark:text-white/60 mb-2">
                     Uptime
                   </p>
@@ -552,7 +558,7 @@ export default function ApiStatusPage() {
 
           {/* API Health Status */}
           <GlassCard variant="emerald">
-            <div className="p-4 sm:p-5">
+            <div className="p-2 sm:p-4">
               <React.Fragment
                 key={isLoading ? "api-health-loading" : "api-health-content"}
               >
@@ -586,7 +592,7 @@ export default function ApiStatusPage() {
 
           {/* Endpoints Status */}
           <GlassCard variant="sky">
-            <div className="p-4 sm:p-5">
+            <div className="p-2 sm:p-4">
               <React.Fragment
                 key={isLoading ? "endpoints-loading" : "endpoints-content"}
               >
@@ -652,7 +658,7 @@ export default function ApiStatusPage() {
 
           {/* External Services Health */}
           <GlassCard variant="violet">
-            <div className="p-4 sm:p-5">
+            <div className="p-2 sm:p-4">
               <React.Fragment
                 key={isLoading ? "services-loading" : "services-content"}
               >
@@ -819,7 +825,7 @@ export default function ApiStatusPage() {
           {/* Performance Metrics */}
           {systemStatus?.performance && (
             <GlassCard variant="orange">
-              <div className="p-4 sm:p-5">
+              <div className="p-2 sm:p-4">
                 <SectionCardHeader
                   icon={TrendingUp}
                   tone="orange"
@@ -950,7 +956,7 @@ export default function ApiStatusPage() {
           {/* System Metrics */}
           {systemStatus?.systemMetrics && (
             <GlassCard variant="teal">
-              <div className="p-4 sm:p-5">
+              <div className="p-2 sm:p-4">
                 <SectionCardHeader
                   icon={Cpu}
                   tone="teal"
@@ -1166,7 +1172,7 @@ export default function ApiStatusPage() {
 
           {/* Deployment Info */}
           <GlassCard variant="rose">
-            <div className="p-4 sm:p-5">
+            <div className="p-2 sm:p-4">
               {isLoading ? (
                 <Skeleton className="h-6 w-32 mb-4" />
               ) : (

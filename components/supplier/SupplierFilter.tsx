@@ -17,13 +17,50 @@ import {
 import { Truck } from "lucide-react";
 import { FilterCommandCheckboxItem } from "@/lib/ui/filter-command-item";
 import { Separator } from "@/components/ui/separator";
+import { SafeAvatarImage } from "@/components/ui/safe-avatar-image";
+import { resolveAvatarSourcesFromSeed } from "@/lib/ui/user-avatar-sources";
+import { AVATAR_RING_CLASS } from "@/lib/ui/avatar-ring-styles";
+import { cn } from "@/lib/utils";
 import { useSuppliers } from "@/hooks/queries";
+
+type SupplierFilterRow = {
+  id: string;
+  name: string;
+  image?: string | null;
+};
+
+/** REQ-0079 — robohash avatar beside supplier name in filter dropdown */
+function SupplierFilterAvatar({
+  id,
+  image,
+  size = 20,
+}: {
+  id: string;
+  image?: string | null;
+  size?: number;
+}) {
+  const avatar = resolveAvatarSourcesFromSeed(id, image ?? null);
+  return (
+    <SafeAvatarImage
+      src={avatar.src}
+      fallbackSrc={avatar.fallbackSrc}
+      width={size}
+      height={size}
+      className={cn(
+        "rounded-full object-cover shrink-0",
+        AVATAR_RING_CLASS,
+        size === 20 ? "h-5 w-5" : undefined,
+      )}
+      alt=""
+    />
+  );
+}
 
 type SuppliersDropDownProps = {
   selectedSuppliers: string[];
   setSelectedSuppliers: React.Dispatch<React.SetStateAction<string[]>>;
   /** When provided (e.g. client browse mode), use these instead of fetching */
-  suppliersOverride?: Array<{ id: string; name: string }>;
+  suppliersOverride?: SupplierFilterRow[];
 };
 
 export function SuppliersDropDown({
@@ -82,8 +119,15 @@ export function SuppliersDropDown({
                     className="h-9 focus:bg-emerald-100 dark:focus:bg-white/10"
                     checkboxClassName="focus:ring-emerald-500/50"
                   >
-                    <div className="flex items-center gap-1 p-1 rounded-lg px-2 text-[14px]">
-                      {supplier.name}
+                    <div className="flex items-center gap-2 min-w-0 px-2 text-sm">
+                      <SupplierFilterAvatar
+                        id={supplier.id}
+                        image={
+                          "image" in supplier ? supplier.image : undefined
+                        }
+                        size={20}
+                      />
+                      <span className="truncate">{supplier.name}</span>
                     </div>
                   </FilterCommandCheckboxItem>
                 ))}

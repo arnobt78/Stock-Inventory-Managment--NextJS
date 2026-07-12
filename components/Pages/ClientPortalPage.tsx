@@ -8,7 +8,6 @@
 import React from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import {
   Table,
   TableBody,
@@ -74,22 +73,25 @@ import {
 import { StatisticsCard } from "@/components/home/StatisticsCard";
 import { isDataSlotLoading, queryKeys, useSyncSsrQueryData } from "@/lib/react-query";
 import { cn } from "@/lib/utils";
-import { PAGE_STATS_GRID_CLASS } from "@/lib/ui/shell-layout-styles";
+import { PAGE_STATS_GRID_CLASS, PAGE_SECTION_SPACING_CLASS } from "@/lib/ui/shell-layout-styles";
+import type { GlassBadgeHue } from "@/lib/ui/glass-badge-styles";
 import { createChartDotLabelRenderer, CHART_LABEL_TOP_MARGIN } from "@/lib/ui/chart-point-label";
 import type { ClientPortalDashboard, ClientCatalogOverview } from "@/types";
 import type { LucideIcon } from "lucide-react";
 
-/** REQ-0077/0078 — catalog subsection title + count badge (valid HTML nesting) */
+/** REQ-0077/0078/0079 — catalog subsection title + glass count badge */
 function CatalogSubsectionTitle({
   icon,
   iconClassName,
   label,
   count,
+  countHue = "slate",
 }: {
   icon: LucideIcon;
   iconClassName: string;
   label: string;
   count?: number;
+  countHue?: GlassBadgeHue;
 }) {
   return (
     <div className="mb-2">
@@ -98,13 +100,8 @@ function CatalogSubsectionTitle({
         as="span"
         icon={icon}
         iconClassName={iconClassName}
-        trailing={
-          count != null ? (
-            <Badge variant="secondary" className="font-normal text-xs">
-              {count}
-            </Badge>
-          ) : undefined
-        }
+        count={count}
+        countHue={countHue}
       />
     </div>
   );
@@ -187,6 +184,7 @@ export default function ClientPortalPage({
             as="h1"
             icon={Store}
             tone="sky"
+            className="pb-0"
             title="Client Portal"
             description={
               <>
@@ -375,7 +373,7 @@ export default function ClientPortalPage({
             />
           </div>
 
-          <div className="pb-6">
+          <div className={PAGE_SECTION_SPACING_CLASS}>
           <article
             className={cn(
               "rounded-[28px] border border-emerald-400/20 dark:border-emerald-400/30 p-2 sm:p-4 backdrop-blur-md transition-all",
@@ -432,7 +430,7 @@ export default function ClientPortalPage({
           </div>
 
           {/* Catalog — glassmorphic */}
-          <div className="pb-6">
+          <div className={PAGE_SECTION_SPACING_CLASS}>
           <article
             id="catalog"
             className={cn(
@@ -532,6 +530,7 @@ export default function ClientPortalPage({
                       iconClassName="text-sky-500"
                       label="Suppliers"
                       count={catalog.meta?.totalSuppliers ?? catalog.suppliers.length}
+                      countHue="sky"
                     />
                     <div className="overflow-x-auto rounded-md border">
                       <Table>
@@ -562,6 +561,7 @@ export default function ClientPortalPage({
                                     seed={s.id}
                                     label={s.name}
                                     href={`/suppliers/${s.id}`}
+                                    linkClassName="font-normal"
                                   />
                                 </TableCell>
                                 <TableCell>
@@ -585,6 +585,7 @@ export default function ClientPortalPage({
                       iconClassName="text-violet-500"
                       label="Categories"
                       count={catalog.meta?.totalCategories ?? catalog.categories.length}
+                      countHue="violet"
                     />
                     <div className="overflow-x-auto rounded-md border">
                       <Table>
@@ -630,6 +631,7 @@ export default function ClientPortalPage({
                                       seed={c.categoryCreatorId}
                                       label={c.categoryCreatorName ?? "—"}
                                       href={`/products?ownerId=${c.categoryCreatorId}`}
+                                      linkClassName="font-normal"
                                     />
                                   ) : (
                                     "—"
@@ -651,6 +653,7 @@ export default function ClientPortalPage({
                       iconClassName="text-emerald-500"
                       label="Products"
                       count={catalog.meta?.totalProducts ?? catalog.products.length}
+                      countHue="emerald"
                     />
                     <div className="overflow-x-auto rounded-md border">
                       <Table>
@@ -702,6 +705,7 @@ export default function ClientPortalPage({
                                     seed={p.supplierId}
                                     label={p.supplierName}
                                     href={`/suppliers/${p.supplierId}`}
+                                    linkClassName="font-normal"
                                   />
                                 </TableCell>
                                 <TableCell>
@@ -711,6 +715,7 @@ export default function ClientPortalPage({
                                       image={p.productOwnerImage}
                                       label={p.productOwnerName ?? "—"}
                                       href={`/products?ownerId=${p.productOwnerId}`}
+                                      linkClassName="font-normal"
                                     />
                                   ) : (
                                     "—"
@@ -738,7 +743,7 @@ export default function ClientPortalPage({
           </article>
           </div>
 
-          <div className="pb-6">
+          <div className={PAGE_SECTION_SPACING_CLASS}>
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-2 sm:gap-4">
             {/* Recent Orders — glassmorphic */}
             <article

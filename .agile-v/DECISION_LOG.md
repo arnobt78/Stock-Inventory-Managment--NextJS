@@ -199,3 +199,5 @@ Format: `TIMESTAMP | AGENT | DECISION | RATIONALE | REQ-ID`
 2026-07-12T13:31:00Z | red-team | REQ-0077 gap gates | lint ✓ test 392 ✓ invalidate 206 ✓ build ✓ | REQ-0077
 2026-07-12T13:45:00Z | build-agent | REQ-0078 AC1–AC3 | SectionTitleRow; fix Badge nesting in ClientPortal, ProductReviews, ProductDetail | REQ-0078
 2026-07-12T13:46:00Z | red-team | REQ-0078 gates | lint ✓ test 392 ✓ invalidate 206 ✓ build ✓ | REQ-0078
+2026-07-12T14:21:00Z | build-agent | REQ-0079 AC1–AC9 | SectionCountBadge, ListIndexBadge, spacing tokens, client browse/detail polish | REQ-0079
+2026-07-12T14:21:00Z | red-team | REQ-0079 gates | lint ✓ test 392 ✓ invalidate 206 ✓ build ✓ | REQ-0079

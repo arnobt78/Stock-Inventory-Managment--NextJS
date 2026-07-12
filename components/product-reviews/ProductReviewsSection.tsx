@@ -3,7 +3,6 @@
 import React, { useState } from "react";
 import { SafeAvatarImage } from "@/components/ui/safe-avatar-image";
 import { resolveAvatarSourcesFromSeed } from "@/lib/ui/user-avatar-sources";
-import { Badge } from "@/components/ui/badge";
 import { CARD_EMPTY_MESSAGE_CLASS } from "@/lib/ui/card-empty-styles";
 import { SectionTitleRow } from "@/lib/ui/section-title-row";
 import { Button } from "@/components/ui/button";
@@ -224,7 +223,7 @@ export default function ProductReviewsSection({
   return (
     <article
       className={cn(
-        "rounded-[20px] border p-4 sm:p-5 backdrop-blur-md",
+        "rounded-[20px] border p-2 sm:p-4 backdrop-blur-md",
         "bg-white/60 dark:bg-white/5",
         config.border,
         config.gradient,
@@ -239,13 +238,8 @@ export default function ProductReviewsSection({
           <SectionTitleRow
             as="h3"
             title="Reviews"
-            trailing={
-              !reviewsLoading ? (
-                <Badge variant="secondary" className="font-normal text-xs">
-                  {reviewsToShow.length}
-                </Badge>
-              ) : undefined
-            }
+            count={!reviewsLoading ? reviewsToShow.length : undefined}
+            countHue="amber"
           />
         </div>
         {user && (

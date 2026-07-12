@@ -1706,6 +1706,36 @@ Canonical REQ source. All artifacts link via `REQ-XXXX`. Status: `done` | `verif
 
 ---
 
+## REQ-0079 — Client-role UI polish + shared tokens
+
+| Field | Value |
+|-------|-------|
+| **Priority** | P1 |
+| **Risk** | R1 |
+| **Status** | done |
+| **Cycle** | C2 |
+| **Parent** | REQ-0077 |
+
+**Intent:** Client portal/browse/detail UX from QA screenshots — font-normal catalog links, glass counter badges, supplier avatars, owner dropdown email format, consistent section spacing, product detail recent-orders polish.
+
+**Acceptance criteria**
+
+- AC1: Client portal supplier/owner `AvatarInlineLink` → `font-normal` (match category/product links)
+- AC2: `SectionCountBadge` + glass counter sweep (SectionTitleRow, StatisticsCard, catalog subsections)
+- AC3: Product table supplier column + supplier filter dropdown → avatar beside name
+- AC4: ProductOwnerSelect email → `{name}. {email}` muted (no brackets)
+- AC5: Detail/static pages — `APP_SHELL_DETAIL_CLASS` gap-6 + `DETAIL_PAGE_HEADER_SPACING_CLASS` (no double header gap)
+- AC6: ClientProductList browse header spacing aligned with portal rhythm
+- AC7: ProductDetailPage warehouse count badges glass teal; recent orders ListIndexBadge + text-sm order# + inline owner/buyer
+- AC8: `ListIndexBadge` numbered circle (gray-600/white light, inverted dark)
+- AC9: Red Team lint/test/invalidate/build pass
+
+**Artifacts:** `SectionCountBadge.tsx`, `ListIndexBadge.tsx`, `section-title-row.tsx`, `shell-layout-styles.ts`, `ClientPortalPage.tsx`, `ClientProductList.tsx`, `ProductTableColumns.tsx`, `ProductOwnerSelect.tsx`, `SupplierFilter.tsx`, `StatisticsCard.tsx`, detail pages + ApiDocs/ApiStatus
+
+---
+
+## REQ-0020 — Locale-aware admin format (hydration-safe)
+
 | Field | Value |
 |-------|-------|
 | **Priority** | P1 |

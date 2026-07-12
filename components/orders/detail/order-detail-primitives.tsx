@@ -109,7 +109,7 @@ export function GlassCard({
   return (
     <article
       className={cn(
-        "group rounded-[20px] border p-4 sm:p-5 backdrop-blur-md transition-all duration-300",
+        "group rounded-[20px] border p-2 sm:p-4 backdrop-blur-md transition-all duration-300",
         "bg-white/60 dark:bg-white/5",
         config.border,
         config.gradient,
@@ -224,7 +224,11 @@ export function DetailInfoRow({
       <Icon className={cn("h-4 w-4 shrink-0", styles.icon)} />
       <span className="text-gray-600 dark:text-gray-400">{label}</span>
       <span className="font-medium text-gray-700 dark:text-white">
-        {loading ? <DataSlotPulse variant="text-sm" className="w-24" /> : children}
+        {loading ? (
+          <DataSlotPulse variant="text-sm" className="w-24" />
+        ) : (
+          children
+        )}
       </span>
     </div>
   );

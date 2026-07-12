@@ -64,7 +64,7 @@ import type { UserDetailForPage } from "@/hooks/queries/use-user-management";
 import { cn } from "@/lib/utils";
 import { UserRoleBadge, userRoleBadgeClass } from "@/lib/ui/semantic-badges";
 import { GlassCard, DetailInfoRow } from "@/components/orders/detail";
-import { APP_SHELL_DETAIL_CLASS } from "@/lib/ui/shell-layout-styles";
+import { APP_SHELL_DETAIL_CLASS, DETAIL_PAGE_HEADER_SPACING_CLASS } from "@/lib/ui/shell-layout-styles";
 
 const PROTECTED_EMAILS = [
   "test@admin.com",
@@ -216,6 +216,7 @@ export default function AdminUserManagementDetailContent({
       <div className={APP_SHELL_DETAIL_CLASS}>
         <PageSectionHeader
           as="h1"
+          className={DETAIL_PAGE_HEADER_SPACING_CLASS}
           tone="violet"
           icon={UserCog}
           leading={

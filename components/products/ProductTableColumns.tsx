@@ -6,7 +6,7 @@ import { Product } from "@/types";
 import { Column, ColumnDef } from "@tanstack/react-table";
 //import { ReactNode } from "react";
 
-import { CopyableText } from "@/components/shared";
+import { CopyableText, AvatarInlineLink } from "@/components/shared";
 import ProductsDropDown from "@/components/products/ProductActions";
 
 import {
@@ -286,16 +286,17 @@ export function createProductColumns(
                   : (product.supplier as string | undefined) || "Unknown";
               if (product.supplierId) {
                 return (
-                  <Link
+                  <AvatarInlineLink
+                    seed={product.supplierId}
+                    label={supplierName}
                     href={detailHref(
                       detailBase,
                       "suppliers",
                       product.supplierId,
                     )}
-                    className="font-normal text-sky-600 dark:text-sky-400 hover:text-sky-500 dark:hover:text-sky-300"
-                  >
-                    {supplierName}
-                  </Link>
+                    size={24}
+                    linkClassName="font-normal text-sky-600 dark:text-sky-400 hover:text-sky-500 dark:hover:text-sky-300"
+                  />
                 );
               }
               return <span>{supplierName}</span>;

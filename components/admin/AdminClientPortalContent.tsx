@@ -17,7 +17,11 @@ import {
   DataSlotPulse,
 } from "@/components/shared";
 import { useClientPortal } from "@/hooks/queries";
-import { isDataSlotLoading, queryKeys, useSyncSsrQueryData } from "@/lib/react-query";
+import {
+  isDataSlotLoading,
+  queryKeys,
+  useSyncSsrQueryData,
+} from "@/lib/react-query";
 import {
   Users,
   ShoppingCart,
@@ -109,7 +113,7 @@ function GlassCard({
   return (
     <article
       className={cn(
-        "group rounded-[20px] border p-4 sm:p-5 backdrop-blur-md transition-all duration-300 bg-white/60 dark:bg-white/5",
+        "group rounded-[20px] border p-2 sm:p-4 backdrop-blur-md transition-all duration-300 bg-white/60 dark:bg-white/5",
         config.border,
         config.gradient,
         config.shadow,
@@ -226,7 +230,10 @@ export default function AdminClientPortalContent({
                 {(stats?.recentOrders ?? []).map((o) => (
                   <li key={o.id} className={CARD_LIST_ROW_CLASS}>
                     <div className="min-w-0">
-                      <CopyableText value={o.orderNumber} className="max-w-full">
+                      <CopyableText
+                        value={o.orderNumber}
+                        className="max-w-full"
+                      >
                         <Link
                           href={`/admin/orders/${o.id}`}
                           className="font-normal text-xs text-sky-600 dark:text-sky-400 hover:text-sky-500 dark:hover:text-sky-300 truncate block"
@@ -302,7 +309,10 @@ export default function AdminClientPortalContent({
                 {(stats?.recentInvoices ?? []).map((i) => (
                   <li key={i.id} className={CARD_LIST_ROW_CLASS}>
                     <div className="min-w-0">
-                      <CopyableText value={i.invoiceNumber} className="max-w-full">
+                      <CopyableText
+                        value={i.invoiceNumber}
+                        className="max-w-full"
+                      >
                         <Link
                           href={`/admin/invoices/${i.id}`}
                           className="font-normal text-xs text-sky-600 dark:text-sky-400 hover:text-sky-500 dark:hover:text-sky-300 truncate block"

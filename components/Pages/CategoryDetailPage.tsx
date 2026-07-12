@@ -55,9 +55,13 @@ import CategoryDialog from "@/components/category/CategoryDialog";
 import { AlertDialogWrapper } from "@/components/dialogs";
 import type { Category } from "@/types";
 import { SafeImage } from "@/components/ui/safe-image";
-import { isDataSlotLoading, queryKeys, useSyncSsrQueryData } from "@/lib/react-query";
+import {
+  isDataSlotLoading,
+  queryKeys,
+  useSyncSsrQueryData,
+} from "@/lib/react-query";
 import { cn } from "@/lib/utils";
-import { APP_SHELL_DETAIL_CLASS } from "@/lib/ui/shell-layout-styles";
+import { APP_SHELL_DETAIL_CLASS, DETAIL_PAGE_HEADER_SPACING_CLASS } from "@/lib/ui/shell-layout-styles";
 
 /**
  * Color variants for glassmorphic cards
@@ -171,7 +175,7 @@ function GlassCard({
   return (
     <article
       className={cn(
-        "group rounded-[20px] border p-4 sm:p-5 backdrop-blur-md transition-all duration-300",
+        "group rounded-[20px] border p-2 sm:p-4 backdrop-blur-md transition-all duration-300",
         "bg-white/60 dark:bg-white/5",
         config.border,
         config.gradient,
@@ -207,10 +211,7 @@ export default function CategoryDetailPage({
   const category = categoryQuery.data;
   const dataLoading = isDataSlotLoading(categoryQuery, initialCategory);
 
-  useSyncSsrQueryData(
-    queryKeys.categories.detail(categoryId),
-    initialCategory,
-  );
+  useSyncSsrQueryData(queryKeys.categories.detail(categoryId), initialCategory);
 
   const createCategoryMutation = useCreateCategory();
   const deleteCategoryMutation = useDeleteCategory();
@@ -239,15 +240,13 @@ export default function CategoryDetailPage({
   // Duplicate: create a copy (same as CategoryActions, use mutate + callbacks to avoid unhandled rejection)
   const handleDuplicateCategory = () => {
     if (!category || !user?.id) return;
-    createCategoryMutation.mutate(
-      {
-        name: `${category.name} (copy)`,
-        userId: user.id,
-        status: category.status ?? true,
-        description: category.description ?? undefined,
-        notes: category.notes ?? undefined,
-      },
-    );
+    createCategoryMutation.mutate({
+      name: `${category.name} (copy)`,
+      userId: user.id,
+      status: category.status ?? true,
+      description: category.description ?? undefined,
+      notes: category.notes ?? undefined,
+    });
   };
 
   // Delete: confirm then delete (same pattern as SupplierActions / CategoryActions)
@@ -342,6 +341,7 @@ export default function CategoryDetailPage({
         <div className={APP_SHELL_DETAIL_CLASS}>
           <PageSectionHeader
             as="h1"
+            className={DETAIL_PAGE_HEADER_SPACING_CLASS}
             tone="amber"
             icon={Tag}
             leading={
@@ -406,9 +406,16 @@ export default function CategoryDetailPage({
                     </CopyableText>
                   </DetailInfoRow>
                 )}
-                <DetailInfoRow icon={Tag} label="Name:" tone="orange" loading={dataLoading}>
+                <DetailInfoRow
+                  icon={Tag}
+                  label="Name:"
+                  tone="orange"
+                  loading={dataLoading}
+                >
                   {!dataLoading && category?.name && (
-                    <CopyableText value={category.name}>{category.name}</CopyableText>
+                    <CopyableText value={category.name}>
+                      {category.name}
+                    </CopyableText>
                   )}
                 </DetailInfoRow>
                 {!dataLoading && category && (
@@ -436,17 +443,33 @@ export default function CategoryDetailPage({
                     </p>
                   </div>
                 )}
-                <DetailInfoRow icon={Calendar} label="Created:" tone="teal" loading={dataLoading}>
+                <DetailInfoRow
+                  icon={Calendar}
+                  label="Created:"
+                  tone="teal"
+                  loading={dataLoading}
+                >
                   {!dataLoading && <ClientDateTime date={createdAt} />}
                 </DetailInfoRow>
                 {(dataLoading || updatedAt) && (
-                  <DetailInfoRow icon={Calendar} label="Updated:" tone="sky" loading={dataLoading}>
-                    {!dataLoading && updatedAt && <ClientDateTime date={updatedAt} />}
+                  <DetailInfoRow
+                    icon={Calendar}
+                    label="Updated:"
+                    tone="sky"
+                    loading={dataLoading}
+                  >
+                    {!dataLoading && updatedAt && (
+                      <ClientDateTime date={updatedAt} />
+                    )}
                   </DetailInfoRow>
                 )}
                 {!dataLoading && category?.creator && (
                   <>
-                    <DetailInfoRow icon={User} label="Created by:" tone="violet">
+                    <DetailInfoRow
+                      icon={User}
+                      label="Created by:"
+                      tone="violet"
+                    >
                       <AvatarInlineLink
                         seed={category.creator.id}
                         image={category.creator.image}
@@ -454,7 +477,11 @@ export default function CategoryDetailPage({
                         href={ownerProductsHref(category.creator.id)}
                       />
                     </DetailInfoRow>
-                    <DetailInfoRow icon={Mail} label="Creator email:" tone="violet">
+                    <DetailInfoRow
+                      icon={Mail}
+                      label="Creator email:"
+                      tone="violet"
+                    >
                       <CopyableText value={category.creator.email}>
                         {category.creator.email}
                       </CopyableText>
@@ -466,7 +493,11 @@ export default function CategoryDetailPage({
                     <DetailInfoRow icon={User} label="Updated by:" tone="blue">
                       {category.updater.name}
                     </DetailInfoRow>
-                    <DetailInfoRow icon={Mail} label="Updater email:" tone="blue">
+                    <DetailInfoRow
+                      icon={Mail}
+                      label="Updater email:"
+                      tone="blue"
+                    >
                       {category.updater.email}
                     </DetailInfoRow>
                   </>

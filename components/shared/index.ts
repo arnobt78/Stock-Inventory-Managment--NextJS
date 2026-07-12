@@ -131,3 +131,7 @@ export {
   SECTION_TITLE_ROW_CLASS,
 } from "@/lib/ui/section-title-row";
 export type { SectionTitleRowProps } from "@/lib/ui/section-title-row";
+export { SectionCountBadge } from "./SectionCountBadge";
+export type { SectionCountBadgeProps } from "./SectionCountBadge";
+export { ListIndexBadge } from "./ListIndexBadge";
+export type { ListIndexBadgeProps } from "./ListIndexBadge";

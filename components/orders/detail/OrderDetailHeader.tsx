@@ -11,6 +11,7 @@ import {
   PageSectionHeader,
   DETAIL_HEADER_BACK_ICON_CLASS,
 } from "@/components/shared";
+import { DETAIL_PAGE_HEADER_SPACING_CLASS } from "@/lib/ui/shell-layout-styles";
 
 export type OrderDetailHeaderProps = {
   orderNumber?: string;
@@ -52,6 +53,7 @@ export function OrderDetailHeader({
   return (
     <PageSectionHeader
       as="h1"
+      className={DETAIL_PAGE_HEADER_SPACING_CLASS}
       leading={backButton}
       icon={ShoppingCart}
       tone="sky"

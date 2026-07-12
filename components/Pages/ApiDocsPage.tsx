@@ -22,11 +22,16 @@ import {
   Users,
 } from "lucide-react";
 import Navbar from "@/components/layouts/Navbar";
-import { PageContentWrapper, PageSectionHeader, SectionCardHeader } from "@/components/shared";
+import {
+  PageContentWrapper,
+  PageSectionHeader,
+  SectionCardHeader,
+} from "@/components/shared";
 import { CopyCodeButton } from "@/components/shared";
 import type { SectionHeaderTone } from "@/lib/ui/section-header-tones";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { cn } from "@/lib/utils";
+import { DETAIL_PAGE_HEADER_SPACING_CLASS } from "@/lib/ui/shell-layout-styles";
 
 /** Slug for tab value from section name */
 function getTabValue(name: string): string {
@@ -1206,10 +1211,11 @@ export default function ApiDocsPage() {
   return (
     <Navbar>
       <PageContentWrapper>
-        <div className="space-y-4">
+        <div className="flex flex-col gap-6">
           {/* Header — PageSectionHeader parity (REQ-0075 AC3) */}
           <PageSectionHeader
             as="h1"
+            className={DETAIL_PAGE_HEADER_SPACING_CLASS}
             icon={BookOpen}
             tone="blue"
             title="Stock API Documentation"
@@ -1223,7 +1229,7 @@ export default function ApiDocsPage() {
                 {[1, 2, 3, 4].map((i) => (
                   <article
                     key={i}
-                    className="rounded-[20px] border border-gray-300/30 dark:border-white/10 bg-gradient-to-br from-gray-100/50 via-gray-100/30 to-gray-100/20 dark:from-white/5 dark:via-white/5 dark:to-white/5 min-h-[120px] p-4 sm:p-5 animate-pulse"
+                    className="rounded-[20px] border border-gray-300/30 dark:border-white/10 bg-gradient-to-br from-gray-100/50 via-gray-100/30 to-gray-100/20 dark:from-white/5 dark:via-white/5 dark:to-white/5 min-h-[120px] p-2 sm:p-4 animate-pulse"
                   >
                     <Skeleton className="h-9 w-9 rounded-xl mb-3" />
                     <Skeleton className="h-5 w-24 mb-2" />
@@ -1235,7 +1241,7 @@ export default function ApiDocsPage() {
               <>
                 {/* Base URL */}
                 <GlassCard variant="blue">
-                  <div className="p-4 sm:p-5">
+                  <div className="p-2 sm:p-4">
                     <SectionCardHeader
                       icon={Code2}
                       tone="blue"
@@ -1250,7 +1256,7 @@ export default function ApiDocsPage() {
 
                 {/* Authentication */}
                 <GlassCard variant="violet">
-                  <div className="p-4 sm:p-5">
+                  <div className="p-2 sm:p-4">
                     <SectionCardHeader
                       icon={Key}
                       tone="violet"
@@ -1268,7 +1274,7 @@ export default function ApiDocsPage() {
 
                 {/* Rate Limiting */}
                 <GlassCard variant="amber">
-                  <div className="p-4 sm:p-5">
+                  <div className="p-2 sm:p-4">
                     <SectionCardHeader
                       icon={Zap}
                       tone="amber"
@@ -1284,7 +1290,7 @@ export default function ApiDocsPage() {
 
                 {/* OpenAPI */}
                 <GlassCard variant="teal">
-                  <div className="p-4 sm:p-5">
+                  <div className="p-2 sm:p-4">
                     <SectionCardHeader
                       icon={FileJson}
                       tone="teal"
@@ -1341,7 +1347,7 @@ export default function ApiDocsPage() {
                   className="mt-4 focus-visible:outline-none"
                 >
                   <GlassCard variant={variant}>
-                    <div className="p-4 sm:p-5">
+                    <div className="p-2 sm:p-4">
                       <SectionCardHeader
                         icon={section.icon}
                         tone={variant as SectionHeaderTone}
@@ -1473,7 +1479,7 @@ export default function ApiDocsPage() {
               className="mt-4 focus-visible:outline-none"
             >
               <GlassCard variant="sky">
-                <div className="p-4 sm:p-5">
+                <div className="p-2 sm:p-4">
                   <SectionCardHeader
                     icon={Database}
                     tone="sky"
@@ -1541,7 +1547,7 @@ export default function ApiDocsPage() {
               className="mt-4 focus-visible:outline-none"
             >
               <GlassCard variant="rose">
-                <div className="p-4 sm:p-5">
+                <div className="p-2 sm:p-4">
                   <SectionCardHeader
                     icon={AlertCircle}
                     tone="rose"

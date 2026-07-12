@@ -28,7 +28,7 @@ type FiltersAndActionsProps = {
   /** When provided, pass to CategoryDropDown (e.g. client browse mode) */
   categoriesOverride?: Array<{ id: string; name: string }>;
   /** When provided, pass to SuppliersDropDown (e.g. client browse mode) */
-  suppliersOverride?: Array<{ id: string; name: string }>;
+  suppliersOverride?: Array<{ id: string; name: string; image?: string | null }>;
   /** When true, hide Import (e.g. client browse mode) */
   hideImport?: boolean;
   /** When provided (e.g. client browse), show Product Owner dropdown in filter row */

@@ -27,7 +27,7 @@ import {
   ClientDateTime,
 } from "@/components/shared";
 import { GlassCard, DetailInfoRow } from "@/components/orders/detail";
-import { APP_SHELL_DETAIL_CLASS } from "@/lib/ui/shell-layout-styles";
+import { APP_SHELL_DETAIL_CLASS, DETAIL_PAGE_HEADER_SPACING_CLASS } from "@/lib/ui/shell-layout-styles";
 import { cn } from "@/lib/utils";
 import { isDataSlotLoading, queryKeys, useSyncSsrQueryData } from "@/lib/react-query";
 import {
@@ -131,6 +131,7 @@ export default function AdminHistoryDetailContent({
       <div className={APP_SHELL_DETAIL_CLASS}>
         <PageSectionHeader
           as="h1"
+          className={DETAIL_PAGE_HEADER_SPACING_CLASS}
           tone="violet"
           icon={FileText}
           leading={

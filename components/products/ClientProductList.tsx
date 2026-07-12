@@ -6,7 +6,7 @@ import { PaginationType } from "@/components/shared/PaginationSelector";
 import { columns } from "./ProductTableColumns";
 import { useClientBrowseMeta, useClientBrowseProducts } from "@/hooks/queries";
 import { isDataSlotLoading, queryKeys, useSyncSsrQueryData } from "@/lib/react-query";
-import { PAGE_STATS_GRID_CLASS, APP_SHELL_WIDTH_CLASS } from "@/lib/ui/shell-layout-styles";
+import { PAGE_STATS_GRID_CLASS, APP_SHELL_WIDTH_CLASS, PAGE_SECTION_SPACING_CLASS } from "@/lib/ui/shell-layout-styles";
 import type {
   Product,
   Category,
@@ -111,7 +111,7 @@ export default function ClientProductList({
     !!selectedOwnerId && isDataSlotLoading(productsQuery);
 
   return (
-    <div className="flex flex-col poppins space-y-4">
+    <div className="flex flex-col poppins">
       {/* Stat Cards */}
       <div className={cn(PAGE_STATS_GRID_CLASS, "grid-cols-1 sm:grid-cols-2 lg:grid-cols-4")}>
         <StatisticsCard
@@ -169,7 +169,7 @@ export default function ClientProductList({
         description="Explore products from our store. Filter by category, supplier, or status, or choose a product owner to browse their catalog."
       />
 
-      <div className="pb-2 flex justify-center">
+      <div className={cn(PAGE_SECTION_SPACING_CLASS, "flex justify-center")}>
         <div className={APP_SHELL_WIDTH_CLASS}>
           <ProductFilters
             searchTerm={searchTerm}

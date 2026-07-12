@@ -126,6 +126,7 @@ export default function SupplierPortalPage({
             as="h1"
             icon={Truck}
             tone="emerald"
+            className="pb-0"
             title="Supplier Portal"
             description={
               <>

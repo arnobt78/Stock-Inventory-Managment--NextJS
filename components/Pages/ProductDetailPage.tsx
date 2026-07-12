@@ -31,7 +31,6 @@ import {
   Hash,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import {
   OrderStatusBadge,
   ProductStockStatusBadge,
@@ -63,13 +62,24 @@ import {
   DETAIL_HEADER_BACK_ICON_CLASS,
   DialogSubmitButton,
   SectionTitleRow,
+  SectionCountBadge,
+  ListIndexBadge,
 } from "@/components/shared";
 import { DetailInfoRow } from "@/components/orders/detail";
-import { isDataSlotLoading, queryKeys, useSyncSsrQueryDataMany } from "@/lib/react-query";
-import type { Product, ProductStatus, ProductReview, StockAllocation } from "@/types";
+import {
+  isDataSlotLoading,
+  queryKeys,
+  useSyncSsrQueryDataMany,
+} from "@/lib/react-query";
+import type {
+  Product,
+  ProductStatus,
+  ProductReview,
+  StockAllocation,
+} from "@/types";
 import type { ReviewEligibilityResult } from "@/lib/server/product-reviews-detail-data";
 import { cn } from "@/lib/utils";
-import { APP_SHELL_DETAIL_CLASS } from "@/lib/ui/shell-layout-styles";
+import { APP_SHELL_DETAIL_CLASS, DETAIL_PAGE_HEADER_SPACING_CLASS } from "@/lib/ui/shell-layout-styles";
 import { CARD_EMPTY_MESSAGE_CLASS } from "@/lib/ui/card-empty-styles";
 import { SafeImage } from "@/components/ui/safe-image";
 import ProductFormDialog from "@/components/products/ProductFormDialog";
@@ -241,7 +251,10 @@ export default function ProductDetailPage({
   );
 
   useSyncSsrQueryDataMany([
-    { queryKey: queryKeys.products.detail(productId), serverData: initialProduct },
+    {
+      queryKey: queryKeys.products.detail(productId),
+      serverData: initialProduct,
+    },
     {
       queryKey: queryKeys.stockAllocation.byProduct(productId),
       serverData: initialStockByProduct,
@@ -295,18 +308,16 @@ export default function ProductDetailPage({
   const handleDuplicateProduct = () => {
     if (!product) return;
     const uniqueSku = `${product?.sku}-${Date.now()}`;
-    createProductMutation.mutate(
-      {
-        name: `${product?.name} (copy)`,
-        sku: uniqueSku,
-        price: product?.price,
-        quantity: product?.quantity,
-        status: (product?.status as ProductStatus) || "Available",
-        categoryId: product?.categoryId,
-        supplierId: product?.supplierId,
-        userId: product?.userId,
-      },
-    );
+    createProductMutation.mutate({
+      name: `${product?.name} (copy)`,
+      sku: uniqueSku,
+      price: product?.price,
+      quantity: product?.quantity,
+      status: (product?.status as ProductStatus) || "Available",
+      categoryId: product?.categoryId,
+      supplierId: product?.supplierId,
+      userId: product?.userId,
+    });
   };
 
   // Delete: confirm then delete (same as ProductActions)
@@ -376,6 +387,7 @@ export default function ProductDetailPage({
           {/* Header */}
           <PageSectionHeader
             as="h1"
+            className={DETAIL_PAGE_HEADER_SPACING_CLASS}
             tone="rose"
             icon={Package}
             leading={
@@ -392,7 +404,9 @@ export default function ProductDetailPage({
               dataLoading ? (
                 <DataSlotPulse variant="text-lg" className="w-48" />
               ) : (
-                <CopyableText value={product!.name}>{product!.name}</CopyableText>
+                <CopyableText value={product!.name}>
+                  {product!.name}
+                </CopyableText>
               )
             }
             description={
@@ -401,7 +415,9 @@ export default function ProductDetailPage({
               ) : (
                 <>
                   SKU:{" "}
-                  <CopyableText value={product!.sku}>{product!.sku}</CopyableText>{" "}
+                  <CopyableText value={product!.sku}>
+                    {product!.sku}
+                  </CopyableText>{" "}
                   • Created <ClientRelativeTime date={createdAt} />
                 </>
               )
@@ -412,7 +428,7 @@ export default function ProductDetailPage({
           <div className="grid grid-cols-1 md:grid-cols-2 gap-2 sm:gap-4">
             {/* Product Image */}
             <GlassCard variant="sky">
-              <div className="p-4 sm:p-5">
+              <div className="p-2 sm:p-4">
                 <div className="flex items-center gap-2 mb-4">
                   <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-sky-300/30 bg-sky-100/50 dark:border-white/15 dark:bg-white/10">
                     <ImageIcon className="h-4 w-4 text-gray-700 dark:text-white" />
@@ -443,7 +459,7 @@ export default function ProductDetailPage({
 
             {/* QR Code / Barcode */}
             <GlassCard variant="violet">
-              <div className="p-4 sm:p-5">
+              <div className="p-2 sm:p-4">
                 <div className="flex items-center gap-2 mb-4">
                   <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-violet-300/30 bg-violet-100/50 dark:border-white/15 dark:bg-white/10">
                     <QrCode className="h-4 w-4 text-gray-700 dark:text-white" />
@@ -476,7 +492,7 @@ export default function ProductDetailPage({
           {/* Product Status Cards */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
             <GlassCard variant="emerald">
-              <div className="p-4 sm:p-5">
+              <div className="p-2 sm:p-4">
                 <p className="text-xs uppercase tracking-[0.2em] text-gray-600 dark:text-white/60 mb-3">
                   Status
                 </p>
@@ -490,7 +506,7 @@ export default function ProductDetailPage({
             </GlassCard>
 
             <GlassCard variant="amber">
-              <div className="p-4 sm:p-5">
+              <div className="p-2 sm:p-4">
                 <p className="text-xs uppercase tracking-[0.2em] text-gray-600 dark:text-white/60 mb-3">
                   Stock
                 </p>
@@ -510,7 +526,7 @@ export default function ProductDetailPage({
             </GlassCard>
 
             <GlassCard variant="blue">
-              <div className="p-4 sm:p-5">
+              <div className="p-2 sm:p-4">
                 <p className="text-xs uppercase tracking-[0.2em] text-gray-600 dark:text-white/60 mb-3">
                   Price
                 </p>
@@ -525,7 +541,7 @@ export default function ProductDetailPage({
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-2 sm:gap-4">
             {/* Product Information */}
             <GlassCard variant="teal">
-              <div className="p-4 sm:p-5">
+              <div className="p-2 sm:p-4">
                 <div className="flex items-center gap-2 mb-4">
                   <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-teal-300/30 bg-teal-100/50 dark:border-white/15 dark:bg-white/10">
                     <Package className="h-4 w-4 text-gray-700 dark:text-white" />
@@ -536,19 +552,34 @@ export default function ProductDetailPage({
                 </div>
                 <div className="space-y-2">
                   {!dataLoading && product && (
-                    <DetailInfoRow icon={Hash} label="Product ID:" tone="violet">
+                    <DetailInfoRow
+                      icon={Hash}
+                      label="Product ID:"
+                      tone="violet"
+                    >
                       <CopyableText value={product.id}>
                         <span className="font-mono text-xs">{product.id}</span>
                       </CopyableText>
                     </DetailInfoRow>
                   )}
-                  <DetailInfoRow icon={Tag} label="SKU:" tone="teal" loading={dataLoading}>
+                  <DetailInfoRow
+                    icon={Tag}
+                    label="SKU:"
+                    tone="teal"
+                    loading={dataLoading}
+                  >
                     {!dataLoading && product?.sku && (
-                      <CopyableText value={product.sku}>{product.sku}</CopyableText>
+                      <CopyableText value={product.sku}>
+                        {product.sku}
+                      </CopyableText>
                     )}
                   </DetailInfoRow>
                   {!dataLoading && product && (
-                    <DetailInfoRow icon={Package} label="Status:" tone="emerald">
+                    <DetailInfoRow
+                      icon={Package}
+                      label="Status:"
+                      tone="emerald"
+                    >
                       <ProductStockStatusBadge
                         status={product.status ?? "available"}
                         label={product.status || "N/A"}
@@ -576,7 +607,11 @@ export default function ProductDetailPage({
                   {!dataLoading &&
                     product?.supplier &&
                     typeof product.supplier === "object" && (
-                      <DetailInfoRow icon={Truck} label="Supplier:" tone="orange">
+                      <DetailInfoRow
+                        icon={Truck}
+                        label="Supplier:"
+                        tone="orange"
+                      >
                         <AvatarInlineLink
                           seed={product.supplier.id}
                           label={product.supplier.name}
@@ -588,31 +623,60 @@ export default function ProductDetailPage({
                         />
                       </DetailInfoRow>
                     )}
-                  <DetailInfoRow icon={Calendar} label="Created:" tone="teal" loading={dataLoading}>
+                  <DetailInfoRow
+                    icon={Calendar}
+                    label="Created:"
+                    tone="teal"
+                    loading={dataLoading}
+                  >
                     {!dataLoading && <ClientDateTime date={createdAt} />}
                   </DetailInfoRow>
                   {(dataLoading || updatedAt) && (
-                    <DetailInfoRow icon={Calendar} label="Updated:" tone="sky" loading={dataLoading}>
-                      {!dataLoading && updatedAt && <ClientDateTime date={updatedAt} />}
+                    <DetailInfoRow
+                      icon={Calendar}
+                      label="Updated:"
+                      tone="sky"
+                      loading={dataLoading}
+                    >
+                      {!dataLoading && updatedAt && (
+                        <ClientDateTime date={updatedAt} />
+                      )}
                     </DetailInfoRow>
                   )}
                   {!dataLoading && expirationDate && (
-                    <DetailInfoRow icon={Calendar} label="Expiration:" tone="amber">
+                    <DetailInfoRow
+                      icon={Calendar}
+                      label="Expiration:"
+                      tone="amber"
+                    >
                       <ClientDate date={expirationDate} />
                     </DetailInfoRow>
                   )}
                   {!dataLoading && product && (
                     <>
-                      <DetailInfoRow icon={Package} label="Stock qty:" tone="blue">
+                      <DetailInfoRow
+                        icon={Package}
+                        label="Stock qty:"
+                        tone="blue"
+                      >
                         {product.quantity ?? 0}
                       </DetailInfoRow>
                       {(product.reservedQuantity ?? 0) > 0 && (
-                        <DetailInfoRow icon={Package} label="Reserved:" tone="violet">
+                        <DetailInfoRow
+                          icon={Package}
+                          label="Reserved:"
+                          tone="violet"
+                        >
                           {product.reservedQuantity}
                         </DetailInfoRow>
                       )}
-                      <DetailInfoRow icon={Package} label="Available:" tone="emerald">
-                        {(product.quantity ?? 0) - (product.reservedQuantity ?? 0)}
+                      <DetailInfoRow
+                        icon={Package}
+                        label="Available:"
+                        tone="emerald"
+                      >
+                        {(product.quantity ?? 0) -
+                          (product.reservedQuantity ?? 0)}
                       </DetailInfoRow>
                     </>
                   )}
@@ -623,7 +687,11 @@ export default function ProductDetailPage({
                   )}
                   {!dataLoading && product?.creator && (
                     <>
-                      <DetailInfoRow icon={User} label="Created by:" tone="violet">
+                      <DetailInfoRow
+                        icon={User}
+                        label="Created by:"
+                        tone="violet"
+                      >
                         <AvatarInlineLink
                           seed={product.creator.id}
                           image={product.creator.image}
@@ -631,7 +699,11 @@ export default function ProductDetailPage({
                           href={ownerProductsHref(product.creator.id)}
                         />
                       </DetailInfoRow>
-                      <DetailInfoRow icon={Mail} label="Creator email:" tone="violet">
+                      <DetailInfoRow
+                        icon={Mail}
+                        label="Creator email:"
+                        tone="violet"
+                      >
                         <CopyableText value={product.creator.email}>
                           {product.creator.email}
                         </CopyableText>
@@ -640,10 +712,18 @@ export default function ProductDetailPage({
                   )}
                   {!dataLoading && product?.updater && (
                     <>
-                      <DetailInfoRow icon={User} label="Updated by:" tone="blue">
+                      <DetailInfoRow
+                        icon={User}
+                        label="Updated by:"
+                        tone="blue"
+                      >
                         {product.updater.name}
                       </DetailInfoRow>
-                      <DetailInfoRow icon={Mail} label="Updater email:" tone="blue">
+                      <DetailInfoRow
+                        icon={Mail}
+                        label="Updater email:"
+                        tone="blue"
+                      >
                         {product.updater.email}
                       </DetailInfoRow>
                     </>
@@ -654,7 +734,7 @@ export default function ProductDetailPage({
 
             {/* Sales Statistics */}
             <GlassCard variant="orange">
-              <div className="p-4 sm:p-5">
+              <div className="p-2 sm:p-4">
                 <div className="flex items-center gap-2 mb-2">
                   <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-orange-300/30 bg-orange-100/50 dark:border-white/15 dark:bg-white/10">
                     <BarChart3 className="h-4 w-4 text-gray-700 dark:text-white" />
@@ -669,20 +749,40 @@ export default function ProductDetailPage({
                   </div>
                 </div>
                 <div className="space-y-2 mt-4">
-                  <DetailInfoRow icon={Package} label="Total Quantity Sold:" tone="emerald" loading={dataLoading}>
+                  <DetailInfoRow
+                    icon={Package}
+                    label="Total Quantity Sold:"
+                    tone="emerald"
+                    loading={dataLoading}
+                  >
                     {!dataLoading && stats.totalQuantitySold}
                   </DetailInfoRow>
-                  <DetailInfoRow icon={DollarSign} label="Total Revenue:" tone="emerald" loading={dataLoading}>
+                  <DetailInfoRow
+                    icon={DollarSign}
+                    label="Total Revenue:"
+                    tone="emerald"
+                    loading={dataLoading}
+                  >
                     {!dataLoading && (
                       <span className="text-emerald-600 dark:text-emerald-400">
                         ${stats.totalRevenue.toFixed(2)}
                       </span>
                     )}
                   </DetailInfoRow>
-                  <DetailInfoRow icon={ShoppingCart} label="Orders Containing This Product:" tone="violet" loading={dataLoading}>
+                  <DetailInfoRow
+                    icon={ShoppingCart}
+                    label="Orders Containing This Product:"
+                    tone="violet"
+                    loading={dataLoading}
+                  >
                     {!dataLoading && stats.uniqueOrders}
                   </DetailInfoRow>
-                  <DetailInfoRow icon={Wallet} label="Current Stock Value:" tone="blue" loading={dataLoading}>
+                  <DetailInfoRow
+                    icon={Wallet}
+                    label="Current Stock Value:"
+                    tone="blue"
+                    loading={dataLoading}
+                  >
                     {!dataLoading && (
                       <span className="text-blue-600 dark:text-blue-400">
                         ${(stats.totalValue ?? 0).toFixed(2)}
@@ -696,7 +796,7 @@ export default function ProductDetailPage({
 
           {showWarehouseStockCard && (
             <GlassCard variant="teal">
-              <div className="p-4 sm:p-5">
+              <div className="p-2 sm:p-4">
                 <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2 mb-2">
                   <div className="flex items-center gap-2">
                     <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-teal-300/30 bg-teal-100/50 dark:border-white/15 dark:bg-white/10">
@@ -707,14 +807,15 @@ export default function ProductDetailPage({
                         as="h3"
                         title="Warehouse Stock"
                         trailing={
-                          !warehouseStockLoading && warehouseAllocations.length > 0 ? (
+                          !warehouseStockLoading &&
+                          warehouseAllocations.length > 0 ? (
                             <>
-                              <Badge variant="secondary" className="font-normal text-xs">
+                              <SectionCountBadge hue="teal">
                                 {warehouseAllocations.length} warehouses
-                              </Badge>
-                              <Badge variant="secondary" className="font-normal text-xs">
+                              </SectionCountBadge>
+                              <SectionCountBadge hue="teal">
                                 {totalWarehouseAvailable} available
-                              </Badge>
+                              </SectionCountBadge>
                             </>
                           ) : undefined
                         }
@@ -754,7 +855,9 @@ export default function ProductDetailPage({
                             )}
                             {/* REQ-0077 — inline warehouse active/inactive badge */}
                             {row.warehouse?.status != null && (
-                              <ActiveInactiveBadge active={row.warehouse.status} />
+                              <ActiveInactiveBadge
+                                active={row.warehouse.status}
+                              />
                             )}
                           </div>
                           <span className="text-sm text-gray-700 dark:text-white shrink-0">
@@ -783,7 +886,7 @@ export default function ProductDetailPage({
 
           {/* Recent Orders — always show card; empty state centered (REQ-0077) */}
           <GlassCard variant="rose">
-            <div className="p-4 sm:p-5">
+            <div className="p-2 sm:p-4">
               <div className="flex items-center gap-2 mb-2">
                 <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-rose-300/30 bg-rose-100/50 dark:border-white/15 dark:bg-white/10">
                   <ShoppingCart className="h-4 w-4 text-gray-700 dark:text-white" />
@@ -792,13 +895,12 @@ export default function ProductDetailPage({
                   <SectionTitleRow
                     as="h3"
                     title="Recent Orders"
-                    trailing={
-                      !dataLoading && recentOrderCount > 0 ? (
-                        <Badge variant="secondary" className="font-normal text-xs">
-                          {recentOrderCount}
-                        </Badge>
-                      ) : undefined
+                    count={
+                      !dataLoading && recentOrderCount > 0
+                        ? recentOrderCount
+                        : undefined
                     }
+                    countHue="rose"
                   />
                   <p className="text-xs text-gray-600 dark:text-white/60">
                     Latest orders containing this product
@@ -837,18 +939,19 @@ export default function ProductDetailPage({
                       >
                         <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-2">
                           <div className="flex-1 min-w-0 space-y-2">
-                            <div className="flex items-center gap-2 flex-wrap">
-                              <span className="text-xs font-medium text-gray-500 dark:text-white/50">
-                                {index + 1}.
-                              </span>
-                              <Link
-                                href={orderHref}
-                                className="font-medium text-sky-600 dark:text-sky-400 hover:text-sky-500 dark:hover:text-sky-300"
+                            <div className="flex items-center gap-2 min-w-0">
+                              <ListIndexBadge index={index + 1} />
+                              <CopyableText
+                                value={order.orderNumber}
+                                className="min-w-0"
                               >
-                                <CopyableText value={order.orderNumber}>
-                                  Order {order.orderNumber}
-                                </CopyableText>
-                              </Link>
+                                <Link
+                                  href={orderHref}
+                                  className="font-normal text-sm text-sky-600 dark:text-sky-400 hover:text-sky-500 dark:hover:text-sky-300 truncate"
+                                >
+                                  {order.orderNumber}
+                                </Link>
+                              </CopyableText>
                             </div>
                             <p className="text-sm text-gray-600 dark:text-white/60 flex items-center gap-1.5 flex-wrap">
                               <Package className="h-3.5 w-3.5 shrink-0" />
@@ -857,42 +960,48 @@ export default function ProductDetailPage({
                               <Calendar className="h-3.5 w-3.5 shrink-0" />
                               <ClientDate date={order.orderDate} />
                             </p>
-                            {product?.creator && (
-                              <div className="flex items-center gap-1 text-xs text-gray-600 dark:text-white/60">
-                                <User className="h-3.5 w-3.5 shrink-0" />
-                                Owner:{" "}
-                                <AvatarInlineLink
-                                  seed={product.creator.id}
-                                  image={product.creator.image}
-                                  label={
-                                    product.creator.name ??
-                                    product.creator.email ??
-                                    "Owner"
-                                  }
-                                  href={ownerProductsHref(product.creator.id)}
-                                  size={20}
-                                />
-                              </div>
-                            )}
-                            {placedBy && (
-                              <div className="flex items-center gap-1 text-xs text-gray-600 dark:text-white/60">
-                                <User className="h-3.5 w-3.5 shrink-0" />
-                                Buyer:{" "}
-                                {isAdminRole ? (
-                                  <AvatarInlineLink
-                                    seed={placedBy.id}
-                                    image={placedBy.image}
-                                    label={buyerLabel}
-                                    href={`/admin/user-management/${placedBy.id}`}
-                                    size={20}
-                                  />
-                                ) : (
-                                  <AvatarInlineLink
-                                    seed={placedBy.id}
-                                    image={placedBy.image}
-                                    label={buyerLabel}
-                                    size={20}
-                                  />
+                            {(product?.creator || placedBy) && (
+                              <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-gray-600 dark:text-white/60">
+                                {product?.creator && (
+                                  <span className="inline-flex items-center gap-1.5 min-w-0">
+                                    <User className="h-3.5 w-3.5 shrink-0" />
+                                    Owner:{" "}
+                                    <AvatarInlineLink
+                                      seed={product.creator.id}
+                                      image={product.creator.image}
+                                      label={
+                                        product.creator.name ??
+                                        product.creator.email ??
+                                        "Owner"
+                                      }
+                                      href={ownerProductsHref(
+                                        product.creator.id,
+                                      )}
+                                      size={20}
+                                    />
+                                  </span>
+                                )}
+                                {placedBy && (
+                                  <span className="inline-flex items-center gap-1.5 min-w-0">
+                                    <User className="h-3.5 w-3.5 shrink-0" />
+                                    Buyer:{" "}
+                                    {isAdminRole ? (
+                                      <AvatarInlineLink
+                                        seed={placedBy.id}
+                                        image={placedBy.image}
+                                        label={buyerLabel}
+                                        href={`/admin/user-management/${placedBy.id}`}
+                                        size={20}
+                                      />
+                                    ) : (
+                                      <AvatarInlineLink
+                                        seed={placedBy.id}
+                                        image={placedBy.image}
+                                        label={buyerLabel}
+                                        size={20}
+                                      />
+                                    )}
+                                  </span>
                                 )}
                               </div>
                             )}
