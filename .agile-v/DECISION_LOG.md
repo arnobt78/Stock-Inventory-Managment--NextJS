@@ -207,3 +207,5 @@ Format: `TIMESTAMP | AGENT | DECISION | RATIONALE | REQ-ID`
 2026-07-12T15:05:00Z | red-team | REQ-0081 gates | lint ✓ test 394 ✓ invalidate 206 ✓ build ✓ | REQ-0081
 2026-07-12T15:12:00Z | build-agent | REQ-0082 AC1–AC5 | UI parity + non-blocking forecast; cache-read SSR + TanStack fallback | REQ-0082
 2026-07-12T15:12:00Z | red-team | REQ-0082 gates | lint ✓ test 394 ✓ invalidate 206 ✓ build ✓ | REQ-0082
+2026-07-12T15:18:00Z | build-agent | REQ-0083 AC1–AC3 | Urgent table shell; rollup comment; admin category route cache-read forecast | REQ-0083
+2026-07-12T15:18:00Z | red-team | REQ-0083 gates | lint ✓ test 394 ✓ invalidate 206 ✓ build ✓ | REQ-0083

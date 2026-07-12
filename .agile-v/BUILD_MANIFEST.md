@@ -221,6 +221,7 @@
 | ART-0213 | REQ-0080 | StatisticsCard, SectionCountBadge, *List.tsx, detail GlassCard padding | Stat badge revert; slate counters; pb-6 cleanup |
 | ART-0214 | REQ-0081 | ProductOwnerSelect, CategoryDetailPage, category-detail-data | Owner picker + category detail parity + insights charts |
 | ART-0215 | REQ-0082 | category-forecast-rollup, forecasting-data, CategoryDetailPage | Non-blocking forecast + UI gap closure |
+| ART-0216 | REQ-0083 | CategoryDetailPage, category-forecast-rollup, categories/[id]/page | Forecast table shell + admin SSR prefetch parity |
 
 ## Tests
 

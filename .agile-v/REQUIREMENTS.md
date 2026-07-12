@@ -1811,6 +1811,29 @@ Canonical REQ source. All artifacts link via `REQ-XXXX`. Status: `done` | `verif
 
 ---
 
+## REQ-0083 — Category forecast loading shell parity
+
+| Field | Value |
+|-------|-------|
+| **Priority** | P2 |
+| **Risk** | R1 |
+| **Status** | done |
+| **Cycle** | C2 |
+| **Parent** | REQ-0082 |
+
+**Intent:** Close REQ-0082 audit leftovers — shell-first urgent reorder table while forecast loads; fix rollup comment; admin cache-read forecast SSR on `/categories/[id]`.
+
+**Acceptance criteria**
+
+- AC1: Urgent reorder forecast card shows headers + `TableBodyPulseRows` while `forecastLoading`; hides when loaded with zero urgent rows
+- AC2: `category-forecast-rollup.ts` header comment reflects client-only usage (no server embed)
+- AC3: `app/categories/[id]/page.tsx` parallel `getCachedForecastingSummary` for admin (cache-read only)
+- AC4: Red Team lint/test/invalidate/build pass
+
+**Artifacts:** `CategoryDetailPage.tsx`, `category-forecast-rollup.ts`, `app/categories/[id]/page.tsx`
+
+---
+
 ## REQ-0020 — Locale-aware admin format (hydration-safe)
 
 | Field        | Value |

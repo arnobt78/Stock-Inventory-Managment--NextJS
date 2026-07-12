@@ -100,6 +100,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { TableBodyPulseRows } from "@/components/ui/table-data-skeleton";
 import {
   isDataSlotLoading,
   queryKeys,
@@ -850,15 +851,19 @@ export default function CategoryDetailPage({
               </ChartCard>
 
               {isAdminRole &&
-                !forecastLoading &&
-                categoryForecast &&
-                categoryForecast.topUrgent.length > 0 && (
+                (forecastLoading ||
+                  (categoryForecast &&
+                    categoryForecast.topUrgent.length > 0)) && (
                   <GlassCard variant="rose" className="lg:col-span-2">
                     <div className="p-2 sm:p-4">
                       <SectionTitleRow
                         as="h3"
                         title="Urgent reorder forecast"
-                        count={categoryForecast.topUrgent.length}
+                        count={
+                          !forecastLoading
+                            ? categoryForecast?.topUrgent.length
+                            : undefined
+                        }
                       />
                       <div className="mt-4 overflow-x-auto">
                         <Table>
@@ -871,32 +876,36 @@ export default function CategoryDetailPage({
                               <TableHead>Status</TableHead>
                             </TableRow>
                           </TableHeader>
-                          <TableBody>
-                            {categoryForecast.topUrgent.map((row) => (
-                              <TableRow key={row.productId}>
-                                <TableCell>
-                                  <Link
-                                    href={productHref(row.productId)}
-                                    className="text-sm font-normal text-sky-600 dark:text-sky-400 hover:text-sky-500 truncate"
-                                  >
-                                    {row.productName}
-                                  </Link>
-                                </TableCell>
-                                <TableCell className="font-mono text-xs">
-                                  {row.sku}
-                                </TableCell>
-                                <TableCell>{row.availableStock}</TableCell>
-                                <TableCell>
-                                  {row.daysUntilStockout ?? "∞"}
-                                </TableCell>
-                                <TableCell>
-                                  <Badge variant="destructive">
-                                    {row.reorderRecommendation}
-                                  </Badge>
-                                </TableCell>
-                              </TableRow>
-                            ))}
-                          </TableBody>
+                          {forecastLoading ? (
+                            <TableBodyPulseRows rows={5} columnCount={5} />
+                          ) : (
+                            <TableBody>
+                              {categoryForecast!.topUrgent.map((row) => (
+                                <TableRow key={row.productId}>
+                                  <TableCell>
+                                    <Link
+                                      href={productHref(row.productId)}
+                                      className="text-sm font-normal text-sky-600 dark:text-sky-400 hover:text-sky-500 truncate"
+                                    >
+                                      {row.productName}
+                                    </Link>
+                                  </TableCell>
+                                  <TableCell className="font-mono text-xs">
+                                    {row.sku}
+                                  </TableCell>
+                                  <TableCell>{row.availableStock}</TableCell>
+                                  <TableCell>
+                                    {row.daysUntilStockout ?? "∞"}
+                                  </TableCell>
+                                  <TableCell>
+                                    <Badge variant="destructive">
+                                      {row.reorderRecommendation}
+                                    </Badge>
+                                  </TableCell>
+                                </TableRow>
+                              ))}
+                            </TableBody>
+                          )}
                         </Table>
                       </div>
                     </div>

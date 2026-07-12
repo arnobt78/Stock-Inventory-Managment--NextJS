@@ -1,6 +1,7 @@
 /**
- * REQ-0081/0082 — client-safe category forecast rollup from cached forecasting summary.
- * Used by CategoryDetailPage (TanStack) and server category detail (cache-read path).
+ * REQ-0081/0082/0083 — client-safe rollup for CategoryDetailPage.
+ * Filters TanStack/API ForecastingSummary.forecasts by category product IDs.
+ * Server category SSR does not embed forecast (REQ-0082); rollup runs client-side only.
  */
 
 import type { ProductDemandForecast } from "@/types";
