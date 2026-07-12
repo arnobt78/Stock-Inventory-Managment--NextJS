@@ -3,15 +3,15 @@
 | Field | Value |
 |-------|-------|
 | **Cycle** | C1 (closing) → **C2 open** |
-| **Phase** | C2 — REQ-0081 **done** |
+| **Phase** | C2 — REQ-0082 **done** |
 | **Infinity Loop stage** | Verify ✓ (Gate 2 open) |
-| **Last updated** | 2026-07-12 (REQ-0081 client owner picker + category detail parity) |
-| **Session** | **ACTIVE** — REQ-0081 complete |
-| **Active REQ range** | REQ-0001 … REQ-0081 **done** |
-| **Prod deploy target** | `cf4ce39` — REQ-0080 (REQ-0081 pending push) |
+| **Last updated** | 2026-07-12 (REQ-0082 category gap closure + forecast perf) |
+| **Session** | **ACTIVE** — REQ-0082 complete |
+| **Active REQ range** | REQ-0001 … REQ-0082 **done** |
+| **Prod deploy target** | `ba69321` — REQ-0081 (REQ-0082 pending push) |
 | **Human Gate 1** | APPROVED (retroactive bootstrap) |
 | **Human Gate 2** | PENDING — Sentry 24h after prod deploy |
-| **Resume token** | `REQ-0082-supplier-ui-sweep` — supplier role UX backlog |
+| **Resume token** | `REQ-0083-supplier-ui-sweep` — supplier role UX backlog |
 
 ## Current focus
 
