@@ -105,10 +105,8 @@ export interface Category {
     totalValue: number;
   } | null;
   recentOrders?: CategoryRecentOrder[] | null;
-  /** REQ-0081 — derived KPIs from products + order history */
+  /** REQ-0081 — derived KPIs from products + order history (SSR). */
   categoryInsights?: CategoryInsights | null;
-  /** REQ-0081 — admin-only forecast rollup for category products */
-  categoryForecast?: CategoryForecastRollup | null;
 }
 
 /**

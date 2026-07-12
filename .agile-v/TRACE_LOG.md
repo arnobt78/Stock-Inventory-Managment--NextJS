@@ -15,3 +15,4 @@ Format: `timestamp | agent | span | req_ids | note`
 2026-07-12T14:21:00Z | agile-v-core | REQ-0079-ship | AC1–AC9 | lint 392/invalidate 206/build PASS
 2026-07-12T14:35:00Z | agile-v-core | REQ-0080-ship | AC1–AC5 | lint 392/invalidate 206/build PASS
 2026-07-12T15:05:00Z | agile-v-core | REQ-0081-ship | AC1–AC8 | lint 394/invalidate 206/build PASS
+2026-07-12T15:12:00Z | agile-v-core | REQ-0082-ship | AC1–AC6 | lint 394/invalidate 206/build PASS

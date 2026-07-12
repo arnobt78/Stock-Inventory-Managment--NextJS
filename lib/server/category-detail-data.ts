@@ -1,7 +1,8 @@
 /**
  * Server-side category detail fetch for SSR prefetch.
  * Mirrors GET /api/categories/:id auth + response shape (includes Redis cache).
- * REQ-0024, REQ-0081 — party enrichment + category insights + admin forecast rollup.
+ * REQ-0024, REQ-0081 — party enrichment + category insights.
+ * REQ-0082 — forecast rollup removed from SSR (client TanStack + cache-read prefetch).
  */
 
 import { getCategoryById } from "@/prisma/category";
@@ -15,14 +16,11 @@ import {
   resolveSupplierEntityForSession,
   supplierCanAccessCategory,
 } from "@/lib/server/catalog-entity-access";
-import { getForecastingForUser } from "@/lib/server/forecasting-data";
 import type {
-  CategoryForecastRollup,
   CategoryInsights,
   CategoryPartySnapshot,
   CategorySalesTrendPoint,
 } from "@/types/category";
-import type { ForecastingSummary, ProductDemandForecast } from "@/types";
 
 /** Low-stock threshold aligned with BusinessInsightPage (qty ≤ 20). */
 export const CATEGORY_LOW_STOCK_THRESHOLD = 20;
@@ -70,41 +68,6 @@ function toParty(user: UserRow | null | undefined): CategoryPartySnapshot | null
     email: user.email,
     name: user.name,
     image: user.image ?? null,
-  };
-}
-
-/** REQ-0081 — filter cached forecast summary to category product IDs. */
-export function buildCategoryForecastRollup(
-  forecasts: ProductDemandForecast[],
-  productIds: Set<string>,
-): CategoryForecastRollup {
-  const scoped = forecasts.filter((f) => productIds.has(f.productId));
-  const urgent = scoped.filter((f) => f.reorderRecommendation === "urgent");
-  const soon = scoped.filter((f) => f.reorderRecommendation === "soon");
-  const topUrgent = [...urgent]
-    .sort((a, b) => {
-      const daysA = a.daysUntilStockout ?? Number.MAX_SAFE_INTEGER;
-      const daysB = b.daysUntilStockout ?? Number.MAX_SAFE_INTEGER;
-      return daysA - daysB;
-    })
-    .slice(0, 5)
-    .map((f) => ({
-      productId: f.productId,
-      productName: f.productName,
-      sku: f.sku,
-      availableStock: f.availableStock,
-      daysUntilStockout: f.daysUntilStockout,
-      reorderRecommendation: f.reorderRecommendation,
-    }));
-
-  return {
-    urgentReorderCount: urgent.length,
-    soonReorderCount: soon.length,
-    predictedDailyDemand: scoped.reduce(
-      (sum, f) => sum + f.predictedDailySales,
-      0,
-    ),
-    topUrgent,
   };
 }
 
@@ -207,7 +170,6 @@ function transformCategoryDetail(
   ownerMap: Map<string, UserRow>,
   supplierMap: Map<string, SupplierRow>,
   orderUserMap: Map<string, UserRow>,
-  categoryForecast: CategoryForecastRollup | null,
 ) {
   const totalProducts = products.length;
   let totalQuantitySold = 0;
@@ -320,7 +282,6 @@ function transformCategoryDetail(
       totalValue,
     },
     categoryInsights,
-    categoryForecast,
     products: products.map((product) => {
       const owner = toParty(ownerMap.get(product.userId));
       const supplierRow = supplierMap.get(product.supplierId);
@@ -425,7 +386,7 @@ export async function getCategoryDetailForPage(
     ),
   ];
 
-  const [creatorUser, updaterUser, owners, suppliers, orderUsers, forecastSummary] =
+  const [creatorUser, updaterUser, owners, suppliers, orderUsers] =
     await Promise.all([
       category.createdBy
         ? prisma.user.findUnique({
@@ -457,18 +418,11 @@ export async function getCategoryDetailForPage(
             select: { id: true, email: true, name: true, image: true },
           })
         : [],
-      isAdmin ? getForecastingForUser(userId) : Promise.resolve(null),
     ]);
 
   const ownerMap = new Map(owners.map((u) => [u.id, u]));
   const supplierMap = new Map(suppliers.map((s) => [s.id, s]));
   const orderUserMap = new Map(orderUsers.map((u) => [u.id, u]));
-
-  const productIdSet = new Set(products.map((p) => p.id));
-  const categoryForecast =
-    isAdmin && forecastSummary
-      ? buildCategoryForecastRollup(forecastSummary.forecasts, productIdSet)
-      : null;
 
   const transformedCategory = transformCategoryDetail(
     category,
@@ -478,7 +432,6 @@ export async function getCategoryDetailForPage(
     ownerMap,
     supplierMap,
     orderUserMap,
-    categoryForecast,
   );
 
   await setCache(cacheKey, transformedCategory, 300);

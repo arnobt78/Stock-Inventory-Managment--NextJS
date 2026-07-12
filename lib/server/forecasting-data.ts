@@ -9,11 +9,22 @@ import type { ForecastingSummary } from "@/types";
 
 const FORECASTING_CACHE_KEY_PREFIX = "forecasting:summary:v2";
 
+export function forecastingSummaryCacheKey(userId: string): string {
+  return `${FORECASTING_CACHE_KEY_PREFIX}:${userId}`;
+}
+
+/** REQ-0082 — read Redis only; never generates (category detail must not block on cold forecast). */
+export async function getCachedForecastingSummary(
+  userId: string,
+): Promise<ForecastingSummary | null> {
+  return getCache<ForecastingSummary>(forecastingSummaryCacheKey(userId));
+}
+
 /** Demand forecast summary for dashboard SSR — skips LLM insights for faster first paint. */
 export async function getForecastingForUser(
   userId: string,
 ): Promise<ForecastingSummary> {
-  const cacheKey = `${FORECASTING_CACHE_KEY_PREFIX}:${userId}`;
+  const cacheKey = forecastingSummaryCacheKey(userId);
   const cached = await getCache<ForecastingSummary>(cacheKey);
   if (cached) return cached;
 

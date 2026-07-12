@@ -1,9 +1,9 @@
 import { describe, expect, it } from "vitest";
 import {
-  buildCategoryForecastRollup,
   computeCategoryInsights,
   CATEGORY_LOW_STOCK_THRESHOLD,
 } from "@/lib/server/category-detail-data";
+import { buildCategoryForecastRollup } from "@/lib/forecasting/category-forecast-rollup";
 import type { ProductDemandForecast } from "@/types";
 
 describe("buildCategoryForecastRollup", () => {

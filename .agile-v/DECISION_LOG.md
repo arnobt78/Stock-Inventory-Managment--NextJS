@@ -205,3 +205,5 @@ Format: `TIMESTAMP | AGENT | DECISION | RATIONALE | REQ-ID`
 2026-07-12T14:35:00Z | red-team | REQ-0080 gates | lint ✓ test 392 ✓ invalidate 206 ✓ build ✓ | REQ-0080
 2026-07-12T15:05:00Z | build-agent | REQ-0081 AC1–AC7 | OwnerPickerRow; CategoryDetail parity; SSR insights + forecast; charts | REQ-0081
 2026-07-12T15:05:00Z | red-team | REQ-0081 gates | lint ✓ test 394 ✓ invalidate 206 ✓ build ✓ | REQ-0081
+2026-07-12T15:12:00Z | build-agent | REQ-0082 AC1–AC5 | UI parity + non-blocking forecast; cache-read SSR + TanStack fallback | REQ-0082
+2026-07-12T15:12:00Z | red-team | REQ-0082 gates | lint ✓ test 394 ✓ invalidate 206 ✓ build ✓ | REQ-0082

@@ -5,7 +5,7 @@
 
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import {
@@ -40,6 +40,7 @@ import {
   useCategory,
   useCreateCategory,
   useDeleteCategory,
+  useForecastingSummary,
 } from "@/hooks/queries";
 import { useBackWithRefresh } from "@/hooks/use-back-with-refresh";
 import { useAuth } from "@/contexts";
@@ -64,8 +65,14 @@ import { ProductThumb } from "@/components/products/ProductOptionRow";
 import { ChartCard } from "@/components/ui/chart-card";
 import { DeferredChartSection } from "@/components/ui/deferred-chart-section";
 import { ResponsiveChartContainer } from "@/components/ui/responsive-chart-container";
-import { CHART_LABEL_TOP_MARGIN } from "@/lib/ui/chart-point-label";
+import {
+  CHART_LABEL_TOP_MARGIN,
+  createChartBarLabelRenderer,
+  formatChartCurrencyLabel,
+} from "@/lib/ui/chart-point-label";
 import { CARD_EMPTY_MESSAGE_CLASS } from "@/lib/ui/card-empty-styles";
+import { buildCategoryForecastRollup } from "@/lib/forecasting/category-forecast-rollup";
+import type { ForecastingSummary } from "@/types";
 import {
   Bar,
   BarChart,
@@ -230,11 +237,14 @@ function GlassCard({
 export type CategoryDetailPageProps = {
   embedInAdmin?: boolean;
   initialCategory?: Category;
+  /** REQ-0082 — cache-read forecast for admin embed (non-blocking SSR). */
+  initialForecasting?: ForecastingSummary | null;
 };
 
 export default function CategoryDetailPage({
   embedInAdmin,
   initialCategory,
+  initialForecasting,
 }: CategoryDetailPageProps = {}) {
   const params = useParams();
   const router = useRouter();
@@ -243,6 +253,10 @@ export default function CategoryDetailPage({
   const { user, isCheckingAuth } = useAuth();
 
   const PageWrapper = embedInAdmin ? React.Fragment : Navbar;
+  const isClientRole = user?.role === "client";
+  const isSupplierRole = user?.role === "supplier";
+  const isAdminRole = user?.role === "admin" || embedInAdmin;
+  const disableCrud = isClientRole || isSupplierRole;
 
   // Fetch category details
   const categoryQuery = useCategory(categoryId, initialCategory);
@@ -250,6 +264,30 @@ export default function CategoryDetailPage({
   const dataLoading = isDataSlotLoading(categoryQuery, initialCategory);
 
   useSyncSsrQueryData(queryKeys.categories.detail(categoryId), initialCategory);
+
+  const forecastQuery = useForecastingSummary(initialForecasting ?? undefined, {
+    enabled: isAdminRole,
+  });
+  const forecastLoading = isDataSlotLoading(
+    forecastQuery,
+    initialForecasting ?? undefined,
+  );
+
+  const productsForForecast = category?.products ?? [];
+  const productIdSet = useMemo(
+    () => new Set(productsForForecast.map((p) => p.id)),
+    [productsForForecast],
+  );
+
+  const categoryForecast = useMemo(() => {
+    if (!isAdminRole || !forecastQuery.data || productIdSet.size === 0) {
+      return null;
+    }
+    return buildCategoryForecastRollup(
+      forecastQuery.data.forecasts,
+      productIdSet,
+    );
+  }, [isAdminRole, forecastQuery.data, productIdSet]);
 
   const createCategoryMutation = useCreateCategory();
   const deleteCategoryMutation = useDeleteCategory();
@@ -259,10 +297,6 @@ export default function CategoryDetailPage({
 
   const isCopying = createCategoryMutation.isPending;
   const isDeleting = deleteCategoryMutation.isPending;
-  const isClientRole = user?.role === "client";
-  const isSupplierRole = user?.role === "supplier";
-  const isAdminRole = user?.role === "admin" || embedInAdmin;
-  const disableCrud = isClientRole || isSupplierRole;
 
   const ownerProductsHref = (ownerId: string) =>
     embedInAdmin
@@ -386,7 +420,6 @@ export default function CategoryDetailPage({
   };
 
   const insights = category?.categoryInsights;
-  const categoryForecast = category?.categoryForecast;
   const products = category?.products ?? [];
   const recentOrders = category?.recentOrders ?? [];
 
@@ -427,7 +460,15 @@ export default function CategoryDetailPage({
               </Button>
             }
             title={
-              dataLoading ? <DataSlotPulse variant="text-lg" /> : category?.name
+              dataLoading ? (
+                <DataSlotPulse variant="text-lg" className="w-48" />
+              ) : (
+                category?.name && (
+                  <CopyableText value={category.name}>
+                    {category.name}
+                  </CopyableText>
+                )
+              )
             }
             description={
               <ClientRelativeTime date={createdAt} prefix="Created " />
@@ -455,20 +496,20 @@ export default function CategoryDetailPage({
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-2 sm:gap-4">
             {/* Category Information */}
             <GlassCard variant="orange">
-              <div className="flex items-center gap-2 mb-4">
-                <div
-                  className={cn(
-                    "p-2 rounded-xl border",
-                    variantConfig.orange.iconBg,
-                    "dark:border-orange-400/30 dark:bg-orange-500/20",
-                  )}
-                >
-                  <Tag className="h-5 w-5 text-orange-600 dark:text-orange-400" />
+              <div className="p-2 sm:p-4">
+                <div className="flex items-center gap-2 mb-4">
+                  <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-orange-300/30 bg-orange-100/50 dark:border-white/15 dark:bg-white/10">
+                    <Tag className="h-4 w-4 text-gray-700 dark:text-white" />
+                  </div>
+                  <div>
+                    <h3 className="text-sm sm:text-base font-medium text-gray-700 dark:text-white">
+                      Category Information
+                    </h3>
+                    <p className="text-xs text-gray-600 dark:text-white/60">
+                      Category metadata and audit fields
+                    </p>
+                  </div>
                 </div>
-                <h3 className="text-sm sm:text-base font-medium text-gray-700 dark:text-white">
-                  Category Information
-                </h3>
-              </div>
 
               <div className="space-y-2">
                 {!dataLoading && category && (
@@ -565,9 +606,8 @@ export default function CategoryDetailPage({
                   </>
                 )}
               </div>
+              </div>
             </GlassCard>
-
-            {/* Statistics — REQ-0081 DetailInfoRow parity with ProductDetailPage */}
             <GlassCard variant="teal">
               <div className="p-2 sm:p-4">
                 <div className="flex items-center gap-2 mb-2">
@@ -693,24 +733,25 @@ export default function CategoryDetailPage({
                     >
                       {!dataLoading && insights.demandVelocity.toFixed(2)}
                     </DetailInfoRow>
-                    {isAdminRole && categoryForecast && (
+                    {isAdminRole && (
                       <>
                         <DetailInfoRow
                           icon={AlertCircle}
                           label="Urgent reorder:"
                           tone="rose"
-                          loading={dataLoading}
+                          loading={forecastLoading}
                         >
-                          {!dataLoading && categoryForecast.urgentReorderCount}
+                          {!forecastLoading &&
+                            categoryForecast?.urgentReorderCount}
                         </DetailInfoRow>
                         <DetailInfoRow
                           icon={Sparkles}
                           label="Predicted daily demand:"
                           tone="sky"
-                          loading={dataLoading}
+                          loading={forecastLoading}
                         >
-                          {!dataLoading &&
-                            categoryForecast.predictedDailyDemand.toFixed(1)}
+                          {!forecastLoading &&
+                            categoryForecast?.predictedDailyDemand.toFixed(1)}
                         </DetailInfoRow>
                       </>
                     )}
@@ -763,6 +804,9 @@ export default function CategoryDetailPage({
                         fill="hsl(var(--chart-1))"
                         name="Revenue"
                         radius={[4, 4, 0, 0]}
+                        label={createChartBarLabelRenderer(
+                          formatChartCurrencyLabel,
+                        )}
                       />
                     </BarChart>
                   </ResponsiveChartContainer>
@@ -806,6 +850,7 @@ export default function CategoryDetailPage({
               </ChartCard>
 
               {isAdminRole &&
+                !forecastLoading &&
                 categoryForecast &&
                 categoryForecast.topUrgent.length > 0 && (
                   <GlassCard variant="rose" className="lg:col-span-2">

@@ -1786,6 +1786,31 @@ Canonical REQ source. All artifacts link via `REQ-XXXX`. Status: `done` | `verif
 
 ---
 
+## REQ-0082 — Category detail gap closure + forecast perf
+
+| Field | Value |
+|-------|-------|
+| **Priority** | P1 |
+| **Risk** | R1 |
+| **Status** | done |
+| **Cycle** | C2 |
+| **Parent** | REQ-0081 |
+
+**Intent:** Close REQ-0081 polish gaps — CopyableText h1, info card header parity, ChartBarLabel on sales chart; non-blocking admin forecast via cache-read SSR + TanStack fallback.
+
+**Acceptance criteria**
+
+- AC1: Category h1 uses `CopyableText`; Information card uses `h-9 w-9` icon header + subtitle
+- AC2: Sales trend bar chart uses `createChartBarLabelRenderer(formatChartCurrencyLabel)`
+- AC3: `buildCategoryForecastRollup` extracted to `lib/forecasting/category-forecast-rollup.ts` (client-safe)
+- AC4: `getCachedForecastingSummary` — Redis read only; removed from blocking category SSR
+- AC5: Admin embed prefetches cache-read forecast; `useForecastingSummary` fills cold cache client-side
+- AC6: Red Team lint/test/invalidate/build pass
+
+**Artifacts:** `CategoryDetailPage.tsx`, `category-forecast-rollup.ts`, `forecasting-data.ts`, `category-detail-data.ts`, `use-forecasting.ts`, `app/admin/categories/[id]/page.tsx`
+
+---
+
 ## REQ-0020 — Locale-aware admin format (hydration-safe)
 
 | Field        | Value |
