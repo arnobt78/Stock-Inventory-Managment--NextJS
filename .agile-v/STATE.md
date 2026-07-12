@@ -8,7 +8,7 @@
 | **Last updated** | 2026-07-12 (REQ-0087 catalog detail list loading DRY) |
 | **Session** | **ACTIVE** — REQ-0087 complete |
 | **Active REQ range** | REQ-0001 … REQ-0087 **done** |
-| **Prod deploy target** | `371bb71` — REQ-0085 (REQ-0086/0087 pending push) |
+| **Prod deploy target** | `dffbe4d` — REQ-0086/0087 |
 | **Human Gate 1** | APPROVED (retroactive bootstrap) |
 | **Human Gate 2** | PENDING — Sentry 24h after prod deploy |
 | **Resume token** | `REQ-0088` — next backlog item |
