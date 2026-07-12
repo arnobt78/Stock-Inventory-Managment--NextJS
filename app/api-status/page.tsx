@@ -2,14 +2,15 @@ import { redirect } from "next/navigation";
 import { getSession } from "@/lib/auth-server";
 import ApiStatusPage from "@/components/Pages/ApiStatusPage";
 
+export const dynamic = "force-dynamic";
+
 /**
- * API Status route — server component.
- * If user is not logged in, redirect to login. Otherwise render ApiStatusPage.
+ * API Status route — SSR session gate; role passed for scoped endpoint probes.
  */
 export default async function ApiStatusRoute() {
   const user = await getSession();
   if (!user) {
     redirect("/login");
   }
-  return <ApiStatusPage />;
+  return <ApiStatusPage userRole={user.role ?? "user"} />;
 }

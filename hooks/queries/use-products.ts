@@ -24,13 +24,17 @@ import type { ProductForHome } from "@/lib/server/home-data";
  * Fetch all products
  * @param initialData — SSR-passed list for first-render hydration (REQ-0021)
  */
-export function useProducts(initialData?: Product[] | ProductForHome[]) {
+export function useProducts(
+  initialData?: Product[] | ProductForHome[],
+  options?: { enabled?: boolean },
+) {
   return useQuery<Product[]>({
     queryKey: queryKeys.products.lists(),
     queryFn: async () => {
       const response = await apiClient.products.getAll();
       return response.data;
     },
+    enabled: options?.enabled ?? true,
     ...withInitialData(initialData as Product[] | undefined),
   });
 }

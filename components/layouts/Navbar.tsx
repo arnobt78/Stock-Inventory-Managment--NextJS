@@ -47,6 +47,13 @@ import {
   DROPDOWN_NAV_ITEM_CLASS,
 } from "@/components/ui/menu-item-styles";
 import { APP_SHELL_WIDTH_CLASS } from "@/lib/ui/shell-layout-styles";
+import { isNavPathActive } from "@/lib/navigation/is-nav-path-active";
+import {
+  getHomePathForRole,
+  getNavItemsForRole,
+  type RoleNavItem,
+} from "@/lib/navigation/role-nav-config";
+import { cn } from "@/lib/utils";
 
 /**
  * Theme toggle component (inline ModeToggle)
@@ -163,43 +170,7 @@ export default function Navbar({ children }: NavbarProps) {
     setIsMobileMenuOpen(false);
   };
 
-  type NavItem =
-    | { label: string; path: string; hasDropdown: false }
-    | {
-        label: string;
-        path: string;
-        hasDropdown: true;
-        dropdownItems: Array<{ label: string; path: string }>;
-      };
-
-  const adminNavItems: NavItem[] = [
-    { label: "Dashboard", path: "/", hasDropdown: false },
-    { label: "Products", path: "/products", hasDropdown: false },
-    { label: "Orders", path: "/orders", hasDropdown: false },
-    { label: "Invoices", path: "/invoices", hasDropdown: false },
-    { label: "Categories", path: "/categories", hasDropdown: false },
-    { label: "Suppliers", path: "/suppliers", hasDropdown: false },
-    { label: "Warehouses", path: "/warehouses", hasDropdown: false },
-    {
-      label: "Business Insights",
-      path: "/business-insights",
-      hasDropdown: false,
-    },
-    { label: "Admin Panel", path: "/admin", hasDropdown: false },
-  ];
-
-  const clientNavItems: NavItem[] = [
-    { label: "Client Portal", path: "/client", hasDropdown: false },
-    { label: "Browse Products", path: "/products", hasDropdown: false },
-    { label: "My Orders", path: "/orders", hasDropdown: false },
-    { label: "My Invoices", path: "/invoices", hasDropdown: false },
-  ];
-
-  const supplierNavItems: NavItem[] = [
-    { label: "Supplier Portal", path: "/supplier", hasDropdown: false },
-    { label: "My Products", path: "/products", hasDropdown: false },
-    { label: "View Orders", path: "/orders", hasDropdown: false },
-  ];
+  type NavItem = RoleNavItem;
 
   // Role from auth when available; else infer from pathname so client/supplier see correct nav on refresh (no admin flash).
   const role =
@@ -209,16 +180,10 @@ export default function Navbar({ children }: NavbarProps) {
       : pathname?.startsWith("/supplier")
         ? "supplier"
         : "user");
-  const navItems: NavItem[] =
-    role === "client"
-      ? clientNavItems
-      : role === "supplier"
-        ? supplierNavItems
-        : adminNavItems;
+  const navItems = getNavItemsForRole(role);
 
   /** Home link for logo/brand: admin → /, client → /client, supplier → /supplier */
-  const homePath =
-    role === "client" ? "/client" : role === "supplier" ? "/supplier" : "/";
+  const homePath = getHomePathForRole(role);
 
   // REQ-0039 — SafeAvatarImage: Google primary + robohash fallback on load error
   const avatar = resolveUserAvatarSources(user);
@@ -295,13 +260,20 @@ export default function Navbar({ children }: NavbarProps) {
               );
             }
             // Regular navigation items (including Dashboard)
+            const isNavActive = isNavPathActive(pathname, item.path);
             return (
               <Button
                 key={item.path}
                 variant="ghost"
                 size="sm"
                 onClick={() => handleNavigation(item.path)}
-                className="text-sm font-normal text-gray-700 dark:text-muted-foreground will-change-[background,box-shadow,color] transition-[background-image,box-shadow,color] duration-300 ease-in-out hover:text-sky-600 dark:hover:text-foreground hover:bg-gradient-to-br hover:from-sky-500/10 hover:via-sky-500/5 hover:to-sky-500/5 dark:hover:from-white/10 dark:hover:via-white/5 dark:hover:to-white/5 hover:backdrop-blur-md hover:shadow-[0_5px_15px_rgba(2,132,199,0.25)] dark:hover:shadow-[0_5px_15px_rgba(255,255,255,0.15)] rounded-md px-2 py-2"
+                aria-current={isNavActive ? "page" : undefined}
+                className={cn(
+                  "text-sm font-normal will-change-[background,box-shadow,color] transition-[background-image,box-shadow,color] duration-300 ease-in-out rounded-md px-2 py-2",
+                  isNavActive
+                    ? "text-sky-600 dark:text-sky-400 bg-gradient-to-br from-sky-500/15 via-sky-500/10 to-sky-500/5 dark:from-sky-500/20 dark:via-sky-500/10 dark:to-sky-500/5 backdrop-blur-md shadow-[0_5px_15px_rgba(2,132,199,0.2)]"
+                    : "text-gray-700 dark:text-muted-foreground hover:text-sky-600 dark:hover:text-foreground hover:bg-gradient-to-br hover:from-sky-500/10 hover:via-sky-500/5 hover:to-sky-500/5 dark:hover:from-white/10 dark:hover:via-white/5 dark:hover:to-white/5 hover:backdrop-blur-md hover:shadow-[0_5px_15px_rgba(2,132,199,0.25)] dark:hover:shadow-[0_5px_15px_rgba(255,255,255,0.15)]",
+                )}
               >
                 {item.label}
               </Button>
@@ -518,11 +490,18 @@ export default function Navbar({ children }: NavbarProps) {
                   );
                 }
                 // Regular navigation items (including Dashboard)
+                const isNavActive = isNavPathActive(pathname, item.path);
                 return (
                   <Button
                     key={item.path}
                     variant="ghost"
-                    className="w-full justify-start text-gray-700 dark:text-muted-foreground hover:text-gray-700 dark:hover:text-foreground hover:bg-gradient-to-br hover:from-sky-500/10 hover:via-sky-500/5 hover:to-sky-500/5 dark:hover:from-white/10 dark:hover:via-white/5 dark:hover:to-white/5 hover:backdrop-blur-md transition-all duration-300 ease-in-out px-2 h-auto min-h-[44px]"
+                    aria-current={isNavActive ? "page" : undefined}
+                    className={cn(
+                      "w-full justify-start hover:backdrop-blur-md transition-all duration-300 ease-in-out px-2 h-auto min-h-[44px]",
+                      isNavActive
+                        ? "text-sky-600 dark:text-sky-400 bg-gradient-to-br from-sky-500/15 via-sky-500/10 to-sky-500/5 dark:from-sky-500/20 dark:via-sky-500/10 dark:to-sky-500/5"
+                        : "text-gray-700 dark:text-muted-foreground hover:text-gray-700 dark:hover:text-foreground hover:bg-gradient-to-br hover:from-sky-500/10 hover:via-sky-500/5 hover:to-sky-500/5 dark:hover:from-white/10 dark:hover:via-white/5 dark:hover:to-white/5",
+                    )}
                     onClick={() => handleNavigation(item.path)}
                   >
                     {item.label}

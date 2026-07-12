@@ -1931,6 +1931,173 @@ Canonical REQ source. All artifacts link via `REQ-XXXX`. Status: `done` | `verif
 
 ---
 
+## REQ-0088 — Full demo DB seed (connected catalog)
+
+| Field | Value |
+|-------|-------|
+| **Priority** | P2 |
+| **Risk** | R2 |
+| **Status** | done |
+| **Cycle** | C2 |
+
+**Intent:** Single canonical seed creates demo users, Demo Supplier entity (description/notes), and connected catalog (categories, warehouses, product, allocations, order/invoice) on `npm run script:reset-demo-db`.
+
+**Acceptance criteria**
+
+- AC1: `lib/auth/demo-seed-data.ts` — users with `emailPreferences`; supplier entity constants; catalog fixtures
+- AC2: `scripts/lib/seed-demo-catalog.ts` wired from `reset-demo-db.ts`
+- AC3: `create-demo-accounts.ts` DRY from shared constants; `update-demo-supplier-description.ts` removed
+- AC4: `verify-demo-accounts.ts` reports supplier description + catalog counts
+- AC5: Red Team lint/test/invalidate/build pass
+
+**Artifacts:** `lib/auth/demo-seed-data.ts`, `scripts/lib/seed-demo-catalog.ts`, `scripts/reset-demo-db.ts`
+
+---
+
+## REQ-0089 — Catalog audit user links (role-aware)
+
+| Field | Value |
+|-------|-------|
+| **Priority** | P2 |
+| **Risk** | R1 |
+| **Status** | done |
+| **Cycle** | C2 |
+
+**Intent:** Supplier/category info-card Created by/Updated by must not link to `ownerProductsHref`; admin links to user management; client/supplier plain text; updater email CopyableText.
+
+**Acceptance criteria**
+
+- AC1: `lib/navigation/audit-user-href.ts` — admin-only `/admin/user-management/{id}`
+- AC2: `SupplierDetailPage` + `CategoryDetailPage` audit rows fixed; product Updated by parity
+- AC3: Product Created by keeps `ownerProductsHref` (product owner browse)
+- AC4: Red Team lint/test/invalidate/build pass
+
+**Artifacts:** `lib/navigation/audit-user-href.ts`, `SupplierDetailPage.tsx`, `CategoryDetailPage.tsx`, `ProductDetailPage.tsx`
+
+---
+
+## REQ-0090 — Product warehouse pie unallocated clarity
+
+| Field | Value |
+|-------|-------|
+| **Priority** | P2 |
+| **Risk** | R1 |
+| **Status** | done |
+| **Cycle** | C2 |
+
+**Intent:** Product insights pie shows warehouse allocated + unallocated slices; title/subtitle match catalog quantity vs allocation sum.
+
+**Acceptance criteria**
+
+- AC1: `warehouseStock.unallocated` on insights when catalog qty > allocated sum
+- AC2: Pie includes Unallocated slice; `WAREHOUSE_STOCK_PIE_COLORS` third color
+- AC3: Product detail chart title "Warehouse allocated stock" + dynamic description/badges
+- AC4: Tests for enrich + chart data helpers
+- AC5: Red Team lint/test/invalidate/build pass
+
+**Artifacts:** `types/catalog-insights.ts`, `lib/insights/*`, `lib/ui/catalog-insights-chart-data.ts`, `ProductDetailPage.tsx`, `CatalogInsightsSection.tsx`
+
+---
+
+## REQ-0091 — Demo supplier naming + seed hardening
+
+| Field | Value |
+|-------|-------|
+| **Priority** | P3 |
+| **Risk** | R1 |
+| **Status** | done |
+| **Cycle** | C2 |
+| **Parent** | REQ-0088 |
+
+**Intent:** Align global supplier entity display name with Test Admin/Client/Supplier; harden legacy seed scripts; add warehouse aggregate unit test.
+
+**Acceptance criteria**
+
+- AC1: `DEMO_SUPPLIER_ENTITY.name` → `"Test Supplier"`; description/notes updated
+- AC2: `verify-demo-accounts.ts` resolves supplier by `test@supplier.com` userId (not name)
+- AC3: `create-demo-accounts.ts` backfills legacy `"Demo Supplier"` name; seeds catalog when product count is 0
+- AC4: `lib/insights/warehouse-stock-aggregate.test.ts` covers unallocated math
+- AC5: Red Team lint/test/invalidate/build pass
+
+**Artifacts:** `lib/auth/demo-seed-data.ts`, `scripts/create-demo-accounts.ts`, `scripts/verify-demo-accounts.ts`, `lib/insights/warehouse-stock-aggregate.test.ts`
+
+---
+
+## REQ-0092 — Accounts-only demo seed
+
+| Field | Value |
+|-------|-------|
+| **Priority** | P3 |
+| **Risk** | R1 |
+| **Status** | done |
+| **Cycle** | C2 |
+| **Parent** | REQ-0088 |
+
+**Intent:** Trim default demo reset to accounts infrastructure only: 3 users with full profile + global Test Supplier entity. No catalog, orders, or invoices — manual QA per real UI workflow.
+
+**Acceptance criteria**
+
+- AC1: `reset-demo-db.ts` calls `seedDemoAccountsOnly` only (no default `seedDemoCatalog`)
+- AC2: `demo-seed-users.ts` includes stable robohash `image` per user
+- AC3: `scripts/lib/seed-demo-accounts.ts` shared DRY seeder for reset + create-demo-accounts
+- AC4: `create-demo-accounts.ts` no catalog seed; profile + supplier backfill retained
+- AC5: `verify-demo-accounts.ts` reports profile completeness; catalog counts informational (0 expected)
+- AC6: `DEMO_CATALOG_SEED` retained opt-in only (not deleted)
+- AC7: Red Team lint/test/invalidate/build + reset-demo-db + verify pass
+
+**Artifacts:** `lib/auth/demo-seed-users.ts`, `lib/auth/demo-seed-data.ts`, `scripts/lib/seed-demo-accounts.ts`, `scripts/reset-demo-db.ts`, `scripts/create-demo-accounts.ts`, `scripts/verify-demo-accounts.ts`
+
+---
+
+## REQ-0093 — Role-scoped silent warm + filter leak fixes
+
+| Field | Value |
+|-------|-------|
+| **Priority** | P2 |
+| **Risk** | R1 |
+| **Status** | done |
+| **Cycle** | C2 |
+| **Parent** | REQ-0025, REQ-0027 |
+
+**Intent:** Complete warm-prefetch polish: client filter-hook leak, logout warm reset, DRY role nav paths, batched TanStack warm + staggered RSC prefetch, ApiStatus Strict Mode dedupe, remove debug instrumentation.
+
+**Acceptance criteria**
+
+- AC1: `getNavItemsForRole` / `getNavPathsForRole` in `lib/navigation/role-nav-config.ts`; Navbar imports shared config
+- AC2: `useCategories` / `useSuppliers` accept `enabled`; filter dropdowns skip fetch when override present (client browse)
+- AC3: `RouteWarmPrefetch` resets warm refs on logout; warm key `${userId}:${role}`; phase-2 `router.prefetch` for nav paths
+- AC4: `warm-route-prefetch.ts` batched prefetch (4 concurrent); client skips admin catalog lists
+- AC5: `ApiStatusPage` cancel guard on mount; debug ingest removed
+- AC6: Red Team lint/test/invalidate/build pass
+
+**Artifacts:** `lib/navigation/role-nav-config.ts`, `warm-route-prefetch.ts`, `RouteWarmPrefetch.tsx`, `CategoryFilter.tsx`, `SupplierFilter.tsx`, `use-categories.ts`, `use-suppliers.ts`, `ApiStatusPage.tsx`, `Navbar.tsx`
+
+---
+
+## REQ-0094 — Nav perf + detail UI + prod audit (planned)
+
+| Field | Value |
+|-------|-------|
+| **Priority** | P1 |
+| **Risk** | R2 |
+| **Status** | planned |
+| **Cycle** | C2 |
+| **Parent** | REQ-0093, REQ-0075 |
+
+**Intent:** Production perf audit; instant navbar nav feel; eliminate remaining duplicate API calls; close client/supplier/admin detail UI/workflow gaps.
+
+**Acceptance criteria (draft)**
+
+- AC1: Login → dashboard first paint ≤ target (prod `npm start` baseline); warm does not block paint
+- AC2: Navbar title click → destination shell instant (cache + RSC warm verified prod)
+- AC3: Network audit — no duplicate catalog API for client browse; role-scoped calls only
+- AC4: REQ-0075 detail gaps — supplier warehouse, action menu gating, admin detail parity
+- AC5: Prod deploy + Sentry 24h + Gate 2 evidence
+
+**Artifacts:** TBD after prod audit
+
+---
+
 ## REQ-0020 — Locale-aware admin format (hydration-safe)
 
 | Field        | Value |

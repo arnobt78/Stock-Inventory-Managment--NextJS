@@ -3,6 +3,8 @@
  * Keep in sync: test-accounts.ts (UI), scripts/reset-demo-db.ts (fresh DB).
  */
 
+import { getRoboHashAvatarUrl } from "@/lib/ui/user-avatar-sources";
+
 /** Demo role keys — match LoginRoleSelect + test-accounts.ts. */
 export type DemoRoleKey = "guest-user" | "guest-supplier" | "guest-client";
 
@@ -17,6 +19,8 @@ export type DemoSeedUser = {
   role: "admin" | "client" | "supplier";
   /** Unique placeholder — avoids sparse googleId index collisions in MongoDB. */
   googleId: string;
+  /** Stable robohash profile image for navbar/avatars at seed time. */
+  image: string;
 };
 
 /** Three demo users wiped + recreated by `npm run script:reset-demo-db`. */
@@ -28,6 +32,7 @@ export const DEMO_SEED_USERS: readonly DemoSeedUser[] = [
     username: "testadmin",
     role: "admin",
     googleId: "demo-admin",
+    image: getRoboHashAvatarUrl("demo-admin"),
   },
   {
     roleKey: "guest-client",
@@ -36,6 +41,7 @@ export const DEMO_SEED_USERS: readonly DemoSeedUser[] = [
     username: "testclient",
     role: "client",
     googleId: "demo-client",
+    image: getRoboHashAvatarUrl("demo-client"),
   },
   {
     roleKey: "guest-supplier",
@@ -44,5 +50,6 @@ export const DEMO_SEED_USERS: readonly DemoSeedUser[] = [
     username: "testsupplier",
     role: "supplier",
     googleId: "demo-supplier",
+    image: getRoboHashAvatarUrl("demo-supplier"),
   },
 ] as const;

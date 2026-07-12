@@ -28,7 +28,11 @@ describe("computeProductInsights", () => {
     );
 
     expect(insights.stockBreakdown.available).toBe(1);
-    expect(insights.warehouseStock).toEqual({ available: 15, reserved: 5 });
+    expect(insights.warehouseStock).toEqual({
+      available: 15,
+      reserved: 5,
+      unallocated: 80,
+    });
     expect(insights.salesTrend.length).toBeGreaterThanOrEqual(1);
   });
 });

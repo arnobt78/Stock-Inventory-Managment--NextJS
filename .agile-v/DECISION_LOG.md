@@ -217,3 +217,17 @@ Format: `TIMESTAMP | AGENT | DECISION | RATIONALE | REQ-ID`
 2026-07-12T16:01:00Z | red-team | REQ-0086 gates | lint ✓ test 399 ✓ invalidate 206 ✓ build ✓ | REQ-0086
 2026-07-12T16:05:00Z | build-agent | REQ-0087 AC1–AC3 | Pass loading prop to catalog list components; remove duplicate pulse wrappers | REQ-0087
 2026-07-12T16:05:00Z | red-team | REQ-0087 gates | lint ✓ test 399 ✓ invalidate 206 ✓ build ✓ | REQ-0087
+2026-07-12T16:55:00Z | build-agent | REQ-0088 full demo seed | demo-seed-data.ts + seed-demo-catalog; remove orphaned description script | REQ-0088
+2026-07-12T16:55:00Z | build-agent | REQ-0089 audit user href | Admin-only user-management links on catalog info cards; no ownerProductsHref on audit rows | REQ-0089
+2026-07-12T16:55:00Z | build-agent | REQ-0090 warehouse pie unallocated | unallocated slice + chart labels/badges reconcile catalog qty vs allocations | REQ-0090
+2026-07-12T16:55:00Z | red-team | REQ-0088–0090 gates | lint ✓ test 406 ✓ invalidate 206 ✓ build ✓; reset-demo-db QA ✓ | REQ-0088, REQ-0089, REQ-0090
+2026-07-12T17:05:00Z | build-agent | REQ-0091 Test Supplier naming | entity name aligned; verify by userId; create-demo-accounts backfill + catalog seed | REQ-0091
+2026-07-12T17:05:00Z | red-team | REQ-0091 gates | lint ✓ test 411 ✓ invalidate 206 ✓ build ✓ | REQ-0091
+2026-07-12T18:00:00Z | build-agent | REQ-0092 accounts-only seed | seedDemoAccountsOnly; robohash image; no default catalog; verify profile checks | REQ-0092
+2026-07-12T18:35:00Z | red-team | REQ-0092 gates | lint ✓ test 413 ✓ invalidate 206 ✓ build ✓; reset-demo-db + verify ✓ (catalog 0) | REQ-0092
+2026-07-12T19:00:00Z | build-agent | REQ-0093 role-nav-config DRY | Navbar + RouteWarmPrefetch share getNavPathsForRole | REQ-0093
+2026-07-12T19:00:00Z | build-agent | REQ-0093 filter enabled gate | CategoryFilter/SupplierFilter skip fetch when browse override present | REQ-0093
+2026-07-12T19:00:00Z | build-agent | REQ-0093 warm harden | Batched TanStack warm; logout ref reset; staggered router.prefetch | REQ-0093
+2026-07-12T19:00:00Z | build-agent | REQ-0093 ApiStatus dedupe | Strict Mode cancel guard; remove debug ingest | REQ-0093
+2026-07-12T19:20:00Z | red-team | REQ-0093 gates | lint ✓ test 413 ✓ invalidate 206 ✓ build ✓ | REQ-0093
+2026-07-12T19:25:00Z | product-owner | REQ-0094 planned | Prod nav perf, detail UI, API dedupe — tomorrow session | REQ-0094

@@ -35,6 +35,14 @@ import {
   SectionCardHeader,
 } from "@/components/shared";
 import {
+  getApiStatusEndpointsForRole,
+  type ApiStatusRole,
+} from "@/lib/monitoring/api-status-endpoints";
+import {
+  probeApiEndpointsBatched,
+  type EndpointProbeResult,
+} from "@/lib/monitoring/api-status-probe";
+import {
   Activity,
   Cloud,
   Cpu,
@@ -168,12 +176,11 @@ function GlassCard({
   );
 }
 
-interface EndpointStatus {
-  name: string;
-  path: string;
-  status: "OK" | "ERROR" | "TIMEOUT";
-  responseTime?: number;
-  lastChecked: string;
+type EndpointStatus = EndpointProbeResult;
+
+interface ApiStatusPageProps {
+  /** SSR role — scopes probes + admin-only metrics (REQ-0093). */
+  userRole: ApiStatusRole | string;
 }
 
 interface ServiceHealth {
@@ -264,119 +271,46 @@ interface SystemStatus {
   lastChecked: string;
 }
 
-export default function ApiStatusPage() {
+export default function ApiStatusPage({ userRole }: ApiStatusPageProps) {
+  const roleEndpoints = getApiStatusEndpointsForRole(userRole);
+  const isAdminMetricsRole =
+    userRole === "admin" || userRole === "user";
   const [systemStatus, setSystemStatus] = useState<SystemStatus | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const { toast } = useToast();
 
-  const endpoints = [
-    { name: "Authentication", path: "/api/auth/session" },
-    { name: "Products", path: "/api/products" },
-    { name: "Categories", path: "/api/categories" },
-    { name: "Suppliers", path: "/api/suppliers" },
-    { name: "Orders", path: "/api/orders" },
-    { name: "Invoices", path: "/api/invoices" },
-    { name: "Warehouses", path: "/api/warehouses" },
-    { name: "Dashboard", path: "/api/dashboard" },
-    { name: "Health", path: "/api/health" },
-    { name: "Notifications", path: "/api/notifications/in-app" },
-    { name: "Support Tickets", path: "/api/support-tickets" },
-    { name: "Product Reviews", path: "/api/product-reviews" },
-    { name: "Import History", path: "/api/import-history" },
-    { name: "Performance", path: "/api/performance" },
-    { name: "System Metrics", path: "/api/system-metrics" },
-    { name: "OpenAPI Spec", path: "/api/openapi" },
-  ];
-
-  const checkEndpointHealth = async (
-    path: string,
-  ): Promise<{ status: "OK" | "ERROR" | "TIMEOUT"; responseTime?: number }> => {
-    const startTime = Date.now();
+  const loadSystemStatus = async (opts?: { isCancelled?: () => boolean }) => {
+    const isCancelled = () => opts?.isCancelled?.() ?? false;
     try {
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 5000); // 5 second timeout
+      // Health once; role-scoped batched probes; admin metrics only for admin/user
+      const [healthResponse, endpointStatuses, performanceResponse, systemMetricsResponse] =
+        await Promise.all([
+          fetch("/api/health", {
+            method: "GET",
+            credentials: "include",
+          }).then((res) => res.json() as Promise<HealthCheckResponse>),
+          probeApiEndpointsBatched(roleEndpoints),
+          isAdminMetricsRole
+            ? fetch("/api/performance", {
+                method: "GET",
+                credentials: "include",
+              })
+                .then((res) => res.json())
+                .catch(() => null)
+            : Promise.resolve(null),
+          isAdminMetricsRole
+            ? fetch("/api/system-metrics", {
+                method: "GET",
+                credentials: "include",
+              })
+                .then((res) => res.json())
+                .catch(() => null)
+            : Promise.resolve(null),
+        ]);
 
-      const response = await fetch(path, {
-        method: "GET",
-        signal: controller.signal,
-        credentials: "include",
-      });
+      if (isCancelled()) return;
 
-      clearTimeout(timeoutId);
-      const responseTime = Date.now() - startTime;
-
-      if (response.ok) {
-        return { status: "OK", responseTime };
-      } else {
-        return { status: "ERROR", responseTime };
-      }
-    } catch (error) {
-      const responseTime = Date.now() - startTime;
-      if (error instanceof Error && error.name === "AbortError") {
-        return { status: "TIMEOUT", responseTime };
-      }
-      return { status: "ERROR", responseTime };
-    }
-  };
-
-  const checkAllEndpoints = async (): Promise<EndpointStatus[]> => {
-    const results: EndpointStatus[] = [];
-
-    for (const endpoint of endpoints) {
-      const { status, responseTime } = await checkEndpointHealth(endpoint.path);
-      results.push({
-        name: endpoint.name,
-        path: endpoint.path,
-        status,
-        responseTime,
-        lastChecked: new Date().toLocaleString(),
-      });
-    }
-
-    return results;
-  };
-
-  const getOverallHealth = (
-    endpoints: EndpointStatus[],
-  ): "HEALTHY" | "DEGRADED" | "DOWN" => {
-    const okCount = endpoints.filter((ep) => ep.status === "OK").length;
-    const totalCount = endpoints.length;
-
-    if (okCount === totalCount) return "HEALTHY";
-    if (okCount > 0) return "DEGRADED";
-    return "DOWN";
-  };
-
-  const loadSystemStatus = async () => {
-    try {
-      // Fetch health check data, endpoint statuses, performance metrics, and system metrics in parallel
-      const [
-        healthResponse,
-        endpointStatuses,
-        performanceResponse,
-        systemMetricsResponse,
-      ] = await Promise.all([
-        fetch("/api/health", {
-          method: "GET",
-          credentials: "include",
-        }).then((res) => res.json() as Promise<HealthCheckResponse>),
-        checkAllEndpoints(),
-        fetch("/api/performance", {
-          method: "GET",
-          credentials: "include",
-        })
-          .then((res) => res.json())
-          .catch(() => null), // Gracefully handle if performance API fails
-        fetch("/api/system-metrics", {
-          method: "GET",
-          credentials: "include",
-        })
-          .then((res) => res.json())
-          .catch(() => null), // Gracefully handle if system metrics API fails
-      ]);
-
-      const overallHealth = getOverallHealth(endpointStatuses);
       const healthData = healthResponse.data;
       const performanceData = performanceResponse?.data?.summary as
         | PerformanceSummary
@@ -401,13 +335,16 @@ export default function ApiStatusPage() {
 
       setSystemStatus(status);
     } catch (error) {
+      if (isCancelled()) return;
       toast({
         title: "Error Loading Status",
         description: "Failed to load system status. Please try again.",
         variant: "destructive",
       });
     } finally {
-      setIsLoading(false);
+      if (!isCancelled()) {
+        setIsLoading(false);
+      }
     }
   };
 
@@ -422,8 +359,13 @@ export default function ApiStatusPage() {
   };
 
   useEffect(() => {
-    loadSystemStatus();
-  }, []);
+    let cancelled = false;
+    setIsLoading(true);
+    void loadSystemStatus({ isCancelled: () => cancelled });
+    return () => {
+      cancelled = true;
+    };
+  }, [userRole]);
 
   const getStatusIcon = (status: string) => {
     switch (status) {
@@ -613,7 +555,7 @@ export default function ApiStatusPage() {
               </React.Fragment>
               <div className="space-y-2">
                 {isLoading
-                  ? endpoints.map((_, i) => (
+                  ? roleEndpoints.map((_, i) => (
                       <div
                         key={`skeleton-ep-${i}`}
                         className="flex items-center justify-between p-4 rounded-xl border border-gray-300/20 dark:border-white/10 bg-white/30 dark:bg-white/5 backdrop-blur-md"

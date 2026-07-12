@@ -35,6 +35,7 @@ import {
   useDeleteSupplier,
   useForecastingSummary,
 } from "@/hooks/queries";
+import { resolveAuditUserManagementHref } from "@/lib/navigation/audit-user-href";
 import { useBackWithRefresh } from "@/hooks/use-back-with-refresh";
 import { useAuth } from "@/contexts";
 import Navbar from "@/components/layouts/Navbar";
@@ -502,7 +503,10 @@ export default function SupplierDetailPage({
                           label={
                             supplier.creator.name ?? supplier.creator.email
                           }
-                          href={ownerProductsHref(supplier.creator.id)}
+                          href={resolveAuditUserManagementHref(
+                            supplier.creator.id,
+                            isAdminRole,
+                          )}
                         />
                       </DetailInfoRow>
                       <DetailInfoRow
@@ -523,14 +527,26 @@ export default function SupplierDetailPage({
                         label="Updated by:"
                         tone="blue"
                       >
-                        {supplier.updater.name}
+                        <AvatarInlineLink
+                          seed={supplier.updater.id}
+                          image={supplier.updater.image}
+                          label={
+                            supplier.updater.name ?? supplier.updater.email
+                          }
+                          href={resolveAuditUserManagementHref(
+                            supplier.updater.id,
+                            isAdminRole,
+                          )}
+                        />
                       </DetailInfoRow>
                       <DetailInfoRow
                         icon={Mail}
                         label="Updater email:"
                         tone="blue"
                       >
-                        {supplier.updater.email}
+                        <CopyableText value={supplier.updater.email}>
+                          {supplier.updater.email}
+                        </CopyableText>
                       </DetailInfoRow>
                     </>
                   )}

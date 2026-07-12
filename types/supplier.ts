@@ -22,7 +22,7 @@ export interface Supplier {
   updatedAt?: Date | null;
   createdBy: string; // User ID who created the supplier
   updatedBy?: string | null; // User ID who last updated the supplier
-  /** True when this is the global Demo Supplier (test@supplier.com); edit/duplicate/delete are disabled. */
+  /** True when this is the global Test Supplier (test@supplier.com); edit/duplicate/delete are disabled. */
   isGlobalDemo?: boolean;
   /** Extended by API for detail page */
   creator?: {

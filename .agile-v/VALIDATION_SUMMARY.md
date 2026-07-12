@@ -3,7 +3,18 @@
 **Generated:** 2026-07-12  
 **eval_gate_status:** PENDING (Human Gate 2)  
 **Prod target SHA:** `ce7c80b` (main = origin/main)  
-**Red Team:** lint ✓ test 399 ✓ invalidate 206 ✓ build ✓ (2026-07-12 REQ-0087)
+**Red Team:** lint ✓ test 413 ✓ invalidate 206 ✓ build ✓ (2026-07-12 REQ-0093)
+
+---
+
+## REQ-0093 evidence
+
+| Check | Command | Result | REQ-IDs |
+|-------|---------|--------|---------|
+| Lint | `npm run lint` | PASS | REQ-0093 |
+| Unit tests | `npm run test` | PASS (413) | REQ-0093 |
+| Invalidation audit | `npm run test:invalidate` | PASS (206) | REQ-0077 |
+| Build | `npm run build` | PASS | REQ-0093 |
 
 ---
 
@@ -12,7 +23,7 @@
 | Check | Command | Result | REQ-IDs |
 |-------|---------|--------|---------|
 | Lint | `npm run lint` | PASS | ALL |
-| Unit tests | `npm run test` | PASS (399) | REQ-0087 |
+| Unit tests | `npm run test` | PASS (413) | REQ-0092 |
 | Invalidation audit | `npm run test:invalidate` | PASS (206) | REQ-0077 |
 | Build | `npm run build` | PASS | ALL |
 | Typecheck (touched scripts) | `tsc --noEmit` | PASS | REQ-0056 |

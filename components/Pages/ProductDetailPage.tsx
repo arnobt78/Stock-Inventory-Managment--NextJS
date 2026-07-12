@@ -45,6 +45,7 @@ import {
   useForecastingSummary,
 } from "@/hooks/queries";
 import { useBackWithRefresh } from "@/hooks/use-back-with-refresh";
+import { resolveAuditUserManagementHref } from "@/lib/navigation/audit-user-href";
 import { useAuth } from "@/contexts";
 import { useProductStore } from "@/stores";
 import Navbar from "@/components/layouts/Navbar";
@@ -71,6 +72,7 @@ import { enrichProductInsightsWithWarehouseStock } from "@/lib/insights/product-
 import {
   buildSalesChartData,
   buildWarehouseAllocationStockChartData,
+  buildWarehouseStockChartDescription,
   WAREHOUSE_STOCK_PIE_COLORS,
 } from "@/lib/ui/catalog-insights-chart-data";
 import { DetailInfoRow } from "@/components/orders/detail";
@@ -304,15 +306,19 @@ export default function ProductDetailPage({
   }, [isAdminRole, forecastQuery.data, productId]);
 
   const baseInsights = product?.productInsights;
+  const catalogQuantity =
+    product?.quantity != null ? Number(product.quantity) : undefined;
+
   const insights = useMemo(
     () =>
       baseInsights
         ? enrichProductInsightsWithWarehouseStock(
             baseInsights,
             warehouseAllocations,
+            catalogQuantity,
           )
         : null,
-    [baseInsights, warehouseAllocations],
+    [baseInsights, warehouseAllocations, catalogQuantity],
   );
 
   const warehouseLinkAllowed = !isSupplierRole && !isClientRole;
@@ -426,6 +432,25 @@ export default function ProductDetailPage({
   const stockChartData = insights
     ? buildWarehouseAllocationStockChartData(insights)
     : [];
+  const warehouseStockChartDescription =
+    insights?.warehouseStock && catalogQuantity != null
+      ? buildWarehouseStockChartDescription(insights, catalogQuantity)
+      : undefined;
+  const warehouseStockChartTrailing =
+    insights?.warehouseStock && catalogQuantity != null && !dataLoading ? (
+      <>
+        <SectionCountBadge>
+          {insights.warehouseStock.available} in warehouses
+        </SectionCountBadge>
+        {insights.warehouseStock.unallocated != null &&
+        insights.warehouseStock.unallocated > 0 ? (
+          <SectionCountBadge hue="amber">
+            {insights.warehouseStock.unallocated} unallocated
+          </SectionCountBadge>
+        ) : null}
+        <SectionCountBadge hue="sky">{catalogQuantity} catalog</SectionCountBadge>
+      </>
+    ) : undefined;
 
   const productHref = (id: string) =>
     embedInAdmin ? `/admin/products/${id}` : `/products/${id}`;
@@ -767,14 +792,26 @@ export default function ProductDetailPage({
                         label="Updated by:"
                         tone="blue"
                       >
-                        {product.updater.name}
+                        <AvatarInlineLink
+                          seed={product.updater.id}
+                          image={product.updater.image}
+                          label={
+                            product.updater.name ?? product.updater.email
+                          }
+                          href={resolveAuditUserManagementHref(
+                            product.updater.id,
+                            isAdminRole,
+                          )}
+                        />
                       </DetailInfoRow>
                       <DetailInfoRow
                         icon={Mail}
                         label="Updater email:"
                         tone="blue"
                       >
-                        {product.updater.email}
+                        <CopyableText value={product.updater.email}>
+                          {product.updater.email}
+                        </CopyableText>
                       </DetailInfoRow>
                     </>
                   )}
@@ -856,14 +893,16 @@ export default function ProductDetailPage({
               salesChartDescription="Revenue from this product's order lines"
               stockChartTitle={
                 insights.warehouseStock
-                  ? "Warehouse stock"
+                  ? "Warehouse allocated stock"
                   : "Stock status"
               }
               stockChartDescription={
-                insights.warehouseStock
+                warehouseStockChartDescription ??
+                (insights.warehouseStock
                   ? "Available vs reserved across warehouses"
-                  : "On-hand stock status"
+                  : "On-hand stock status")
               }
+              stockChartTrailing={warehouseStockChartTrailing}
               salesChartData={salesChartData}
               stockChartData={stockChartData}
               stockPieColors={
@@ -903,7 +942,7 @@ export default function ProductDetailPage({
                         }
                       />
                       <p className="text-xs text-gray-600 dark:text-white/60">
-                        Quantity allocated per warehouse location
+                        Allocated per warehouse; unallocated qty stays on catalog total
                       </p>
                     </div>
                   </div>

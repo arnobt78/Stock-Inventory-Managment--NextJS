@@ -3,54 +3,35 @@
 | Field | Value |
 |-------|-------|
 | **Cycle** | C1 (closing) → **C2 open** |
-| **Phase** | C2 — REQ-0087 **done** |
+| **Phase** | C2 — REQ-0093 **done** |
 | **Infinity Loop stage** | Verify ✓ (Gate 2 open) |
-| **Last updated** | 2026-07-12 (REQ-0087 catalog detail list loading DRY) |
-| **Session** | **ACTIVE** — REQ-0087 complete |
-| **Active REQ range** | REQ-0001 … REQ-0087 **done** |
-| **Prod deploy target** | `dffbe4d` — REQ-0086/0087 |
+| **Last updated** | 2026-07-12 (REQ-0093 role-scoped warm + filter leak) |
+| **Session** | **ACTIVE** — REQ-0093 complete |
+| **Active REQ range** | REQ-0001 … REQ-0093 **done** |
+| **Prod deploy target** | pending — REQ-0093 |
 | **Human Gate 1** | APPROVED (retroactive bootstrap) |
 | **Human Gate 2** | PENDING — Sentry 24h after prod deploy |
-| **Resume token** | `REQ-0088` — next backlog item |
+| **Resume token** | `REQ-0094` — nav perf + detail UI + prod audit |
+
+## REQ-0093 done (2026-07-12)
+
+Role-nav DRY, batched TanStack warm, RSC prefetch, filter enabled gate, ApiStatus dedupe, logout warm reset. Gates: lint ✓ test 413 ✓ invalidate 206 ✓ build ✓.
+
+## Next session (REQ-0094 — 2026-07-13)
+
+| Priority | Item |
+|----------|------|
+| P0 | Prod deploy REQ-0093; Sentry 24h Gate 2 |
+| P1 | Login/dashboard speed prod baseline; navbar click instant render |
+| P1 | Network audit — duplicate/unnecessary API per role |
+| P1 | REQ-0075 detail UI — client/supplier/admin layout + workflow bugs |
+| P2 | Optional: unit test `role-nav-config`; prefetch on nav hover |
 
 ## Current focus
 
-1. **REQ-0021–0029** — code done; pushed `3ebb4db`
-2. **Human Gate 2** — deploy confirm + Sentry 24h (REQ-0009)
-3. **REQ-0032** — auth glass parity, flat list, BG animation (code-complete)
-4. **REQ-0033** — auth copy, scroll shift, icon glow, spacing (code-complete)
-5. **REQ-0034** — auth welcome/goodbye session toasts (code-complete)
-6. **REQ-0035** — Google OAuth welcome toast (code-complete)
-7. **REQ-0036** — App shell full bleed; auth max-w-7xl only (code-complete)
-8. **REQ-0037** — Product status filter glass badges (code-complete)
-9. **REQ-0038** — SafeImage rollout (code-complete)
-10. **REQ-0039** — Navbar Google avatar SafeAvatarImage (code-complete)
-11. **REQ-0040** — Avatar URL DRY reviews/tickets (code-complete)
-12. **REQ-0041** — Catalog filter icons, chips, export chevron (code-complete)
-13. **REQ-0042** — Catalog select inline + orders/invoices export chevron (code-complete)
-14. **REQ-0043** — Unified filter chip row + reset (code-complete)
-15. **REQ-0044** — Unified responsive typography scale (code-complete)
-16. **REQ-0045** — Filter row UX + invoice status perf + header spacing (code-complete)
-17. **REQ-0046** — Catalog toolbar parity + focus no-shift + hue rings (code-complete)
-18. **REQ-0047** — Glass button tokens + Batch A/B page consistency (code-complete)
-19. **REQ-0048** — Auth light mode + dialog tables + order product thumbs (code-complete)
-20. **REQ-0049** — Dialog UX polish: dual-theme tables, glass CTAs, submit gates (code-complete)
-21. **REQ-0050** — Glass shell-reset Batch B + dialog table titles + review submits (code-complete)
-22. **Hotfix** — CTA gradient restore `73060a1` (auth + page buttons; SHELL_RESET fix)
-23. **REQ-0051** — glass consistency backlog (planned — see handoff)
-24. **REQ-0052** — post-mutation deferred cache (`after()`) (code-complete, **uncommitted**)
-25. **REQ-0053** — scoped warehouse/stock Redis invalidation (code-complete, **uncommitted**)
-26. **REQ-0054** — scoped invalidation sweep, all 32 write routes (code-complete, **uncommitted**)
-27. **REQ-0055** — fix Redis race condition (sync await, not `after()`) + stale-UI fix (code-complete, **uncommitted**)
-28. **REQ-0056** — demo DB reset script + DRY seed source (code-complete, **uncommitted**)
-29. **REQ-0057** — back-button sweep + router.refresh() elimination (code-complete, **uncommitted**)
-30. **REQ-0058** — CopyableText for order/invoice numbers everywhere (code-complete, **uncommitted**)
-31. **REQ-0059** — ProductThumb on detail line items / allocations / catalog grids (code-complete, **uncommitted**)
-32. **REQ-0060** — OrderPickerCommand searchable invoice-dialog picker (code-complete, **uncommitted**)
-33. **REQ-0061** — situation-based invoice actions on orders (+ invoiceForOrder on list rows) (code-complete, **uncommitted**)
-34. **REQ-0062** — order actions in invoice table + role gating (done)
-35. **REQ-0063** — detail copy + invoice line items parity (done)
-36. **C2 backlog** — Gate 2 + manual QA + push REQ-0063 (see below)
+1. **REQ-0093** — done (role warm + filter leak + ApiStatus)
+2. **REQ-0094** — next: prod nav perf, detail UI gaps, API dedupe audit
+3. **Gate 2** — Sentry 24h post-deploy (REQ-0009)
 
 ## Session resume (every chat)
 
@@ -159,6 +140,7 @@
 | OB-001 | P0 | Confirm Vercel prod SHA post-push | deploy — verify `ce7c80b` |
 | OB-008 | P2 | Glass consistency sweep | REQ-0051 |
 | OB-003 | P1 | Manual QA: supplier `/products` → category/supplier links | REQ-0029 |
-| OB-004 | P1 | Manual QA: removeChild nav smoke | REQ-0001 |
+| OB-016 | P1 | Prod nav perf + duplicate API audit | **REQ-0094** |
+| OB-017 | P1 | Login/dashboard instant feel (prod baseline) | **REQ-0094** |
 
 **Rule:** New fixes → new REQ-0030+ in C2; do not expand C1 without traceability.

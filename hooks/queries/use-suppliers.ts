@@ -23,13 +23,17 @@ import type { SupplierForHome } from "@/lib/server/home-data";
  * Fetch all suppliers
  * Query hook for getting the list of all suppliers
  */
-export function useSuppliers(initialData?: Supplier[] | SupplierForHome[]) {
+export function useSuppliers(
+  initialData?: Supplier[] | SupplierForHome[],
+  options?: { enabled?: boolean },
+) {
   return useQuery<Supplier[]>({
     queryKey: queryKeys.suppliers.lists(),
     queryFn: async () => {
       const response = await apiClient.suppliers.getAll();
       return response.data;
     },
+    enabled: options?.enabled ?? true,
     ...withInitialData(initialData as Supplier[] | undefined),
   });
 }

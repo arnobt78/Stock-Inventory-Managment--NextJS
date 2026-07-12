@@ -39,6 +39,7 @@ export default async function AdminProductDetailPage({ params }: Props) {
       ? enrichProductInsightsWithWarehouseStock(
           initialProduct.productInsights,
           initialStockByProduct ?? [],
+          Number(initialProduct.quantity),
         )
       : initialProduct.productInsights,
   };

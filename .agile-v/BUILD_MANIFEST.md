@@ -226,6 +226,12 @@
 | ART-0218 | REQ-0085 | lib/insights/*, SupplierDetailPage, product routes | Client-safe insights lib; Supplier h1 CopyableText; product warehouse pie SSR enrich |
 | ART-0219 | REQ-0086 | catalog-detail/*, supplier-detail-data | Shared product/order list UI; supplier stats/info parity; SSR party enrich |
 | ART-0220 | REQ-0087 | CategoryDetailPage, SupplierDetailPage | loading prop DRY for catalog list components |
+| ART-0221 | REQ-0088 | `lib/auth/demo-seed-data.ts`, `scripts/lib/seed-demo-catalog.ts`, `scripts/reset-demo-db.ts` | Full connected demo seed |
+| ART-0222 | REQ-0089 | `lib/navigation/audit-user-href.ts`, Supplier/Category/Product detail pages | Role-aware audit user links |
+| ART-0223 | REQ-0090 | `lib/insights/warehouse-stock-aggregate.ts`, `catalog-insights-chart-data.ts`, ProductDetailPage | Warehouse pie unallocated slice + labels |
+| ART-0224 | REQ-0091 | `demo-seed-data.ts`, `create-demo-accounts.ts`, `verify-demo-accounts.ts` | Test Supplier naming + legacy backfill + catalog seed |
+| ART-0225 | REQ-0092 | `demo-seed-users.ts`, `seed-demo-accounts.ts`, `reset-demo-db.ts`, `create-demo-accounts.ts`, `verify-demo-accounts.ts` | Accounts-only reset; robohash image; opt-in catalog retained |
+| ART-0226 | REQ-0093 | `role-nav-config.ts`, `warm-route-prefetch.ts`, `RouteWarmPrefetch.tsx`, filter hooks, `ApiStatusPage.tsx` | Role-scoped batched warm + RSC prefetch; filter enabled gate; ApiStatus dedupe |
 
 ## Tests
 
@@ -255,4 +261,7 @@
 | TC-0022 | REQ-0076 | `lib/server/invoices-data.test.ts` |
 | TC-0023 | REQ-0077 | `lib/server/client-catalog-data.test.ts` |
 | TC-0024 | REQ-0077 | `lib/ui/chart-point-label.test.ts` (margin constant) |
-| TC-0025 | REQ-0077 | `lib/server/product-detail-data.test.ts` (recentOrders.placedBy) |
+| TC-0026 | REQ-0089 | `lib/navigation/audit-user-href.test.ts` |
+| TC-0027 | REQ-0090 | `lib/ui/catalog-insights-chart-data.test.ts` |
+| TC-0028 | REQ-0090 | `lib/insights/product-insights-enrich.test.ts` (unallocated) |
+| TC-0029 | REQ-0091 | `lib/insights/warehouse-stock-aggregate.test.ts` |

@@ -3,7 +3,7 @@
  */
 
 import { CATALOG_LOW_STOCK_THRESHOLD } from "@/lib/insights/constants";
-import { aggregateWarehouseStockFromAllocations } from "@/lib/insights/warehouse-stock-aggregate";
+import { aggregateWarehouseStockWithUnallocated } from "@/lib/insights/warehouse-stock-aggregate";
 import { buildSalesTrend } from "@/lib/server/catalog-insights";
 import type { CatalogEntityInsights } from "@/types/catalog-insights";
 import type { StockAllocation } from "@/types";
@@ -79,8 +79,9 @@ export function computeProductInsights(
   );
   const demandVelocity = totalQuantitySold / daySpan;
 
-  const warehouseStock = aggregateWarehouseStockFromAllocations(
+  const warehouseStock = aggregateWarehouseStockWithUnallocated(
     stockAllocations ?? [],
+    qty,
   );
 
   return {

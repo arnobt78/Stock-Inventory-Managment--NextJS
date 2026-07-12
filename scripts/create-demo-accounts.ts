@@ -4,8 +4,9 @@
  * Prefer the all-in-one fresh reset:
  *   npm run script:reset-demo-db
  *
- * This script only creates missing demo users (skips existing emails).
- * Does not wipe data. Creates admin if missing; links supplier portal entity.
+ * Creates missing demo users with full profile; links Test Supplier entity;
+ * backfills legacy supplier name and profile fields on existing rows.
+ * Does not seed catalog (REQ-0092).
  *
  * Usage:
  *   npx tsx scripts/create-demo-accounts.ts
@@ -14,11 +15,16 @@
 import { PrismaClient } from "@prisma/client";
 import bcrypt from "bcryptjs";
 import { DEMO_PASSWORD, DEMO_SEED_USERS } from "@/lib/auth/demo-seed-users";
+import { DEMO_SUPPLIER_ENTITY, LEGACY_DEMO_SUPPLIER_NAME } from "@/lib/auth/demo-seed-data";
+import {
+  ensureTestSupplierEntity,
+  upsertDemoUserProfile,
+} from "./lib/seed-demo-accounts";
 
 const prisma = new PrismaClient();
 
 const BCRYPT_ROUNDS = 10;
-const DEMO_SUPPLIER_NAME = "Demo Supplier";
+const DEMO_SUPPLIER_EMAIL = "test@supplier.com";
 
 async function main() {
   console.log("\n📦 Create demo accounts (admin + client + supplier)\n");
@@ -28,76 +34,44 @@ async function main() {
   const now = new Date();
 
   for (const spec of DEMO_SEED_USERS) {
-    const existing = await prisma.user.findUnique({
-      where: { email: spec.email },
-      select: { id: true, name: true, role: true },
-    });
+    const { id, created } = await upsertDemoUserProfile(
+      prisma,
+      spec,
+      hashedPassword,
+      now,
+    );
 
-    if (existing) {
-      console.log(
-        `   ⏭ ${spec.email} already exists (${existing.name}, role: ${existing.role ?? "—"}). Skipping.`,
-      );
-      continue;
+    if (created) {
+      console.log(`   ✅ Created ${spec.email} (${spec.name}, role: ${spec.role})`);
+    } else {
+      console.log(`   ⏭ ${spec.email} exists (id: ${id}) — profile backfill if needed`);
     }
-
-    await prisma.user.create({
-      data: {
-        email: spec.email,
-        name: spec.name,
-        username: spec.username,
-        password: hashedPassword,
-        role: spec.role,
-        googleId: spec.googleId,
-        createdAt: now,
-        updatedAt: now,
-      },
-    });
-    console.log(`   ✅ Created ${spec.email} (${spec.name}, role: ${spec.role})`);
   }
 
   const supplierUser = await prisma.user.findUnique({
-    where: { email: "test@supplier.com" },
+    where: { email: DEMO_SUPPLIER_EMAIL },
     select: { id: true },
   });
 
   if (supplierUser) {
-    const linked = await prisma.supplier.findFirst({
-      where: { userId: supplierUser.id },
-      select: { id: true, name: true },
-    });
+    const supplier = await ensureTestSupplierEntity(
+      prisma,
+      supplierUser.id,
+      now,
+    );
 
-    if (linked) {
-      console.log(`   ⏭ Supplier "${linked.name}" already linked to test@supplier.com`);
+    if (supplier.created) {
+      console.log(
+        `   ✅ Created "${DEMO_SUPPLIER_ENTITY.name}" and linked to ${DEMO_SUPPLIER_EMAIL}`,
+      );
+    } else if (supplier.renamed) {
+      console.log(
+        `   ✅ Renamed "${LEGACY_DEMO_SUPPLIER_NAME}" → "${DEMO_SUPPLIER_ENTITY.name}"`,
+      );
     } else {
-      const firstSupplier = await prisma.supplier.findFirst({
-        orderBy: { createdAt: "asc" },
-        select: { id: true, name: true },
-      });
-
-      if (firstSupplier) {
-        await prisma.supplier.update({
-          where: { id: firstSupplier.id },
-          data: {
-            userId: supplierUser.id,
-            createdBy: supplierUser.id,
-            updatedBy: supplierUser.id,
-            updatedAt: now,
-          },
-        });
-        console.log(`   ✅ Linked supplier "${firstSupplier.name}" to test@supplier.com`);
-      } else {
-        await prisma.supplier.create({
-          data: {
-            name: DEMO_SUPPLIER_NAME,
-            userId: supplierUser.id,
-            status: true,
-            createdBy: supplierUser.id,
-            updatedBy: supplierUser.id,
-            updatedAt: now,
-          },
-        });
-        console.log(`   ✅ Created "${DEMO_SUPPLIER_NAME}" and linked to test@supplier.com`);
-      }
+      console.log(
+        `   ⏭ Test Supplier linked to ${DEMO_SUPPLIER_EMAIL}`,
+      );
     }
   }
 

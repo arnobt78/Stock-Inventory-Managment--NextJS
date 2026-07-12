@@ -20,7 +20,7 @@ describe("getClientCatalogOverview", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     vi.mocked(prisma.supplier.findMany).mockResolvedValue([
-      { id: "s1", name: "Demo Supplier", status: true },
+      { id: "s1", name: "Test Supplier", status: true },
     ] as never);
     vi.mocked(prisma.category.findMany).mockResolvedValue([
       { id: "c1", name: "Headphone", status: true, userId: "u1" },

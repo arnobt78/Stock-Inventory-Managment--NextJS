@@ -33,6 +33,7 @@ import {
   useForecastingSummary,
 } from "@/hooks/queries";
 import { useBackWithRefresh } from "@/hooks/use-back-with-refresh";
+import { resolveAuditUserManagementHref } from "@/lib/navigation/audit-user-href";
 import { useAuth } from "@/contexts";
 import Navbar from "@/components/layouts/Navbar";
 import {
@@ -541,7 +542,10 @@ export default function CategoryDetailPage({
                         seed={category.creator.id}
                         image={category.creator.image}
                         label={category.creator.name ?? category.creator.email}
-                        href={ownerProductsHref(category.creator.id)}
+                        href={resolveAuditUserManagementHref(
+                          category.creator.id,
+                          isAdminRole,
+                        )}
                       />
                     </DetailInfoRow>
                     <DetailInfoRow
@@ -558,14 +562,26 @@ export default function CategoryDetailPage({
                 {!dataLoading && category?.updater && (
                   <>
                     <DetailInfoRow icon={User} label="Updated by:" tone="blue">
-                      {category.updater.name}
+                      <AvatarInlineLink
+                        seed={category.updater.id}
+                        image={category.updater.image}
+                        label={
+                          category.updater.name ?? category.updater.email
+                        }
+                        href={resolveAuditUserManagementHref(
+                          category.updater.id,
+                          isAdminRole,
+                        )}
+                      />
                     </DetailInfoRow>
                     <DetailInfoRow
                       icon={Mail}
                       label="Updater email:"
                       tone="blue"
                     >
-                      {category.updater.email}
+                      <CopyableText value={category.updater.email}>
+                        {category.updater.email}
+                      </CopyableText>
                     </DetailInfoRow>
                   </>
                 )}

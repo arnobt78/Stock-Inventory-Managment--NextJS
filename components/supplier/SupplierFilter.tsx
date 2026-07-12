@@ -69,7 +69,9 @@ export function SuppliersDropDown({
   suppliersOverride,
 }: SuppliersDropDownProps) {
   const [open, setOpen] = React.useState(false);
-  const { data: suppliersFromHook = [] } = useSuppliers();
+  const { data: suppliersFromHook = [] } = useSuppliers(undefined, {
+    enabled: suppliersOverride == null,
+  });
   const suppliers = suppliersOverride ?? suppliersFromHook;
 
   function handleToggle(value: string) {

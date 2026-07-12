@@ -50,12 +50,13 @@ export default function ProductsPage({
   initialBrowseMeta,
   initialBrowseProducts,
 }: ProductsPageProps = {}) {
-  const { data: allProducts = [] } = useProducts(
-    !userRole || userRole === "client" ? undefined : initialProducts,
-  );
   const { user } = useAuth();
   const role = userRole ?? user?.role ?? "user";
   const isClient = role === "client";
+  const { data: allProducts = [] } = useProducts(
+    isClient ? undefined : initialProducts,
+    { enabled: !isClient },
+  );
   const [selectedOwnerId, setSelectedOwnerId] = useState<string>(initialOwnerId);
 
   // Full navigation from catalog link updates SSR initialOwnerId.

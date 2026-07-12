@@ -23,13 +23,17 @@ import type { CategoryForHome } from "@/lib/server/home-data";
  * Fetch all categories
  * Query hook for getting the list of all categories
  */
-export function useCategories(initialData?: Category[] | CategoryForHome[]) {
+export function useCategories(
+  initialData?: Category[] | CategoryForHome[],
+  options?: { enabled?: boolean },
+) {
   return useQuery<Category[]>({
     queryKey: queryKeys.categories.lists(),
     queryFn: async () => {
       const response = await apiClient.categories.getAll();
       return response.data;
     },
+    enabled: options?.enabled ?? true,
     ...withInitialData(initialData as Category[] | undefined),
   });
 }

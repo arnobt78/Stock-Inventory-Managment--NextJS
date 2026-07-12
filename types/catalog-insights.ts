@@ -22,5 +22,10 @@ export type CatalogEntityInsights = {
   salesTrend: CatalogSalesTrendPoint[];
   stockBreakdown: CatalogStockBreakdown;
   /** Product detail — warehouse allocation totals when SSR stock rows exist. */
-  warehouseStock?: { available: number; reserved: number };
+  warehouseStock?: {
+    available: number;
+    reserved: number;
+    /** Catalog qty not assigned to any warehouse */
+    unallocated?: number;
+  };
 };

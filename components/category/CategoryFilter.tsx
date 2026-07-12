@@ -33,7 +33,9 @@ export function CategoryDropDown({
   categoriesOverride,
 }: CategoryDropDownProps) {
   const [open, setOpen] = React.useState(false);
-  const { data: categories = [] } = useCategories();
+  const { data: categories = [] } = useCategories(undefined, {
+    enabled: categoriesOverride == null,
+  });
   const { user } = useAuth();
 
   const userCategories = React.useMemo(() => {

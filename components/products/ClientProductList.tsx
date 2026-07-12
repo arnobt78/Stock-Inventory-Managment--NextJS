@@ -38,6 +38,24 @@ export type ClientProductListProps = {
   initialOwnerId?: string;
 };
 
+const EMPTY_BROWSE_PRODUCTS: Product[] = [];
+const EMPTY_BROWSE_CATEGORIES: Array<{ id: string; name: string }> = [];
+const EMPTY_BROWSE_SUPPLIERS: Array<{ id: string; name: string }> = [];
+const EMPTY_BROWSE_ADMINS: Array<{
+  id: string;
+  name: string;
+  email: string;
+  image?: string | null;
+}> = [];
+const DEFAULT_BROWSE_STATS = {
+  storeOwners: { total: 0, withProducts: 0 },
+  admins: 0,
+  clients: 0,
+  suppliers: { total: 0, active: 0, inactive: 0 },
+  categories: { total: 0, active: 0, inactive: 0 },
+  warehouses: { total: 0, active: 0, inactive: 0 },
+} as const;
+
 export default function ClientProductList({
   selectedOwnerId: controlledOwnerId,
   onOwnerChange,
@@ -49,6 +67,15 @@ export default function ClientProductList({
     useState<string>(initialOwnerId);
   const selectedOwnerId = controlledOwnerId ?? internalOwnerId;
   const setSelectedOwnerId = onOwnerChange ?? setInternalOwnerId;
+
+  const [searchTerm, setSearchTerm] = useState("");
+  const [pagination, setPagination] = useState<PaginationType>({
+    pageIndex: 0,
+    pageSize: 8,
+  });
+  const [selectedCategory, setSelectedCategory] = useState<string[]>([]);
+  const [selectedStatuses, setSelectedStatuses] = useState<string[]>([]);
+  const [selectedSuppliers, setSelectedSuppliers] = useState<string[]>([]);
 
   const metaQuery = useClientBrowseMeta(initialBrowseMeta);
   const productsQuery = useClientBrowseProducts(
@@ -65,18 +92,11 @@ export default function ClientProductList({
   const meta = metaQuery.data;
   const productsData = productsQuery.data;
 
-  const admins = meta?.admins ?? [];
-  const stats = meta?.stats ?? {
-    storeOwners: { total: 0, withProducts: 0 },
-    admins: 0,
-    clients: 0,
-    suppliers: { total: 0, active: 0, inactive: 0 },
-    categories: { total: 0, active: 0, inactive: 0 },
-    warehouses: { total: 0, active: 0, inactive: 0 },
-  };
-  const products = productsData?.products ?? [];
-  const ownerCategories = productsData?.categories ?? [];
-  const ownerSuppliers = productsData?.suppliers ?? [];
+  const admins = meta?.admins ?? EMPTY_BROWSE_ADMINS;
+  const stats = meta?.stats ?? DEFAULT_BROWSE_STATS;
+  const products = productsData?.products ?? EMPTY_BROWSE_PRODUCTS;
+  const ownerCategories = productsData?.categories ?? EMPTY_BROWSE_CATEGORIES;
+  const ownerSuppliers = productsData?.suppliers ?? EMPTY_BROWSE_SUPPLIERS;
 
   useEffect(() => {
     if (admins.length > 0 && !selectedOwnerId) {
@@ -84,16 +104,7 @@ export default function ClientProductList({
         admins.find((a) => a.email === "test@admin.com") ?? admins[0];
       if (defaultAdmin) setSelectedOwnerId(defaultAdmin.id);
     }
-  }, [admins, selectedOwnerId, setSelectedOwnerId]);
-
-  const [searchTerm, setSearchTerm] = useState("");
-  const [pagination, setPagination] = useState<PaginationType>({
-    pageIndex: 0,
-    pageSize: 8,
-  });
-  const [selectedCategory, setSelectedCategory] = useState<string[]>([]);
-  const [selectedStatuses, setSelectedStatuses] = useState<string[]>([]);
-  const [selectedSuppliers, setSelectedSuppliers] = useState<string[]>([]);
+  }, [meta?.admins, selectedOwnerId, setSelectedOwnerId]);
 
   const productsAsProductType = useMemo(
     () =>

@@ -1,19 +1,23 @@
 "use client";
 
 /**
- * Background warm prefetch after auth session is valid (REQ-0025).
- * Fills TanStack cache so subsequent navigations hit cache before RSC round-trip.
+ * Background warm prefetch after auth session is valid (REQ-0025, REQ-0093).
+ * Phase 1: TanStack API cache (role-scoped, batched).
+ * Phase 2: Next.js RSC prefetch for navbar paths (staggered, non-blocking).
  * REQ-0027: admin client-orders/invoices warm deferred until `/` or `/admin` visit.
  */
 
 import { useEffect, useRef } from "react";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "@/contexts";
+import { getNavPathsForRole } from "@/lib/navigation/role-nav-config";
 import {
   warmQueriesForUser,
   warmAdminClientPortalLists,
 } from "@/lib/react-query/warm-route-prefetch";
+
+const RSC_PREFETCH_STAGGER_MS = 50;
 
 function scheduleIdle(cb: () => void): void {
   if (typeof requestIdleCallback !== "undefined") {
@@ -23,26 +27,58 @@ function scheduleIdle(cb: () => void): void {
   }
 }
 
+/** Stagger router.prefetch so RSC warm does not burst the network. */
+async function prefetchNavRoutes(
+  router: ReturnType<typeof useRouter>,
+  role: string | null | undefined,
+): Promise<void> {
+  const paths = getNavPathsForRole(role);
+  for (const path of paths) {
+    try {
+      router.prefetch(path);
+    } catch {
+      // Best-effort — prefetch failures must not block UI
+    }
+    if (RSC_PREFETCH_STAGGER_MS > 0) {
+      await new Promise((resolve) => setTimeout(resolve, RSC_PREFETCH_STAGGER_MS));
+    }
+  }
+}
+
 export function RouteWarmPrefetch() {
   const { user, isLoggedIn, isCheckingAuth } = useAuth();
   const queryClient = useQueryClient();
+  const router = useRouter();
   const pathname = usePathname();
   const warmedForRef = useRef<string | null>(null);
   const adminClientListsWarmedRef = useRef(false);
 
+  // Reset warm guards on logout so re-login re-warms after queryClient.clear()
+  useEffect(() => {
+    if (!isLoggedIn) {
+      warmedForRef.current = null;
+      adminClientListsWarmedRef.current = false;
+    }
+  }, [isLoggedIn]);
+
   useEffect(() => {
     if (isCheckingAuth || !isLoggedIn || !user?.id) return;
-    if (warmedForRef.current === user.id) return;
-    warmedForRef.current = user.id;
 
-    // Defer until after first paint — avoids login API storm competing with home RSC (REQ-0026).
+    const warmKey = `${user.id}:${user.role ?? "user"}`;
+    if (warmedForRef.current === warmKey) return;
+    warmedForRef.current = warmKey;
+
+    // Defer until after first paint — login/dashboard not blocked (REQ-0026)
     scheduleIdle(() => {
-      void warmQueriesForUser(queryClient, {
-        id: user.id,
-        role: user.role ?? null,
-      });
+      void (async () => {
+        await warmQueriesForUser(queryClient, {
+          id: user.id,
+          role: user.role ?? null,
+        });
+        await prefetchNavRoutes(router, user.role);
+      })();
     });
-  }, [isCheckingAuth, isLoggedIn, user?.id, user?.role, queryClient]);
+  }, [isCheckingAuth, isLoggedIn, user?.id, user?.role, queryClient, router]);
 
   useEffect(() => {
     if (isCheckingAuth || !isLoggedIn || !user?.id) return;

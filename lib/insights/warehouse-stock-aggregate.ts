@@ -5,6 +5,21 @@
 
 import type { StockAllocation } from "@/types";
 
+export type WarehouseStockTotals = {
+  available: number;
+  reserved: number;
+  /** Catalog qty not assigned to any warehouse row */
+  unallocated?: number;
+};
+
+/** Sum allocated quantity across warehouse rows (ignores reserved split). */
+export function sumAllocatedQuantity(allocations: StockAllocation[]): number {
+  return allocations.reduce(
+    (sum, row) => sum + Number(row.quantity ?? 0),
+    0,
+  );
+}
+
 /** Sum available (qty − reserved) and reserved across allocation rows; undefined when empty. */
 export function aggregateWarehouseStockFromAllocations(
   allocations: StockAllocation[],
@@ -20,4 +35,21 @@ export function aggregateWarehouseStockFromAllocations(
     available += Math.max(0, total - reservedQty);
   }
   return { available, reserved };
+}
+
+/** Warehouse breakdown plus optional unallocated slice when catalog qty is known. */
+export function aggregateWarehouseStockWithUnallocated(
+  allocations: StockAllocation[],
+  catalogQuantity?: number,
+): WarehouseStockTotals | undefined {
+  const base = aggregateWarehouseStockFromAllocations(allocations);
+  if (!base) return undefined;
+
+  if (catalogQuantity == null || Number.isNaN(catalogQuantity)) {
+    return base;
+  }
+
+  const allocatedTotal = sumAllocatedQuantity(allocations);
+  const unallocated = Math.max(0, catalogQuantity - allocatedTotal);
+  return { ...base, unallocated };
 }

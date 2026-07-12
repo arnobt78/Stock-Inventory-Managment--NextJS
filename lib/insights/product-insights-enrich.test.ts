@@ -37,4 +37,28 @@ describe("enrichProductInsightsWithWarehouseStock", () => {
     expect(enriched.warehouseStock).toEqual({ available: 15, reserved: 5 });
     expect(enriched.stockBreakdown).toEqual(baseInsights.stockBreakdown);
   });
+
+  it("adds unallocated when catalog quantity exceeds allocated sum", () => {
+    const enriched = enrichProductInsightsWithWarehouseStock(
+      baseInsights,
+      [
+        {
+          id: "a1",
+          productId: "p1",
+          warehouseId: "w1",
+          quantity: 29,
+          reservedQuantity: 0,
+          userId: "u1",
+          createdAt: "",
+          updatedAt: null,
+        },
+      ],
+      49,
+    );
+    expect(enriched.warehouseStock).toEqual({
+      available: 29,
+      reserved: 0,
+      unallocated: 20,
+    });
+  });
 });

@@ -4,6 +4,7 @@
 
 "use client";
 
+import type { ReactNode } from "react";
 import Link from "next/link";
 import {
   AlertCircle,
@@ -64,6 +65,8 @@ export type CatalogInsightsSectionProps = {
   salesChartDescription?: string;
   stockChartTitle?: string;
   stockChartDescription?: string;
+  /** REQ-0090 — badges below stock chart header (product warehouse allocated vs unallocated). */
+  stockChartTrailing?: ReactNode;
   salesChartData: Array<{ label: string; revenue: number; units: number }>;
   stockChartData: Array<{ name: string; value: number }>;
   stockPieColors?: string[];
@@ -90,6 +93,7 @@ export function CatalogInsightsSection({
   salesChartDescription = "Revenue from order lines",
   stockChartTitle = "Stock breakdown",
   stockChartDescription = "Available vs low vs out of stock",
+  stockChartTrailing,
   salesChartData,
   stockChartData,
   stockPieColors = CATALOG_STOCK_PIE_COLORS,
@@ -273,6 +277,11 @@ export function CatalogInsightsSection({
         icon={PieChartIcon}
         variant="amber"
       >
+        {stockChartTrailing ? (
+          <div className="flex flex-wrap items-center gap-2 mb-3 -mt-1">
+            {stockChartTrailing}
+          </div>
+        ) : null}
         <DeferredChartSection
           loading={dataLoading}
           hasData={stockChartData.length > 0}
