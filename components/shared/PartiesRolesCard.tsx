@@ -2,6 +2,7 @@
 
 /**
  * REQ-0074 — shared Parties & roles card with avatar rings and per-party glow cards.
+ * REQ-0077 — PartyPersonDisplay uses AvatarInlineLink for consistency.
  */
 
 import React from "react";
@@ -13,10 +14,7 @@ import {
   MapPin,
   Users,
 } from "lucide-react";
-import { DataSlotPulse } from "@/components/shared";
-import { SafeAvatarImage } from "@/components/ui/safe-avatar-image";
-import { resolveAvatarSourcesFromSeed } from "@/lib/ui/user-avatar-sources";
-import { AVATAR_RING_TEAL_CLASS } from "@/lib/ui/avatar-ring-styles";
+import { AvatarInlineLink, DataSlotPulse } from "@/components/shared";
 import { cn } from "@/lib/utils";
 
 export type PartyPerson = {
@@ -24,6 +22,8 @@ export type PartyPerson = {
   name?: string | null;
   email: string;
   image?: string | null;
+  /** Optional profile/products link (admin contexts) */
+  href?: string;
 };
 
 export type PartiesRolesCardProps = {
@@ -49,30 +49,24 @@ function PartyPersonDisplay({
   if (!person) return <span className="text-gray-700 dark:text-white">—</span>;
 
   const seed = person.userId ?? person.email;
-  const avatar = resolveAvatarSourcesFromSeed(seed, person.image);
   const displayName = person.name ?? person.email;
 
   return (
-    <div className="flex items-center gap-2 min-w-0">
-      <SafeAvatarImage
-        src={avatar.src}
-        fallbackSrc={avatar.fallbackSrc}
-        width={28}
-        height={28}
-        className={cn("object-cover shrink-0", AVATAR_RING_TEAL_CLASS)}
-        alt=""
+    <div className="flex items-center gap-2 min-w-0 flex-wrap">
+      <AvatarInlineLink
+        seed={seed}
+        image={person.image}
+        label={displayName}
+        href={person.href}
+        size={28}
+        linkClassName="text-gray-700 dark:text-white hover:text-sky-600 dark:hover:text-sky-400"
       />
-      <p className="text-sm text-gray-700 dark:text-white truncate">
-        <span className="font-medium">{displayName}</span>
-        {person.name && (
-          <>
-            <span className="text-gray-400 dark:text-gray-500 mx-1">·</span>
-            <span className="text-gray-500 dark:text-gray-400 text-xs">
-              {person.email}
-            </span>
-          </>
-        )}
-      </p>
+      {person.name && (
+        <span className="text-sm text-gray-500 dark:text-gray-400 truncate">
+          <span className="text-gray-400 dark:text-gray-500 mx-1">·</span>
+          {person.email}
+        </span>
+      )}
     </div>
   );
 }

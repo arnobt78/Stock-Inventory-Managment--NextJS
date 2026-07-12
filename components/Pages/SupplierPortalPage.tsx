@@ -64,7 +64,7 @@ import { StatisticsCard } from "@/components/home/StatisticsCard";
 import { isDataSlotLoading, queryKeys, useSyncSsrQueryData } from "@/lib/react-query";
 import { cn } from "@/lib/utils";
 import { PAGE_STATS_GRID_CLASS } from "@/lib/ui/shell-layout-styles";
-import { createChartDotLabelRenderer } from "@/lib/ui/chart-point-label";
+import { createChartDotLabelRenderer, CHART_LABEL_TOP_MARGIN } from "@/lib/ui/chart-point-label";
 import type { SupplierPortalDashboard } from "@/types";
 
 export type SupplierPortalPageProps = {
@@ -337,7 +337,7 @@ export default function SupplierPortalPage({
               <ResponsiveChartContainer>
                 <AreaChart
                   data={dashboard!.monthlyRevenue}
-                  margin={{ top: 24, right: 30, left: 0, bottom: 0 }}
+                  margin={{ top: CHART_LABEL_TOP_MARGIN, right: 30, left: 0, bottom: 0 }}
                 >
                   <CartesianGrid strokeDasharray="3 3" />
                   <XAxis dataKey="month" />

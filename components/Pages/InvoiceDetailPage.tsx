@@ -51,6 +51,7 @@ import {
   PageSectionHeader,
   ProductLineItemsList,
   GLASS_GHOST_BUTTON,
+  glassDetailBackButtonClass,
   glassDetailFooterButtonClass,
   DETAIL_HEADER_BACK_ICON_CLASS,
   DialogSubmitButton,
@@ -798,7 +799,7 @@ export default function InvoiceDetailPage({
             <Button
               variant="ghost"
               onClick={onBack}
-              className={cn("w-full sm:w-auto gap-2", GLASS_GHOST_BUTTON)}
+              className={glassDetailBackButtonClass("w-full sm:w-auto gap-2")}
             >
               <ArrowLeft className="h-4 w-4 shrink-0" />
               Back

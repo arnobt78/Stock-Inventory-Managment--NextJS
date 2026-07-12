@@ -38,8 +38,18 @@ export interface Product {
   /** Product owner display name (populated when fetching by supplier) */
   productOwnerName?: string | null;
   /** Extended by API for detail page */
-  creator?: { name: string; email: string } | null;
-  updater?: { name: string; email: string } | null;
+  creator?: {
+    id: string;
+    name: string | null;
+    email: string;
+    image?: string | null;
+  } | null;
+  updater?: {
+    id: string;
+    name: string | null;
+    email: string;
+    image?: string | null;
+  } | null;
   statistics?: {
     totalQuantitySold: number;
     totalRevenue: number;
@@ -60,6 +70,12 @@ export interface Product {
     proportionalAmount?: number;
     orderTotal?: number;
     orderStatus: string;
+    placedBy?: {
+      id: string;
+      name: string | null;
+      email: string;
+      image?: string | null;
+    } | null;
   }> | null;
 }
 

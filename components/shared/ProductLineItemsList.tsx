@@ -9,6 +9,7 @@ import React from "react";
 import Link from "next/link";
 import { Hash, Package, Tag, Truck, Warehouse } from "lucide-react";
 import { ProductThumb } from "@/components/products/ProductOptionRow";
+import { AvatarInlineLink } from "@/components/shared/AvatarInlineLink";
 import ProductReviewsSection from "@/components/product-reviews/ProductReviewsSection";
 import type { Order, OrderItem } from "@/types";
 import type { OrderReviewContext } from "@/lib/server/order-review-context-data";
@@ -180,9 +181,16 @@ export function ProductLineItemsList({
                 ))}
               {(item.supplierName || item.supplierId) &&
                 (item.supplierId ? (
-                  <CatalogLink href={supplierHref} icon={Truck} label="Supplier:">
-                    {item.supplierName ?? "View supplier"}
-                  </CatalogLink>
+                  <span className="inline-flex items-center gap-1 text-sm text-gray-600 dark:text-gray-400">
+                    <Truck className="h-3.5 w-3.5 shrink-0 text-gray-500 dark:text-gray-400" />
+                    Supplier:{" "}
+                    <AvatarInlineLink
+                      seed={item.supplierId}
+                      label={item.supplierName ?? "View supplier"}
+                      href={supplierHref}
+                      size={20}
+                    />
+                  </span>
                 ) : (
                   <CatalogText icon={Truck} label="Supplier:">
                     {item.supplierName ?? "—"}

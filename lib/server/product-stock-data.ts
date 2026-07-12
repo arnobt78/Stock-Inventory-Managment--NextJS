@@ -19,8 +19,9 @@ function transformAllocation(
     updatedAt: Date | null;
   },
   productMap: Map<string, { name: string; sku: string; imageUrl: string | null }>,
-  warehouseMap: Map<string, string>,
+  warehouseMap: Map<string, { name: string; status: boolean }>,
 ): StockAllocation {
+  const warehouse = warehouseMap.get(r.warehouseId);
   return {
     id: r.id,
     productId: r.productId,
@@ -33,8 +34,8 @@ function transformAllocation(
     product: productMap.has(r.productId)
       ? { id: r.productId, ...productMap.get(r.productId)! }
       : undefined,
-    warehouse: warehouseMap.has(r.warehouseId)
-      ? { id: r.warehouseId, name: warehouseMap.get(r.warehouseId)! }
+    warehouse: warehouse
+      ? { id: r.warehouseId, name: warehouse.name, status: warehouse.status }
       : undefined,
   };
 }
@@ -65,7 +66,7 @@ export async function getStockByProductForPage(
     }),
     prisma.warehouse.findMany({
       where: { id: { in: warehouseIds }, userId: ownerUserId },
-      select: { id: true, name: true },
+      select: { id: true, name: true, status: true },
     }),
   ]);
 
@@ -74,7 +75,9 @@ export async function getStockByProductForPage(
       ? [[productRow.id, { name: productRow.name, sku: productRow.sku, imageUrl: productRow.imageUrl ?? null }]]
       : [],
   );
-  const warehouseMap = new Map(warehouses.map((w) => [w.id, w.name]));
+  const warehouseMap = new Map(
+    warehouses.map((w) => [w.id, { name: w.name, status: Boolean(w.status) }]),
+  );
 
   return allocations
     .filter((a) => warehouseMap.has(a.warehouseId))

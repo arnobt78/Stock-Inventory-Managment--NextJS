@@ -31,11 +31,13 @@ export async function getStockByWarehouseForPage(
     fetchStockAllocationProductMap(productIds),
     prisma.warehouse.findMany({
       where: { id: { in: warehouseIds } },
-      select: { id: true, name: true },
+      select: { id: true, name: true, status: true },
     }),
   ]);
 
-  const warehouseMap = new Map(warehouses.map((w) => [w.id, w.name]));
+  const warehouseMap = new Map(
+    warehouses.map((w) => [w.id, { name: w.name, status: Boolean(w.status) }]),
+  );
 
   return allocations.map((a) =>
     transformStockAllocationRow(a, productMap, warehouseMap),

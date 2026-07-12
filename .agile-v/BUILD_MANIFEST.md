@@ -204,6 +204,15 @@
 | ART-0196 | REQ-0076 | Admin review/ticket/user embeds | DetailInfoRow + ClientDateTime |
 | ART-0197 | REQ-0076 | `InvoiceDetailPage` | Supplier Pay gate (`!isSupplierRole`) |
 | ART-0198 | REQ-0076 | `app/invoices/page.tsx` | Remove dead supplier prefetchListPageStats |
+| ART-0199 | REQ-0077 | `chart-point-label.tsx`, `chart-card.tsx`, portal chart pages | Label styling + margin + overflow |
+| ART-0200 | REQ-0077 | `client-catalog-data.ts`, `ClientPortalPage.tsx` | Meta totals + subsection badges |
+| ART-0201 | REQ-0077 | `AvatarInlineLink.tsx`, `card-empty-styles.ts`, `glass-button-styles.ts` | Shared UX primitives |
+| ART-0202 | REQ-0077 | `ProductDetailPage.tsx`, `product-detail-data.ts` | Sales icons, recent orders, warehouse gating |
+| ART-0203 | REQ-0077 | Detail pages + `ProductTableColumns.tsx`, `ProductLineItemsList.tsx` | CopyableText + avatar sweeps |
+| ART-0204 | REQ-0077 | `AdminHistoryDetailContent.tsx` | Footer glassDetailBackButtonClass |
+| ART-0205 | REQ-0077 | `stock-allocation-enrich.ts`, product-stock/API | Warehouse status on allocation rows |
+| ART-0206 | REQ-0077 | `PartiesRolesCard.tsx` | AvatarInlineLink parity |
+| ART-0207 | REQ-0077 | `app/api/portal/client/catalog/route.ts` | Redis v2 + meta guard |
 
 ## Tests
 
@@ -231,3 +240,6 @@
 | TC-0020 | REQ-0074 | `lib/ui/chart-point-label.test.ts` |
 | TC-0021 | REQ-0075 | `lib/server/product-stock-data.test.ts` |
 | TC-0022 | REQ-0076 | `lib/server/invoices-data.test.ts` |
+| TC-0023 | REQ-0077 | `lib/server/client-catalog-data.test.ts` |
+| TC-0024 | REQ-0077 | `lib/ui/chart-point-label.test.ts` (margin constant) |
+| TC-0025 | REQ-0077 | `lib/server/product-detail-data.test.ts` (recentOrders.placedBy) |

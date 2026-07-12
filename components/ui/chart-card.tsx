@@ -125,7 +125,7 @@ export function ChartCard({
   return (
     <article
       className={cn(
-        "group rounded-[20px] border backdrop-blur-md transition overflow-hidden",
+        "group rounded-[20px] border backdrop-blur-md transition",
         config.border,
         config.gradient,
         config.shadow,
@@ -141,7 +141,7 @@ export function ChartCard({
           tone={variant as SectionHeaderTone}
         />
       </div>
-      <div className="px-4 pb-4 sm:px-5 sm:pb-5">{children}</div>
+      <div className="overflow-visible px-4 pb-4 sm:px-5 sm:pb-5 pt-1">{children}</div>
     </article>
   );
 }

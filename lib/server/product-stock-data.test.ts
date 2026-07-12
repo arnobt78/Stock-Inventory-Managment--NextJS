@@ -49,7 +49,7 @@ describe("getStockByProductForPage", () => {
     } as never);
 
     vi.mocked(prisma.warehouse.findMany).mockResolvedValue([
-      { id: "wh-1", name: "Main Warehouse" },
+      { id: "wh-1", name: "Main Warehouse", status: true },
     ] as never);
 
     const result = await getStockByProductForPage(
@@ -59,10 +59,11 @@ describe("getStockByProductForPage", () => {
 
     expect(prisma.warehouse.findMany).toHaveBeenCalledWith({
       where: { id: { in: ["wh-1"] }, userId: "admin-owner" },
-      select: { id: true, name: true },
+      select: { id: true, name: true, status: true },
     });
     expect(result).toHaveLength(1);
     expect(result![0].warehouse?.name).toBe("Main Warehouse");
+    expect(result![0].warehouse?.status).toBe(true);
     expect(result![0].quantity).toBe(10);
   });
 

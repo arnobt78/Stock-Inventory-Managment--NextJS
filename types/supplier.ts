@@ -19,8 +19,18 @@ export interface Supplier {
   /** True when this is the global Demo Supplier (test@supplier.com); edit/duplicate/delete are disabled. */
   isGlobalDemo?: boolean;
   /** Extended by API for detail page */
-  creator?: { name: string; email: string } | null;
-  updater?: { name: string; email: string } | null;
+  creator?: {
+    id: string;
+    name: string | null;
+    email: string;
+    image?: string | null;
+  } | null;
+  updater?: {
+    id: string;
+    name: string | null;
+    email: string;
+    image?: string | null;
+  } | null;
   statistics?: {
     totalProducts: number;
     totalQuantitySold: number;

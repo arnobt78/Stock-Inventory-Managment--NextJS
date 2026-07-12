@@ -41,6 +41,7 @@ import {
   PageContentWrapper,
   DataSlotPulse,
   GLASS_GHOST_BUTTON,
+  glassDetailBackButtonClass,
   glassDetailFooterButtonClass,
   CopyableText,
   DialogSubmitButton,
@@ -458,7 +459,7 @@ export default function OrderDetailPage({
             <Button
               variant="ghost"
               onClick={handleBack}
-              className={cn("w-full sm:w-auto gap-2", GLASS_GHOST_BUTTON)}
+              className={glassDetailBackButtonClass("w-full sm:w-auto gap-2")}
             >
               <ArrowLeft className="h-4 w-4 shrink-0" />
               Back

@@ -40,8 +40,18 @@ function transformCategoryDetail(
       }>
     >
   >,
-  creatorUser: { id: string; email: string; name: string | null } | null,
-  updaterUser: { id: string; email: string; name: string | null } | null,
+  creatorUser: {
+    id: string;
+    email: string;
+    name: string | null;
+    image?: string | null;
+  } | null,
+  updaterUser: {
+    id: string;
+    email: string;
+    name: string | null;
+    image?: string | null;
+  } | null,
 ) {
   const totalProducts = products.length;
   let totalQuantitySold = 0;
@@ -127,6 +137,7 @@ function transformCategoryDetail(
           id: creatorUser.id,
           email: creatorUser.email,
           name: creatorUser.name,
+          image: creatorUser.image ?? null,
         }
       : null,
     updater: updaterUser
@@ -134,6 +145,7 @@ function transformCategoryDetail(
           id: updaterUser.id,
           email: updaterUser.email,
           name: updaterUser.name,
+          image: updaterUser.image ?? null,
         }
       : null,
     createdAt: category.createdAt.toISOString(),
@@ -231,13 +243,13 @@ export async function getCategoryDetailForPage(
     category.createdBy
       ? prisma.user.findUnique({
           where: { id: category.createdBy },
-          select: { id: true, email: true, name: true },
+          select: { id: true, email: true, name: true, image: true },
         })
       : null,
     category.updatedBy
       ? prisma.user.findUnique({
           where: { id: category.updatedBy },
-          select: { id: true, email: true, name: true },
+          select: { id: true, email: true, name: true, image: true },
         })
       : null,
   ]);

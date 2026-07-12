@@ -1,9 +1,15 @@
 /**
- * REQ-0074 — Recharts point value labels (currency, count, compact).
+ * REQ-0074/0077 — Recharts point value labels (currency, count, compact).
  * Renders formatted values at data points across portal/admin/business charts.
  */
 
 import type { ReactElement } from "react";
+
+/** Top margin for charts using point labels — keep in sync with label Y offset. */
+export const CHART_LABEL_TOP_MARGIN = 28;
+
+const CHART_LABEL_CLASS =
+  "fill-gray-700 dark:fill-white text-xs font-normal pointer-events-none";
 
 export type ChartPointLabelFormatter = (value: number) => string;
 
@@ -47,8 +53,6 @@ export function ChartDotLabel({
   y = 0,
   value,
   index = 0,
-  stroke,
-  fill,
   formatter = formatChartCurrencyLabel,
   lastOnly = false,
   dataLength = 0,
@@ -59,7 +63,6 @@ export function ChartDotLabel({
   const num = typeof value === "number" ? value : Number(value);
   if (!Number.isFinite(num) || num === 0) return null;
 
-  const color = stroke ?? fill ?? "currentColor";
   const text = formatChartPointLabel(num, formatter);
   const cx = typeof x === "number" ? x : Number(x);
   const cy = typeof y === "number" ? y : Number(y);
@@ -67,12 +70,10 @@ export function ChartDotLabel({
   return (
     <text
       x={cx}
-      y={cy - 10}
-      fill={color}
+      y={cy - 12}
       textAnchor="middle"
-      fontSize={11}
-      fontWeight={600}
-      className="pointer-events-none"
+      dominantBaseline="auto"
+      className={CHART_LABEL_CLASS}
     >
       {text}
     </text>
@@ -85,7 +86,6 @@ export function ChartBarLabel({
   y = 0,
   width = 0,
   value,
-  fill,
   formatter = formatChartCurrencyLabel,
 }: RechartsLabelProps): ReactElement | null {
   if (value == null || value === "") return null;
@@ -93,18 +93,18 @@ export function ChartBarLabel({
   if (!Number.isFinite(num)) return null;
 
   const text = formatChartPointLabel(num, formatter);
-  const cx = (typeof x === "number" ? x : Number(x)) + (typeof width === "number" ? width : Number(width ?? 0)) / 2;
+  const cx =
+    (typeof x === "number" ? x : Number(x)) +
+    (typeof width === "number" ? width : Number(width ?? 0)) / 2;
   const cy = typeof y === "number" ? y : Number(y);
 
   return (
     <text
       x={cx}
-      y={cy - 6}
-      fill={fill ?? "currentColor"}
+      y={cy - 8}
       textAnchor="middle"
-      fontSize={10}
-      fontWeight={600}
-      className="pointer-events-none"
+      dominantBaseline="auto"
+      className={CHART_LABEL_CLASS}
     >
       {text}
     </text>

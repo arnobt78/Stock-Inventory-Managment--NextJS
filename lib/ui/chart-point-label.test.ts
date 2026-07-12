@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
+  CHART_LABEL_TOP_MARGIN,
   formatChartCountLabel,
   formatChartCurrencyLabel,
   formatChartPointLabel,
@@ -19,5 +20,9 @@ describe("chart-point-label", () => {
   it("formatChartPointLabel delegates to formatter", () => {
     expect(formatChartPointLabel(10, formatChartCountLabel)).toBe("10");
     expect(formatChartPointLabel(NaN)).toBe("");
+  });
+
+  it("exports CHART_LABEL_TOP_MARGIN for chart margin sync (REQ-0077)", () => {
+    expect(CHART_LABEL_TOP_MARGIN).toBe(28);
   });
 });

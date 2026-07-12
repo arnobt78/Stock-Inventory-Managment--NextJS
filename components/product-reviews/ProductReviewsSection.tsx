@@ -3,7 +3,8 @@
 import React, { useState } from "react";
 import { SafeAvatarImage } from "@/components/ui/safe-avatar-image";
 import { resolveAvatarSourcesFromSeed } from "@/lib/ui/user-avatar-sources";
-import { Star, MessageSquare, Pencil, Trash2, Loader2 } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { CARD_EMPTY_MESSAGE_CLASS } from "@/lib/ui/card-empty-styles";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts";
 import {
@@ -22,6 +23,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { Loader2, MessageSquare, Pencil, Star, Trash2 } from "lucide-react";
 
 function StarRating({ value }: { value: number }) {
   return (
@@ -233,8 +235,13 @@ export default function ProductReviewsSection({
           <div className={cn("p-2 rounded-xl border", config.iconBg)}>
             <Star className="h-5 w-5 text-amber-500" />
           </div>
-          <h3 className="text-sm sm:text-base font-medium text-gray-700 dark:text-white">
+          <h3 className="text-sm sm:text-base font-medium text-gray-700 dark:text-white flex items-center gap-2 flex-wrap">
             Reviews
+            {!reviewsLoading && (
+              <Badge variant="secondary" className="font-normal text-xs">
+                {reviewsToShow.length}
+              </Badge>
+            )}
           </h3>
         </div>
         {user && (
@@ -269,7 +276,7 @@ export default function ProductReviewsSection({
           ))}
         </div>
       ) : reviewsToShow.length === 0 ? (
-        <p className="text-sm text-gray-500 dark:text-gray-500 py-4">
+        <p className={CARD_EMPTY_MESSAGE_CLASS}>
           No reviews yet.
           {user && eligible && " Click “Write a review” above."}
         </p>

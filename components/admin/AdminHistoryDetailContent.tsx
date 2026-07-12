@@ -2,7 +2,8 @@
 
 import React from "react";
 import Link from "next/link";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
+import { useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import {
   ArrowLeft,
@@ -21,6 +22,7 @@ import {
   PageSectionHeader,
   SectionCardHeader,
   GLASS_GHOST_BUTTON,
+  glassDetailBackButtonClass,
   DETAIL_HEADER_BACK_ICON_CLASS,
   ClientDateTime,
 } from "@/components/shared";
@@ -44,12 +46,15 @@ export type AdminHistoryDetailContentProps = {
 /**
  * Admin History Detail — view a single import history record.
  * REQ-0075 AC4 — PageSectionHeader + GlassCard + DetailInfoRow parity.
+ * REQ-0077 — footer Back uses glassDetailBackButtonClass (admin embed parity).
  */
 export default function AdminHistoryDetailContent({
   backHref = "/admin/activity-history",
   initialRecord,
 }: AdminHistoryDetailContentProps = {}) {
   const params = useParams();
+  const router = useRouter();
+  const queryClient = useQueryClient();
   const id = params?.id as string;
   const recordQuery = useHistoryItem(id, initialRecord);
   const record = recordQuery.data;
@@ -57,6 +62,24 @@ export default function AdminHistoryDetailContent({
   const { isError, error } = recordQuery;
 
   useSyncSsrQueryData(queryKeys.history.detail(id), initialRecord);
+
+  /** Narrow invalidation — refresh history list when returning (read-only detail). */
+  const handleBack = () => {
+    queryClient.invalidateQueries({ queryKey: queryKeys.history.lists() });
+    router.push(backHref);
+  };
+
+  const footerBackRow = (
+    <div className="flex flex-col sm:flex-row flex-wrap gap-2 mt-4">
+      <Button
+        onClick={handleBack}
+        className={glassDetailBackButtonClass("w-full sm:w-auto gap-2 px-8")}
+      >
+        <ArrowLeft className="h-4 w-4 shrink-0" />
+        Back
+      </Button>
+    </div>
+  );
 
   if (isError) {
     return (
@@ -73,6 +96,7 @@ export default function AdminHistoryDetailContent({
               {error instanceof Error ? error.message : "Record not found"}
             </p>
           </GlassCard>
+          {footerBackRow}
         </div>
       </PageContentWrapper>
     );
@@ -93,6 +117,7 @@ export default function AdminHistoryDetailContent({
               The import record you are looking for does not exist or was removed.
             </p>
           </GlassCard>
+          {footerBackRow}
         </div>
       </PageContentWrapper>
     );
@@ -212,6 +237,8 @@ export default function AdminHistoryDetailContent({
             </div>
           </GlassCard>
         )}
+
+        {footerBackRow}
       </div>
     </PageContentWrapper>
   );

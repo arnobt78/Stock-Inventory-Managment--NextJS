@@ -1,5 +1,5 @@
 /**
- * SSR client catalog overview (REQ-0026).
+ * SSR client catalog overview (REQ-0026 / REQ-0077 meta totals).
  * Mirrors GET /api/portal/client/catalog.
  */
 import { prisma } from "@/prisma/client";
@@ -13,7 +13,14 @@ const CATALOG_LIMIT_PRODUCTS = 50;
 export async function getClientCatalogOverview(
   _userId: string,
 ): Promise<ClientCatalogOverview> {
-  const [suppliers, categories, products] = await Promise.all([
+  const [
+    suppliers,
+    categories,
+    products,
+    totalSuppliers,
+    totalCategories,
+    totalProducts,
+  ] = await Promise.all([
     prisma.supplier.findMany({
       orderBy: { name: "asc" },
       take: CATALOG_LIMIT_SUPPLIERS,
@@ -39,6 +46,9 @@ export async function getClientCatalogOverview(
         userId: true,
       },
     }),
+    prisma.supplier.count(),
+    prisma.category.count(),
+    prisma.product.count({ where: mergeProductListWhere({}) }),
   ]);
 
   const categoryIds = [...new Set(products.map((p) => p.categoryId))];
@@ -70,13 +80,15 @@ export async function getClientCatalogOverview(
       }),
       prisma.user.findMany({
         where: { id: { in: creatorIds } },
-        select: { id: true, name: true },
+        select: { id: true, name: true, image: true },
       }),
     ]);
 
   const categoryMap = new Map(categoryList.map((c) => [c.id, c.name]));
   const supplierMap = new Map(supplierList.map((s) => [s.id, s.name]));
-  const userMap = new Map(users.map((u) => [u.id, u.name]));
+  const userMap = new Map(
+    users.map((u) => [u.id, { name: u.name, image: u.image }]),
+  );
   const productCountBySupplier = new Map(
     supplierCounts.map((s) => [s.supplierId, s._count.id]),
   );
@@ -85,6 +97,11 @@ export async function getClientCatalogOverview(
   );
 
   return {
+    meta: {
+      totalSuppliers,
+      totalCategories,
+      totalProducts,
+    },
     suppliers: suppliers.map((s) => ({
       id: s.id,
       name: s.name,
@@ -97,20 +114,24 @@ export async function getClientCatalogOverview(
       status: c.status ? "Active" : "Inactive",
       productCount: productCountByCategory.get(c.id) ?? 0,
       categoryCreatorId: c.userId,
-      categoryCreatorName: userMap.get(c.userId) ?? null,
+      categoryCreatorName: userMap.get(c.userId)?.name ?? null,
     })),
-    products: products.map((p) => ({
-      id: p.id,
-      name: p.name,
-      sku: p.sku,
-      categoryId: p.categoryId,
-      categoryName: categoryMap.get(p.categoryId) ?? "—",
-      supplierId: p.supplierId,
-      supplierName: supplierMap.get(p.supplierId) ?? "—",
-      price: Number(p.price),
-      status: p.status,
-      productOwnerId: p.userId,
-      productOwnerName: userMap.get(p.userId) ?? null,
-    })),
+    products: products.map((p) => {
+      const owner = userMap.get(p.userId);
+      return {
+        id: p.id,
+        name: p.name,
+        sku: p.sku,
+        categoryId: p.categoryId,
+        categoryName: categoryMap.get(p.categoryId) ?? "—",
+        supplierId: p.supplierId,
+        supplierName: supplierMap.get(p.supplierId) ?? "—",
+        price: Number(p.price),
+        status: p.status,
+        productOwnerId: p.userId,
+        productOwnerName: owner?.name ?? null,
+        productOwnerImage: owner?.image ?? null,
+      };
+    }),
   };
 }

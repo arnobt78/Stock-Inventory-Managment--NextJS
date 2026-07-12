@@ -174,6 +174,11 @@ export interface ClientPortalDashboard {
  * Client catalog overview (read-only: suppliers, categories, products)
  */
 export interface ClientCatalogOverview {
+  meta: {
+    totalSuppliers: number;
+    totalCategories: number;
+    totalProducts: number;
+  };
   suppliers: Array<{
     id: string;
     name: string;
@@ -200,6 +205,7 @@ export interface ClientCatalogOverview {
     status: string;
     productOwnerId: string;
     productOwnerName: string | null;
+    productOwnerImage?: string | null;
   }>;
 }
 

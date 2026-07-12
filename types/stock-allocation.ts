@@ -35,6 +35,8 @@ export interface StockAllocation {
   warehouse?: {
     id: string;
     name: string;
+    /** Warehouse active flag for product-detail inline badge (REQ-0077) */
+    status?: boolean;
   };
 }
 

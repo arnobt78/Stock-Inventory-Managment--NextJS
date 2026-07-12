@@ -8,6 +8,7 @@
 import React from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import {
   Table,
   TableBody,
@@ -47,6 +48,7 @@ import { ResponsiveChartContainer } from "@/components/ui/responsive-chart-conta
 import { DeferredChartSection } from "@/components/ui/deferred-chart-section";
 import Navbar from "@/components/layouts/Navbar";
 import {
+  AvatarInlineLink,
   CopyableText,
   PageContentWrapper,
   DataSlotPulse,
@@ -72,8 +74,34 @@ import { StatisticsCard } from "@/components/home/StatisticsCard";
 import { isDataSlotLoading, queryKeys, useSyncSsrQueryData } from "@/lib/react-query";
 import { cn } from "@/lib/utils";
 import { PAGE_STATS_GRID_CLASS } from "@/lib/ui/shell-layout-styles";
-import { createChartDotLabelRenderer } from "@/lib/ui/chart-point-label";
+import { createChartDotLabelRenderer, CHART_LABEL_TOP_MARGIN } from "@/lib/ui/chart-point-label";
 import type { ClientPortalDashboard, ClientCatalogOverview } from "@/types";
+import type { LucideIcon } from "lucide-react";
+
+/** REQ-0077 — catalog subsection title + aggregate count badge */
+function CatalogSubsectionTitle({
+  icon: Icon,
+  iconClassName,
+  label,
+  count,
+}: {
+  icon: LucideIcon;
+  iconClassName: string;
+  label: string;
+  count?: number;
+}) {
+  return (
+    <p className="text-gray-700 dark:text-white text-sm sm:text-base font-medium mb-2 flex items-center gap-2 flex-wrap">
+      <Icon className={cn("h-4 w-4 shrink-0", iconClassName)} />
+      <span>{label}</span>
+      {count != null && (
+        <Badge variant="secondary" className="font-normal text-xs">
+          {count}
+        </Badge>
+      )}
+    </p>
+  );
+}
 
 /** Normalize catalog product status label → semantic badge key */
 function productStatusKey(status: string): string {
@@ -369,7 +397,7 @@ export default function ClientPortalPage({
               <ResponsiveChartContainer>
                 <AreaChart
                   data={dashboard!.monthlySpending}
-                  margin={{ top: 24, right: 30, left: 0, bottom: 0 }}
+                  margin={{ top: CHART_LABEL_TOP_MARGIN, right: 30, left: 0, bottom: 0 }}
                 >
                   <CartesianGrid strokeDasharray="3 3" />
                   <XAxis dataKey="month" />
@@ -419,10 +447,11 @@ export default function ClientPortalPage({
               {catalogLoading ? (
                 <>
                   <div>
-                    <p className="text-sm font-medium mb-2 flex items-center gap-2">
-                      <Layers className="h-4 w-4 text-sky-500" />
-                      Suppliers
-                    </p>
+                    <CatalogSubsectionTitle
+                      icon={Layers}
+                      iconClassName="text-sky-500"
+                      label="Suppliers"
+                    />
                     <div className="overflow-x-auto rounded-md border">
                       <Table>
                         <TableHeader>
@@ -439,10 +468,11 @@ export default function ClientPortalPage({
                     </div>
                   </div>
                   <div>
-                    <p className="text-sm font-medium mb-2 flex items-center gap-2">
-                      <Boxes className="h-4 w-4 text-violet-500" />
-                      Categories
-                    </p>
+                    <CatalogSubsectionTitle
+                      icon={Boxes}
+                      iconClassName="text-violet-500"
+                      label="Categories"
+                    />
                     <div className="overflow-x-auto rounded-md border">
                       <Table>
                         <TableHeader>
@@ -460,10 +490,11 @@ export default function ClientPortalPage({
                     </div>
                   </div>
                   <div>
-                    <p className="text-sm font-medium mb-2 flex items-center gap-2">
-                      <Package className="h-4 w-4 text-emerald-500" />
-                      Products
-                    </p>
+                    <CatalogSubsectionTitle
+                      icon={Package}
+                      iconClassName="text-emerald-500"
+                      label="Products"
+                    />
                     <div className="overflow-x-auto rounded-md border">
                       <Table>
                         <TableHeader>
@@ -489,10 +520,12 @@ export default function ClientPortalPage({
               ) : (
                 <>
                   <div>
-                    <p className="text-sm font-medium mb-2 flex items-center gap-2">
-                      <Layers className="h-4 w-4 text-sky-500" />
-                      Suppliers
-                    </p>
+                    <CatalogSubsectionTitle
+                      icon={Layers}
+                      iconClassName="text-sky-500"
+                      label="Suppliers"
+                      count={catalog.meta?.totalSuppliers ?? catalog.suppliers.length}
+                    />
                     <div className="overflow-x-auto rounded-md border">
                       <Table>
                         <TableHeader>
@@ -518,12 +551,11 @@ export default function ClientPortalPage({
                             catalog.suppliers.map((s) => (
                               <TableRow key={s.id}>
                                 <TableCell className="font-normal">
-                                  <Link
+                                  <AvatarInlineLink
+                                    seed={s.id}
+                                    label={s.name}
                                     href={`/suppliers/${s.id}`}
-                                    className="text-sky-600 dark:text-sky-400 hover:text-sky-500 dark:hover:text-sky-300"
-                                  >
-                                    {s.name}
-                                  </Link>
+                                  />
                                 </TableCell>
                                 <TableCell>
                                   <ActiveInactiveBadge
@@ -541,10 +573,12 @@ export default function ClientPortalPage({
                     </div>
                   </div>
                   <div>
-                    <p className="text-sm font-medium mb-2 flex items-center gap-2">
-                      <Boxes className="h-4 w-4 text-violet-500" />
-                      Categories
-                    </p>
+                    <CatalogSubsectionTitle
+                      icon={Boxes}
+                      iconClassName="text-violet-500"
+                      label="Categories"
+                      count={catalog.meta?.totalCategories ?? catalog.categories.length}
+                    />
                     <div className="overflow-x-auto rounded-md border">
                       <Table>
                         <TableHeader>
@@ -585,12 +619,11 @@ export default function ClientPortalPage({
                                 </TableCell>
                                 <TableCell>
                                   {c.categoryCreatorId ? (
-                                    <Link
+                                    <AvatarInlineLink
+                                      seed={c.categoryCreatorId}
+                                      label={c.categoryCreatorName ?? "—"}
                                       href={`/products?ownerId=${c.categoryCreatorId}`}
-                                      className="text-sky-600 dark:text-sky-400 hover:text-sky-500 dark:hover:text-sky-300"
-                                    >
-                                      {c.categoryCreatorName ?? "—"}
-                                    </Link>
+                                    />
                                   ) : (
                                     "—"
                                   )}
@@ -606,10 +639,12 @@ export default function ClientPortalPage({
                     </div>
                   </div>
                   <div>
-                    <p className="text-sm font-medium mb-2 flex items-center gap-2">
-                      <Package className="h-4 w-4 text-emerald-500" />
-                      Products
-                    </p>
+                    <CatalogSubsectionTitle
+                      icon={Package}
+                      iconClassName="text-emerald-500"
+                      label="Products"
+                      count={catalog.meta?.totalProducts ?? catalog.products.length}
+                    />
                     <div className="overflow-x-auto rounded-md border">
                       <Table>
                         <TableHeader>
@@ -645,7 +680,7 @@ export default function ClientPortalPage({
                                   </Link>
                                 </TableCell>
                                 <TableCell className="text-muted-foreground">
-                                  {p.sku}
+                                  <CopyableText value={p.sku}>{p.sku}</CopyableText>
                                 </TableCell>
                                 <TableCell>
                                   <Link
@@ -656,21 +691,20 @@ export default function ClientPortalPage({
                                   </Link>
                                 </TableCell>
                                 <TableCell>
-                                  <Link
+                                  <AvatarInlineLink
+                                    seed={p.supplierId}
+                                    label={p.supplierName}
                                     href={`/suppliers/${p.supplierId}`}
-                                    className="text-sky-600 dark:text-sky-400 hover:text-sky-500 dark:hover:text-sky-300"
-                                  >
-                                    {p.supplierName}
-                                  </Link>
+                                  />
                                 </TableCell>
                                 <TableCell>
                                   {p.productOwnerId ? (
-                                    <Link
+                                    <AvatarInlineLink
+                                      seed={p.productOwnerId}
+                                      image={p.productOwnerImage}
+                                      label={p.productOwnerName ?? "—"}
                                       href={`/products?ownerId=${p.productOwnerId}`}
-                                      className="text-sky-600 dark:text-sky-400 hover:text-sky-500 dark:hover:text-sky-300"
-                                    >
-                                      {p.productOwnerName ?? "—"}
-                                    </Link>
+                                    />
                                   ) : (
                                     "—"
                                   )}

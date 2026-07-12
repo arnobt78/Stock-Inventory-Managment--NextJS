@@ -51,6 +51,7 @@ import {
 import { ResponsiveChartContainer } from "@/components/ui/responsive-chart-container";
 import { DeferredChartSection } from "@/components/ui/deferred-chart-section";
 import {
+  CHART_LABEL_TOP_MARGIN,
   createChartBarLabelRenderer,
   createChartDotLabelRenderer,
   formatChartCountLabel,
@@ -1015,15 +1016,13 @@ export default function BusinessInsightPage({
                                 x,
                                 y,
                                 textAnchor,
-                                index,
                               }) => (
                                 <text
                                   x={x}
                                   y={y}
                                   textAnchor={textAnchor}
                                   dominantBaseline="central"
-                                  className="text-xs sm:text-sm"
-                                  fill={COLORS[(index ?? 0) % COLORS.length]}
+                                  className="fill-gray-700 dark:fill-white text-xs font-normal"
                                 >
                                   {`${name} ${((percent || 0) * 100).toFixed(0)}%`}
                                 </text>
@@ -1058,7 +1057,7 @@ export default function BusinessInsightPage({
                         pulseClassName="min-h-[300px]"
                       >
                         <ResponsiveChartContainer>
-                          <AreaChart data={analyticsData.monthlyTrend} margin={{ top: 20, right: 8, left: 0, bottom: 0 }}>
+                          <AreaChart data={analyticsData.monthlyTrend} margin={{ top: CHART_LABEL_TOP_MARGIN, right: 8, left: 0, bottom: 0 }}>
                             <CartesianGrid strokeDasharray="3 3" />
                             <XAxis dataKey="month" />
                             <YAxis />
@@ -1093,7 +1092,7 @@ export default function BusinessInsightPage({
                           pulseClassName="min-h-[300px]"
                         >
                           <ResponsiveChartContainer>
-                            <AreaChart data={orderTrendByMonth} margin={{ top: 20, right: 8, left: 0, bottom: 0 }}>
+                            <AreaChart data={orderTrendByMonth} margin={{ top: CHART_LABEL_TOP_MARGIN, right: 8, left: 0, bottom: 0 }}>
                               <CartesianGrid strokeDasharray="3 3" />
                               <XAxis dataKey="month" />
                               <YAxis />
@@ -1208,7 +1207,7 @@ export default function BusinessInsightPage({
                         <ResponsiveChartContainer>
                           <BarChart
                             data={analyticsData.categoryDistribution}
-                            margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
+                            margin={{ top: CHART_LABEL_TOP_MARGIN, right: 30, left: 20, bottom: 5 }}
                           >
                             <CartesianGrid strokeDasharray="3 3" />
                             <XAxis dataKey="name" />
@@ -1241,7 +1240,7 @@ export default function BusinessInsightPage({
                         <ResponsiveChartContainer>
                           <BarChart
                             data={analyticsData.supplierDistribution}
-                            margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
+                            margin={{ top: CHART_LABEL_TOP_MARGIN, right: 30, left: 20, bottom: 5 }}
                           >
                             <CartesianGrid strokeDasharray="3 3" />
                             <XAxis dataKey="name" />
@@ -1278,7 +1277,7 @@ export default function BusinessInsightPage({
                         <ResponsiveChartContainer>
                           <BarChart
                             data={analyticsData.topProducts}
-                            margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
+                            margin={{ top: CHART_LABEL_TOP_MARGIN, right: 30, left: 20, bottom: 5 }}
                           >
                             <CartesianGrid strokeDasharray="3 3" />
                             <XAxis dataKey="name" />
@@ -1310,7 +1309,7 @@ export default function BusinessInsightPage({
                         pulseClassName="min-h-[300px]"
                       >
                         <ResponsiveChartContainer>
-                          <LineChart data={analyticsData.monthlyTrend} margin={{ top: 20, right: 8, left: 0, bottom: 0 }}>
+                          <LineChart data={analyticsData.monthlyTrend} margin={{ top: CHART_LABEL_TOP_MARGIN, right: 8, left: 0, bottom: 0 }}>
                             <CartesianGrid strokeDasharray="3 3" />
                             <XAxis dataKey="month" />
                             <YAxis />

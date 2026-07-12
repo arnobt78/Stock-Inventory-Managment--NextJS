@@ -40,10 +40,12 @@ import Navbar from "@/components/layouts/Navbar";
 import {
   ClientDateTime,
   ClientRelativeTime,
+  CopyableText,
   PageContentWrapper,
   DataSlotPulse,
   PageSectionHeader,
   GLASS_GHOST_BUTTON,
+  glassDetailBackButtonClass,
   glassDetailFooterButtonClass,
   DETAIL_HEADER_BACK_ICON_CLASS,
   DialogSubmitButton,
@@ -452,11 +454,15 @@ export default function WarehouseDetailPage({
               <div className="space-y-2">
                 {warehouse && (
                   <DetailInfoRow icon={Hash} label="Warehouse ID:" tone="violet">
-                    <span className="font-mono text-xs">{warehouse.id}</span>
+                    <CopyableText value={warehouse.id}>
+                      <span className="font-mono text-xs">{warehouse.id}</span>
+                    </CopyableText>
                   </DetailInfoRow>
                 )}
                 <DetailInfoRow icon={Warehouse} label="Name:" tone="teal">
-                  {warehouse?.name}
+                  {warehouse?.name && (
+                    <CopyableText value={warehouse.name}>{warehouse.name}</CopyableText>
+                  )}
                 </DetailInfoRow>
                 {warehouse?.address && (
                   <DetailInfoRow icon={MapPin} label="Address:" tone="teal">
@@ -609,7 +615,7 @@ export default function WarehouseDetailPage({
           <div className="flex flex-col sm:flex-row flex-wrap gap-2">
             <Button
               onClick={() => navigateTo(warehousesListHref)}
-              className={cn("w-full sm:w-auto gap-2", GLASS_GHOST_BUTTON)}
+              className={glassDetailBackButtonClass("w-full sm:w-auto gap-2")}
             >
               <ArrowLeft className="h-4 w-4 shrink-0" />
               Back

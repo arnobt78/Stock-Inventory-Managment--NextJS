@@ -27,12 +27,15 @@ import {
   Copy,
   Trash2,
   Building2,
+  Wallet,
   Hash,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import {
   OrderStatusBadge,
   ProductStockStatusBadge,
+  ActiveInactiveBadge,
 } from "@/lib/ui/semantic-badges";
 import { Separator } from "@/components/ui/separator";
 import {
@@ -51,10 +54,11 @@ import {
   ClientDateTime,
   ClientRelativeTime,
   CopyableText,
+  AvatarInlineLink,
   PageContentWrapper,
   DataSlotPulse,
   PageSectionHeader,
-  GLASS_GHOST_BUTTON,
+  glassDetailBackButtonClass,
   glassDetailFooterButtonClass,
   DETAIL_HEADER_BACK_ICON_CLASS,
   DialogSubmitButton,
@@ -65,6 +69,7 @@ import type { Product, ProductStatus, ProductReview, StockAllocation } from "@/t
 import type { ReviewEligibilityResult } from "@/lib/server/product-reviews-detail-data";
 import { cn } from "@/lib/utils";
 import { APP_SHELL_DETAIL_CLASS } from "@/lib/ui/shell-layout-styles";
+import { CARD_EMPTY_MESSAGE_CLASS } from "@/lib/ui/card-empty-styles";
 import { SafeImage } from "@/components/ui/safe-image";
 import ProductFormDialog from "@/components/products/ProductFormDialog";
 import { AlertDialogWrapper } from "@/components/dialogs";
@@ -252,9 +257,20 @@ export default function ProductDetailPage({
   const isDeleting = deleteProductMutation.isPending;
   const isSupplierRole = user?.role === "supplier";
   const isClientRole = user?.role === "client";
+  const isAdminRole = user?.role === "admin" || embedInAdmin;
   const disableCrud = isSupplierRole || isClientRole;
+  const warehouseLinkAllowed = !isSupplierRole && !isClientRole;
   const showWarehouseStockCard =
     !isClientRole || warehouseAllocations.length > 0;
+  const totalWarehouseAvailable = warehouseAllocations.reduce(
+    (sum, row) => sum + (row.quantity - row.reservedQuantity),
+    0,
+  );
+  const recentOrderCount = product?.recentOrders?.length ?? 0;
+  const ownerProductsHref = (ownerId: string) =>
+    embedInAdmin
+      ? `/admin/products?ownerId=${ownerId}`
+      : `/products?ownerId=${ownerId}`;
 
   // Edit: open product form dialog with current product (same as ProductActions)
   const handleEditProduct = () => {
@@ -375,14 +391,19 @@ export default function ProductDetailPage({
               dataLoading ? (
                 <DataSlotPulse variant="text-lg" className="w-48" />
               ) : (
-                product!.name
+                <CopyableText value={product!.name}>{product!.name}</CopyableText>
               )
             }
             description={
-              <>
-                SKU: {product?.sku} • Created{" "}
-                <ClientRelativeTime date={createdAt} />
-              </>
+              dataLoading ? (
+                <DataSlotPulse variant="text-sm" className="w-40" />
+              ) : (
+                <>
+                  SKU:{" "}
+                  <CopyableText value={product!.sku}>{product!.sku}</CopyableText>{" "}
+                  • Created <ClientRelativeTime date={createdAt} />
+                </>
+              )
             }
           />
 
@@ -515,11 +536,15 @@ export default function ProductDetailPage({
                 <div className="space-y-2">
                   {!dataLoading && product && (
                     <DetailInfoRow icon={Hash} label="Product ID:" tone="violet">
-                      <span className="font-mono text-xs">{product.id}</span>
+                      <CopyableText value={product.id}>
+                        <span className="font-mono text-xs">{product.id}</span>
+                      </CopyableText>
                     </DetailInfoRow>
                   )}
                   <DetailInfoRow icon={Tag} label="SKU:" tone="teal" loading={dataLoading}>
-                    {!dataLoading && product?.sku}
+                    {!dataLoading && product?.sku && (
+                      <CopyableText value={product.sku}>{product.sku}</CopyableText>
+                    )}
                   </DetailInfoRow>
                   {!dataLoading && product && (
                     <DetailInfoRow icon={Package} label="Status:" tone="emerald">
@@ -551,16 +576,15 @@ export default function ProductDetailPage({
                     product?.supplier &&
                     typeof product.supplier === "object" && (
                       <DetailInfoRow icon={Truck} label="Supplier:" tone="orange">
-                        <Link
+                        <AvatarInlineLink
+                          seed={product.supplier.id}
+                          label={product.supplier.name}
                           href={
                             embedInAdmin
                               ? `/admin/suppliers/${product.supplier.id}`
                               : `/suppliers/${product.supplier.id}`
                           }
-                          className="text-sky-600 dark:text-sky-400 hover:text-sky-500 dark:hover:text-sky-300"
-                        >
-                          {product.supplier.name}
-                        </Link>
+                        />
                       </DetailInfoRow>
                     )}
                   <DetailInfoRow icon={Calendar} label="Created:" tone="teal" loading={dataLoading}>
@@ -599,10 +623,17 @@ export default function ProductDetailPage({
                   {!dataLoading && product?.creator && (
                     <>
                       <DetailInfoRow icon={User} label="Created by:" tone="violet">
-                        {product.creator.name}
+                        <AvatarInlineLink
+                          seed={product.creator.id}
+                          image={product.creator.image}
+                          label={product.creator.name ?? product.creator.email}
+                          href={ownerProductsHref(product.creator.id)}
+                        />
                       </DetailInfoRow>
                       <DetailInfoRow icon={Mail} label="Creator email:" tone="violet">
-                        {product.creator.email}
+                        <CopyableText value={product.creator.email}>
+                          {product.creator.email}
+                        </CopyableText>
                       </DetailInfoRow>
                     </>
                   )}
@@ -636,42 +667,27 @@ export default function ProductDetailPage({
                     </p>
                   </div>
                 </div>
-                <div className="space-y-4 mt-4">
-                  <div className="flex justify-between items-center p-2 rounded-xl border border-emerald-400/20 bg-gradient-to-r from-emerald-500/10 to-transparent">
-                    <span className="text-sm text-gray-600 dark:text-white/70">
-                      Total Quantity Sold:
-                    </span>
-                    <span className="text-sm sm:text-base font-medium text-gray-700 dark:text-white">
-                      {stats.totalQuantitySold}
-                    </span>
-                  </div>
-
-                  <div className="flex justify-between items-center p-2 rounded-xl border border-emerald-400/20 bg-gradient-to-r from-emerald-500/10 to-transparent">
-                    <span className="text-sm text-gray-600 dark:text-white/70">
-                      Total Revenue:
-                    </span>
-                    <span className="text-sm sm:text-lg font-medium text-emerald-600 dark:text-emerald-400">
-                      ${stats.totalRevenue.toFixed(2)}
-                    </span>
-                  </div>
-
-                  <div className="flex justify-between items-center p-2 rounded-xl border border-violet-400/20 bg-gradient-to-r from-violet-500/10 to-transparent">
-                    <span className="text-sm text-gray-600 dark:text-white/70">
-                      Orders Containing This Product:
-                    </span>
-                    <span className="text-sm sm:text-base font-medium text-gray-700 dark:text-white">
-                      {stats.uniqueOrders}
-                    </span>
-                  </div>
-
-                  <div className="flex justify-between items-center p-2 rounded-xl border border-blue-400/20 bg-gradient-to-r from-blue-500/10 to-transparent">
-                    <span className="text-sm text-gray-600 dark:text-white/70">
-                      Current Stock Value:
-                    </span>
-                    <span className="text-sm sm:text-lg font-medium text-blue-600 dark:text-blue-400">
-                      ${(stats.totalValue ?? 0).toFixed(2)}
-                    </span>
-                  </div>
+                <div className="space-y-2 mt-4">
+                  <DetailInfoRow icon={Package} label="Total Quantity Sold:" tone="emerald" loading={dataLoading}>
+                    {!dataLoading && stats.totalQuantitySold}
+                  </DetailInfoRow>
+                  <DetailInfoRow icon={DollarSign} label="Total Revenue:" tone="emerald" loading={dataLoading}>
+                    {!dataLoading && (
+                      <span className="text-emerald-600 dark:text-emerald-400">
+                        ${stats.totalRevenue.toFixed(2)}
+                      </span>
+                    )}
+                  </DetailInfoRow>
+                  <DetailInfoRow icon={ShoppingCart} label="Orders Containing This Product:" tone="violet" loading={dataLoading}>
+                    {!dataLoading && stats.uniqueOrders}
+                  </DetailInfoRow>
+                  <DetailInfoRow icon={Wallet} label="Current Stock Value:" tone="blue" loading={dataLoading}>
+                    {!dataLoading && (
+                      <span className="text-blue-600 dark:text-blue-400">
+                        ${(stats.totalValue ?? 0).toFixed(2)}
+                      </span>
+                    )}
+                  </DetailInfoRow>
                 </div>
               </div>
             </GlassCard>
@@ -680,17 +696,29 @@ export default function ProductDetailPage({
           {showWarehouseStockCard && (
             <GlassCard variant="teal">
               <div className="p-4 sm:p-5">
-                <div className="flex items-center gap-2 mb-2">
-                  <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-teal-300/30 bg-teal-100/50 dark:border-white/15 dark:bg-white/10">
-                    <Building2 className="h-4 w-4 text-gray-700 dark:text-white" />
-                  </div>
-                  <div>
-                    <h3 className="text-sm sm:text-base font-medium text-gray-700 dark:text-white">
-                      Warehouse Stock
-                    </h3>
-                    <p className="text-xs text-gray-600 dark:text-white/60">
-                      Quantity allocated per warehouse location
-                    </p>
+                <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2 mb-2">
+                  <div className="flex items-center gap-2">
+                    <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-teal-300/30 bg-teal-100/50 dark:border-white/15 dark:bg-white/10">
+                      <Building2 className="h-4 w-4 text-gray-700 dark:text-white" />
+                    </div>
+                    <div>
+                      <h3 className="text-sm sm:text-base font-medium text-gray-700 dark:text-white flex items-center gap-2 flex-wrap">
+                        Warehouse Stock
+                        {!warehouseStockLoading && warehouseAllocations.length > 0 && (
+                          <>
+                            <Badge variant="secondary" className="font-normal text-xs">
+                              {warehouseAllocations.length} warehouses
+                            </Badge>
+                            <Badge variant="secondary" className="font-normal text-xs">
+                              {totalWarehouseAvailable} available
+                            </Badge>
+                          </>
+                        )}
+                      </h3>
+                      <p className="text-xs text-gray-600 dark:text-white/60">
+                        Quantity allocated per warehouse location
+                      </p>
+                    </div>
                   </div>
                 </div>
                 {warehouseStockLoading ? (
@@ -705,24 +733,30 @@ export default function ProductDetailPage({
                       return (
                         <div
                           key={row.id}
-                          className="flex items-center justify-between gap-2 p-3 rounded-xl border border-teal-200/30 dark:border-teal-400/10 bg-gradient-to-r from-teal-100/40 via-teal-50/20 to-transparent dark:from-teal-500/10 dark:via-teal-500/5 dark:to-transparent"
+                          className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 p-3 rounded-xl border border-teal-200/30 dark:border-teal-400/10 bg-gradient-to-r from-teal-100/40 via-teal-50/20 to-transparent dark:from-teal-500/10 dark:via-teal-500/5 dark:to-transparent"
                         >
-                          {isSupplierRole ? (
-                            <span className="font-medium text-sm text-gray-700 dark:text-white">
-                              {row.warehouse?.name ?? "Warehouse"}
-                            </span>
-                          ) : (
-                            <Link
-                              href={whHref}
-                              className="font-medium text-sm text-sky-600 dark:text-sky-400 hover:text-sky-500"
-                            >
-                              {row.warehouse?.name ?? "Warehouse"}
-                            </Link>
-                          )}
-                          <span className="text-sm text-gray-700 dark:text-white">
+                          <div className="flex flex-wrap items-center gap-2 min-w-0">
+                            {warehouseLinkAllowed ? (
+                              <Link
+                                href={whHref}
+                                className="font-medium text-sm text-sky-600 dark:text-sky-400 hover:text-sky-500"
+                              >
+                                {row.warehouse?.name ?? "Warehouse"}
+                              </Link>
+                            ) : (
+                              <span className="font-medium text-sm text-gray-700 dark:text-white">
+                                {row.warehouse?.name ?? "Warehouse"}
+                              </span>
+                            )}
+                            {/* REQ-0077 — inline warehouse active/inactive badge */}
+                            {row.warehouse?.status != null && (
+                              <ActiveInactiveBadge active={row.warehouse.status} />
+                            )}
+                          </div>
+                          <span className="text-sm text-gray-700 dark:text-white shrink-0">
                             {avail}{" "}
                             <span className="text-gray-500 dark:text-gray-400">
-                              avail
+                              available
                             </span>
                             {row.reservedQuantity > 0 ? (
                               <span className="text-xs text-amber-600 dark:text-amber-400 ml-2">
@@ -735,7 +769,7 @@ export default function ProductDetailPage({
                     })}
                   </div>
                 ) : (
-                  <p className="text-sm text-gray-600 dark:text-gray-400 mt-4">
+                  <p className={CARD_EMPTY_MESSAGE_CLASS}>
                     No warehouse allocations for this product yet.
                   </p>
                 )}
@@ -743,73 +777,148 @@ export default function ProductDetailPage({
             </GlassCard>
           )}
 
-          {/* Recent Orders */}
-          {product?.recentOrders && product?.recentOrders.length > 0 && (
-            <GlassCard variant="rose">
-              <div className="p-4 sm:p-5">
-                <div className="flex items-center gap-2 mb-2">
-                  <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-rose-300/30 bg-rose-100/50 dark:border-white/15 dark:bg-white/10">
-                    <ShoppingCart className="h-4 w-4 text-gray-700 dark:text-white" />
-                  </div>
-                  <div>
-                    <h3 className="text-sm sm:text-base font-medium text-gray-700 dark:text-white">
-                      Recent Orders
-                    </h3>
-                    <p className="text-xs text-gray-600 dark:text-white/60">
-                      Latest orders containing this product
-                    </p>
-                  </div>
+          {/* Recent Orders — always show card; empty state centered (REQ-0077) */}
+          <GlassCard variant="rose">
+            <div className="p-4 sm:p-5">
+              <div className="flex items-center gap-2 mb-2">
+                <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-rose-300/30 bg-rose-100/50 dark:border-white/15 dark:bg-white/10">
+                  <ShoppingCart className="h-4 w-4 text-gray-700 dark:text-white" />
                 </div>
-                <div className="space-y-2 mt-4">
-                  {product?.recentOrders.map((order) => (
-                    <Link
-                      key={order.id}
-                      href={
-                        embedInAdmin
-                          ? `/admin/orders/${order.orderId}`
-                          : `/orders/${order.orderId}`
-                      }
-                      className="flex flex-col sm:flex-row sm:items-center justify-between p-4 rounded-xl border border-gray-300/20 dark:border-white/10 bg-white/30 dark:bg-white/5 hover:bg-white/50 dark:hover:bg-white/10 backdrop-blur-md transition-colors gap-2"
-                    >
-                      <div className="flex-1">
-                        <h4 className="font-medium text-gray-700 dark:text-white">
-                          <CopyableText value={order.orderNumber}>
-                            Order {order.orderNumber}
-                          </CopyableText>
-                        </h4>
-                        <p className="text-sm text-gray-600 dark:text-white/60 mt-1">
-                          Quantity: {order.quantity} × ${order.price.toFixed(2)}{" "}
-                          • Date: <ClientDate date={order.orderDate} />
-                        </p>
-                      </div>
-                      <div className="text-left sm:text-right">
-                        {/* Sale price style: crossed-out subtotal + actual proportional amount */}
-                        <p className="font-medium text-gray-700 dark:text-white">
-                          {typeof order.proportionalAmount === "number" &&
-                          order.proportionalAmount !== order.subtotal ? (
-                            <>
-                              <span className="text-gray-500 dark:text-white/50 line-through mr-2">
-                                ${order.subtotal.toFixed(2)}
-                              </span>
-                              <span className="text-rose-600 dark:text-rose-400">
-                                ${order.proportionalAmount.toFixed(2)}
-                              </span>
-                            </>
-                          ) : (
-                            `$${order.subtotal.toFixed(2)}`
-                          )}
-                        </p>
-                        <OrderStatusBadge
-                          status={order.orderStatus ?? "pending"}
-                          className="mt-1"
-                        />
-                      </div>
-                    </Link>
-                  ))}
+                <div>
+                  <h3 className="text-sm sm:text-base font-medium text-gray-700 dark:text-white flex items-center gap-2 flex-wrap">
+                    Recent Orders
+                    {!dataLoading && recentOrderCount > 0 && (
+                      <Badge variant="secondary" className="font-normal text-xs">
+                        {recentOrderCount}
+                      </Badge>
+                    )}
+                  </h3>
+                  <p className="text-xs text-gray-600 dark:text-white/60">
+                    Latest orders containing this product
+                  </p>
                 </div>
               </div>
-            </GlassCard>
-          )}
+              {dataLoading ? (
+                <DataSlotPulse variant="text-sm" className="mt-4 h-16" />
+              ) : !product?.recentOrders?.length ? (
+                <p className={CARD_EMPTY_MESSAGE_CLASS}>
+                  No recent orders for this product yet.
+                </p>
+              ) : (
+                <div className="space-y-2 mt-4">
+                  {product.recentOrders.map((order, index) => {
+                    const orderHref = embedInAdmin
+                      ? `/admin/orders/${order.orderId}`
+                      : `/orders/${order.orderId}`;
+                    const placedBy = order.placedBy as
+                      | {
+                          id: string;
+                          name: string | null;
+                          email: string;
+                          image?: string | null;
+                        }
+                      | null
+                      | undefined;
+                    const buyerLabel =
+                      placedBy?.name?.trim() ||
+                      placedBy?.email ||
+                      "Unknown buyer";
+                    return (
+                      <div
+                        key={order.id}
+                        className="flex flex-col gap-2 p-4 rounded-xl border border-gray-300/20 dark:border-white/10 bg-white/30 dark:bg-white/5"
+                      >
+                        <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-2">
+                          <div className="flex-1 min-w-0 space-y-2">
+                            <div className="flex items-center gap-2 flex-wrap">
+                              <span className="text-xs font-medium text-gray-500 dark:text-white/50">
+                                {index + 1}.
+                              </span>
+                              <Link
+                                href={orderHref}
+                                className="font-medium text-sky-600 dark:text-sky-400 hover:text-sky-500 dark:hover:text-sky-300"
+                              >
+                                <CopyableText value={order.orderNumber}>
+                                  Order {order.orderNumber}
+                                </CopyableText>
+                              </Link>
+                            </div>
+                            <p className="text-sm text-gray-600 dark:text-white/60 flex items-center gap-1.5 flex-wrap">
+                              <Package className="h-3.5 w-3.5 shrink-0" />
+                              Qty: {order.quantity} × ${order.price.toFixed(2)}
+                              <span className="text-gray-400">•</span>
+                              <Calendar className="h-3.5 w-3.5 shrink-0" />
+                              <ClientDate date={order.orderDate} />
+                            </p>
+                            {product?.creator && (
+                              <div className="flex items-center gap-1 text-xs text-gray-600 dark:text-white/60">
+                                <User className="h-3.5 w-3.5 shrink-0" />
+                                Owner:{" "}
+                                <AvatarInlineLink
+                                  seed={product.creator.id}
+                                  image={product.creator.image}
+                                  label={
+                                    product.creator.name ??
+                                    product.creator.email ??
+                                    "Owner"
+                                  }
+                                  href={ownerProductsHref(product.creator.id)}
+                                  size={20}
+                                />
+                              </div>
+                            )}
+                            {placedBy && (
+                              <div className="flex items-center gap-1 text-xs text-gray-600 dark:text-white/60">
+                                <User className="h-3.5 w-3.5 shrink-0" />
+                                Buyer:{" "}
+                                {isAdminRole ? (
+                                  <AvatarInlineLink
+                                    seed={placedBy.id}
+                                    image={placedBy.image}
+                                    label={buyerLabel}
+                                    href={`/admin/user-management/${placedBy.id}`}
+                                    size={20}
+                                  />
+                                ) : (
+                                  <AvatarInlineLink
+                                    seed={placedBy.id}
+                                    image={placedBy.image}
+                                    label={buyerLabel}
+                                    size={20}
+                                  />
+                                )}
+                              </div>
+                            )}
+                          </div>
+                          <div className="text-left sm:text-right shrink-0">
+                            <p className="font-medium text-gray-700 dark:text-white">
+                              {typeof order.proportionalAmount === "number" &&
+                              order.proportionalAmount !== order.subtotal ? (
+                                <>
+                                  <span className="text-gray-500 dark:text-white/50 line-through mr-2">
+                                    ${order.subtotal.toFixed(2)}
+                                  </span>
+                                  <span className="text-rose-600 dark:text-rose-400">
+                                    ${order.proportionalAmount.toFixed(2)}
+                                  </span>
+                                </>
+                              ) : (
+                                `$${order.subtotal.toFixed(2)}`
+                              )}
+                            </p>
+                            <OrderStatusBadge
+                              status={order.orderStatus ?? "pending"}
+                              className="mt-1"
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+          </GlassCard>
 
           {/* Product Reviews */}
           {product?.id ? (
@@ -828,7 +937,7 @@ export default function ProductDetailPage({
           <div className="flex flex-col sm:flex-row flex-wrap gap-2">
             <Button
               onClick={handleBack}
-              className={cn("w-full sm:w-auto gap-2", GLASS_GHOST_BUTTON)}
+              className={glassDetailBackButtonClass("w-full sm:w-auto gap-2")}
             >
               <ArrowLeft className="h-4 w-4 shrink-0" />
               Back

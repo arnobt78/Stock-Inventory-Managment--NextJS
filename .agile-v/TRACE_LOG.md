@@ -9,3 +9,5 @@ Format: `timestamp | agent | span | req_ids | note`
 2026-07-12T10:07:00Z | agile-v-core | session-activate | REQ-0008, REQ-0075 | C2 resume; REQ-0075 specified; main ce7c80b; Red Team PASS
 2026-07-12T10:21:00Z | agile-v-core | REQ-0075-ship | AC1–AC5 | lint/test/invalidate/build PASS
 2026-07-12T12:28:00Z | agile-v-core | REQ-0076-ship | AC1–AC6 | lint 389/invalidate 206/build PASS
+2026-07-12T13:25:00Z | agile-v-core | REQ-0077-ship | AC1–AC8 | lint 391/invalidate 206/build PASS
+2026-07-12T13:31:00Z | agile-v-core | REQ-0077-gap-closure | AC9–AC10 | lint 392/invalidate 206/build PASS

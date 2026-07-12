@@ -48,6 +48,7 @@ import {
   PageContentWrapper,
   DataSlotPulse,
   GLASS_GHOST_BUTTON,
+  glassDetailBackButtonClass,
   glassDetailFooterButtonClass,
 } from "@/components/shared";
 import { isDataSlotLoading, queryKeys, useSyncSsrQueryData } from "@/lib/react-query";
@@ -644,7 +645,7 @@ export default function AdminOrderDetailContent({
         <div className="flex flex-col sm:flex-row flex-wrap gap-2">
           <Button
             onClick={handleBack}
-            className={cn("w-full sm:w-auto gap-2 px-8", GLASS_GHOST_BUTTON)}
+            className={glassDetailBackButtonClass("w-full sm:w-auto gap-2 px-8")}
           >
             <ArrowLeft className="h-4 w-4 shrink-0" />
             Back

@@ -40,8 +40,18 @@ function transformSupplierDetail(
       }>
     >
   >,
-  creatorUser: { id: string; email: string; name: string | null } | null,
-  updaterUser: { id: string; email: string; name: string | null } | null,
+  creatorUser: {
+    id: string;
+    email: string;
+    name: string | null;
+    image?: string | null;
+  } | null,
+  updaterUser: {
+    id: string;
+    email: string;
+    name: string | null;
+    image?: string | null;
+  } | null,
   isDemoSupplier: boolean,
 ) {
   const totalProducts = products.length;
@@ -128,6 +138,7 @@ function transformSupplierDetail(
           id: creatorUser.id,
           email: creatorUser.email,
           name: creatorUser.name,
+          image: creatorUser.image ?? null,
         }
       : null,
     updater: updaterUser
@@ -135,6 +146,7 @@ function transformSupplierDetail(
           id: updaterUser.id,
           email: updaterUser.email,
           name: updaterUser.name,
+          image: updaterUser.image ?? null,
         }
       : null,
     createdAt: supplier.createdAt.toISOString(),
@@ -241,13 +253,13 @@ export async function getSupplierDetailForPage(
     supplier.createdBy
       ? prisma.user.findUnique({
           where: { id: supplier.createdBy },
-          select: { id: true, email: true, name: true },
+          select: { id: true, email: true, name: true, image: true },
         })
       : null,
     supplier.updatedBy
       ? prisma.user.findUnique({
           where: { id: supplier.updatedBy },
-          select: { id: true, email: true, name: true },
+          select: { id: true, email: true, name: true, image: true },
         })
       : null,
   ]);

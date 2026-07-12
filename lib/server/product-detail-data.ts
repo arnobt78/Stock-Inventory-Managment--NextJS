@@ -23,6 +23,7 @@ const productInclude = {
           subtotal: true,
           total: true,
           createdAt: true,
+          userId: true,
         },
       },
     },
@@ -54,8 +55,12 @@ function transformProductDetail(
     description: string | null;
     status: boolean;
   } | null,
-  creatorUser: { id: string; email: string; name: string | null } | null,
-  updaterUser: { id: string; email: string; name: string | null } | null,
+  creatorUser: { id: string; email: string; name: string | null; image?: string | null } | null,
+  updaterUser: { id: string; email: string; name: string | null; image?: string | null } | null,
+  orderUserMap: Map<
+    string,
+    { id: string; name: string | null; email: string; image?: string | null }
+  >,
 ) {
   const orderItems = product.orderItems || [];
   const totalQuantitySold = orderItems.reduce(
@@ -107,6 +112,7 @@ function transformProductDetail(
           id: creatorUser.id,
           email: creatorUser.email,
           name: creatorUser.name,
+          image: creatorUser.image ?? null,
         }
       : null,
     updater: updaterUser
@@ -114,6 +120,7 @@ function transformProductDetail(
           id: updaterUser.id,
           email: updaterUser.email,
           name: updaterUser.name,
+          image: updaterUser.image ?? null,
         }
       : null,
     createdAt: product.createdAt.toISOString(),
@@ -130,12 +137,20 @@ function transformProductDetail(
       totalValue: Number(product.price) * Number(product.quantity),
     },
     recentOrders: orderItems.slice(0, 10).map((item) => {
-      const order = item.order as { subtotal?: number; total: number };
+      const order = item.order as {
+        subtotal?: number;
+        total: number;
+        userId?: string;
+      };
       const orderSubtotal = order.subtotal ?? 0;
       const proportionalAmount =
         orderSubtotal > 0
           ? (item.subtotal / orderSubtotal) * order.total
           : item.subtotal;
+      const placedByUserId = order.userId;
+      const placedBy = placedByUserId
+        ? orderUserMap.get(placedByUserId)
+        : undefined;
       return {
         id: item.id,
         orderId: item.order.id,
@@ -147,6 +162,14 @@ function transformProductDetail(
         proportionalAmount,
         orderTotal: order.total,
         orderDate: item.order.createdAt.toISOString(),
+        placedBy: placedBy
+          ? {
+              id: placedBy.id,
+              name: placedBy.name,
+              email: placedBy.email,
+              image: placedBy.image ?? null,
+            }
+          : null,
       };
     }),
   };
@@ -197,7 +220,16 @@ export async function getProductDetailForPage(
 
   if (!product) return null;
 
-  const [category, supplier, creatorUser, updaterUser] = await Promise.all([
+  const orderUserIds = [
+    ...new Set(
+      (product.orderItems ?? [])
+        .map((item) => item.order.userId)
+        .filter(Boolean),
+    ),
+  ] as string[];
+
+  const [category, supplier, creatorUser, updaterUser, orderUsers] =
+    await Promise.all([
     prisma.category.findUnique({
       where: { id: product.categoryId },
       select: { id: true, name: true, description: true, status: true },
@@ -209,16 +241,29 @@ export async function getProductDetailForPage(
     product.createdBy
       ? prisma.user.findUnique({
           where: { id: product.createdBy },
-          select: { id: true, email: true, name: true },
+          select: { id: true, email: true, name: true, image: true },
         })
       : null,
     product.updatedBy
       ? prisma.user.findUnique({
           where: { id: product.updatedBy },
-          select: { id: true, email: true, name: true },
+          select: { id: true, email: true, name: true, image: true },
         })
       : null,
+    orderUserIds.length > 0
+      ? prisma.user.findMany({
+          where: { id: { in: orderUserIds } },
+          select: { id: true, email: true, name: true, image: true },
+        })
+      : Promise.resolve([]),
   ]);
+
+  const orderUserMap = new Map(
+    orderUsers.map((u) => [
+      u.id,
+      { id: u.id, name: u.name, email: u.email, image: u.image },
+    ]),
+  );
 
   const transformedProduct = transformProductDetail(
     product,
@@ -226,6 +271,7 @@ export async function getProductDetailForPage(
     supplier,
     creatorUser,
     updaterUser,
+    orderUserMap,
   );
 
   await setCache(cacheKey, transformedProduct, 300);

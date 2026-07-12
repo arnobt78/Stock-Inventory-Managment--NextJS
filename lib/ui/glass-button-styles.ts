@@ -119,6 +119,18 @@ export function glassDetailFooterButtonClass(
   );
 }
 
+/** Detail page footer Back — white text parity with Edit/Duplicate CTAs (REQ-0077). */
+export function glassDetailBackButtonClass(extra?: string): string {
+  return cn(
+    GLASS_BUTTON_ICON_HOVER,
+    GLASS_BUTTON_SHELL_RESET,
+    GLASS_BUTTON_DISABLED,
+    "group w-full sm:w-auto gap-2 !text-white",
+    GLASS_PRIMARY_BUTTON.sky,
+    extra,
+  );
+}
+
 /** Icon-only back control in PageSectionHeader leading slot (REQ-0072). */
 export const DETAIL_HEADER_BACK_ICON_CLASS =
   "h-10 w-10 shrink-0 self-center rounded-xl border border-gray-300/30 bg-white/50 dark:bg-white/5 dark:border-white/10 hover:bg-gray-100/50 dark:hover:bg-white/10";

@@ -42,7 +42,9 @@ describe("transformStockAllocationRow", () => {
         },
       ],
     ]);
-    const warehouseMap = new Map([["wh-1", "Main WH"]]);
+    const warehouseMap = new Map([
+      ["wh-1", { name: "Main WH", status: true }],
+    ]);
 
     const result = transformStockAllocationRow(
       baseRow,
@@ -61,7 +63,7 @@ describe("transformStockAllocationRow", () => {
         categoryName: "Gadgets",
         supplierName: "Acme",
       },
-      warehouse: { id: "wh-1", name: "Main WH" },
+      warehouse: { id: "wh-1", name: "Main WH", status: true },
     });
     expect(result.createdAt).toBe("2026-01-01T00:00:00.000Z");
     expect(result.updatedAt).toBe("2026-01-02T00:00:00.000Z");

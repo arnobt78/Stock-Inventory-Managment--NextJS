@@ -28,6 +28,8 @@ export { CopyCodeButton } from "./CopyCodeButton";
 export type { CopyCodeButtonProps } from "./CopyCodeButton";
 export { CopyableText } from "./CopyableText";
 export type { CopyableTextProps } from "./CopyableText";
+export { AvatarInlineLink } from "./AvatarInlineLink";
+export type { AvatarInlineLinkProps } from "./AvatarInlineLink";
 export { ProductLineItemsList } from "./ProductLineItemsList";
 export type { ProductLineItemsListProps } from "./ProductLineItemsList";
 export {
@@ -111,6 +113,7 @@ export {
   GLASS_PRIMARY_BUTTON,
   glassActionButtonClass,
   glassDetailFooterButtonClass,
+  glassDetailBackButtonClass,
   glassPrimaryButtonClass,
 } from "@/lib/ui/glass-button-styles";
 export { DialogSubmitButton } from "./DialogSubmitButton";

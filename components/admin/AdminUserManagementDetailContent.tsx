@@ -52,6 +52,7 @@ import {
   SectionCardHeader,
   GLASS_BUTTON_SHELL_RESET,
   GLASS_GHOST_BUTTON,
+  glassDetailBackButtonClass,
   DETAIL_HEADER_BACK_ICON_CLASS,
   DialogSubmitButton,
   ClientDateTime,
@@ -523,7 +524,7 @@ export default function AdminUserManagementDetailContent({
         <div className="flex flex-col sm:flex-row flex-wrap gap-2">
           <Button
             onClick={handleBack}
-            className={cn("w-full sm:w-auto gap-2 px-8", GLASS_GHOST_BUTTON)}
+            className={glassDetailBackButtonClass("w-full sm:w-auto gap-2 px-8")}
           >
             <ArrowLeft className="h-4 w-4 shrink-0" />
             Back

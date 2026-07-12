@@ -1654,6 +1654,35 @@ Canonical REQ source. All artifacts link via `REQ-XXXX`. Status: `done` | `verif
 
 ---
 
+## REQ-0077 — Chart labels, client portal, product detail UX polish
+
+| Field | Value |
+|-------|-------|
+| **Priority** | P2 |
+| **Risk** | R1 |
+| **Status** | done |
+| **Cycle** | C2 |
+| **Parent** | REQ-0076 |
+
+**Intent:** Close ten cross-cutting UI/UX gaps — chart label styling/clipping, client portal catalog headers with meta totals, shared `AvatarInlineLink` + `CopyableText` sweeps, product detail enrichment (warehouse/orders/reviews/sales stats), centered empty states, detail back-button contrast. CSS/UI + read-only SSR field additions only.
+
+**Acceptance criteria**
+
+- AC1: `chart-point-label.tsx` — `CHART_LABEL_TOP_MARGIN`, gray/white `text-xs font-normal` labels; `ChartCard` overflow-visible; all 4 chart consumers + test
+- AC2: Client portal catalog — `ClientCatalogOverview.meta` totals via parallel `count()`; subsection headers + count badges
+- AC3: Shared primitives — `AvatarInlineLink`, `CARD_EMPTY_MESSAGE_CLASS`, `glassDetailBackButtonClass`; exported from shared barrel
+- AC4: `CopyableText` on detail pages (product/category/supplier/warehouse IDs, names, emails) + product table name/SKU columns
+- AC5: `AvatarInlineLink` beside owner/supplier names — client portal tables, line items, catalog detail creator rows
+- AC6: `ProductDetailPage` — sales stat icons, creator link/copy, client warehouse no-link, recent orders SSR+UI, reviews count badge
+- AC7: Detail footer Back buttons → `glassDetailBackButtonClass` on all detail + admin embed pages (incl. `AdminHistoryDetailContent`)
+- AC8: Red Team lint/test/invalidate/build pass
+- AC9 (gap closure): Warehouse allocation rows — `warehouse.status` SSR/API + `ActiveInactiveBadge` on product detail
+- AC10 (gap closure): `PartiesRolesCard` → `AvatarInlineLink`; client catalog Redis v2 + `cached.meta` guard; `product-detail-data.test.ts`
+
+**Artifacts:** `chart-point-label.tsx`, `chart-card.tsx`, portal pages, `client-catalog-data.ts`, `AvatarInlineLink.tsx`, `card-empty-styles.ts`, `glass-button-styles.ts`, `ProductDetailPage.tsx`, `product-detail-data.ts`, detail pages, `ProductTableColumns.tsx`, `ProductLineItemsList.tsx`, `ProductReviewsSection.tsx`, `AdminHistoryDetailContent.tsx`, `PartiesRolesCard.tsx`, `stock-allocation-enrich.ts`, `app/api/portal/client/catalog/route.ts`
+
+---
+
 | Field | Value |
 |-------|-------|
 | **Priority** | P1 |

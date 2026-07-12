@@ -47,9 +47,11 @@ import {
   DataSlotPulse,
   PageSectionHeader,
   GLASS_GHOST_BUTTON,
+  glassDetailBackButtonClass,
   glassDetailFooterButtonClass,
   DETAIL_HEADER_BACK_ICON_CLASS,
   DialogSubmitButton,
+  AvatarInlineLink,
 } from "@/components/shared";
 import { DetailInfoRow } from "@/components/orders/detail";
 import SupplierDialog from "@/components/supplier/SupplierDialog";
@@ -225,6 +227,11 @@ export default function SupplierDetailPage({
   const isSupplierRole = user?.role === "supplier";
   const disableCrud = isClientRole || isSupplierRole;
 
+  const ownerProductsHref = (ownerId: string) =>
+    embedInAdmin
+      ? `/admin/products?ownerId=${ownerId}`
+      : `/products?ownerId=${ownerId}`;
+
   // Edit: open supplier dialog with current supplier (same as SupplierActions via onEdit)
   const handleEditSupplier = () => {
     if (!supplier) return;
@@ -358,11 +365,15 @@ export default function SupplierDetailPage({
                 <div className="space-y-2">
                   {!dataLoading && supplier && (
                     <DetailInfoRow icon={Hash} label="Supplier ID:" tone="violet">
-                      <span className="font-mono text-xs">{supplier.id}</span>
+                      <CopyableText value={supplier.id}>
+                        <span className="font-mono text-xs">{supplier.id}</span>
+                      </CopyableText>
                     </DetailInfoRow>
                   )}
                   <DetailInfoRow icon={Truck} label="Name:" tone="orange" loading={dataLoading}>
-                    {!dataLoading && supplier?.name}
+                    {!dataLoading && supplier?.name && (
+                      <CopyableText value={supplier.name}>{supplier.name}</CopyableText>
+                    )}
                   </DetailInfoRow>
                   {!dataLoading && supplier && (
                     <DetailInfoRow icon={Truck} label="Status:" tone="emerald">
@@ -400,10 +411,17 @@ export default function SupplierDetailPage({
                   {!dataLoading && supplier?.creator && (
                     <>
                       <DetailInfoRow icon={User} label="Created by:" tone="violet">
-                        {supplier.creator.name}
+                        <AvatarInlineLink
+                          seed={supplier.creator.id}
+                          image={supplier.creator.image}
+                          label={supplier.creator.name ?? supplier.creator.email}
+                          href={ownerProductsHref(supplier.creator.id)}
+                        />
                       </DetailInfoRow>
                       <DetailInfoRow icon={Mail} label="Creator email:" tone="violet">
-                        {supplier.creator.email}
+                        <CopyableText value={supplier.creator.email}>
+                          {supplier.creator.email}
+                        </CopyableText>
                       </DetailInfoRow>
                     </>
                   )}
@@ -627,7 +645,7 @@ export default function SupplierDetailPage({
           <div className="flex flex-col sm:flex-row flex-wrap gap-2">
             <Button
               onClick={handleBack}
-              className={cn("w-full sm:w-auto gap-2", GLASS_GHOST_BUTTON)}
+              className={glassDetailBackButtonClass("w-full sm:w-auto gap-2")}
             >
               <ArrowLeft className="h-4 w-4 shrink-0" />
               Back

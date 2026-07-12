@@ -17,8 +17,18 @@ export interface Category {
   createdBy: string; // User ID who created the category
   updatedBy?: string | null; // User ID who last updated the category
   /** Extended by API for detail page */
-  creator?: { name: string; email: string } | null;
-  updater?: { name: string; email: string } | null;
+  creator?: {
+    id: string;
+    name: string | null;
+    email: string;
+    image?: string | null;
+  } | null;
+  updater?: {
+    id: string;
+    name: string | null;
+    email: string;
+    image?: string | null;
+  } | null;
   products?: Array<{
     id: string;
     name: string;

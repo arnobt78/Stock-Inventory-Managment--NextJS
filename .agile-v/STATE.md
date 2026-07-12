@@ -3,15 +3,15 @@
 | Field | Value |
 |-------|-------|
 | **Cycle** | C1 (closing) → **C2 open** |
-| **Phase** | C2 — REQ-0076 **done** |
+| **Phase** | C2 — REQ-0077 **done** |
 | **Infinity Loop stage** | Verify ✓ (Gate 2 open) |
-| **Last updated** | 2026-07-12 (REQ-0076 shipped) |
-| **Session** | **ACTIVE** — REQ-0076 complete |
-| **Active REQ range** | REQ-0001 … REQ-0076 **done** |
+| **Last updated** | 2026-07-12 (REQ-0077 + gap closure shipped) |
+| **Session** | **ACTIVE** — REQ-0077 complete |
+| **Active REQ range** | REQ-0001 … REQ-0077 **done** |
 | **Prod deploy target** | `ce7c80b` — main synced with origin/main |
 | **Human Gate 1** | APPROVED (retroactive bootstrap) |
 | **Human Gate 2** | PENDING — Sentry 24h after prod deploy |
-| **Resume token** | `REQ-0077-client-ui-audit` — see **Session handoff (2026-07-12)** |
+| **Resume token** | `REQ-0078-supplier-ui-sweep` — see **Session handoff (2026-07-12 PM)** |
 
 ## Current focus
 

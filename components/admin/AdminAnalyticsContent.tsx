@@ -55,6 +55,7 @@ import {
   CARD_LIST_META_CLASS,
 } from "@/lib/ui/card-list-styles";
 import {
+  CHART_LABEL_TOP_MARGIN,
   createChartBarLabelRenderer,
   createChartDotLabelRenderer,
   formatChartCountLabel,
@@ -511,7 +512,7 @@ export default function AdminAnalyticsContent({
                 hasData={(stats.trends?.length ?? 0) > 0}
               >
                 <ResponsiveChartContainer>
-                  <AreaChart data={stats.trends} margin={{ top: 20, right: 8, left: 0, bottom: 0 }}>
+                  <AreaChart data={stats.trends} margin={{ top: CHART_LABEL_TOP_MARGIN, right: 8, left: 0, bottom: 0 }}>
                     <CartesianGrid
                       strokeDasharray="3 3"
                       className="stroke-muted"
@@ -594,7 +595,7 @@ export default function AdminAnalyticsContent({
                 <ResponsiveChartContainer>
                   <BarChart
                     data={stats.trends}
-                    margin={{ top: 8, right: 8, left: 8, bottom: 8 }}
+                    margin={{ top: CHART_LABEL_TOP_MARGIN, right: 8, left: 8, bottom: 8 }}
                   >
                     <CartesianGrid
                       strokeDasharray="3 3"
@@ -807,7 +808,7 @@ export default function AdminAnalyticsContent({
                         },
                       ]}
                       layout="vertical"
-                      margin={{ top: 8, right: 8, left: 70, bottom: 8 }}
+                      margin={{ top: CHART_LABEL_TOP_MARGIN, right: 8, left: 70, bottom: 8 }}
                     >
                       <CartesianGrid
                         strokeDasharray="3 3"
@@ -1071,7 +1072,7 @@ export default function AdminAnalyticsContent({
                       },
                     ]}
                     layout="vertical"
-                    margin={{ top: 8, right: 8, left: 70, bottom: 8 }}
+                    margin={{ top: CHART_LABEL_TOP_MARGIN, right: 8, left: 70, bottom: 8 }}
                   >
                     <CartesianGrid
                       strokeDasharray="3 3"
@@ -1204,7 +1205,7 @@ export default function AdminAnalyticsContent({
                             }),
                           )}
                           layout="vertical"
-                          margin={{ top: 8, right: 8, left: 90, bottom: 8 }}
+                          margin={{ top: CHART_LABEL_TOP_MARGIN, right: 8, left: 90, bottom: 8 }}
                         >
                           <CartesianGrid
                             strokeDasharray="3 3"

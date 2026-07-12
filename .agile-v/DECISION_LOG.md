@@ -192,3 +192,8 @@ Format: `TIMESTAMP | AGENT | DECISION | RATIONALE | REQ-ID`
 2026-07-12T12:22:00Z | build-agent | REQ-0076 AC2–AC3 | InvoiceDetailPage supplier Pay gate; admin review/ticket/user DetailInfoRow + ClientDateTime | REQ-0076
 2026-07-12T12:24:00Z | build-agent | REQ-0076 AC4–AC5 | invoices-data.test.ts; supplier invoices SSR dead prefetch removed | REQ-0076
 2026-07-12T12:28:00Z | red-team | REQ-0076 gates | lint ✓ test 389 ✓ invalidate 206 ✓ build ✓ | REQ-0076
+2026-07-12T13:10:00Z | build-agent | REQ-0077 AC1–AC3 | Chart labels + ChartCard overflow; client catalog meta totals; AvatarInlineLink + empty/back tokens | REQ-0077
+2026-07-12T13:15:00Z | build-agent | REQ-0077 AC4–AC7 | CopyableText/avatar sweeps; ProductDetailPage enrichment; glassDetailBackButtonClass on detail pages | REQ-0077
+2026-07-12T13:25:00Z | red-team | REQ-0077 gates | lint ✓ test 391 ✓ invalidate 206 ✓ build ✓ | REQ-0077
+2026-07-12T13:30:00Z | build-agent | REQ-0077 gap closure | AdminHistory footer Back; warehouse status badge SSR+UI; PartiesRolesCard AvatarInlineLink; catalog v2 cache; product-detail test | REQ-0077
+2026-07-12T13:31:00Z | red-team | REQ-0077 gap gates | lint ✓ test 392 ✓ invalidate 206 ✓ build ✓ | REQ-0077

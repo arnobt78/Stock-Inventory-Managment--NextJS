@@ -41,8 +41,10 @@ import {
   PageSectionHeader,
   DialogSubmitButton,
   GLASS_GHOST_BUTTON,
+  glassDetailBackButtonClass,
   glassDetailFooterButtonClass,
   DETAIL_HEADER_BACK_ICON_CLASS,
+  AvatarInlineLink,
 } from "@/components/shared";
 import { DetailInfoRow } from "@/components/orders/detail";
 import {
@@ -222,6 +224,11 @@ export default function CategoryDetailPage({
   const isSupplierRole = user?.role === "supplier";
   const disableCrud = isClientRole || isSupplierRole;
 
+  const ownerProductsHref = (ownerId: string) =>
+    embedInAdmin
+      ? `/admin/products?ownerId=${ownerId}`
+      : `/products?ownerId=${ownerId}`;
+
   // Edit: open category dialog with current category (same as CategoryActions via onEdit)
   const handleEditCategory = () => {
     if (!category) return;
@@ -394,11 +401,15 @@ export default function CategoryDetailPage({
               <div className="space-y-2">
                 {!dataLoading && category && (
                   <DetailInfoRow icon={Hash} label="Category ID:" tone="violet">
-                    <span className="font-mono text-xs">{category.id}</span>
+                    <CopyableText value={category.id}>
+                      <span className="font-mono text-xs">{category.id}</span>
+                    </CopyableText>
                   </DetailInfoRow>
                 )}
                 <DetailInfoRow icon={Tag} label="Name:" tone="orange" loading={dataLoading}>
-                  {!dataLoading && category?.name}
+                  {!dataLoading && category?.name && (
+                    <CopyableText value={category.name}>{category.name}</CopyableText>
+                  )}
                 </DetailInfoRow>
                 {!dataLoading && category && (
                   <DetailInfoRow icon={Tag} label="Status:" tone="emerald">
@@ -436,10 +447,17 @@ export default function CategoryDetailPage({
                 {!dataLoading && category?.creator && (
                   <>
                     <DetailInfoRow icon={User} label="Created by:" tone="violet">
-                      {category.creator.name}
+                      <AvatarInlineLink
+                        seed={category.creator.id}
+                        image={category.creator.image}
+                        label={category.creator.name ?? category.creator.email}
+                        href={ownerProductsHref(category.creator.id)}
+                      />
                     </DetailInfoRow>
                     <DetailInfoRow icon={Mail} label="Creator email:" tone="violet">
-                      {category.creator.email}
+                      <CopyableText value={category.creator.email}>
+                        {category.creator.email}
+                      </CopyableText>
                     </DetailInfoRow>
                   </>
                 )}
@@ -677,7 +695,7 @@ export default function CategoryDetailPage({
             <Button
               variant="ghost"
               onClick={handleBack}
-              className={cn("w-full sm:w-auto gap-2", GLASS_GHOST_BUTTON)}
+              className={glassDetailBackButtonClass("w-full sm:w-auto gap-2")}
             >
               <ArrowLeft className="h-4 w-4 shrink-0" />
               Back

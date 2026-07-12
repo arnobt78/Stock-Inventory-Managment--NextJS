@@ -6,7 +6,8 @@ import { Product } from "@/types";
 import { Column, ColumnDef } from "@tanstack/react-table";
 //import { ReactNode } from "react";
 
-import ProductDropDown from "./ProductActions";
+import { CopyableText } from "@/components/shared";
+import ProductsDropDown from "@/components/products/ProductActions";
 
 import {
   DropdownMenu,
@@ -112,14 +113,14 @@ export function createProductColumns(
                 className="truncate font-normal text-sky-600 dark:text-sky-400 hover:text-sky-500 dark:hover:text-sky-300"
                 title={product.name}
               >
-                {product.name}
+                <CopyableText value={product.name}>{product.name}</CopyableText>
               </Link>
-              <span
+              <CopyableText
+                value={product.sku}
                 className="truncate text-muted-foreground"
-                title={product.sku}
               >
                 {product.sku}
-              </span>
+              </CopyableText>
             </div>
           </div>
         );
@@ -331,7 +332,7 @@ export function createProductColumns(
       id: "actions",
       header: "Actions",
       cell: ({ row }) => {
-        return <ProductDropDown row={row} detailBase={detailBase} />;
+        return <ProductsDropDown row={row} detailBase={detailBase} />;
       },
     },
   ];

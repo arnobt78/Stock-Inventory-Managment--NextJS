@@ -4,6 +4,11 @@
 import { prisma } from "@/prisma/client";
 import type { StockAllocation } from "@/types";
 
+export type StockAllocationWarehouseSnapshot = {
+  name: string;
+  status: boolean;
+};
+
 export type StockAllocationProductSnapshot = {
   name: string;
   sku: string;
@@ -81,9 +86,10 @@ export async function fetchStockAllocationProductMap(
 export function transformStockAllocationRow(
   row: AllocationRow,
   productMap: Map<string, StockAllocationProductSnapshot>,
-  warehouseMap: Map<string, string>,
+  warehouseMap: Map<string, StockAllocationWarehouseSnapshot>,
 ): StockAllocation {
   const product = productMap.get(row.productId);
+  const warehouse = warehouseMap.get(row.warehouseId);
   return {
     id: row.id,
     productId: row.productId,
@@ -105,8 +111,12 @@ export function transformStockAllocationRow(
           supplierName: product.supplierName,
         }
       : undefined,
-    warehouse: warehouseMap.has(row.warehouseId)
-      ? { id: row.warehouseId, name: warehouseMap.get(row.warehouseId)! }
+    warehouse: warehouse
+      ? {
+          id: row.warehouseId,
+          name: warehouse.name,
+          status: warehouse.status,
+        }
       : undefined,
   };
 }

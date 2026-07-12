@@ -27,7 +27,7 @@ import {
 function transform(
   r: Awaited<ReturnType<typeof getStockAllocations>>[number],
   productMap: Awaited<ReturnType<typeof fetchStockAllocationProductMap>>,
-  warehouseMap: Map<string, string>,
+  warehouseMap: Map<string, { name: string; status: boolean }>,
 ): StockAllocation {
   return transformStockAllocationRow(r, productMap, warehouseMap);
 }
@@ -124,11 +124,13 @@ export async function GET(request: NextRequest) {
       fetchStockAllocationProductMap(productIds),
       prisma.warehouse.findMany({
         where: { id: { in: warehouseIds } },
-        select: { id: true, name: true },
+        select: { id: true, name: true, status: true },
       }),
     ]);
 
-    const warehouseMap = new Map(warehouses.map((w) => [w.id, w.name]));
+    const warehouseMap = new Map(
+      warehouses.map((w) => [w.id, { name: w.name, status: Boolean(w.status) }]),
+    );
 
     const result = allocations.map((a) =>
       transform(a, products, warehouseMap),

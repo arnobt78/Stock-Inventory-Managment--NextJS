@@ -3,7 +3,7 @@
 **Generated:** 2026-07-12  
 **eval_gate_status:** PENDING (Human Gate 2)  
 **Prod target SHA:** `ce7c80b` (main = origin/main)  
-**Red Team:** lint ✓ test 389 ✓ invalidate 206 ✓ build ✓ (2026-07-12 REQ-0076)
+**Red Team:** lint ✓ test 392 ✓ invalidate 206 ✓ build ✓ (2026-07-12 REQ-0077 gap closure)
 
 ---
 
@@ -12,8 +12,8 @@
 | Check | Command | Result | REQ-IDs |
 |-------|---------|--------|---------|
 | Lint | `npm run lint` | PASS | ALL |
-| Unit tests | `npm run test` | PASS (389) | REQ-0076 |
-| Invalidation audit | `npm run test:invalidate` | PASS (206) | REQ-0076 |
+| Unit tests | `npm run test` | PASS (392) | REQ-0077 |
+| Invalidation audit | `npm run test:invalidate` | PASS (206) | REQ-0077 |
 | Build | `npm run build` | PASS | ALL |
 | Typecheck (touched scripts) | `tsc --noEmit` | PASS | REQ-0056 |
 
@@ -64,6 +64,7 @@
 | VS-031 | INFO | Auth light mode + dialog tables + order thumbs (REQ-0048) | PASS (automated) |
 | VS-032 | INFO | Portal & detail UX polish (REQ-0071) | PASS (automated) |
 | VS-033 | INFO | REQ-0075 gap closure (REQ-0076) | PASS (automated) |
+| VS-034 | INFO | Chart labels, portal headers, product detail UX (REQ-0077) | PASS (automated) |
 
 ---
 
