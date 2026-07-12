@@ -214,7 +214,9 @@ flowchart LR
 | Portal & detail UX (REQ-0071/0072) | PageSectionHeader portals; `glassDetailFooterButtonClass`; `DetailInfoRow`; Stripe back; `enrichOrderItemsCatalogNames`; REQ-0072 admin/header/catalog sweep |
 | Portal/browse/order UX (REQ-0073) | Portal header gap; CARD_LIST recent cards; owner avatars; FAB click-toggle; line-item layout; order paidAt; detail icon parity |
 | Portal/chart/detail parity (REQ-0074) | pb-6 rhythm; chart point labels; FAB hover; order dialog grid; PartiesRolesCard; InvoiceSummaryCard |
-| Tomorrow backlog (REQ-0075 candidate) | Supplier warehouse detail mismatch; static page header parity; admin detail UI sweep |
+| Supplier UI sweep (REQ-0075) | product-stock owner scope; supplier invoice SSR/API; role gating; admin/static header parity |
+| REQ-0075 gap closure (REQ-0076) | SectionCardHeader inner sections; admin DetailInfoRow; supplier Pay gate; invoices-data test; dead prefetch trim |
+| Next backlog | REQ-0077 client UI audit → REQ-0078 supplier → REQ-0079 admin |
 | AI warehouse insights (REQ-0067) | `POST /api/ai/insights` enriches payload with `getWarehouseStockSummary` |
 | Per-warehouse order picking (REQ-0068) | `OrderItem.warehouseId`; `stock-allocation-order-sync.ts`; `OrderLineWarehouseSelect`; reserve/fulfill/cancel sync; invoice-paid gap; `f892b65` removed unused `deleteCache`/`getRateLimitStatus` |
 | Demo reset | `npm run script:reset-demo-db` — wipe Mongo + optional Redis + reseed test@admin/client/supplier |
@@ -228,15 +230,15 @@ flowchart LR
 3. Sentry **stock-inventory** — 24h: compare cases 1–7 vs `docs/SENTRY_ERRORS.md`
 4. Log result in `.agile-v/REVALIDATION_LOG.md`; CAPA if regression
 
-## 8. Quality gates (audit 2026-07-11)
+## 8. Quality gates (audit 2026-07-12)
 
 | Check | Status |
 |-------|--------|
 | `npm run lint` | pass |
 | `npm run build` | pass |
-| `npm run test` | 356 passed |
-| `npm run test:invalidate` | 202 passed |
-| Prod commit | REQ-0063 on `main` |
+| `npm run test` | 389 passed |
+| `npm run test:invalidate` | 206 passed |
+| Prod commit | REQ-0076 pending push |
 | Radix table Select | `useDeferredRadixSelect` + `PaginationSelector` (11 tables) |
 | Pagination clamp + page-size reset | `useClampPaginationIndex` + `PaginationSelector` pageIndex 0 |
 | Sentry | tunnel + translate scrub + `syncSentryUserFromAuth` |

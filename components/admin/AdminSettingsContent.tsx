@@ -7,7 +7,7 @@
 
 import { Settings } from "lucide-react";
 import Navbar from "@/components/layouts/Navbar";
-import { PageContentWrapper } from "@/components/shared";
+import { PageContentWrapper, PageSectionHeader } from "@/components/shared";
 import SystemConfigSettings from "@/components/admin/SystemConfigSettings";
 import type { SystemConfigForPage } from "@/lib/server/system-config-data";
 
@@ -22,19 +22,13 @@ export default function AdminSettingsContent({
     <Navbar>
       <PageContentWrapper>
         <div className="space-y-4">
-          <div className="flex items-center gap-2">
-            <div className="p-2 rounded-lg bg-blue-100 dark:bg-blue-900/30">
-              <Settings className="h-6 w-6 text-blue-600 dark:text-blue-400" />
-            </div>
-            <div>
-              <h1 className="text-sm sm:text-lg font-medium tracking-tight">
-                System Settings
-              </h1>
-              <p className="text-muted-foreground">
-                Configure application-wide settings
-              </p>
-            </div>
-          </div>
+          <PageSectionHeader
+            as="h1"
+            icon={Settings}
+            tone="blue"
+            title="System Settings"
+            description="Configure application-wide settings"
+          />
           <SystemConfigSettings initialConfigs={initialConfigs} />
         </div>
       </PageContentWrapper>

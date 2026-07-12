@@ -43,6 +43,13 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
+    if (session.role === "supplier") {
+      return NextResponse.json(
+        { error: "Forbidden: suppliers cannot import products" },
+        { status: 403 },
+      );
+    }
+
     const userId = session.id;
 
     // Parse multipart form data

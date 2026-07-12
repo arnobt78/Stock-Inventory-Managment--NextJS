@@ -3,7 +3,6 @@
 import React, { useEffect, useState, useRef } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
-import { FiCode, FiDatabase, FiKey, FiPackage, FiUsers } from "react-icons/fi";
 import {
   FileJson,
   Zap,
@@ -15,10 +14,17 @@ import {
   BarChart3,
   Activity,
   Server,
+  Code2,
+  Key,
+  Database,
+  BookOpen,
+  Package,
+  Users,
 } from "lucide-react";
 import Navbar from "@/components/layouts/Navbar";
-import { PageContentWrapper } from "@/components/shared";
+import { PageContentWrapper, PageSectionHeader, SectionCardHeader } from "@/components/shared";
 import { CopyCodeButton } from "@/components/shared";
+import type { SectionHeaderTone } from "@/lib/ui/section-header-tones";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { cn } from "@/lib/utils";
 
@@ -167,7 +173,7 @@ export default function ApiDocsPage() {
   const endpoints = [
     {
       name: "Authentication",
-      icon: FiKey,
+      icon: Key,
       endpoints: [
         {
           method: "POST",
@@ -254,7 +260,7 @@ export default function ApiDocsPage() {
     },
     {
       name: "Products",
-      icon: FiPackage,
+      icon: Package,
       endpoints: [
         {
           method: "GET",
@@ -399,7 +405,7 @@ export default function ApiDocsPage() {
     },
     {
       name: "Categories",
-      icon: FiDatabase,
+      icon: Database,
       endpoints: [
         {
           method: "GET",
@@ -472,7 +478,7 @@ export default function ApiDocsPage() {
     },
     {
       name: "Suppliers",
-      icon: FiUsers,
+      icon: Users,
       endpoints: [
         {
           method: "GET",
@@ -1201,16 +1207,14 @@ export default function ApiDocsPage() {
     <Navbar>
       <PageContentWrapper>
         <div className="space-y-4">
-          {/* Header */}
-          <div className="text-center space-y-4 pb-4">
-            <h1 className="text-sm sm:text-base font-medium text-gray-700 dark:text-white">
-              Stock API Documentation
-            </h1>
-            <p className="text-xs sm:text-sm text-gray-600 dark:text-white/70 max-w-2xl mx-auto">
-              Comprehensive API documentation for the Stock inventory management
-              system. All endpoints require authentication via JWT token.
-            </p>
-          </div>
+          {/* Header — PageSectionHeader parity (REQ-0075 AC3) */}
+          <PageSectionHeader
+            as="h1"
+            icon={BookOpen}
+            tone="blue"
+            title="Stock API Documentation"
+            description="Comprehensive API documentation for the Stock inventory management system. All endpoints require authentication via JWT token."
+          />
 
           {/* Quick Info Cards — skeleton until mounted to avoid hydration mismatch and match loading UX */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-2">
@@ -1232,14 +1236,12 @@ export default function ApiDocsPage() {
                 {/* Base URL */}
                 <GlassCard variant="blue">
                   <div className="p-4 sm:p-5">
-                    <div className="flex items-center gap-2 mb-3">
-                      <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-blue-300/30 bg-blue-100/50 dark:border-white/15 dark:bg-white/10">
-                        <FiCode className="h-4 w-4 text-gray-700 dark:text-white" />
-                      </div>
-                      <h3 className="text-sm sm:text-base font-medium text-gray-700 dark:text-white">
-                        Base URL
-                      </h3>
-                    </div>
+                    <SectionCardHeader
+                      icon={Code2}
+                      tone="blue"
+                      title="Base URL"
+                      className="mb-3"
+                    />
                     <code className="block bg-white/50 dark:bg-white/5 border border-gray-300/30 dark:border-white/10 px-2 py-2 rounded-xl text-sm font-mono text-gray-700 dark:text-white/90 break-all">
                       {baseUrl}
                     </code>
@@ -1249,14 +1251,12 @@ export default function ApiDocsPage() {
                 {/* Authentication */}
                 <GlassCard variant="violet">
                   <div className="p-4 sm:p-5">
-                    <div className="flex items-center gap-2 mb-3">
-                      <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-violet-300/30 bg-violet-100/50 dark:border-white/15 dark:bg-white/10">
-                        <FiKey className="h-4 w-4 text-gray-700 dark:text-white" />
-                      </div>
-                      <h3 className="text-sm sm:text-base font-medium text-gray-700 dark:text-white">
-                        Auth
-                      </h3>
-                    </div>
+                    <SectionCardHeader
+                      icon={Key}
+                      tone="violet"
+                      title="Auth"
+                      className="mb-3"
+                    />
                     <p className="text-sm text-gray-600 dark:text-white/70">
                       Session cookie (HTTP-only). Send{" "}
                       <code className="text-xs bg-violet-500/10 px-1 py-0.5 rounded">
@@ -1269,14 +1269,12 @@ export default function ApiDocsPage() {
                 {/* Rate Limiting */}
                 <GlassCard variant="amber">
                   <div className="p-4 sm:p-5">
-                    <div className="flex items-center gap-2 mb-3">
-                      <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-amber-300/30 bg-amber-100/50 dark:border-white/15 dark:bg-white/10">
-                        <Zap className="h-4 w-4 text-gray-700 dark:text-white" />
-                      </div>
-                      <h3 className="text-sm sm:text-base font-medium text-gray-700 dark:text-white">
-                        Rate Limit
-                      </h3>
-                    </div>
+                    <SectionCardHeader
+                      icon={Zap}
+                      tone="amber"
+                      title="Rate Limit"
+                      className="mb-3"
+                    />
                     <p className="text-sm text-gray-600 dark:text-white/70">
                       100 req/min (standard), 10 req/min (import), 5 req/min
                       (auth)
@@ -1287,14 +1285,12 @@ export default function ApiDocsPage() {
                 {/* OpenAPI */}
                 <GlassCard variant="teal">
                   <div className="p-4 sm:p-5">
-                    <div className="flex items-center gap-2 mb-3">
-                      <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-teal-300/30 bg-teal-100/50 dark:border-white/15 dark:bg-white/10">
-                        <FileJson className="h-4 w-4 text-gray-700 dark:text-white" />
-                      </div>
-                      <h3 className="text-sm sm:text-base font-medium text-gray-700 dark:text-white">
-                        OpenAPI 3.0
-                      </h3>
-                    </div>
+                    <SectionCardHeader
+                      icon={FileJson}
+                      tone="teal"
+                      title="OpenAPI 3.0"
+                      className="mb-3"
+                    />
                     <a
                       href={`${baseUrl}/api/openapi`}
                       target="_blank"
@@ -1346,34 +1342,12 @@ export default function ApiDocsPage() {
                 >
                   <GlassCard variant={variant}>
                     <div className="p-4 sm:p-5">
-                      <div className="flex items-center gap-2 mb-4">
-                        <div
-                          className={cn(
-                            "flex h-10 w-10 items-center justify-center rounded-xl border backdrop-blur",
-                            variant === "violet" &&
-                              "border-violet-300/30 bg-violet-100/50 dark:border-white/15 dark:bg-white/10",
-                            variant === "emerald" &&
-                              "border-emerald-300/30 bg-emerald-100/50 dark:border-white/15 dark:bg-white/10",
-                            variant === "sky" &&
-                              "border-sky-300/30 bg-sky-100/50 dark:border-white/15 dark:bg-white/10",
-                            variant === "orange" &&
-                              "border-orange-300/30 bg-orange-100/50 dark:border-white/15 dark:bg-white/10",
-                            variant === "blue" &&
-                              "border-blue-300/30 bg-blue-100/50 dark:border-white/15 dark:bg-white/10",
-                            variant === "rose" &&
-                              "border-rose-300/30 bg-rose-100/50 dark:border-white/15 dark:bg-white/10",
-                            variant === "teal" &&
-                              "border-teal-300/30 bg-teal-100/50 dark:border-white/15 dark:bg-white/10",
-                            variant === "amber" &&
-                              "border-amber-300/30 bg-amber-100/50 dark:border-white/15 dark:bg-white/10",
-                          )}
-                        >
-                          <section.icon className="h-5 w-5 text-gray-700 dark:text-white" />
-                        </div>
-                        <h3 className="text-sm sm:text-base font-medium text-gray-700 dark:text-white">
-                          {section.name}
-                        </h3>
-                      </div>
+                      <SectionCardHeader
+                        icon={section.icon}
+                        tone={variant as SectionHeaderTone}
+                        title={section.name}
+                        className="mb-4"
+                      />
 
                       <div className="space-y-4">
                         {section.endpoints.map((endpoint, index) => (
@@ -1500,19 +1474,13 @@ export default function ApiDocsPage() {
             >
               <GlassCard variant="sky">
                 <div className="p-4 sm:p-5">
-                  <div className="flex items-center gap-2 mb-4">
-                    <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-sky-300/30 bg-sky-100/50 dark:border-white/15 dark:bg-white/10">
-                      <FiDatabase className="h-5 w-5 text-gray-700 dark:text-white" />
-                    </div>
-                    <div>
-                      <h3 className="text-sm sm:text-base font-medium text-gray-700 dark:text-white">
-                        Data Types
-                      </h3>
-                      <p className="text-sm text-gray-600 dark:text-white/60">
-                        Common data structures used throughout the API
-                      </p>
-                    </div>
-                  </div>
+                  <SectionCardHeader
+                    icon={Database}
+                    tone="sky"
+                    title="Data Types"
+                    description="Common data structures used throughout the API"
+                    className="mb-4"
+                  />
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                     {dataTypes.map((type, typeIndex) => {
@@ -1574,19 +1542,13 @@ export default function ApiDocsPage() {
             >
               <GlassCard variant="rose">
                 <div className="p-4 sm:p-5">
-                  <div className="flex items-center gap-2 mb-4">
-                    <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-rose-300/30 bg-rose-100/50 dark:border-white/15 dark:bg-white/10">
-                      <AlertCircle className="h-5 w-5 text-gray-700 dark:text-white" />
-                    </div>
-                    <div>
-                      <h3 className="text-sm sm:text-base font-medium text-gray-700 dark:text-white">
-                        Error Codes
-                      </h3>
-                      <p className="text-sm text-gray-600 dark:text-white/60">
-                        Common HTTP status codes and their meanings
-                      </p>
-                    </div>
-                  </div>
+                  <SectionCardHeader
+                    icon={AlertCircle}
+                    tone="rose"
+                    title="Error Codes"
+                    description="Common HTTP status codes and their meanings"
+                    className="mb-4"
+                  />
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                     {/* Success Codes */}

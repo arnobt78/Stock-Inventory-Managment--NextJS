@@ -83,6 +83,7 @@ export default function ProductsDropDown({
   const isDeleting = deleteProductMutation.isPending;
   const isSupplierRole = user?.role === "supplier";
   const isClientRole = user?.role === "client";
+  const readOnlyCatalog = isSupplierRole || isClientRole;
 
   // Debug log removed to prevent payload errors
 
@@ -185,30 +186,33 @@ export default function ProductsDropDown({
               View Details
             </Link>
           </DropdownMenuItem>
-          <DropdownMenuItem
-            onClick={handleCopyProduct}
-            disabled={isCopying || isSupplierRole || isClientRole}
-            className="flex items-center gap-2"
-          >
-            <Copy className="h-4 w-4" />
-            {isCopying ? "Duplicating..." : "Create Duplicate"}
-          </DropdownMenuItem>
-          <DropdownMenuItem
-            onClick={handleEditProduct}
-            disabled={isSupplierRole || isClientRole}
-            className="flex items-center gap-2"
-          >
-            <Edit className="h-4 w-4" />
-            Edit Product
-          </DropdownMenuItem>
-          <DropdownMenuItem
-            onClick={() => setDeleteDialogOpen(true)}
-            disabled={isDeleting || isSupplierRole || isClientRole}
-            className="flex items-center gap-2 text-red-600 dark:text-red-400"
-          >
-            <Trash2 className="h-4 w-4" />
-            {isDeleting ? "Deleting..." : "Delete Product"}
-          </DropdownMenuItem>
+          {!readOnlyCatalog && (
+            <>
+              <DropdownMenuItem
+                onClick={handleCopyProduct}
+                disabled={isCopying}
+                className="flex items-center gap-2"
+              >
+                <Copy className="h-4 w-4" />
+                {isCopying ? "Duplicating..." : "Create Duplicate"}
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                onClick={handleEditProduct}
+                className="flex items-center gap-2"
+              >
+                <Edit className="h-4 w-4" />
+                Edit Product
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                onClick={() => setDeleteDialogOpen(true)}
+                disabled={isDeleting}
+                className="flex items-center gap-2 text-red-600 dark:text-red-400"
+              >
+                <Trash2 className="h-4 w-4" />
+                {isDeleting ? "Deleting..." : "Delete Product"}
+              </DropdownMenuItem>
+            </>
+          )}
           <DropdownMenuSeparator />
           <DropdownMenuItem
             onClick={handleOpenWriteReview}

@@ -14,6 +14,7 @@ import type { InvoiceForPage } from "@/lib/server/invoices-data";
 import type { DashboardStats, ClientPortalDashboard } from "@/types";
 
 export type InvoicesPageProps = {
+  userRole?: string;
   initialInvoices?: InvoiceForPage[];
   /** SSR dashboard stats for admin/user /invoices cards (REQ-0025) */
   initialStats?: DashboardStats;
@@ -26,10 +27,14 @@ export type InvoicesPageProps = {
  * REQ-0021 — shell-first; SSR initialData passed to InvoiceList.
  */
 export default function InvoicesPage({
+  userRole,
   initialInvoices,
   initialStats,
   initialClientPortal,
 }: InvoicesPageProps = {}) {
+  const showInvoiceFab =
+    userRole !== "client" && userRole !== "supplier";
+
   return (
     <Navbar>
       <PageContentWrapper>
@@ -38,7 +43,9 @@ export default function InvoicesPage({
           initialStats={initialStats}
           initialClientPortal={initialClientPortal}
         />
-        <FloatingActionButtons variant="invoices" />
+        {showInvoiceFab ? (
+          <FloatingActionButtons variant="invoices" />
+        ) : null}
       </PageContentWrapper>
     </Navbar>
   );

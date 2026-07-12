@@ -3,20 +3,31 @@
 import React from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, FileText, AlertCircle } from "lucide-react";
+import {
+  ArrowLeft,
+  FileText,
+  AlertCircle,
+  Calendar,
+  HardDrive,
+  CheckCircle,
+  XCircle,
+  Layers,
+} from "lucide-react";
 import { useHistoryItem } from "@/hooks/queries";
-import { PageContentWrapper, DataSlotPulse, GLASS_GHOST_BUTTON, DETAIL_HEADER_BACK_ICON_CLASS } from "@/components/shared";
+import {
+  PageContentWrapper,
+  DataSlotPulse,
+  PageSectionHeader,
+  SectionCardHeader,
+  GLASS_GHOST_BUTTON,
+  DETAIL_HEADER_BACK_ICON_CLASS,
+  ClientDateTime,
+} from "@/components/shared";
+import { GlassCard, DetailInfoRow } from "@/components/orders/detail";
+import { APP_SHELL_DETAIL_CLASS } from "@/lib/ui/shell-layout-styles";
 import { cn } from "@/lib/utils";
 import { isDataSlotLoading, queryKeys, useSyncSsrQueryData } from "@/lib/react-query";
-import { format } from "date-fns";
 import {
   ImportStatusBadge,
   ImportTypeBadge,
@@ -32,7 +43,7 @@ export type AdminHistoryDetailContentProps = {
 
 /**
  * Admin History Detail — view a single import history record.
- * Shell-first: layout always visible; pulse dynamic slots only (REQ-0023).
+ * REQ-0075 AC4 — PageSectionHeader + GlassCard + DetailInfoRow parity.
  */
 export default function AdminHistoryDetailContent({
   backHref = "/admin/activity-history",
@@ -50,20 +61,18 @@ export default function AdminHistoryDetailContent({
   if (isError) {
     return (
       <PageContentWrapper>
-        <div className="space-y-4">
+        <div className={APP_SHELL_DETAIL_CLASS}>
           <Button size="sm" asChild className={cn("gap-2", GLASS_GHOST_BUTTON)}>
             <Link href={backHref}>
               <ArrowLeft className="h-4 w-4" />
               Back to History
             </Link>
           </Button>
-          <Card>
-            <CardContent className="py-8 text-center">
-              <p className="text-muted-foreground">
-                {error instanceof Error ? error.message : "Record not found"}
-              </p>
-            </CardContent>
-          </Card>
+          <GlassCard variant="rose">
+            <p className="py-8 text-center text-gray-600 dark:text-white/70">
+              {error instanceof Error ? error.message : "Record not found"}
+            </p>
+          </GlassCard>
         </div>
       </PageContentWrapper>
     );
@@ -72,21 +81,18 @@ export default function AdminHistoryDetailContent({
   if (!dataLoading && !record) {
     return (
       <PageContentWrapper>
-        <div className="space-y-4">
+        <div className={APP_SHELL_DETAIL_CLASS}>
           <Button size="sm" asChild className={cn("gap-2", GLASS_GHOST_BUTTON)}>
             <Link href={backHref}>
               <ArrowLeft className="h-4 w-4" />
               Back to History
             </Link>
           </Button>
-          <Card>
-            <CardContent className="py-8 text-center">
-              <p className="text-muted-foreground">
-                The import record you are looking for does not exist or was
-                removed.
-              </p>
-            </CardContent>
-          </Card>
+          <GlassCard variant="rose">
+            <p className="py-8 text-center text-gray-600 dark:text-white/70">
+              The import record you are looking for does not exist or was removed.
+            </p>
+          </GlassCard>
         </div>
       </PageContentWrapper>
     );
@@ -97,187 +103,114 @@ export default function AdminHistoryDetailContent({
 
   return (
     <PageContentWrapper>
-      <div className="space-y-4">
-        <div className="flex items-center gap-2">
-          <Button variant="ghost" size="icon" asChild>
-            <Link href={backHref} className={DETAIL_HEADER_BACK_ICON_CLASS}>
-              <ArrowLeft className="h-5 w-5" />
-            </Link>
-          </Button>
-          <div>
-            <h1 className="text-sm sm:text-lg font-medium text-foreground">
-              Import History Details
-            </h1>
-            <p className="text-sm text-muted-foreground">
-              View import run:{" "}
-              {dataLoading ? (
-                <DataSlotPulse variant="text-sm" className="w-48" />
-              ) : (
-                <>
-                  {r!.importType} — {r!.fileName}
-                </>
+      <div className={APP_SHELL_DETAIL_CLASS}>
+        <PageSectionHeader
+          as="h1"
+          tone="violet"
+          icon={FileText}
+          leading={
+            <Button variant="ghost" size="icon" asChild>
+              <Link href={backHref} className={DETAIL_HEADER_BACK_ICON_CLASS}>
+                <ArrowLeft className="h-5 w-5" />
+              </Link>
+            </Button>
+          }
+          title="Import History Details"
+          description={
+            dataLoading ? (
+              <DataSlotPulse variant="text-sm" className="w-48" />
+            ) : (
+              <>
+                {r!.importType} — {r!.fileName}
+              </>
+            )
+          }
+        />
+
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-2 sm:gap-4">
+          <GlassCard variant="violet">
+            <SectionCardHeader
+              icon={FileText}
+              tone="violet"
+              title="Import Information"
+            />
+            <div className="space-y-2 mt-4">
+              <DetailInfoRow icon={Layers} label="Import Type:" tone="violet" loading={dataLoading}>
+                {!dataLoading && (
+                  <ImportTypeBadge
+                    status={r!.importType}
+                    label={formatSemanticLabel(r!.importType)}
+                    size="detail"
+                  />
+                )}
+              </DetailInfoRow>
+              <DetailInfoRow icon={FileText} label="File Name:" tone="sky" loading={dataLoading}>
+                {!dataLoading && (
+                  <span className="font-mono text-xs break-all">{r!.fileName}</span>
+                )}
+              </DetailInfoRow>
+              <DetailInfoRow icon={HardDrive} label="File Size:" tone="blue" loading={dataLoading}>
+                {!dataLoading && `${(r!.fileSize / 1024).toFixed(2)} KB`}
+              </DetailInfoRow>
+              <DetailInfoRow icon={CheckCircle} label="Status:" tone="emerald" loading={dataLoading}>
+                {!dataLoading && <ImportStatusBadge status={r!.status} size="detail" />}
+              </DetailInfoRow>
+              <DetailInfoRow icon={Calendar} label="Date:" tone="orange" loading={dataLoading}>
+                {!dataLoading && <ClientDateTime date={new Date(r!.createdAt)} />}
+              </DetailInfoRow>
+              {!dataLoading && r!.completedAt && (
+                <DetailInfoRow icon={Calendar} label="Completed:" tone="amber">
+                  <ClientDateTime date={new Date(r!.completedAt)} />
+                </DetailInfoRow>
               )}
-            </p>
-          </div>
+            </div>
+          </GlassCard>
+
+          <GlassCard variant="teal">
+            <SectionCardHeader icon={Layers} tone="teal" title="Row Summary" />
+            <div className="space-y-2 mt-4">
+              <DetailInfoRow icon={Layers} label="Total Rows:" tone="teal" loading={dataLoading}>
+                {!dataLoading && r!.totalRows}
+              </DetailInfoRow>
+              <DetailInfoRow icon={CheckCircle} label="Successful:" tone="emerald" loading={dataLoading}>
+                {!dataLoading && (
+                  <span className="text-green-600 dark:text-green-400">{r!.successRows}</span>
+                )}
+              </DetailInfoRow>
+              <DetailInfoRow icon={XCircle} label="Failed:" tone="rose" loading={dataLoading}>
+                {!dataLoading && (
+                  <span className="text-red-600 dark:text-red-400">{r!.failedRows}</span>
+                )}
+              </DetailInfoRow>
+            </div>
+          </GlassCard>
         </div>
 
-        <Card>
-          <CardContent className="p-2 sm:p-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-2 sm:gap-4">
-              <div>
-                <h2 className="text-sm sm:text-base font-medium mb-4 flex items-center gap-2">
-                  <FileText className="h-5 w-5" />
-                  Import Information
-                </h2>
-                <dl className="space-y-2 text-sm">
-                  <div>
-                    <dt className="text-muted-foreground">Import Type</dt>
-                    <dd className="mt-1">
-                      {dataLoading ? (
-                        <DataSlotPulse
-                          variant="badge"
-                          className="h-6 w-24 rounded-full"
-                        />
-                      ) : (
-                        <ImportTypeBadge
-                          status={r!.importType}
-                          label={formatSemanticLabel(r!.importType)}
-                          size="detail"
-                        />
-                      )}
-                    </dd>
-                  </div>
-                  <div>
-                    <dt className="text-muted-foreground">File Name</dt>
-                    <dd className="font-mono text-xs break-all">
-                      {dataLoading ? (
-                        <DataSlotPulse variant="text-md" className="w-full" />
-                      ) : (
-                        r!.fileName
-                      )}
-                    </dd>
-                  </div>
-                  <div>
-                    <dt className="text-muted-foreground">File Size</dt>
-                    <dd>
-                      {dataLoading ? (
-                        <DataSlotPulse variant="text-sm" className="w-16" />
-                      ) : (
-                        `${(r!.fileSize / 1024).toFixed(2)} KB`
-                      )}
-                    </dd>
-                  </div>
-                  <div>
-                    <dt className="text-muted-foreground">Status</dt>
-                    <dd className="mt-1">
-                      {dataLoading ? (
-                        <DataSlotPulse
-                          variant="badge"
-                          className="h-6 w-20 rounded-full"
-                        />
-                      ) : (
-                        <ImportStatusBadge status={r!.status} size="detail" />
-                      )}
-                    </dd>
-                  </div>
-                  <div>
-                    <dt className="text-muted-foreground">Date</dt>
-                    <dd>
-                      {dataLoading ? (
-                        <DataSlotPulse variant="date" />
-                      ) : (
-                        format(
-                          new Date(r!.createdAt),
-                          "MMMM d, yyyy 'at' h:mm a",
-                        )
-                      )}
-                    </dd>
-                  </div>
-                  {!dataLoading && r!.completedAt && (
-                    <div>
-                      <dt className="text-muted-foreground">Completed</dt>
-                      <dd>
-                        {format(
-                          new Date(r!.completedAt),
-                          "MMMM d, yyyy 'at' h:mm a",
-                        )}
-                      </dd>
-                    </div>
-                  )}
-                </dl>
-              </div>
-              <div>
-                <h2 className="text-sm sm:text-base font-medium mb-4">Row Summary</h2>
-                <dl className="space-y-2 text-sm">
-                  <div>
-                    <dt className="text-muted-foreground">Total Rows</dt>
-                    <dd className="font-medium">
-                      {dataLoading ? (
-                        <DataSlotPulse variant="metric" />
-                      ) : (
-                        r!.totalRows
-                      )}
-                    </dd>
-                  </div>
-                  <div>
-                    <dt className="text-muted-foreground">Successful</dt>
-                    <dd className="text-green-600 dark:text-green-400 font-medium">
-                      {dataLoading ? (
-                        <DataSlotPulse variant="metric" />
-                      ) : (
-                        r!.successRows
-                      )}
-                    </dd>
-                  </div>
-                  <div>
-                    <dt className="text-muted-foreground">Failed</dt>
-                    <dd className="text-red-600 dark:text-red-400 font-medium">
-                      {dataLoading ? (
-                        <DataSlotPulse variant="metric" />
-                      ) : (
-                        r!.failedRows
-                      )}
-                    </dd>
-                  </div>
-                </dl>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
         {hasErrors && r && (
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <AlertCircle className="h-5 w-5" />
-                Error Details ({r.errors!.length} failed row(s))
-              </CardTitle>
-              <CardDescription>
-                Row-level errors from the import. Use these to fix the file and
-                re-import.
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-2 max-h-[400px] overflow-y-auto">
-                {r.errors!.map((err, idx) => (
-                  <div
-                    key={idx}
-                    className="rounded-lg border border-destructive/30 bg-destructive/5 dark:bg-destructive/10 p-2 text-sm"
-                  >
-                    <span className="font-mono font-medium">
-                      Row {err.rowNumber}
+          <GlassCard variant="rose">
+            <SectionCardHeader
+              icon={AlertCircle}
+              tone="rose"
+              title={`Error Details (${r.errors!.length} failed row(s))`}
+              description="Row-level errors from the import. Use these to fix the file and re-import."
+            />
+            <div className="space-y-2 max-h-[400px] overflow-y-auto mt-4">
+              {r.errors!.map((err, idx) => (
+                <div
+                  key={idx}
+                  className="rounded-lg border border-destructive/30 bg-destructive/5 dark:bg-destructive/10 p-2 text-sm"
+                >
+                  <span className="font-mono font-medium">Row {err.rowNumber}</span>
+                  {err.field && (
+                    <span className="text-gray-500 dark:text-gray-400 mx-2">
+                      • {err.field}
                     </span>
-                    {err.field && (
-                      <span className="text-muted-foreground mx-2">
-                        • {err.field}
-                      </span>
-                    )}
-                    <p className="mt-1 text-muted-foreground">{err.message}</p>
-                  </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
+                  )}
+                  <p className="mt-1 text-gray-600 dark:text-white/70">{err.message}</p>
+                </div>
+              ))}
+            </div>
+          </GlassCard>
         )}
       </div>
     </PageContentWrapper>

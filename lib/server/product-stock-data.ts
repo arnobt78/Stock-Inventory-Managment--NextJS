@@ -47,6 +47,9 @@ export async function getStockByProductForPage(
   const product = await getProductDetailForPage(session, productId);
   if (!product) return null;
 
+  // Warehouses belong to the product owner (admin), not the viewing session (REQ-0075 AC1).
+  const ownerUserId = product.userId;
+
   const allocations = await prisma.stockAllocation.findMany({
     where: { productId },
     orderBy: { quantity: "desc" },
@@ -61,7 +64,7 @@ export async function getStockByProductForPage(
       select: { id: true, name: true, sku: true, imageUrl: true },
     }),
     prisma.warehouse.findMany({
-      where: { id: { in: warehouseIds }, userId: session.id },
+      where: { id: { in: warehouseIds }, userId: ownerUserId },
       select: { id: true, name: true },
     }),
   ]);

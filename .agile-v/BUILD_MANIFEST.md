@@ -195,6 +195,15 @@
 | ART-0187 | REQ-0074 | portal pages, `chart-point-label.tsx` | Spacing + chart headers + point labels |
 | ART-0188 | REQ-0074 | `PartiesRolesCard`, `InvoiceSummaryCard` | Detail parity + party avatars |
 | ART-0189 | REQ-0074 | `FloatingActionButtons`, `OrderDialog` | FAB hover + order line grid |
+| ART-0190 | REQ-0075 | `product-stock-data.ts`, `ProductDetailPage` | Supplier warehouse SSR owner scope |
+| ART-0191 | REQ-0075 | `invoices-data.ts`, `app/invoices/page.tsx`, API GET | Supplier invoice SSR/API path |
+| ART-0192 | REQ-0075 | `InvoiceDetailPage`, `InvoicesPage`, `OrdersPage`, `ProductActions` | Role gating parity |
+| ART-0193 | REQ-0075 | `ApiStatusPage`, `ApiDocsPage`, `AdminSettingsContent` | PageSectionHeader parity |
+| ART-0194 | REQ-0075 | Admin detail embeds | GlassCard + DetailInfoRow + APP_SHELL_DETAIL_CLASS |
+| ART-0195 | REQ-0076 | `ApiStatusPage`, `ApiDocsPage` | SectionCardHeader inner sections |
+| ART-0196 | REQ-0076 | Admin review/ticket/user embeds | DetailInfoRow + ClientDateTime |
+| ART-0197 | REQ-0076 | `InvoiceDetailPage` | Supplier Pay gate (`!isSupplierRole`) |
+| ART-0198 | REQ-0076 | `app/invoices/page.tsx` | Remove dead supplier prefetchListPageStats |
 
 ## Tests
 
@@ -220,3 +229,5 @@
 | TC-0018 | REQ-0072 | `lib/orders/enrich-order-items-catalog.test.ts` |
 | TC-0019 | REQ-0073 | `lib/orders/transform-order-detail.test.ts` (paidAt) |
 | TC-0020 | REQ-0074 | `lib/ui/chart-point-label.test.ts` |
+| TC-0021 | REQ-0075 | `lib/server/product-stock-data.test.ts` |
+| TC-0022 | REQ-0076 | `lib/server/invoices-data.test.ts` |

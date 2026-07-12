@@ -3,9 +3,11 @@ import { getSession } from "@/lib/auth-server";
 import InvoicesPage from "@/components/Pages/InvoicesPage";
 import {
   getInvoicesForClientId,
+  getInvoicesForSupplierId,
   getStoreInvoicesForAdmin,
 } from "@/lib/server/invoices-data";
 import { prefetchListPageStats } from "@/lib/server/list-page-stats";
+import { getSupplierByUserId } from "@/prisma/supplier";
 
 /** REQ-0025 — blocking SSR prefetch (no Suspense shell flash). */
 export const dynamic = "force-dynamic";
@@ -23,8 +25,22 @@ export default async function InvoicesRoute() {
     ]);
     return (
       <InvoicesPage
+        userRole={userRole}
         initialInvoices={initialInvoices}
         initialClientPortal={listStats.initialClientPortal}
+      />
+    );
+  }
+
+  if (userRole === "supplier") {
+    const supplier = await getSupplierByUserId(user.id);
+    const initialInvoices = supplier
+      ? await getInvoicesForSupplierId(supplier.id)
+      : [];
+    return (
+      <InvoicesPage
+        userRole={userRole}
+        initialInvoices={initialInvoices}
       />
     );
   }
@@ -36,6 +52,7 @@ export default async function InvoicesRoute() {
 
   return (
     <InvoicesPage
+      userRole={userRole}
       initialInvoices={initialInvoices}
       initialStats={listStats.initialStats}
     />

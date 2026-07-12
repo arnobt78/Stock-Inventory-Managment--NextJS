@@ -48,7 +48,7 @@ export default function OrdersPage({
           initialClientPortal={initialClientPortal}
           initialSupplierPortal={initialSupplierPortal}
         />
-        {userRole !== "client" && (
+        {userRole !== "client" && userRole !== "supplier" && (
           <FloatingActionButtons variant="orders" />
         )}
       </PageContentWrapper>

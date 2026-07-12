@@ -707,12 +707,18 @@ export default function ProductDetailPage({
                           key={row.id}
                           className="flex items-center justify-between gap-2 p-3 rounded-xl border border-teal-200/30 dark:border-teal-400/10 bg-gradient-to-r from-teal-100/40 via-teal-50/20 to-transparent dark:from-teal-500/10 dark:via-teal-500/5 dark:to-transparent"
                         >
-                          <Link
-                            href={whHref}
-                            className="font-medium text-sm text-sky-600 dark:text-sky-400 hover:text-sky-500"
-                          >
-                            {row.warehouse?.name ?? "Warehouse"}
-                          </Link>
+                          {isSupplierRole ? (
+                            <span className="font-medium text-sm text-gray-700 dark:text-white">
+                              {row.warehouse?.name ?? "Warehouse"}
+                            </span>
+                          ) : (
+                            <Link
+                              href={whHref}
+                              className="font-medium text-sm text-sky-600 dark:text-sky-400 hover:text-sky-500"
+                            >
+                              {row.warehouse?.name ?? "Warehouse"}
+                            </Link>
+                          )}
                           <span className="text-sm text-gray-700 dark:text-white">
                             {avail}{" "}
                             <span className="text-gray-500 dark:text-gray-400">

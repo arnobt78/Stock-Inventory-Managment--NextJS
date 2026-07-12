@@ -1604,6 +1604,56 @@ Canonical REQ source. All artifacts link via `REQ-XXXX`. Status: `done` | `verif
 
 ---
 
+## REQ-0075 — Supplier warehouse display + UI parity sweep
+
+| Field | Value |
+|-------|-------|
+| **Priority** | P1 |
+| **Risk** | R2 |
+| **Status** | done |
+| **Cycle** | C2 |
+| **Parent** | REQ-0066, REQ-0074 |
+
+**Intent:** Fix supplier-role warehouse/stock display bugs on product detail and table actions; align static/admin detail page headers and cards with established `PageSectionHeader` / glass patterns.
+
+**Acceptance criteria**
+
+- AC1: Supplier product detail shows correct warehouse count and allocation rows when stock exists (matches admin view for same product)
+- AC2: Supplier product table action menu — invoice/create/edit actions correctly gated by role + order/invoice state (no false disables)
+- AC3: Remove/email, API status, documentation pages use `PageSectionHeader` + icon row parity with other settings pages
+- AC4: Admin detail embeds (order, ticket, review, user, history) — consistent header icons, glass cards, spacing with catalog detail pages
+- AC5: `AdminOrderDetailContent` splits Order status and Payment status into separate rows (parity with `OrderDetailPage`)
+- AC6: Red Team lint/test/invalidate/build pass
+
+**Artifacts:** `ProductDetailPage` (supplier branch), `product-stock-data.ts`, supplier product table actions, remove/email + API status + docs pages, admin detail embeds, `AdminOrderDetailContent.tsx`
+
+---
+
+## REQ-0076 — REQ-0075 gap closure
+
+| Field | Value |
+|-------|-------|
+| **Priority** | P2 |
+| **Risk** | R1 |
+| **Status** | done |
+| **Cycle** | C2 |
+| **Parent** | REQ-0075 |
+
+**Intent:** Close five post-REQ-0075 audit gaps — inner section headers, admin `DetailInfoRow` parity, supplier Pay gate, supplier invoice test, dead SSR prefetch.
+
+**Acceptance criteria**
+
+- AC1: `ApiStatusPage` + `ApiDocsPage` inner sections use `SectionCardHeader` (not ad-hoc `h3` blocks)
+- AC2: `InvoiceDetailPage` hides `PaymentDialog` for supplier role (`!isSupplierRole`)
+- AC3: `AdminProductReviewDetailContent`, `AdminSupportTicketDetailContent`, `AdminUserManagementDetailContent` — read-only rows via `DetailInfoRow` + `ClientDateTime`
+- AC4: `lib/server/invoices-data.test.ts` covers `getInvoicesForSupplierId` (orders→invoices, empty, cache key)
+- AC5: Supplier branch in `app/invoices/page.tsx` drops unused `prefetchListPageStats`
+- AC6: Red Team lint/test/invalidate/build pass
+
+**Artifacts:** `ApiStatusPage.tsx`, `ApiDocsPage.tsx`, admin detail embeds, `InvoiceDetailPage.tsx`, `invoices-data.test.ts`, `app/invoices/page.tsx`
+
+---
+
 | Field | Value |
 |-------|-------|
 | **Priority** | P1 |

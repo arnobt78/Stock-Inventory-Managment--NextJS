@@ -608,6 +608,7 @@ const ProductList = React.memo(function ProductList({
             selectedSuppliers={selectedSuppliers}
             setSelectedSuppliers={setSelectedSuppliers}
             userId={user?.id || ""}
+            hideImport={isSupplierProductsPage}
           />
         </div>
       </div>

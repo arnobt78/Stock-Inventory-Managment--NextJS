@@ -6,7 +6,10 @@
 
 import { getCache, setCache, cacheKeys } from "@/lib/cache";
 import { getInvoicesByUser, getInvoicesByClientId, getInvoicesByOrderIds } from "@/prisma/invoice";
-import { getOrdersContainingProductOwnerProducts } from "@/prisma/order";
+import {
+  getOrdersContainingProductOwnerProducts,
+  getOrdersContainingSupplierProducts,
+} from "@/prisma/order";
 import { fetchOrderUserIdMap } from "@/lib/invoices/enrich-order-user-ids";
 import { getStoreOrderIds } from "@/lib/invoices/store-order-ids";
 import { prisma } from "@/prisma/client";
@@ -139,6 +142,35 @@ export async function getStoreInvoicesForAdmin(
 
   const storeOrderIds = await getStoreOrderIds(userId);
   const invoices = await getInvoicesByOrderIds(storeOrderIds);
+  const transformed = await transformInvoicesForList(invoices);
+
+  await setCache(cacheKey, transformed, 300);
+  return transformed;
+}
+
+/**
+ * Fetch invoices for orders that contain products from the given supplier.
+ * Used for role=supplier on /invoices page SSR (REQ-0075 AC2).
+ */
+export async function getInvoicesForSupplierId(
+  supplierId: string,
+  filters?: InvoiceFilters,
+): Promise<InvoiceForPage[]> {
+  const { scope: _scope, ...cacheFilters } = filters ?? {};
+  const cacheKey = cacheKeys.invoices.list({
+    supplierId,
+    ...(Object.keys(cacheFilters).length > 0 ? cacheFilters : {}),
+  });
+  const cached = await getCache<InvoiceForPage[]>(cacheKey);
+  if (cached) return cached;
+
+  const orders = await getOrdersContainingSupplierProducts(supplierId);
+  const orderIds = orders.map((o) => o.id);
+  const invoices =
+    orderIds.length > 0
+      ? await getInvoicesByOrderIds(orderIds, cacheFilters)
+      : [];
+
   const transformed = await transformInvoicesForList(invoices);
 
   await setCache(cacheKey, transformed, 300);

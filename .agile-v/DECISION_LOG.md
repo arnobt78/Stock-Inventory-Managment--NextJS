@@ -181,3 +181,14 @@ Format: `TIMESTAMP | AGENT | DECISION | RATIONALE | REQ-ID`
 2026-07-11T21:30:00Z | red-team | REQ-0074 gates | lint ✓ test 384 ✓ invalidate 206 ✓ build ✓ | REQ-0074
 2026-07-11T22:00:00Z | red-team | REQ-0074 audit | All phases done; minor gap AdminOrderDetailContent status rows; lint warn fixed | REQ-0074
 2026-07-11T22:05:00Z | po | C2 backlog | OB-011–015 supplier/UI sweep queued for 2026-07-12 | REQ-0075 candidate
+2026-07-12T10:05:00Z | agile-v-core | session-activate | Bootstrap confirmed; .agile-v/ 24 skills + all artifacts present; main synced origin at ce7c80b | REQ-0008
+2026-07-12T10:06:00Z | red-team | session gates | lint ✓ test 384 ✓ invalidate 206 ✓ build ✓ | ALL
+2026-07-12T10:07:00Z | po | REQ-0075 specify | Formal REQ added from OB-011–015 backlog; status planned; resume token REQ-0075-supplier-ui-sweep | REQ-0075
+2026-07-12T10:18:00Z | build-agent | REQ-0075 AC1 | product-stock-data ownerUserId warehouse scope; supplier plain-text warehouse names; unit test | REQ-0075
+2026-07-12T10:19:00Z | build-agent | REQ-0075 AC2 | getInvoicesForSupplierId; invoices page/API supplier branch; invoice detail gating; FAB/import parity | REQ-0075
+2026-07-12T10:20:00Z | build-agent | REQ-0075 AC3–AC5 | PageSectionHeader static pages; admin embed GlassCard/DetailInfoRow; AdminOrder status rows | REQ-0075
+2026-07-12T10:21:00Z | red-team | REQ-0075 gates | lint ✓ test 386 ✓ invalidate 206 ✓ build ✓ | REQ-0075
+2026-07-12T12:20:00Z | build-agent | REQ-0076 AC1 | ApiStatus/ApiDocs SectionCardHeader inner sections; Lucide icon migration on docs endpoints | REQ-0076
+2026-07-12T12:22:00Z | build-agent | REQ-0076 AC2–AC3 | InvoiceDetailPage supplier Pay gate; admin review/ticket/user DetailInfoRow + ClientDateTime | REQ-0076
+2026-07-12T12:24:00Z | build-agent | REQ-0076 AC4–AC5 | invoices-data.test.ts; supplier invoices SSR dead prefetch removed | REQ-0076
+2026-07-12T12:28:00Z | red-team | REQ-0076 gates | lint ✓ test 389 ✓ invalidate 206 ✓ build ✓ | REQ-0076

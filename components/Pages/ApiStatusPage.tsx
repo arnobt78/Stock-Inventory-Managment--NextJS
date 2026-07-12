@@ -28,7 +28,15 @@ import {
   FiHardDrive,
 } from "react-icons/fi";
 import Navbar from "@/components/layouts/Navbar";
-import { PageContentWrapper } from "@/components/shared";
+import { PageContentWrapper, PageSectionHeader, SectionCardHeader } from "@/components/shared";
+import {
+  Activity,
+  Cloud,
+  Cpu,
+  Package,
+  Server,
+  TrendingUp,
+} from "lucide-react";
 
 /**
  * Color variants for glassmorphic cards
@@ -452,32 +460,30 @@ export default function ApiStatusPage() {
     <Navbar>
       <PageContentWrapper>
         <div className="space-y-4">
-          {/* Header - Always visible */}
-          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
-            <div className="space-y-2">
-              <h1 className="text-sm sm:text-base font-medium text-gray-700 dark:text-white">
-                API & Project Status
-              </h1>
-              <p className="text-xs sm:text-sm text-gray-600 dark:text-white/70">
-                Real-time monitoring of Stockly&apos;s API endpoints and system
-                health
-              </p>
-            </div>
-            <Button
-              onClick={handleRefresh}
-              disabled={isRefreshing}
-              className={cn(
-                GLASS_BUTTON_ICON_HOVER,
-                "gap-2",
-                GLASS_PRIMARY_BUTTON.emerald,
-              )}
-            >
-              <FiRefreshCw
-                className={`h-4 w-4 ${isRefreshing ? "animate-spin" : ""}`}
-              />
-              <span>{isRefreshing ? "Refreshing..." : "Refresh"}</span>
-            </Button>
-          </div>
+          {/* Header — PageSectionHeader parity (REQ-0075 AC3) */}
+          <PageSectionHeader
+            as="h1"
+            icon={Activity}
+            tone="emerald"
+            title="API & Project Status"
+            description="Real-time monitoring of Stockly's API endpoints and system health"
+            trailing={
+              <Button
+                onClick={handleRefresh}
+                disabled={isRefreshing}
+                className={cn(
+                  GLASS_BUTTON_ICON_HOVER,
+                  "gap-2",
+                  GLASS_PRIMARY_BUTTON.emerald,
+                )}
+              >
+                <FiRefreshCw
+                  className={`h-4 w-4 ${isRefreshing ? "animate-spin" : ""}`}
+                />
+                <span>{isRefreshing ? "Refreshing..." : "Refresh"}</span>
+              </Button>
+            }
+          />
 
           {/* System Overview - Show skeletons while loading, data when available */}
           {isLoading ? (
@@ -556,19 +562,13 @@ export default function ApiStatusPage() {
                     <Skeleton className="h-4 w-48 mt-2" />
                   </>
                 ) : (
-                  <div className="flex items-center gap-2 mb-4">
-                    <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-emerald-300/30 bg-emerald-100/50 dark:border-white/15 dark:bg-white/10">
-                      <FiActivity className="h-5 w-5 text-gray-700 dark:text-white" />
-                    </div>
-                    <div>
-                      <h3 className="text-sm sm:text-base font-medium text-gray-700 dark:text-white">
-                        API Health
-                      </h3>
-                      <p className="text-sm text-gray-600 dark:text-white/60">
-                        Overall health status of all API endpoints
-                      </p>
-                    </div>
-                  </div>
+                  <SectionCardHeader
+                    icon={Activity}
+                    tone="emerald"
+                    title="API Health"
+                    description="Overall health status of all API endpoints"
+                    className="mb-4"
+                  />
                 )}
               </React.Fragment>
               {isLoading ? (
@@ -596,19 +596,13 @@ export default function ApiStatusPage() {
                     <Skeleton className="h-4 w-48 mt-2" />
                   </>
                 ) : (
-                  <div className="flex items-center gap-2 mb-4">
-                    <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-sky-300/30 bg-sky-100/50 dark:border-white/15 dark:bg-white/10">
-                      <FiServer className="h-5 w-5 text-gray-700 dark:text-white" />
-                    </div>
-                    <div>
-                      <h3 className="text-sm sm:text-base font-medium text-gray-700 dark:text-white">
-                        Endpoints
-                      </h3>
-                      <p className="text-sm text-gray-600 dark:text-white/60">
-                        Individual endpoint health and response times
-                      </p>
-                    </div>
-                  </div>
+                  <SectionCardHeader
+                    icon={Server}
+                    tone="sky"
+                    title="Endpoints"
+                    description="Individual endpoint health and response times"
+                    className="mb-4"
+                  />
                 )}
               </React.Fragment>
               <div className="space-y-2">
@@ -668,19 +662,13 @@ export default function ApiStatusPage() {
                     <Skeleton className="h-4 w-48 mt-2" />
                   </>
                 ) : (
-                  <div className="flex items-center gap-2 mb-4">
-                    <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-violet-300/30 bg-violet-100/50 dark:border-white/15 dark:bg-white/10">
-                      <FiCloud className="h-5 w-5 text-gray-700 dark:text-white" />
-                    </div>
-                    <div>
-                      <h3 className="text-sm sm:text-base font-medium text-gray-700 dark:text-white">
-                        External Services
-                      </h3>
-                      <p className="text-sm text-gray-600 dark:text-white/60">
-                        Health status of external APIs and services
-                      </p>
-                    </div>
-                  </div>
+                  <SectionCardHeader
+                    icon={Cloud}
+                    tone="violet"
+                    title="External Services"
+                    description="Health status of external APIs and services"
+                    className="mb-4"
+                  />
                 )}
               </React.Fragment>
               {isLoading ? (
@@ -832,19 +820,13 @@ export default function ApiStatusPage() {
           {systemStatus?.performance && (
             <GlassCard variant="orange">
               <div className="p-4 sm:p-5">
-                <div className="flex items-center gap-2 mb-4">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-orange-300/30 bg-orange-100/50 dark:border-white/15 dark:bg-white/10">
-                    <FiTrendingUp className="h-5 w-5 text-gray-700 dark:text-white" />
-                  </div>
-                  <div>
-                    <h3 className="text-sm sm:text-base font-medium text-gray-700 dark:text-white">
-                      Performance Metrics
-                    </h3>
-                    <p className="text-sm text-gray-600 dark:text-white/60">
-                      API endpoint performance statistics and trends
-                    </p>
-                  </div>
-                </div>
+                <SectionCardHeader
+                  icon={TrendingUp}
+                  tone="orange"
+                  title="Performance Metrics"
+                  description="API endpoint performance statistics and trends"
+                  className="mb-4"
+                />
                 <div className="space-y-4">
                   {/* Summary Stats */}
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
@@ -969,20 +951,13 @@ export default function ApiStatusPage() {
           {systemStatus?.systemMetrics && (
             <GlassCard variant="teal">
               <div className="p-4 sm:p-5">
-                <div className="flex items-center gap-2 mb-4">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-teal-300/30 bg-teal-100/50 dark:border-white/15 dark:bg-white/10">
-                    <FiCpu className="h-5 w-5 text-gray-700 dark:text-white" />
-                  </div>
-                  <div>
-                    <h3 className="text-sm sm:text-base font-medium text-gray-700 dark:text-white">
-                      System Metrics
-                    </h3>
-                    <p className="text-sm text-gray-600 dark:text-white/60">
-                      Cache statistics, database performance, and system
-                      resources
-                    </p>
-                  </div>
-                </div>
+                <SectionCardHeader
+                  icon={Cpu}
+                  tone="teal"
+                  title="System Metrics"
+                  description="Cache statistics, database performance, and system resources"
+                  className="mb-4"
+                />
                 <div className="space-y-4">
                   {/* Cache Statistics */}
                   <div>
@@ -1195,14 +1170,12 @@ export default function ApiStatusPage() {
               {isLoading ? (
                 <Skeleton className="h-6 w-32 mb-4" />
               ) : (
-                <div className="flex items-center gap-2 mb-4">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-rose-300/30 bg-rose-100/50 dark:border-white/15 dark:bg-white/10">
-                    <FiPackage className="h-5 w-5 text-gray-700 dark:text-white" />
-                  </div>
-                  <h3 className="text-sm sm:text-base font-medium text-gray-700 dark:text-white">
-                    Deployment Information
-                  </h3>
-                </div>
+                <SectionCardHeader
+                  icon={Package}
+                  tone="rose"
+                  title="Deployment Information"
+                  className="mb-4"
+                />
               )}
               {isLoading ? (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-2">

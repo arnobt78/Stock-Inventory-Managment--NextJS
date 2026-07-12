@@ -1,9 +1,9 @@
 # Validation Summary — Cycle C1
 
-**Generated:** 2026-07-11  
+**Generated:** 2026-07-12  
 **eval_gate_status:** PENDING (Human Gate 2)  
-**Prod target SHA:** pending — REQ-0074  
-**Red Team:** lint ✓ test 384 ✓ invalidate 206 ✓ build ✓ (2026-07-11 REQ-0074)
+**Prod target SHA:** `ce7c80b` (main = origin/main)  
+**Red Team:** lint ✓ test 389 ✓ invalidate 206 ✓ build ✓ (2026-07-12 REQ-0076)
 
 ---
 
@@ -12,8 +12,8 @@
 | Check | Command | Result | REQ-IDs |
 |-------|---------|--------|---------|
 | Lint | `npm run lint` | PASS | ALL |
-| Unit tests | `npm run test` | PASS (384) | REQ-0074 |
-| Invalidation audit | `npm run test:invalidate` | PASS (206) | REQ-0074 |
+| Unit tests | `npm run test` | PASS (389) | REQ-0076 |
+| Invalidation audit | `npm run test:invalidate` | PASS (206) | REQ-0076 |
 | Build | `npm run build` | PASS | ALL |
 | Typecheck (touched scripts) | `tsc --noEmit` | PASS | REQ-0056 |
 
@@ -63,6 +63,7 @@
 | VS-030 | INFO | Glass button tokens + Batch A/B migration (REQ-0047) | PASS (automated) |
 | VS-031 | INFO | Auth light mode + dialog tables + order thumbs (REQ-0048) | PASS (automated) |
 | VS-032 | INFO | Portal & detail UX polish (REQ-0071) | PASS (automated) |
+| VS-033 | INFO | REQ-0075 gap closure (REQ-0076) | PASS (automated) |
 
 ---
 

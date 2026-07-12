@@ -301,6 +301,8 @@ export default function InvoiceDetailPage({
   const isDeleting = deleteInvoiceMutation.isPending;
   const isSending = sendInvoiceMutation.isPending;
   const isClientRole = user?.role === "client";
+  const isSupplierRole = user?.role === "supplier";
+  const disableInvoiceMutations = isClientRole || isSupplierRole;
 
   // Edit Invoice: open InvoiceDialog in edit mode (same as InvoiceList/InvoiceActions)
   const [editDialogOpen, setEditDialogOpen] = useState(false);
@@ -399,7 +401,7 @@ export default function InvoiceDetailPage({
     );
   }
 
-  const actionsDisabled = dataLoading || !invoice || isClientRole;
+  const actionsDisabled = dataLoading || !invoice || disableInvoiceMutations;
 
   // Format dates — shell visible while loading; pulse individual slots (REQ-0022)
   const createdAt = invoice?.createdAt
@@ -823,7 +825,7 @@ export default function InvoiceDetailPage({
                 </a>
               </Button>
             )}
-            {!dataLoading && invoice && invoice.status === "draft" && (
+            {!dataLoading && invoice && invoice.status === "draft" && !disableInvoiceMutations && (
               <DialogSubmitButton
                 type="button"
                 onClick={() => setSendDialogOpen(true)}
@@ -834,7 +836,7 @@ export default function InvoiceDetailPage({
                 className="group w-full sm:w-auto gap-2"
               />
             )}
-            {!dataLoading && invoice && invoice.status !== "cancelled" && (
+            {!dataLoading && invoice && invoice.status !== "cancelled" && !disableInvoiceMutations && (
               <DialogSubmitButton
                 type="button"
                 onClick={() => setDeleteDialogOpen(true)}
@@ -858,6 +860,7 @@ export default function InvoiceDetailPage({
               </Button>
             )}
             {!dataLoading &&
+              !isSupplierRole &&
               invoice &&
               invoice.status !== "paid" &&
               invoice.status !== "cancelled" &&

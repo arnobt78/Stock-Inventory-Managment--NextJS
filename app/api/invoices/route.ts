@@ -13,6 +13,8 @@ import { withRateLimit, defaultRateLimits } from "@/lib/api/rate-limit";
 import { prisma } from "@/prisma/client";
 import { fetchOrderUserIdMap } from "@/lib/invoices/enrich-order-user-ids";
 import { getStoreOrderIds } from "@/lib/invoices/store-order-ids";
+import { getInvoicesForSupplierId } from "@/lib/server/invoices-data";
+import { getSupplierByUserId } from "@/prisma/supplier";
 import { cacheKeys, getCache, scheduleInvalidateInvoiceCaches, setCache } from "@/lib/cache";
 import type { CreateInvoiceInput, InvoiceFilters } from "@/types";
 
@@ -39,6 +41,8 @@ export async function GET(request: NextRequest) {
 
     const userId = session.id;
     const isClient = session.role === "client";
+    const isSupplier = session.role === "supplier";
+    const supplier = isSupplier ? await getSupplierByUserId(session.id) : null;
     const { searchParams } = new URL(request.url);
 
     // Build filters from query parameters
@@ -57,7 +61,21 @@ export async function GET(request: NextRequest) {
     };
 
     const listScope =
-      !isClient && searchParams.get("scope") === "store" ? "store" : "issuer";
+      !isClient && !isSupplier && searchParams.get("scope") === "store"
+        ? "store"
+        : "issuer";
+
+    // Supplier: invoices for orders containing this supplier's products (REQ-0075 AC2)
+    if (isSupplier) {
+      if (!supplier) {
+        return NextResponse.json([]);
+      }
+      const supplierInvoices = await getInvoicesForSupplierId(
+        supplier.id,
+        filters,
+      );
+      return NextResponse.json(supplierInvoices);
+    }
 
     // Check cache first (scoped per user / role)
     const cacheKey = cacheKeys.invoices.list({
@@ -209,6 +227,13 @@ export async function POST(request: NextRequest) {
     const session = await getSessionFromRequest(request);
     if (!session) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    if (session.role === "supplier" || session.role === "client") {
+      return NextResponse.json(
+        { error: "Forbidden: cannot create invoices for this role" },
+        { status: 403 },
+      );
     }
 
     const userId = session.id;

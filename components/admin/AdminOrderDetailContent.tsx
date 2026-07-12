@@ -31,6 +31,10 @@ import {
   FileText,
   Loader2,
   MapPin,
+  Package,
+  CreditCard,
+  User,
+  Mail,
   Pencil,
   Truck,
 } from "lucide-react";
@@ -54,6 +58,7 @@ import { cn } from "@/lib/utils";
 import { OrderTrackingInfo, ShippingManagement } from "@/components/shipping";
 import {
   GlassCard,
+  DetailInfoRow,
   getCustomerDisplay,
   getCustomerEmail,
   OrderDetailHeader,
@@ -64,6 +69,8 @@ import {
   OrderSummaryCard,
   variantConfig,
 } from "@/components/orders/detail";
+import { APP_SHELL_DETAIL_CLASS } from "@/lib/ui/shell-layout-styles";
+import { OrderStatusBadge, PaymentStatusBadge } from "@/lib/ui/semantic-badges";
 
 const ORDER_STATUSES: { value: OrderStatus; label: string }[] = [
   { value: "pending", label: "Pending" },
@@ -265,7 +272,7 @@ export default function AdminOrderDetailContent({
 
   return (
     <PageContentWrapper>
-      <div className="mx-auto space-y-4">
+      <div className={APP_SHELL_DETAIL_CLASS}>
         {/* onBack invalidates order/invoice TanStack caches before navigating back */}
         <OrderDetailHeader
           onBack={handleBack}
@@ -339,39 +346,28 @@ export default function AdminOrderDetailContent({
               </h3>
             </div>
             <div className="space-y-2">
-              <div className="flex items-center gap-2 text-sm p-2 rounded-xl bg-gradient-to-r from-orange-100/50 via-orange-50/30 to-transparent dark:from-orange-500/10 dark:via-orange-500/5 dark:to-transparent border border-orange-200/30 dark:border-orange-400/10">
-                <Calendar className="h-4 w-4 text-orange-500 dark:text-orange-400" />
-                <span className="text-gray-600 dark:text-gray-400">
-                  Created:
-                </span>
-                <span className="font-medium text-gray-700 dark:text-white">
-                  {dataLoading ? (
-                    <DataSlotPulse variant="date" />
-                  ) : (
-                    <ClientDateTime date={createdAt} />
-                  )}
-                </span>
-              </div>
+              {!dataLoading && order && (
+                <>
+                  <DetailInfoRow icon={Package} label="Order Status:" tone="sky">
+                    <OrderStatusBadge status={order.status} />
+                  </DetailInfoRow>
+                  <DetailInfoRow icon={CreditCard} label="Payment Status:" tone="emerald">
+                    <PaymentStatusBadge status={order.paymentStatus} />
+                  </DetailInfoRow>
+                </>
+              )}
+              <DetailInfoRow icon={Calendar} label="Created:" tone="orange" loading={dataLoading}>
+                {!dataLoading && <ClientDateTime date={createdAt} />}
+              </DetailInfoRow>
               {!dataLoading && updatedAt && (
-                <div className="flex items-center gap-2 text-sm p-2 rounded-xl bg-gradient-to-r from-amber-100/50 via-amber-50/30 to-transparent dark:from-amber-500/10 dark:via-amber-500/5 dark:to-transparent border border-amber-200/30 dark:border-amber-400/10">
-                  <Calendar className="h-4 w-4 text-amber-500 dark:text-amber-400" />
-                  <span className="text-gray-600 dark:text-gray-400">
-                    Updated:
-                  </span>
-                  <span className="font-medium text-gray-700 dark:text-white">
-                    <ClientDateTime date={updatedAt} />
-                  </span>
-                </div>
+                <DetailInfoRow icon={Calendar} label="Updated:" tone="amber">
+                  <ClientDateTime date={updatedAt} />
+                </DetailInfoRow>
               )}
               {!dataLoading && order?.notes && (
-                <div className="p-2 rounded-xl bg-gradient-to-r from-teal-100/50 via-teal-50/30 to-transparent dark:from-teal-500/10 dark:via-teal-500/5 dark:to-transparent border border-teal-200/30 dark:border-teal-400/10">
-                  <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">
-                    Notes:
-                  </p>
-                  <p className="text-sm text-gray-700 dark:text-white">
-                    {order!.notes}
-                  </p>
-                </div>
+                <DetailInfoRow icon={FileText} label="Notes:" tone="teal">
+                  {order.notes}
+                </DetailInfoRow>
               )}
             </div>
           </GlassCard>
@@ -391,38 +387,19 @@ export default function AdminOrderDetailContent({
                 Customer Information
               </h3>
             </div>
-            <dl className="space-y-2 text-sm">
-              <div>
-                <dt className="text-gray-600 dark:text-gray-400">Name</dt>
-                <dd className="font-medium text-gray-700 dark:text-white">
-                  {dataLoading ? (
-                    <DataSlotPulse variant="text-md" className="w-36" />
-                  ) : (
-                    getCustomerDisplay(order!)
-                  )}
-                </dd>
-              </div>
-              <div>
-                <dt className="text-gray-600 dark:text-gray-400">Email</dt>
-                <dd className="font-medium text-gray-700 dark:text-white">
-                  {dataLoading ? (
-                    <DataSlotPulse variant="text-md" className="w-48" />
-                  ) : (
-                    getCustomerEmail(order!)
-                  )}
-                </dd>
-              </div>
-              <div>
-                <dt className="text-gray-600 dark:text-gray-400">User ID</dt>
-                <dd className="font-mono text-xs break-all text-gray-700 dark:text-white">
-                  {dataLoading ? (
-                    <DataSlotPulse variant="text-sm" className="w-full" />
-                  ) : (
-                    order!.userId
-                  )}
-                </dd>
-              </div>
-            </dl>
+            <div className="space-y-2">
+              <DetailInfoRow icon={User} label="Name:" tone="blue" loading={dataLoading}>
+                {!dataLoading && getCustomerDisplay(order!)}
+              </DetailInfoRow>
+              <DetailInfoRow icon={Mail} label="Email:" tone="sky" loading={dataLoading}>
+                {!dataLoading && getCustomerEmail(order!)}
+              </DetailInfoRow>
+              <DetailInfoRow icon={FileText} label="User ID:" tone="violet" loading={dataLoading}>
+                {!dataLoading && (
+                  <span className="font-mono text-xs break-all">{order!.userId}</span>
+                )}
+              </DetailInfoRow>
+            </div>
           </GlassCard>
         </div>
 

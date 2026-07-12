@@ -3,15 +3,15 @@
 | Field | Value |
 |-------|-------|
 | **Cycle** | C1 (closing) → **C2 open** |
-| **Phase** | `phases/07-shell-first-navigation` → C2 backlog |
-| **Infinity Loop stage** | Verify ◐ (code done; Human Gate 2 + manual QA open) |
-| **Last updated** | 2026-07-11 (REQ-0074 done; C2 QA backlog for 2026-07-12) |
-| **Session** | PAUSED — REQ-0074 shipped; resume REQ-0075 supplier/UI sweep |
-| **Active REQ range** | REQ-0001 … REQ-0074 done |
-| **Prod deploy target** | pending — REQ-0074 (7 commits ahead of origin) |
+| **Phase** | C2 — REQ-0076 **done** |
+| **Infinity Loop stage** | Verify ✓ (Gate 2 open) |
+| **Last updated** | 2026-07-12 (REQ-0076 shipped) |
+| **Session** | **ACTIVE** — REQ-0076 complete |
+| **Active REQ range** | REQ-0001 … REQ-0076 **done** |
+| **Prod deploy target** | `ce7c80b` — main synced with origin/main |
 | **Human Gate 1** | APPROVED (retroactive bootstrap) |
 | **Human Gate 2** | PENDING — Sentry 24h after prod deploy |
-| **Resume token** | `C2-post-mutation-cache` — see **Session handoff** + **Open backlog** |
+| **Resume token** | `REQ-0077-client-ui-audit` — see **Session handoff (2026-07-12)** |
 
 ## Current focus
 
@@ -110,18 +110,20 @@
 
 **Do NOT repeat:** don't re-derive REQ-0073/0074 — shipped `188e8ae`+`578999f`; gates lint ✓ test 384 ✓ invalidate 206 ✓ build ✓.
 
-## Session handoff (2026-07-12 — pick up tomorrow)
+## Session handoff (2026-07-12 — ACTIVE)
 
-**REQ-0074 shipped (2026-07-11 PM):** portal pb-6 rhythm, chart point labels, FAB hover+click, order dialog 3-col grid, PartiesRolesCard, InvoiceSummaryCard, party image SSR. Commits: `8fdd937`/`95446fd` (0073), `188e8ae`/`578999f` (0074).
+**Yesterday shipped (2026-07-11 PM):** REQ-0073 + REQ-0074. Commits: `8fdd937`/`95446fd` (0073), `188e8ae`/`578999f`/`ce7c80b` (0074 + chart type fix + backlog docs). **main = origin/main** at `ce7c80b`.
 
-**Tomorrow (REQ-0075 candidate):**
-1. Supplier product detail — warehouse count/allocations mismatch ("no warehouse" when stock exists)
-2. Supplier table action menu — invoice/create actions gating review
-3. Static pages UI parity — remove/email, API status, docs (`SectionCardHeader` + icon row)
-4. Admin detail pages consistency pass
-5. Minor: AdminOrderDetailContent split payment status rows (0074 gap)
+**Red Team re-verified (2026-07-12):** lint ✓ test 384 ✓ invalidate 206 ✓ build ✓
 
-**Invalidation:** REQ-0074 UI-only + party `image` on existing SSR selects — no registry/TanStack changes; CRUD invalidation unchanged.
+**Next — REQ-0075 (planned, spec in REQUIREMENTS.md):**
+1. **P1** Supplier product detail — warehouse count/allocations mismatch ("no warehouse" when stock exists)
+2. **P1** Supplier table action menu — invoice/create actions gating review
+3. **P2** Static pages UI parity — remove/email, API status, docs (`PageSectionHeader` + icon row)
+4. **P2** Admin detail pages consistency pass (icons, cards, spacing)
+5. **P2** AdminOrderDetailContent — split Order/Payment status rows (REQ-0074 gap)
+
+**Invalidation:** REQ-0075 likely SSR/data fix for supplier warehouse display (AC1–AC2); UI-only for AC3–AC5 — no TanStack registry changes unless new queries added.
 
 ---
 
@@ -147,14 +149,14 @@
 
 | ID | Priority | Item | REQ / notes |
 |----|----------|------|-------------|
-| OB-009 | P0 | Push `main` (REQ-0073+0074, 7 commits) | deploy prep |
+| OB-009 | P0 | Push `main` (REQ-0073+0074) | **done** — `ce7c80b` synced |
 | OB-010 | P0 | Sentry 24h after prod deploy | REQ-0009 |
-| OB-011 | P1 | **Supplier role:** product detail shows "no warehouse" despite allocations; table actions (invoice etc.) may be wrongly disabled | REQ-0075 candidate |
-| OB-012 | P1 | **Supplier role:** warehouse/stock display mismatch vs admin table dropdown | REQ-0075 |
-| OB-013 | P2 | UI consistency: remove/email, API status, documentation pages — header icon row parity (`SectionCardHeader`) | REQ-0075 |
-| OB-014 | P2 | Admin detail pages UI consistency sweep (icons, cards, spacing) | REQ-0075 |
-| OB-015 | P2 | AdminOrderDetailContent: split Order/Payment status rows (parity with OrderDetailPage) | REQ-0074 gap |
-| OB-001 | P0 | Confirm Vercel prod SHA post-push | deploy |
+| OB-011 | P1 | Supplier product detail warehouse mismatch | **REQ-0075 AC1** |
+| OB-012 | P1 | Supplier table action menu gating | **REQ-0075 AC2** |
+| OB-013 | P2 | Static pages header parity | **REQ-0075 AC3** |
+| OB-014 | P2 | Admin detail pages consistency | **REQ-0075 AC4** |
+| OB-015 | P2 | AdminOrderDetailContent status rows | **REQ-0075 AC5** |
+| OB-001 | P0 | Confirm Vercel prod SHA post-push | deploy — verify `ce7c80b` |
 | OB-008 | P2 | Glass consistency sweep | REQ-0051 |
 | OB-003 | P1 | Manual QA: supplier `/products` → category/supplier links | REQ-0029 |
 | OB-004 | P1 | Manual QA: removeChild nav smoke | REQ-0001 |

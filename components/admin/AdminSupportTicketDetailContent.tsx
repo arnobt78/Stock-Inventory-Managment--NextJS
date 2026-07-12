@@ -6,7 +6,8 @@ import { resolveAvatarSourcesFromSeed } from "@/lib/ui/user-avatar-sources";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useBackWithRefresh } from "@/hooks/use-back-with-refresh";
-import { Card, CardContent } from "@/components/ui/card";
+import { GlassCard, DetailInfoRow } from "@/components/orders/detail";
+import { APP_SHELL_DETAIL_CLASS } from "@/lib/ui/shell-layout-styles";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import {
@@ -38,6 +39,8 @@ import {
   Mail,
   Flag,
   CircleDot,
+  Calendar,
+  Hash,
 } from "lucide-react";
 import {
   useSupportTicket,
@@ -56,6 +59,7 @@ import {
   GLASS_GHOST_BUTTON,
   DETAIL_HEADER_BACK_ICON_CLASS,
   DialogSubmitButton,
+  ClientDateTime,
 } from "@/components/shared";
 import { TYPO_BODY, TYPO_BODY_MUTED } from "@/lib/ui/typography-scale";
 import { isDataSlotLoading, queryKeys, useSyncSsrQueryDataMany } from "@/lib/react-query";
@@ -85,14 +89,6 @@ const PRIORITY_OPTIONS: { value: SupportTicketPriority; label: string }[] = [
   { value: "high", label: "High" },
   { value: "urgent", label: "Urgent" },
 ];
-
-const variantConfig = {
-  border: "border-violet-400/20",
-  gradient:
-    "bg-gradient-to-br from-violet-500/15 via-violet-500/5 to-transparent",
-  shadow:
-    "shadow-[0_15px_40px_rgba(139,92,246,0.15)] dark:shadow-[0_15px_40px_rgba(139,92,246,0.1)]",
-};
 
 export type AdminSupportTicketDetailContentProps = {
   initialTicket?: SupportTicket;
@@ -196,13 +192,11 @@ export default function AdminSupportTicketDetailContent({
             <ArrowLeft className="h-4 w-4" />
             Back to Support Tickets
           </Button>
-          <Card>
-            <CardContent className="py-8 text-center">
-              <p className="text-muted-foreground">
-                {error instanceof Error ? error.message : "Ticket not found"}
-              </p>
-            </CardContent>
-          </Card>
+          <GlassCard variant="rose">
+            <p className="py-8 text-center text-gray-600 dark:text-white/70">
+              {error instanceof Error ? error.message : "Ticket not found"}
+            </p>
+          </GlassCard>
         </div>
       </PageContentWrapper>
     );
@@ -220,13 +214,11 @@ export default function AdminSupportTicketDetailContent({
             <ArrowLeft className="h-4 w-4" />
             Back to Support Tickets
           </Button>
-          <Card>
-            <CardContent className="py-8 text-center">
-              <p className="text-muted-foreground">
-                The ticket you are looking for does not exist or was removed.
-              </p>
-            </CardContent>
-          </Card>
+          <GlassCard variant="rose">
+            <p className="py-8 text-center text-gray-600 dark:text-white/70">
+              The ticket you are looking for does not exist or was removed.
+            </p>
+          </GlassCard>
         </div>
       </PageContentWrapper>
     );
@@ -240,7 +232,7 @@ export default function AdminSupportTicketDetailContent({
 
   return (
     <PageContentWrapper>
-      <div className="space-y-4">
+      <div className={APP_SHELL_DETAIL_CLASS}>
         <PageSectionHeader
           as="h1"
           tone="violet"
@@ -266,15 +258,8 @@ export default function AdminSupportTicketDetailContent({
         />
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-2 sm:gap-4">
-          <Card
-            className={cn(
-              "rounded-[20px] border backdrop-blur-md",
-              variantConfig.border,
-              variantConfig.gradient,
-              variantConfig.shadow,
-            )}
-          >
-            <CardContent className="p-4 sm:p-5">
+          <GlassCard variant="violet">
+            <div className="p-4 sm:p-5">
               <SectionCardHeader
                 title="Status"
                 description="Changes apply immediately"
@@ -331,18 +316,11 @@ export default function AdminSupportTicketDetailContent({
                   </DeferredSelectGate>
                 )}
               </div>
-            </CardContent>
-          </Card>
+            </div>
+          </GlassCard>
 
-          <Card
-            className={cn(
-              "rounded-[20px] border backdrop-blur-md",
-              variantConfig.border,
-              variantConfig.gradient,
-              variantConfig.shadow,
-            )}
-          >
-            <CardContent className="p-4 sm:p-5">
+          <GlassCard variant="violet">
+            <div className="p-4 sm:p-5">
               <SectionCardHeader
                 title="Priority"
                 description="Changes apply immediately"
@@ -399,19 +377,12 @@ export default function AdminSupportTicketDetailContent({
                   </DeferredSelectGate>
                 )}
               </div>
-            </CardContent>
-          </Card>
+            </div>
+          </GlassCard>
         </div>
 
-        <Card
-          className={cn(
-            "rounded-[20px] border backdrop-blur-md",
-            variantConfig.border,
-            variantConfig.gradient,
-            variantConfig.shadow,
-          )}
-        >
-          <CardContent className="p-4 sm:p-5">
+        <GlassCard variant="violet">
+          <div className="p-4 sm:p-5">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-2 sm:gap-4">
               <div>
                 <SectionCardHeader
@@ -421,85 +392,58 @@ export default function AdminSupportTicketDetailContent({
                   tone="violet"
                   className="mb-4"
                 />
-                <dl className={cn("space-y-2 text-sm", TYPO_BODY)}>
+                <div className="space-y-2">
                   {!dataLoading && t!.ticketNumber && (
-                    <div>
-                      <dt className={TYPO_BODY_MUTED}>Ticket number</dt>
-                      <dd className="font-mono text-xs">{t!.ticketNumber}</dd>
-                    </div>
+                    <DetailInfoRow icon={Hash} label="Ticket #:" tone="blue">
+                      <span className="font-mono text-xs">{t!.ticketNumber}</span>
+                    </DetailInfoRow>
                   )}
-                  <div>
-                    <dt className={TYPO_BODY_MUTED}>Subject</dt>
-                    <dd className="font-medium">
-                      {dataLoading ? (
-                        <DataSlotPulse variant="text-md" className="w-48" />
-                      ) : (
-                        t!.subject
-                      )}
-                    </dd>
-                  </div>
-                  <div>
-                    <dt className={TYPO_BODY_MUTED}>Creator</dt>
-                    <dd className="flex flex-col gap-0.5">
-                      {dataLoading ? (
-                        <DataSlotPulse variant="text-md" className="w-36" />
-                      ) : (
-                        <>
-                          <Link
-                            href={`/admin/user-management/${t!.userId}`}
-                            className="font-medium text-sky-600 dark:text-sky-400 hover:text-sky-500 dark:hover:text-sky-300 inline-flex items-center gap-1"
-                          >
-                            <User className="h-3.5 w-3.5" />
-                            {t!.creatorName ?? t!.userId}
-                          </Link>
-                          {t!.creatorEmail && (
-                            <span
-                              className={cn(
-                                "text-xs inline-flex items-center gap-1",
-                                TYPO_BODY_MUTED,
-                              )}
-                            >
-                              <Mail className="h-3 w-3" />
-                              {t!.creatorEmail}
-                            </span>
-                          )}
+                  <DetailInfoRow icon={MessageSquare} label="Subject:" tone="violet" loading={dataLoading}>
+                    {!dataLoading && t!.subject}
+                  </DetailInfoRow>
+                  <DetailInfoRow icon={User} label="Creator:" tone="sky" loading={dataLoading}>
+                    {!dataLoading && (
+                      <div className="flex flex-col gap-0.5">
+                        <Link
+                          href={`/admin/user-management/${t!.userId}`}
+                          className="font-medium text-sky-600 dark:text-sky-400 hover:text-sky-500 dark:hover:text-sky-300 inline-flex items-center gap-1"
+                        >
+                          <User className="h-3.5 w-3.5" />
+                          {t!.creatorName ?? t!.userId}
+                        </Link>
+                        {t!.creatorEmail && (
                           <span
                             className={cn(
-                              "font-mono text-xs",
+                              "text-xs inline-flex items-center gap-1",
                               TYPO_BODY_MUTED,
                             )}
                           >
-                            ID: {t!.userId}
+                            <Mail className="h-3 w-3" />
+                            {t!.creatorEmail}
                           </span>
-                        </>
-                      )}
-                    </dd>
-                  </div>
-                  <div>
-                    <dt className={TYPO_BODY_MUTED}>Created</dt>
-                    <dd>
-                      {dataLoading ? (
-                        <DataSlotPulse variant="date" />
-                      ) : (
-                        format(
-                          new Date(t!.createdAt),
-                          "MMMM d, yyyy 'at' h:mm a",
-                        )
-                      )}
-                    </dd>
-                  </div>
-                  {!dataLoading && t!.updatedAt && (
-                    <div>
-                      <dt className={TYPO_BODY_MUTED}>Updated</dt>
-                      <dd>
-                        {format(
-                          new Date(t!.updatedAt),
-                          "MMMM d, yyyy 'at' h:mm a",
                         )}
-                      </dd>
-                    </div>
+                        <span
+                          className={cn(
+                            "font-mono text-xs",
+                            TYPO_BODY_MUTED,
+                          )}
+                        >
+                          ID: {t!.userId}
+                        </span>
+                      </div>
+                    )}
+                  </DetailInfoRow>
+                  <DetailInfoRow icon={Calendar} label="Created:" tone="orange" loading={dataLoading}>
+                    {!dataLoading && (
+                      <ClientDateTime date={new Date(t!.createdAt)} />
+                    )}
+                  </DetailInfoRow>
+                  {!dataLoading && t!.updatedAt && (
+                    <DetailInfoRow icon={Calendar} label="Updated:" tone="amber">
+                      <ClientDateTime date={new Date(t!.updatedAt)} />
+                    </DetailInfoRow>
                   )}
-                </dl>
+                </div>
               </div>
               <div>
                 <SectionCardHeader
@@ -526,18 +470,11 @@ export default function AdminSupportTicketDetailContent({
                 </p>
               </div>
             </div>
-          </CardContent>
-        </Card>
+          </div>
+        </GlassCard>
 
-        <Card
-          className={cn(
-            "rounded-[20px] border backdrop-blur-md",
-            variantConfig.border,
-            variantConfig.gradient,
-            variantConfig.shadow,
-          )}
-        >
-          <CardContent className="p-4 sm:p-5 space-y-2">
+        <GlassCard variant="violet">
+          <div className="p-4 sm:p-5 space-y-2">
             <SectionCardHeader
               title="Reply to user"
               description="Send a message to the ticket creator. They will see this in the ticket thread and get a notification."
@@ -627,18 +564,11 @@ export default function AdminSupportTicketDetailContent({
                 className="rounded-xl"
               />
             </form>
-          </CardContent>
-        </Card>
+          </div>
+        </GlassCard>
 
-        <Card
-          className={cn(
-            "rounded-[20px] border backdrop-blur-md",
-            variantConfig.border,
-            variantConfig.gradient,
-            variantConfig.shadow,
-          )}
-        >
-          <CardContent className="p-4 sm:p-5 space-y-2">
+        <GlassCard variant="violet">
+          <div className="p-4 sm:p-5 space-y-2">
             <SectionCardHeader
               title="Internal Notes"
               description="Admin-only notes. Not visible to the ticket creator."
@@ -664,8 +594,8 @@ export default function AdminSupportTicketDetailContent({
                 Save Notes
               </Button>
             )}
-          </CardContent>
-        </Card>
+          </div>
+        </GlassCard>
 
         <div className="flex flex-col sm:flex-row flex-wrap gap-2">
           <Button

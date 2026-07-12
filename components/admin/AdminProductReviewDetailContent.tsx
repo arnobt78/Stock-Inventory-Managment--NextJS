@@ -4,7 +4,6 @@ import React, { useCallback, useState, useEffect } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useBackWithRefresh } from "@/hooks/use-back-with-refresh";
-import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import {
@@ -25,7 +24,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { ArrowLeft, Loader2, Star, Package, CircleDot } from "lucide-react";
+import { ArrowLeft, Loader2, Star, Package, CircleDot, User, Calendar } from "lucide-react";
 import {
   useProductReview,
   useUpdateProductReview,
@@ -41,13 +40,15 @@ import {
   GLASS_GHOST_BUTTON,
   DETAIL_HEADER_BACK_ICON_CLASS,
   DialogSubmitButton,
+  ClientDateTime,
 } from "@/components/shared";
 import { TYPO_BODY, TYPO_BODY_MUTED } from "@/lib/ui/typography-scale";
 import { isDataSlotLoading, queryKeys, useSyncSsrQueryData } from "@/lib/react-query";
-import { format } from "date-fns";
 import type { ProductReview, ProductReviewStatus } from "@/types";
 import { cn } from "@/lib/utils";
 import { ReviewStatusBadge } from "@/lib/ui/semantic-badges";
+import { GlassCard, DetailInfoRow } from "@/components/orders/detail";
+import { APP_SHELL_DETAIL_CLASS } from "@/lib/ui/shell-layout-styles";
 
 const STATUS_OPTIONS: { value: ProductReviewStatus; label: string }[] = [
   { value: "pending", label: "Pending" },
@@ -134,13 +135,11 @@ export default function AdminProductReviewDetailContent({
             <ArrowLeft className="h-4 w-4" />
             Back to Product Reviews
           </Button>
-          <Card>
-            <CardContent className="py-8 text-center">
-              <p className="text-muted-foreground">
+          <GlassCard variant="rose">
+            <p className="py-8 text-center text-gray-600 dark:text-white/70">
                 {error instanceof Error ? error.message : "Review not found"}
-              </p>
-            </CardContent>
-          </Card>
+            </p>
+          </GlassCard>
         </div>
       </PageContentWrapper>
     );
@@ -158,13 +157,11 @@ export default function AdminProductReviewDetailContent({
             <ArrowLeft className="h-4 w-4" />
             Back to Product Reviews
           </Button>
-          <Card>
-            <CardContent className="py-8 text-center">
-              <p className="text-muted-foreground">
+          <GlassCard variant="rose">
+            <p className="py-8 text-center text-gray-600 dark:text-white/70">
                 The review you are looking for does not exist or was removed.
-              </p>
-            </CardContent>
-          </Card>
+            </p>
+          </GlassCard>
         </div>
       </PageContentWrapper>
     );
@@ -178,7 +175,7 @@ export default function AdminProductReviewDetailContent({
 
   return (
     <PageContentWrapper>
-      <div className="space-y-4">
+      <div className={APP_SHELL_DETAIL_CLASS}>
         <PageSectionHeader
           as="h1"
           tone="amber"
@@ -207,8 +204,8 @@ export default function AdminProductReviewDetailContent({
         />
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-2 sm:gap-4">
-          <Card>
-            <CardContent className="p-4 sm:p-5">
+          <GlassCard variant="amber">
+            <div className="p-4 sm:p-5">
               <SectionCardHeader
                 title="Status"
                 description="Changes apply immediately"
@@ -265,11 +262,11 @@ export default function AdminProductReviewDetailContent({
                   </>
                 )}
               </div>
-            </CardContent>
-          </Card>
+            </div>
+          </GlassCard>
 
-          <Card>
-            <CardContent className="p-4 sm:p-5">
+          <GlassCard variant="amber">
+            <div className="p-4 sm:p-5">
               <SectionCardHeader
                 title="Rating"
                 description="Changes apply immediately"
@@ -314,12 +311,12 @@ export default function AdminProductReviewDetailContent({
                   )}
                 </DeferredSelectGate>
               )}
-            </CardContent>
-          </Card>
+            </div>
+          </GlassCard>
         </div>
 
-        <Card>
-          <CardContent className="p-4 sm:p-5">
+        <GlassCard variant="amber">
+          <div className="p-4 sm:p-5">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-2 sm:gap-4">
               <div>
                 <SectionCardHeader
@@ -329,86 +326,62 @@ export default function AdminProductReviewDetailContent({
                   tone="sky"
                   className="mb-4"
                 />
-                <dl className={cn("space-y-2 text-sm", TYPO_BODY)}>
-                  <div>
-                    <dt className={TYPO_BODY_MUTED}>Product</dt>
-                    <dd>
-                      {dataLoading ? (
-                        <DataSlotPulse variant="text-md" className="w-40" />
-                      ) : (
-                        <>
-                          <Link
-                            href={`/admin/products/${r!.productId}`}
-                            className="font-medium text-sky-600 dark:text-sky-400 hover:text-sky-500 dark:hover:text-sky-300"
-                          >
-                            {r!.productName}
-                          </Link>
-                          {r!.productSku ? (
-                            <span className={cn("ml-1", TYPO_BODY_MUTED)}>
-                              ({r!.productSku})
-                            </span>
-                          ) : null}
-                        </>
-                      )}
-                    </dd>
-                  </div>
-                  <div>
-                    <dt className={TYPO_BODY_MUTED}>Reviewer</dt>
-                    <dd className="space-y-0.5">
-                      {dataLoading ? (
-                        <DataSlotPulse variant="text-md" className="w-36" />
-                      ) : (
-                        <>
-                          <Link
-                            href={`/admin/user-management/${r!.userId}`}
-                            className="font-medium text-sky-600 dark:text-sky-400 hover:text-sky-500 dark:hover:text-sky-300"
-                          >
-                            {r!.reviewerName?.trim() ||
-                              r!.reviewerEmail ||
-                              "View user"}
-                          </Link>
-                          {r!.reviewerEmail && (
-                            <span className={cn("block text-xs", TYPO_BODY_MUTED)}>
-                              {r!.reviewerEmail}
-                            </span>
-                          )}
-                          <span
-                            className={cn(
-                              "block font-mono text-xs break-all",
-                              TYPO_BODY_MUTED,
-                            )}
-                          >
-                            {r!.userId}
+                <div className="space-y-2">
+                  <DetailInfoRow icon={Package} label="Product:" tone="sky" loading={dataLoading}>
+                    {!dataLoading && (
+                      <>
+                        <Link
+                          href={`/admin/products/${r!.productId}`}
+                          className="font-medium text-sky-600 dark:text-sky-400 hover:text-sky-500 dark:hover:text-sky-300"
+                        >
+                          {r!.productName}
+                        </Link>
+                        {r!.productSku ? (
+                          <span className={cn("ml-1", TYPO_BODY_MUTED)}>
+                            ({r!.productSku})
                           </span>
-                        </>
-                      )}
-                    </dd>
-                  </div>
-                  <div>
-                    <dt className={TYPO_BODY_MUTED}>Created</dt>
-                    <dd>
-                      {dataLoading ? (
-                        <DataSlotPulse variant="date" />
-                      ) : (
-                        format(
-                          new Date(r!.createdAt),
-                          "MMMM d, yyyy 'at' h:mm a",
-                        )
-                      )}
-                    </dd>
-                  </div>
-                  {!dataLoading && r!.updatedAt && (
-                    <div>
-                      <dt className={TYPO_BODY_MUTED}>Updated</dt>
-                      <dd>
-                        {format(
-                          new Date(r!.updatedAt),
-                          "MMMM d, yyyy 'at' h:mm a",
+                        ) : null}
+                      </>
+                    )}
+                  </DetailInfoRow>
+                  <DetailInfoRow icon={User} label="Reviewer:" tone="violet" loading={dataLoading}>
+                    {!dataLoading && (
+                      <div className="space-y-0.5">
+                        <Link
+                          href={`/admin/user-management/${r!.userId}`}
+                          className="font-medium text-sky-600 dark:text-sky-400 hover:text-sky-500 dark:hover:text-sky-300"
+                        >
+                          {r!.reviewerName?.trim() ||
+                            r!.reviewerEmail ||
+                            "View user"}
+                        </Link>
+                        {r!.reviewerEmail && (
+                          <span className={cn("block text-xs", TYPO_BODY_MUTED)}>
+                            {r!.reviewerEmail}
+                          </span>
                         )}
-                      </dd>
-                    </div>
+                        <span
+                          className={cn(
+                            "block font-mono text-xs break-all",
+                            TYPO_BODY_MUTED,
+                          )}
+                        >
+                          {r!.userId}
+                        </span>
+                      </div>
+                    )}
+                  </DetailInfoRow>
+                  <DetailInfoRow icon={Calendar} label="Created:" tone="orange" loading={dataLoading}>
+                    {!dataLoading && (
+                      <ClientDateTime date={new Date(r!.createdAt)} />
+                    )}
+                  </DetailInfoRow>
+                  {!dataLoading && r!.updatedAt && (
+                    <DetailInfoRow icon={Calendar} label="Updated:" tone="amber">
+                      <ClientDateTime date={new Date(r!.updatedAt)} />
+                    </DetailInfoRow>
                   )}
-                </dl>
+                </div>
               </div>
               <div>
                 <SectionCardHeader
@@ -457,11 +430,11 @@ export default function AdminProductReviewDetailContent({
                 </p>
               </div>
             </div>
-          </CardContent>
-        </Card>
+          </div>
+        </GlassCard>
 
-        <Card>
-          <CardContent className="p-4 sm:p-5 space-y-2">
+        <GlassCard variant="amber">
+          <div className="p-4 sm:p-5 space-y-2">
             <SectionCardHeader
               title="Edit Comment"
               description="Update the review comment. Changes apply after Save."
@@ -492,8 +465,8 @@ export default function AdminProductReviewDetailContent({
                 Save Comment
               </Button>
             )}
-          </CardContent>
-        </Card>
+          </div>
+        </GlassCard>
 
         <div className="flex flex-col sm:flex-row flex-wrap gap-2">
           <Button
