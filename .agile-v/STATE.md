@@ -3,15 +3,15 @@
 | Field | Value |
 |-------|-------|
 | **Cycle** | C1 (closing) → **C2 open** |
-| **Phase** | C2 — REQ-0085 **done** |
+| **Phase** | C2 — REQ-0087 **done** |
 | **Infinity Loop stage** | Verify ✓ (Gate 2 open) |
-| **Last updated** | 2026-07-12 (REQ-0085 supplier header + insights lib + product pie SSR) |
-| **Session** | **ACTIVE** — REQ-0085 complete |
-| **Active REQ range** | REQ-0001 … REQ-0085 **done** |
-| **Prod deploy target** | `02db284` — REQ-0085 (pending prod deploy) |
+| **Last updated** | 2026-07-12 (REQ-0087 catalog detail list loading DRY) |
+| **Session** | **ACTIVE** — REQ-0087 complete |
+| **Active REQ range** | REQ-0001 … REQ-0087 **done** |
+| **Prod deploy target** | `371bb71` — REQ-0085 (REQ-0086/0087 pending push) |
 | **Human Gate 1** | APPROVED (retroactive bootstrap) |
 | **Human Gate 2** | PENDING — Sentry 24h after prod deploy |
-| **Resume token** | `REQ-0086` — next backlog item |
+| **Resume token** | `REQ-0088` — next backlog item |
 
 ## Current focus
 

@@ -7,7 +7,6 @@
 
 import React, { useEffect, useMemo, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
-import Link from "next/link";
 import {
   ArrowLeft,
   Package,
@@ -25,8 +24,6 @@ import {
   Wallet,
   FileText,
   StickyNote,
-  Truck,
-  Clock,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -39,7 +36,6 @@ import { useBackWithRefresh } from "@/hooks/use-back-with-refresh";
 import { useAuth } from "@/contexts";
 import Navbar from "@/components/layouts/Navbar";
 import {
-  ClientDate,
   ClientDateTime,
   ClientRelativeTime,
   CopyableText,
@@ -51,22 +47,20 @@ import {
   glassDetailFooterButtonClass,
   DETAIL_HEADER_BACK_ICON_CLASS,
   AvatarInlineLink,
-  SectionTitleRow,
-  ListIndexBadge,
   CatalogInsightsSection,
+  CatalogDetailProductGrid,
+  CatalogDetailRecentOrdersList,
+  SectionTitleRow,
 } from "@/components/shared";
-import { ProductThumb } from "@/components/products/ProductOptionRow";
 import { buildCategoryForecastRollup } from "@/lib/forecasting/category-forecast-rollup";
 import {
   buildCatalogStockChartData,
   buildSalesChartData,
 } from "@/lib/ui/catalog-insights-chart-data";
-import { CARD_EMPTY_MESSAGE_CLASS } from "@/lib/ui/card-empty-styles";
 import type { ForecastingSummary } from "@/types";
 import { DetailInfoRow } from "@/components/orders/detail";
 import {
   ActiveInactiveBadge,
-  OrderStatusBadge,
 } from "@/lib/ui/semantic-badges";
 import CategoryDialog from "@/components/category/CategoryDialog";
 import { AlertDialogWrapper } from "@/components/dialogs";
@@ -685,95 +679,14 @@ export default function CategoryDetailPage({
                     : undefined
                 }
               />
-              {dataLoading ? (
-                <div className="mt-4 space-y-2">
-                  <DataSlotPulse variant="text-md" />
-                  <DataSlotPulse variant="text-md" />
-                </div>
-              ) : products.length === 0 ? (
-                <p className={cn(CARD_EMPTY_MESSAGE_CLASS, "mt-4")}>
-                  No products in this category yet.
-                </p>
-              ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2 mt-4">
-                  {products.map((product) => (
-                    <div
-                      key={product.id}
-                      className="flex flex-col gap-2 p-4 rounded-xl border border-gray-300/20 dark:border-white/10 bg-white/30 dark:bg-white/5"
-                    >
-                      <div className="flex items-start gap-2 min-w-0">
-                        <ProductThumb
-                          name={product.name}
-                          imageUrl={product.imageUrl}
-                          size="lg"
-                          className="rounded-xl shrink-0"
-                        />
-                        <div className="flex min-w-0 flex-1 flex-col gap-1">
-                          <Link
-                            href={productHref(product.id)}
-                            className="text-sm font-normal text-sky-600 dark:text-sky-400 hover:text-sky-500 truncate"
-                          >
-                            {product.name}
-                          </Link>
-                          <p className="text-xs text-gray-600 dark:text-white/60 flex items-center gap-1.5 flex-wrap min-w-0">
-                            <Hash className="h-3.5 w-3.5 shrink-0" />
-                            <CopyableText value={product.sku ?? ""}>
-                              <span className="font-mono">{product.sku}</span>
-                            </CopyableText>
-                          </p>
-                          <p className="text-xs text-gray-600 dark:text-white/60 flex items-center gap-1.5 flex-wrap">
-                            <Package className="h-3.5 w-3.5 shrink-0" />
-                            Stock: {product.quantity ?? 0}
-                            {(product.reservedQuantity ?? 0) > 0 && (
-                              <>
-                                <span className="text-gray-400">•</span>
-                                <Clock className="h-3.5 w-3.5 shrink-0" />
-                                {product.reservedQuantity} reserved
-                              </>
-                            )}
-                            <span className="text-gray-400">•</span>
-                            <DollarSign className="h-3.5 w-3.5 shrink-0" />$
-                            {(product.price ?? 0).toFixed(2)}
-                          </p>
-                        </div>
-                      </div>
-                      {(product.owner || product.supplier) && (
-                        <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-gray-600 dark:text-white/60">
-                          {product.owner && (
-                            <span className="inline-flex items-center gap-1.5 min-w-0">
-                              <User className="h-3.5 w-3.5 shrink-0" />
-                              Owner:{" "}
-                              <AvatarInlineLink
-                                seed={product.owner.id}
-                                image={product.owner.image}
-                                label={
-                                  product.owner.name ??
-                                  product.owner.email ??
-                                  "Owner"
-                                }
-                                href={ownerProductsHref(product.owner.id)}
-                                size={20}
-                              />
-                            </span>
-                          )}
-                          {product.supplier && (
-                            <span className="inline-flex items-center gap-1.5 min-w-0">
-                              <Truck className="h-3.5 w-3.5 shrink-0" />
-                              Supplier:{" "}
-                              <AvatarInlineLink
-                                seed={product.supplier.id}
-                                label={product.supplier.name}
-                                href={supplierHref(product.supplier.id)}
-                                size={20}
-                              />
-                            </span>
-                          )}
-                        </div>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              )}
+              <CatalogDetailProductGrid
+                loading={dataLoading}
+                products={products}
+                emptyMessage="No products in this category yet."
+                productHref={productHref}
+                ownerProductsHref={ownerProductsHref}
+                supplierHref={supplierHref}
+              />
             </div>
           </GlassCard>
 
@@ -789,145 +702,15 @@ export default function CategoryDetailPage({
                     : undefined
                 }
               />
-              {dataLoading ? (
-                <div className="mt-4 space-y-2">
-                  <DataSlotPulse variant="text-md" />
-                  <DataSlotPulse variant="text-md" />
-                </div>
-              ) : recentOrders.length === 0 ? (
-                <p className={cn(CARD_EMPTY_MESSAGE_CLASS, "mt-4")}>
-                  No recent orders for products in this category.
-                </p>
-              ) : (
-                <div className="space-y-2 mt-4">
-                  {recentOrders.map((order, index) => {
-                    const buyerLabel =
-                      order.placedBy?.name?.trim() ||
-                      order.placedBy?.email ||
-                      "Unknown buyer";
-                    return (
-                      <div
-                        key={order.id}
-                        className="flex flex-col gap-2 p-4 rounded-xl border border-gray-300/20 dark:border-white/10 bg-white/30 dark:bg-white/5"
-                      >
-                        <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-2">
-                          <div className="flex-1 min-w-0 space-y-2">
-                            <div className="flex items-center gap-2 min-w-0">
-                              <ListIndexBadge index={index + 1} />
-                              <CopyableText
-                                value={order.orderNumber}
-                                className="min-w-0"
-                              >
-                                <Link
-                                  href={orderHref(order.orderId)}
-                                  className="font-normal text-sm text-sky-600 dark:text-sky-400 hover:text-sky-500 dark:hover:text-sky-300 truncate"
-                                >
-                                  {order.orderNumber}
-                                </Link>
-                              </CopyableText>
-                            </div>
-                            <p className="text-sm text-gray-600 dark:text-white/60 flex items-center gap-1.5 flex-wrap min-w-0">
-                              <ProductThumb
-                                name={order.productName}
-                                imageUrl={order.productImageUrl}
-                                size="sm"
-                                className="rounded-lg shrink-0"
-                              />
-                              <Link
-                                href={productHref(order.productId)}
-                                className="font-normal text-sm text-sky-600 dark:text-sky-400 hover:text-sky-500 truncate"
-                              >
-                                {order.productName}
-                              </Link>
-                              {order.productSku && (
-                                <>
-                                  <span className="text-gray-400">•</span>
-                                  <Hash className="h-3.5 w-3.5 shrink-0" />
-                                  <CopyableText value={order.productSku}>
-                                    <span className="font-mono text-xs">
-                                      {order.productSku}
-                                    </span>
-                                  </CopyableText>
-                                </>
-                              )}
-                              <span className="text-gray-400">•</span>
-                              <Package className="h-3.5 w-3.5 shrink-0" />
-                              Qty: {order.quantity} × ${order.price.toFixed(2)}
-                              <span className="text-gray-400">•</span>
-                              <Calendar className="h-3.5 w-3.5 shrink-0" />
-                              <ClientDate date={order.orderDate} />
-                            </p>
-                            {(order.owner || order.placedBy) && (
-                              <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-gray-600 dark:text-white/60">
-                                {order.owner && (
-                                  <span className="inline-flex items-center gap-1.5 min-w-0">
-                                    <User className="h-3.5 w-3.5 shrink-0" />
-                                    Owner:{" "}
-                                    <AvatarInlineLink
-                                      seed={order.owner.id}
-                                      image={order.owner.image}
-                                      label={
-                                        order.owner.name ??
-                                        order.owner.email ??
-                                        "Owner"
-                                      }
-                                      href={ownerProductsHref(order.owner.id)}
-                                      size={20}
-                                    />
-                                  </span>
-                                )}
-                                {order.placedBy && (
-                                  <span className="inline-flex items-center gap-1.5 min-w-0">
-                                    <User className="h-3.5 w-3.5 shrink-0" />
-                                    Buyer:{" "}
-                                    {isAdminRole ? (
-                                      <AvatarInlineLink
-                                        seed={order.placedBy.id}
-                                        image={order.placedBy.image}
-                                        label={buyerLabel}
-                                        href={`/admin/user-management/${order.placedBy.id}`}
-                                        size={20}
-                                      />
-                                    ) : (
-                                      <AvatarInlineLink
-                                        seed={order.placedBy.id}
-                                        image={order.placedBy.image}
-                                        label={buyerLabel}
-                                        size={20}
-                                      />
-                                    )}
-                                  </span>
-                                )}
-                              </div>
-                            )}
-                          </div>
-                          <div className="text-left sm:text-right shrink-0">
-                            <p className="font-medium text-gray-700 dark:text-white">
-                              {typeof order.proportionalAmount === "number" &&
-                              order.proportionalAmount !== order.subtotal ? (
-                                <>
-                                  <span className="text-gray-500 dark:text-white/50 line-through mr-2">
-                                    ${order.subtotal.toFixed(2)}
-                                  </span>
-                                  <span className="text-rose-600 dark:text-rose-400">
-                                    ${order.proportionalAmount.toFixed(2)}
-                                  </span>
-                                </>
-                              ) : (
-                                `$${order.subtotal.toFixed(2)}`
-                              )}
-                            </p>
-                            <OrderStatusBadge
-                              status={order.orderStatus ?? "pending"}
-                              className="mt-1"
-                            />
-                          </div>
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-              )}
+              <CatalogDetailRecentOrdersList
+                loading={dataLoading}
+                orders={recentOrders}
+                emptyMessage="No recent orders for products in this category."
+                orderHref={orderHref}
+                productHref={productHref}
+                ownerProductsHref={ownerProductsHref}
+                isAdminRole={isAdminRole}
+              />
             </div>
           </GlassCard>
 

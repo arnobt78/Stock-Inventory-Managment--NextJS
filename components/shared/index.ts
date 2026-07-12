@@ -139,3 +139,7 @@ export { CatalogInsightsSection } from "./CatalogInsightsSection";
 export type { CatalogInsightsSectionProps } from "./CatalogInsightsSection";
 export { WarehouseInsightsSection } from "./WarehouseInsightsSection";
 export type { WarehouseInsightsSectionProps } from "./WarehouseInsightsSection";
+export { CatalogDetailProductGrid } from "./catalog-detail/CatalogDetailProductGrid";
+export type { CatalogDetailProductGridProps } from "./catalog-detail/CatalogDetailProductGrid";
+export { CatalogDetailRecentOrdersList } from "./catalog-detail/CatalogDetailRecentOrdersList";
+export type { CatalogDetailRecentOrdersListProps } from "./catalog-detail/CatalogDetailRecentOrdersList";

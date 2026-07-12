@@ -1883,6 +1883,54 @@ Canonical REQ source. All artifacts link via `REQ-XXXX`. Status: `done` | `verif
 
 ---
 
+## REQ-0086 — Category/Supplier detail list UI parity
+
+| Field | Value |
+|-------|-------|
+| **Priority** | P2 |
+| **Risk** | R1 |
+| **Status** | done |
+| **Cycle** | C2 |
+| **Parent** | REQ-0085 |
+
+**Intent:** Unify category/supplier detail product + recent-order list UI; responsive SKU/stock/price row; supplier info/stats parity; SSR party enrichment on supplier lists.
+
+**Acceptance criteria**
+
+- AC1: Category products + recent orders show `SKU:` label; sku/stock/price on one responsive row
+- AC2: Shared `CatalogDetailProductGrid` + `CatalogDetailRecentOrdersList` used by both detail pages
+- AC3: Supplier info subtitle + `DetailInfoRow` description/notes; statistics use icon `DetailInfoRow` rows
+- AC4: Supplier products/orders always visible with count badge + empty states (category parity)
+- AC5: Supplier SSR includes owner/supplier on products; owner/buyer/image on recent orders
+- AC6: Red Team lint/test/invalidate/build pass
+
+**Artifacts:** `types/catalog-detail-lists.ts`, `catalog-detail/*`, `CategoryDetailPage.tsx`, `SupplierDetailPage.tsx`, `supplier-detail-data.ts`
+
+---
+
+## REQ-0087 — Catalog detail list loading DRY
+
+| Field | Value |
+|-------|-------|
+| **Priority** | P3 |
+| **Risk** | R1 |
+| **Status** | done |
+| **Cycle** | C2 |
+| **Parent** | REQ-0086 |
+
+**Intent:** Remove duplicate `DataSlotPulse` wrappers in category/supplier detail pages; pass `loading={dataLoading}` to shared catalog list components.
+
+**Acceptance criteria**
+
+- AC1: No duplicate pulse wrappers for product/order lists in Category or Supplier detail pages
+- AC2: Both pages pass `loading={dataLoading}` to `CatalogDetailProductGrid` + `CatalogDetailRecentOrdersList`
+- AC3: Visual loading behavior unchanged
+- AC4: Red Team lint/test/invalidate/build pass
+
+**Artifacts:** `CategoryDetailPage.tsx`, `SupplierDetailPage.tsx`
+
+---
+
 ## REQ-0020 — Locale-aware admin format (hydration-safe)
 
 | Field        | Value |

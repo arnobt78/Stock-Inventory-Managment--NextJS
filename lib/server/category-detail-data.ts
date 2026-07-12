@@ -16,7 +16,7 @@ import {
   resolveSupplierEntityForSession,
   supplierCanAccessCategory,
 } from "@/lib/server/catalog-entity-access";
-import type { CategoryPartySnapshot } from "@/types/category";
+import { toParty } from "@/lib/server/catalog-party-snapshot";
 import {
   computeCatalogInsights,
   CATEGORY_LOW_STOCK_THRESHOLD,
@@ -25,17 +25,12 @@ import {
 export { CATEGORY_LOW_STOCK_THRESHOLD };
 export { computeCatalogInsights as computeCategoryInsights } from "@/lib/server/catalog-insights";
 
-type UserRow = {
-  id: string;
-  email: string;
-  name: string | null;
-  image?: string | null;
-};
-
 type SupplierRow = {
   id: string;
   name: string;
 };
+
+type UserRow = import("@/lib/server/catalog-party-snapshot").CatalogPartyUserRow;
 
 type ProductWithOrders = Awaited<
   ReturnType<
@@ -60,16 +55,6 @@ type ProductWithOrders = Awaited<
     }>
   >
 >[number];
-
-function toParty(user: UserRow | null | undefined): CategoryPartySnapshot | null {
-  if (!user) return null;
-  return {
-    id: user.id,
-    email: user.email,
-    name: user.name,
-    image: user.image ?? null,
-  };
-}
 
 function transformCategoryDetail(
   category: NonNullable<Awaited<ReturnType<typeof getCategoryById>>>,

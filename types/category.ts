@@ -3,44 +3,11 @@
  */
 
 /** Party snapshot for category detail rows (owner, buyer, supplier). */
-export type CategoryPartySnapshot = {
-  id: string;
-  name: string | null;
-  email: string;
-  image?: string | null;
-};
+export type CategoryPartySnapshot = import("@/types/catalog-detail-lists").CatalogDetailPartySnapshot;
 
-export type CategoryProductSummary = {
-  id: string;
-  name: string;
-  imageUrl?: string | null;
-  sku?: string | null;
-  quantity?: number;
-  reservedQuantity?: number;
-  price?: number;
-  status?: string;
-  owner?: CategoryPartySnapshot | null;
-  supplier?: { id: string; name: string } | null;
-};
+export type CategoryProductSummary = import("@/types/catalog-detail-lists").CatalogDetailProductItem;
 
-export type CategoryRecentOrder = {
-  id: string;
-  orderId: string;
-  orderNumber: string;
-  productId: string;
-  productName: string;
-  productSku?: string | null;
-  productImageUrl?: string | null;
-  quantity: number;
-  price: number;
-  orderDate: string;
-  subtotal: number;
-  proportionalAmount?: number;
-  orderTotal?: number;
-  orderStatus: string;
-  owner?: CategoryPartySnapshot | null;
-  placedBy?: CategoryPartySnapshot | null;
-};
+export type CategoryRecentOrder = import("@/types/catalog-detail-lists").CatalogDetailRecentOrderItem;
 
 import type {
   CatalogEntityInsights,

@@ -1,10 +1,11 @@
 /**
  * Server-side supplier detail fetch for SSR prefetch.
  * Mirrors GET /api/suppliers/:id auth + response shape (includes Redis cache).
- * REQ-0024
+ * REQ-0024, REQ-0086 — party enrichment on products + recent orders (category parity).
  */
 
 import { computeCatalogInsights } from "@/lib/server/catalog-insights";
+import { toParty } from "@/lib/server/catalog-party-snapshot";
 import { getSupplierById, getDemoSupplierUserId } from "@/prisma/supplier";
 import { getCache, setCache, cacheKeys } from "@/lib/cache";
 import { prisma } from "@/prisma/client";
@@ -16,45 +17,42 @@ import {
   resolveSupplierEntityForSession,
   supplierCanAccessSupplierRecord,
 } from "@/lib/server/catalog-entity-access";
+import type { CatalogPartyUserRow } from "@/lib/server/catalog-party-snapshot";
 
-function transformSupplierDetail(
-  supplier: NonNullable<Awaited<ReturnType<typeof getSupplierById>>>,
-  products: Awaited<
-    ReturnType<
-      typeof prisma.product.findMany<{
-        include: {
-          orderItems: {
-            include: {
-              order: {
-                select: {
-                  id: true;
-                  orderNumber: true;
-                  status: true;
-                  subtotal: true;
-                  total: true;
-                  createdAt: true;
-                };
+type SupplierProductWithOrders = Awaited<
+  ReturnType<
+    typeof prisma.product.findMany<{
+      include: {
+        orderItems: {
+          include: {
+            order: {
+              select: {
+                id: true;
+                orderNumber: true;
+                status: true;
+                subtotal: true;
+                total: true;
+                createdAt: true;
+                userId: true;
               };
             };
           };
         };
-      }>
-    >
-  >,
-  creatorUser: {
-    id: string;
-    email: string;
-    name: string | null;
-    image?: string | null;
-  } | null,
-  updaterUser: {
-    id: string;
-    email: string;
-    name: string | null;
-    image?: string | null;
-  } | null,
+      };
+    }>
+  >
+>[number];
+
+function transformSupplierDetail(
+  supplier: NonNullable<Awaited<ReturnType<typeof getSupplierById>>>,
+  products: SupplierProductWithOrders[],
+  creatorUser: CatalogPartyUserRow | null,
+  updaterUser: CatalogPartyUserRow | null,
+  ownerMap: Map<string, CatalogPartyUserRow>,
+  orderUserMap: Map<string, CatalogPartyUserRow>,
   isDemoSupplier: boolean,
 ) {
+  const supplierSnapshot = { id: supplier.id, name: supplier.name };
   const totalProducts = products.length;
   let totalQuantitySold = 0;
   let totalRevenue = 0;
@@ -96,33 +94,40 @@ function transformSupplierDetail(
     totalQuantitySold,
   );
 
-  const allOrderItems = products.flatMap((product) =>
-    (product.orderItems || []).map((item) => {
-      const order = item.order as { subtotal?: number; total: number } | null;
+  const allOrderItems = products.flatMap((product) => {
+    const owner = toParty(ownerMap.get(product.userId));
+    return (product.orderItems || []).map((item) => {
+      const order = item.order;
       const orderSubtotal = order?.subtotal ?? 0;
       const orderTotal = order?.total ?? 0;
       const proportionalAmount =
         orderSubtotal > 0
           ? (item.subtotal / orderSubtotal) * orderTotal
           : item.subtotal;
+      const placedBy = order?.userId
+        ? toParty(orderUserMap.get(order.userId))
+        : null;
       return {
         id: item.id,
-        orderId: item.order?.id || "",
-        orderNumber: item.order?.orderNumber || "",
-        orderStatus: item.order?.status || "",
+        orderId: order?.id || "",
+        orderNumber: order?.orderNumber || "",
+        orderStatus: order?.status || "",
         productId: product.id,
         productName: product.name,
         productSku: product.sku,
+        productImageUrl: product.imageUrl || null,
         quantity: item.quantity,
         price: item.price,
         subtotal: item.subtotal,
         proportionalAmount,
         orderTotal,
-        orderDate: item.order?.createdAt || item.createdAt,
+        orderDate: (order?.createdAt || item.createdAt).toISOString(),
         createdAt: item.createdAt,
+        owner,
+        placedBy,
       };
-    }),
-  );
+    });
+  });
 
   const recentOrders = allOrderItems
     .sort((a, b) => {
@@ -130,7 +135,8 @@ function transformSupplierDetail(
       const dateB = new Date(b.orderDate).getTime();
       return dateB - dateA;
     })
-    .slice(0, 10);
+    .slice(0, 10)
+    .map(({ createdAt: _c, ...row }) => row);
 
   return {
     id: supplier.id,
@@ -141,22 +147,8 @@ function transformSupplierDetail(
     userId: supplier.userId,
     createdBy: supplier.createdBy,
     updatedBy: supplier.updatedBy || null,
-    creator: creatorUser
-      ? {
-          id: creatorUser.id,
-          email: creatorUser.email,
-          name: creatorUser.name,
-          image: creatorUser.image ?? null,
-        }
-      : null,
-    updater: updaterUser
-      ? {
-          id: updaterUser.id,
-          email: updaterUser.email,
-          name: updaterUser.name,
-          image: updaterUser.image ?? null,
-        }
-      : null,
+    creator: toParty(creatorUser),
+    updater: toParty(updaterUser),
     createdAt: supplier.createdAt.toISOString(),
     updatedAt: supplier.updatedAt?.toISOString() || null,
     statistics: {
@@ -173,8 +165,11 @@ function transformSupplierDetail(
       sku: product.sku,
       price: Number(product.price),
       quantity: Number(product.quantity),
+      reservedQuantity: Number(product.reservedQuantity ?? 0),
       status: product.status,
       imageUrl: product.imageUrl || null,
+      owner: toParty(ownerMap.get(product.userId)),
+      supplier: supplierSnapshot,
     })),
     recentOrders,
     isGlobalDemo: isDemoSupplier,
@@ -251,6 +246,7 @@ export async function getSupplierDetailForPage(
               subtotal: true,
               total: true,
               createdAt: true,
+              userId: true,
             },
           },
         },
@@ -258,7 +254,18 @@ export async function getSupplierDetailForPage(
     },
   });
 
-  const [creatorUser, updaterUser] = await Promise.all([
+  const ownerIds = [...new Set(products.map((p) => p.userId))];
+  const orderUserIds = [
+    ...new Set(
+      products.flatMap((p) =>
+        (p.orderItems ?? [])
+          .map((item) => item.order?.userId)
+          .filter((uid): uid is string => Boolean(uid)),
+      ),
+    ),
+  ];
+
+  const [creatorUser, updaterUser, owners, orderUsers] = await Promise.all([
     supplier.createdBy
       ? prisma.user.findUnique({
           where: { id: supplier.createdBy },
@@ -271,13 +278,30 @@ export async function getSupplierDetailForPage(
           select: { id: true, email: true, name: true, image: true },
         })
       : null,
+    ownerIds.length
+      ? prisma.user.findMany({
+          where: { id: { in: ownerIds } },
+          select: { id: true, email: true, name: true, image: true },
+        })
+      : [],
+    orderUserIds.length
+      ? prisma.user.findMany({
+          where: { id: { in: orderUserIds } },
+          select: { id: true, email: true, name: true, image: true },
+        })
+      : [],
   ]);
+
+  const ownerMap = new Map(owners.map((u) => [u.id, u]));
+  const orderUserMap = new Map(orderUsers.map((u) => [u.id, u]));
 
   const transformedSupplier = transformSupplierDetail(
     supplier,
     products,
     creatorUser,
     updaterUser,
+    ownerMap,
+    orderUserMap,
     isDemoSupplier,
   );
 

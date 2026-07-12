@@ -213,3 +213,7 @@ Format: `TIMESTAMP | AGENT | DECISION | RATIONALE | REQ-ID`
 2026-07-12T15:32:00Z | red-team | REQ-0084 gates | lint ✓ test 397 ✓ invalidate 206 ✓ build ✓ | REQ-0084
 2026-07-12T15:40:00Z | build-agent | REQ-0085 AC1–AC4 | lib/insights client-safe compute; Supplier h1 CopyableText; product pie SSR enrich | REQ-0085
 2026-07-12T15:40:00Z | red-team | REQ-0085 gates | lint ✓ test 399 ✓ invalidate 206 ✓ build ✓ | REQ-0085
+2026-07-12T16:01:00Z | build-agent | REQ-0086 AC1–AC5 | Shared catalog detail list components; supplier SSR party enrich; stats/info parity | REQ-0086
+2026-07-12T16:01:00Z | red-team | REQ-0086 gates | lint ✓ test 399 ✓ invalidate 206 ✓ build ✓ | REQ-0086
+2026-07-12T16:05:00Z | build-agent | REQ-0087 AC1–AC3 | Pass loading prop to catalog list components; remove duplicate pulse wrappers | REQ-0087
+2026-07-12T16:05:00Z | red-team | REQ-0087 gates | lint ✓ test 399 ✓ invalidate 206 ✓ build ✓ | REQ-0087

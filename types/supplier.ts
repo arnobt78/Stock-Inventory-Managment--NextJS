@@ -3,6 +3,10 @@
  */
 
 import type { CatalogEntityInsights } from "@/types/catalog-insights";
+import type {
+  CatalogDetailProductItem,
+  CatalogDetailRecentOrderItem,
+} from "@/types/catalog-detail-lists";
 
 /**
  * Supplier interface matching Prisma schema
@@ -40,29 +44,8 @@ export interface Supplier {
     uniqueOrders: number;
     totalValue: number;
   } | null;
-  products?: Array<{
-    id: string;
-    name: string;
-    imageUrl?: string | null;
-    sku?: string | null;
-    quantity?: number;
-    price?: number;
-  }> | null;
-  recentOrders?: Array<{
-    id: string;
-    orderId: string;
-    orderNumber: string;
-    productName: string;
-    productSku?: string | null;
-    quantity: number;
-    price: number;
-    orderDate: string;
-    subtotal: number;
-    /** Proportional share of order total (includes tax, shipping, discount) */
-    proportionalAmount?: number;
-    orderTotal?: number;
-    orderStatus: string;
-  }> | null;
+  products?: CatalogDetailProductItem[] | null;
+  recentOrders?: CatalogDetailRecentOrderItem[] | null;
   /** REQ-0084 — derived KPIs + sales trend from supplier products (SSR). */
   supplierInsights?: CatalogEntityInsights | null;
 }

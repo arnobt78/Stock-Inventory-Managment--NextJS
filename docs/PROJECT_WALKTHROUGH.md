@@ -225,7 +225,9 @@ flowchart LR
 | Category forecast shell (REQ-0083) | Urgent table TableBodyPulseRows; admin `/categories/[id]` cache-read forecast SSR |
 | Detail insights parity (REQ-0084) | Product/supplier/warehouse insights charts; forecast SSR sync; CatalogInsightsSection |
 | Insights lib hygiene (REQ-0085) | `lib/insights/*` client-safe compute; Supplier h1 CopyableText; product warehouse pie SSR enrich |
-| Next backlog | REQ-0086 |
+| Detail list UI parity (REQ-0086) | `CatalogDetailProductGrid` + `CatalogDetailRecentOrdersList`; supplier stats/info SSR party enrich |
+| List loading DRY (REQ-0087) | Parent pages pass `loading={dataLoading}` to shared catalog list components |
+| Next backlog | REQ-0088 |
 | AI warehouse insights (REQ-0067) | `POST /api/ai/insights` enriches payload with `getWarehouseStockSummary` |
 | Per-warehouse order picking (REQ-0068) | `OrderItem.warehouseId`; `stock-allocation-order-sync.ts`; `OrderLineWarehouseSelect`; reserve/fulfill/cancel sync; invoice-paid gap; `f892b65` removed unused `deleteCache`/`getRateLimitStatus` |
 | Demo reset | `npm run script:reset-demo-db` — wipe Mongo + optional Redis + reseed test@admin/client/supplier |

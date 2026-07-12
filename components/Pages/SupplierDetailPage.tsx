@@ -5,9 +5,8 @@
 
 "use client";
 
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
-import Link from "next/link";
 import {
   ArrowLeft,
   Package,
@@ -19,17 +18,17 @@ import {
   User,
   Mail,
   FileText,
+  StickyNote,
   Edit,
   Copy,
   Trash2,
   Hash,
+  Wallet,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   ActiveInactiveBadge,
-  OrderStatusBadge,
 } from "@/lib/ui/semantic-badges";
-import { Separator } from "@/components/ui/separator";
 import {
   useSupplier,
   useCreateSupplier,
@@ -40,7 +39,6 @@ import { useBackWithRefresh } from "@/hooks/use-back-with-refresh";
 import { useAuth } from "@/contexts";
 import Navbar from "@/components/layouts/Navbar";
 import {
-  ClientDate,
   ClientDateTime,
   ClientRelativeTime,
   CopyableText,
@@ -54,6 +52,9 @@ import {
   DialogSubmitButton,
   AvatarInlineLink,
   CatalogInsightsSection,
+  CatalogDetailProductGrid,
+  CatalogDetailRecentOrdersList,
+  SectionTitleRow,
 } from "@/components/shared";
 import { buildCategoryForecastRollup } from "@/lib/forecasting/category-forecast-rollup";
 import {
@@ -64,7 +65,6 @@ import { DetailInfoRow } from "@/components/orders/detail";
 import SupplierDialog from "@/components/supplier/SupplierDialog";
 import { AlertDialogWrapper } from "@/components/dialogs";
 import type { ForecastingSummary, Supplier } from "@/types";
-import { SafeImage } from "@/components/ui/safe-image";
 import {
   isDataSlotLoading,
   queryKeys,
@@ -352,8 +352,16 @@ export default function SupplierDetailPage({
   const insights = supplier?.supplierInsights;
   const salesChartData = insights ? buildSalesChartData(insights) : [];
   const stockChartData = insights ? buildCatalogStockChartData(insights) : [];
+  const products = supplier?.products ?? [];
+  const recentOrders = supplier?.recentOrders ?? [];
   const productHref = (productId: string) =>
     embedInAdmin ? `/admin/products/${productId}` : `/products/${productId}`;
+  const supplierHref = (supplierId: string) =>
+    embedInAdmin
+      ? `/admin/suppliers/${supplierId}`
+      : `/suppliers/${supplierId}`;
+  const orderHref = (orderId: string) =>
+    embedInAdmin ? `/admin/orders/${orderId}` : `/orders/${orderId}`;
 
   return (
     <PageWrapper>
@@ -413,9 +421,14 @@ export default function SupplierDetailPage({
                   <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-orange-300/30 bg-orange-100/50 dark:border-white/15 dark:bg-white/10">
                     <Truck className="h-4 w-4 text-gray-700 dark:text-white" />
                   </div>
-                  <h3 className="text-sm sm:text-base font-medium text-gray-700 dark:text-white">
-                    Supplier Information
-                  </h3>
+                  <div>
+                    <h3 className="text-sm sm:text-base font-medium text-gray-700 dark:text-white">
+                      Supplier Information
+                    </h3>
+                    <p className="text-xs text-gray-600 dark:text-white/60">
+                      Supplier metadata and audit fields
+                    </p>
+                  </div>
                 </div>
                 <div className="space-y-2">
                   {!dataLoading && supplier && (
@@ -447,24 +460,14 @@ export default function SupplierDetailPage({
                     </DetailInfoRow>
                   )}
                   {!dataLoading && supplier?.description && (
-                    <div className="p-2 rounded-xl bg-gradient-to-r from-amber-100/50 via-amber-50/30 to-transparent dark:from-amber-500/10 dark:via-amber-500/5 dark:to-transparent border border-amber-200/30 dark:border-amber-400/10">
-                      <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">
-                        Description:
-                      </p>
-                      <p className="text-sm text-gray-700 dark:text-white">
-                        {supplier.description}
-                      </p>
-                    </div>
+                    <DetailInfoRow icon={FileText} label="Description:" tone="amber">
+                      {supplier.description}
+                    </DetailInfoRow>
                   )}
                   {!dataLoading && supplier?.notes && (
-                    <div className="p-2 rounded-xl bg-gradient-to-r from-yellow-100/50 via-yellow-50/30 to-transparent dark:from-yellow-500/10 dark:via-yellow-500/5 dark:to-transparent border border-yellow-200/30 dark:border-yellow-400/10">
-                      <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">
-                        Notes:
-                      </p>
-                      <p className="text-sm text-gray-700 dark:text-white">
-                        {supplier.notes}
-                      </p>
-                    </div>
+                    <DetailInfoRow icon={StickyNote} label="Notes:" tone="teal">
+                      {supplier.notes}
+                    </DetailInfoRow>
                   )}
                   <DetailInfoRow
                     icon={Calendar}
@@ -552,50 +555,54 @@ export default function SupplierDetailPage({
                   </div>
                 </div>
                 <div className="space-y-2 mt-4">
-                  <div className="flex justify-between items-center p-2 rounded-xl border border-violet-400/20 bg-gradient-to-r from-violet-500/10 to-transparent">
-                    <span className="text-sm text-gray-600 dark:text-white/70">
-                      Total Products:
-                    </span>
-                    <span className="text-sm sm:text-base font-medium text-gray-700 dark:text-white">
-                      {stats.totalProducts}
-                    </span>
-                  </div>
-
-                  <div className="flex justify-between items-center p-2 rounded-xl border border-sky-400/20 bg-gradient-to-r from-sky-500/10 to-transparent">
-                    <span className="text-sm text-gray-600 dark:text-white/70">
-                      Total Quantity Sold:
-                    </span>
-                    <span className="text-sm sm:text-base font-medium text-gray-700 dark:text-white">
-                      {stats.totalQuantitySold}
-                    </span>
-                  </div>
-
-                  <div className="flex justify-between items-center p-2 rounded-xl border border-emerald-400/20 bg-gradient-to-r from-emerald-500/10 to-transparent">
-                    <span className="text-sm text-gray-600 dark:text-white/70">
-                      Total Revenue:
-                    </span>
-                    <span className="text-sm sm:text-lg font-medium text-emerald-600 dark:text-emerald-400">
-                      ${stats.totalRevenue.toFixed(2)}
-                    </span>
-                  </div>
-
-                  <div className="flex justify-between items-center p-2 rounded-xl border border-amber-400/20 bg-gradient-to-r from-amber-500/10 to-transparent">
-                    <span className="text-sm text-gray-600 dark:text-white/70">
-                      Orders Containing Products:
-                    </span>
-                    <span className="text-sm sm:text-base font-medium text-gray-700 dark:text-white">
-                      {stats.uniqueOrders}
-                    </span>
-                  </div>
-
-                  <div className="flex justify-between items-center p-2 rounded-xl border border-blue-400/20 bg-gradient-to-r from-blue-500/10 to-transparent">
-                    <span className="text-sm text-gray-600 dark:text-white/70">
-                      Current Stock Value:
-                    </span>
-                    <span className="text-sm sm:text-lg font-medium text-blue-600 dark:text-blue-400">
-                      ${stats.totalValue.toFixed(2)}
-                    </span>
-                  </div>
+                  <DetailInfoRow
+                    icon={Package}
+                    label="Total Products:"
+                    tone="sky"
+                    loading={dataLoading}
+                  >
+                    {!dataLoading && stats.totalProducts}
+                  </DetailInfoRow>
+                  <DetailInfoRow
+                    icon={Package}
+                    label="Total Quantity Sold:"
+                    tone="violet"
+                    loading={dataLoading}
+                  >
+                    {!dataLoading && stats.totalQuantitySold}
+                  </DetailInfoRow>
+                  <DetailInfoRow
+                    icon={DollarSign}
+                    label="Total Revenue:"
+                    tone="emerald"
+                    loading={dataLoading}
+                  >
+                    {!dataLoading && (
+                      <span className="text-emerald-600 dark:text-emerald-400">
+                        ${stats.totalRevenue.toFixed(2)}
+                      </span>
+                    )}
+                  </DetailInfoRow>
+                  <DetailInfoRow
+                    icon={ShoppingCart}
+                    label="Orders Containing Products:"
+                    tone="amber"
+                    loading={dataLoading}
+                  >
+                    {!dataLoading && stats.uniqueOrders}
+                  </DetailInfoRow>
+                  <DetailInfoRow
+                    icon={Wallet}
+                    label="Current Stock Value:"
+                    tone="blue"
+                    loading={dataLoading}
+                  >
+                    {!dataLoading && (
+                      <span className="text-blue-600 dark:text-blue-400">
+                        ${stats.totalValue.toFixed(2)}
+                      </span>
+                    )}
+                  </DetailInfoRow>
                 </div>
               </div>
             </GlassCard>
@@ -625,141 +632,52 @@ export default function SupplierDetailPage({
             />
           )}
 
-          {/* Products from this Supplier */}
-          {supplier?.products && supplier?.products.length > 0 && (
-            <GlassCard variant="sky">
-              <div className="p-2 sm:p-4">
-                <div className="flex items-center gap-2 mb-2">
-                  <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-sky-300/30 bg-sky-100/50 dark:border-white/15 dark:bg-white/10">
-                    <Package className="h-4 w-4 text-gray-700 dark:text-white" />
-                  </div>
-                  <div>
-                    <h3 className="text-sm sm:text-base font-medium text-gray-700 dark:text-white">
-                      Products from this Supplier
-                    </h3>
-                    <p className="text-xs text-gray-600 dark:text-white/60">
-                      {supplier?.products.length} product
-                      {supplier?.products.length !== 1 ? "s" : ""} supplied
-                    </p>
-                  </div>
-                </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2 mt-4">
-                  {supplier?.products.map((product) => (
-                    <Link
-                      key={product.id}
-                      href={
-                        embedInAdmin
-                          ? `/admin/products/${product.id}`
-                          : `/products/${product.id}`
-                      }
-                      className="flex items-center gap-2 p-4 rounded-xl border border-gray-300/20 dark:border-white/10 bg-white/30 dark:bg-white/5 hover:bg-white/50 dark:hover:bg-white/10 backdrop-blur-md transition-colors"
-                    >
-                      {/* REQ-0059: Package-icon fallback so rows without image stay aligned */}
-                      <div className="relative w-16 h-16 rounded-xl overflow-hidden bg-white/50 dark:bg-white/5 border border-gray-300/20 dark:border-white/10 flex-shrink-0 flex items-center justify-center">
-                        {product.imageUrl ? (
-                          <SafeImage
-                            src={product.imageUrl}
-                            width={64}
-                            height={64}
-                            alt={product.name}
-                            className="w-full h-full object-contain"
-                          />
-                        ) : (
-                          <Package
-                            className="h-6 w-6 text-gray-400 dark:text-gray-500"
-                            aria-hidden
-                          />
-                        )}
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <h4 className="font-medium text-gray-700 dark:text-white truncate">
-                          {product.name}
-                        </h4>
-                        <p className="text-sm text-gray-600 dark:text-white/60">
-                          SKU: {product.sku}
-                        </p>
-                        <p className="text-sm text-gray-600 dark:text-white/60">
-                          Stock: {product.quantity} • $
-                          {(product.price ?? 0).toFixed(2)}
-                        </p>
-                      </div>
-                    </Link>
-                  ))}
-                </div>
-              </div>
-            </GlassCard>
-          )}
+          {/* Products from this Supplier — REQ-0086 category parity */}
+          <GlassCard variant="sky">
+            <div className="p-2 sm:p-4">
+              <SectionTitleRow
+                as="h3"
+                title="Products from this Supplier"
+                count={
+                  !dataLoading && products.length > 0
+                    ? products.length
+                    : undefined
+                }
+              />
+              <CatalogDetailProductGrid
+                loading={dataLoading}
+                products={products}
+                emptyMessage="No products from this supplier yet."
+                productHref={productHref}
+                ownerProductsHref={ownerProductsHref}
+                supplierHref={supplierHref}
+              />
+            </div>
+          </GlassCard>
 
-          {/* Recent Orders */}
-          {supplier?.recentOrders && supplier?.recentOrders.length > 0 && (
-            <GlassCard variant="violet">
-              <div className="p-2 sm:p-4">
-                <div className="flex items-center gap-2 mb-2">
-                  <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-violet-300/30 bg-violet-100/50 dark:border-white/15 dark:bg-white/10">
-                    <ShoppingCart className="h-4 w-4 text-gray-700 dark:text-white" />
-                  </div>
-                  <div>
-                    <h3 className="text-sm sm:text-base font-medium text-gray-700 dark:text-white">
-                      Recent Orders
-                    </h3>
-                    <p className="text-xs text-gray-600 dark:text-white/60">
-                      Latest orders containing products from this supplier
-                    </p>
-                  </div>
-                </div>
-                <div className="space-y-2 mt-4">
-                  {supplier?.recentOrders.map((order) => (
-                    <Link
-                      key={order.id}
-                      href={
-                        embedInAdmin
-                          ? `/admin/orders/${order.orderId}`
-                          : `/orders/${order.orderId}`
-                      }
-                      className="flex flex-col sm:flex-row sm:items-center justify-between p-4 rounded-xl border border-gray-300/20 dark:border-white/10 bg-white/30 dark:bg-white/5 hover:bg-white/50 dark:hover:bg-white/10 backdrop-blur-md transition-colors gap-2"
-                    >
-                      <div className="flex-1">
-                        <h4 className="font-medium text-gray-700 dark:text-white">
-                          <CopyableText value={order.orderNumber}>
-                            Order {order.orderNumber}
-                          </CopyableText>
-                        </h4>
-                        <p className="text-sm text-gray-600 dark:text-white/60 mt-1">
-                          Product: {order.productName} (SKU: {order.productSku})
-                        </p>
-                        <p className="text-sm text-gray-600 dark:text-white/60">
-                          Quantity: {order.quantity} × ${order.price.toFixed(2)}{" "}
-                          • Date: <ClientDate date={order.orderDate} />
-                        </p>
-                      </div>
-                      <div className="text-left sm:text-right">
-                        {/* Sale price style: crossed-out subtotal + actual proportional amount */}
-                        <p className="font-medium text-gray-700 dark:text-white">
-                          {typeof order.proportionalAmount === "number" &&
-                          order.proportionalAmount !== order.subtotal ? (
-                            <>
-                              <span className="text-gray-500 dark:text-white/50 line-through mr-2">
-                                ${order.subtotal.toFixed(2)}
-                              </span>
-                              <span className="text-rose-600 dark:text-rose-400">
-                                ${order.proportionalAmount.toFixed(2)}
-                              </span>
-                            </>
-                          ) : (
-                            `$${order.subtotal.toFixed(2)}`
-                          )}
-                        </p>
-                        <OrderStatusBadge
-                          status={order.orderStatus ?? "pending"}
-                          className="mt-1"
-                        />
-                      </div>
-                    </Link>
-                  ))}
-                </div>
-              </div>
-            </GlassCard>
-          )}
+          {/* Recent Orders — REQ-0086 category parity */}
+          <GlassCard variant="violet">
+            <div className="p-2 sm:p-4">
+              <SectionTitleRow
+                as="h3"
+                title="Recent Orders"
+                count={
+                  !dataLoading && recentOrders.length > 0
+                    ? recentOrders.length
+                    : undefined
+                }
+              />
+              <CatalogDetailRecentOrdersList
+                loading={dataLoading}
+                orders={recentOrders}
+                emptyMessage="No recent orders for products from this supplier."
+                orderHref={orderHref}
+                productHref={productHref}
+                ownerProductsHref={ownerProductsHref}
+                isAdminRole={isAdminRole}
+              />
+            </div>
+          </GlassCard>
 
           {/* Actions — Back, Edit, Duplicate, Delete; responsive (stack on small, row on larger) */}
           <div className="flex flex-col sm:flex-row flex-wrap gap-2">
