@@ -8,17 +8,17 @@
 import React from "react";
 import { Column, ColumnDef } from "@tanstack/react-table";
 import { Order } from "@/types";
-import { Badge } from "@/components/ui/badge";
+import {
+  AdminOrderSourceBadge,
+  OrderStatusBadge,
+  PaymentStatusBadge,
+} from "@/lib/ui/semantic-badges";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import {
-  OrderStatusBadge,
-  PaymentStatusBadge,
-} from "@/lib/ui/semantic-badges";
 import { ArrowUpDown } from "lucide-react";
 import { IoMdArrowDown, IoMdArrowUp } from "react-icons/io";
 import { format } from "date-fns";
@@ -138,15 +138,7 @@ export const createOrderColumns = (
                   {order._displayName}
                 </span>
               )}
-              <Badge
-                className={
-                  order._source === "personal"
-                    ? "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300 text-xs"
-                    : "bg-violet-100 text-violet-800 dark:bg-violet-900/30 dark:text-violet-300 text-xs"
-                }
-              >
-                {order._source === "personal" ? "Self" : "Client"}
-              </Badge>
+              <AdminOrderSourceBadge source={order._source} />
             </div>
           )}
           {showPlacedBy && (

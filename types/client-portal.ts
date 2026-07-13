@@ -46,6 +46,7 @@ export interface ClientPortalClient {
   id: string;
   name: string;
   email: string;
+  image?: string | null;
   createdAt: string;
   orderCount: number;
   invoiceCount: number;

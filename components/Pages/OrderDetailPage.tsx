@@ -27,6 +27,7 @@ import { Button } from "@/components/ui/button";
 import { useQueryClient } from "@tanstack/react-query";
 import { useOrder, useDeleteOrder } from "@/hooks/queries";
 import { useBackWithRefresh } from "@/hooks/use-back-with-refresh";
+import { resolveAuditUserManagementHref } from "@/lib/navigation/audit-user-href";
 import {
   queryKeys,
   invalidateAfterOrderGraphChange,
@@ -45,6 +46,7 @@ import {
   glassDetailFooterButtonClass,
   CopyableText,
   DialogSubmitButton,
+  AuditUserDetailRow,
 } from "@/components/shared";
 import { OrderStatusBadge, PaymentStatusBadge } from "@/lib/ui/semantic-badges";
 import type { Order } from "@/types";
@@ -146,6 +148,7 @@ export default function OrderDetailPage({
   const isCancelling = deleteOrderMutation.isPending;
   const isSupplierRole = user?.role === "supplier";
   const isClientRole = user?.role === "client";
+  const isAdminRole = user?.role === "admin";
   const disableOrderActions = isSupplierRole || isClientRole;
 
   const [editDialogOpen, setEditDialogOpen] = useState(false);
@@ -412,6 +415,28 @@ export default function OrderDetailPage({
                       order.trackingNumber
                     )}
                   </DetailInfoRow>
+                )}
+                {!dataLoading && order?.creator && (
+                  <AuditUserDetailRow
+                    label="Created by:"
+                    tone="violet"
+                    user={order.creator}
+                    href={resolveAuditUserManagementHref(
+                      order.creator.id,
+                      isAdminRole,
+                    )}
+                  />
+                )}
+                {!dataLoading && order?.updater && (
+                  <AuditUserDetailRow
+                    label="Updated by:"
+                    tone="blue"
+                    user={order.updater}
+                    href={resolveAuditUserManagementHref(
+                      order.updater.id,
+                      isAdminRole,
+                    )}
+                  />
                 )}
                 {!dataLoading && order?.notes && (
                   <DetailInfoRow icon={StickyNote} label="Notes:" tone="teal">

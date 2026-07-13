@@ -17,6 +17,7 @@ import {
   type OrderDetailEnrichment,
 } from "@/lib/orders/transform-order-detail";
 import { enrichOrderItemsCatalogNames } from "@/lib/orders/enrich-order-items-catalog";
+import { toParty } from "@/lib/server/catalog-party-snapshot";
 import type { Order } from "@/types";
 
 export type SessionForDetail = {
@@ -25,14 +26,6 @@ export type SessionForDetail = {
 };
 
 async function enrichOrder(orderId: string, order: NonNullable<Awaited<ReturnType<typeof getOrderById>>>): Promise<OrderDetailEnrichment> {
-  const placedBy =
-    order.userId != null
-      ? await prisma.user.findUnique({
-          where: { id: order.userId },
-          select: { name: true, email: true, image: true },
-        })
-      : null;
-
   const productOwnerIds = [
     ...new Set(
       (order.items || [])
@@ -44,18 +37,45 @@ async function enrichOrder(orderId: string, order: NonNullable<Awaited<ReturnTyp
     ),
   ] as string[];
 
-  const productOwnerUsers =
-    productOwnerIds.length > 0
+  const userIds = [
+    order.userId,
+    order.createdBy,
+    order.updatedBy,
+    ...productOwnerIds,
+  ].filter(Boolean) as string[];
+  const uniqueUserIds = [...new Set(userIds)];
+
+  const users =
+    uniqueUserIds.length > 0
       ? await prisma.user.findMany({
-          where: { id: { in: productOwnerIds } },
+          where: { id: { in: uniqueUserIds } },
           select: { id: true, name: true, email: true, image: true },
         })
       : [];
+  const userMap = new Map(users.map((u) => [u.id, u]));
+
+  const placedBy = order.userId != null ? userMap.get(order.userId) : null;
+
+  const productOwnerUsers = productOwnerIds
+    .map((id) => userMap.get(id))
+    .filter(Boolean) as Array<{
+    id: string;
+    name: string | null;
+    email: string;
+    image: string | null;
+  }>;
 
   const invoiceForOrder = await prisma.invoice.findUnique({
     where: { orderId },
     select: { id: true, invoiceNumber: true, paidAt: true },
   });
+
+  const creatorUser = order.createdBy
+    ? userMap.get(order.createdBy)
+    : undefined;
+  const updaterUser = order.updatedBy
+    ? userMap.get(order.updatedBy)
+    : undefined;
 
   return {
     placedByName: placedBy?.name ?? placedBy?.email ?? null,
@@ -75,6 +95,8 @@ async function enrichOrder(orderId: string, order: NonNullable<Awaited<ReturnTyp
           paidAt: invoiceForOrder.paidAt?.toISOString() ?? null,
         }
       : null,
+    creator: toParty(creatorUser ?? null),
+    updater: toParty(updaterUser ?? null),
   };
 }
 

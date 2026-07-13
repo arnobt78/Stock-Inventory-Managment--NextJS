@@ -67,6 +67,30 @@ describe("transformOrderDetail", () => {
     expect(result.createdAt).toBe("2026-01-01T00:00:00.000Z");
   });
 
+  it("includes creator and updater from enrichment (REQ-0096)", () => {
+    const result = transformOrderDetail(baseOrder, {
+      placedByName: "Alice",
+      placedByEmail: "alice@test.com",
+      orderProductOwners: [],
+      invoiceForOrder: null,
+      creator: {
+        id: "creator-1",
+        name: "Creator",
+        email: "creator@test.com",
+        image: null,
+      },
+      updater: {
+        id: "updater-1",
+        name: "Updater",
+        email: "updater@test.com",
+        image: null,
+      },
+    });
+
+    expect(result.creator?.email).toBe("creator@test.com");
+    expect(result.updater?.name).toBe("Updater");
+  });
+
   it("omits paidAt when order is not paid", () => {
     const result = transformOrderDetail(
       { ...baseOrder, paymentStatus: "unpaid" },

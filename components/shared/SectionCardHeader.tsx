@@ -17,6 +17,8 @@ export type SectionCardHeaderProps = {
   description?: React.ReactNode;
   icon?: LucideIcon;
   tone?: SectionHeaderTone;
+  /** Inline after title (e.g. HelpTooltip) — REQ-0097 */
+  titleTrailing?: React.ReactNode;
   className?: string;
   titleClassName?: string;
   descriptionClassName?: string;
@@ -27,6 +29,7 @@ export function SectionCardHeader({
   description,
   icon: Icon,
   tone = "neutral",
+  titleTrailing,
   className,
   titleClassName,
   descriptionClassName,
@@ -46,11 +49,10 @@ export function SectionCardHeader({
         </div>
       )}
       <div className="flex min-w-0 flex-col justify-center">
-        <h3
-          className={cn(TYPO_CARD_TITLE, titleClassName)}
-        >
-          {title}
-        </h3>
+        <div className="flex items-center gap-1.5 flex-wrap">
+          <h3 className={cn(TYPO_CARD_TITLE, titleClassName)}>{title}</h3>
+          {titleTrailing}
+        </div>
         {description != null && description !== "" && (
           <p
             className={cn(TYPO_SUBTITLE, descriptionClassName)}

@@ -1,6 +1,6 @@
 # PROJECT_WALKTHROUGH.md
 
-Agent-oriented map of **stock-inventory** (Stockly). Last updated: 2026-07-11.
+Agent-oriented map of **stock-inventory** (Stockly). Last updated: 2026-07-13.
 
 ## 1. What this app is
 
@@ -230,6 +230,9 @@ flowchart LR
 | Demo seed (REQ-0088–0092) | Full catalog seed opt-in; accounts-only reset; Test Supplier naming |
 | Warm prefetch (REQ-0093) | `role-nav-config.ts`; batched TanStack warm; staggered `router.prefetch`; filter `enabled` gate |
 | Instant nav (REQ-0094) | Navbar `<Link prefetch>`; `getWarmPathsForRole` + `resolveWarmNavPath`; portal detail prefetch; shell hygiene |
+| Admin portal UI (REQ-0098) | `semantic-badges` glow badges; Api `GlassCardBody`; QR truncate; dashboard CTAs; portal `AvatarInlineLink` + SSR image; notification dropdown UX |
+| Post-0098 gaps (REQ-0099) | `AdminAnalyticsContent` section `gap-6`; supplier portal `userId` + User `image` SSR; dead stock scripts removed |
+| Avatar stale-cache (REQ-0100) | `AdminSupplierPortalContent` `seed={userId ?? id}` — no cache-key bump; TTL/invalidation sufficient |
 | Next | Gate 2 — prod deploy + Sentry 24h |
 | AI warehouse insights (REQ-0067) | `POST /api/ai/insights` enriches payload with `getWarehouseStockSummary` |
 | Per-warehouse order picking (REQ-0068) | `OrderItem.warehouseId`; `stock-allocation-order-sync.ts`; `OrderLineWarehouseSelect`; reserve/fulfill/cancel sync; invoice-paid gap; `f892b65` removed unused `deleteCache`/`getRateLimitStatus` |
@@ -250,9 +253,9 @@ flowchart LR
 |-------|--------|
 | `npm run lint` | pass |
 | `npm run build` | pass |
-| `npm run test` | 415 passed |
-| `npm run test:invalidate` | 205 passed (AdminSidebar inline-fetch removed REQ-0094) |
-| Prod commit | REQ-0094 pending push |
+| `npm run test` | 418 passed |
+| `npm run test:invalidate` | 205 passed |
+| Prod commit | REQ-0100 pending push |
 | Radix table Select | `useDeferredRadixSelect` + `PaginationSelector` (11 tables) |
 | Pagination clamp + page-size reset | `useClampPaginationIndex` + `PaginationSelector` pageIndex 0 |
 | Sentry | tunnel + translate scrub + `syncSentryUserFromAuth` |

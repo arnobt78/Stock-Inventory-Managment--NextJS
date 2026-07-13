@@ -27,8 +27,8 @@ import { ChartCard } from "@/components/ui/chart-card";
 import { DeferredChartSection } from "@/components/ui/deferred-chart-section";
 import { ResponsiveChartContainer } from "@/components/ui/responsive-chart-container";
 import { WAREHOUSE_STOCK_PIE_COLORS } from "@/lib/ui/catalog-insights-chart-data";
-import { DetailInfoRow, GlassCard } from "@/components/orders/detail";
-import { SectionTitleRow } from "@/components/shared";
+import { DetailInfoRow } from "@/components/orders/detail";
+import { GlassCard, SectionTitleRow } from "@/components/shared";
 import type { WarehouseInsights } from "@/types/warehouse-insights";
 import type { CategoryForecastUrgentRow } from "@/types/category";
 import {
@@ -88,8 +88,7 @@ export function WarehouseInsightsSection({
         className,
       )}
     >
-      <GlassCard variant="violet">
-        <div className="p-2 sm:p-4">
+      <GlassCard padding="body" variant="violet">
           <div className="flex items-center gap-2 mb-2">
             <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-violet-300/30 bg-violet-100/50 dark:border-white/15 dark:bg-white/10">
               <Boxes className="h-4 w-4 text-gray-700 dark:text-white" />
@@ -137,7 +136,6 @@ export function WarehouseInsightsSection({
               {!dataLoading && insights.lowStockSkuCount}
             </DetailInfoRow>
           </div>
-        </div>
       </GlassCard>
 
       <ChartCard
@@ -222,8 +220,7 @@ export function WarehouseInsightsSection({
       )}
 
       {showUrgentTable && (
-        <GlassCard variant="rose" className="lg:col-span-2">
-          <div className="p-2 sm:p-4">
+        <GlassCard padding="body" variant="rose" className="lg:col-span-2">
             <SectionTitleRow
               as="h3"
               title="Urgent reorder forecast"
@@ -272,7 +269,6 @@ export function WarehouseInsightsSection({
                 )}
               </Table>
             </div>
-          </div>
         </GlassCard>
       )}
     </div>

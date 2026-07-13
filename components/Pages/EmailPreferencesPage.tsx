@@ -7,22 +7,19 @@ import {
   PageContentWrapper,
   DataSlotPulse,
   PageSectionHeader,
+  SectionCardHeader,
+  HelpTooltip,
+  GlassCard,
+  GlassCardBody,
   GLASS_BUTTON_ICON_HOVER,
   GLASS_GHOST_BUTTON,
   GLASS_PRIMARY_BUTTON,
 } from "@/components/shared";
 import { cn } from "@/lib/utils";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { DETAIL_PAGE_HEADER_SPACING_CLASS } from "@/lib/ui/shell-layout-styles";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
-import { useToast } from "@/hooks/use-toast";
 import {
   useEmailPreferences,
   useUpdateEmailPreferences,
@@ -42,7 +39,6 @@ import {
   RotateCcw,
   Save,
 } from "lucide-react";
-import { HelpTooltip } from "@/components/shared";
 
 export type EmailPreferencesPageProps = {
   /** When true, render only content (no Navbar) for use inside admin layout */
@@ -172,33 +168,34 @@ export default function EmailPreferencesPage({
 
   const content = (
     <PageContentWrapper>
-      <div className="flex flex-col">
+      <div className="flex flex-col gap-6">
         <PageSectionHeader
           as="h1"
           icon={Mail}
           tone="sky"
           title="Email Preferences"
           description="Manage your email notification preferences. Choose which types of emails you want to receive."
+          className={DETAIL_PAGE_HEADER_SPACING_CLASS}
         />
 
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-sm sm:text-base flex items-center gap-2 text-gray-700 dark:text-white">
-              <Mail className="h-5 w-5" />
-              Notification Settings
-              <HelpTooltip
-                content="Toggle each type of email on or off. Changes are saved automatically."
-                side="top"
-                ariaLabel="Notification settings help"
-              />
-            </CardTitle>
-            <CardDescription className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">
-              Toggle email notifications on or off. Changes are saved
-              automatically.
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
+        <GlassCard variant="sky">
+          <GlassCardBody>
+            <SectionCardHeader
+              icon={Mail}
+              tone="sky"
+              title="Notification Settings"
+              description="Toggle email notifications on or off. Changes are saved automatically."
+              className="mb-4"
+              titleTrailing={
+                <HelpTooltip
+                  content="Toggle each type of email on or off. Changes are saved automatically."
+                  side="top"
+                  ariaLabel="Notification settings help"
+                  className="shrink-0"
+                />
+              }
+            />
+            <div className="space-y-2">
               {preferenceItems.map((item) => {
                 const Icon = item.icon;
                 const isEnabled = localPreferences?.[item.key] ?? false;
@@ -206,9 +203,9 @@ export default function EmailPreferencesPage({
                 return (
                   <div
                     key={item.key}
-                    className="flex items-center justify-between gap-2 p-2 sm:p-4 border rounded-lg hover:bg-gray-50 dark:hover:bg-gray-900/50 transition-colors"
+                    className="flex items-center justify-between gap-2 p-3 rounded-xl border border-gray-300/20 dark:border-white/10 bg-white/30 dark:bg-white/5 hover:bg-white/50 dark:hover:bg-white/10 transition-colors"
                   >
-                    <div className="flex items-start gap-2 sm:gap-2 flex-1 min-w-0">
+                    <div className="flex items-start gap-2 flex-1 min-w-0">
                       <div className="mt-0.5 shrink-0">
                         <Icon className="h-5 w-5 text-gray-600 dark:text-gray-400" />
                       </div>
@@ -219,7 +216,7 @@ export default function EmailPreferencesPage({
                         >
                           {item.label}
                         </Label>
-                        <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 mt-1">
+                        <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 mt-0.5">
                           {item.description}
                         </p>
                       </div>
@@ -265,18 +262,18 @@ export default function EmailPreferencesPage({
                 </Button>
               </div>
             )}
-          </CardContent>
-        </Card>
+          </GlassCardBody>
+        </GlassCard>
 
-        <Card className="mt-4">
-          <CardHeader>
-            <CardTitle className="text-xs sm:text-sm font-medium text-gray-700 dark:text-white flex items-center gap-2">
-              <Info className="h-5 w-5" />
-              About Email Preferences
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-2 text-sm text-gray-600 dark:text-gray-400">
+        <GlassCard variant="violet">
+          <GlassCardBody>
+            <SectionCardHeader
+              icon={Info}
+              tone="violet"
+              title="About Email Preferences"
+              className="mb-3"
+            />
+            <div className="space-y-2 text-xs sm:text-sm text-gray-600 dark:text-gray-400">
               <p>
                 • All preferences are saved automatically when you toggle them.
               </p>
@@ -287,13 +284,13 @@ export default function EmailPreferencesPage({
               </p>
               <p>
                 • Email notifications are sent to:{" "}
-                <strong className="text-gray-700 dark:text-white">
+                <span className="font-medium text-gray-700 dark:text-white">
                   {user?.email}
-                </strong>
+                </span>
               </p>
             </div>
-          </CardContent>
-        </Card>
+          </GlassCardBody>
+        </GlassCard>
       </div>
     </PageContentWrapper>
   );

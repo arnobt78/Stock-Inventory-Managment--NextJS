@@ -12,6 +12,7 @@ import {
   Check,
   CheckCheck,
   Trash2,
+  X,
   AlertCircle,
   Package,
   ShoppingCart,
@@ -23,7 +24,8 @@ import {
   MessageSquare,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
+import { NotificationNewBadge } from "@/lib/ui/semantic-badges";
+import { SectionCountBadge } from "@/components/shared";
 import {
   useUpdateNotification,
   useMarkAllNotificationsAsRead,
@@ -138,9 +140,24 @@ export function NotificationDropdown({
     <div className="w-full overflow-hidden rounded-lg">
       {/* Header */}
       <div className="flex items-center justify-between p-4 border-b border-rose-400/20 dark:border-white/10">
-        <h3 className="text-sm sm:text-base font-medium text-gray-700 dark:text-white">
-          Notifications
-        </h3>
+        <div className="flex flex-col gap-1 min-w-0">
+          <h3 className="text-sm sm:text-base font-medium text-gray-700 dark:text-white">
+            Notifications
+          </h3>
+          <p className="text-xs text-gray-500 dark:text-gray-400 flex flex-wrap items-center gap-1.5">
+            <SectionCountBadge>{notifications.length}</SectionCountBadge>
+            <span>total</span>
+            {hasUnread && (
+              <>
+                <span aria-hidden>·</span>
+                <SectionCountBadge hue="rose">
+                  {unreadNotifications.length}
+                </SectionCountBadge>
+                <span>unread</span>
+              </>
+            )}
+          </p>
+        </div>
         {hasUnread && (
           <Button
             variant="ghost"
@@ -237,12 +254,13 @@ export function NotificationDropdown({
                           </p>
                         </>
                       )}
-                      <p className="text-xs text-gray-500 dark:text-gray-500 mt-1">
+                      <div className="flex items-center gap-2 flex-wrap mt-1">
                         <ClientRelativeTime
                           date={notification.createdAt}
                           className="text-xs text-gray-500 dark:text-gray-400"
                         />
-                      </p>
+                        {!notification.read && <NotificationNewBadge />}
+                      </div>
                     </div>
 
                     {/* Actions */}
@@ -271,18 +289,6 @@ export function NotificationDropdown({
                       </Button>
                     </div>
                   </div>
-
-                  {/* Unread indicator */}
-                  {!notification.read && (
-                    <div className="mt-2 flex items-center gap-2">
-                      <Badge
-                        variant="secondary"
-                        className="text-xs bg-rose-100 text-rose-700 dark:bg-rose-500/20 dark:text-rose-300 border-0"
-                      >
-                        New
-                      </Badge>
-                    </div>
-                  )}
                 </div>
               );
             })}
@@ -290,15 +296,16 @@ export function NotificationDropdown({
         )}
       </div>
 
-      {/* Footer */}
+      {/* Footer — full-width dropdown item */}
       {notifications.length > 0 && (
-        <div className="p-2 border-t border-rose-400/20 dark:border-white/10 text-center">
+        <div className="border-t border-rose-400/20 dark:border-white/10">
           <Button
             variant="ghost"
             size="sm"
             onClick={onClose}
-            className="text-xs text-gray-600 dark:text-gray-400 hover:text-gray-700 dark:hover:text-white"
+            className="w-full justify-center gap-2 rounded-none h-10 text-sm text-gray-600 dark:text-gray-400 hover:text-gray-700 dark:hover:text-white hover:bg-rose-50/50 dark:hover:bg-white/5"
           >
+            <X className="h-4 w-4 shrink-0" aria-hidden />
             Close
           </Button>
         </div>

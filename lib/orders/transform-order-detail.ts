@@ -52,6 +52,9 @@ export type OrderDetailEnrichment = {
     image?: string | null;
   }[];
   invoiceForOrder: { id: string; invoiceNumber: string; paidAt?: string | null } | null;
+  /** REQ-0096 — audit user snapshots from createdBy / updatedBy */
+  creator?: Order["creator"];
+  updater?: Order["updater"];
 };
 
 /** Map Prisma order + enrichment to API/SSR Order shape. */
@@ -97,6 +100,8 @@ export function transformOrderDetail(
       order.paymentStatus === "paid" && enrichment.invoiceForOrder?.paidAt
         ? enrichment.invoiceForOrder.paidAt
         : null,
+    creator: enrichment.creator ?? null,
+    updater: enrichment.updater ?? null,
     items: mapOrderItemsFromRaw(order.items),
   } as unknown as Order;
 }

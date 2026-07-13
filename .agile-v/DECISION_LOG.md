@@ -241,3 +241,29 @@ Format: `TIMESTAMP | AGENT | DECISION | RATIONALE | REQ-ID`
 2026-07-13T10:55:00Z | build-agent | REQ-0094 gap portal prefetch | explicit prefetch on portal/recent-order detail links (5 files) | REQ-0094
 2026-07-13T10:55:00Z | build-agent | REQ-0094 gap invalidate docs | 205 correct — AdminSidebar inline fetch removed; docs synced | REQ-0094
 2026-07-13T11:00:00Z | red-team | REQ-0094 gap gates | lint ✓ test 415 ✓ invalidate 205 ✓ build ✓ | REQ-0094
+2026-07-13T12:40:00Z | build-agent | AuditUserDetailRow shared component | Merged name+email on catalog detail pages; CopyableText email | REQ-0095
+2026-07-13T12:40:00Z | build-agent | EmailPreferencesPage GlassCard | SectionCardHeader; single padding layer; font-medium email | REQ-0095
+2026-07-13T12:40:00Z | build-agent | CategoryDetailPage GlassCard shell | Remove article padding; match Supplier/Product pattern | REQ-0095
+2026-07-13T12:40:00Z | build-agent | Insights inner padding trim | CatalogInsightsSection + WarehouseInsightsSection — shared GlassCard already pads | REQ-0095
+2026-07-13T12:45:00Z | red-team | REQ-0095 gates | lint ✓ test 415 ✓ invalidate 205 ✓ build ✓ | REQ-0095
+2026-07-13T12:55:00Z | build-agent | Shared GlassCard hub | `lib/ui/glass-card.tsx` + migrate 11 local copies; order-detail `padding="body"` default | REQ-0096
+2026-07-13T12:55:00Z | build-agent | Order/invoice/warehouse audit SSR | `creator`/`updater` via `toParty`; `AuditUserDetailRow` on detail info cards | REQ-0096
+2026-07-13T12:55:00Z | build-agent | Product section icon parity | Recent Orders + Warehouse Stock `SectionTitleRow` icon-only headers | REQ-0096
+2026-07-13T12:55:00Z | red-team | REQ-0096 gates | lint ✓ test 418 ✓ invalidate 205 ✓ build ✓ | REQ-0096
+2026-07-13T13:10:00Z | build-agent | SectionCardHeader titleTrailing | Inline HelpTooltip after card title; REQ-0097 email prefs | REQ-0097
+2026-07-13T13:10:00Z | build-agent | Email prefs spacing | PageSectionHeader DETAIL_PAGE_HEADER_SPACING_CLASS; GlassCardBody | REQ-0097
+2026-07-13T13:10:00Z | build-agent | Admin order audit rows | AdminOrderDetailContent creator/updater AuditUserDetailRow | REQ-0097
+2026-07-13T13:10:00Z | build-agent | GlassCardBody catalog sweep | Category/Supplier/Product/Warehouse detail shell cards | REQ-0097
+2026-07-13T13:10:00Z | build-agent | Insights shared GlassCard | CatalogInsightsSection + WarehouseInsightsSection padding=body | REQ-0097
+2026-07-13T13:10:00Z | red-team | REQ-0097 gates | lint ✓ test 418 ✓ invalidate 205 ✓ build ✓ | REQ-0097
+2026-07-13T13:45:00Z | build-agent | semantic-badges REQ-0098 | AdminOrderSource, ForecastUrgency, StockQuantityLeft, InventoryHealth, NotificationNew | REQ-0098
+2026-07-13T13:45:00Z | build-agent | Admin portal UI sweep | Api GlassCardBody; dashboard CTAs; portal gap-6; notification dropdown | REQ-0098
+2026-07-13T13:45:00Z | build-agent | Portal SSR image | client-portal + supplier-portal linked user image on table rows | REQ-0098
+2026-07-13T13:45:00Z | red-team | REQ-0098 gates | lint ✓ test 418 ✓ invalidate 205 ✓ build ✓ | REQ-0098
+2026-07-13T13:50:00Z | build-agent | AdminAnalytics gap-6 | Order/Invoice/Warehouse sections flex flex-col gap-6 | REQ-0099
+2026-07-13T13:50:00Z | build-agent | Supplier portal userId seed | SupplierPortalSupplier.userId + AvatarInlineLink seed | REQ-0099
+2026-07-13T13:50:00Z | build-agent | Dead stock scripts | Removed fix-product2/backfill/check-order npm + files | REQ-0099
+2026-07-13T13:50:00Z | red-team | REQ-0099 gates | lint ✓ test 418 ✓ invalidate 205 ✓ build ✓ | REQ-0099
+2026-07-13T13:57:00Z | build-agent | Avatar seed userId ?? id | Stale Redis supplierPortal cache may omit userId until TTL | REQ-0100
+2026-07-13T13:57:00Z | build-agent | No cache-key bump | Avoid deploy-wide DB reload; UI fallback sufficient | REQ-0100
+2026-07-13T13:57:00Z | red-team | REQ-0100 gates | lint ✓ test 418 ✓ invalidate 205 ✓ build ✓ | REQ-0100

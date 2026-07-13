@@ -46,6 +46,9 @@ export type InvoiceDetailEnrichment = {
   /** REQ-0063 — from linked order (same query as party enrichment) */
   linkedOrderNumber: string | null;
   linkedOrderItems: OrderItem[];
+  /** REQ-0096 — DB audit fields */
+  creator?: Invoice["creator"];
+  updater?: Invoice["updater"];
 };
 
 export function transformInvoiceDetail(
@@ -85,5 +88,7 @@ export function transformInvoiceDetail(
     invoiceProductOwners: enrichment.invoiceProductOwners,
     linkedOrderNumber: enrichment.linkedOrderNumber,
     linkedOrderItems: enrichment.linkedOrderItems,
+    creator: enrichment.creator ?? null,
+    updater: enrichment.updater ?? null,
   } as unknown as Invoice;
 }

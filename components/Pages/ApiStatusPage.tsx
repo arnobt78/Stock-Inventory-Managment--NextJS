@@ -33,7 +33,11 @@ import {
   PageContentWrapper,
   PageSectionHeader,
   SectionCardHeader,
+  GlassCard,
+  GLASS_CARD_VARIANT_CONFIG as variantConfig,
 } from "@/components/shared";
+import type { GlassCardVariant } from "@/lib/ui/glass-card";
+import { GlassCardBody } from "@/lib/ui/glass-card";
 import {
   getApiStatusEndpointsForRole,
   type ApiStatusRole,
@@ -50,131 +54,6 @@ import {
   Server,
   TrendingUp,
 } from "lucide-react";
-
-/**
- * Color variants for glassmorphic cards
- */
-type CardVariant =
-  | "sky"
-  | "emerald"
-  | "amber"
-  | "rose"
-  | "violet"
-  | "blue"
-  | "orange"
-  | "teal";
-
-const variantConfig: Record<
-  CardVariant,
-  {
-    border: string;
-    gradient: string;
-    shadow: string;
-    hoverBorder: string;
-    iconBg: string;
-  }
-> = {
-  sky: {
-    border: "border-sky-400/20",
-    gradient: "bg-gradient-to-br from-sky-500/15 via-sky-500/5 to-transparent",
-    shadow:
-      "shadow-[0_15px_40px_rgba(2,132,199,0.15)] dark:shadow-[0_15px_40px_rgba(2,132,199,0.1)]",
-    hoverBorder: "hover:border-sky-300/40",
-    iconBg: "border-sky-300/30 bg-sky-100/50",
-  },
-  emerald: {
-    border: "border-emerald-400/20",
-    gradient:
-      "bg-gradient-to-br from-emerald-500/15 via-emerald-500/5 to-transparent",
-    shadow:
-      "shadow-[0_15px_40px_rgba(16,185,129,0.15)] dark:shadow-[0_15px_40px_rgba(16,185,129,0.1)]",
-    hoverBorder: "hover:border-emerald-300/40",
-    iconBg: "border-emerald-300/30 bg-emerald-100/50",
-  },
-  amber: {
-    border: "border-amber-400/20",
-    gradient:
-      "bg-gradient-to-br from-amber-500/15 via-amber-500/5 to-transparent",
-    shadow:
-      "shadow-[0_15px_40px_rgba(245,158,11,0.12)] dark:shadow-[0_15px_40px_rgba(245,158,11,0.08)]",
-    hoverBorder: "hover:border-amber-300/40",
-    iconBg: "border-amber-300/30 bg-amber-100/50",
-  },
-  rose: {
-    border: "border-rose-400/20",
-    gradient:
-      "bg-gradient-to-br from-rose-500/15 via-rose-500/5 to-transparent",
-    shadow:
-      "shadow-[0_15px_40px_rgba(225,29,72,0.15)] dark:shadow-[0_15px_40px_rgba(225,29,72,0.1)]",
-    hoverBorder: "hover:border-rose-300/40",
-    iconBg: "border-rose-300/30 bg-rose-100/50",
-  },
-  violet: {
-    border: "border-violet-400/20",
-    gradient:
-      "bg-gradient-to-br from-violet-500/15 via-violet-500/5 to-transparent",
-    shadow:
-      "shadow-[0_15px_40px_rgba(139,92,246,0.15)] dark:shadow-[0_15px_40px_rgba(139,92,246,0.1)]",
-    hoverBorder: "hover:border-violet-300/40",
-    iconBg: "border-violet-300/30 bg-violet-100/50",
-  },
-  blue: {
-    border: "border-blue-400/20",
-    gradient:
-      "bg-gradient-to-br from-blue-500/15 via-blue-500/5 to-transparent",
-    shadow:
-      "shadow-[0_15px_40px_rgba(59,130,246,0.15)] dark:shadow-[0_15px_40px_rgba(59,130,246,0.1)]",
-    hoverBorder: "hover:border-blue-300/40",
-    iconBg: "border-blue-300/30 bg-blue-100/50",
-  },
-  orange: {
-    border: "border-orange-400/20",
-    gradient:
-      "bg-gradient-to-br from-orange-500/15 via-orange-500/5 to-transparent",
-    shadow:
-      "shadow-[0_15px_40px_rgba(249,115,22,0.15)] dark:shadow-[0_15px_40px_rgba(249,115,22,0.1)]",
-    hoverBorder: "hover:border-orange-300/40",
-    iconBg: "border-orange-300/30 bg-orange-100/50",
-  },
-  teal: {
-    border: "border-teal-400/20",
-    gradient:
-      "bg-gradient-to-br from-teal-500/15 via-teal-500/5 to-transparent",
-    shadow:
-      "shadow-[0_15px_40px_rgba(20,184,166,0.15)] dark:shadow-[0_15px_40px_rgba(20,184,166,0.1)]",
-    hoverBorder: "hover:border-teal-300/40",
-    iconBg: "border-teal-300/30 bg-teal-100/50",
-  },
-};
-
-/**
- * Glassmorphic Card component for API status
- */
-function GlassCard({
-  children,
-  variant = "blue",
-  className,
-}: {
-  children: React.ReactNode;
-  variant?: CardVariant;
-  className?: string;
-}) {
-  const config = variantConfig[variant];
-  return (
-    <article
-      className={cn(
-        "rounded-[20px] border backdrop-blur-md transition overflow-hidden",
-        config.border,
-        config.gradient,
-        config.shadow,
-        config.hoverBorder,
-        className,
-      )}
-    >
-      {children}
-    </article>
-  );
-}
 
 type EndpointStatus = EndpointProbeResult;
 
@@ -440,67 +319,67 @@ export default function ApiStatusPage({ userRole }: ApiStatusPageProps) {
                 <GlassCard
                   key={i}
                   variant={
-                    ["blue", "violet", "amber", "teal"][i - 1] as CardVariant
+                    ["blue", "violet", "amber", "teal"][i - 1] as GlassCardVariant
                   }
                 >
-                  <div className="p-2 sm:p-4">
+                  <GlassCardBody>
                     <Skeleton className="h-4 w-24 mb-2" />
                     <Skeleton className="h-8 w-32" />
-                  </div>
+                  </GlassCardBody>
                 </GlassCard>
               ))}
             </div>
           ) : systemStatus ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-2">
               <GlassCard variant="blue">
-                <div className="p-2 sm:p-4">
+                <GlassCardBody>
                   <p className="text-xs uppercase tracking-[0.2em] text-gray-600 dark:text-white/60 mb-2">
                     Project
                   </p>
                   <p className="text-sm sm:text-base font-medium text-gray-700 dark:text-white">
                     {systemStatus.project}
                   </p>
-                </div>
+                </GlassCardBody>
               </GlassCard>
 
               <GlassCard variant="violet">
-                <div className="p-2 sm:p-4">
+                <GlassCardBody>
                   <p className="text-xs uppercase tracking-[0.2em] text-gray-600 dark:text-white/60 mb-2">
                     Environment
                   </p>
                   <p className="text-sm sm:text-base font-medium text-gray-700 dark:text-white capitalize">
                     {systemStatus.environment}
                   </p>
-                </div>
+                </GlassCardBody>
               </GlassCard>
 
               <GlassCard variant="amber">
-                <div className="p-2 sm:p-4">
+                <GlassCardBody>
                   <p className="text-xs uppercase tracking-[0.2em] text-gray-600 dark:text-white/60 mb-2">
                     Current Time
                   </p>
                   <p className="text-sm sm:text-base font-medium text-gray-700 dark:text-white">
                     {systemStatus.currentTime}
                   </p>
-                </div>
+                </GlassCardBody>
               </GlassCard>
 
               <GlassCard variant="teal">
-                <div className="p-2 sm:p-4">
+                <GlassCardBody>
                   <p className="text-xs uppercase tracking-[0.2em] text-gray-600 dark:text-white/60 mb-2">
                     Uptime
                   </p>
                   <p className="text-sm sm:text-base font-medium text-gray-700 dark:text-white">
                     {systemStatus.uptime}
                   </p>
-                </div>
+                </GlassCardBody>
               </GlassCard>
             </div>
           ) : null}
 
           {/* API Health Status */}
           <GlassCard variant="emerald">
-            <div className="p-2 sm:p-4">
+            <GlassCardBody>
               <React.Fragment
                 key={isLoading ? "api-health-loading" : "api-health-content"}
               >
@@ -529,12 +408,12 @@ export default function ApiStatusPage({ userRole }: ApiStatusPageProps) {
                   </Badge>
                 </div>
               ) : null}
-            </div>
+            </GlassCardBody>
           </GlassCard>
 
           {/* Endpoints Status */}
           <GlassCard variant="sky">
-            <div className="p-2 sm:p-4">
+            <GlassCardBody>
               <React.Fragment
                 key={isLoading ? "endpoints-loading" : "endpoints-content"}
               >
@@ -595,12 +474,12 @@ export default function ApiStatusPage({ userRole }: ApiStatusPageProps) {
                       ))
                     : null}
               </div>
-            </div>
+            </GlassCardBody>
           </GlassCard>
 
           {/* External Services Health */}
           <GlassCard variant="violet">
-            <div className="p-2 sm:p-4">
+            <GlassCardBody>
               <React.Fragment
                 key={isLoading ? "services-loading" : "services-content"}
               >
@@ -761,13 +640,13 @@ export default function ApiStatusPage({ userRole }: ApiStatusPageProps) {
                   </div>
                 </div>
               ) : null}
-            </div>
+            </GlassCardBody>
           </GlassCard>
 
           {/* Performance Metrics */}
           {systemStatus?.performance && (
             <GlassCard variant="orange">
-              <div className="p-2 sm:p-4">
+              <GlassCardBody>
                 <SectionCardHeader
                   icon={TrendingUp}
                   tone="orange"
@@ -891,14 +770,14 @@ export default function ApiStatusPage({ userRole }: ApiStatusPageProps) {
                     </div>
                   )}
                 </div>
-              </div>
+              </GlassCardBody>
             </GlassCard>
           )}
 
           {/* System Metrics */}
           {systemStatus?.systemMetrics && (
             <GlassCard variant="teal">
-              <div className="p-2 sm:p-4">
+              <GlassCardBody>
                 <SectionCardHeader
                   icon={Cpu}
                   tone="teal"
@@ -1108,13 +987,13 @@ export default function ApiStatusPage({ userRole }: ApiStatusPageProps) {
                     </div>
                   </div>
                 </div>
-              </div>
+              </GlassCardBody>
             </GlassCard>
           )}
 
           {/* Deployment Info */}
           <GlassCard variant="rose">
-            <div className="p-2 sm:p-4">
+            <GlassCardBody>
               {isLoading ? (
                 <Skeleton className="h-6 w-32 mb-4" />
               ) : (
@@ -1156,7 +1035,7 @@ export default function ApiStatusPage({ userRole }: ApiStatusPageProps) {
                   </div>
                 </div>
               ) : null}
-            </div>
+            </GlassCardBody>
           </GlassCard>
         </div>
       </PageContentWrapper>

@@ -36,6 +36,7 @@ import {
   useForecastingSummary,
 } from "@/hooks/queries";
 import { useBackWithRefresh } from "@/hooks/use-back-with-refresh";
+import { resolveAuditUserManagementHref } from "@/lib/navigation/audit-user-href";
 import { useAuth } from "@/contexts";
 import Navbar from "@/components/layouts/Navbar";
 import {
@@ -51,6 +52,10 @@ import {
   DETAIL_HEADER_BACK_ICON_CLASS,
   DialogSubmitButton,
   WarehouseInsightsSection,
+  AuditUserDetailRow,
+  GlassCard,
+  GlassCardBody,
+  GLASS_CARD_VARIANT_CONFIG as variantConfig,
 } from "@/components/shared";
 import { buildCategoryForecastRollup } from "@/lib/forecasting/category-forecast-rollup";
 import { computeWarehouseInsights } from "@/lib/insights/warehouse-insights-compute";
@@ -72,142 +77,6 @@ import {
 } from "@/lib/react-query";
 import { cn } from "@/lib/utils";
 import { APP_SHELL_DETAIL_CLASS, DETAIL_PAGE_HEADER_SPACING_CLASS } from "@/lib/ui/shell-layout-styles";
-
-/**
- * Color variants for glassmorphic cards
- */
-type CardVariant =
-  | "sky"
-  | "emerald"
-  | "amber"
-  | "rose"
-  | "violet"
-  | "blue"
-  | "orange"
-  | "teal"
-  | "cyan";
-
-const variantConfig: Record<
-  CardVariant,
-  {
-    border: string;
-    gradient: string;
-    shadow: string;
-    hoverBorder: string;
-    iconBg: string;
-  }
-> = {
-  sky: {
-    border: "border-sky-400/20",
-    gradient: "bg-gradient-to-br from-sky-500/15 via-sky-500/5 to-transparent",
-    shadow:
-      "shadow-[0_15px_40px_rgba(2,132,199,0.15)] dark:shadow-[0_15px_40px_rgba(2,132,199,0.1)]",
-    hoverBorder: "hover:border-sky-300/40",
-    iconBg: "border-sky-300/30 bg-sky-100/50",
-  },
-  emerald: {
-    border: "border-emerald-400/20",
-    gradient:
-      "bg-gradient-to-br from-emerald-500/15 via-emerald-500/5 to-transparent",
-    shadow:
-      "shadow-[0_15px_40px_rgba(16,185,129,0.15)] dark:shadow-[0_15px_40px_rgba(16,185,129,0.1)]",
-    hoverBorder: "hover:border-emerald-300/40",
-    iconBg: "border-emerald-300/30 bg-emerald-100/50",
-  },
-  amber: {
-    border: "border-amber-400/20",
-    gradient:
-      "bg-gradient-to-br from-amber-500/15 via-amber-500/5 to-transparent",
-    shadow:
-      "shadow-[0_15px_40px_rgba(245,158,11,0.12)] dark:shadow-[0_15px_40px_rgba(245,158,11,0.08)]",
-    hoverBorder: "hover:border-amber-300/40",
-    iconBg: "border-amber-300/30 bg-amber-100/50",
-  },
-  rose: {
-    border: "border-rose-400/20",
-    gradient:
-      "bg-gradient-to-br from-rose-500/15 via-rose-500/5 to-transparent",
-    shadow:
-      "shadow-[0_15px_40px_rgba(225,29,72,0.15)] dark:shadow-[0_15px_40px_rgba(225,29,72,0.1)]",
-    hoverBorder: "hover:border-rose-300/40",
-    iconBg: "border-rose-300/30 bg-rose-100/50",
-  },
-  violet: {
-    border: "border-violet-400/20",
-    gradient:
-      "bg-gradient-to-br from-violet-500/15 via-violet-500/5 to-transparent",
-    shadow:
-      "shadow-[0_15px_40px_rgba(139,92,246,0.15)] dark:shadow-[0_15px_40px_rgba(139,92,246,0.1)]",
-    hoverBorder: "hover:border-violet-300/40",
-    iconBg: "border-violet-300/30 bg-violet-100/50",
-  },
-  blue: {
-    border: "border-blue-400/20",
-    gradient:
-      "bg-gradient-to-br from-blue-500/15 via-blue-500/5 to-transparent",
-    shadow:
-      "shadow-[0_15px_40px_rgba(59,130,246,0.15)] dark:shadow-[0_15px_40px_rgba(59,130,246,0.1)]",
-    hoverBorder: "hover:border-blue-300/40",
-    iconBg: "border-blue-300/30 bg-blue-100/50",
-  },
-  orange: {
-    border: "border-orange-400/20",
-    gradient:
-      "bg-gradient-to-br from-orange-500/15 via-orange-500/5 to-transparent",
-    shadow:
-      "shadow-[0_15px_40px_rgba(249,115,22,0.15)] dark:shadow-[0_15px_40px_rgba(249,115,22,0.1)]",
-    hoverBorder: "hover:border-orange-300/40",
-    iconBg: "border-orange-300/30 bg-orange-100/50",
-  },
-  teal: {
-    border: "border-teal-400/20",
-    gradient:
-      "bg-gradient-to-br from-teal-500/15 via-teal-500/5 to-transparent",
-    shadow:
-      "shadow-[0_15px_40px_rgba(20,184,166,0.15)] dark:shadow-[0_15px_40px_rgba(20,184,166,0.1)]",
-    hoverBorder: "hover:border-teal-300/40",
-    iconBg: "border-teal-300/30 bg-teal-100/50",
-  },
-  cyan: {
-    border: "border-cyan-400/20",
-    gradient:
-      "bg-gradient-to-br from-cyan-500/15 via-cyan-500/5 to-transparent",
-    shadow:
-      "shadow-[0_15px_40px_rgba(6,182,212,0.15)] dark:shadow-[0_15px_40px_rgba(6,182,212,0.1)]",
-    hoverBorder: "hover:border-cyan-300/40",
-    iconBg: "border-cyan-300/30 bg-cyan-100/50",
-  },
-};
-
-/**
- * Glassmorphic Card component
- */
-function GlassCard({
-  children,
-  variant = "teal",
-  className,
-}: {
-  children: React.ReactNode;
-  variant?: CardVariant;
-  className?: string;
-}) {
-  const config = variantConfig[variant];
-  return (
-    <article
-      className={cn(
-        "group rounded-[20px] border p-2 sm:p-4 backdrop-blur-md transition-all duration-300",
-        "bg-white/60 dark:bg-white/5",
-        config.border,
-        config.gradient,
-        config.shadow,
-        config.hoverBorder,
-        className,
-      )}
-    >
-      {children}
-    </article>
-  );
-}
 
 export type WarehouseDetailPageProps = {
   embedInAdmin?: boolean;
@@ -327,6 +196,7 @@ export default function WarehouseDetailPage({
       <PageWrapper>
         <div className="flex flex-col items-center justify-center min-h-[60vh] gap-2">
           <GlassCard variant="rose" className="max-w-md text-center">
+            <GlassCardBody>
             <h2 className="text-sm sm:text-base font-medium text-gray-700 dark:text-white mb-2">
               Warehouse Not Found
             </h2>
@@ -342,6 +212,7 @@ export default function WarehouseDetailPage({
               <ArrowLeft className="h-4 w-4 mr-2" />
               Back to Warehouses
             </Button>
+            </GlassCardBody>
           </GlassCard>
         </div>
       </PageWrapper>
@@ -403,6 +274,7 @@ export default function WarehouseDetailPage({
 
           {/* Status Card */}
           <GlassCard variant={warehouse?.status ? "emerald" : "rose"}>
+            <GlassCardBody>
             <p className="text-xs uppercase tracking-[0.25em] text-gray-600 dark:text-white/60 mb-3">
               Warehouse Status
             </p>
@@ -410,78 +282,87 @@ export default function WarehouseDetailPage({
               active={Boolean(warehouse?.status)}
               className="text-sm"
             />
+            </GlassCardBody>
           </GlassCard>
 
           {/* Stock Summary Statistics */}
           {stockSummary && stockSummary.totalProducts > 0 && (
             <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
               <GlassCard variant="sky" className="text-center">
-                <div
-                  className={cn(
-                    "p-2 rounded-xl border w-fit mx-auto mb-2",
-                    variantConfig.sky.iconBg,
-                    "dark:border-sky-400/30 dark:bg-sky-500/20",
-                  )}
-                >
-                  <Boxes className="h-5 w-5 text-sky-600 dark:text-sky-400" />
-                </div>
-                <p className="text-sm sm:text-base font-medium text-gray-700 dark:text-white">
-                  {stockSummary.totalProducts}
-                </p>
-                <p className="text-xs text-gray-600 dark:text-gray-400">
-                  Products
-                </p>
+                <GlassCardBody>
+                  <div
+                    className={cn(
+                      "p-2 rounded-xl border w-fit mx-auto mb-2",
+                      variantConfig.sky.iconBg,
+                      "dark:border-sky-400/30 dark:bg-sky-500/20",
+                    )}
+                  >
+                    <Boxes className="h-5 w-5 text-sky-600 dark:text-sky-400" />
+                  </div>
+                  <p className="text-sm sm:text-base font-medium text-gray-700 dark:text-white">
+                    {stockSummary.totalProducts}
+                  </p>
+                  <p className="text-xs text-gray-600 dark:text-gray-400">
+                    Products
+                  </p>
+                </GlassCardBody>
               </GlassCard>
               <GlassCard variant="violet" className="text-center">
-                <div
-                  className={cn(
-                    "p-2 rounded-xl border w-fit mx-auto mb-2",
-                    variantConfig.violet.iconBg,
-                    "dark:border-violet-400/30 dark:bg-violet-500/20",
-                  )}
-                >
-                  <Package className="h-5 w-5 text-violet-600 dark:text-violet-400" />
-                </div>
-                <p className="text-sm sm:text-base font-medium text-gray-700 dark:text-white">
-                  {stockSummary.totalQuantity}
-                </p>
-                <p className="text-xs text-gray-600 dark:text-gray-400">
-                  Total Stock
-                </p>
+                <GlassCardBody>
+                  <div
+                    className={cn(
+                      "p-2 rounded-xl border w-fit mx-auto mb-2",
+                      variantConfig.violet.iconBg,
+                      "dark:border-violet-400/30 dark:bg-violet-500/20",
+                    )}
+                  >
+                    <Package className="h-5 w-5 text-violet-600 dark:text-violet-400" />
+                  </div>
+                  <p className="text-sm sm:text-base font-medium text-gray-700 dark:text-white">
+                    {stockSummary.totalQuantity}
+                  </p>
+                  <p className="text-xs text-gray-600 dark:text-gray-400">
+                    Total Stock
+                  </p>
+                </GlassCardBody>
               </GlassCard>
               <GlassCard variant="emerald" className="text-center">
-                <div
-                  className={cn(
-                    "p-2 rounded-xl border w-fit mx-auto mb-2",
-                    variantConfig.emerald.iconBg,
-                    "dark:border-emerald-400/30 dark:bg-emerald-500/20",
-                  )}
-                >
-                  <CheckCircle2 className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
-                </div>
-                <p className="text-sm sm:text-lg font-medium text-emerald-600 dark:text-emerald-400">
-                  {stockSummary.availableQuantity}
-                </p>
-                <p className="text-xs text-gray-600 dark:text-gray-400">
-                  Available
-                </p>
+                <GlassCardBody>
+                  <div
+                    className={cn(
+                      "p-2 rounded-xl border w-fit mx-auto mb-2",
+                      variantConfig.emerald.iconBg,
+                      "dark:border-emerald-400/30 dark:bg-emerald-500/20",
+                    )}
+                  >
+                    <CheckCircle2 className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
+                  </div>
+                  <p className="text-sm sm:text-lg font-medium text-emerald-600 dark:text-emerald-400">
+                    {stockSummary.availableQuantity}
+                  </p>
+                  <p className="text-xs text-gray-600 dark:text-gray-400">
+                    Available
+                  </p>
+                </GlassCardBody>
               </GlassCard>
               <GlassCard variant="amber" className="text-center">
-                <div
-                  className={cn(
-                    "p-2 rounded-xl border w-fit mx-auto mb-2",
-                    variantConfig.amber.iconBg,
-                    "dark:border-amber-400/30 dark:bg-amber-500/20",
-                  )}
-                >
-                  <Clock className="h-5 w-5 text-amber-600 dark:text-amber-400" />
-                </div>
-                <p className="text-sm sm:text-lg font-medium text-amber-600 dark:text-amber-400">
-                  {stockSummary.reservedQuantity}
-                </p>
-                <p className="text-xs text-gray-600 dark:text-gray-400">
-                  Reserved
-                </p>
+                <GlassCardBody>
+                  <div
+                    className={cn(
+                      "p-2 rounded-xl border w-fit mx-auto mb-2",
+                      variantConfig.amber.iconBg,
+                      "dark:border-amber-400/30 dark:bg-amber-500/20",
+                    )}
+                  >
+                    <Clock className="h-5 w-5 text-amber-600 dark:text-amber-400" />
+                  </div>
+                  <p className="text-sm sm:text-lg font-medium text-amber-600 dark:text-amber-400">
+                    {stockSummary.reservedQuantity}
+                  </p>
+                  <p className="text-xs text-gray-600 dark:text-gray-400">
+                    Reserved
+                  </p>
+                </GlassCardBody>
               </GlassCard>
             </div>
           )}
@@ -505,6 +386,7 @@ export default function WarehouseDetailPage({
           {/* Warehouse Information & Stock */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-2 sm:gap-4">
             <GlassCard variant="cyan">
+              <GlassCardBody>
               <div className="flex items-center gap-2 mb-4">
                 <div
                   className={cn(
@@ -575,11 +457,35 @@ export default function WarehouseDetailPage({
                     {stockSummary.reservedQuantity} reserved
                   </DetailInfoRow>
                 )}
+                {warehouse?.creator && (
+                  <AuditUserDetailRow
+                    label="Created by:"
+                    tone="violet"
+                    user={warehouse.creator}
+                    href={resolveAuditUserManagementHref(
+                      warehouse.creator.id,
+                      isAdminRole,
+                    )}
+                  />
+                )}
+                {warehouse?.updater && (
+                  <AuditUserDetailRow
+                    label="Updated by:"
+                    tone="blue"
+                    user={warehouse.updater}
+                    href={resolveAuditUserManagementHref(
+                      warehouse.updater.id,
+                      isAdminRole,
+                    )}
+                  />
+                )}
               </div>
+              </GlassCardBody>
             </GlassCard>
 
             {/* Stock by warehouse */}
             <GlassCard variant="violet">
+              <GlassCardBody>
               <div className="flex items-center gap-2 mb-2">
                 <div
                   className={cn(
@@ -689,6 +595,7 @@ export default function WarehouseDetailPage({
                   </div>
                 )}
               </div>
+              </GlassCardBody>
             </GlassCard>
           </div>
 

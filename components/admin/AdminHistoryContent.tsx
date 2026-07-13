@@ -23,14 +23,16 @@ export default function AdminHistoryContent({
 }: AdminHistoryContentProps = {}) {
   return (
     <PageContentWrapper>
-      <HistoryList
-        detailHrefBase={detailHrefBase}
-        initialHistory={initialHistory}
-      />
-      <ActivityLogSection
-        initialLogs={initialActivityLogs}
-        initialPeriod="7days"
-      />
+      <div className="flex flex-col gap-6">
+        <HistoryList
+          detailHrefBase={detailHrefBase}
+          initialHistory={initialHistory}
+        />
+        <ActivityLogSection
+          initialLogs={initialActivityLogs}
+          initialPeriod="7days"
+        />
+      </div>
     </PageContentWrapper>
   );
 }

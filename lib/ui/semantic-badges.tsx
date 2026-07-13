@@ -28,6 +28,7 @@ import {
   Settings,
   Shield,
   ShoppingBag,
+  Sparkles,
   ShoppingCart,
   Store,
   Truck,
@@ -164,6 +165,26 @@ const IMPORT_TYPE: Record<string, BadgeTone> = {
   orders: { className: GLASS_BADGE_CLASS.violet, icon: ShoppingCart },
   suppliers: { className: GLASS_BADGE_CLASS.teal, icon: Truck },
   categories: { className: GLASS_BADGE_CLASS.amber, icon: FolderTree },
+};
+
+/** Admin order/invoice list — personal vs client-placed */
+const ADMIN_ORDER_SOURCE: Record<string, BadgeTone> = {
+  personal: { className: GLASS_BADGE_CLASS.violet, icon: User },
+  client: { className: GLASS_BADGE_CLASS.sky, icon: ShoppingBag },
+};
+
+/** Forecast reorder urgency */
+const FORECAST_URGENCY: Record<string, BadgeTone> = {
+  low: { className: GLASS_BADGE_CLASS.gray, icon: Clock },
+  medium: { className: GLASS_BADGE_CLASS.amber, icon: AlertCircle },
+  high: { className: GLASS_BADGE_CLASS.orange, icon: AlertTriangle },
+  critical: { className: GLASS_BADGE_CLASS.red, icon: AlertTriangle },
+};
+
+/** Inventory health summary */
+const INVENTORY_HEALTH: Record<string, BadgeTone> = {
+  healthy: { className: GLASS_BADGE_CLASS.emerald, icon: CheckCircle },
+  needs_attention: { className: GLASS_BADGE_CLASS.rose, icon: AlertTriangle },
 };
 
 const DEFAULT_TONE: BadgeTone = {
@@ -506,6 +527,121 @@ export function ProductStockFromQuantityBadge({
     <ProductStockStatusBadge
       status={key}
       label={label}
+      className={className}
+      size={size}
+    />
+  );
+}
+
+/** REQ-0098 — admin order/invoice table Self vs Client source */
+export function AdminOrderSourceBadge({
+  source,
+  className,
+  size = "compact",
+}: {
+  source: "personal" | "client" | string | null | undefined;
+  className?: string;
+  size?: "compact" | "detail";
+}) {
+  const key = source === "personal" ? "personal" : "client";
+  const tone = resolveTone(ADMIN_ORDER_SOURCE, key);
+  const label = key === "personal" ? "Self" : "Client";
+  return (
+    <SemanticBadgeBase
+      tone={tone}
+      label={label}
+      className={className}
+      size={size}
+    />
+  );
+}
+
+/** REQ-0098 — forecast reorder urgency (low/medium/high/critical) */
+export function ForecastUrgencyBadge({
+  urgency,
+  className,
+  size = "compact",
+}: {
+  urgency: string;
+  className?: string;
+  size?: "compact" | "detail";
+}) {
+  const tone = resolveTone(FORECAST_URGENCY, urgency);
+  return (
+    <SemanticBadgeBase
+      tone={tone}
+      label={formatSemanticLabel(urgency)}
+      className={className}
+      size={size}
+    />
+  );
+}
+
+/** REQ-0098 — low-stock alert quantity pill e.g. "10 left" */
+export function StockQuantityLeftBadge({
+  quantity,
+  className,
+  size = "compact",
+}: {
+  quantity: number;
+  className?: string;
+  size?: "compact" | "detail";
+}) {
+  const tone: BadgeTone =
+    quantity <= 0
+      ? { className: GLASS_BADGE_CLASS.red, icon: XCircle }
+      : quantity <= 20
+        ? { className: GLASS_BADGE_CLASS.orange, icon: AlertTriangle }
+        : { className: GLASS_BADGE_CLASS.amber, icon: Package };
+  return (
+    <SemanticBadgeBase
+      tone={tone}
+      label={`${quantity} left`}
+      className={className}
+      size={size}
+    />
+  );
+}
+
+/** REQ-0098 — business insights inventory health row */
+export function InventoryHealthBadge({
+  lowStockItems,
+  className,
+  size = "compact",
+}: {
+  lowStockItems: number;
+  className?: string;
+  size?: "compact" | "detail";
+}) {
+  const key = lowStockItems > 5 ? "needs_attention" : "healthy";
+  const tone = resolveTone(INVENTORY_HEALTH, key);
+  const label = key === "needs_attention" ? "Needs Attention" : "Healthy";
+  return (
+    <SemanticBadgeBase
+      tone={tone}
+      label={label}
+      className={className}
+      size={size}
+    />
+  );
+}
+
+/** REQ-0098 — notification dropdown unread "New" pill */
+export function NotificationNewBadge({
+  className,
+  size = "compact",
+}: {
+  className?: string;
+  size?: "compact" | "detail";
+}) {
+  const tone: BadgeTone = {
+    className: GLASS_BADGE_CLASS.rose,
+    icon: Sparkles,
+  };
+  return (
+    <SemanticBadgeBase
+      tone={tone}
+      label="New"
       className={className}
       size={size}
     />

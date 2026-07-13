@@ -14,8 +14,6 @@ import {
   Tag,
   BarChart3,
   ShoppingCart,
-  User,
-  Mail,
   Edit,
   Hash,
   Trash2,
@@ -47,11 +45,14 @@ import {
   glassDetailBackButtonClass,
   glassDetailFooterButtonClass,
   DETAIL_HEADER_BACK_ICON_CLASS,
-  AvatarInlineLink,
+  AuditUserDetailRow,
   CatalogInsightsSection,
   CatalogDetailProductGrid,
   CatalogDetailRecentOrdersList,
   SectionTitleRow,
+  GlassCard,
+  GlassCardBody,
+  GLASS_CARD_VARIANT_CONFIG as variantConfig,
 } from "@/components/shared";
 import { buildCategoryForecastRollup } from "@/lib/forecasting/category-forecast-rollup";
 import {
@@ -81,132 +82,6 @@ import {
 } from "@/lib/react-query";
 import { cn } from "@/lib/utils";
 import { APP_SHELL_DETAIL_CLASS, DETAIL_PAGE_HEADER_SPACING_CLASS } from "@/lib/ui/shell-layout-styles";
-
-/**
- * Color variants for glassmorphic cards
- */
-type CardVariant =
-  | "sky"
-  | "emerald"
-  | "amber"
-  | "rose"
-  | "violet"
-  | "blue"
-  | "orange"
-  | "teal";
-
-const variantConfig: Record<
-  CardVariant,
-  {
-    border: string;
-    gradient: string;
-    shadow: string;
-    hoverBorder: string;
-    iconBg: string;
-  }
-> = {
-  sky: {
-    border: "border-sky-400/20",
-    gradient: "bg-gradient-to-br from-sky-500/15 via-sky-500/5 to-transparent",
-    shadow:
-      "shadow-[0_15px_40px_rgba(2,132,199,0.15)] dark:shadow-[0_15px_40px_rgba(2,132,199,0.1)]",
-    hoverBorder: "hover:border-sky-300/40",
-    iconBg: "border-sky-300/30 bg-sky-100/50",
-  },
-  emerald: {
-    border: "border-emerald-400/20",
-    gradient:
-      "bg-gradient-to-br from-emerald-500/15 via-emerald-500/5 to-transparent",
-    shadow:
-      "shadow-[0_15px_40px_rgba(16,185,129,0.15)] dark:shadow-[0_15px_40px_rgba(16,185,129,0.1)]",
-    hoverBorder: "hover:border-emerald-300/40",
-    iconBg: "border-emerald-300/30 bg-emerald-100/50",
-  },
-  amber: {
-    border: "border-amber-400/20",
-    gradient:
-      "bg-gradient-to-br from-amber-500/15 via-amber-500/5 to-transparent",
-    shadow:
-      "shadow-[0_15px_40px_rgba(245,158,11,0.12)] dark:shadow-[0_15px_40px_rgba(245,158,11,0.08)]",
-    hoverBorder: "hover:border-amber-300/40",
-    iconBg: "border-amber-300/30 bg-amber-100/50",
-  },
-  rose: {
-    border: "border-rose-400/20",
-    gradient:
-      "bg-gradient-to-br from-rose-500/15 via-rose-500/5 to-transparent",
-    shadow:
-      "shadow-[0_15px_40px_rgba(225,29,72,0.15)] dark:shadow-[0_15px_40px_rgba(225,29,72,0.1)]",
-    hoverBorder: "hover:border-rose-300/40",
-    iconBg: "border-rose-300/30 bg-rose-100/50",
-  },
-  violet: {
-    border: "border-violet-400/20",
-    gradient:
-      "bg-gradient-to-br from-violet-500/15 via-violet-500/5 to-transparent",
-    shadow:
-      "shadow-[0_15px_40px_rgba(139,92,246,0.15)] dark:shadow-[0_15px_40px_rgba(139,92,246,0.1)]",
-    hoverBorder: "hover:border-violet-300/40",
-    iconBg: "border-violet-300/30 bg-violet-100/50",
-  },
-  blue: {
-    border: "border-blue-400/20",
-    gradient:
-      "bg-gradient-to-br from-blue-500/15 via-blue-500/5 to-transparent",
-    shadow:
-      "shadow-[0_15px_40px_rgba(59,130,246,0.15)] dark:shadow-[0_15px_40px_rgba(59,130,246,0.1)]",
-    hoverBorder: "hover:border-blue-300/40",
-    iconBg: "border-blue-300/30 bg-blue-100/50",
-  },
-  orange: {
-    border: "border-orange-400/20",
-    gradient:
-      "bg-gradient-to-br from-orange-500/15 via-orange-500/5 to-transparent",
-    shadow:
-      "shadow-[0_15px_40px_rgba(249,115,22,0.15)] dark:shadow-[0_15px_40px_rgba(249,115,22,0.1)]",
-    hoverBorder: "hover:border-orange-300/40",
-    iconBg: "border-orange-300/30 bg-orange-100/50",
-  },
-  teal: {
-    border: "border-teal-400/20",
-    gradient:
-      "bg-gradient-to-br from-teal-500/15 via-teal-500/5 to-transparent",
-    shadow:
-      "shadow-[0_15px_40px_rgba(20,184,166,0.15)] dark:shadow-[0_15px_40px_rgba(20,184,166,0.1)]",
-    hoverBorder: "hover:border-teal-300/40",
-    iconBg: "border-teal-300/30 bg-teal-100/50",
-  },
-};
-
-/**
- * Glassmorphic Card component
- */
-function GlassCard({
-  children,
-  variant = "blue",
-  className,
-}: {
-  children: React.ReactNode;
-  variant?: CardVariant;
-  className?: string;
-}) {
-  const config = variantConfig[variant];
-  return (
-    <article
-      className={cn(
-        "group rounded-[20px] border p-2 sm:p-4 backdrop-blur-md transition-all duration-300",
-        "bg-white/60 dark:bg-white/5",
-        config.border,
-        config.gradient,
-        config.shadow,
-        config.hoverBorder,
-        className,
-      )}
-    >
-      {children}
-    </article>
-  );
-}
 
 export type CategoryDetailPageProps = {
   embedInAdmin?: boolean;
@@ -337,6 +212,7 @@ export default function CategoryDetailPage({
       <PageWrapper>
         <div className="flex flex-col items-center justify-center min-h-[60vh] gap-2">
           <GlassCard variant="rose" className="max-w-md text-center">
+            <GlassCardBody>
             <h2 className="text-sm sm:text-base font-medium text-gray-700 dark:text-white mb-2">
               Category Not Found
             </h2>
@@ -352,6 +228,7 @@ export default function CategoryDetailPage({
               <ArrowLeft className="h-4 w-4 mr-2" />
               Back to Home
             </Button>
+            </GlassCardBody>
           </GlassCard>
         </div>
       </PageWrapper>
@@ -364,19 +241,21 @@ export default function CategoryDetailPage({
       <PageWrapper>
         <div className="flex flex-col items-center justify-center min-h-[60vh] gap-2">
           <GlassCard variant="rose" className="max-w-md text-center">
-            <h2 className="text-sm sm:text-base font-medium text-gray-700 dark:text-white mb-2">
-              Category Not Found
-            </h2>
-            <p className="text-gray-600 dark:text-gray-400 mb-4">
-              The category you are looking for does not exist or was removed.
-            </p>
-            <Button
-              onClick={() => router.push("/")}
-              className="rounded-xl border border-gray-300/30 bg-white/50 dark:bg-white/5 dark:border-white/10 hover:bg-gray-100/50 dark:hover:bg-white/10 text-gray-700 dark:text-white"
-            >
-              <ArrowLeft className="h-4 w-4 mr-2" />
-              Back to Home
-            </Button>
+            <GlassCardBody>
+              <h2 className="text-sm sm:text-base font-medium text-gray-700 dark:text-white mb-2">
+                Category Not Found
+              </h2>
+              <p className="text-gray-600 dark:text-gray-400 mb-4">
+                The category you are looking for does not exist or was removed.
+              </p>
+              <Button
+                onClick={() => router.push("/")}
+                className="rounded-xl border border-gray-300/30 bg-white/50 dark:bg-white/5 dark:border-white/10 hover:bg-gray-100/50 dark:hover:bg-white/10 text-gray-700 dark:text-white"
+              >
+                <ArrowLeft className="h-4 w-4 mr-2" />
+                Back to Home
+              </Button>
+            </GlassCardBody>
           </GlassCard>
         </div>
       </PageWrapper>
@@ -442,7 +321,7 @@ export default function CategoryDetailPage({
 
           {/* Category Status Card — same style as supplier detail page */}
           <GlassCard variant="emerald">
-            <div className="p-2 sm:p-4">
+            <GlassCardBody>
               <p className="text-xs uppercase tracking-[0.2em] text-gray-600 dark:text-white/60 mb-3">
                 Status
               </p>
@@ -454,14 +333,14 @@ export default function CategoryDetailPage({
                   className="text-sm"
                 />
               )}
-            </div>
+            </GlassCardBody>
           </GlassCard>
 
           {/* Category Information and Statistics */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-2 sm:gap-4">
             {/* Category Information */}
             <GlassCard variant="orange">
-              <div className="p-2 sm:p-4">
+              <GlassCardBody>
                 <div className="flex items-center gap-2 mb-4">
                   <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-orange-300/30 bg-orange-100/50 dark:border-white/15 dark:bg-white/10">
                     <Tag className="h-4 w-4 text-gray-700 dark:text-white" />
@@ -532,64 +411,32 @@ export default function CategoryDetailPage({
                   </DetailInfoRow>
                 )}
                 {!dataLoading && category?.creator && (
-                  <>
-                    <DetailInfoRow
-                      icon={User}
-                      label="Created by:"
-                      tone="violet"
-                    >
-                      <AvatarInlineLink
-                        seed={category.creator.id}
-                        image={category.creator.image}
-                        label={category.creator.name ?? category.creator.email}
-                        href={resolveAuditUserManagementHref(
-                          category.creator.id,
-                          isAdminRole,
-                        )}
-                      />
-                    </DetailInfoRow>
-                    <DetailInfoRow
-                      icon={Mail}
-                      label="Creator email:"
-                      tone="violet"
-                    >
-                      <CopyableText value={category.creator.email}>
-                        {category.creator.email}
-                      </CopyableText>
-                    </DetailInfoRow>
-                  </>
+                  <AuditUserDetailRow
+                    label="Created by:"
+                    tone="violet"
+                    user={category.creator}
+                    href={resolveAuditUserManagementHref(
+                      category.creator.id,
+                      isAdminRole,
+                    )}
+                  />
                 )}
                 {!dataLoading && category?.updater && (
-                  <>
-                    <DetailInfoRow icon={User} label="Updated by:" tone="blue">
-                      <AvatarInlineLink
-                        seed={category.updater.id}
-                        image={category.updater.image}
-                        label={
-                          category.updater.name ?? category.updater.email
-                        }
-                        href={resolveAuditUserManagementHref(
-                          category.updater.id,
-                          isAdminRole,
-                        )}
-                      />
-                    </DetailInfoRow>
-                    <DetailInfoRow
-                      icon={Mail}
-                      label="Updater email:"
-                      tone="blue"
-                    >
-                      <CopyableText value={category.updater.email}>
-                        {category.updater.email}
-                      </CopyableText>
-                    </DetailInfoRow>
-                  </>
+                  <AuditUserDetailRow
+                    label="Updated by:"
+                    tone="blue"
+                    user={category.updater}
+                    href={resolveAuditUserManagementHref(
+                      category.updater.id,
+                      isAdminRole,
+                    )}
+                  />
                 )}
               </div>
-              </div>
+              </GlassCardBody>
             </GlassCard>
             <GlassCard variant="teal">
-              <div className="p-2 sm:p-4">
+              <GlassCardBody>
                 <div className="flex items-center gap-2 mb-2">
                   <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-teal-300/30 bg-teal-100/50 dark:border-white/15 dark:bg-white/10">
                     <BarChart3 className="h-4 w-4 text-gray-700 dark:text-white" />
@@ -654,7 +501,7 @@ export default function CategoryDetailPage({
                     )}
                   </DetailInfoRow>
                 </div>
-              </div>
+              </GlassCardBody>
             </GlassCard>
           </div>
 
@@ -685,9 +532,11 @@ export default function CategoryDetailPage({
 
           {/* Products in this Category — REQ-0081 always visible */}
           <GlassCard variant="sky">
-            <div className="p-2 sm:p-4">
+            <GlassCardBody>
               <SectionTitleRow
                 as="h3"
+                icon={Package}
+                iconClassName="text-sky-600 dark:text-sky-400"
                 title="Products in this Category"
                 count={
                   !dataLoading && products.length > 0
@@ -703,14 +552,16 @@ export default function CategoryDetailPage({
                 ownerProductsHref={ownerProductsHref}
                 supplierHref={supplierHref}
               />
-            </div>
+            </GlassCardBody>
           </GlassCard>
 
           {/* Recent Orders — REQ-0081 ProductDetail parity */}
           <GlassCard variant="violet">
-            <div className="p-2 sm:p-4">
+            <GlassCardBody>
               <SectionTitleRow
                 as="h3"
+                icon={ShoppingCart}
+                iconClassName="text-violet-600 dark:text-violet-400"
                 title="Recent Orders"
                 count={
                   !dataLoading && recentOrders.length > 0
@@ -727,7 +578,7 @@ export default function CategoryDetailPage({
                 ownerProductsHref={ownerProductsHref}
                 isAdminRole={isAdminRole}
               />
-            </div>
+            </GlassCardBody>
           </GlassCard>
 
           {/* Actions — REQ-0081 glass footer parity with ProductDetailPage */}

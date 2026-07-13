@@ -2,7 +2,7 @@
 
 import React, { useState, useMemo } from "react";
 import Navbar from "@/components/layouts/Navbar";
-import { PageContentWrapper } from "@/components/shared";
+import { PageContentWrapper, PageSectionHeader } from "@/components/shared";
 import { PaginationType } from "@/components/shared/PaginationSelector";
 import { useSupportTickets } from "@/hooks/queries";
 import { isDataSlotLoading, queryKeys, useSyncSsrQueryData } from "@/lib/react-query";
@@ -77,25 +77,13 @@ export default function SupportTicketsPageContent({
     <Navbar>
       <PageContentWrapper>
         <div className="flex flex-col poppins">
-          <div className="pb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-            <div>
-              <h1 className="text-sm sm:text-base font-medium text-gray-700 dark:text-white flex items-center gap-2">
-                <div
-                  className={cn(
-                    "p-2 rounded-xl border",
-                    "border-sky-300/30 bg-sky-100/50 dark:border-sky-400/30 dark:bg-sky-500/20",
-                  )}
-                >
-                  <MessageSquare className="h-6 w-6 text-sky-600 dark:text-sky-400" />
-                </div>
-                Your Support Tickets
-              </h1>
-              <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 mt-1">
-                Open and track tickets you&apos;ve sent. Create a ticket to get
-                help from a product owner.
-              </p>
-            </div>
-            <div className="flex-shrink-0">
+          <PageSectionHeader
+            as="h1"
+            icon={MessageSquare}
+            tone="sky"
+            title="Your Support Tickets"
+            description="Open and track tickets you've sent. Create a ticket to get help from a product owner."
+            trailing={
               <SupportTicketDialog
                 productOwners={productOwners}
                 variant="sky"
@@ -114,8 +102,8 @@ export default function SupportTicketsPageContent({
                   </Button>
                 }
               />
-            </div>
-          </div>
+            }
+          />
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 items-stretch pb-6">
             <StatisticsCard

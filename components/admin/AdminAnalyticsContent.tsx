@@ -6,6 +6,15 @@ import { Button } from "@/components/ui/button";
 import { ChartCard } from "@/components/ui/chart-card";
 import { StatisticsCard } from "@/components/home/StatisticsCard";
 import { PageContentWrapper, PageSectionHeader } from "@/components/shared";
+import { DETAIL_PAGE_HEADER_SPACING_CLASS } from "@/lib/ui/shell-layout-styles";
+import { CARD_EMPTY_MESSAGE_CLASS } from "@/lib/ui/card-empty-styles";
+import { cn } from "@/lib/utils";
+import {
+  GLASS_ACTION_BUTTON,
+  GLASS_BUTTON_ICON_HOVER,
+  GLASS_BUTTON_SHELL_RESET,
+  GLASS_PRIMARY_BUTTON,
+} from "@/lib/ui/glass-button-styles";
 import { useDashboard } from "@/hooks/queries";
 import { isDataSlotLoading, queryKeys, useSyncSsrQueryData } from "@/lib/react-query";
 import { useAuth } from "@/contexts";
@@ -167,17 +176,18 @@ export default function AdminAnalyticsContent({
 
   return (
     <PageContentWrapper>
-      <div className="flex flex-col">
+      <div className="flex flex-col gap-6">
         <PageSectionHeader
           as="h1"
           icon={BarChart3}
           tone="violet"
           title="Store Analytics & Dashboard (self + client + supplier + other users)"
           description="Overview, statistics, trends, and AI-powered insights across products, users, suppliers, categories, orders, invoices, warehouses, tickets, and reviews. Store-wide metrics."
+          className={DETAIL_PAGE_HEADER_SPACING_CLASS}
         />
 
         {/* Overview cards — REQ-0021 shell-first: titles/icons always visible */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 items-stretch pb-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 items-stretch">
           <StatisticsCard
             title="Total Products"
             value={stats?.counts?.products ?? 0}
@@ -638,7 +648,7 @@ export default function AdminAnalyticsContent({
 
         {/* Order Analytics section */}
         {stats && stats.orderAnalytics && (
-          <div className="space-y-4">
+          <div className="flex flex-col gap-6">
             <h2 className="text-sm sm:text-base font-medium text-gray-700 dark:text-white flex items-center gap-2">
               <ShoppingCart className="h-5 w-5 text-sky-600" />
               Order Analytics
@@ -910,7 +920,7 @@ export default function AdminAnalyticsContent({
 
         {/* Invoice Analytics section */}
         {stats && stats.invoiceAnalytics && (
-          <div className="space-y-4">
+          <div className="flex flex-col gap-6">
             <h2 className="text-sm sm:text-base font-medium text-gray-700 dark:text-white flex items-center gap-2">
               <FileText className="h-5 w-5 text-amber-600" />
               Invoice Analytics
@@ -1138,7 +1148,7 @@ export default function AdminAnalyticsContent({
               value: key === "others" ? othersCount : (typeMap.get(key) ?? 0),
             }));
             return (
-              <div className="space-y-4">
+              <div className="flex flex-col gap-6">
                 <h2 className="text-sm sm:text-base font-medium text-gray-700 dark:text-white flex items-center gap-2">
                   <Warehouse className="h-5 w-5 text-amber-500" />
                   Warehouse Analytics
@@ -1255,19 +1265,9 @@ export default function AdminAnalyticsContent({
               icon={ShoppingCart}
               description="Latest 5"
             >
-              <div className="flex flex-col gap-2">
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="w-fit -mt-1"
-                  asChild
-                >
-                  <Link href="/admin/orders" className="gap-1">
-                    View all <ArrowRight className="h-3 w-3" />
-                  </Link>
-                </Button>
+              <div className="flex flex-col flex-1 min-h-[140px] gap-2">
                 {stats.recent.orders.length === 0 ? (
-                  <p className="text-sm text-muted-foreground">No orders yet</p>
+                  <p className={CARD_EMPTY_MESSAGE_CLASS}>No orders yet</p>
                 ) : (
                   <ul className={CARD_LIST_DIVIDE_CLASS}>
                     {stats.recent.orders.slice(0, 5).map((o) => (
@@ -1295,6 +1295,24 @@ export default function AdminAnalyticsContent({
                     ))}
                   </ul>
                 )}
+                <div className="mt-auto pt-2">
+                  <Button
+                    asChild
+                    variant="ghost"
+                    size="sm"
+                    className={cn(
+                      "group w-full gap-2",
+                      GLASS_BUTTON_ICON_HOVER,
+                      GLASS_BUTTON_SHELL_RESET,
+                      GLASS_ACTION_BUTTON.sky,
+                    )}
+                  >
+                    <Link href="/admin/orders">
+                      <ArrowRight className="h-4 w-4 shrink-0" />
+                      View All Orders
+                    </Link>
+                  </Button>
+                </div>
               </div>
             </ChartCard>
             <ChartCard
@@ -1303,21 +1321,9 @@ export default function AdminAnalyticsContent({
               icon={MessageSquare}
               description="Latest 5"
             >
-              <div className="flex flex-col gap-2">
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="w-fit -mt-1"
-                  asChild
-                >
-                  <Link href="/admin/support-tickets" className="gap-1">
-                    View all <ArrowRight className="h-3 w-3" />
-                  </Link>
-                </Button>
+              <div className="flex flex-col flex-1 min-h-[140px] gap-2">
                 {stats.recent.tickets.length === 0 ? (
-                  <p className="text-sm text-muted-foreground">
-                    No tickets yet
-                  </p>
+                  <p className={CARD_EMPTY_MESSAGE_CLASS}>No tickets yet</p>
                 ) : (
                   <ul className={CARD_LIST_DIVIDE_CLASS}>
                     {stats.recent.tickets.slice(0, 5).map((t) => (
@@ -1338,6 +1344,24 @@ export default function AdminAnalyticsContent({
                     ))}
                   </ul>
                 )}
+                <div className="mt-auto pt-2">
+                  <Button
+                    asChild
+                    variant="ghost"
+                    size="sm"
+                    className={cn(
+                      "group w-full gap-2",
+                      GLASS_BUTTON_ICON_HOVER,
+                      GLASS_BUTTON_SHELL_RESET,
+                      GLASS_ACTION_BUTTON.rose,
+                    )}
+                  >
+                    <Link href="/admin/support-tickets">
+                      <ArrowRight className="h-4 w-4 shrink-0" />
+                      View All Tickets
+                    </Link>
+                  </Button>
+                </div>
               </div>
             </ChartCard>
             <ChartCard
@@ -1346,21 +1370,9 @@ export default function AdminAnalyticsContent({
               icon={Star}
               description="Latest 5"
             >
-              <div className="flex flex-col gap-2">
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="w-fit -mt-1"
-                  asChild
-                >
-                  <Link href="/admin/product-reviews" className="gap-1">
-                    View all <ArrowRight className="h-3 w-3" />
-                  </Link>
-                </Button>
+              <div className="flex flex-col flex-1 min-h-[140px] gap-2">
                 {stats.recent.reviews.length === 0 ? (
-                  <p className="text-sm text-muted-foreground">
-                    No reviews yet
-                  </p>
+                  <p className={CARD_EMPTY_MESSAGE_CLASS}>No reviews yet</p>
                 ) : (
                   <ul className={CARD_LIST_DIVIDE_CLASS}>
                     {stats.recent.reviews.slice(0, 5).map((r) => (
@@ -1381,6 +1393,24 @@ export default function AdminAnalyticsContent({
                     ))}
                   </ul>
                 )}
+                <div className="mt-auto pt-2">
+                  <Button
+                    asChild
+                    variant="ghost"
+                    size="sm"
+                    className={cn(
+                      "group w-full gap-2",
+                      GLASS_BUTTON_ICON_HOVER,
+                      GLASS_BUTTON_SHELL_RESET,
+                      GLASS_ACTION_BUTTON.amber,
+                    )}
+                  >
+                    <Link href="/admin/product-reviews">
+                      <ArrowRight className="h-4 w-4 shrink-0" />
+                      View All Reviews
+                    </Link>
+                  </Button>
+                </div>
               </div>
             </ChartCard>
             <ChartCard
@@ -1389,21 +1419,9 @@ export default function AdminAnalyticsContent({
               icon={BarChart3}
               description="Latest 5"
             >
-              <div className="flex flex-col gap-2">
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="w-fit -mt-1"
-                  asChild
-                >
-                  <Link href="/admin/activity-history" className="gap-1">
-                    View all <ArrowRight className="h-3 w-3" />
-                  </Link>
-                </Button>
+              <div className="flex flex-col flex-1 min-h-[140px] gap-2">
                 {stats.recent.imports.length === 0 ? (
-                  <p className="text-sm text-muted-foreground">
-                    No imports yet
-                  </p>
+                  <p className={CARD_EMPTY_MESSAGE_CLASS}>No imports yet</p>
                 ) : (
                   <ul className={CARD_LIST_DIVIDE_CLASS}>
                     {stats.recent.imports.slice(0, 5).map((im) => (
@@ -1425,6 +1443,24 @@ export default function AdminAnalyticsContent({
                     ))}
                   </ul>
                 )}
+                <div className="mt-auto pt-2">
+                  <Button
+                    asChild
+                    variant="ghost"
+                    size="sm"
+                    className={cn(
+                      "group w-full gap-2",
+                      GLASS_BUTTON_ICON_HOVER,
+                      GLASS_BUTTON_SHELL_RESET,
+                      GLASS_ACTION_BUTTON.blue,
+                    )}
+                  >
+                    <Link href="/admin/activity-history">
+                      <ArrowRight className="h-4 w-4 shrink-0" />
+                      View All Imports
+                    </Link>
+                  </Button>
+                </div>
               </div>
             </ChartCard>
           </div>
@@ -1437,20 +1473,26 @@ export default function AdminAnalyticsContent({
           icon={Sparkles}
           description="Generate recommendations based on overview, growth, and activity."
         >
-          <div className="space-y-4">
+          <div className="flex flex-col gap-4">
             <Button
+              variant="ghost"
               onClick={handleGenerateAiInsights}
               disabled={aiLoading || !stats}
-              className="shrink-0 gap-2"
+              className={cn(
+                "shrink-0 gap-2",
+                GLASS_BUTTON_ICON_HOVER,
+                GLASS_BUTTON_SHELL_RESET,
+                GLASS_PRIMARY_BUTTON.amber,
+              )}
             >
               {aiLoading ? (
                 <>
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                  Generating…
+                  <Loader2 className="h-4 w-4 shrink-0 animate-spin" aria-hidden />
+                  Generating insights…
                 </>
               ) : (
                 <>
-                  <Sparkles className="h-4 w-4" />
+                  <Sparkles className="h-4 w-4 shrink-0" aria-hidden />
                   Generate insights
                 </>
               )}
@@ -1475,7 +1517,7 @@ export default function AdminAnalyticsContent({
           </div>
         </ChartCard>
 
-        {/* Demand Forecasting Section — inside space-y-4 for gap after AI insights */}
+        {/* Demand Forecasting — sibling of AI insights; parent gap-6 owns section spacing */}
         <ChartCard
           variant="emerald"
           title="Demand Forecasting &amp; Predictions"

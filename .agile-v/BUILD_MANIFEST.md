@@ -233,6 +233,12 @@
 | ART-0225 | REQ-0092 | `demo-seed-users.ts`, `seed-demo-accounts.ts`, `reset-demo-db.ts`, `create-demo-accounts.ts`, `verify-demo-accounts.ts` | Accounts-only reset; robohash image; opt-in catalog retained |
 | ART-0226 | REQ-0093 | `role-nav-config.ts`, `warm-route-prefetch.ts`, `RouteWarmPrefetch.tsx`, filter hooks, `ApiStatusPage.tsx` | Role-scoped batched warm + RSC prefetch; filter enabled gate; ApiStatus dedupe |
 | ART-0227 | REQ-0094 | `Navbar.tsx`, `nav-link-styles.ts`, `admin-nav-config.ts`, `role-nav-config.ts`, portal prefetch | Link prefetch + warm paths + gap closure |
+| ART-0228 | REQ-0095 | `AuditUserDetailRow.tsx`, portal pages, `EmailPreferencesPage.tsx`, detail pages, insights sections | UI polish: spacing, headers, glass cards, audit rows, padding |
+| ART-0229 | REQ-0096 | `lib/ui/glass-card.tsx`, detail pages (order/invoice/warehouse/product), SSR enrich, tests | Shared GlassCard hub; audit creator/updater; section icon parity |
+| ART-0230 | REQ-0097 | `SectionCardHeader.tsx`, `EmailPreferencesPage.tsx`, `AdminOrderDetailContent.tsx`, catalog detail pages, insights sections | Gap closure: admin audit, GlassCardBody, insights import, email layout |
+| ART-0231 | REQ-0098 | `semantic-badges.tsx`, Api pages, `AdminAnalyticsContent.tsx`, portal pages, `NotificationDropdown.tsx`, `BusinessInsightPage.tsx` | Admin portal UI parity + glow badge sweep |
+| ART-0232 | REQ-0099 | `AdminAnalyticsContent.tsx`, `supplier-portal.ts`, `supplier-portal-data.ts`, `AdminSupplierPortalContent.tsx`, `package.json` | gap-6 sections; userId avatar seed; dead script cleanup |
+| ART-0233 | REQ-0100 | `AdminSupplierPortalContent.tsx` | Avatar seed `userId ?? id` stale-cache fallback |
 
 ## Tests
 
@@ -267,3 +273,5 @@
 | TC-0028 | REQ-0090 | `lib/insights/product-insights-enrich.test.ts` (unallocated) |
 | TC-0029 | REQ-0091 | `lib/insights/warehouse-stock-aggregate.test.ts` |
 | TC-0030 | REQ-0094 | `lib/navigation/role-nav-config.test.ts` |
+| TC-0031 | REQ-0096 | `lib/server/warehouse-detail-data.test.ts` |
+| TC-0032 | REQ-0096 | `lib/orders/transform-order-detail.test.ts` (creator/updater) |

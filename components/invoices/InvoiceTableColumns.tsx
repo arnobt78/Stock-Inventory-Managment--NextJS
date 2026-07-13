@@ -8,8 +8,7 @@
 import React from "react";
 import { Column, ColumnDef } from "@tanstack/react-table";
 import { Invoice } from "@/types";
-import { Badge } from "@/components/ui/badge";
-import { InvoiceStatusBadge } from "@/lib/ui/semantic-badges";
+import { InvoiceStatusBadge, AdminOrderSourceBadge } from "@/lib/ui/semantic-badges";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -135,15 +134,7 @@ export const createInvoiceColumns = (
                       {invoice._displayName}
                     </span>
                   )}
-                <Badge
-                  className={
-                    invoice._source === "personal"
-                      ? "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300 text-xs"
-                      : "bg-violet-100 text-violet-800 dark:bg-violet-900/30 dark:text-violet-300 text-xs"
-                  }
-                >
-                  {invoice._source === "personal" ? "Self" : "Client"}
-                </Badge>
+                <AdminOrderSourceBadge source={invoice._source} />
               </div>
             )}
             {showIssuedBy && (

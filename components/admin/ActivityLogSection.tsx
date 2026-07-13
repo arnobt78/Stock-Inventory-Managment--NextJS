@@ -2,7 +2,7 @@
 
 import { FILTER_SEARCH_INPUT_SKY_CLASS } from "@/lib/ui/filter-toolbar-styles";
 import React, { useMemo, useState } from "react";
-import { DeferredSelectGate } from "@/components/shared";
+import { DeferredSelectGate, SectionCardHeader } from "@/components/shared";
 import Link from "next/link";
 import {
   useAuditLogs,
@@ -22,7 +22,7 @@ import {
 import { AuditActionBadge } from "@/lib/ui/semantic-badges";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Search } from "lucide-react";
+import { Search, ScrollText } from "lucide-react";
 import { IoClose } from "react-icons/io5";
 import {
   ColumnDef,
@@ -308,19 +308,19 @@ export default function ActivityLogSection({
   return (
     <article
       className={cn(
-        "rounded-[20px] border p-2 sm:p-4 backdrop-blur-md mt-8",
+        "rounded-[20px] border p-2 sm:p-4 backdrop-blur-md",
         "bg-white/60 dark:bg-white/5",
         variantConfig.border,
         variantConfig.gradient,
         variantConfig.shadow,
       )}
     >
-      <div className="flex flex-col gap-2 mb-4">
-        <div className="flex flex-col">
-          <h2 className="text-sm sm:text-base font-medium text-gray-700 dark:text-white ">
-            Activity Logs
-          </h2>
-          <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">
+      <SectionCardHeader
+        icon={ScrollText}
+        tone="sky"
+        title="Activity Logs"
+        description={
+          <>
             Your actions & activities (create, update, delete). Last{" "}
             {period === "today"
               ? "24 hours"
@@ -328,9 +328,11 @@ export default function ActivityLogSection({
                 ? "7 days"
                 : "30 days"}
             .
-          </p>
-        </div>
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+          </>
+        }
+        className="mb-4"
+      />
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
           <div className="relative flex-1 sm:max-w-md">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-600 dark:text-white/60 z-10" />
             <Input
@@ -401,7 +403,6 @@ export default function ActivityLogSection({
               </Select>
             )}
           </DeferredSelectGate>
-        </div>
       </div>
       {dataLoading && logs.length === 0 ? (
         <div className="overflow-x-auto rounded-xl border border-violet-200/30 dark:border-white/10">

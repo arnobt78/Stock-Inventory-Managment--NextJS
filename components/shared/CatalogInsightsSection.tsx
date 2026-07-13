@@ -36,8 +36,8 @@ import {
   formatChartCurrencyLabel,
 } from "@/lib/ui/chart-point-label";
 import { CATALOG_STOCK_PIE_COLORS } from "@/lib/ui/catalog-insights-chart-data";
-import { DetailInfoRow, GlassCard } from "@/components/orders/detail";
-import { SectionTitleRow } from "@/components/shared";
+import { DetailInfoRow } from "@/components/orders/detail";
+import { GlassCard, SectionTitleRow } from "@/components/shared";
 import type { CatalogEntityInsights } from "@/types/catalog-insights";
 import type { CategoryForecastUrgentRow } from "@/types/category";
 import type { ProductDemandForecast } from "@/types";
@@ -118,8 +118,7 @@ export function CatalogInsightsSection({
         className,
       )}
     >
-      <GlassCard variant="emerald">
-        <div className="p-2 sm:p-4">
+      <GlassCard padding="body" variant="emerald">
           <div className="flex items-center gap-2 mb-2">
             <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-emerald-300/30 bg-emerald-100/50 dark:border-white/15 dark:bg-white/10">
               <TrendingUp className="h-4 w-4 text-gray-700 dark:text-white" />
@@ -222,7 +221,6 @@ export function CatalogInsightsSection({
               </>
             )}
           </div>
-        </div>
       </GlassCard>
 
       <ChartCard
@@ -311,8 +309,7 @@ export function CatalogInsightsSection({
       </ChartCard>
 
       {showUrgentTable && (
-        <GlassCard variant="rose" className="lg:col-span-2">
-          <div className="p-2 sm:p-4">
+        <GlassCard padding="body" variant="rose" className="lg:col-span-2">
             <SectionTitleRow
               as="h3"
               title="Urgent reorder forecast"
@@ -363,7 +360,6 @@ export function CatalogInsightsSection({
                 )}
               </Table>
             </div>
-          </div>
         </GlassCard>
       )}
     </div>

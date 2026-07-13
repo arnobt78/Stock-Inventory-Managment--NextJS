@@ -8,7 +8,6 @@ import React, {
   useRef,
 } from "react";
 import { AnalyticsCard } from "@/components/ui/analytics-card";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ChartCard } from "@/components/ui/chart-card";
 import { ForecastingCard } from "@/components/ui/forecasting-card";
@@ -26,6 +25,8 @@ import {
   PieChart as PieChartIcon,
   QrCode,
   ShoppingCart,
+  Loader2,
+  RefreshCw,
   Sparkles,
   TrendingDown,
   TrendingUp,
@@ -60,7 +61,12 @@ import { useAuth } from "@/contexts";
 import Navbar from "@/components/layouts/Navbar";
 import PageWithSidebar from "@/components/layouts/PageWithSidebar";
 import BusinessInsightsSidebar from "@/components/layouts/BusinessInsightsSidebar";
-import { PageContentWrapper, DataSlotPulse } from "@/components/shared";
+import { PageContentWrapper, DataSlotPulse, PageSectionHeader } from "@/components/shared";
+import { DETAIL_PAGE_HEADER_SPACING_CLASS } from "@/lib/ui/shell-layout-styles";
+import {
+  InventoryHealthBadge,
+  StockQuantityLeftBadge,
+} from "@/lib/ui/semantic-badges";
 import { useProducts, useOrders } from "@/hooks/queries";
 import { isDataSlotLoading } from "@/lib/react-query";
 import { exportToExcel, exportToCSV } from "@/lib/export";
@@ -74,6 +80,7 @@ import {
 } from "@/lib/ui/focus-ring-styles";
 import {
   GLASS_BUTTON_ICON_HOVER,
+  GLASS_BUTTON_SHELL_RESET,
   GLASS_PRIMARY_BUTTON,
 } from "@/lib/ui/glass-button-styles";
 
@@ -830,30 +837,29 @@ export default function BusinessInsightPage({
         }
       >
         <PageContentWrapper className="px-1 sm:px-0">
-          {/* Header */}
-          <div className="pb-6 flex flex-col sm:flex-row items-start justify-between gap-2">
-            <div className="flex flex-col">
-              <h1 className="text-sm sm:text-base font-medium text-gray-700 dark:text-white ">
-                Product Inventory Business Insights
-              </h1>
-              <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">
-                Analyze your product inventory performance and get insights to
-                improve your business as product owner.
-              </p>
-            </div>
-            <Button
-              onClick={handleExportAnalytics}
-              className={cn(
-                GLASS_BUTTON_ICON_HOVER,
-                "flex-shrink-0 gap-2",
-                GLASS_PRIMARY_BUTTON.blue,
-              )}
-              disabled={dataLoading}
-            >
-              <Download className="h-4 w-4" />
-              Export Analytics
-            </Button>
-          </div>
+          {/* Header — REQ-0098 PageSectionHeader icon parity */}
+          <PageSectionHeader
+            as="h1"
+            icon={BarChart3}
+            tone="violet"
+            title="Product Inventory Business Insights"
+            description="Analyze your product inventory performance and get insights to improve your business as product owner."
+            className={DETAIL_PAGE_HEADER_SPACING_CLASS}
+            trailing={
+              <Button
+                onClick={handleExportAnalytics}
+                className={cn(
+                  GLASS_BUTTON_ICON_HOVER,
+                  "flex-shrink-0 gap-2",
+                  GLASS_PRIMARY_BUTTON.blue,
+                )}
+                disabled={dataLoading}
+              >
+                <Download className="h-4 w-4" />
+                Export Analytics
+              </Button>
+            }
+          />
 
           {/* Date Range Filter */}
           <div className="pb-6">
@@ -1417,12 +1423,7 @@ export default function BusinessInsightPage({
                                       SKU: {product.sku}
                                     </p>
                                   </div>
-                                  <Badge
-                                    variant="destructive"
-                                    className="text-xs"
-                                  >
-                                    {product.quantity} left
-                                  </Badge>
+                                  <StockQuantityLeftBadge quantity={product.quantity} />
                                 </div>
                               </div>
                             ),
@@ -1513,17 +1514,7 @@ export default function BusinessInsightPage({
                   {dataLoading ? (
                     <DataSlotPulse variant="badge" />
                   ) : (
-                    <Badge
-                      variant={
-                        analyticsData.lowStockItems > 5
-                          ? "destructive"
-                          : "default"
-                      }
-                    >
-                      {analyticsData.lowStockItems > 5
-                        ? "Needs Attention"
-                        : "Healthy"}
-                    </Badge>
+                    <InventoryHealthBadge lowStockItems={analyticsData.lowStockItems} />
                   )}
                 </div>
                 <div className="flex justify-between items-center">
@@ -1593,15 +1584,27 @@ export default function BusinessInsightPage({
                   </p>
                   <Button
                     size="sm"
+                    variant="ghost"
                     className={cn(
                       GLASS_BUTTON_ICON_HOVER,
-                      "gap-1",
+                      GLASS_BUTTON_SHELL_RESET,
+                      "gap-2",
                       GLASS_PRIMARY_BUTTON.amber,
                     )}
                     onClick={handleGenerateAiInsights}
                     disabled={aiInsightsLoading}
                   >
-                    {aiInsightsLoading ? "Generating…" : "Regenerate"}
+                    {aiInsightsLoading ? (
+                      <>
+                        <Loader2 className="h-4 w-4 shrink-0 animate-spin" aria-hidden />
+                        Generating insights…
+                      </>
+                    ) : (
+                      <>
+                        <RefreshCw className="h-4 w-4 shrink-0" aria-hidden />
+                        Regenerate
+                      </>
+                    )}
                   </Button>
                 </div>
               ) : (
@@ -1611,15 +1614,27 @@ export default function BusinessInsightPage({
                   </p>
                   <Button
                     size="sm"
+                    variant="ghost"
                     className={cn(
                       GLASS_BUTTON_ICON_HOVER,
-                      "gap-1",
+                      GLASS_BUTTON_SHELL_RESET,
+                      "gap-2",
                       GLASS_PRIMARY_BUTTON.amber,
                     )}
                     onClick={handleGenerateAiInsights}
                     disabled={aiInsightsLoading || dataLoading}
                   >
-                    {aiInsightsLoading ? "Generating…" : "Generate AI insights"}
+                    {aiInsightsLoading ? (
+                      <>
+                        <Loader2 className="h-4 w-4 shrink-0 animate-spin" aria-hidden />
+                        Generating insights…
+                      </>
+                    ) : (
+                      <>
+                        <Sparkles className="h-4 w-4 shrink-0" aria-hidden />
+                        Generate AI insights
+                      </>
+                    )}
                   </Button>
                 </div>
               )}

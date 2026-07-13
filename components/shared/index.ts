@@ -89,6 +89,18 @@ export { DataSlotPulse } from "./DataSlotPulse";
 export type { DataSlotPulseProps, DataSlotPulseVariant } from "./DataSlotPulse";
 export { SectionCardHeader } from "./SectionCardHeader";
 export type { SectionCardHeaderProps } from "./SectionCardHeader";
+export { AuditUserDetailRow } from "./AuditUserDetailRow";
+export type {
+  AuditUserDetail,
+  AuditUserDetailRowProps,
+} from "./AuditUserDetailRow";
+export {
+  GlassCard,
+  GlassCardBody,
+  GLASS_CARD_VARIANT_CONFIG,
+  variantConfig,
+} from "@/lib/ui/glass-card";
+export type { GlassCardVariant, GlassCardProps, CardVariant } from "@/lib/ui/glass-card";
 export { PageSectionHeader } from "./PageSectionHeader";
 export type { PageSectionHeaderProps } from "./PageSectionHeader";
 export { AuthSessionToasts, clearAuthToastMarkers } from "./AuthSessionToasts";

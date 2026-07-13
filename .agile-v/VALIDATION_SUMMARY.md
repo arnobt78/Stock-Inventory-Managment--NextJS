@@ -3,7 +3,99 @@
 **Generated:** 2026-07-13  
 **eval_gate_status:** PENDING (Human Gate 2)  
 **Prod target SHA:** pending REQ-0094 deploy  
-**Red Team:** lint ✓ test 415 ✓ invalidate 205 ✓ build ✓ (2026-07-13 REQ-0094)
+**Red Team:** lint ✓ test 418 ✓ invalidate 205 ✓ build ✓ (2026-07-13 REQ-0100)
+
+---
+
+## REQ-0100 evidence
+
+| Check | Command | Result | REQ-IDs |
+|-------|---------|--------|---------|
+| Lint | `npm run lint` | PASS | REQ-0100 |
+| Unit tests | `npm run test` | PASS (418) | REQ-0100 |
+| Invalidation audit | `npm run test:invalidate` | PASS (205) | REQ-0100 |
+| Build | `npm run build` | PASS | REQ-0100 |
+| Avatar seed fallback | `seed={s.userId ?? s.id}` on supplier portal | PASS | REQ-0100 AC1 |
+| No cache bump | supplierPortal Redis key unchanged | PASS | REQ-0100 AC2 |
+
+---
+
+## REQ-0099 evidence
+
+| Check | Command | Result | REQ-IDs |
+|-------|---------|--------|---------|
+| Lint | `npm run lint` | PASS | REQ-0099 |
+| Unit tests | `npm run test` | PASS (418) | REQ-0099 |
+| Invalidation audit | `npm run test:invalidate` | PASS (205) | REQ-0099 |
+| Build | `npm run build` | PASS | REQ-0099 |
+| Analytics gap-6 | Order/Invoice/Warehouse sections | PASS | REQ-0099 AC1 |
+| Supplier avatar seed | `userId` on SSR + AvatarInlineLink | PASS | REQ-0099 AC2 |
+| Dead scripts | 3 npm entries + files removed | PASS | REQ-0099 AC3 |
+
+---
+
+## REQ-0098 evidence
+
+| Check | Command | Result | REQ-IDs |
+|-------|---------|--------|---------|
+| Lint | `npm run lint` | PASS | REQ-0098 |
+| Unit tests | `npm run test` | PASS (418) | REQ-0098 |
+| Invalidation audit | `npm run test:invalidate` | PASS (205) | REQ-0098 |
+| Build | `npm run build` | PASS | REQ-0098 |
+| Api GlassCardBody | ApiStatus + ApiDocs inner padding | PASS | REQ-0098 AC1 |
+| QR truncate | QRCodeHover max-width + product name title | PASS | REQ-0098 AC2 |
+| Glow badges | AdminOrderSource, forecast urgency, stock left, health, New | PASS | REQ-0098 AC3–4 |
+| Dashboard CTAs | AdminAnalytics recent cards + AI glass button | PASS | REQ-0098 AC5–6 |
+| Portal parity | gap-6, SectionCountBadge, AvatarInlineLink + SSR image | PASS | REQ-0098 AC7–8 |
+| Activity + notifications | Activity Logs icon; dropdown counter/inline New/Close | PASS | REQ-0098 AC9–10 |
+
+---
+
+## REQ-0097 evidence
+
+| Check | Command | Result | REQ-IDs |
+|-------|---------|--------|---------|
+| Lint | `npm run lint` | PASS | REQ-0097 |
+| Unit tests | `npm run test` | PASS (418) | REQ-0097 |
+| Invalidation audit | `npm run test:invalidate` | PASS (205) | REQ-0097 |
+| Build | `npm run build` | PASS | REQ-0097 |
+| SectionCardHeader titleTrailing | Email prefs inline HelpTooltip | PASS | REQ-0097 AC1 |
+| Email prefs spacing | PageSectionHeader pb-0 + gap-6 parent | PASS | REQ-0097 AC1 |
+| Admin order audit | AdminOrderDetailContent creator/updater rows | PASS | REQ-0097 AC2 |
+| GlassCardBody DRY | 4 catalog detail pages + EmailPreferences | PASS | REQ-0097 AC3 |
+| Insights GlassCard | shared import + padding=body | PASS | REQ-0097 AC4 |
+
+---
+
+## REQ-0096 evidence
+
+| Check | Command | Result | REQ-IDs |
+|-------|---------|--------|---------|
+| Lint | `npm run lint` | PASS | REQ-0096 |
+| Unit tests | `npm run test` | PASS (418) | REQ-0096 |
+| Invalidation audit | `npm run test:invalidate` | PASS (205) | REQ-0096 |
+| Build | `npm run build` | PASS | REQ-0096 |
+| GlassCard hub | `lib/ui/glass-card.tsx` + 11-file migration | PASS | REQ-0096 AC1 |
+| Audit SSR + UI | order/invoice/warehouse creator/updater | PASS | REQ-0096 AC2 |
+| Product section icons | Recent Orders + Warehouse Stock SectionTitleRow | PASS | REQ-0096 AC3 |
+| Tests | warehouse-detail-data + transform-order-detail | PASS | REQ-0096 AC4 |
+
+---
+
+## REQ-0095 evidence
+
+| Check | Command | Result | REQ-IDs |
+|-------|---------|--------|---------|
+| Lint | `npm run lint` | PASS | REQ-0095 |
+| Unit tests | `npm run test` | PASS (415) | REQ-0095 |
+| Invalidation audit | `npm run test:invalidate` | PASS (205) | REQ-0095 |
+| Build | `npm run build` | PASS | REQ-0095 |
+| Portal header pb-6 | ClientPortalPage + SupplierPortalPage | PASS — removed pb-0 override | REQ-0095 AC1 |
+| Support tickets header | SupportTicketsPageContent PageSectionHeader | PASS | REQ-0095 AC2 |
+| Email prefs glass | EmailPreferencesPage GlassCard + SectionCardHeader | PASS | REQ-0095 AC3 |
+| Audit user row | AuditUserDetailRow on catalog detail pages | PASS | REQ-0095 AC4 |
+| Section icons | Category/Supplier SectionTitleRow icons | PASS | REQ-0095 AC5 |
+| Card padding | CategoryDetailPage shell; insights inner trim; WarehouseDetailPage | PASS | REQ-0095 AC6 |
 
 ---
 

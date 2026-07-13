@@ -21,7 +21,6 @@ import {
   QrCode,
   Image as ImageIcon,
   User,
-  Mail,
   Edit,
   Copy,
   Trash2,
@@ -55,6 +54,7 @@ import {
   ClientRelativeTime,
   CopyableText,
   AvatarInlineLink,
+  AuditUserDetailRow,
   PageContentWrapper,
   DataSlotPulse,
   PageSectionHeader,
@@ -66,6 +66,9 @@ import {
   SectionCountBadge,
   ListIndexBadge,
   CatalogInsightsSection,
+  GlassCard,
+  GlassCardBody,
+  GLASS_CARD_VARIANT_CONFIG as variantConfig,
 } from "@/components/shared";
 import { findProductForecast } from "@/lib/forecasting/entity-forecast";
 import { enrichProductInsightsWithWarehouseStock } from "@/lib/insights/product-insights-enrich";
@@ -97,131 +100,6 @@ import { SafeImage } from "@/components/ui/safe-image";
 import ProductFormDialog from "@/components/products/ProductFormDialog";
 import { AlertDialogWrapper } from "@/components/dialogs";
 import ProductReviewsSection from "@/components/product-reviews/ProductReviewsSection";
-
-/**
- * Color variants for glassmorphic cards
- */
-type CardVariant =
-  | "sky"
-  | "emerald"
-  | "amber"
-  | "rose"
-  | "violet"
-  | "blue"
-  | "orange"
-  | "teal";
-
-const variantConfig: Record<
-  CardVariant,
-  {
-    border: string;
-    gradient: string;
-    shadow: string;
-    hoverBorder: string;
-    iconBg: string;
-  }
-> = {
-  sky: {
-    border: "border-sky-400/20",
-    gradient: "bg-gradient-to-br from-sky-500/15 via-sky-500/5 to-transparent",
-    shadow:
-      "shadow-[0_15px_40px_rgba(2,132,199,0.15)] dark:shadow-[0_15px_40px_rgba(2,132,199,0.1)]",
-    hoverBorder: "hover:border-sky-300/40",
-    iconBg: "border-sky-300/30 bg-sky-100/50",
-  },
-  emerald: {
-    border: "border-emerald-400/20",
-    gradient:
-      "bg-gradient-to-br from-emerald-500/15 via-emerald-500/5 to-transparent",
-    shadow:
-      "shadow-[0_15px_40px_rgba(16,185,129,0.15)] dark:shadow-[0_15px_40px_rgba(16,185,129,0.1)]",
-    hoverBorder: "hover:border-emerald-300/40",
-    iconBg: "border-emerald-300/30 bg-emerald-100/50",
-  },
-  amber: {
-    border: "border-amber-400/20",
-    gradient:
-      "bg-gradient-to-br from-amber-500/15 via-amber-500/5 to-transparent",
-    shadow:
-      "shadow-[0_15px_40px_rgba(245,158,11,0.12)] dark:shadow-[0_15px_40px_rgba(245,158,11,0.08)]",
-    hoverBorder: "hover:border-amber-300/40",
-    iconBg: "border-amber-300/30 bg-amber-100/50",
-  },
-  rose: {
-    border: "border-rose-400/20",
-    gradient:
-      "bg-gradient-to-br from-rose-500/15 via-rose-500/5 to-transparent",
-    shadow:
-      "shadow-[0_15px_40px_rgba(225,29,72,0.15)] dark:shadow-[0_15px_40px_rgba(225,29,72,0.1)]",
-    hoverBorder: "hover:border-rose-300/40",
-    iconBg: "border-rose-300/30 bg-rose-100/50",
-  },
-  violet: {
-    border: "border-violet-400/20",
-    gradient:
-      "bg-gradient-to-br from-violet-500/15 via-violet-500/5 to-transparent",
-    shadow:
-      "shadow-[0_15px_40px_rgba(139,92,246,0.15)] dark:shadow-[0_15px_40px_rgba(139,92,246,0.1)]",
-    hoverBorder: "hover:border-violet-300/40",
-    iconBg: "border-violet-300/30 bg-violet-100/50",
-  },
-  blue: {
-    border: "border-blue-400/20",
-    gradient:
-      "bg-gradient-to-br from-blue-500/15 via-blue-500/5 to-transparent",
-    shadow:
-      "shadow-[0_15px_40px_rgba(59,130,246,0.15)] dark:shadow-[0_15px_40px_rgba(59,130,246,0.1)]",
-    hoverBorder: "hover:border-blue-300/40",
-    iconBg: "border-blue-300/30 bg-blue-100/50",
-  },
-  orange: {
-    border: "border-orange-400/20",
-    gradient:
-      "bg-gradient-to-br from-orange-500/15 via-orange-500/5 to-transparent",
-    shadow:
-      "shadow-[0_15px_40px_rgba(249,115,22,0.15)] dark:shadow-[0_15px_40px_rgba(249,115,22,0.1)]",
-    hoverBorder: "hover:border-orange-300/40",
-    iconBg: "border-orange-300/30 bg-orange-100/50",
-  },
-  teal: {
-    border: "border-teal-400/20",
-    gradient:
-      "bg-gradient-to-br from-teal-500/15 via-teal-500/5 to-transparent",
-    shadow:
-      "shadow-[0_15px_40px_rgba(20,184,166,0.15)] dark:shadow-[0_15px_40px_rgba(20,184,166,0.1)]",
-    hoverBorder: "hover:border-teal-300/40",
-    iconBg: "border-teal-300/30 bg-teal-100/50",
-  },
-};
-
-/**
- * Glassmorphic Card component
- */
-function GlassCard({
-  children,
-  variant = "blue",
-  className,
-}: {
-  children: React.ReactNode;
-  variant?: CardVariant;
-  className?: string;
-}) {
-  const config = variantConfig[variant];
-  return (
-    <article
-      className={cn(
-        "rounded-[20px] border backdrop-blur-md transition overflow-hidden",
-        config.border,
-        config.gradient,
-        config.shadow,
-        config.hoverBorder,
-        className,
-      )}
-    >
-      {children}
-    </article>
-  );
-}
 
 export type ProductDetailPageProps = {
   embedInAdmin?: boolean;
@@ -503,7 +381,7 @@ export default function ProductDetailPage({
           <div className="grid grid-cols-1 md:grid-cols-2 gap-2 sm:gap-4">
             {/* Product Image */}
             <GlassCard variant="sky">
-              <div className="p-2 sm:p-4">
+              <GlassCardBody>
                 <div className="flex items-center gap-2 mb-4">
                   <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-sky-300/30 bg-sky-100/50 dark:border-white/15 dark:bg-white/10">
                     <ImageIcon className="h-4 w-4 text-gray-700 dark:text-white" />
@@ -529,12 +407,12 @@ export default function ProductDetailPage({
                     </p>
                   </div>
                 )}
-              </div>
+              </GlassCardBody>
             </GlassCard>
 
             {/* QR Code / Barcode */}
             <GlassCard variant="violet">
-              <div className="p-2 sm:p-4">
+              <GlassCardBody>
                 <div className="flex items-center gap-2 mb-4">
                   <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-violet-300/30 bg-violet-100/50 dark:border-white/15 dark:bg-white/10">
                     <QrCode className="h-4 w-4 text-gray-700 dark:text-white" />
@@ -560,14 +438,14 @@ export default function ProductDetailPage({
                     </p>
                   </div>
                 )}
-              </div>
+              </GlassCardBody>
             </GlassCard>
           </div>
 
           {/* Product Status Cards */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
             <GlassCard variant="emerald">
-              <div className="p-2 sm:p-4">
+              <GlassCardBody>
                 <p className="text-xs uppercase tracking-[0.2em] text-gray-600 dark:text-white/60 mb-3">
                   Status
                 </p>
@@ -577,11 +455,11 @@ export default function ProductDetailPage({
                   size="detail"
                   className="text-sm"
                 />
-              </div>
+              </GlassCardBody>
             </GlassCard>
 
             <GlassCard variant="amber">
-              <div className="p-2 sm:p-4">
+              <GlassCardBody>
                 <p className="text-xs uppercase tracking-[0.2em] text-gray-600 dark:text-white/60 mb-3">
                   Stock
                 </p>
@@ -597,18 +475,18 @@ export default function ProductDetailPage({
                     total
                   </p>
                 )}
-              </div>
+              </GlassCardBody>
             </GlassCard>
 
             <GlassCard variant="blue">
-              <div className="p-2 sm:p-4">
+              <GlassCardBody>
                 <p className="text-xs uppercase tracking-[0.2em] text-gray-600 dark:text-white/60 mb-3">
                   Price
                 </p>
                 <p className="text-sm sm:text-base font-medium text-gray-700 dark:text-white">
                   ${product?.price.toFixed(2)}
                 </p>
-              </div>
+              </GlassCardBody>
             </GlassCard>
           </div>
 
@@ -616,7 +494,7 @@ export default function ProductDetailPage({
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-2 sm:gap-4">
             {/* Product Information */}
             <GlassCard variant="teal">
-              <div className="p-2 sm:p-4">
+              <GlassCardBody>
                 <div className="flex items-center gap-2 mb-4">
                   <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-teal-300/30 bg-teal-100/50 dark:border-white/15 dark:bg-white/10">
                     <Package className="h-4 w-4 text-gray-700 dark:text-white" />
@@ -761,67 +639,31 @@ export default function ProductDetailPage({
                     </DetailInfoRow>
                   )}
                   {!dataLoading && product?.creator && (
-                    <>
-                      <DetailInfoRow
-                        icon={User}
-                        label="Created by:"
-                        tone="violet"
-                      >
-                        <AvatarInlineLink
-                          seed={product.creator.id}
-                          image={product.creator.image}
-                          label={product.creator.name ?? product.creator.email}
-                          href={ownerProductsHref(product.creator.id)}
-                        />
-                      </DetailInfoRow>
-                      <DetailInfoRow
-                        icon={Mail}
-                        label="Creator email:"
-                        tone="violet"
-                      >
-                        <CopyableText value={product.creator.email}>
-                          {product.creator.email}
-                        </CopyableText>
-                      </DetailInfoRow>
-                    </>
+                    <AuditUserDetailRow
+                      label="Created by:"
+                      tone="violet"
+                      user={product.creator}
+                      href={ownerProductsHref(product.creator.id)}
+                    />
                   )}
                   {!dataLoading && product?.updater && (
-                    <>
-                      <DetailInfoRow
-                        icon={User}
-                        label="Updated by:"
-                        tone="blue"
-                      >
-                        <AvatarInlineLink
-                          seed={product.updater.id}
-                          image={product.updater.image}
-                          label={
-                            product.updater.name ?? product.updater.email
-                          }
-                          href={resolveAuditUserManagementHref(
-                            product.updater.id,
-                            isAdminRole,
-                          )}
-                        />
-                      </DetailInfoRow>
-                      <DetailInfoRow
-                        icon={Mail}
-                        label="Updater email:"
-                        tone="blue"
-                      >
-                        <CopyableText value={product.updater.email}>
-                          {product.updater.email}
-                        </CopyableText>
-                      </DetailInfoRow>
-                    </>
+                    <AuditUserDetailRow
+                      label="Updated by:"
+                      tone="blue"
+                      user={product.updater}
+                      href={resolveAuditUserManagementHref(
+                        product.updater.id,
+                        isAdminRole,
+                      )}
+                    />
                   )}
                 </div>
-              </div>
+              </GlassCardBody>
             </GlassCard>
 
             {/* Sales Statistics */}
             <GlassCard variant="orange">
-              <div className="p-2 sm:p-4">
+              <GlassCardBody>
                 <div className="flex items-center gap-2 mb-2">
                   <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-orange-300/30 bg-orange-100/50 dark:border-white/15 dark:bg-white/10">
                     <BarChart3 className="h-4 w-4 text-gray-700 dark:text-white" />
@@ -877,7 +719,7 @@ export default function ProductDetailPage({
                     )}
                   </DetailInfoRow>
                 </div>
-              </div>
+              </GlassCardBody>
             </GlassCard>
           </div>
 
@@ -917,36 +759,29 @@ export default function ProductDetailPage({
 
           {showWarehouseStockCard && (
             <GlassCard variant="teal">
-              <div className="p-2 sm:p-4">
-                <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2 mb-2">
-                  <div className="flex items-center gap-2">
-                    <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-teal-300/30 bg-teal-100/50 dark:border-white/15 dark:bg-white/10">
-                      <Building2 className="h-4 w-4 text-gray-700 dark:text-white" />
-                    </div>
-                    <div>
-                      <SectionTitleRow
-                        as="h3"
-                        title="Warehouse Stock"
-                        trailing={
-                          !warehouseStockLoading &&
-                          warehouseAllocations.length > 0 ? (
-                            <>
-                              <SectionCountBadge>
-                                {warehouseAllocations.length} warehouses
-                              </SectionCountBadge>
-                              <SectionCountBadge>
-                                {totalWarehouseAvailable} available
-                              </SectionCountBadge>
-                            </>
-                          ) : undefined
-                        }
-                      />
-                      <p className="text-xs text-gray-600 dark:text-white/60">
-                        Allocated per warehouse; unallocated qty stays on catalog total
-                      </p>
-                    </div>
-                  </div>
-                </div>
+              <GlassCardBody>
+                <SectionTitleRow
+                  as="h3"
+                  icon={Building2}
+                  iconClassName="text-teal-600 dark:text-teal-400"
+                  title="Warehouse Stock"
+                  trailing={
+                    !warehouseStockLoading &&
+                    warehouseAllocations.length > 0 ? (
+                      <>
+                        <SectionCountBadge>
+                          {warehouseAllocations.length} warehouses
+                        </SectionCountBadge>
+                        <SectionCountBadge>
+                          {totalWarehouseAvailable} available
+                        </SectionCountBadge>
+                      </>
+                    ) : undefined
+                  }
+                />
+                <p className="text-xs text-gray-600 dark:text-white/60">
+                  Allocated per warehouse; unallocated qty stays on catalog total
+                </p>
                 {warehouseStockLoading ? (
                   <DataSlotPulse variant="text-sm" className="mt-4 h-16" />
                 ) : warehouseAllocations.length > 0 ? (
@@ -1001,32 +836,27 @@ export default function ProductDetailPage({
                     No warehouse allocations for this product yet.
                   </p>
                 )}
-              </div>
+              </GlassCardBody>
             </GlassCard>
           )}
 
           {/* Recent Orders — always show card; empty state centered (REQ-0077) */}
           <GlassCard variant="rose">
-            <div className="p-2 sm:p-4">
-              <div className="flex items-center gap-2 mb-2">
-                <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-rose-300/30 bg-rose-100/50 dark:border-white/15 dark:bg-white/10">
-                  <ShoppingCart className="h-4 w-4 text-gray-700 dark:text-white" />
-                </div>
-                <div>
-                  <SectionTitleRow
-                    as="h3"
-                    title="Recent Orders"
-                    count={
-                      !dataLoading && recentOrderCount > 0
-                        ? recentOrderCount
-                        : undefined
-                    }
-                  />
-                  <p className="text-xs text-gray-600 dark:text-white/60">
-                    Latest orders containing this product
-                  </p>
-                </div>
-              </div>
+            <GlassCardBody>
+              <SectionTitleRow
+                as="h3"
+                icon={ShoppingCart}
+                iconClassName="text-rose-600 dark:text-rose-400"
+                title="Recent Orders"
+                count={
+                  !dataLoading && recentOrderCount > 0
+                    ? recentOrderCount
+                    : undefined
+                }
+              />
+              <p className="text-xs text-gray-600 dark:text-white/60">
+                Latest orders containing this product
+              </p>
               {dataLoading ? (
                 <DataSlotPulse variant="text-sm" className="mt-4 h-16" />
               ) : !product?.recentOrders?.length ? (
@@ -1153,7 +983,7 @@ export default function ProductDetailPage({
                   })}
                 </div>
               )}
-            </div>
+            </GlassCardBody>
           </GlassCard>
 
           {/* Product Reviews */}

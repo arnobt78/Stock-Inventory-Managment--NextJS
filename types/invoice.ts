@@ -69,6 +69,19 @@ export interface Invoice {
   linkedOrderNumber?: string | null;
   /** REQ-0063 — line items from linked order (thumbnails on invoice detail) */
   linkedOrderItems?: OrderItem[];
+  /** REQ-0096 — DB audit fields (distinct from invoiceCreatedBy issuer resolution) */
+  creator?: {
+    id: string;
+    name?: string | null;
+    email: string;
+    image?: string | null;
+  } | null;
+  updater?: {
+    id: string;
+    name?: string | null;
+    email: string;
+    image?: string | null;
+  } | null;
 }
 
 /**

@@ -23,7 +23,7 @@ export async function getClientPortalForAdmin(): Promise<ClientPortalStats> {
   // Get all client users
   const clientUsers = await prisma.user.findMany({
     where: { role: "client" },
-    select: { id: true, name: true, email: true, createdAt: true },
+    select: { id: true, name: true, email: true, image: true, createdAt: true },
     orderBy: { createdAt: "desc" },
     take: 100,
   });
@@ -115,6 +115,7 @@ export async function getClientPortalForAdmin(): Promise<ClientPortalStats> {
       id: u.id,
       name: u.name,
       email: u.email,
+      image: u.image,
       createdAt: u.createdAt.toISOString(),
       orderCount: userOrders.length,
       invoiceCount: userInvoices.length,

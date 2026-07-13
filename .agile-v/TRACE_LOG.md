@@ -21,3 +21,6 @@ Format: `timestamp | agent | span | req_ids | note`
 2026-07-12T15:40:00Z | agile-v-core | REQ-0085-ship | AC1–AC5 | lint 399/invalidate 206/build PASS
 2026-07-12T16:01:00Z | agile-v-core | REQ-0086-ship | AC1–AC6 | lint 399/invalidate 206/build PASS
 2026-07-12T16:05:00Z | agile-v-core | REQ-0087-ship | AC1–AC4 | lint 399/invalidate 206/build PASS
+2026-07-13T14:00:00Z | agile-v-core | REQ-0098-ship | AC1–AC10 | lint/test 418/invalidate 205/build PASS
+2026-07-13T14:00:00Z | agile-v-core | REQ-0099-ship | AC1–AC4 | supplier userId seed; dead scripts removed
+2026-07-13T14:02:00Z | agile-v-core | REQ-0100-ship | AC1–AC3 | avatar seed fallback; no cache-key bump

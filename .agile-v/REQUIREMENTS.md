@@ -2098,6 +2098,155 @@ Canonical REQ source. All artifacts link via `REQ-XXXX`. Status: `done` | `verif
 
 ---
 
+## REQ-0095 — Portal spacing, headers, email prefs, audit rows, card padding
+
+| Field | Value |
+|-------|-------|
+| **Priority** | P1 |
+| **Risk** | R1 |
+| **Status** | done |
+| **Cycle** | C2 |
+| **Parent** | REQ-0079, REQ-0047 |
+
+**Intent:** CSS/UI polish — portal header spacing, support-tickets header parity, email-preferences glass cards, merged audit-user rows on catalog detail pages, section icons, single-layer card padding. No TanStack/SSR/API changes.
+
+**Acceptance criteria**
+
+- AC1: `ClientPortalPage` + `SupplierPortalPage` — remove `pb-0` on `PageSectionHeader`; default `pb-6` below header
+- AC2: `SupportTicketsPageContent` — `PageSectionHeader` with icon + trailing Create Ticket (admin list parity)
+- AC3: `EmailPreferencesPage` — `GlassCard` + `SectionCardHeader`; single padding layer; email `font-medium`
+- AC4: `AuditUserDetailRow` — merged name + email row on Product/Category/Supplier detail pages
+- AC5: `SectionTitleRow` icons on catalog list cards (Products in Category, Products from Supplier, Recent Orders)
+- AC6: `CategoryDetailPage` GlassCard shell — no article padding; insights sections drop inner `p-2 sm:p-4`; `WarehouseDetailPage` aligned
+- AC7: Red Team lint/test/invalidate/build pass
+
+**Artifacts:** `ClientPortalPage.tsx`, `SupplierPortalPage.tsx`, `SupportTicketsPageContent.tsx`, `EmailPreferencesPage.tsx`, `AuditUserDetailRow.tsx`, `ProductDetailPage.tsx`, `CategoryDetailPage.tsx`, `SupplierDetailPage.tsx`, `CatalogInsightsSection.tsx`, `WarehouseInsightsSection.tsx`, `WarehouseDetailPage.tsx`
+
+---
+
+## REQ-0096 — Audit rows, shared GlassCard, section icon parity
+
+| Field | Value |
+|-------|-------|
+| **Priority** | P1 |
+| **Risk** | R1 |
+| **Status** | done |
+| **Cycle** | C2 |
+| **Parent** | REQ-0095 |
+
+**Intent:** Close REQ-0095 gaps — shared `lib/ui/glass-card.tsx`, creator/updater `AuditUserDetailRow` on order/invoice/warehouse detail (SSR enrich), Product detail section icon parity.
+
+**Acceptance criteria**
+
+- AC1: `lib/ui/glass-card.tsx` — `GlassCard` + `GlassCardBody`; migrate 11 local copies; order-detail `padding="body"` default
+- AC2: Order/invoice/warehouse detail SSR — `creator` / `updater` user snapshots; `AuditUserDetailRow` in info cards
+- AC3: `ProductDetailPage` — Recent Orders + Warehouse Stock use `SectionTitleRow` icon only
+- AC4: `warehouse-detail-data.test.ts` + transform test extension
+- AC5: Red Team lint/test/invalidate/build pass
+
+**Artifacts:** `lib/ui/glass-card.tsx`, detail pages, `order-detail-data.ts`, `invoice-detail-data.ts`, `warehouse-detail-data.ts`, types, transforms
+
+---
+
+## REQ-0097 — REQ-0096 gap closure + Email Preferences layout
+
+| Field | Value |
+|-------|-------|
+| **Priority** | P1 |
+| **Risk** | R1 |
+| **Status** | done |
+| **Cycle** | C2 |
+| **Parent** | REQ-0096 |
+
+**Intent:** Close REQ-0096 audit gaps — `AdminOrderDetailContent` audit rows, `GlassCardBody` DRY on shell cards, insights shared `GlassCard` import, Email Preferences header spacing + inline help tooltip.
+
+**Acceptance criteria**
+
+- AC1: `SectionCardHeader.titleTrailing` + Email prefs `PageSectionHeader` `pb-0` + `GlassCardBody`
+- AC2: `AdminOrderDetailContent` — `AuditUserDetailRow` creator/updater (SSR already enriched)
+- AC3: Catalog detail pages — `<GlassCardBody>` replaces raw `div.p-2 sm:p-4` inside shell `GlassCard`
+- AC4: `CatalogInsightsSection` / `WarehouseInsightsSection` — `GlassCard` from shared with `padding="body"`
+- AC5: Red Team lint/test/invalidate/build pass
+
+**Artifacts:** `SectionCardHeader.tsx`, `EmailPreferencesPage.tsx`, `AdminOrderDetailContent.tsx`, catalog detail pages, insights sections
+
+---
+
+## REQ-0098 — Admin portal UI parity + glow badge sweep
+
+| Field | Value |
+|-------|-------|
+| **Priority** | P1 |
+| **Risk** | R1 |
+| **Status** | done |
+| **Cycle** | C2 |
+| **Parent** | REQ-0097 |
+
+**Intent:** Close 10-item admin/portal UI parity batch — GlassCardBody on Api pages, QR truncation, semantic glow badges, portal spacing/avatars, dashboard recent-card CTAs, Business Insights header/AI polish, Activity Logs icon, notification dropdown UX.
+
+**Acceptance criteria**
+
+- AC1: ApiStatus + ApiDocs — `GlassCardBody` replaces raw `div.p-2 sm:p-4`
+- AC2: Product QR column — truncated trigger text in table
+- AC3: Business Insights — `PageSectionHeader` icon; glow badges (reorder, low stock, health); AI button icons + spinner
+- AC4: Admin order/invoice tables — `AdminOrderSourceBadge` (Self/Client glow)
+- AC5: Admin dashboard overall insights — bottom View All CTAs + centered empty states
+- AC6: Admin dashboard — `gap-6` rhythm + AI glass button
+- AC7: Admin supplier portal — spacing, inline count badge, supplier avatars in table
+- AC8: Admin client portal — spacing, inline count badge, client avatars in table
+- AC9: Activity History — meaningful icon beside Activity Logs header
+- AC10: Notification dropdown — total counter, inline New glow badge, full-width Close
+- AC11: Red Team lint/test/invalidate/build pass
+
+**Artifacts:** `semantic-badges.tsx`, `ApiStatusPage.tsx`, `ApiDocsPage.tsx`, `qr-code-hover.tsx`, `BusinessInsightPage.tsx`, `forecasting-card.tsx`, `OrderTableColumns.tsx`, `InvoiceTableColumns.tsx`, `AdminAnalyticsContent.tsx`, `AdminClientPortalContent.tsx`, `AdminSupplierPortalContent.tsx`, `client-portal-data.ts`, `supplier-portal-data.ts`, `ActivityLogSection.tsx`, `NotificationDropdown.tsx`
+
+---
+
+## REQ-0099 — Post-REQ-0098 gap closure
+
+| Field | Value |
+|-------|-------|
+| **Priority** | P2 |
+| **Risk** | R1 |
+| **Status** | done |
+| **Cycle** | C2 |
+| **Parent** | REQ-0098 |
+
+**Intent:** Close REQ-0098 audit gaps — AdminAnalytics section `gap-6` rhythm, supplier portal avatar `userId` seed, remove orphaned one-off stock scripts + broken npm entries.
+
+**Acceptance criteria**
+
+- AC1: `AdminAnalyticsContent` — Order/Invoice/Warehouse sections use `flex flex-col gap-6` (not `space-y-4`)
+- AC2: `SupplierPortalSupplier.userId` SSR + `AvatarInlineLink seed={userId}`
+- AC3: Remove `script:fix-product2-stock`, `script:backfill-order-stock`, `script:check-order-stock` from `package.json`; delete script files
+- AC4: Red Team lint/test/invalidate/build pass
+
+**Artifacts:** `AdminAnalyticsContent.tsx`, `supplier-portal.ts`, `supplier-portal-data.ts`, `AdminSupplierPortalContent.tsx`, `package.json`
+
+---
+
+## REQ-0100 — Supplier portal avatar seed fallback
+
+| Field | Value |
+|-------|-------|
+| **Priority** | P3 |
+| **Risk** | R1 |
+| **Status** | done |
+| **Cycle** | C2 |
+| **Parent** | REQ-0099 |
+
+**Intent:** UI fallback when stale Redis cache omits `userId` on supplier portal rows — robohash seed uses linked user id when present, else supplier entity id.
+
+**Acceptance criteria**
+
+- AC1: `AdminSupplierPortalContent` — `AvatarInlineLink seed={s.userId ?? s.id}` with inline comment
+- AC2: No cache-key bump; no TanStack/invalidation changes
+- AC3: Red Team lint/test/invalidate/build pass
+
+**Artifacts:** `AdminSupplierPortalContent.tsx`
+
+---
+
 ## REQ-0020 — Locale-aware admin format (hydration-safe)
 
 | Field        | Value |

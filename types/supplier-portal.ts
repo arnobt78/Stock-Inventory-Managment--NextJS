@@ -41,8 +41,10 @@ export interface SupplierPortalRecentOrder {
 
 export interface SupplierPortalSupplier {
   id: string;
+  userId: string;
   name: string;
   email: string;
+  image?: string | null;
   createdAt: string;
   productCount: number;
   orderCount: number;

@@ -15,8 +15,6 @@ import {
   DollarSign,
   BarChart3,
   ShoppingCart,
-  User,
-  Mail,
   FileText,
   StickyNote,
   Edit,
@@ -51,11 +49,14 @@ import {
   glassDetailFooterButtonClass,
   DETAIL_HEADER_BACK_ICON_CLASS,
   DialogSubmitButton,
-  AvatarInlineLink,
+  AuditUserDetailRow,
   CatalogInsightsSection,
   CatalogDetailProductGrid,
   CatalogDetailRecentOrdersList,
   SectionTitleRow,
+  GlassCard,
+  GlassCardBody,
+  GLASS_CARD_VARIANT_CONFIG as variantConfig,
 } from "@/components/shared";
 import { buildCategoryForecastRollup } from "@/lib/forecasting/category-forecast-rollup";
 import {
@@ -73,131 +74,6 @@ import {
 } from "@/lib/react-query";
 import { cn } from "@/lib/utils";
 import { APP_SHELL_DETAIL_CLASS, DETAIL_PAGE_HEADER_SPACING_CLASS } from "@/lib/ui/shell-layout-styles";
-
-/**
- * Color variants for glassmorphic cards
- */
-type CardVariant =
-  | "sky"
-  | "emerald"
-  | "amber"
-  | "rose"
-  | "violet"
-  | "blue"
-  | "orange"
-  | "teal";
-
-const variantConfig: Record<
-  CardVariant,
-  {
-    border: string;
-    gradient: string;
-    shadow: string;
-    hoverBorder: string;
-    iconBg: string;
-  }
-> = {
-  sky: {
-    border: "border-sky-400/20",
-    gradient: "bg-gradient-to-br from-sky-500/15 via-sky-500/5 to-transparent",
-    shadow:
-      "shadow-[0_15px_40px_rgba(2,132,199,0.15)] dark:shadow-[0_15px_40px_rgba(2,132,199,0.1)]",
-    hoverBorder: "hover:border-sky-300/40",
-    iconBg: "border-sky-300/30 bg-sky-100/50",
-  },
-  emerald: {
-    border: "border-emerald-400/20",
-    gradient:
-      "bg-gradient-to-br from-emerald-500/15 via-emerald-500/5 to-transparent",
-    shadow:
-      "shadow-[0_15px_40px_rgba(16,185,129,0.15)] dark:shadow-[0_15px_40px_rgba(16,185,129,0.1)]",
-    hoverBorder: "hover:border-emerald-300/40",
-    iconBg: "border-emerald-300/30 bg-emerald-100/50",
-  },
-  amber: {
-    border: "border-amber-400/20",
-    gradient:
-      "bg-gradient-to-br from-amber-500/15 via-amber-500/5 to-transparent",
-    shadow:
-      "shadow-[0_15px_40px_rgba(245,158,11,0.12)] dark:shadow-[0_15px_40px_rgba(245,158,11,0.08)]",
-    hoverBorder: "hover:border-amber-300/40",
-    iconBg: "border-amber-300/30 bg-amber-100/50",
-  },
-  rose: {
-    border: "border-rose-400/20",
-    gradient:
-      "bg-gradient-to-br from-rose-500/15 via-rose-500/5 to-transparent",
-    shadow:
-      "shadow-[0_15px_40px_rgba(225,29,72,0.15)] dark:shadow-[0_15px_40px_rgba(225,29,72,0.1)]",
-    hoverBorder: "hover:border-rose-300/40",
-    iconBg: "border-rose-300/30 bg-rose-100/50",
-  },
-  violet: {
-    border: "border-violet-400/20",
-    gradient:
-      "bg-gradient-to-br from-violet-500/15 via-violet-500/5 to-transparent",
-    shadow:
-      "shadow-[0_15px_40px_rgba(139,92,246,0.15)] dark:shadow-[0_15px_40px_rgba(139,92,246,0.1)]",
-    hoverBorder: "hover:border-violet-300/40",
-    iconBg: "border-violet-300/30 bg-violet-100/50",
-  },
-  blue: {
-    border: "border-blue-400/20",
-    gradient:
-      "bg-gradient-to-br from-blue-500/15 via-blue-500/5 to-transparent",
-    shadow:
-      "shadow-[0_15px_40px_rgba(59,130,246,0.15)] dark:shadow-[0_15px_40px_rgba(59,130,246,0.1)]",
-    hoverBorder: "hover:border-blue-300/40",
-    iconBg: "border-blue-300/30 bg-blue-100/50",
-  },
-  orange: {
-    border: "border-orange-400/20",
-    gradient:
-      "bg-gradient-to-br from-orange-500/15 via-orange-500/5 to-transparent",
-    shadow:
-      "shadow-[0_15px_40px_rgba(249,115,22,0.15)] dark:shadow-[0_15px_40px_rgba(249,115,22,0.1)]",
-    hoverBorder: "hover:border-orange-300/40",
-    iconBg: "border-orange-300/30 bg-orange-100/50",
-  },
-  teal: {
-    border: "border-teal-400/20",
-    gradient:
-      "bg-gradient-to-br from-teal-500/15 via-teal-500/5 to-transparent",
-    shadow:
-      "shadow-[0_15px_40px_rgba(20,184,166,0.15)] dark:shadow-[0_15px_40px_rgba(20,184,166,0.1)]",
-    hoverBorder: "hover:border-teal-300/40",
-    iconBg: "border-teal-300/30 bg-teal-100/50",
-  },
-};
-
-/**
- * Glassmorphic Card component
- */
-function GlassCard({
-  children,
-  variant = "blue",
-  className,
-}: {
-  children: React.ReactNode;
-  variant?: CardVariant;
-  className?: string;
-}) {
-  const config = variantConfig[variant];
-  return (
-    <article
-      className={cn(
-        "rounded-[20px] border backdrop-blur-md transition overflow-hidden",
-        config.border,
-        config.gradient,
-        config.shadow,
-        config.hoverBorder,
-        className,
-      )}
-    >
-      {children}
-    </article>
-  );
-}
 
 export type SupplierDetailPageProps = {
   embedInAdmin?: boolean;
@@ -402,7 +278,7 @@ export default function SupplierDetailPage({
 
           {/* Supplier Status Card */}
           <GlassCard variant="emerald">
-            <div className="p-2 sm:p-4">
+            <GlassCardBody>
               <p className="text-xs uppercase tracking-[0.2em] text-gray-600 dark:text-white/60 mb-3">
                 Status
               </p>
@@ -410,14 +286,14 @@ export default function SupplierDetailPage({
                 active={Boolean(supplier?.status)}
                 className="text-sm"
               />
-            </div>
+            </GlassCardBody>
           </GlassCard>
 
           {/* Supplier Information and Statistics */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-2 sm:gap-4">
             {/* Supplier Information */}
             <GlassCard variant="orange">
-              <div className="p-2 sm:p-4">
+              <GlassCardBody>
                 <div className="flex items-center gap-2 mb-4">
                   <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-orange-300/30 bg-orange-100/50 dark:border-white/15 dark:bg-white/10">
                     <Truck className="h-4 w-4 text-gray-700 dark:text-white" />
@@ -491,72 +367,34 @@ export default function SupplierDetailPage({
                     </DetailInfoRow>
                   )}
                   {!dataLoading && supplier?.creator && (
-                    <>
-                      <DetailInfoRow
-                        icon={User}
-                        label="Created by:"
-                        tone="violet"
-                      >
-                        <AvatarInlineLink
-                          seed={supplier.creator.id}
-                          image={supplier.creator.image}
-                          label={
-                            supplier.creator.name ?? supplier.creator.email
-                          }
-                          href={resolveAuditUserManagementHref(
-                            supplier.creator.id,
-                            isAdminRole,
-                          )}
-                        />
-                      </DetailInfoRow>
-                      <DetailInfoRow
-                        icon={Mail}
-                        label="Creator email:"
-                        tone="violet"
-                      >
-                        <CopyableText value={supplier.creator.email}>
-                          {supplier.creator.email}
-                        </CopyableText>
-                      </DetailInfoRow>
-                    </>
+                    <AuditUserDetailRow
+                      label="Created by:"
+                      tone="violet"
+                      user={supplier.creator}
+                      href={resolveAuditUserManagementHref(
+                        supplier.creator.id,
+                        isAdminRole,
+                      )}
+                    />
                   )}
                   {!dataLoading && supplier?.updater && (
-                    <>
-                      <DetailInfoRow
-                        icon={User}
-                        label="Updated by:"
-                        tone="blue"
-                      >
-                        <AvatarInlineLink
-                          seed={supplier.updater.id}
-                          image={supplier.updater.image}
-                          label={
-                            supplier.updater.name ?? supplier.updater.email
-                          }
-                          href={resolveAuditUserManagementHref(
-                            supplier.updater.id,
-                            isAdminRole,
-                          )}
-                        />
-                      </DetailInfoRow>
-                      <DetailInfoRow
-                        icon={Mail}
-                        label="Updater email:"
-                        tone="blue"
-                      >
-                        <CopyableText value={supplier.updater.email}>
-                          {supplier.updater.email}
-                        </CopyableText>
-                      </DetailInfoRow>
-                    </>
+                    <AuditUserDetailRow
+                      label="Updated by:"
+                      tone="blue"
+                      user={supplier.updater}
+                      href={resolveAuditUserManagementHref(
+                        supplier.updater.id,
+                        isAdminRole,
+                      )}
+                    />
                   )}
                 </div>
-              </div>
+              </GlassCardBody>
             </GlassCard>
 
             {/* Statistics */}
             <GlassCard variant="teal">
-              <div className="p-2 sm:p-4">
+              <GlassCardBody>
                 <div className="flex items-center gap-2 mb-2">
                   <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-teal-300/30 bg-teal-100/50 dark:border-white/15 dark:bg-white/10">
                     <BarChart3 className="h-4 w-4 text-gray-700 dark:text-white" />
@@ -620,7 +458,7 @@ export default function SupplierDetailPage({
                     )}
                   </DetailInfoRow>
                 </div>
-              </div>
+              </GlassCardBody>
             </GlassCard>
           </div>
 
@@ -650,9 +488,11 @@ export default function SupplierDetailPage({
 
           {/* Products from this Supplier — REQ-0086 category parity */}
           <GlassCard variant="sky">
-            <div className="p-2 sm:p-4">
+            <GlassCardBody>
               <SectionTitleRow
                 as="h3"
+                icon={Truck}
+                iconClassName="text-sky-600 dark:text-sky-400"
                 title="Products from this Supplier"
                 count={
                   !dataLoading && products.length > 0
@@ -668,14 +508,16 @@ export default function SupplierDetailPage({
                 ownerProductsHref={ownerProductsHref}
                 supplierHref={supplierHref}
               />
-            </div>
+            </GlassCardBody>
           </GlassCard>
 
           {/* Recent Orders — REQ-0086 category parity */}
           <GlassCard variant="violet">
-            <div className="p-2 sm:p-4">
+            <GlassCardBody>
               <SectionTitleRow
                 as="h3"
+                icon={ShoppingCart}
+                iconClassName="text-violet-600 dark:text-violet-400"
                 title="Recent Orders"
                 count={
                   !dataLoading && recentOrders.length > 0
@@ -692,7 +534,7 @@ export default function SupplierDetailPage({
                 ownerProductsHref={ownerProductsHref}
                 isAdminRole={isAdminRole}
               />
-            </div>
+            </GlassCardBody>
           </GlassCard>
 
           {/* Actions — Back, Edit, Duplicate, Delete; responsive (stack on small, row on larger) */}

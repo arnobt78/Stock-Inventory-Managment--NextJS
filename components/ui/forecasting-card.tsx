@@ -1,9 +1,9 @@
 "use client";
 
 import { Product } from "@/types";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
+import { ForecastUrgencyBadge } from "@/lib/ui/semantic-badges";
 import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
 import {
@@ -246,19 +246,6 @@ export function ForecastingCard({ products, className }: ForecastingCardProps) {
     });
   };
 
-  const getUrgencyColor = (urgency: string) => {
-    switch (urgency) {
-      case "high":
-        return "text-red-600 bg-red-100";
-      case "medium":
-        return "text-orange-600 bg-orange-100";
-      case "low":
-        return "text-yellow-600 bg-yellow-100";
-      default:
-        return "text-gray-600 bg-gray-100";
-    }
-  };
-
   const getTrendIcon = (trend: string, isFutureMonth: boolean = false) => {
     if (isFutureMonth) {
       return <Clock className="h-4 w-4 text-gray-400" />;
@@ -347,9 +334,7 @@ export function ForecastingCard({ products, className }: ForecastingCardProps) {
                       {suggestion.reason}
                     </div>
                   </div>
-                  <Badge className={getUrgencyColor(suggestion.urgency)}>
-                    {suggestion.urgency.toUpperCase()}
-                  </Badge>
+                  <ForecastUrgencyBadge urgency={suggestion.urgency} />
                 </div>
               ))
             ) : (

@@ -14,6 +14,7 @@ import {
 } from "@/lib/invoices/transform-invoice-detail";
 import { mapOrderItemsFromRaw } from "@/lib/orders/map-order-items";
 import { enrichOrderItemsCatalogNames } from "@/lib/orders/enrich-order-items-catalog";
+import { toParty } from "@/lib/server/catalog-party-snapshot";
 import type { Invoice } from "@/types";
 import type { SessionForDetail } from "@/lib/server/order-detail-data";
 
@@ -42,6 +43,7 @@ async function enrichInvoice(
   const partyUserIds = [
     invoice.userId,
     invoice.createdBy,
+    invoice.updatedBy,
     invoice.clientId,
     order?.userId,
     ...(order?.items ?? [])
@@ -128,6 +130,12 @@ async function enrichInvoice(
     linkedOrderNumber: order?.orderNumber ?? null,
     linkedOrderItems: await enrichOrderItemsCatalogNames(
       mapOrderItemsFromRaw(order?.items),
+    ),
+    creator: toParty(
+      invoice.createdBy ? userMap.get(invoice.createdBy) ?? null : null,
+    ),
+    updater: toParty(
+      invoice.updatedBy ? userMap.get(invoice.updatedBy) ?? null : null,
     ),
   };
 }

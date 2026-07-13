@@ -30,13 +30,18 @@ export async function getSupplierPortalForAdmin(
   const supplierEntities = await getSuppliersForAdminIncludingDemo(adminUserId);
 
   const supplierUserIds = [...new Set(supplierEntities.map((s) => s.userId))];
-  const supplierUserMap = new Map<string, string>();
+  const supplierUserMap = new Map<
+    string,
+    { email: string; image: string | null }
+  >();
   if (supplierUserIds.length > 0) {
     const users = await prisma.user.findMany({
       where: { id: { in: supplierUserIds } },
-      select: { id: true, email: true },
+      select: { id: true, email: true, image: true },
     });
-    users.forEach((u) => supplierUserMap.set(u.id, u.email));
+    users.forEach((u) =>
+      supplierUserMap.set(u.id, { email: u.email, image: u.image }),
+    );
   }
 
   const supplierIds = supplierEntities.map((s) => s.id);
@@ -160,12 +165,15 @@ export async function getSupplierPortalForAdmin(
       (sum, p) => sum + p.price * Number(p.quantity),
       0,
     );
-    const email = supplierUserMap.get(s.userId) ?? "—";
+    const email = supplierUserMap.get(s.userId)?.email ?? "—";
+    const image = supplierUserMap.get(s.userId)?.image ?? null;
 
     return {
       id: s.id,
+      userId: s.userId,
       name: s.name,
       email,
+      image,
       createdAt: s.createdAt.toISOString(),
       productCount: supplierProducts.length,
       orderCount: supplierOrderIds.size,

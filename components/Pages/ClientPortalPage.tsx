@@ -180,7 +180,6 @@ export default function ClientPortalPage({
             as="h1"
             icon={Store}
             tone="sky"
-            className="pb-0"
             title="Client Portal"
             description={
               <>

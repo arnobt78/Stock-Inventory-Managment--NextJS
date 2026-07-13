@@ -121,6 +121,19 @@ export interface Order {
   invoiceForOrder?: { id: string; invoiceNumber: string; paidAt?: string | null } | null;
   /** REQ-0073 — payment timestamp from linked invoice (not order.updatedAt) */
   paidAt?: string | null;
+  /** REQ-0096 — audit user snapshots for Created by / Updated by rows */
+  creator?: {
+    id: string;
+    name?: string | null;
+    email: string;
+    image?: string | null;
+  } | null;
+  updater?: {
+    id: string;
+    name?: string | null;
+    email: string;
+    image?: string | null;
+  } | null;
 }
 
 /**

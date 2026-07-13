@@ -50,3 +50,6 @@
 | 2026-07-11 | REQ-0066 hardening: avail sync, role gates | `86421b8` |
 | 2026-07-11 | REQ-0068 picking + pre-test gaps | `72647ed` |
 | 2026-07-11 | Dead-code: unused deleteCache + getRateLimitStatus | `f892b65` |
+| 2026-07-13 | Admin portal UI parity — glow badges, dashboard CTAs, portal avatars, notifications | REQ-0098 |
+| 2026-07-13 | Analytics gap-6; supplier portal userId/image SSR; dead stock scripts removed | REQ-0099 |
+| 2026-07-13 | Supplier portal avatar seed fallback `userId ?? id` (stale Redis guard) | REQ-0100 |

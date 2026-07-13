@@ -21,10 +21,7 @@
     "script:reset-demo-db": "tsx scripts/reset-demo-db.ts",
     "script:delete-all-suppliers": "tsx scripts/delete-all-suppliers.ts",
     "script:delete-all-categories": "tsx scripts/delete-all-categories.ts",
-    "script:delete-user": "tsx scripts/delete-user.ts",
-    "script:backfill-order-stock": "tsx scripts/backfill-order-stock.ts",
-    "script:check-order-stock": "tsx scripts/check-order-product-stock.ts",
-    "script:fix-product2-stock": "tsx scripts/fix-product2-stock.ts"
+    "script:delete-user": "tsx scripts/delete-user.ts"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.10.0",

@@ -61,18 +61,18 @@ export function QRCodeHover({
       {/* Text Link - Click to open dialog */}
       <button
         type="button"
-        className="text-sky-600 dark:text-sky-400 hover:text-sky-500 dark:hover:text-sky-300 cursor-pointer flex items-center gap-1 transition-colors"
+        className="text-sky-600 dark:text-sky-400 hover:text-sky-500 dark:hover:text-sky-300 cursor-pointer flex items-center gap-1 min-w-0 max-w-full transition-colors"
         onClick={() => setIsDialogOpen(true)}
         aria-label={`View QR code for ${title}`}
       >
-        <QrCode className="h-4 w-4" />
-        {title}
+        <QrCode className="h-4 w-4 shrink-0" />
+        <span className="truncate max-w-[7rem] sm:max-w-[9rem]">{title}</span>
       </button>
 
       {/* Dialog — same glassmorphic style as Product/Category dialogs */}
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
         <DialogContent
-          className="p-4 p-2 sm:p-4 sm:px-8 poppins max-h-[90vh] overflow-y-auto border-violet-400/30 dark:border-violet-400/30 shadow-[0_30px_80px_rgba(139,92,246,0.35)] dark:shadow-[0_30px_80px_rgba(139,92,246,0.25)] bg-gradient-to-br from-gray-800/98 via-gray-700/95 to-gray-800/98 dark:from-black/20 dark:via-black/10 dark:to-black/5"
+          className="p-2 sm:p-4 sm:px-8 poppins max-h-[90vh] overflow-y-auto border-violet-400/30 dark:border-violet-400/30 shadow-[0_30px_80px_rgba(139,92,246,0.35)] dark:shadow-[0_30px_80px_rgba(139,92,246,0.25)] bg-gradient-to-br from-gray-800/98 via-gray-700/95 to-gray-800/98 dark:from-black/20 dark:via-black/10 dark:to-black/5"
           onOpenAutoFocus={(e) => e.preventDefault()}
         >
           <DialogHeader>

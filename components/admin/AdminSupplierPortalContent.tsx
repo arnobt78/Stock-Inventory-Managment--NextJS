@@ -5,7 +5,6 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import {
   OrderStatusBadge,
-  PaymentStatusBadge,
   ProductStockStatusBadge,
 } from "@/lib/ui/semantic-badges";
 import {
@@ -19,7 +18,18 @@ import {
   PageContentWrapper,
   PageSectionHeader,
   DataSlotPulse,
+  GlassCard,
+  SectionCountBadge,
+  AvatarInlineLink,
+  GLASS_CARD_VARIANT_CONFIG as variantConfig,
 } from "@/components/shared";
+import { DETAIL_PAGE_HEADER_SPACING_CLASS } from "@/lib/ui/shell-layout-styles";
+import { CARD_EMPTY_MESSAGE_CLASS } from "@/lib/ui/card-empty-styles";
+import {
+  GLASS_ACTION_BUTTON,
+  GLASS_BUTTON_ICON_HOVER,
+  GLASS_BUTTON_SHELL_RESET,
+} from "@/lib/ui/glass-button-styles";
 import { useSupplierPortal } from "@/hooks/queries";
 import {
   isDataSlotLoading,
@@ -36,99 +46,6 @@ import {
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 import type { SupplierPortalStats } from "@/types";
-
-type CardVariant = "sky" | "emerald" | "amber" | "violet" | "blue" | "teal";
-
-const variantConfig: Record<
-  CardVariant,
-  {
-    border: string;
-    gradient: string;
-    shadow: string;
-    hoverBorder: string;
-    iconBg: string;
-  }
-> = {
-  sky: {
-    border: "border-sky-400/20",
-    gradient: "bg-gradient-to-br from-sky-500/15 via-sky-500/5 to-transparent",
-    shadow:
-      "shadow-[0_15px_40px_rgba(2,132,199,0.15)] dark:shadow-[0_15px_40px_rgba(2,132,199,0.1)]",
-    hoverBorder: "hover:border-sky-300/40",
-    iconBg: "border-sky-300/30 bg-sky-100/50",
-  },
-  emerald: {
-    border: "border-emerald-400/20",
-    gradient:
-      "bg-gradient-to-br from-emerald-500/15 via-emerald-500/5 to-transparent",
-    shadow:
-      "shadow-[0_15px_40px_rgba(16,185,129,0.15)] dark:shadow-[0_15px_40px_rgba(16,185,129,0.1)]",
-    hoverBorder: "hover:border-emerald-300/40",
-    iconBg: "border-emerald-300/30 bg-emerald-100/50",
-  },
-  amber: {
-    border: "border-amber-400/20",
-    gradient:
-      "bg-gradient-to-br from-amber-500/15 via-amber-500/5 to-transparent",
-    shadow:
-      "shadow-[0_15px_40px_rgba(245,158,11,0.12)] dark:shadow-[0_15px_40px_rgba(245,158,11,0.08)]",
-    hoverBorder: "hover:border-amber-300/40",
-    iconBg: "border-amber-300/30 bg-amber-100/50",
-  },
-  violet: {
-    border: "border-violet-400/20",
-    gradient:
-      "bg-gradient-to-br from-violet-500/15 via-violet-500/5 to-transparent",
-    shadow:
-      "shadow-[0_15px_40px_rgba(139,92,246,0.15)] dark:shadow-[0_15px_40px_rgba(139,92,246,0.1)]",
-    hoverBorder: "hover:border-violet-300/40",
-    iconBg: "border-violet-300/30 bg-violet-100/50",
-  },
-  blue: {
-    border: "border-blue-400/20",
-    gradient:
-      "bg-gradient-to-br from-blue-500/15 via-blue-500/5 to-transparent",
-    shadow:
-      "shadow-[0_15px_40px_rgba(59,130,246,0.15)] dark:shadow-[0_15px_40px_rgba(59,130,246,0.1)]",
-    hoverBorder: "hover:border-blue-300/40",
-    iconBg: "border-blue-300/30 bg-blue-100/50",
-  },
-  teal: {
-    border: "border-teal-400/20",
-    gradient:
-      "bg-gradient-to-br from-teal-500/15 via-teal-500/5 to-transparent",
-    shadow:
-      "shadow-[0_15px_40px_rgba(20,184,166,0.15)] dark:shadow-[0_15px_40px_rgba(20,184,166,0.1)]",
-    hoverBorder: "hover:border-teal-300/40",
-    iconBg: "border-teal-300/30 bg-teal-100/50",
-  },
-};
-
-function GlassCard({
-  children,
-  variant = "blue",
-  className,
-}: {
-  children: React.ReactNode;
-  variant?: CardVariant;
-  className?: string;
-}) {
-  const config = variantConfig[variant];
-  return (
-    <article
-      className={cn(
-        "group rounded-[20px] border p-2 sm:p-4 backdrop-blur-md transition-all duration-300 bg-white/60 dark:bg-white/5",
-        config.border,
-        config.gradient,
-        config.shadow,
-        config.hoverBorder,
-        className,
-      )}
-    >
-      {children}
-    </article>
-  );
-}
 
 export type AdminSupplierPortalContentProps = {
   initialStats?: SupplierPortalStats | null;
@@ -148,17 +65,25 @@ export default function AdminSupplierPortalContent({
 
   return (
     <PageContentWrapper>
-      <div className="flex flex-col">
+      <div className="flex flex-col gap-6">
         <PageSectionHeader
           as="h1"
           icon={Truck}
           tone="teal"
-          title="Supplier Portal"
+          title={
+            <span className="inline-flex flex-wrap items-center gap-2">
+              Supplier Portal
+              <SectionCountBadge>
+                {stats?.counts?.suppliers ?? 0}
+              </SectionCountBadge>
+            </span>
+          }
           description="Overview of supplier entities, their products, orders, and activity."
+          className={DETAIL_PAGE_HEADER_SPACING_CLASS}
         />
 
         {/* Summary cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-2 items-stretch pb-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-2 items-stretch">
           <AnalyticsCard
             title="Suppliers"
             value={stats?.counts?.suppliers ?? 0}
@@ -196,7 +121,7 @@ export default function AdminSupplierPortalContent({
         {/* Recent products & orders — glassmorphic cards */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-2 sm:gap-4">
           {/* Recent products */}
-          <GlassCard variant="sky">
+          <GlassCard padding="body" variant="sky">
             <div className="flex items-center gap-2 mb-4">
               <div
                 className={cn(
@@ -226,9 +151,7 @@ export default function AdminSupplierPortalContent({
                 ))}
               </ul>
             ) : (stats?.recentProducts?.length ?? 0) === 0 ? (
-              <p className="text-sm text-muted-foreground text-center py-8">
-                No supplier products yet.
-              </p>
+              <p className={CARD_EMPTY_MESSAGE_CLASS}>No supplier products yet.</p>
             ) : (
               <ul className={CARD_LIST_DIVIDE_CLASS}>
                 {(stats?.recentProducts ?? []).map((p) => (
@@ -255,22 +178,28 @@ export default function AdminSupplierPortalContent({
                 ))}
               </ul>
             )}
-            {stats && stats.recentProducts.length > 0 && (
+            <div className="mt-3">
               <Button
                 variant="ghost"
                 size="sm"
                 asChild
-                className="mt-3 w-full rounded-xl border border-sky-200/40 dark:border-white/10"
+                className={cn(
+                  "group w-full gap-2",
+                  GLASS_BUTTON_ICON_HOVER,
+                  GLASS_BUTTON_SHELL_RESET,
+                  GLASS_ACTION_BUTTON.sky,
+                )}
               >
-                <Link href="/admin/products" className="gap-1">
-                  View all products <ArrowRight className="h-4 w-4" />
+                <Link href="/admin/products">
+                  <ArrowRight className="h-4 w-4 shrink-0" />
+                  View All Products
                 </Link>
               </Button>
-            )}
+            </div>
           </GlassCard>
 
           {/* Recent orders */}
-          <GlassCard variant="emerald">
+          <GlassCard padding="body" variant="emerald">
             <div className="flex items-center gap-2 mb-4">
               <div
                 className={cn(
@@ -300,9 +229,7 @@ export default function AdminSupplierPortalContent({
                 ))}
               </ul>
             ) : (stats?.recentOrders?.length ?? 0) === 0 ? (
-              <p className="text-sm text-muted-foreground text-center py-8">
-                No supplier orders yet.
-              </p>
+              <p className={CARD_EMPTY_MESSAGE_CLASS}>No supplier orders yet.</p>
             ) : (
               <ul className={CARD_LIST_DIVIDE_CLASS}>
                 {(stats?.recentOrders ?? []).map((o) => (
@@ -335,23 +262,29 @@ export default function AdminSupplierPortalContent({
                 ))}
               </ul>
             )}
-            {stats && stats.recentOrders.length > 0 && (
+            <div className="mt-3">
               <Button
                 variant="ghost"
                 size="sm"
                 asChild
-                className="mt-3 w-full rounded-xl border border-emerald-200/40 dark:border-white/10"
+                className={cn(
+                  "group w-full gap-2",
+                  GLASS_BUTTON_ICON_HOVER,
+                  GLASS_BUTTON_SHELL_RESET,
+                  GLASS_ACTION_BUTTON.emerald,
+                )}
               >
-                <Link href="/admin/orders" className="gap-1">
-                  View all orders <ArrowRight className="h-4 w-4" />
+                <Link href="/admin/orders">
+                  <ArrowRight className="h-4 w-4 shrink-0" />
+                  View All Orders
                 </Link>
               </Button>
-            )}
+            </div>
           </GlassCard>
         </div>
 
         {/* Suppliers table — glassmorphic card */}
-        <GlassCard variant="violet">
+        <GlassCard padding="body" variant="violet">
           <div className="flex items-center gap-2 mb-4">
             <div
               className={cn(
@@ -406,13 +339,14 @@ export default function AdminSupplierPortalContent({
                   {(stats?.suppliers ?? []).map((s) => (
                     <tr key={s.id}>
                       <td className="py-2 px-2 pr-4">
-                        <Link
+                        {/* REQ-0100: stale Redis may omit userId until TTL or supplierPortal:* invalidation */}
+                        <AvatarInlineLink
+                          label={s.name}
+                          seed={s.userId ?? s.id}
+                          image={s.image}
                           href={`/admin/suppliers/${s.id}`}
-                          prefetch
-                          className="font-medium text-sky-600 dark:text-sky-400 hover:text-sky-500 dark:hover:text-sky-300"
-                        >
-                          {s.name}
-                        </Link>
+                          size={28}
+                        />
                       </td>
                       <td className="py-2 px-2 pr-4 hidden sm:table-cell text-gray-700 dark:text-white truncate max-w-[200px]">
                         {s.email}
@@ -437,10 +371,16 @@ export default function AdminSupplierPortalContent({
               variant="ghost"
               size="sm"
               asChild
-              className="mt-4 w-full rounded-xl border border-violet-200/40 dark:border-white/10"
+              className={cn(
+                "mt-4 group w-full gap-2",
+                GLASS_BUTTON_ICON_HOVER,
+                GLASS_BUTTON_SHELL_RESET,
+                GLASS_ACTION_BUTTON.violet,
+              )}
             >
-              <Link href="/suppliers" className="gap-1">
-                Manage suppliers <ArrowRight className="h-4 w-4" />
+              <Link href="/suppliers">
+                <ArrowRight className="h-4 w-4 shrink-0" />
+                Manage Suppliers
               </Link>
             </Button>
           )}

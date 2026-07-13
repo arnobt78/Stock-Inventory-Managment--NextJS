@@ -324,7 +324,7 @@ export function createProductColumns(
           <QRCodeHover
             data={qrData}
             qrCodeUrl={product.qrCodeUrl}
-            title={`${product.name} QR`}
+            title={product.name}
             size={200}
           />
         );

@@ -41,6 +41,7 @@ import {
 import InvoiceDialog from "@/components/invoices/InvoiceDialog";
 import { useOrder, useUpdateOrder, useDeleteOrder } from "@/hooks/queries";
 import { useBackWithRefresh } from "@/hooks/use-back-with-refresh";
+import { resolveAuditUserManagementHref } from "@/lib/navigation/audit-user-href";
 import {
   ClientDateTime,
   CopyableText,
@@ -50,6 +51,7 @@ import {
   GLASS_GHOST_BUTTON,
   glassDetailBackButtonClass,
   glassDetailFooterButtonClass,
+  AuditUserDetailRow,
 } from "@/components/shared";
 import { isDataSlotLoading, queryKeys, useSyncSsrQueryData } from "@/lib/react-query";
 import { useToast } from "@/hooks/use-toast";
@@ -364,6 +366,22 @@ export default function AdminOrderDetailContent({
                 <DetailInfoRow icon={Calendar} label="Updated:" tone="amber">
                   <ClientDateTime date={updatedAt} />
                 </DetailInfoRow>
+              )}
+              {!dataLoading && order?.creator && (
+                <AuditUserDetailRow
+                  label="Created by:"
+                  tone="violet"
+                  user={order.creator}
+                  href={resolveAuditUserManagementHref(order.creator.id, true)}
+                />
+              )}
+              {!dataLoading && order?.updater && (
+                <AuditUserDetailRow
+                  label="Updated by:"
+                  tone="blue"
+                  user={order.updater}
+                  href={resolveAuditUserManagementHref(order.updater.id, true)}
+                />
               )}
               {!dataLoading && order?.notes && (
                 <DetailInfoRow icon={FileText} label="Notes:" tone="teal">

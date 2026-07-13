@@ -25,7 +25,10 @@ import {
   PageContentWrapper,
   PageSectionHeader,
   SectionCardHeader,
+  GlassCard,
 } from "@/components/shared";
+import type { GlassCardVariant } from "@/lib/ui/glass-card";
+import { GlassCardBody } from "@/lib/ui/glass-card";
 import { CopyCodeButton } from "@/components/shared";
 import type { SectionHeaderTone } from "@/lib/ui/section-header-tones";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -38,122 +41,6 @@ function getTabValue(name: string): string {
     .toLowerCase()
     .replace(/\s+&\s+/g, "-")
     .replace(/\s+/g, "-");
-}
-
-/**
- * Color variants for glassmorphic cards
- */
-type CardVariant =
-  | "sky"
-  | "emerald"
-  | "amber"
-  | "rose"
-  | "violet"
-  | "blue"
-  | "orange"
-  | "teal";
-
-const variantConfig: Record<
-  CardVariant,
-  {
-    border: string;
-    gradient: string;
-    shadow: string;
-    hoverBorder: string;
-  }
-> = {
-  sky: {
-    border: "border-sky-400/20",
-    gradient: "bg-gradient-to-br from-sky-500/15 via-sky-500/5 to-transparent",
-    shadow:
-      "shadow-[0_15px_40px_rgba(2,132,199,0.15)] dark:shadow-[0_15px_40px_rgba(2,132,199,0.1)]",
-    hoverBorder: "hover:border-sky-300/40",
-  },
-  emerald: {
-    border: "border-emerald-400/20",
-    gradient:
-      "bg-gradient-to-br from-emerald-500/15 via-emerald-500/5 to-transparent",
-    shadow:
-      "shadow-[0_15px_40px_rgba(16,185,129,0.15)] dark:shadow-[0_15px_40px_rgba(16,185,129,0.1)]",
-    hoverBorder: "hover:border-emerald-300/40",
-  },
-  amber: {
-    border: "border-amber-400/20",
-    gradient:
-      "bg-gradient-to-br from-amber-500/15 via-amber-500/5 to-transparent",
-    shadow:
-      "shadow-[0_15px_40px_rgba(245,158,11,0.12)] dark:shadow-[0_15px_40px_rgba(245,158,11,0.08)]",
-    hoverBorder: "hover:border-amber-300/40",
-  },
-  rose: {
-    border: "border-rose-400/20",
-    gradient:
-      "bg-gradient-to-br from-rose-500/15 via-rose-500/5 to-transparent",
-    shadow:
-      "shadow-[0_15px_40px_rgba(225,29,72,0.15)] dark:shadow-[0_15px_40px_rgba(225,29,72,0.1)]",
-    hoverBorder: "hover:border-rose-300/40",
-  },
-  violet: {
-    border: "border-violet-400/20",
-    gradient:
-      "bg-gradient-to-br from-violet-500/15 via-violet-500/5 to-transparent",
-    shadow:
-      "shadow-[0_15px_40px_rgba(139,92,246,0.15)] dark:shadow-[0_15px_40px_rgba(139,92,246,0.1)]",
-    hoverBorder: "hover:border-violet-300/40",
-  },
-  blue: {
-    border: "border-blue-400/20",
-    gradient:
-      "bg-gradient-to-br from-blue-500/15 via-blue-500/5 to-transparent",
-    shadow:
-      "shadow-[0_15px_40px_rgba(59,130,246,0.15)] dark:shadow-[0_15px_40px_rgba(59,130,246,0.1)]",
-    hoverBorder: "hover:border-blue-300/40",
-  },
-  orange: {
-    border: "border-orange-400/20",
-    gradient:
-      "bg-gradient-to-br from-orange-500/15 via-orange-500/5 to-transparent",
-    shadow:
-      "shadow-[0_15px_40px_rgba(249,115,22,0.15)] dark:shadow-[0_15px_40px_rgba(249,115,22,0.1)]",
-    hoverBorder: "hover:border-orange-300/40",
-  },
-  teal: {
-    border: "border-teal-400/20",
-    gradient:
-      "bg-gradient-to-br from-teal-500/15 via-teal-500/5 to-transparent",
-    shadow:
-      "shadow-[0_15px_40px_rgba(20,184,166,0.15)] dark:shadow-[0_15px_40px_rgba(20,184,166,0.1)]",
-    hoverBorder: "hover:border-teal-300/40",
-  },
-};
-
-/**
- * Glassmorphic Card component for API docs
- */
-function GlassCard({
-  children,
-  variant = "blue",
-  className,
-}: {
-  children: React.ReactNode;
-  variant?: CardVariant;
-  className?: string;
-}) {
-  const config = variantConfig[variant];
-  return (
-    <article
-      className={cn(
-        "rounded-[20px] border backdrop-blur-md transition overflow-hidden",
-        config.border,
-        config.gradient,
-        config.shadow,
-        config.hoverBorder,
-        className,
-      )}
-    >
-      {children}
-    </article>
-  );
 }
 
 export default function ApiDocsPage() {
@@ -1181,7 +1068,7 @@ export default function ApiDocsPage() {
   };
 
   // Map endpoint sections to color variants
-  const sectionVariants: Record<string, CardVariant> = {
+  const sectionVariants: Record<string, GlassCardVariant> = {
     Authentication: "violet",
     Products: "emerald",
     Categories: "sky",
@@ -1221,7 +1108,7 @@ export default function ApiDocsPage() {
             <>
               {/* Base URL */}
               <GlassCard variant="blue">
-                  <div className="p-2 sm:p-4">
+                  <GlassCardBody>
                     <SectionCardHeader
                       icon={Code2}
                       tone="blue"
@@ -1231,12 +1118,12 @@ export default function ApiDocsPage() {
                     <code className="block bg-white/50 dark:bg-white/5 border border-gray-300/30 dark:border-white/10 px-2 py-2 rounded-xl text-sm font-mono text-gray-700 dark:text-white/90 break-all">
                       {baseUrl}
                     </code>
-                  </div>
+                  </GlassCardBody>
                 </GlassCard>
 
                 {/* Authentication */}
                 <GlassCard variant="violet">
-                  <div className="p-2 sm:p-4">
+                  <GlassCardBody>
                     <SectionCardHeader
                       icon={Key}
                       tone="violet"
@@ -1249,12 +1136,12 @@ export default function ApiDocsPage() {
                         credentials: &quot;include&quot;
                       </code>
                     </p>
-                  </div>
+                  </GlassCardBody>
                 </GlassCard>
 
                 {/* Rate Limiting */}
                 <GlassCard variant="amber">
-                  <div className="p-2 sm:p-4">
+                  <GlassCardBody>
                     <SectionCardHeader
                       icon={Zap}
                       tone="amber"
@@ -1265,12 +1152,12 @@ export default function ApiDocsPage() {
                       100 req/min (standard), 10 req/min (import), 5 req/min
                       (auth)
                     </p>
-                  </div>
+                  </GlassCardBody>
                 </GlassCard>
 
                 {/* OpenAPI */}
                 <GlassCard variant="teal">
-                  <div className="p-2 sm:p-4">
+                  <GlassCardBody>
                     <SectionCardHeader
                       icon={FileJson}
                       tone="teal"
@@ -1286,7 +1173,7 @@ export default function ApiDocsPage() {
                       Download spec
                       <ExternalLink className="h-3 w-3" />
                     </a>
-                  </div>
+                  </GlassCardBody>
                 </GlassCard>
             </>
           </div>
@@ -1326,7 +1213,7 @@ export default function ApiDocsPage() {
                   className="mt-4 focus-visible:outline-none"
                 >
                   <GlassCard variant={variant}>
-                    <div className="p-2 sm:p-4">
+                    <GlassCardBody>
                       <SectionCardHeader
                         icon={section.icon}
                         tone={variant as SectionHeaderTone}
@@ -1447,7 +1334,7 @@ export default function ApiDocsPage() {
                           </div>
                         ))}
                       </div>
-                    </div>
+                    </GlassCardBody>
                   </GlassCard>
                 </TabsContent>
               );
@@ -1458,7 +1345,7 @@ export default function ApiDocsPage() {
               className="mt-4 focus-visible:outline-none"
             >
               <GlassCard variant="sky">
-                <div className="p-2 sm:p-4">
+                <GlassCardBody>
                   <SectionCardHeader
                     icon={Database}
                     tone="sky"
@@ -1469,7 +1356,7 @@ export default function ApiDocsPage() {
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                     {dataTypes.map((type, typeIndex) => {
-                      const typeVariants: CardVariant[] = [
+                      const typeVariants: GlassCardVariant[] = [
                         "emerald",
                         "violet",
                         "orange",
@@ -1517,7 +1404,7 @@ export default function ApiDocsPage() {
                       );
                     })}
                   </div>
-                </div>
+                </GlassCardBody>
               </GlassCard>
             </TabsContent>
 
@@ -1526,7 +1413,7 @@ export default function ApiDocsPage() {
               className="mt-4 focus-visible:outline-none"
             >
               <GlassCard variant="rose">
-                <div className="p-2 sm:p-4">
+                <GlassCardBody>
                   <SectionCardHeader
                     icon={AlertCircle}
                     tone="rose"
@@ -1602,7 +1489,7 @@ export default function ApiDocsPage() {
                       </div>
                     </div>
                   </div>
-                </div>
+                </GlassCardBody>
               </GlassCard>
             </TabsContent>
           </Tabs>
