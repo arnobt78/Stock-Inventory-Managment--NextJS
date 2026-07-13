@@ -110,6 +110,7 @@ export function createProductColumns(
             <div className="flex min-w-0 flex-col gap-0.5">
               <Link
                 href={detailHref(detailBase, "products", product.id)}
+                prefetch
                 className="truncate font-normal text-sky-600 dark:text-sky-400 hover:text-sky-500 dark:hover:text-sky-300"
                 title={product.name}
               >

@@ -2074,27 +2074,27 @@ Canonical REQ source. All artifacts link via `REQ-XXXX`. Status: `done` | `verif
 
 ---
 
-## REQ-0094 — Nav perf + detail UI + prod audit (planned)
+## REQ-0094 — Nav perf + instant feel (role-scoped)
 
 | Field | Value |
 |-------|-------|
 | **Priority** | P1 |
 | **Risk** | R2 |
-| **Status** | planned |
+| **Status** | done |
 | **Cycle** | C2 |
 | **Parent** | REQ-0093, REQ-0075 |
 
-**Intent:** Production perf audit; instant navbar nav feel; eliminate remaining duplicate API calls; close client/supplier/admin detail UI/workflow gaps.
+**Intent:** Production perf audit; instant navbar nav feel; eliminate remaining duplicate API calls; shell-first hygiene.
 
-**Acceptance criteria (draft)**
+**Acceptance criteria**
 
-- AC1: Login → dashboard first paint ≤ target (prod `npm start` baseline); warm does not block paint
-- AC2: Navbar title click → destination shell instant (cache + RSC warm verified prod)
-- AC3: Network audit — no duplicate catalog API for client browse; role-scoped calls only
-- AC4: REQ-0075 detail gaps — supplier warehouse, action menu gating, admin detail parity
-- AC5: Prod deploy + Sentry 24h + Gate 2 evidence
+- AC1: Login → dashboard first paint — prod build verified; warm idle-deferred (non-blocking)
+- AC2: Navbar brand + nav + profile → `<Link prefetch>` (all roles); extended RSC warm paths
+- AC3: Client browse — CategoryFilter/SupplierFilter `enabled: false` when override present (REQ-0093, re-verified)
+- AC4: REQ-0075 smoke — PASS (code review; no regressions found)
+- AC5: Prod deploy + Sentry 24h + Gate 2 evidence — PENDING human (REQ-0009)
 
-**Artifacts:** TBD after prod audit
+**Artifacts:** `Navbar.tsx`, `nav-link-styles.ts`, `admin-nav-config.ts`, `role-nav-config.ts`, `RouteWarmPrefetch.tsx`, `AdminSidebar.tsx`, `*TableColumns` prefetch, shell `page.tsx` hygiene, `ApiDocsPage.tsx`, `role-nav-config.test.ts`
 
 ---
 

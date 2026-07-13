@@ -3,6 +3,8 @@
  * Covers: hooks/queries mutations, components using mutate, inline fetch CRUD,
  * invalidate-all registry, per-route Redis invalidation (31 routes), spec/exempt
  * completeness, update detail touch, delete cancel/remove.
+ * Dynamic test count varies when inline-fetch components change (e.g. AdminSidebar
+ * logout fetch removed REQ-0094 → 205 vs prior 206).
  * Run: npm run test:invalidate
  */
 

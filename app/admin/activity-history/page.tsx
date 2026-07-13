@@ -1,3 +1,4 @@
+import { redirect } from "next/navigation";
 import { getSession } from "@/lib/auth-server";
 import {
   getHistoryForUser,
@@ -10,7 +11,7 @@ export const dynamic = "force-dynamic";
 
 export default async function AdminActivityHistoryPage() {
   const user = await getSession();
-  if (!user) return null;
+  if (!user) redirect("/login");
 
   const [initialHistory, initialActivityLogs] = await Promise.all([
     getHistoryForUser(user.id),

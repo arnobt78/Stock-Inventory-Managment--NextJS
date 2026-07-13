@@ -228,8 +228,9 @@ flowchart LR
 | Detail list UI parity (REQ-0086) | `CatalogDetailProductGrid` + `CatalogDetailRecentOrdersList`; supplier stats/info SSR party enrich |
 | List loading DRY (REQ-0087) | Parent pages pass `loading={dataLoading}` to shared catalog list components |
 | Demo seed (REQ-0088–0092) | Full catalog seed opt-in; accounts-only reset; Test Supplier naming |
-| Warm prefetch (REQ-0093) | `role-nav-config.ts`; batched TanStack warm; staggered `router.prefetch`; filter `enabled` gate; ApiStatus role probes |
-| Next backlog | REQ-0094 — prod nav perf + detail UI + API dedupe audit |
+| Warm prefetch (REQ-0093) | `role-nav-config.ts`; batched TanStack warm; staggered `router.prefetch`; filter `enabled` gate |
+| Instant nav (REQ-0094) | Navbar `<Link prefetch>`; `getWarmPathsForRole` + `resolveWarmNavPath`; portal detail prefetch; shell hygiene |
+| Next | Gate 2 — prod deploy + Sentry 24h |
 | AI warehouse insights (REQ-0067) | `POST /api/ai/insights` enriches payload with `getWarehouseStockSummary` |
 | Per-warehouse order picking (REQ-0068) | `OrderItem.warehouseId`; `stock-allocation-order-sync.ts`; `OrderLineWarehouseSelect`; reserve/fulfill/cancel sync; invoice-paid gap; `f892b65` removed unused `deleteCache`/`getRateLimitStatus` |
 | Demo reset | `npm run script:reset-demo-db` — accounts-only (3 users + Test Supplier); opt-in catalog via `seed-demo-catalog` |
@@ -243,15 +244,15 @@ flowchart LR
 3. Sentry **stock-inventory** — 24h: compare cases 1–7 vs `docs/SENTRY_ERRORS.md`
 4. Log result in `.agile-v/REVALIDATION_LOG.md`; CAPA if regression
 
-## 8. Quality gates (audit 2026-07-12)
+## 8. Quality gates (audit 2026-07-13)
 
 | Check | Status |
 |-------|--------|
 | `npm run lint` | pass |
 | `npm run build` | pass |
-| `npm run test` | 413 passed |
-| `npm run test:invalidate` | 206 passed |
-| Prod commit | REQ-0093 pending push |
+| `npm run test` | 415 passed |
+| `npm run test:invalidate` | 205 passed (AdminSidebar inline-fetch removed REQ-0094) |
+| Prod commit | REQ-0094 pending push |
 | Radix table Select | `useDeferredRadixSelect` + `PaginationSelector` (11 tables) |
 | Pagination clamp + page-size reset | `useClampPaginationIndex` + `PaginationSelector` pageIndex 0 |
 | Sentry | tunnel + translate scrub + `syncSentryUserFromAuth` |

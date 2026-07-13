@@ -121,6 +121,7 @@ export const createInvoiceColumns = (
             <CopyableText value={invoice.invoiceNumber}>
               <Link
                 href={invoiceHref(invoice.id)}
+                prefetch
                 className="font-normal text-sky-600 dark:text-sky-400 hover:text-sky-500 dark:hover:text-sky-300"
               >
                 {invoice.invoiceNumber}

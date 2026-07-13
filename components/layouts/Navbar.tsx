@@ -5,7 +5,8 @@
  * Role is inferred from user.role or pathname so correct links show before auth finishes (e.g. on refresh).
  */
 import React, { useState, ReactNode } from "react";
-import { useRouter, usePathname } from "next/navigation";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
 import {
   LogOut,
   Menu,
@@ -51,9 +52,22 @@ import { isNavPathActive } from "@/lib/navigation/is-nav-path-active";
 import {
   getHomePathForRole,
   getNavItemsForRole,
+  PROFILE_MENU_PATHS,
   type RoleNavItem,
 } from "@/lib/navigation/role-nav-config";
-import { cn } from "@/lib/utils";
+import { navbarNavLinkClass } from "@/lib/navigation/nav-link-styles";
+
+/** Profile menu entries — paths shared with RouteWarmPrefetch (REQ-0094). */
+const PROFILE_MENU_LINKS = [
+  { path: PROFILE_MENU_PATHS[0], label: "Support Tickets", Icon: MessageSquare },
+  {
+    path: PROFILE_MENU_PATHS[1],
+    label: "Email Preferences",
+    Icon: Settings,
+  },
+  { path: PROFILE_MENU_PATHS[2], label: "API Documentation", Icon: FileCode },
+  { path: PROFILE_MENU_PATHS[3], label: "API Status", Icon: Activity },
+] as const;
 
 /**
  * Theme toggle component (inline ModeToggle)
@@ -113,11 +127,12 @@ interface NavbarProps {
  */
 export default function Navbar({ children }: NavbarProps) {
   const { user, isCheckingAuth } = useAuth();
-  const router = useRouter();
   const pathname = usePathname();
   const { toast } = useToast();
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
+  const closeMobileMenu = () => setIsMobileMenuOpen(false);
 
   const handleLogout = async () => {
     setIsLoggingOut(true);
@@ -162,14 +177,6 @@ export default function Navbar({ children }: NavbarProps) {
     }
   };
 
-  /**
-   * Handle navigation to a path
-   */
-  const handleNavigation = (path: string) => {
-    router.push(path);
-    setIsMobileMenuOpen(false);
-  };
-
   type NavItem = RoleNavItem;
 
   // Role from auth when available; else infer from pathname so client/supplier see correct nav on refresh (no admin flash).
@@ -202,26 +209,22 @@ export default function Navbar({ children }: NavbarProps) {
       <div
         className={`${APP_SHELL_WIDTH_CLASS} flex h-full items-center justify-between gap-2 px-2 sm:px-4 lg:px-6`}
       >
-        {/* Left Section - Logo and Brand */}
+        {/* Left Section - Logo and Brand (REQ-0094: Link prefetch for instant home nav) */}
         <div className="flex items-center gap-2">
-          <div
-            role="button"
-            tabIndex={0}
+          <Link
+            href={homePath}
+            prefetch
+            onClick={closeMobileMenu}
             aria-label="Go to home"
-            className="group flex aspect-square size-10 items-center justify-center rounded-xl border border-rose-400/40 dark:border-rose-400/30 bg-gradient-to-br from-rose-500/30 via-rose-500/15 to-rose-500/8 dark:from-rose-500/20 dark:via-rose-500/15 dark:to-rose-500/10 shadow-[0_5px_20px_rgba(225,29,72,0.3)] dark:shadow-[0_5px_20px_rgba(225,29,72,0.25)] backdrop-blur-md cursor-pointer transition-all duration-200 hover:border-rose-400/60 dark:hover:border-rose-400/40 hover:from-rose-500/40 hover:via-rose-500/20 hover:to-rose-500/10 dark:hover:from-rose-500/30 dark:hover:via-rose-500/20 dark:hover:to-rose-500/15 hover:shadow-[0_10px_35px_rgba(225,29,72,0.5)] dark:hover:shadow-[0_10px_35px_rgba(225,29,72,0.4)]"
-            onClick={() => handleNavigation(homePath)}
-            onKeyDown={(e) => {
-              if (e.key === "Enter" || e.key === " ") {
-                e.preventDefault();
-                handleNavigation(homePath);
-              }
-            }}
+            className="group flex items-center gap-2"
           >
-            <AiFillProduct className="text-sm sm:text-lg text-rose-600 dark:text-rose-400 transition-transform group-hover:scale-110 drop-shadow-[0_2px_8px_rgba(225,29,72,0.4)]" />
-          </div>
-          <h1 className="text-sm sm:text-lg font-medium tracking-tight bg-gradient-to-r from-rose-600 to-gray-900 dark:from-rose-400 dark:to-gray-100 bg-clip-text text-transparent transition-all duration-300 ease-in-out hover:from-rose-700 hover:to-gray-950 dark:hover:from-rose-300 dark:hover:to-gray-50 cursor-pointer">
-            Stockly
-          </h1>
+            <div className="flex aspect-square size-10 items-center justify-center rounded-xl border border-rose-400/40 dark:border-rose-400/30 bg-gradient-to-br from-rose-500/30 via-rose-500/15 to-rose-500/8 dark:from-rose-500/20 dark:via-rose-500/15 dark:to-rose-500/10 shadow-[0_5px_20px_rgba(225,29,72,0.3)] dark:shadow-[0_5px_20px_rgba(225,29,72,0.25)] backdrop-blur-md transition-all duration-200 hover:border-rose-400/60 dark:hover:border-rose-400/40 hover:from-rose-500/40 hover:via-rose-500/20 hover:to-rose-500/10 dark:hover:from-rose-500/30 dark:hover:via-rose-500/20 dark:hover:to-rose-500/15 hover:shadow-[0_10px_35px_rgba(225,29,72,0.5)] dark:hover:shadow-[0_10px_35px_rgba(225,29,72,0.4)]">
+              <AiFillProduct className="text-sm sm:text-lg text-rose-600 dark:text-rose-400 transition-transform group-hover:scale-110 drop-shadow-[0_2px_8px_rgba(225,29,72,0.4)]" />
+            </div>
+            <h1 className="text-sm sm:text-lg font-medium tracking-tight bg-gradient-to-r from-rose-600 to-gray-900 dark:from-rose-400 dark:to-gray-100 bg-clip-text text-transparent transition-all duration-300 ease-in-out group-hover:from-rose-700 group-hover:to-gray-950 dark:group-hover:from-rose-300 dark:group-hover:to-gray-50">
+              Stockly
+            </h1>
+          </Link>
         </div>
 
         {/* Desktop Navigation (XL screens) */}
@@ -249,10 +252,17 @@ export default function Navbar({ children }: NavbarProps) {
                     {item.dropdownItems.map((sub) => (
                       <DropdownMenuItem
                         key={sub.path}
-                        onSelect={() => handleNavigation(sub.path)}
-                        className="text-gray-700 dark:text-muted-foreground hover:text-gray-700 dark:hover:text-foreground hover:bg-gradient-to-br hover:from-sky-500/10 hover:via-sky-500/5 hover:to-sky-500/5 dark:hover:from-white/10 dark:hover:via-white/5 dark:hover:to-white/5 cursor-pointer"
+                        asChild
+                        className="text-gray-700 dark:text-muted-foreground hover:text-gray-700 dark:hover:text-foreground hover:bg-gradient-to-br hover:from-sky-500/10 hover:via-sky-500/5 hover:to-sky-500/5 dark:hover:from-white/10 dark:hover:via-white/5 dark:hover:to-white/5 cursor-pointer p-0"
                       >
-                        {sub.label}
+                        <Link
+                          href={sub.path}
+                          prefetch
+                          onClick={closeMobileMenu}
+                          className="block w-full cursor-pointer px-2 py-1.5 text-sm"
+                        >
+                          {sub.label}
+                        </Link>
                       </DropdownMenuItem>
                     ))}
                   </DropdownMenuContent>
@@ -262,21 +272,16 @@ export default function Navbar({ children }: NavbarProps) {
             // Regular navigation items (including Dashboard)
             const isNavActive = isNavPathActive(pathname, item.path);
             return (
-              <Button
+              <Link
                 key={item.path}
-                variant="ghost"
-                size="sm"
-                onClick={() => handleNavigation(item.path)}
+                href={item.path}
+                prefetch
+                onClick={closeMobileMenu}
                 aria-current={isNavActive ? "page" : undefined}
-                className={cn(
-                  "text-sm font-normal will-change-[background,box-shadow,color] transition-[background-image,box-shadow,color] duration-300 ease-in-out rounded-md px-2 py-2",
-                  isNavActive
-                    ? "text-sky-600 dark:text-sky-400 bg-gradient-to-br from-sky-500/15 via-sky-500/10 to-sky-500/5 dark:from-sky-500/20 dark:via-sky-500/10 dark:to-sky-500/5 backdrop-blur-md shadow-[0_5px_15px_rgba(2,132,199,0.2)]"
-                    : "text-gray-700 dark:text-muted-foreground hover:text-sky-600 dark:hover:text-foreground hover:bg-gradient-to-br hover:from-sky-500/10 hover:via-sky-500/5 hover:to-sky-500/5 dark:hover:from-white/10 dark:hover:via-white/5 dark:hover:to-white/5 hover:backdrop-blur-md hover:shadow-[0_5px_15px_rgba(2,132,199,0.25)] dark:hover:shadow-[0_5px_15px_rgba(255,255,255,0.15)]",
-                )}
+                className={navbarNavLinkClass(isNavActive, "desktop")}
               >
                 {item.label}
-              </Button>
+              </Link>
             );
           })}
         </nav>
@@ -342,46 +347,14 @@ export default function Navbar({ children }: NavbarProps) {
                   </div>
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator className="bg-gray-200 dark:bg-gray-700" />
-                <DropdownMenuItem
-                  onClick={() => {
-                    router.push("/support-tickets");
-                    setIsMobileMenuOpen(false);
-                  }}
-                  className={DROPDOWN_NAV_ITEM_CLASS}
-                >
-                  <MessageSquare className="mr-2 h-4 w-4" />
-                  <span>Support Tickets</span>
-                </DropdownMenuItem>
-                <DropdownMenuItem
-                  onClick={() => {
-                    router.push("/settings/email-preferences");
-                    setIsMobileMenuOpen(false);
-                  }}
-                  className={DROPDOWN_NAV_ITEM_CLASS}
-                >
-                  <Settings className="mr-2 h-4 w-4" />
-                  <span>Email Preferences</span>
-                </DropdownMenuItem>
-                <DropdownMenuItem
-                  onClick={() => {
-                    router.push("/api-docs");
-                    setIsMobileMenuOpen(false);
-                  }}
-                  className={DROPDOWN_NAV_ITEM_CLASS}
-                >
-                  <FileCode className="mr-2 h-4 w-4" />
-                  <span>API Documentation</span>
-                </DropdownMenuItem>
-                <DropdownMenuItem
-                  onClick={() => {
-                    router.push("/api-status");
-                    setIsMobileMenuOpen(false);
-                  }}
-                  className={DROPDOWN_NAV_ITEM_CLASS}
-                >
-                  <Activity className="mr-2 h-4 w-4" />
-                  <span>API Status</span>
-                </DropdownMenuItem>
+                {PROFILE_MENU_LINKS.map(({ path, label, Icon }) => (
+                  <DropdownMenuItem key={path} asChild className={DROPDOWN_NAV_ITEM_CLASS}>
+                    <Link href={path} prefetch onClick={closeMobileMenu}>
+                      <Icon className="mr-2 h-4 w-4" />
+                      <span>{label}</span>
+                    </Link>
+                  </DropdownMenuItem>
+                ))}
                 <DropdownMenuSeparator className="bg-gray-200 dark:bg-gray-700" />
                 <DropdownMenuItem
                   onClick={handleLogout}
@@ -474,16 +447,18 @@ export default function Navbar({ children }: NavbarProps) {
                       </p>
                       <div className="pl-4 ">
                         {item.dropdownItems.map((sub) => (
-                          <Button
+                          <Link
                             key={sub.path}
-                            variant="ghost"
-                            className="w-full justify-start text-gray-600 dark:text-muted-foreground hover:text-gray-700 dark:hover:text-foreground hover:bg-gradient-to-br hover:from-sky-500/10 hover:via-sky-500/5 hover:to-sky-500/5 dark:hover:from-white/10 dark:hover:via-white/5 dark:hover:to-white/5 hover:backdrop-blur-md transition-all duration-300 ease-in-out px-2 py-2 h-auto min-h-[40px] text-sm"
-                            onClick={() => {
-                              handleNavigation(sub.path);
-                            }}
+                            href={sub.path}
+                            prefetch
+                            onClick={closeMobileMenu}
+                            className={navbarNavLinkClass(
+                              isNavPathActive(pathname, sub.path),
+                              "mobile",
+                            )}
                           >
                             {sub.label}
-                          </Button>
+                          </Link>
                         ))}
                       </div>
                     </div>
@@ -492,77 +467,35 @@ export default function Navbar({ children }: NavbarProps) {
                 // Regular navigation items (including Dashboard)
                 const isNavActive = isNavPathActive(pathname, item.path);
                 return (
-                  <Button
+                  <Link
                     key={item.path}
-                    variant="ghost"
+                    href={item.path}
+                    prefetch
+                    onClick={closeMobileMenu}
                     aria-current={isNavActive ? "page" : undefined}
-                    className={cn(
-                      "w-full justify-start hover:backdrop-blur-md transition-all duration-300 ease-in-out px-2 h-auto min-h-[44px]",
-                      isNavActive
-                        ? "text-sky-600 dark:text-sky-400 bg-gradient-to-br from-sky-500/15 via-sky-500/10 to-sky-500/5 dark:from-sky-500/20 dark:via-sky-500/10 dark:to-sky-500/5"
-                        : "text-gray-700 dark:text-muted-foreground hover:text-gray-700 dark:hover:text-foreground hover:bg-gradient-to-br hover:from-sky-500/10 hover:via-sky-500/5 hover:to-sky-500/5 dark:hover:from-white/10 dark:hover:via-white/5 dark:hover:to-white/5",
-                    )}
-                    onClick={() => handleNavigation(item.path)}
+                    className={navbarNavLinkClass(isNavActive, "mobile")}
                   >
                     {item.label}
-                  </Button>
+                  </Link>
                 );
               })}
             </nav>
 
             <Separator className="bg-gray-300/50 dark:bg-white/10" />
 
-            {/* Support Tickets */}
-            <Button
-              variant="ghost"
-              className="w-full justify-start text-gray-700 dark:text-muted-foreground hover:text-gray-700 dark:hover:text-foreground hover:bg-gradient-to-br hover:from-sky-500/10 hover:via-sky-500/5 hover:to-sky-500/5 dark:hover:from-white/10 dark:hover:via-white/5 dark:hover:to-white/5 hover:backdrop-blur-md transition-all duration-300 ease-in-out px-2 h-auto min-h-[44px]"
-              onClick={() => {
-                router.push("/support-tickets");
-                setIsMobileMenuOpen(false);
-              }}
-            >
-              <MessageSquare className="mr-2 h-4 w-4" />
-              Support Tickets
-            </Button>
-
-            {/* Email Preferences */}
-            <Button
-              variant="ghost"
-              className="w-full justify-start text-gray-700 dark:text-muted-foreground hover:text-gray-700 dark:hover:text-foreground hover:bg-gradient-to-br hover:from-sky-500/10 hover:via-sky-500/5 hover:to-sky-500/5 dark:hover:from-white/10 dark:hover:via-white/5 dark:hover:to-white/5 hover:backdrop-blur-md transition-all duration-300 ease-in-out px-2 h-auto min-h-[44px]"
-              onClick={() => {
-                router.push("/settings/email-preferences");
-                setIsMobileMenuOpen(false);
-              }}
-            >
-              <Settings className="mr-2 h-4 w-4" />
-              Email Preferences
-            </Button>
-
-            {/* API Documentation */}
-            <Button
-              variant="ghost"
-              className="w-full justify-start text-gray-700 dark:text-white/80 hover:backdrop-grey-100 dark:hover:backdrop-white/10 transition-all duration-200 ease-in-out px-2 h-auto min-h-[44px]"
-              onClick={() => {
-                router.push("/api-docs");
-                setIsMobileMenuOpen(false);
-              }}
-            >
-              <FileCode className="mr-2 h-4 w-4" />
-              API Documentation
-            </Button>
-
-            {/* API Status */}
-            <Button
-              variant="ghost"
-              className="w-full justify-start text-gray-700 dark:text-muted-foreground hover:text-gray-700 dark:hover:text-foreground hover:bg-gradient-to-br hover:from-sky-500/10 hover:via-sky-500/5 hover:to-sky-500/5 dark:hover:from-white/10 dark:hover:via-white/5 dark:hover:to-white/5 hover:backdrop-blur-md transition-all duration-300 ease-in-out px-2 h-auto min-h-[44px]"
-              onClick={() => {
-                router.push("/api-status");
-                setIsMobileMenuOpen(false);
-              }}
-            >
-              <Activity className="mr-2 h-4 w-4" />
-              API Status
-            </Button>
+            {/* Profile menu links (REQ-0094: Link prefetch) */}
+            {PROFILE_MENU_LINKS.map(({ path, label, Icon }) => (
+              <Link
+                key={path}
+                href={path}
+                prefetch
+                onClick={closeMobileMenu}
+                className={navbarNavLinkClass(false, "mobile")}
+              >
+                <Icon className="mr-2 h-4 w-4" />
+                {label}
+              </Link>
+            ))}
 
             <Separator className="bg-gray-300/50 dark:bg-white/10" />
 

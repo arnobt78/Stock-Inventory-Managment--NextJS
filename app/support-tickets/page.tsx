@@ -5,7 +5,9 @@ import {
   getProductOwnersForSupport,
 } from "@/lib/server/support-tickets-data";
 import SupportTicketsPageContent from "@/components/support-tickets/SupportTicketsPageContent";
-import type { SupportTicket } from "@/types";
+
+/** REQ-0094 — explicit force-dynamic for shell-first parity. */
+export const dynamic = "force-dynamic";
 
 /**
  * User-facing Support Tickets page (SSR).

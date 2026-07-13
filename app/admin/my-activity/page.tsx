@@ -1,3 +1,4 @@
+import { redirect } from "next/navigation";
 import { getSession } from "@/lib/auth-server";
 import {
   getProductsForUser,
@@ -15,7 +16,7 @@ export const dynamic = "force-dynamic";
 
 export default async function MyActivityPage() {
   const user = await getSession();
-  if (!user) return null;
+  if (!user) redirect("/login");
 
   const [
     initialOrders,

@@ -236,6 +236,7 @@ export default function AdminClientPortalContent({
                       >
                         <Link
                           href={`/admin/orders/${o.id}`}
+                          prefetch
                           className="font-normal text-xs text-sky-600 dark:text-sky-400 hover:text-sky-500 dark:hover:text-sky-300 truncate block"
                         >
                           {o.orderNumber}
@@ -315,6 +316,7 @@ export default function AdminClientPortalContent({
                       >
                         <Link
                           href={`/admin/invoices/${i.id}`}
+                          prefetch
                           className="font-normal text-xs text-sky-600 dark:text-sky-400 hover:text-sky-500 dark:hover:text-sky-300 truncate block"
                         >
                           {i.invoiceNumber}

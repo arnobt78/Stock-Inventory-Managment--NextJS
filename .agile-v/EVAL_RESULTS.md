@@ -6,7 +6,7 @@
 |------|-----|--------|------|
 | lint | ALL | PASS | 2026-05-28 |
 | unit | ALL | PASS (389) | 2026-07-12 |
-| invalidate | — | PASS (206) | 2026-07-12 |
+| invalidate | — | PASS (205) | 2026-07-13 |
 | build | ALL | PASS | 2026-07-12 |
 | prod-insights-groq | REQ-0005 | PASS | 2026-05-28 |
 

@@ -1,8 +1,7 @@
 "use client";
 
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState } from "react";
 import { Badge } from "@/components/ui/badge";
-import { Skeleton } from "@/components/ui/skeleton";
 import {
   FileJson,
   Zap,
@@ -158,20 +157,15 @@ function GlassCard({
 }
 
 export default function ApiDocsPage() {
-  const [baseUrl, setBaseUrl] = useState("http://localhost:3000");
-  const isMountedRef = useRef(false);
-  const [isMounted, setIsMounted] = useState(false);
+  // SSR-safe default; client upgrades to window.origin without mount skeleton (REQ-0094).
+  const envBase =
+    process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, "") ||
+    "http://localhost:3000";
+  const [baseUrl, setBaseUrl] = useState(envBase);
 
   useEffect(() => {
     if (typeof window !== "undefined") {
       queueMicrotask(() => setBaseUrl(window.location.origin));
-    }
-  }, []);
-
-  useEffect(() => {
-    if (!isMountedRef.current) {
-      isMountedRef.current = true;
-      queueMicrotask(() => setIsMounted(true));
     }
   }, []);
 
@@ -1222,25 +1216,11 @@ export default function ApiDocsPage() {
             description="Comprehensive API documentation for the Stock inventory management system. All endpoints require authentication via JWT token."
           />
 
-          {/* Quick Info Cards — skeleton until mounted to avoid hydration mismatch and match loading UX */}
+          {/* Quick Info Cards — render immediately (REQ-0094 shell-first) */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-2">
-            {!isMounted ? (
-              <>
-                {[1, 2, 3, 4].map((i) => (
-                  <article
-                    key={i}
-                    className="rounded-[20px] border border-gray-300/30 dark:border-white/10 bg-gradient-to-br from-gray-100/50 via-gray-100/30 to-gray-100/20 dark:from-white/5 dark:via-white/5 dark:to-white/5 min-h-[120px] p-2 sm:p-4 animate-pulse"
-                  >
-                    <Skeleton className="h-9 w-9 rounded-xl mb-3" />
-                    <Skeleton className="h-5 w-24 mb-2" />
-                    <Skeleton className="h-4 w-full" />
-                  </article>
-                ))}
-              </>
-            ) : (
-              <>
-                {/* Base URL */}
-                <GlassCard variant="blue">
+            <>
+              {/* Base URL */}
+              <GlassCard variant="blue">
                   <div className="p-2 sm:p-4">
                     <SectionCardHeader
                       icon={Code2}
@@ -1308,8 +1288,7 @@ export default function ApiDocsPage() {
                     </a>
                   </div>
                 </GlassCard>
-              </>
-            )}
+            </>
           </div>
 
           {/* API Docs — grouped in tabs to avoid long scroll */}

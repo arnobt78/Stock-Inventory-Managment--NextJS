@@ -78,6 +78,7 @@ export function CatalogDetailRecentOrdersList({
                   <CopyableText value={order.orderNumber} className="min-w-0">
                     <Link
                       href={orderHref(order.orderId)}
+                      prefetch
                       className="font-normal text-sm text-sky-600 dark:text-sky-400 hover:text-sky-500 dark:hover:text-sky-300 truncate"
                     >
                       {order.orderNumber}
@@ -94,6 +95,7 @@ export function CatalogDetailRecentOrdersList({
                   />
                   <Link
                     href={productHref(order.productId)}
+                    prefetch
                     className="font-normal text-sm text-sky-600 dark:text-sky-400 hover:text-sky-500 truncate"
                   >
                     {order.productName}

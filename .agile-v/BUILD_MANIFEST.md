@@ -232,6 +232,7 @@
 | ART-0224 | REQ-0091 | `demo-seed-data.ts`, `create-demo-accounts.ts`, `verify-demo-accounts.ts` | Test Supplier naming + legacy backfill + catalog seed |
 | ART-0225 | REQ-0092 | `demo-seed-users.ts`, `seed-demo-accounts.ts`, `reset-demo-db.ts`, `create-demo-accounts.ts`, `verify-demo-accounts.ts` | Accounts-only reset; robohash image; opt-in catalog retained |
 | ART-0226 | REQ-0093 | `role-nav-config.ts`, `warm-route-prefetch.ts`, `RouteWarmPrefetch.tsx`, filter hooks, `ApiStatusPage.tsx` | Role-scoped batched warm + RSC prefetch; filter enabled gate; ApiStatus dedupe |
+| ART-0227 | REQ-0094 | `Navbar.tsx`, `nav-link-styles.ts`, `admin-nav-config.ts`, `role-nav-config.ts`, portal prefetch | Link prefetch + warm paths + gap closure |
 
 ## Tests
 
@@ -265,3 +266,4 @@
 | TC-0027 | REQ-0090 | `lib/ui/catalog-insights-chart-data.test.ts` |
 | TC-0028 | REQ-0090 | `lib/insights/product-insights-enrich.test.ts` (unallocated) |
 | TC-0029 | REQ-0091 | `lib/insights/warehouse-stock-aggregate.test.ts` |
+| TC-0030 | REQ-0094 | `lib/navigation/role-nav-config.test.ts` |

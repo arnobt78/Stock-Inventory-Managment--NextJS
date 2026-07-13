@@ -1,3 +1,4 @@
+import { redirect } from "next/navigation";
 import { getSession } from "@/lib/auth-server";
 import {
   getSupportTicketsForAdmin,
@@ -10,7 +11,7 @@ export const dynamic = "force-dynamic";
 
 export default async function AdminSupportTicketsPage() {
   const user = await getSession();
-  if (!user) return null;
+  if (!user) redirect("/login");
 
   const [initialTickets, productOwners] = await Promise.all([
     getSupportTicketsForAdmin(user.id),

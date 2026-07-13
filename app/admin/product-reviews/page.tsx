@@ -1,3 +1,4 @@
+import { redirect } from "next/navigation";
 import { getSession } from "@/lib/auth-server";
 import { getProductReviewsForAdmin } from "@/lib/server/product-reviews-data";
 import { prefetchListPageStats } from "@/lib/server/list-page-stats";
@@ -8,7 +9,7 @@ export const dynamic = "force-dynamic";
 
 export default async function AdminProductReviewsPage() {
   const user = await getSession();
-  if (!user) return null;
+  if (!user) redirect("/login");
 
   const [initialReviews, listStats] = await Promise.all([
     getProductReviewsForAdmin(user.id),

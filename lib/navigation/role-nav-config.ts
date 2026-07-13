@@ -1,7 +1,8 @@
 /**
- * Role-scoped navbar items + paths (REQ-0093).
+ * Role-scoped navbar items + paths (REQ-0093, REQ-0094).
  * Single source for Navbar rendering and RouteWarmPrefetch RSC warm.
  */
+import { getAdminSidebarWarmPaths } from "@/lib/navigation/admin-nav-config";
 
 export type RoleNavItem =
   | { label: string; path: string; hasDropdown: false }
@@ -53,6 +54,39 @@ export function getNavItemsForRole(
 /** Flat paths from nav items — used for silent RSC prefetch after login. */
 export function getNavPathsForRole(role: string | null | undefined): string[] {
   return getNavItemsForRole(role).map((item) => item.path);
+}
+
+/** Profile dropdown paths — all roles (REQ-0094). */
+export const PROFILE_MENU_PATHS = [
+  "/support-tickets",
+  "/settings/email-preferences",
+  "/api-docs",
+  "/api-status",
+] as const;
+
+export function getProfileMenuPaths(): string[] {
+  return [...PROFILE_MENU_PATHS];
+}
+
+/** Map navbar paths to RSC warm targets (skip redirect-only routes like /admin). */
+function resolveWarmNavPath(path: string): string {
+  if (path === "/admin") return "/admin/dashboard-overall-insights";
+  return path;
+}
+
+/**
+ * Deduped RSC warm paths: navbar + profile + admin sidebar (admin/user only).
+ * Complements Link viewport prefetch — Next dedupes duplicate RSC fetches.
+ */
+export function getWarmPathsForRole(role: string | null | undefined): string[] {
+  const paths = [
+    ...getNavPathsForRole(role).map(resolveWarmNavPath),
+    ...getProfileMenuPaths(),
+  ];
+  if (role !== "client" && role !== "supplier") {
+    paths.push(...getAdminSidebarWarmPaths());
+  }
+  return [...new Set(paths)];
 }
 
 /** Logo/home target per role. */

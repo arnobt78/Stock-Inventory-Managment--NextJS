@@ -3,13 +3,13 @@
   "display_name": "Stockly Inventory",
   "stack": ["Next.js 16", "React 19", "TypeScript", "Prisma", "MongoDB", "TanStack Query"],
   "agile_v_version": "1.4",
-  "current_cycle": "C1",
+  "current_cycle": "C2",
   "c2_backlog_open": true,
-  "current_phase": "07-shell-first-navigation",
+  "current_phase": "REQ-0094-nav-perf",
   "infinity_loop_stage": "verify",
   "human_gate_2": "PENDING",
-  "resume_token": "C2-glass-consistency",
-  "prod_target_sha": "73060a1",
+  "resume_token": "Gate-2-deploy",
+  "prod_target_sha": "pending",
   "risk_default": "R2",
   "requirements_file": ".agile-v/REQUIREMENTS.md",
   "skills_upstream": "https://github.com/Agile-V/agile_v_skills",
@@ -17,6 +17,7 @@
     "ssr": "force-dynamic in app/layout.tsx; server logic in page.tsx",
     "client": "components/ for hooks, TanStack Query, Radix UI",
     "cache": "Upstash Redis optional; TanStack invalidateAllRelatedQueries on CRUD",
-    "ai": "lib/ai/create-chat-completion.ts (OpenRouter → Groq)"
+    "ai": "lib/ai/create-chat-completion.ts (OpenRouter → Groq)",
+    "nav_prefetch": "Navbar Link prefetch + RouteWarmPrefetch getWarmPathsForRole (REQ-0094)"
   }
 }

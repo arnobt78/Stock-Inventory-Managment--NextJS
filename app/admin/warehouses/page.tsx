@@ -1,3 +1,4 @@
+import { redirect } from "next/navigation";
 import { getSession } from "@/lib/auth-server";
 import { getWarehousesForUser } from "@/lib/server/warehouses-data";
 import { prefetchListPageStats } from "@/lib/server/list-page-stats";
@@ -9,7 +10,7 @@ export const dynamic = "force-dynamic";
 
 export default async function AdminWarehousesPage() {
   const user = await getSession();
-  if (!user) return null;
+  if (!user) redirect("/login");
 
   const [initialWarehouses, listStats, initialWarehouseSummary] =
     await Promise.all([

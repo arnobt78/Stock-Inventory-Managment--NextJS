@@ -15,122 +15,40 @@ import {
   Truck,
   Users,
   Mail,
-  LogOut,
-  User,
   FileText,
   UserCircle,
+  type LucideIcon,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { useAuth } from "@/contexts";
-import { setPostLogoutGoodbye } from "@/lib/auth/post-logout-goodbye";
-import { clearAuthToastMarkers } from "@/components/shared/AuthSessionToasts";
-import { Button } from "@/components/ui/button";
 import { useAdminCounts } from "@/hooks/queries";
 import { isDataSlotLoading } from "@/lib/react-query";
 import { DataSlotPulse } from "@/components/shared/DataSlotPulse";
-
-/**
- * Admin sidebar: section headlines + links.
- * Structure per PROJECT_PLAN § 9.16.1: My Store, Product & System Management, Personal Dashboard, System Settings.
- * Dynamic counts beside Client Orders, Client Invoices, Support Tickets, Product Reviews.
- */
-
-type NavItem = {
-  href: string;
-  label: string;
-  icon: React.ComponentType<{ className?: string }>;
-  /** Key in admin counts for badge (optional) */
-  countKey?:
-    | "clientOrders"
-    | "clientInvoices"
-    | "supportTickets"
-    | "productReviews"
-    | "products"
-    | "warehouses"
-    | "suppliers"
-    | "clients"
-    | "users";
-};
-
-const MY_STORE_ITEMS: NavItem[] = [
-  {
-    href: "/admin/dashboard-overall-insights",
-    label: "Store Overview",
-    icon: LayoutDashboard,
-  },
-  {
-    href: "/admin/orders",
-    label: "Orders",
-    icon: ShoppingCart,
-    countKey: "clientOrders",
-  },
-  {
-    href: "/admin/invoices",
-    label: "Invoices",
-    icon: FileText,
-    countKey: "clientInvoices",
-  },
-  {
-    href: "/admin/support-tickets",
-    label: "Support Tickets",
-    icon: MessageSquare,
-    countKey: "supportTickets",
-  },
-  {
-    href: "/admin/product-reviews",
-    label: "Product Reviews",
-    icon: Star,
-    countKey: "productReviews",
-  },
-];
-
-const MANAGEMENT_ITEMS: NavItem[] = [
-  {
-    href: "/admin/products",
-    label: "Products",
-    icon: Package,
-    countKey: "products",
-  },
-  {
-    href: "/admin/warehouses",
-    label: "Warehouses",
-    icon: Warehouse,
-    countKey: "warehouses",
-  },
-  {
-    href: "/admin/supplier-portal",
-    label: "Supplier Portal",
-    icon: Truck,
-    countKey: "suppliers",
-  },
-  {
-    href: "/admin/client-portal",
-    label: "Client Portal",
-    icon: Store,
-    countKey: "clients",
-  },
-  {
-    href: "/admin/user-management",
-    label: "User Management",
-    icon: Users,
-    countKey: "users",
-  },
-  {
-    href: "/admin/activity-history",
-    label: "Activity History",
-    icon: History,
-  },
-];
-
-const MY_ACTIVITY_ITEMS: NavItem[] = [
-  {
-    href: "/admin/my-activity",
-    label: "My Activity",
-    icon: UserCircle,
-  },
-];
-
+import {
+  ADMIN_MANAGEMENT_ITEMS,
+  ADMIN_MY_ACTIVITY_ITEMS,
+  ADMIN_MY_STORE_ITEMS,
+  ADMIN_SETTINGS_EMAIL_HREF,
+  type AdminNavItemConfig,
+} from "@/lib/navigation/admin-nav-config";
+import { adminSidebarLinkClass } from "@/lib/navigation/nav-link-styles";
 import type { AdminCounts } from "@/types";
+
+/** Icon map for admin sidebar items (REQ-0094 — hrefs live in admin-nav-config). */
+const ADMIN_NAV_ICONS: Record<string, LucideIcon> = {
+  "/admin/dashboard-overall-insights": LayoutDashboard,
+  "/admin/orders": ShoppingCart,
+  "/admin/invoices": FileText,
+  "/admin/support-tickets": MessageSquare,
+  "/admin/product-reviews": Star,
+  "/admin/products": Package,
+  "/admin/warehouses": Warehouse,
+  "/admin/supplier-portal": Truck,
+  "/admin/client-portal": Store,
+  "/admin/user-management": Users,
+  "/admin/activity-history": History,
+  "/admin/my-activity": UserCircle,
+  [ADMIN_SETTINGS_EMAIL_HREF]: Mail,
+};
 
 export default function AdminSidebar({
   collapsed = false,
@@ -141,53 +59,29 @@ export default function AdminSidebar({
   initialCounts?: AdminCounts;
 } = {}) {
   const pathname = usePathname();
-  const { user } = useAuth();
   const countsQuery = useAdminCounts(initialCounts);
   const counts = countsQuery.data ?? initialCounts;
   const countsLoading = isDataSlotLoading(countsQuery, initialCounts);
 
-  const handleLogout = async () => {
-    const userName = user?.name || user?.email?.split("@")[0] || "User";
-    clearAuthToastMarkers();
-    setPostLogoutGoodbye({ userName });
-    localStorage.removeItem("isAuth");
-    localStorage.removeItem("isLoggedIn");
-    localStorage.removeItem("token");
-    localStorage.removeItem("getSession");
-    localStorage.removeItem("prevUserId");
-    localStorage.removeItem("stock-inventory-query-cache");
-    await fetch("/api/auth/logout", {
-      method: "POST",
-      credentials: "include",
-    }).catch(() => {});
-    window.location.href = "/login";
-  };
-
-  const linkClass = (href: string, isSub = false) =>
-    cn(
-      "flex items-center gap-2 rounded-lg px-2 py-2 text-sm font-normal transition-colors",
-      isSub && !collapsed ? "pl-8" : "",
-      collapsed ? "justify-center px-0 w-9 h-9 mx-auto" : "",
-      pathname === href || (href !== "/admin" && pathname.startsWith(href))
-        ? "bg-sky-500/15 dark:bg-sky-500/20 text-sky-700 dark:text-sky-300"
-        : "hover:bg-gray-100 dark:hover:bg-white/10 text-gray-700 dark:text-gray-300",
-    );
-
-  const getCount = (key: NavItem["countKey"]): number | undefined => {
+  const getCount = (key: AdminNavItemConfig["countKey"]): number | undefined => {
     if (!counts || !key) return undefined;
     return counts[key];
   };
 
-  const renderNavItems = (items: NavItem[], isSub = true) =>
+  const renderNavItems = (items: AdminNavItemConfig[], isSub = true) =>
     items.map((item) => {
-      const Icon = item.icon;
+      const Icon = ADMIN_NAV_ICONS[item.href] ?? Package;
       const count = getCount(item.countKey);
       const showBadge = item.countKey != null;
       return (
         <Link
           key={item.href}
           href={item.href}
-          className={linkClass(item.href, isSub)}
+          prefetch
+          className={adminSidebarLinkClass(pathname, item.href, {
+            isSub,
+            collapsed,
+          })}
           title={collapsed ? item.label : undefined}
         >
           <Icon className="h-4 w-4 flex-shrink-0" />
@@ -229,15 +123,19 @@ export default function AdminSidebar({
         className="flex min-h-0 flex-col items-center px-2 gap-1"
         aria-label="Admin navigation"
       >
-        {renderNavItems(MY_STORE_ITEMS)}
+        {renderNavItems(ADMIN_MY_STORE_ITEMS)}
         <div className="w-6 border-t border-gray-200/50 dark:border-white/10 my-1" />
-        {renderNavItems(MANAGEMENT_ITEMS)}
+        {renderNavItems(ADMIN_MANAGEMENT_ITEMS)}
         <div className="w-6 border-t border-gray-200/50 dark:border-white/10 my-1" />
-        {renderNavItems(MY_ACTIVITY_ITEMS)}
+        {renderNavItems(ADMIN_MY_ACTIVITY_ITEMS)}
         <div className="w-6 border-t border-gray-200/50 dark:border-white/10 my-1" />
         <Link
-          href="/admin/settings/email-preferences"
-          className={linkClass("/admin/settings/email-preferences", true)}
+          href={ADMIN_SETTINGS_EMAIL_HREF}
+          prefetch
+          className={adminSidebarLinkClass(pathname, ADMIN_SETTINGS_EMAIL_HREF, {
+            isSub: true,
+            collapsed,
+          })}
           title="Email Preferences"
         >
           <Mail className="h-4 w-4 flex-shrink-0" />
@@ -248,64 +146,34 @@ export default function AdminSidebar({
 
   return (
     <nav className="flex min-h-0 flex-col p-2 gap-1">
-      {/* My Store */}
       <p className="px-2 pt-2  text-xs font-normal uppercase tracking-wider text-muted-foreground">
         My Store
       </p>
-      {renderNavItems(MY_STORE_ITEMS)}
+      {renderNavItems(ADMIN_MY_STORE_ITEMS)}
 
-      {/* Product & System Management */}
       <p className="px-2 pt-2  text-xs font-normal uppercase tracking-wider text-muted-foreground">
         Product & System Management
       </p>
-      {renderNavItems(MANAGEMENT_ITEMS)}
+      {renderNavItems(ADMIN_MANAGEMENT_ITEMS)}
 
-      {/* My Activity */}
       <p className="px-2 pt-2  text-xs font-normal uppercase tracking-wider text-muted-foreground">
         Personal activity
       </p>
-      {renderNavItems(MY_ACTIVITY_ITEMS)}
+      {renderNavItems(ADMIN_MY_ACTIVITY_ITEMS)}
 
-      {/* System Settings */}
       <p className="px-2 pt-2  text-xs font-normal uppercase tracking-wider text-muted-foreground">
         System Settings
       </p>
       <Link
-        href="/admin/settings/email-preferences"
-        className={linkClass("/admin/settings/email-preferences", true)}
+        href={ADMIN_SETTINGS_EMAIL_HREF}
+        prefetch
+        className={adminSidebarLinkClass(pathname, ADMIN_SETTINGS_EMAIL_HREF, {
+          isSub: true,
+        })}
       >
         <Mail className="h-4 w-4 flex-shrink-0" />
         Email Preferences
       </Link>
-
-      {/* Spacer to push user + logout to bottom */}
-      {/* <div className="flex-1 min-h-4" /> */}
-
-      {/* User login info */}
-      {/* {user && (
-        <div className="rounded-lg px-2 py-2 border border-gray-200/50 dark:border-white/10 bg-gray-50/50 dark:bg-white/5">
-          <div className="flex items-center gap-2 text-sm text-muted-foreground">
-            <User className="h-4 w-4 flex-shrink-0" />
-            <div className="min-w-0 truncate">
-              <p className="font-normal text-foreground truncate">
-                {user.name || "User"}
-              </p>
-              <p className="text-xs truncate">{user.email}</p>
-            </div>
-          </div>
-        </div>
-      )} */}
-
-      {/* Logout */}
-      {/* <Button
-        variant="ghost"
-        size="sm"
-        className="w-full justify-start gap-2 text-muted-foreground hover:text-destructive hover:bg-destructive/10"
-        onClick={handleLogout}
-      >
-        <LogOut className="h-4 w-4 flex-shrink-0" />
-        Logout
-      </Button> */}
     </nav>
   );
 }

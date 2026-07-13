@@ -1,3 +1,4 @@
+import { redirect } from "next/navigation";
 import { getSession } from "@/lib/auth-server";
 import { getProductsForUser } from "@/lib/server/home-data";
 import { prefetchListPageStats } from "@/lib/server/list-page-stats";
@@ -8,7 +9,7 @@ export const dynamic = "force-dynamic";
 
 export default async function AdminProductsPage() {
   const user = await getSession();
-  if (!user) return null;
+  if (!user) redirect("/login");
 
   const [initialProducts, listStats] = await Promise.all([
     getProductsForUser(user.id),

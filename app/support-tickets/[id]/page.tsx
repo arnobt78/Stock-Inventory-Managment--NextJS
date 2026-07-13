@@ -1,4 +1,4 @@
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { getSession } from "@/lib/auth-server";
 import { getSupportTicketById } from "@/prisma/support-ticket";
 import { prisma } from "@/prisma/client";
@@ -7,6 +7,9 @@ import { getSupportTicketRepliesForPage } from "@/lib/server/support-ticket-repl
 import type { SupportTicket } from "@/types";
 
 type Props = { params: Promise<{ id: string }> };
+
+/** REQ-0094 — explicit force-dynamic for shell-first parity. */
+export const dynamic = "force-dynamic";
 
 function ticketNumber(createdAt: Date, id: string): string {
   const ymd = createdAt.toISOString().slice(0, 10).replace(/-/g, "");
@@ -20,7 +23,7 @@ function ticketNumber(createdAt: Date, id: string): string {
 export default async function SupportTicketDetailRoute({ params }: Props) {
   const user = await getSession();
   if (!user) {
-    notFound();
+    redirect("/login");
   }
 
   const { id } = await params;

@@ -236,6 +236,7 @@ export default function AdminSupplierPortalContent({
                     <div className="min-w-0">
                       <Link
                         href={`/admin/products/${p.id}`}
+                        prefetch
                         className="font-normal text-xs text-sky-600 dark:text-sky-400 hover:text-sky-500 dark:hover:text-sky-300 truncate block"
                       >
                         {p.name}
@@ -313,6 +314,7 @@ export default function AdminSupplierPortalContent({
                       >
                         <Link
                           href={`/admin/orders/${o.id}`}
+                          prefetch
                           className="font-normal text-xs text-sky-600 dark:text-sky-400 hover:text-sky-500 dark:hover:text-sky-300 truncate block"
                         >
                           {o.orderNumber}
@@ -406,6 +408,7 @@ export default function AdminSupplierPortalContent({
                       <td className="py-2 px-2 pr-4">
                         <Link
                           href={`/admin/suppliers/${s.id}`}
+                          prefetch
                           className="font-medium text-sky-600 dark:text-sky-400 hover:text-sky-500 dark:hover:text-sky-300"
                         >
                           {s.name}

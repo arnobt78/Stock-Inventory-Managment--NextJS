@@ -12,7 +12,7 @@ export const dynamic = "force-dynamic";
 
 export default async function AdminOrdersPage() {
   const user = await getSession();
-  if (!user) return null;
+  if (!user) redirect("/login");
 
   const [initialOrders, initialClientOrders, initialStats] = await Promise.all([
     getOrdersForUser(user.id),

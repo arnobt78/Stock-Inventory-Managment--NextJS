@@ -406,6 +406,7 @@ export default function SupplierPortalPage({
                           <CopyableText value={order.orderNumber} className="max-w-full">
                             <Link
                               href={`/orders/${order.id}`}
+                              prefetch
                               className="font-normal text-xs text-sky-600 dark:text-sky-400 hover:text-sky-500 dark:hover:text-sky-300 truncate block"
                             >
                               {order.orderNumber}
@@ -501,6 +502,7 @@ export default function SupplierPortalPage({
                               <TableCell>
                                 <Link
                                   href={`/products/${product.id}`}
+                                  prefetch
                                   className="text-sky-600 dark:text-sky-400 hover:text-sky-500 dark:hover:text-sky-300"
                                 >
                                   {product.name}

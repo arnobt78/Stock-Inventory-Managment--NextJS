@@ -1,20 +1,36 @@
 # Validation Summary — Cycle C1
 
-**Generated:** 2026-07-12  
+**Generated:** 2026-07-13  
 **eval_gate_status:** PENDING (Human Gate 2)  
-**Prod target SHA:** `ce7c80b` (main = origin/main)  
-**Red Team:** lint ✓ test 413 ✓ invalidate 206 ✓ build ✓ (2026-07-12 REQ-0093)
+**Prod target SHA:** pending REQ-0094 deploy  
+**Red Team:** lint ✓ test 415 ✓ invalidate 205 ✓ build ✓ (2026-07-13 REQ-0094)
 
 ---
 
-## REQ-0093 evidence
+## REQ-0094 evidence
 
 | Check | Command | Result | REQ-IDs |
 |-------|---------|--------|---------|
-| Lint | `npm run lint` | PASS | REQ-0093 |
-| Unit tests | `npm run test` | PASS (413) | REQ-0093 |
-| Invalidation audit | `npm run test:invalidate` | PASS (206) | REQ-0077 |
-| Build | `npm run build` | PASS | REQ-0093 |
+| Lint | `npm run lint` | PASS | REQ-0094 |
+| Unit tests | `npm run test` | PASS (415) | REQ-0094 |
+| Invalidation audit | `npm run test:invalidate` | PASS (205) | REQ-0094 |
+| Build | `npm run build` | PASS | REQ-0094 |
+| Navbar Link prefetch | code review | PASS — brand, nav, profile, mobile | REQ-0094 AC2 |
+| Extended RSC warm | `getWarmPathsForRole` | PASS — nav + profile + admin sidebar | REQ-0094 |
+| Client filter leak | `CategoryFilter` enabled gate | PASS — no fetch when override | REQ-0094 AC3 |
+| REQ-0075 smoke | code review | PASS — no regressions | REQ-0094 AC4 |
+| /admin warm redirect fix | `resolveWarmNavPath` | PASS — warms dashboard not redirect | REQ-0094 gap |
+| Portal detail prefetch | 5 portal/recent-order files | PASS | REQ-0094 gap |
+| Invalidate count note | AdminSidebar logout fetch removed REQ-0094 | INFO — 205 correct (not regression) | REQ-0094 gap |
+
+---
+
+### Manual / production (REQ-0094)
+
+| Check | Result | REQ-ID |
+|-------|--------|--------|
+| Prod `npm start` nav click baseline | PENDING user QA on Vercel | REQ-0094 AC1/AC2 |
+| Sentry 24h after deploy | PENDING | REQ-0009 AC5 |
 
 ---
 
@@ -24,7 +40,7 @@
 |-------|---------|--------|---------|
 | Lint | `npm run lint` | PASS | ALL |
 | Unit tests | `npm run test` | PASS (413) | REQ-0092 |
-| Invalidation audit | `npm run test:invalidate` | PASS (206) | REQ-0077 |
+| Invalidation audit | `npm run test:invalidate` | PASS (205) | ALL |
 | Build | `npm run build` | PASS | ALL |
 | Typecheck (touched scripts) | `tsc --noEmit` | PASS | REQ-0056 |
 

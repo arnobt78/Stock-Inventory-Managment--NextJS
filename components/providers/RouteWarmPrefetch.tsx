@@ -11,7 +11,7 @@ import { useEffect, useRef } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "@/contexts";
-import { getNavPathsForRole } from "@/lib/navigation/role-nav-config";
+import { getWarmPathsForRole } from "@/lib/navigation/role-nav-config";
 import {
   warmQueriesForUser,
   warmAdminClientPortalLists,
@@ -27,12 +27,16 @@ function scheduleIdle(cb: () => void): void {
   }
 }
 
-/** Stagger router.prefetch so RSC warm does not burst the network. */
+/**
+ * Stagger router.prefetch so RSC warm does not burst the network.
+ * REQ-0094: warm navbar + profile + admin sidebar paths after login.
+ * Complements <Link prefetch> (viewport/hover) — Next dedupes duplicate RSC fetches.
+ */
 async function prefetchNavRoutes(
   router: ReturnType<typeof useRouter>,
   role: string | null | undefined,
 ): Promise<void> {
-  const paths = getNavPathsForRole(role);
+  const paths = getWarmPathsForRole(role);
   for (const path of paths) {
     try {
       router.prefetch(path);

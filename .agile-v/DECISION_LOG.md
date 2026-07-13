@@ -231,3 +231,13 @@ Format: `TIMESTAMP | AGENT | DECISION | RATIONALE | REQ-ID`
 2026-07-12T19:00:00Z | build-agent | REQ-0093 ApiStatus dedupe | Strict Mode cancel guard; remove debug ingest | REQ-0093
 2026-07-12T19:20:00Z | red-team | REQ-0093 gates | lint ✓ test 413 ✓ invalidate 206 ✓ build ✓ | REQ-0093
 2026-07-12T19:25:00Z | product-owner | REQ-0094 planned | Prod nav perf, detail UI, API dedupe — tomorrow session | REQ-0094
+2026-07-13T09:45:00Z | build-agent | REQ-0094 Navbar Link prefetch | router.push → Link prefetch brand/nav/profile/mobile; nav-link-styles shared tokens | REQ-0094
+2026-07-13T09:45:00Z | build-agent | REQ-0094 warm path extension | getWarmPathsForRole: nav + profile + admin sidebar; admin-nav-config DRY | REQ-0094
+2026-07-13T09:45:00Z | build-agent | REQ-0094 shell hygiene | force-dynamic support-tickets/api-docs; admin redirect; ApiDocs mount skeleton removed | REQ-0094
+2026-07-13T09:45:00Z | build-agent | REQ-0094 table prefetch | explicit prefetch on product/order/invoice # column Links | REQ-0094
+2026-07-13T09:50:00Z | red-team | REQ-0094 gates | lint ✓ test 415 ✓ invalidate 205 ✓ build ✓; REQ-0075 smoke PASS | REQ-0094
+2026-07-13T09:50:00Z | product-owner | REQ-0094 hover prefetch skipped | Link prefetch sufficient; no extra onMouseEnter warm | REQ-0094
+2026-07-13T10:55:00Z | build-agent | REQ-0094 gap /admin warm | resolveWarmNavPath maps /admin → dashboard-overall-insights for RSC warm only | REQ-0094
+2026-07-13T10:55:00Z | build-agent | REQ-0094 gap portal prefetch | explicit prefetch on portal/recent-order detail links (5 files) | REQ-0094
+2026-07-13T10:55:00Z | build-agent | REQ-0094 gap invalidate docs | 205 correct — AdminSidebar inline fetch removed; docs synced | REQ-0094
+2026-07-13T11:00:00Z | red-team | REQ-0094 gap gates | lint ✓ test 415 ✓ invalidate 205 ✓ build ✓ | REQ-0094

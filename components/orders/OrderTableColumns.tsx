@@ -125,6 +125,7 @@ export const createOrderColumns = (
           <CopyableText value={order.orderNumber}>
             <Link
               href={href}
+              prefetch
               className="font-normal text-sky-600 dark:text-sky-400 hover:text-sky-500 dark:hover:text-sky-300"
             >
               {order.orderNumber}
