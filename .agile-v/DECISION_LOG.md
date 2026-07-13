@@ -274,3 +274,8 @@ Format: `TIMESTAMP | AGENT | DECISION | RATIONALE | REQ-ID`
 2026-07-13T14:48:00Z | build-agent | ProductFormDialog shrink confirm | Client preview via shared pure reconcile lib | REQ-0102
 2026-07-13T14:48:00Z | red-team | REQ-0102 gates | lint ✓ test 441 ✓ invalidate 208 ✓ build ✓ | REQ-0102
 2026-07-13T13:57:00Z | red-team | REQ-0100 gates | lint ✓ test 418 ✓ invalidate 205 ✓ build ✓ | REQ-0100
+2026-07-13T18:15:00Z | build-agent | Disjoint order reservation | Central order-stock-reservation helper; warehouse pick → allocation only | REQ-0103
+2026-07-13T18:15:00Z | build-agent | committedQuantity list enrich | Display-only badge field; ProductFormDialog keeps raw DB fields | REQ-0103
+2026-07-13T18:15:00Z | red-team | REQ-0103 gates | lint ✓ test 460 ✓ invalidate 208 ✓ build ✓ | REQ-0103
+2026-07-13T18:22:00Z | build-agent | REQ-0104 committedQuantity parity | Detail SSR + forecast + supplier dashboard avail math | REQ-0104
+2026-07-13T18:22:00Z | red-team | REQ-0104 gates | lint ✓ test 461 ✓ invalidate 208 ✓ build ✓ | REQ-0104

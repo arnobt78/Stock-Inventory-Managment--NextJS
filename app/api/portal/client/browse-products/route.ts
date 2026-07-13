@@ -9,6 +9,7 @@ import { logger } from "@/lib/logger";
 import { withRateLimit, defaultRateLimits } from "@/lib/api/rate-limit";
 import { prisma } from "@/prisma/client";
 import { mergeProductListWhere } from "@/lib/products/product-query";
+import { enrichProductsWithCommittedQuantity } from "@/lib/products/enrich-product-committed-quantity";
 
 /**
  * GET /api/portal/client/browse-products
@@ -87,28 +88,30 @@ export async function GET(request: NextRequest) {
     const categoryMap = new Map(categories.map((c) => [c.id, c.name]));
     const supplierMap = new Map(suppliers.map((s) => [s.id, s.name]));
 
-    const transformed = products.map((p) => ({
-      id: p.id,
-      name: p.name,
-      sku: p.sku,
-      price: Number(p.price),
-      quantity: Number(p.quantity),
-      reservedQuantity: Number(p.reservedQuantity ?? 0),
-      status: p.status,
-      categoryId: p.categoryId,
-      supplierId: p.supplierId,
-      category: categoryMap.get(p.categoryId) || "Unknown",
-      supplier: supplierMap.get(p.supplierId) || "Unknown",
-      userId: p.userId,
-      createdBy: p.createdBy,
-      updatedBy: p.updatedBy || null,
-      createdAt: p.createdAt.toISOString(),
-      updatedAt: p.updatedAt?.toISOString() || null,
-      qrCodeUrl: p.qrCodeUrl || null,
-      imageUrl: p.imageUrl || null,
-      imageFileId: p.imageFileId || null,
-      expirationDate: p.expirationDate?.toISOString() || null,
-    }));
+    const transformed = await enrichProductsWithCommittedQuantity(
+      products.map((p) => ({
+        id: p.id,
+        name: p.name,
+        sku: p.sku,
+        price: Number(p.price),
+        quantity: Number(p.quantity),
+        reservedQuantity: Number(p.reservedQuantity ?? 0),
+        status: p.status,
+        categoryId: p.categoryId,
+        supplierId: p.supplierId,
+        category: categoryMap.get(p.categoryId) || "Unknown",
+        supplier: supplierMap.get(p.supplierId) || "Unknown",
+        userId: p.userId,
+        createdBy: p.createdBy,
+        updatedBy: p.updatedBy || null,
+        createdAt: p.createdAt.toISOString(),
+        updatedAt: p.updatedAt?.toISOString() || null,
+        qrCodeUrl: p.qrCodeUrl || null,
+        imageUrl: p.imageUrl || null,
+        imageFileId: p.imageFileId || null,
+        expirationDate: p.expirationDate?.toISOString() || null,
+      })),
+    );
 
     return NextResponse.json({
       products: transformed,

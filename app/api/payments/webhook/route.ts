@@ -13,7 +13,7 @@ import {
 } from "@/lib/stripe";
 import { prisma } from "@/prisma/client";
 import { ensureInvoiceForPaidOrder } from "@/prisma/invoice";
-import { decrementStockAllocations } from "@/lib/products/decrement-stock-allocations";
+import { fulfillPendingOrderLines } from "@/lib/products/order-stock-reservation";
 
 import { invalidateOnOrderChange } from "@/lib/cache";
 /**
@@ -146,20 +146,10 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
         },
       });
 
-      // Deduct stock and release reservation (if pending order)
+      // REQ-0103 — disjoint fulfill on paid pending order
       if (order.status === "pending") {
-        for (const item of order.items) {
-          await prisma.product.update({
-            where: { id: item.productId },
-            data: {
-              quantity: { decrement: item.quantity },
-              reservedQuantity: { decrement: item.quantity },
-            },
-          });
-        }
-
         try {
-          await decrementStockAllocations(
+          await fulfillPendingOrderLines(
             order.items.map((item) => ({
               productId: item.productId,
               quantity: item.quantity,
@@ -167,7 +157,7 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
             })),
           );
         } catch (allocErr) {
-          logger.warn("Failed to decrement stock allocations for paid order", {
+          logger.warn("Failed to fulfill stock for paid order", {
             orderId: orderIdToUpdate,
             error: allocErr,
           });
@@ -231,20 +221,10 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
           },
         });
 
-        // Deduct stock and release reservation for pending orders (same as order checkout)
+        // REQ-0103 — disjoint fulfill on invoice-paid pending order
         if (order.status === "pending") {
-          for (const item of order.items) {
-            await prisma.product.update({
-              where: { id: item.productId },
-              data: {
-                quantity: { decrement: item.quantity },
-                reservedQuantity: { decrement: item.quantity },
-              },
-            });
-          }
-
           try {
-            await decrementStockAllocations(
+            await fulfillPendingOrderLines(
               order.items.map((item) => ({
                 productId: item.productId,
                 quantity: item.quantity,
@@ -253,7 +233,7 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
             );
           } catch (allocErr) {
             logger.warn(
-              "Failed to decrement stock allocations for invoice-paid order",
+              "Failed to fulfill stock for invoice-paid order",
               {
                 orderId: invoice.orderId,
                 error: allocErr,

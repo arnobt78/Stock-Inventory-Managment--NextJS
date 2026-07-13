@@ -4,6 +4,10 @@
 
 import { prisma } from "@/prisma/client";
 import { mergeProductListWhere } from "@/lib/products/product-query";
+import {
+  batchSumAllocationReserved,
+  computeCommittedQuantity,
+} from "@/lib/products/enrich-product-committed-quantity";
 import type { SupplierPortalDashboard } from "@/types";
 
 /**
@@ -37,6 +41,13 @@ export async function getSupplierDashboard(
   });
 
   const productIds = products.map((p) => p.id);
+  const allocationReservedByProduct = await batchSumAllocationReserved(productIds);
+
+  const productCommitted = (productId: string, productReserved: number) =>
+    computeCommittedQuantity(
+      productReserved,
+      allocationReservedByProduct.get(productId) ?? 0,
+    );
 
   // Get orders containing products from this supplier (include subtotal for revenue attribution)
   const orderItems = await prisma.orderItem.findMany({
@@ -216,8 +227,11 @@ export async function getSupplierDashboard(
   let productValue = 0;
   for (const p of products) {
     const qty = Number(p.quantity) ?? 0;
-    const reserved = Number(p.reservedQuantity) ?? 0;
-    const available = qty - reserved;
+    const committed = productCommitted(
+      p.id,
+      Number(p.reservedQuantity ?? 0),
+    );
+    const available = qty - committed;
     productValue += qty * (Number(p.price) ?? 0);
     if (available > STOCK_LOW_MAX) productStatusCounts.available += 1;
     else if (available > 0) productStatusCounts.stockLow += 1;
@@ -227,14 +241,17 @@ export async function getSupplierDashboard(
   const lowStockProducts = products
     .filter((p) => {
       const available =
-        Number(p.quantity) - Number(p.reservedQuantity ?? 0);
+        Number(p.quantity) -
+        productCommitted(p.id, Number(p.reservedQuantity ?? 0));
       return available > 0 && available <= STOCK_LOW_MAX;
     })
     .map((p) => ({
       id: p.id,
       name: p.name,
       sku: p.sku,
-      quantity: Number(p.quantity) - Number(p.reservedQuantity ?? 0),
+      quantity:
+        Number(p.quantity) -
+        productCommitted(p.id, Number(p.reservedQuantity ?? 0)),
       status: p.status,
     }));
 

@@ -54,3 +54,5 @@
 | 2026-07-13 | Analytics gap-6; supplier portal userId/image SSR; dead stock scripts removed | REQ-0099 |
 | 2026-07-13 | Supplier portal avatar seed fallback `userId ?? id` (stale Redis guard) | REQ-0100 |
 | 2026-07-13 | Stock allocation sync — catalog reconcile, unified enrich, warehouse guards, archived rows | REQ-0102 `554af8e` |
+| 2026-07-13 | Disjoint order reservation — fix double-count floor; committedQuantity list enrich | REQ-0103 |
+| 2026-07-13 | committedQuantity parity — detail SSR, forecast, supplier dashboard | REQ-0104 |

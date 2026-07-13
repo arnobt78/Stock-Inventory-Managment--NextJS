@@ -16,6 +16,7 @@ import {
   TrendingUp,
 } from "lucide-react";
 import { useMemo } from "react";
+import { getDisplayCommittedQuantity } from "@/lib/products/enrich-product-committed-quantity";
 
 interface ForecastingCardProps {
   products: Product[];
@@ -63,7 +64,7 @@ export function ForecastingCard({ products, className }: ForecastingCardProps) {
     }
 
     const availableQty = (product: Product) =>
-      (product.quantity ?? 0) - (product.reservedQuantity ?? 0);
+      (product.quantity ?? 0) - getDisplayCommittedQuantity(product);
 
     const totalProducts = products.length;
     const lowStockProducts = products.filter((p) => {

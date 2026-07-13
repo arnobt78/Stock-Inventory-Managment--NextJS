@@ -35,6 +35,7 @@ import {
 import { getStockAllocationsByProduct } from "@/prisma/stock-allocation";
 import { planCatalogQuantityReconcile } from "@/lib/stock-allocation/catalog-quantity-reconcile";
 import { applyCatalogQuantityReconcile } from "@/lib/stock-allocation/apply-catalog-quantity-reconcile";
+import { enrichProductsWithCommittedQuantity } from "@/lib/products/enrich-product-committed-quantity";
 import { withRateLimit, defaultRateLimits } from "@/lib/api/rate-limit";
 import { createAuditLog } from "@/prisma/audit-log";
 import {
@@ -89,8 +90,13 @@ export async function GET(request: NextRequest) {
     }
 
     // Try to get from cache first
-    const cachedProducts = await getCache<unknown[]>(cacheKey);
-    if (cachedProducts) {
+    const cachedProducts = await getCache<
+      Array<{ committedQuantity?: number }>
+    >(cacheKey);
+    if (
+      cachedProducts &&
+      cachedProducts.every((p) => typeof p.committedQuantity === "number")
+    ) {
       logger.info(`✅ Cache hit for products: ${cacheKey}`);
       return NextResponse.json(cachedProducts);
     }
@@ -142,32 +148,33 @@ export async function GET(request: NextRequest) {
       ownerUsers.map((u) => [u.id, u.name ?? u.id]),
     );
 
-    // Transform products with lookups
-    const transformedProducts = products.map((product) => ({
-      id: product.id,
-      name: product.name,
-      sku: product.sku,
-      price: Number(product.price),
-      quantity: Number(product.quantity),
-      reservedQuantity: Number(product.reservedQuantity ?? 0),
-      status: product.status,
-      categoryId: product.categoryId,
-      supplierId: product.supplierId,
-      category: categoryMap.get(product.categoryId) || "Unknown",
-      supplier: supplierMap.get(product.supplierId) || "Unknown",
-      userId: product.userId,
-      createdBy: product.createdBy,
-      updatedBy: product.updatedBy || null,
-      createdAt: product.createdAt.toISOString(),
-      updatedAt: product.updatedAt?.toISOString() || null,
-      qrCodeUrl: product.qrCodeUrl || null,
-      imageUrl: product.imageUrl || null,
-      imageFileId: product.imageFileId || null,
-      expirationDate: product.expirationDate?.toISOString() || null,
-      ...(isSupplier && {
-        productOwnerName: ownerNameMap.get(product.userId) ?? null,
-      }),
-    }));
+    const transformedProducts = await enrichProductsWithCommittedQuantity(
+      products.map((product) => ({
+        id: product.id,
+        name: product.name,
+        sku: product.sku,
+        price: Number(product.price),
+        quantity: Number(product.quantity),
+        reservedQuantity: Number(product.reservedQuantity ?? 0),
+        status: product.status,
+        categoryId: product.categoryId,
+        supplierId: product.supplierId,
+        category: categoryMap.get(product.categoryId) || "Unknown",
+        supplier: supplierMap.get(product.supplierId) || "Unknown",
+        userId: product.userId,
+        createdBy: product.createdBy,
+        updatedBy: product.updatedBy || null,
+        createdAt: product.createdAt.toISOString(),
+        updatedAt: product.updatedAt?.toISOString() || null,
+        qrCodeUrl: product.qrCodeUrl || null,
+        imageUrl: product.imageUrl || null,
+        imageFileId: product.imageFileId || null,
+        expirationDate: product.expirationDate?.toISOString() || null,
+        ...(isSupplier && {
+          productOwnerName: ownerNameMap.get(product.userId) ?? null,
+        }),
+      })),
+    );
 
     // Cache the result for 5 minutes
     await setCache(cacheKey, transformedProducts, 300);

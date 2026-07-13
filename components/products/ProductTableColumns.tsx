@@ -17,6 +17,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { QRCodeHover } from "@/components/ui/qr-code-hover";
 import { ProductStockFromQuantityBadge } from "@/lib/ui/semantic-badges";
+import { getDisplayCommittedQuantity } from "@/lib/products/enrich-product-committed-quantity";
 import { AlertTriangle, ArrowUpDown } from "lucide-react";
 import { IoMdArrowDown, IoMdArrowUp } from "react-icons/io";
 
@@ -132,7 +133,7 @@ export function createProductColumns(
       header: ({ column }) => <SortableHeader column={column} label="Stock" />,
       cell: ({ row }) => {
         const quantity = row.original.quantity;
-        const reserved = row.original.reservedQuantity ?? 0;
+        const reserved = getDisplayCommittedQuantity(row.original);
         const available = quantity - reserved;
         const isLowStock = available > 0 && available < 10;
         const isOutOfStock = available <= 0;
@@ -162,7 +163,7 @@ export function createProductColumns(
       header: ({ column }) => <SortableHeader column={column} label="Status" />,
       cell: ({ row }) => {
         const quantity = row.original.quantity;
-        const reserved = row.original.reservedQuantity ?? 0;
+        const reserved = getDisplayCommittedQuantity(row.original);
         const available = quantity - reserved;
 
         return (

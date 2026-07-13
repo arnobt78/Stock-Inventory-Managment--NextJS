@@ -2,8 +2,31 @@
 
 **Generated:** 2026-07-13  
 **eval_gate_status:** PENDING (Human Gate 2)  
-**Prod target SHA:** `554af8e` (REQ-0102)  
-**Red Team:** lint ✓ test 449 ✓ invalidate 208 ✓ build ✓ (2026-07-13 REQ-0102 enrichment consistency)
+**Prod target SHA:** pending (REQ-0104)  
+**Red Team:** lint ✓ test 461 ✓ invalidate 208 ✓ build ✓ (2026-07-13 REQ-0104 committedQuantity parity)
+
+---
+
+## REQ-0104 committedQuantity parity evidence
+
+| Check | Result |
+|-------|--------|
+| Category/supplier detail SSR | `enrichProductsWithCommittedQuantity` + cache guard |
+| ForecastingCard | `getDisplayCommittedQuantity` for avail |
+| demand-forecast + supplier-dashboard | `computeCommittedQuantity` with batch allocation sum |
+| Invalidation | unchanged — ORDER_GRAPH clears categories/suppliers/forecasting |
+
+---
+
+## REQ-0103 disjoint reservation evidence
+
+| Check | Result |
+|-------|--------|
+| Reserve create | Warehouse pick → allocation only; no pick → product only |
+| Cancel / fulfill | `releasePendingOrderLines` / `fulfillPendingOrderLines` in order + webhook + invoice |
+| Catalog floor | Beats scenario: 20 reserved blocks at 10, not 40 |
+| List display | `committedQuantity` on products/browse/home APIs |
+| UI badges | `getDisplayCommittedQuantity` on table + detail summary |
 
 ---
 

@@ -18,7 +18,9 @@ export interface Product {
   sku: string;
   price: number;
   quantity: number;
-  reservedQuantity?: number; // Stock reserved by pending orders (not yet confirmed)
+  reservedQuantity?: number; // Product-level pending reservation (no warehouse pick)
+  /** REQ-0103 — display-only; sum of disjoint reservation paths for list badges */
+  committedQuantity?: number;
   status?: ProductStatus;
   createdAt: Date;
   updatedAt?: Date | null;

@@ -6,6 +6,7 @@
 
 import { getCache, setCache, cacheKeys } from "@/lib/cache";
 import { mergeProductListWhere } from "@/lib/products/product-query";
+import { enrichProductsWithCommittedQuantity } from "@/lib/products/enrich-product-committed-quantity";
 import { prisma } from "@/prisma/client";
 
 /** Product shape returned by products API GET (dates as ISO strings) */
@@ -16,6 +17,8 @@ export type ProductForHome = {
   price: number;
   quantity: number;
   reservedQuantity: number;
+  /** REQ-0103 — display-only sum of disjoint reservation paths */
+  committedQuantity: number;
   status: string;
   categoryId: string;
   supplierId: string;
@@ -71,7 +74,7 @@ export async function getProductsForUser(userId: string): Promise<ProductForHome
   const cached = await getCache<ProductForHome[]>(cacheKey);
   if (
     cached &&
-    cached.every((p) => typeof p.reservedQuantity === "number")
+    cached.every((p) => typeof p.committedQuantity === "number")
   ) {
     return cached;
   }
@@ -98,28 +101,30 @@ export async function getProductsForUser(userId: string): Promise<ProductForHome
   const categoryMap = new Map(categories.map((c) => [c.id, c.name]));
   const supplierMap = new Map(suppliers.map((s) => [s.id, s.name]));
 
-  const transformed: ProductForHome[] = products.map((product) => ({
-    id: product.id,
-    name: product.name,
-    sku: product.sku,
-    price: Number(product.price),
-    quantity: Number(product.quantity),
-    reservedQuantity: Number(product.reservedQuantity ?? 0),
-    status: product.status,
-    categoryId: product.categoryId,
-    supplierId: product.supplierId,
-    category: categoryMap.get(product.categoryId) || "Unknown",
-    supplier: supplierMap.get(product.supplierId) || "Unknown",
-    userId: product.userId,
-    createdBy: product.createdBy,
-    updatedBy: product.updatedBy || null,
-    createdAt: product.createdAt.toISOString(),
-    updatedAt: product.updatedAt?.toISOString() ?? null,
-    qrCodeUrl: product.qrCodeUrl ?? null,
-    imageUrl: product.imageUrl ?? null,
-    imageFileId: product.imageFileId ?? null,
-    expirationDate: product.expirationDate?.toISOString() ?? null,
-  }));
+  const transformed: ProductForHome[] = await enrichProductsWithCommittedQuantity(
+    products.map((product) => ({
+      id: product.id,
+      name: product.name,
+      sku: product.sku,
+      price: Number(product.price),
+      quantity: Number(product.quantity),
+      reservedQuantity: Number(product.reservedQuantity ?? 0),
+      status: product.status,
+      categoryId: product.categoryId,
+      supplierId: product.supplierId,
+      category: categoryMap.get(product.categoryId) || "Unknown",
+      supplier: supplierMap.get(product.supplierId) || "Unknown",
+      userId: product.userId,
+      createdBy: product.createdBy,
+      updatedBy: product.updatedBy || null,
+      createdAt: product.createdAt.toISOString(),
+      updatedAt: product.updatedAt?.toISOString() ?? null,
+      qrCodeUrl: product.qrCodeUrl ?? null,
+      imageUrl: product.imageUrl ?? null,
+      imageFileId: product.imageFileId ?? null,
+      expirationDate: product.expirationDate?.toISOString() ?? null,
+    })),
+  );
 
   await setCache(cacheKey, transformed, 300);
   return transformed;
@@ -137,7 +142,7 @@ export async function getProductsBySupplierId(
   const cached = await getCache<ProductForHome[]>(cacheKey);
   if (
     cached &&
-    cached.every((p) => typeof p.reservedQuantity === "number")
+    cached.every((p) => typeof p.committedQuantity === "number")
   ) {
     return cached;
   }
@@ -172,29 +177,31 @@ export async function getProductsBySupplierId(
     ownerUsers.map((u) => [u.id, u.name ?? u.id]),
   );
 
-  const transformed: ProductForHome[] = products.map((product) => ({
-    id: product.id,
-    name: product.name,
-    sku: product.sku,
-    price: Number(product.price),
-    quantity: Number(product.quantity),
-    reservedQuantity: Number(product.reservedQuantity ?? 0),
-    status: product.status,
-    categoryId: product.categoryId,
-    supplierId: product.supplierId,
-    category: categoryMap.get(product.categoryId) || "Unknown",
-    supplier: supplierMap.get(product.supplierId) || "Unknown",
-    userId: product.userId,
-    createdBy: product.createdBy,
-    updatedBy: product.updatedBy || null,
-    createdAt: product.createdAt.toISOString(),
-    updatedAt: product.updatedAt?.toISOString() ?? null,
-    qrCodeUrl: product.qrCodeUrl ?? null,
-    imageUrl: product.imageUrl ?? null,
-    imageFileId: product.imageFileId ?? null,
-    expirationDate: product.expirationDate?.toISOString() ?? null,
-    productOwnerName: ownerNameMap.get(product.userId) ?? null,
-  }));
+  const transformed: ProductForHome[] = await enrichProductsWithCommittedQuantity(
+    products.map((product) => ({
+      id: product.id,
+      name: product.name,
+      sku: product.sku,
+      price: Number(product.price),
+      quantity: Number(product.quantity),
+      reservedQuantity: Number(product.reservedQuantity ?? 0),
+      status: product.status,
+      categoryId: product.categoryId,
+      supplierId: product.supplierId,
+      category: categoryMap.get(product.categoryId) || "Unknown",
+      supplier: supplierMap.get(product.supplierId) || "Unknown",
+      userId: product.userId,
+      createdBy: product.createdBy,
+      updatedBy: product.updatedBy || null,
+      createdAt: product.createdAt.toISOString(),
+      updatedAt: product.updatedAt?.toISOString() ?? null,
+      qrCodeUrl: product.qrCodeUrl ?? null,
+      imageUrl: product.imageUrl ?? null,
+      imageFileId: product.imageFileId ?? null,
+      expirationDate: product.expirationDate?.toISOString() ?? null,
+      productOwnerName: ownerNameMap.get(product.userId) ?? null,
+    })),
+  );
 
   await setCache(cacheKey, transformed, 300);
   return transformed;

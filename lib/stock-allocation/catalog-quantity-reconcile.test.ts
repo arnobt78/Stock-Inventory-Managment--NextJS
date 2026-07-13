@@ -80,6 +80,21 @@ describe("planCatalogQuantityReconcile", () => {
     expect(plan.blockedReason).toContain("reserved");
   });
 
+  it("REQ-0103 warehouse pick: floor is allocation reserved only (20 not 40)", () => {
+    const plan = planCatalogQuantityReconcile({
+      currentCatalog: 40,
+      newCatalog: 10,
+      productReserved: 0,
+      allocations: [
+        { id: "main", quantity: 15, reservedQuantity: 0 },
+        { id: "secondary", quantity: 25, reservedQuantity: 20 },
+      ],
+    });
+    expect(plan.reservedCommitment).toBe(20);
+    expect(plan.ok).toBe(false);
+    expect(plan.blockedReason).toContain("20 unit(s)");
+  });
+
   it("shrinks exactly when overage equals unreserved warehouse stock", () => {
     const plan = planCatalogQuantityReconcile({
       currentCatalog: 100,

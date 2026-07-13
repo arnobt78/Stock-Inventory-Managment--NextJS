@@ -18,6 +18,7 @@ import {
   supplierCanAccessSupplierRecord,
 } from "@/lib/server/catalog-entity-access";
 import type { CatalogPartyUserRow } from "@/lib/server/catalog-party-snapshot";
+import { enrichProductsWithCommittedQuantity } from "@/lib/products/enrich-product-committed-quantity";
 
 type SupplierProductWithOrders = Awaited<
   ReturnType<
@@ -176,7 +177,22 @@ function transformSupplierDetail(
   };
 }
 
-export type SupplierDetailForPage = ReturnType<typeof transformSupplierDetail>;
+type TransformSupplierDetail = ReturnType<typeof transformSupplierDetail>;
+
+export type SupplierDetailForPage = Omit<TransformSupplierDetail, "products"> & {
+  products: Array<
+    TransformSupplierDetail["products"][number] & { committedQuantity: number }
+  >;
+};
+
+function supplierDetailCacheValid(
+  cached: SupplierDetailForPage | null | undefined,
+): cached is SupplierDetailForPage {
+  return (
+    !!cached &&
+    cached.products.every((p) => typeof p.committedQuantity === "number")
+  );
+}
 
 /** Role-scoped supplier detail for page SSR — null when not found or unauthorized. */
 export async function getSupplierDetailForPage(
@@ -203,7 +219,7 @@ export async function getSupplierDetailForPage(
   const cacheScope = catalogDetailCacheScope(session, supplierEntity?.id);
   const cacheKey = cacheKeys.suppliers.detail(id, cacheScope);
   const cachedSupplier = await getCache<SupplierDetailForPage>(cacheKey);
-  if (cachedSupplier) {
+  if (supplierDetailCacheValid(cachedSupplier)) {
     logger.info(`✅ Cache hit for supplier: ${cacheKey}`);
     return cachedSupplier;
   }
@@ -305,6 +321,14 @@ export async function getSupplierDetailForPage(
     isDemoSupplier,
   );
 
-  await setCache(cacheKey, transformedSupplier, 300);
-  return transformedSupplier;
+  const enrichedProducts = await enrichProductsWithCommittedQuantity(
+    transformedSupplier.products,
+  );
+  const supplierForPage: SupplierDetailForPage = {
+    ...transformedSupplier,
+    products: enrichedProducts,
+  };
+
+  await setCache(cacheKey, supplierForPage, 300);
+  return supplierForPage;
 }

@@ -10,11 +10,15 @@ import type { CreateOrderInput, UpdateOrderInput } from "@/types/order";
 import { invalidateCache, cacheKeys } from "@/lib/cache";
 import { decrementStockAllocations } from "@/lib/products/decrement-stock-allocations";
 import {
+  getAvailableCatalogForOrder,
+  fulfillPendingOrderLines,
+  releasePendingOrderLines,
+  reservePendingOrderLines,
+} from "@/lib/products/order-stock-reservation";
+import {
   productRequiresWarehousePick,
-  reserveAllocationForOrderItem,
   resolveWarehouseName,
   validateWarehousePick,
-  syncReleasePendingOrderAllocations,
   syncRestoreConfirmedOrderAllocations,
   syncFulfillReactivatedOrderAllocations,
 } from "@/lib/products/stock-allocation-order-sync";
@@ -84,15 +88,6 @@ export async function createOrder(data: CreateOrderInput, userId: string) {
       throw new Error(`Product not found: ${item.productId}`);
     }
 
-    // Check available stock (total quantity minus already reserved)
-    const availableStock =
-      Number(product.quantity) - Number(product.reservedQuantity ?? 0);
-    if (availableStock < item.quantity) {
-      throw new Error(
-        `Insufficient stock for product ${product.name}. Available: ${availableStock}, Requested: ${item.quantity}`,
-      );
-    }
-
     const price = Number(product.price);
     const lineSubtotal = price * item.quantity;
     subtotal += lineSubtotal;
@@ -102,6 +97,32 @@ export async function createOrder(data: CreateOrderInput, userId: string) {
       item.productId,
       ownerUserId,
     );
+
+    const productReserved = Number(product.reservedQuantity ?? 0);
+    const productQty = Number(product.quantity);
+    let availableStock: number;
+
+    if (needsPick) {
+      const allocationRows = await prisma.stockAllocation.findMany({
+        where: { productId: item.productId },
+        select: { reservedQuantity: true },
+      });
+      availableStock = getAvailableCatalogForOrder(
+        productQty,
+        productReserved,
+        allocationRows.map((row) => ({
+          reservedQuantity: Number(row.reservedQuantity ?? 0),
+        })),
+      );
+    } else {
+      availableStock = productQty - productReserved;
+    }
+
+    if (availableStock < item.quantity) {
+      throw new Error(
+        `Insufficient stock for product ${product.name}. Available: ${availableStock}, Requested: ${item.quantity}`,
+      );
+    }
 
     let warehouseId: string | null = item.warehouseId ?? null;
     let warehouseName: string | null = null;
@@ -179,19 +200,14 @@ export async function createOrder(data: CreateOrderInput, userId: string) {
     },
   });
 
-  // Reserve stock for pending orders (increment reservedQuantity)
-  // Stock will be deducted (quantity reduced, reserved released) when order is confirmed/paid
-  for (const p of productsToReserve) {
-    await prisma.product.update({
-      where: { id: p.id },
-      data: {
-        reservedQuantity: { increment: p.qty },
-      },
-    });
-    if (p.warehouseId) {
-      await reserveAllocationForOrderItem(p.id, p.warehouseId, p.qty);
-    }
-  }
+  // REQ-0103 — disjoint reserve: allocation OR product, never both
+  await reservePendingOrderLines(
+    productsToReserve.map((p) => ({
+      productId: p.id,
+      quantity: p.qty,
+      warehouseId: p.warehouseId,
+    })),
+  );
 
   // Invalidate product + allocation cache so UI shows updated reserved stock
   await Promise.all([
@@ -663,46 +679,20 @@ export async function updateOrder(
         });
       }
     } else if (wasPending) {
-      // Order was pending, now cancelled: release reserved stock only
-      for (const item of orderWithItems.items) {
-        await prisma.product.update({
-          where: { id: item.productId },
-          data: {
-            reservedQuantity: { decrement: item.quantity },
-          },
-        });
-      }
       try {
-        await syncReleasePendingOrderAllocations(allocationItems);
+        await releasePendingOrderLines(allocationItems);
       } catch (error) {
-        logger.warn("Failed to release allocation reservation on order cancel", {
+        logger.warn("Failed to release reservation on order cancel", {
           orderId,
           error,
         });
       }
     }
   } else if (isBecomingConfirmedOrPaid && wasPending) {
-    // Pending order becoming confirmed/paid: deduct quantity AND release reservation
-    for (const item of orderWithItems.items) {
-      await prisma.product.update({
-        where: { id: item.productId },
-        data: {
-          quantity: { decrement: item.quantity },
-          reservedQuantity: { decrement: item.quantity },
-        },
-      });
-    }
-
     try {
-      await decrementStockAllocations(
-        orderWithItems.items.map((item) => ({
-          productId: item.productId,
-          quantity: item.quantity,
-          warehouseId: item.warehouseId,
-        })),
-      );
+      await fulfillPendingOrderLines(allocationItems);
     } catch (error) {
-      logger.warn("Failed to decrement stock allocations for order", {
+      logger.warn("Failed to fulfill stock for order", {
         orderId,
         error,
       });
@@ -887,19 +877,10 @@ export async function cancelOrder(orderId: string, userId: string) {
         });
       }
     } else if (wasPending) {
-      // Order was pending: release reserved stock
-      for (const item of orderWithItems.items) {
-        await prisma.product.update({
-          where: { id: item.productId },
-          data: {
-            reservedQuantity: { decrement: item.quantity },
-          },
-        });
-      }
       try {
-        await syncReleasePendingOrderAllocations(allocationItems);
+        await releasePendingOrderLines(allocationItems);
       } catch (error) {
-        logger.warn("Failed to release allocation reservation on cancelOrder", {
+        logger.warn("Failed to release reservation on cancelOrder", {
           orderId,
           error,
         });

@@ -4,6 +4,7 @@
  */
 import { prisma } from "@/prisma/client";
 import { mergeProductListWhere } from "@/lib/products/product-query";
+import { enrichProductsWithCommittedQuantity } from "@/lib/products/enrich-product-committed-quantity";
 import type { ClientBrowseMeta, ClientBrowseProductsResponse } from "@/types";
 
 /** Admins/users who own at least one active catalog product (client browse picker). */
@@ -144,8 +145,8 @@ export async function getClientBrowseProductsForPage(
   const categoryMap = new Map(categories.map((c) => [c.id, c.name]));
   const supplierMap = new Map(suppliers.map((s) => [s.id, s.name]));
 
-  return {
-    products: products.map((p) => ({
+  const enrichedProducts = await enrichProductsWithCommittedQuantity(
+    products.map((p) => ({
       id: p.id,
       name: p.name,
       sku: p.sku,
@@ -167,6 +168,10 @@ export async function getClientBrowseProductsForPage(
       imageFileId: p.imageFileId || null,
       expirationDate: p.expirationDate?.toISOString() || null,
     })),
+  );
+
+  return {
+    products: enrichedProducts,
     categories,
     suppliers,
     owner: ownerUser

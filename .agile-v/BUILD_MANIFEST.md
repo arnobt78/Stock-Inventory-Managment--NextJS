@@ -281,3 +281,5 @@
 | TC-0031 | REQ-0096 | `lib/server/warehouse-detail-data.test.ts` |
 | TC-0032 | REQ-0096 | `lib/orders/transform-order-detail.test.ts` (creator/updater) |
 | TC-0033 | REQ-0102 | `lib/stock-allocation/catalog-quantity-reconcile.test.ts`, `validate-allocation-quantity.test.ts`, `lib/warehouses/warehouse-delete-guards.test.ts` |
+| TC-0034 | REQ-0103 | `lib/products/order-stock-reservation.test.ts`, `enrich-product-committed-quantity.test.ts` |
+| TC-0035 | REQ-0104 | detail SSR enrich + forecast/supplier-dashboard committed avail |

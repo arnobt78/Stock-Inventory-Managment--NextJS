@@ -72,6 +72,7 @@ import {
 } from "@/components/shared";
 import { findProductForecast } from "@/lib/forecasting/entity-forecast";
 import { enrichProductInsightsWithWarehouseStock } from "@/lib/insights/product-insights-enrich";
+import { computeCommittedQuantity } from "@/lib/products/enrich-product-committed-quantity";
 import {
   buildSalesChartData,
   buildWarehouseAllocationStockChartData,
@@ -205,6 +206,23 @@ export default function ProductDetailPage({
     (sum, row) => sum + (row.quantity - row.reservedQuantity),
     0,
   );
+  const displayCommitted = useMemo(() => {
+    if (product?.committedQuantity != null) {
+      return product.committedQuantity;
+    }
+    const allocationReservedSum = warehouseAllocations.reduce(
+      (sum, row) => sum + row.reservedQuantity,
+      0,
+    );
+    return computeCommittedQuantity(
+      product?.reservedQuantity ?? 0,
+      allocationReservedSum,
+    );
+  }, [
+    product?.committedQuantity,
+    product?.reservedQuantity,
+    warehouseAllocations,
+  ]);
   const recentOrderCount = product?.recentOrders?.length ?? 0;
   const ownerProductsHref = (ownerId: string) =>
     embedInAdmin
@@ -459,14 +477,14 @@ export default function ProductDetailPage({
                   Stock
                 </p>
                 <p className="text-sm sm:text-base font-medium text-gray-700 dark:text-white">
-                  {(product?.quantity ?? 0) - (product?.reservedQuantity ?? 0)}
+                  {(product?.quantity ?? 0) - displayCommitted}
                   <span className="text-sm font-normal text-gray-600 dark:text-white/60 ml-1">
                     available
                   </span>
                 </p>
-                {(product?.reservedQuantity ?? 0) > 0 && (
+                {displayCommitted > 0 && (
                   <p className="text-sm text-gray-600 dark:text-white/60 mt-1">
-                    {product?.reservedQuantity} reserved · {product?.quantity}{" "}
+                    {displayCommitted} reserved · {product?.quantity}{" "}
                     total
                   </p>
                 )}
@@ -609,13 +627,13 @@ export default function ProductDetailPage({
                       >
                         {product.quantity ?? 0}
                       </DetailInfoRow>
-                      {(product.reservedQuantity ?? 0) > 0 && (
+                      {displayCommitted > 0 && (
                         <DetailInfoRow
                           icon={Package}
                           label="Reserved:"
                           tone="violet"
                         >
-                          {product.reservedQuantity}
+                          {displayCommitted}
                         </DetailInfoRow>
                       )}
                       <DetailInfoRow
@@ -623,8 +641,7 @@ export default function ProductDetailPage({
                         label="Available:"
                         tone="emerald"
                       >
-                        {(product.quantity ?? 0) -
-                          (product.reservedQuantity ?? 0)}
+                        {(product.quantity ?? 0) - displayCommitted}
                       </DetailInfoRow>
                     </>
                   )}

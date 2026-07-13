@@ -2,7 +2,7 @@
  * REQ-0086 — product grid for category/supplier detail pages (shared layout + responsive SKU row).
  */
 
-"use client";
+import { getDisplayCommittedQuantity } from "@/lib/products/enrich-product-committed-quantity";
 
 import Link from "next/link";
 import { Clock, DollarSign, Hash, Package, Truck, User } from "lucide-react";
@@ -88,11 +88,11 @@ export function CatalogDetailProductGrid({
                 <span className="text-gray-400">•</span>
                 <Package className="h-3.5 w-3.5 shrink-0" aria-hidden />
                 <span className="shrink-0">Stock: {product.quantity ?? 0}</span>
-                {(product.reservedQuantity ?? 0) > 0 && (
+                {(getDisplayCommittedQuantity(product) > 0) && (
                   <>
                     <span className="text-gray-400">•</span>
                     <Clock className="h-3.5 w-3.5 shrink-0" aria-hidden />
-                    <span>{product.reservedQuantity} reserved</span>
+                    <span>{getDisplayCommittedQuantity(product)} reserved</span>
                   </>
                 )}
                 <span className="text-gray-400">•</span>

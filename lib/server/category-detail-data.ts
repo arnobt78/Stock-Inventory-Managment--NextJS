@@ -21,6 +21,7 @@ import {
   computeCatalogInsights,
   CATEGORY_LOW_STOCK_THRESHOLD,
 } from "@/lib/server/catalog-insights";
+import { enrichProductsWithCommittedQuantity } from "@/lib/products/enrich-product-committed-quantity";
 
 export { CATEGORY_LOW_STOCK_THRESHOLD };
 export { computeCatalogInsights as computeCategoryInsights } from "@/lib/server/catalog-insights";
@@ -198,7 +199,22 @@ function transformCategoryDetail(
   };
 }
 
-export type CategoryDetailForPage = ReturnType<typeof transformCategoryDetail>;
+type TransformCategoryDetail = ReturnType<typeof transformCategoryDetail>;
+
+export type CategoryDetailForPage = Omit<TransformCategoryDetail, "products"> & {
+  products: Array<
+    TransformCategoryDetail["products"][number] & { committedQuantity: number }
+  >;
+};
+
+function categoryDetailCacheValid(
+  cached: CategoryDetailForPage | null | undefined,
+): cached is CategoryDetailForPage {
+  return (
+    !!cached &&
+    cached.products.every((p) => typeof p.committedQuantity === "number")
+  );
+}
 
 /** Role-scoped category detail for page SSR — null when not found or unauthorized. */
 export async function getCategoryDetailForPage(
@@ -218,7 +234,7 @@ export async function getCategoryDetailForPage(
   const cacheScope = catalogDetailCacheScope(session, supplierEntity?.id);
   const cacheKey = cacheKeys.categories.detail(id, cacheScope);
   const cachedCategory = await getCache<CategoryDetailForPage>(cacheKey);
-  if (cachedCategory) {
+  if (categoryDetailCacheValid(cachedCategory)) {
     logger.info(`✅ Cache hit for category: ${cacheKey}`);
     return cachedCategory;
   }
@@ -328,6 +344,14 @@ export async function getCategoryDetailForPage(
     orderUserMap,
   );
 
-  await setCache(cacheKey, transformedCategory, 300);
-  return transformedCategory;
+  const enrichedProducts = await enrichProductsWithCommittedQuantity(
+    transformedCategory.products,
+  );
+  const categoryForPage: CategoryDetailForPage = {
+    ...transformedCategory,
+    products: enrichedProducts,
+  };
+
+  await setCache(cacheKey, categoryForPage, 300);
+  return categoryForPage;
 }

@@ -16,6 +16,8 @@ export type CatalogDetailProductItem = {
   sku?: string | null;
   quantity?: number;
   reservedQuantity?: number;
+  /** REQ-0103 — display-only list enrichment */
+  committedQuantity?: number;
   price?: number;
   status?: string;
   owner?: CatalogDetailPartySnapshot | null;

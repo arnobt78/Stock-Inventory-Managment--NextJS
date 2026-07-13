@@ -20,7 +20,7 @@ import { createAuditLog } from "@/prisma/audit-log";
 import type { UpdateInvoiceInput } from "@/types";
 import { getInvoiceDetailForPage } from "@/lib/server/invoice-detail-data";
 import { scheduleInvalidateInvoiceCaches } from "@/lib/cache";
-import { decrementStockAllocations } from "@/lib/products/decrement-stock-allocations";
+import { fulfillPendingOrderLines } from "@/lib/products/order-stock-reservation";
 
 /**
  * GET /api/invoices/:id
@@ -156,17 +156,8 @@ export async function PUT(
           },
         });
         if (linkedOrder.status === "pending") {
-          for (const item of linkedOrder.items) {
-            await prisma.product.update({
-              where: { id: item.productId },
-              data: {
-                quantity: { decrement: item.quantity },
-                reservedQuantity: { decrement: item.quantity },
-              },
-            });
-          }
           try {
-            await decrementStockAllocations(
+            await fulfillPendingOrderLines(
               linkedOrder.items.map((item) => ({
                 productId: item.productId,
                 quantity: item.quantity,
@@ -175,7 +166,7 @@ export async function PUT(
             );
           } catch (allocErr) {
             logger.warn(
-              "Failed to decrement stock allocations for invoice-paid order",
+              "Failed to fulfill stock for invoice-paid order",
               { orderId: invoice.orderId, error: allocErr },
             );
           }

@@ -2271,6 +2271,50 @@ Canonical REQ source. All artifacts link via `REQ-XXXX`. Status: `done` | `verif
 
 **Artifacts:** `lib/stock-allocation/catalog-quantity-reconcile.ts`, `validate-allocation-quantity.ts`, `apply-catalog-quantity-reconcile.ts`, `lib/warehouses/warehouse-delete-guards.ts`, `app/api/products/route.ts`, `app/api/stock-allocations/*`, `app/api/warehouses/route.ts`, `ProductFormDialog.tsx`, `WarehouseStockAllocationRow.tsx`
 
+## REQ-0103 — Disjoint order reservation (REQ-0102 AC6 gap)
+
+| Field | Value |
+|-------|-------|
+| **Priority** | P0 |
+| **Risk** | R2 |
+| **Status** | done |
+| **Cycle** | C2 |
+| **Parent** | REQ-0102 |
+
+**Intent:** Warehouse-pick pending orders must reserve on `StockAllocation.reservedQuantity` only; no-pick orders on `Product.reservedQuantity` only. Fixes double-count catalog floor (40 vs 20).
+
+**Acceptance criteria**
+
+- AC1: `order-stock-reservation.ts` — disjoint reserve/release/fulfill; wired in `prisma/order.ts` create + status + cancel
+- AC2: Stripe webhook + invoice paid use `fulfillPendingOrderLines`
+- AC3: Create availability uses `getAvailableCatalogForOrder` when warehouse pick required
+- AC4: List APIs expose `committedQuantity`; UI badges use `getDisplayCommittedQuantity`
+- AC5: Unit tests + gates (lint, test 460, invalidate 208, build)
+
+**Artifacts:** `lib/products/order-stock-reservation.ts`, `enrich-product-committed-quantity.ts`, `prisma/order.ts`, `app/api/payments/webhook/route.ts`, `app/api/invoices/[id]/route.ts`, product list/browse/home enrich, `ProductTableColumns.tsx`, `ProductDetailPage.tsx`
+
+---
+
+## REQ-0104 — committedQuantity display parity
+
+| Field | Value |
+|-------|-------|
+| **Priority** | P1 |
+| **Risk** | R1 |
+| **Status** | done |
+| **Cycle** | C2 |
+| **Parent** | REQ-0103 |
+
+**Intent:** Extend `committedQuantity` to category/supplier detail SSR, forecasting card/API, and supplier dashboard so warehouse-pick reserved units display consistently everywhere.
+
+**Acceptance criteria**
+
+- AC1: `category-detail-data.ts` + `supplier-detail-data.ts` enrich products; Redis cache guard requires `committedQuantity`
+- AC2: `forecasting-card.tsx`, `demand-forecast.ts`, `supplier-dashboard.ts` use effective committed qty for available math
+- AC3: Unit test + gates (lint, test 461, invalidate 208, build)
+
+**Artifacts:** `lib/server/category-detail-data.ts`, `supplier-detail-data.ts`, `components/ui/forecasting-card.tsx`, `lib/forecasting/demand-forecast.ts`, `lib/server/supplier-dashboard.ts`
+
 ---
 
 ## REQ-0020 — Locale-aware admin format (hydration-safe)

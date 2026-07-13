@@ -5,6 +5,10 @@
 
 import { prisma } from "@/prisma/client";
 import { mergeProductListWhere } from "@/lib/products/product-query";
+import {
+  batchSumAllocationReserved,
+  computeCommittedQuantity,
+} from "@/lib/products/enrich-product-committed-quantity";
 import type {
   ProductSalesHistory,
   ProductDemandForecast,
@@ -292,6 +296,10 @@ export async function generateForecastingSummary(
   const forecasts: ProductDemandForecast[] = [];
   const anomalies: SalesAnomaly[] = [];
 
+  const allocationReservedByProduct = await batchSumAllocationReserved(
+    products.map((p) => p.id),
+  );
+
   for (const product of products) {
     const salesMap = productSalesMap.get(product.id) || new Map();
 
@@ -300,13 +308,18 @@ export async function generateForecastingSummary(
       quantity: salesMap.get(date) || 0,
     }));
 
+    const committed = computeCommittedQuantity(
+      Number(product.reservedQuantity ?? 0),
+      allocationReservedByProduct.get(product.id) ?? 0,
+    );
+
     // Generate forecast
     const forecast = generateProductForecast(
       product.id,
       product.name,
       product.sku,
       Number(product.quantity),
-      Number(product.reservedQuantity ?? 0),
+      committed,
       dailySales,
     );
     forecasts.push(forecast);
