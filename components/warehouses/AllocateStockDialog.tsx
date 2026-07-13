@@ -46,7 +46,9 @@ import {
   productCategoryLabel,
   productSupplierLabel,
 } from "@/components/products/ProductOptionRow";
-import { useCreateStockAllocation, useProducts } from "@/hooks/queries";
+import { useCreateStockAllocation, useProducts, useStockByProduct, useUpdateStockAllocation } from "@/hooks/queries";
+import { computeAllocateBudget } from "@/lib/stock-allocation/compute-allocate-budget";
+import type { StockAllocation } from "@/types";
 import { cn } from "@/lib/utils";
 
 const ALLOCATE_DIALOG_CONTENT_CLASS = `${DIALOG_EDGE_SCROLL_SHELL} poppins border-violet-400/30 dark:border-violet-400/30 shadow-[0_30px_80px_rgba(139,92,246,0.35)] dark:shadow-[0_30px_80px_rgba(139,92,246,0.25)]`;
@@ -56,6 +58,8 @@ export type AllocateStockDialogProps = {
   onOpenChange: (open: boolean) => void;
   warehouseId: string;
   warehouseName?: string;
+  /** Edit existing row — product locked, quantity upserted for this warehouse. */
+  editAllocation?: StockAllocation | null;
 };
 
 export default function AllocateStockDialog({
@@ -63,20 +67,45 @@ export default function AllocateStockDialog({
   onOpenChange,
   warehouseId,
   warehouseName,
+  editAllocation = null,
 }: AllocateStockDialogProps) {
-  const [productId, setProductId] = useState("");
-  const [quantity, setQuantity] = useState("");
+  const isEditMode = Boolean(editAllocation);
+  const [productId, setProductId] = useState(editAllocation?.productId ?? "");
+  const [quantity, setQuantity] = useState(
+    editAllocation != null ? String(editAllocation.quantity) : "",
+  );
   const [pickerOpen, setPickerOpen] = useState(false);
 
   const { data: products = [], isLoading: productsLoading } = useProducts();
+  const activeProductId = isEditMode
+    ? (editAllocation?.productId ?? "")
+    : productId;
+  const { data: productAllocations = [] } = useStockByProduct(
+    activeProductId,
+    undefined,
+    { enabled: open && !!activeProductId },
+  );
   const createMutation = useCreateStockAllocation();
+  const updateMutation = useUpdateStockAllocation();
 
   const selectedProduct = useMemo(
-    () => products.find((p) => p.id === productId),
-    [products, productId],
+    () => products.find((p) => p.id === activeProductId),
+    [products, activeProductId],
   );
 
-  const maxProductStock = selectedProduct?.quantity ?? 0;
+  const allocateBudget = useMemo(() => {
+    if (!selectedProduct) return null;
+    return computeAllocateBudget(
+      selectedProduct.quantity,
+      productAllocations.map((row) => ({
+        warehouseId: row.warehouseId,
+        quantity: row.quantity,
+      })),
+      warehouseId,
+    );
+  }, [productAllocations, selectedProduct, warehouseId]);
+
+  const maxProductStock = allocateBudget?.maxSetQuantity ?? 0;
   const qtyValidation = getStockQuantityValidation(
     quantity,
     maxProductStock,
@@ -84,7 +113,7 @@ export default function AllocateStockDialog({
   );
   const qtyNum = parseInt(quantity, 10);
   const isValid =
-    !!productId &&
+    !!activeProductId &&
     qtyValidation.valid &&
     Number.isFinite(qtyNum) &&
     qtyNum >= 0 &&
@@ -106,28 +135,51 @@ export default function AllocateStockDialog({
     async (e: React.FormEvent) => {
       e.preventDefault();
       if (!isValid) return;
+
+      if (isEditMode && editAllocation) {
+        updateMutation.mutate(
+          { id: editAllocation.id, quantity: qtyNum },
+          { onSuccess: () => handleOpenChange(false) },
+        );
+        return;
+      }
+
       createMutation.mutate(
-        { productId, warehouseId, quantity: qtyNum },
-        {
-          onSuccess: () => handleOpenChange(false),
-        },
+        { productId: activeProductId, warehouseId, quantity: qtyNum },
+        { onSuccess: () => handleOpenChange(false) },
       );
     },
-    [createMutation, handleOpenChange, isValid, productId, qtyNum, warehouseId],
+    [
+      createMutation,
+      updateMutation,
+      handleOpenChange,
+      isValid,
+      isEditMode,
+      editAllocation,
+      activeProductId,
+      qtyNum,
+      warehouseId,
+    ],
   );
 
-  const isPending = createMutation.isPending;
+  const isPending = createMutation.isPending || updateMutation.isPending;
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent className={ALLOCATE_DIALOG_CONTENT_CLASS}>
         <DialogHeader className={DIALOG_EDGE_SCROLL_HEADER}>
           <DialogTitle className="text-[22px] text-white">
-            Allocate Stock
+            {isEditMode ? "Update Allocation" : "Allocate Stock"}
           </DialogTitle>
           <DialogDescription className="text-white/70">
-            Assign product quantity to{" "}
-            {warehouseName ? `"${warehouseName}"` : "this warehouse"}.
+            {isEditMode
+              ? `Change allocated quantity in ${warehouseName ? `"${warehouseName}"` : "this warehouse"}.`
+              : (
+                  <>
+                    Assign product quantity to{" "}
+                    {warehouseName ? `"${warehouseName}"` : "this warehouse"}.
+                  </>
+                )}
           </DialogDescription>
         </DialogHeader>
 
@@ -142,7 +194,7 @@ export default function AllocateStockDialog({
                       type="button"
                       variant="outline"
                       role="combobox"
-                      disabled={productsLoading || isPending}
+                      disabled={productsLoading || isPending || isEditMode}
                       className={cn(
                         "mt-1 h-auto min-h-11 w-full justify-between py-2 font-normal",
                         DIALOG_FORM_FIELD_VIOLET,
@@ -161,6 +213,7 @@ export default function AllocateStockDialog({
                             selectedProduct.supplier,
                           )}
                           showMeta
+                          metaOnDark
                           size="sm"
                           className="flex-1"
                         />
@@ -220,9 +273,11 @@ export default function AllocateStockDialog({
                 value={quantity}
                 onChange={setQuantity}
                 maxAvailable={maxProductStock}
-                productStock={selectedProduct?.quantity}
+                catalogTotal={allocateBudget?.catalogTotal}
+                allocatedTotal={allocateBudget?.totalAllocated}
+                unallocatedRemaining={allocateBudget?.unallocated}
                 mode="allocate"
-                disabled={isPending || !productId}
+                disabled={isPending || !activeProductId}
                 fieldClassName={DIALOG_FORM_FIELD_VIOLET}
               />
             </div>
@@ -240,7 +295,7 @@ export default function AllocateStockDialog({
               <DialogSubmitButton
                 isPending={isPending}
                 pendingLabel="Saving allocation…"
-                label="Save allocation"
+                label={isEditMode ? "Save changes" : "Save allocation"}
                 hue="violet"
                 disabled={!isValid}
               />

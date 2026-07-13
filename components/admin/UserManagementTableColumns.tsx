@@ -4,7 +4,7 @@
 
 "use client";
 
-import React from "react";
+import Link from "next/link";
 import { Column, ColumnDef } from "@tanstack/react-table";
 import { Button } from "@/components/ui/button";
 import {
@@ -17,9 +17,9 @@ import {
 import { ArrowUpDown, Eye, Pencil, Trash2, MoreVertical } from "lucide-react";
 import { IoMdArrowDown, IoMdArrowUp } from "react-icons/io";
 import { format } from "date-fns";
-import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { UserRoleBadge } from "@/lib/ui/semantic-badges";
+import { AvatarInlineLink } from "@/components/shared/AvatarInlineLink";
 import type { UserForAdmin } from "@/types";
 
 type SortableHeaderProps = {
@@ -91,12 +91,14 @@ export function createUserManagementColumns(
         const u = row.original;
         const href = `${base}/${u.id}`;
         return (
-          <Link
-            href={href}
-            className="font-normal truncate max-w-[140px] block text-sky-600 dark:text-sky-400 hover:text-sky-500 dark:hover:text-sky-300"
-            title={u.name}
-          >
-            {u.name}
+          <Link href={href} className="min-w-0">
+            <AvatarInlineLink
+              label={u.name}
+              seed={u.id}
+              image={u.image}
+              size={28}
+              linkClassName="text-sm font-normal text-sky-600 dark:text-sky-400 hover:text-sky-500 dark:hover:text-sky-300"
+            />
           </Link>
         );
       },

@@ -1,15 +1,21 @@
 import { describe, expect, it, vi, beforeEach } from "vitest";
 import {
+  attachProductAllocationTotals,
+  enrichStockAllocationRows,
+  enrichWarehouseAllocationRows,
   fetchStockAllocationProductMap,
+  getProductAllocationTotalsMap,
   transformStockAllocationRow,
   type StockAllocationProductSnapshot,
 } from "./stock-allocation-enrich";
+import type { StockAllocation } from "@/types";
 
 vi.mock("@/prisma/client", () => ({
   prisma: {
     product: { findMany: vi.fn() },
     category: { findMany: vi.fn() },
     supplier: { findMany: vi.fn() },
+    stockAllocation: { findMany: vi.fn() },
   },
 }));
 
@@ -37,8 +43,12 @@ describe("transformStockAllocationRow", () => {
           imageUrl: "https://example.com/w.jpg",
           price: 19.99,
           quantity: 100,
+          categoryId: "cat-1",
           categoryName: "Gadgets",
+          supplierId: "sup-1",
           supplierName: "Acme",
+          deletedAt: null,
+          isArchived: false,
         },
       ],
     ]);
@@ -118,6 +128,7 @@ describe("fetchStockAllocationProductMap", () => {
         quantity: 50,
         categoryId: "cat-1",
         supplierId: "sup-1",
+        deletedAt: null,
       },
     ] as never);
     vi.mocked(prisma.category.findMany).mockResolvedValue([
@@ -135,8 +146,137 @@ describe("fetchStockAllocationProductMap", () => {
       imageUrl: null,
       price: 9.5,
       quantity: 50,
+      categoryId: "cat-1",
       categoryName: "Gadgets",
+      supplierId: "sup-1",
       supplierName: "Acme",
+      deletedAt: null,
+      isArchived: false,
+    });
+  });
+});
+
+describe("attachProductAllocationTotals", () => {
+  it("merges allocated and unallocated onto product snapshots", () => {
+    const rows: StockAllocation[] = [
+      {
+        id: "alloc-1",
+        productId: "prod-1",
+        warehouseId: "wh-1",
+        quantity: 30,
+        reservedQuantity: 0,
+        userId: "user-1",
+        createdAt: "2026-01-01T00:00:00.000Z",
+        updatedAt: null,
+        product: {
+          id: "prod-1",
+          name: "Widget",
+          sku: "W-1",
+          quantity: 100,
+        },
+      },
+    ];
+    const totalsMap = new Map([
+      ["prod-1", { allocatedTotal: 70, unallocated: 30 }],
+    ]);
+
+    const result = attachProductAllocationTotals(rows, totalsMap);
+    expect(result[0].product).toMatchObject({
+      allocatedTotal: 70,
+      unallocated: 30,
+    });
+  });
+});
+
+describe("getProductAllocationTotalsMap", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it("sums allocations across all warehouses per product", async () => {
+    vi.mocked(prisma.stockAllocation.findMany).mockResolvedValue([
+      { productId: "prod-1", quantity: BigInt(40) },
+      { productId: "prod-1", quantity: BigInt(25) },
+    ] as never);
+    vi.mocked(prisma.product.findMany).mockResolvedValue([
+      { id: "prod-1", quantity: BigInt(100) },
+    ] as never);
+
+    const map = await getProductAllocationTotalsMap(["prod-1"]);
+    expect(map.get("prod-1")).toEqual({
+      allocatedTotal: 65,
+      unallocated: 35,
+    });
+  });
+});
+
+describe("enrichWarehouseAllocationRows", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it("attaches cross-warehouse totals for warehouse-scoped rows", async () => {
+    vi.mocked(prisma.stockAllocation.findMany).mockResolvedValue([
+      { productId: "prod-1", quantity: BigInt(40) },
+      { productId: "prod-1", quantity: BigInt(25) },
+    ] as never);
+    vi.mocked(prisma.product.findMany).mockResolvedValue([
+      { id: "prod-1", quantity: BigInt(100) },
+    ] as never);
+
+    const rows: StockAllocation[] = [
+      {
+        id: "alloc-1",
+        productId: "prod-1",
+        warehouseId: "wh-1",
+        quantity: 40,
+        reservedQuantity: 0,
+        userId: "user-1",
+        createdAt: "2026-01-01T00:00:00.000Z",
+        updatedAt: null,
+        product: { id: "prod-1", name: "Widget", sku: "W-1", quantity: 100 },
+      },
+    ];
+
+    const result = await enrichWarehouseAllocationRows(rows);
+    expect(result[0].product).toMatchObject({
+      allocatedTotal: 65,
+      unallocated: 35,
+    });
+  });
+});
+
+describe("enrichStockAllocationRows", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it("delegates to DB-backed cross-warehouse totals (REQ-0102)", async () => {
+    vi.mocked(prisma.stockAllocation.findMany).mockResolvedValue([
+      { productId: "prod-1", quantity: BigInt(40) },
+    ] as never);
+    vi.mocked(prisma.product.findMany).mockResolvedValue([
+      { id: "prod-1", quantity: BigInt(100) },
+    ] as never);
+
+    const rows: StockAllocation[] = [
+      {
+        id: "alloc-1",
+        productId: "prod-1",
+        warehouseId: "wh-1",
+        quantity: 40,
+        reservedQuantity: 0,
+        userId: "user-1",
+        createdAt: "2026-01-01T00:00:00.000Z",
+        updatedAt: null,
+        product: { id: "prod-1", name: "Widget", sku: "W-1", quantity: 100 },
+      },
+    ];
+
+    const result = await enrichStockAllocationRows(rows);
+    expect(result[0].product).toMatchObject({
+      allocatedTotal: 40,
+      unallocated: 60,
     });
   });
 });

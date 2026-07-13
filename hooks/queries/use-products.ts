@@ -6,12 +6,7 @@
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { apiClient, getErrorMessage, isAxiosError } from "@/lib/api";
-import {
-  queryKeys,
-  invalidateAllRelatedQueries,
-  cancelOrRemoveDetailQuery,
-  withInitialData,
-} from "@/lib/react-query";
+import { invalidateAllRelatedQueries, cancelOrRemoveDetailQuery, invalidateAfterStockChange, queryKeys, withInitialData } from "@/lib/react-query";
 import { useToast } from "@/hooks/use-toast";
 import type {
   Product,
@@ -105,17 +100,29 @@ export function useUpdateProduct() {
       const response = await apiClient.products.update(data);
       return response.data;
     },
-    onSuccess: (updatedProduct) => {
+    onSuccess: (updatedProduct, variables) => {
       invalidateAllRelatedQueries(queryClient);
+      if (variables.quantity !== undefined) {
+        invalidateAfterStockChange(queryClient);
+      }
       if (updatedProduct.id) {
         queryClient.invalidateQueries({
           queryKey: queryKeys.products.detail(updatedProduct.id),
         });
       }
       const name = (updatedProduct as { name?: string })?.name ?? "Product";
+      const stockReconcile = (
+        updatedProduct as {
+          stockReconcile?: { unitsRemovedFromWarehouses: number };
+        }
+      ).stockReconcile;
+      const shrinkNote =
+        stockReconcile && stockReconcile.unitsRemovedFromWarehouses > 0
+          ? ` ${stockReconcile.unitsRemovedFromWarehouses} unreserved unit(s) removed from warehouses.`
+          : "";
       toast({
         title: "Success",
-        description: `Product "${name}" updated successfully`,
+        description: `Product "${name}" updated successfully.${shrinkNote}`,
       });
       return updatedProduct;
     },

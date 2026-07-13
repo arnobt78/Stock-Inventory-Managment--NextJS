@@ -75,7 +75,6 @@ import { enrichProductInsightsWithWarehouseStock } from "@/lib/insights/product-
 import {
   buildSalesChartData,
   buildWarehouseAllocationStockChartData,
-  buildWarehouseStockChartDescription,
   WAREHOUSE_STOCK_PIE_COLORS,
 } from "@/lib/ui/catalog-insights-chart-data";
 import { DetailInfoRow } from "@/components/orders/detail";
@@ -310,10 +309,6 @@ export default function ProductDetailPage({
   const stockChartData = insights
     ? buildWarehouseAllocationStockChartData(insights)
     : [];
-  const warehouseStockChartDescription =
-    insights?.warehouseStock && catalogQuantity != null
-      ? buildWarehouseStockChartDescription(insights, catalogQuantity)
-      : undefined;
   const warehouseStockChartTrailing =
     insights?.warehouseStock && catalogQuantity != null && !dataLoading ? (
       <>
@@ -739,10 +734,9 @@ export default function ProductDetailPage({
                   : "Stock status"
               }
               stockChartDescription={
-                warehouseStockChartDescription ??
-                (insights.warehouseStock
+                insights.warehouseStock
                   ? "Available vs reserved across warehouses"
-                  : "On-hand stock status")
+                  : "On-hand stock status"
               }
               stockChartTrailing={warehouseStockChartTrailing}
               salesChartData={salesChartData}

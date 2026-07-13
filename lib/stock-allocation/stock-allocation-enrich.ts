@@ -2,6 +2,7 @@
  * Shared product enrichment for stock allocation API + SSR (price, catalog meta).
  */
 import { prisma } from "@/prisma/client";
+import { isProductArchived } from "@/lib/products/product-query";
 import type { StockAllocation } from "@/types";
 
 export type StockAllocationWarehouseSnapshot = {
@@ -15,8 +16,12 @@ export type StockAllocationProductSnapshot = {
   imageUrl: string | null;
   price: number;
   quantity: number;
+  categoryId: string | null;
   categoryName: string | null;
+  supplierId: string | null;
   supplierName: string | null;
+  deletedAt: string | null;
+  isArchived: boolean;
 };
 
 type AllocationRow = {
@@ -47,6 +52,7 @@ export async function fetchStockAllocationProductMap(
       quantity: true,
       categoryId: true,
       supplierId: true,
+      deletedAt: true,
     },
   });
 
@@ -76,12 +82,98 @@ export async function fetchStockAllocationProductMap(
         imageUrl: p.imageUrl ?? null,
         price: p.price,
         quantity: Number(p.quantity),
+        categoryId: p.categoryId ?? null,
         categoryName: categoryMap.get(p.categoryId) ?? null,
+        supplierId: p.supplierId ?? null,
         supplierName: supplierMap.get(p.supplierId) ?? null,
+        deletedAt: p.deletedAt?.toISOString() ?? null,
+        isArchived: isProductArchived(p),
       },
     ]),
   );
 }
+
+export type ProductAllocationTotals = {
+  allocatedTotal: number;
+  unallocated: number;
+};
+
+/** Cross-warehouse allocated/unallocated per product (warehouse rows need full sibling set). */
+export async function getProductAllocationTotalsMap(
+  productIds: string[],
+): Promise<Map<string, ProductAllocationTotals>> {
+  if (productIds.length === 0) return new Map();
+
+  const [allocations, products] = await Promise.all([
+    prisma.stockAllocation.findMany({
+      where: { productId: { in: productIds } },
+      select: { productId: true, quantity: true },
+    }),
+    prisma.product.findMany({
+      where: { id: { in: productIds } },
+      select: { id: true, quantity: true },
+    }),
+  ]);
+
+  const catalogByProduct = new Map(
+    products.map((p) => [p.id, Number(p.quantity)]),
+  );
+  const allocatedByProduct = new Map<string, number>();
+  for (const row of allocations) {
+    allocatedByProduct.set(
+      row.productId,
+      (allocatedByProduct.get(row.productId) ?? 0) + Number(row.quantity),
+    );
+  }
+
+  const totalsMap = new Map<string, ProductAllocationTotals>();
+  for (const productId of productIds) {
+    const catalogQty = catalogByProduct.get(productId);
+    if (catalogQty == null) continue;
+    const allocatedTotal = allocatedByProduct.get(productId) ?? 0;
+    totalsMap.set(productId, {
+      allocatedTotal,
+      unallocated: Math.max(0, catalogQty - allocatedTotal),
+    });
+  }
+
+  return totalsMap;
+}
+
+/** Merge derived catalog totals onto allocation row product snapshots. */
+export function attachProductAllocationTotals(
+  rows: StockAllocation[],
+  totalsMap: Map<string, ProductAllocationTotals>,
+): StockAllocation[] {
+  return rows.map((row) => {
+    const totals = totalsMap.get(row.productId);
+    if (!totals || !row.product) return row;
+
+    return {
+      ...row,
+      product: {
+        ...row.product,
+        allocatedTotal: totals.allocatedTotal,
+        unallocated: totals.unallocated,
+      },
+    };
+  });
+}
+
+/**
+ * REQ-0102 — sole production entry for API + SSR allocation lists.
+ * DB-backed cross-warehouse totals: warehouse-scoped rows are partial per product.
+ */
+export async function enrichStockAllocationRows(
+  rows: StockAllocation[],
+): Promise<StockAllocation[]> {
+  const productIds = [...new Set(rows.map((row) => row.productId))];
+  const totalsMap = await getProductAllocationTotalsMap(productIds);
+  return attachProductAllocationTotals(rows, totalsMap);
+}
+
+/** Alias for enrichStockAllocationRows — kept for existing tests and imports. */
+export const enrichWarehouseAllocationRows = enrichStockAllocationRows;
 
 export function transformStockAllocationRow(
   row: AllocationRow,
@@ -107,8 +199,12 @@ export function transformStockAllocationRow(
           imageUrl: product.imageUrl,
           price: product.price,
           quantity: product.quantity,
+          categoryId: product.categoryId,
           categoryName: product.categoryName,
+          supplierId: product.supplierId,
           supplierName: product.supplierName,
+          deletedAt: product.deletedAt,
+          isArchived: product.isArchived,
         }
       : undefined,
     warehouse: warehouse

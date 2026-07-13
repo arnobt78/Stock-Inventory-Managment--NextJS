@@ -49,6 +49,7 @@ export function useWarehouseStockSummary(
 export function useStockByProduct(
   productId: string,
   initialData?: StockAllocation[],
+  options?: { enabled?: boolean },
 ) {
   return useQuery({
     queryKey: queryKeys.stockAllocation.byProduct(productId),
@@ -57,7 +58,7 @@ export function useStockByProduct(
         await apiClient.stockAllocations.getByProduct(productId);
       return response.data;
     },
-    enabled: !!productId,
+    enabled: (options?.enabled ?? true) && !!productId,
     ...withInitialData(initialData),
   });
 }
@@ -105,6 +106,68 @@ export function useCreateStockAllocation() {
         title: "Allocation failed",
         description:
           getErrorMessage(error) || "Failed to save stock allocation.",
+        variant: "destructive",
+      });
+    },
+  });
+}
+
+/**
+ * Update stock allocation quantity by row id (REQ-0102 — edit warehouse row).
+ */
+export function useUpdateStockAllocation() {
+  const queryClient = useQueryClient();
+  const { toast } = useToast();
+
+  return useMutation({
+    mutationFn: async (input: { id: string; quantity: number }) => {
+      const response = await apiClient.stockAllocations.update(input.id, {
+        quantity: input.quantity,
+      });
+      return response.data;
+    },
+    onSuccess: (data: StockAllocation) => {
+      invalidateAfterStockChange(queryClient);
+      toast({
+        title: "Allocation updated",
+        description: `Stock updated in ${data.warehouse?.name ?? "warehouse"}.`,
+      });
+    },
+    onError: (error: unknown) => {
+      toast({
+        title: "Update failed",
+        description:
+          getErrorMessage(error) || "Failed to update stock allocation.",
+        variant: "destructive",
+      });
+    },
+  });
+}
+
+/**
+ * Delete stock allocation row from a warehouse
+ */
+export function useDeleteStockAllocation() {
+  const queryClient = useQueryClient();
+  const { toast } = useToast();
+
+  return useMutation({
+    mutationFn: async (id: string) => {
+      const response = await apiClient.stockAllocations.delete(id);
+      return response.data;
+    },
+    onSuccess: () => {
+      invalidateAfterStockChange(queryClient);
+      toast({
+        title: "Allocation removed",
+        description: "Product stock was removed from this warehouse.",
+      });
+    },
+    onError: (error: unknown) => {
+      toast({
+        title: "Remove failed",
+        description:
+          getErrorMessage(error) || "Failed to remove stock allocation.",
         variant: "destructive",
       });
     },

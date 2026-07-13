@@ -2247,6 +2247,32 @@ Canonical REQ source. All artifacts link via `REQ-XXXX`. Status: `done` | `verif
 
 ---
 
+## REQ-0102 — Stock allocation sync policy
+
+| Field | Value |
+|-------|-------|
+| **Priority** | P1 |
+| **Risk** | R2 |
+| **Status** | done |
+| **Cycle** | C2 |
+| **Parent** | REQ-0066 |
+
+**Intent:** Catalog quantity is source of truth; warehouse allocations are distribution slices. Reconcile catalog decreases (reserved floor + greedy unreserved shrink), guard allocation upserts and warehouse delete, soft-delete products keep warehouse rows read-only.
+
+**Acceptance criteria**
+
+- AC1: Catalog increase — no allocation writes; unallocated derived in enrich/API
+- AC2: Catalog decrease — reserved floor 409; auto-shrink unreserved only; ProductFormDialog confirm when shrink > 0
+- AC3: Allocation POST/PUT — `validateAllocationUpsert` budget + reserved floor; DELETE row 409 when reserved (existing)
+- AC4: Warehouse DELETE — 409 when reserved allocations, active order picks, or pending transfers
+- AC5: Product soft delete — allocations retained; warehouse rows show Archived, read-only actions
+- AC6: Order reservation paths unchanged; disjoint `product.reservedQuantity` vs `allocation.reservedQuantity` documented
+- AC7: No product-form warehouse dropdown; unallocated never persisted
+
+**Artifacts:** `lib/stock-allocation/catalog-quantity-reconcile.ts`, `validate-allocation-quantity.ts`, `apply-catalog-quantity-reconcile.ts`, `lib/warehouses/warehouse-delete-guards.ts`, `app/api/products/route.ts`, `app/api/stock-allocations/*`, `app/api/warehouses/route.ts`, `ProductFormDialog.tsx`, `WarehouseStockAllocationRow.tsx`
+
+---
+
 ## REQ-0020 — Locale-aware admin format (hydration-safe)
 
 | Field        | Value |

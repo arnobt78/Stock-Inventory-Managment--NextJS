@@ -34,6 +34,7 @@ import {
   useDeleteWarehouse,
   useStockByWarehouse,
   useForecastingSummary,
+  useDeleteStockAllocation,
 } from "@/hooks/queries";
 import { useBackWithRefresh } from "@/hooks/use-back-with-refresh";
 import { resolveAuditUserManagementHref } from "@/lib/navigation/audit-user-href";
@@ -55,6 +56,7 @@ import {
   AuditUserDetailRow,
   GlassCard,
   GlassCardBody,
+  SectionCountBadge,
   GLASS_CARD_VARIANT_CONFIG as variantConfig,
 } from "@/components/shared";
 import { buildCategoryForecastRollup } from "@/lib/forecasting/category-forecast-rollup";
@@ -63,7 +65,7 @@ import { DetailInfoRow } from "@/components/orders/detail";
 import WarehouseDialog from "@/components/warehouses/WarehouseDialog";
 import AllocateStockDialog from "@/components/warehouses/AllocateStockDialog";
 import TransferStockDialog from "@/components/warehouses/TransferStockDialog";
-import { ProductThumb } from "@/components/products/ProductOptionRow";
+import { WarehouseStockAllocationRow } from "@/components/warehouses/WarehouseStockAllocationRow";
 import { AlertDialogWrapper } from "@/components/dialogs";
 import type {
   ForecastingSummary,
@@ -116,8 +118,15 @@ export default function WarehouseDetailPage({
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [allocateOpen, setAllocateOpen] = useState(false);
   const [transferOpen, setTransferOpen] = useState(false);
+  const [editAllocation, setEditAllocation] = useState<StockAllocation | null>(
+    null,
+  );
+  const [deleteAllocationTarget, setDeleteAllocationTarget] =
+    useState<StockAllocation | null>(null);
 
+  const deleteAllocationMutation = useDeleteStockAllocation();
   const isDeleting = deleteWarehouseMutation.isPending;
+  const isRemovingAllocation = deleteAllocationMutation.isPending;
 
   // REQ-0069 — SSR snapshots beat stale TanStack cache on warehouse navigation
   useSyncSsrQueryData(
@@ -165,6 +174,31 @@ export default function WarehouseDetailPage({
 
   const productHref = (productId: string) =>
     embedInAdmin ? `/admin/products/${productId}` : `/products/${productId}`;
+
+  const categoryHref = (categoryId?: string | null) =>
+    categoryId
+      ? embedInAdmin
+        ? `/admin/categories/${categoryId}`
+        : `/categories/${categoryId}`
+      : null;
+
+  const supplierHref = (supplierId?: string | null) =>
+    supplierId
+      ? embedInAdmin
+        ? `/admin/suppliers/${supplierId}`
+        : `/suppliers/${supplierId}`
+      : null;
+
+  const canManageStock =
+    user?.role === "admin" || user?.role === "supplier" || Boolean(embedInAdmin);
+
+  const handleConfirmDeleteAllocation = () => {
+    if (!deleteAllocationTarget) return;
+    deleteAllocationMutation.mutate(deleteAllocationTarget.id, {
+      onSuccess: () => setDeleteAllocationTarget(null),
+      onError: () => setDeleteAllocationTarget(null),
+    });
+  };
 
   const handleEdit = () => {
     if (!warehouse) return;
@@ -496,10 +530,19 @@ export default function WarehouseDetailPage({
                 >
                   <Package className="h-5 w-5 text-violet-600 dark:text-violet-400" />
                 </div>
-                <div>
-                  <h3 className="text-sm sm:text-base font-medium text-gray-700 dark:text-white">
-                    Stock in Warehouse
-                  </h3>
+                <div className="min-w-0 flex-1">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <h3 className="text-sm sm:text-base font-medium text-gray-700 dark:text-white">
+                      Stock in Warehouse
+                    </h3>
+                    {!isLoadingStock &&
+                    stockAllocations &&
+                    stockAllocations.length > 0 ? (
+                      <SectionCountBadge>
+                        {stockAllocations.length} products
+                      </SectionCountBadge>
+                    ) : null}
+                  </div>
                   <p className="text-xs text-gray-600 dark:text-gray-400">
                     Products allocated to this warehouse
                   </p>
@@ -517,63 +560,36 @@ export default function WarehouseDetailPage({
                     ))}
                   </div>
                 ) : stockAllocations && stockAllocations.length > 0 ? (
-                  <div className="space-y-2 max-h-64 overflow-y-auto overflow-x-hidden pr-1">
+                  <div className="space-y-2">
                     {stockAllocations.map((allocation) => {
-                      const available =
-                        allocation.quantity - allocation.reservedQuantity;
-                      const product = allocation.product;
+                      const isArchived = allocation.product?.isArchived === true;
                       return (
-                        <div
-                          key={allocation.id}
-                          className="flex items-center justify-between gap-3 rounded-xl border border-violet-200/30 bg-white/40 p-2 transition-all duration-200 hover:scale-[1.01] dark:border-violet-400/10 dark:bg-white/5"
-                        >
-                          <div className="flex min-w-0 flex-1 items-center gap-2">
-                            <ProductThumb
-                              name={product?.name || "Unknown Product"}
-                              imageUrl={product?.imageUrl}
-                              size="sm"
-                            />
-                            <div className="min-w-0 flex-1">
-                              <p className="truncate text-sm font-medium text-gray-700 dark:text-white">
-                                {product?.name || "Unknown Product"}
-                              </p>
-                              {product?.sku ? (
-                                <p className="text-xs text-gray-500 dark:text-gray-400">
-                                  SKU: {product.sku}
-                                </p>
-                              ) : null}
-                              {product?.categoryName ||
-                              product?.supplierName ? (
-                                <p className="truncate text-xs text-gray-500 dark:text-gray-400">
-                                  {[product.categoryName, product.supplierName]
-                                    .filter(Boolean)
-                                    .join(" · ")}
-                                </p>
-                              ) : null}
-                            </div>
-                          </div>
-                          <div className="shrink-0 text-right">
-                            <p className="text-sm font-medium text-gray-700 dark:text-white">
-                              {allocation.quantity}{" "}
-                              <span className="font-normal text-gray-500 dark:text-gray-400">
-                                total
-                              </span>
-                            </p>
-                            <p className="text-sm font-medium text-emerald-600 dark:text-emerald-400">
-                              {available}{" "}
-                              <span className="font-normal text-gray-500 dark:text-gray-400">
-                                available
-                              </span>
-                            </p>
-                            {allocation.reservedQuantity > 0 ? (
-                              <p className="text-xs text-amber-600 dark:text-amber-400">
-                                {allocation.reservedQuantity} reserved
-                              </p>
-                            ) : null}
-                          </div>
-                        </div>
-                      );
-                    })}
+                      <WarehouseStockAllocationRow
+                        key={allocation.id}
+                        allocation={allocation}
+                        productHref={productHref(allocation.productId)}
+                        categoryHref={categoryHref(
+                          allocation.product?.categoryId,
+                        )}
+                        supplierHref={supplierHref(
+                          allocation.product?.supplierId,
+                        )}
+                        disableActions={!canManageStock || isArchived}
+                        onEdit={
+                          canManageStock && !isArchived
+                            ? () => {
+                                setEditAllocation(allocation);
+                                setAllocateOpen(true);
+                              }
+                            : undefined
+                        }
+                        onDelete={
+                          canManageStock && !isArchived
+                            ? () => setDeleteAllocationTarget(allocation)
+                            : undefined
+                        }
+                      />
+                    );})}
                   </div>
                 ) : (
                   <div className="text-center py-8 rounded-xl bg-white/30 dark:bg-white/5 border border-violet-200/30 dark:border-violet-400/10">
@@ -609,7 +625,10 @@ export default function WarehouseDetailPage({
               Back
             </Button>
             <Button
-              onClick={() => setAllocateOpen(true)}
+              onClick={() => {
+                setEditAllocation(null);
+                setAllocateOpen(true);
+              }}
               disabled={dataLoading || !warehouse}
               className={glassDetailFooterButtonClass("violet")}
             >
@@ -651,10 +670,15 @@ export default function WarehouseDetailPage({
         </div>
 
         <AllocateStockDialog
+          key={editAllocation?.id ?? "allocate-new"}
           open={allocateOpen}
-          onOpenChange={setAllocateOpen}
+          onOpenChange={(open) => {
+            setAllocateOpen(open);
+            if (!open) setEditAllocation(null);
+          }}
           warehouseId={warehouseId}
           warehouseName={warehouse?.name}
+          editAllocation={editAllocation}
         />
 
         <TransferStockDialog
@@ -687,6 +711,21 @@ export default function WarehouseDetailPage({
           isLoading={isDeleting}
           onAction={handleConfirmDelete}
           onCancel={() => setDeleteDialogOpen(false)}
+          actionVariant="destructive"
+        />
+
+        <AlertDialogWrapper
+          open={Boolean(deleteAllocationTarget)}
+          onOpenChange={(open) => {
+            if (!open) setDeleteAllocationTarget(null);
+          }}
+          title="Remove warehouse allocation?"
+          description={`Remove ${deleteAllocationTarget?.product?.name ?? "this product"} from ${warehouse?.name ?? "this warehouse"}? Catalog total is unchanged; only the warehouse row is deleted.`}
+          actionLabel="Remove"
+          actionLoadingLabel="Removing..."
+          isLoading={isRemovingAllocation}
+          onAction={handleConfirmDeleteAllocation}
+          onCancel={() => setDeleteAllocationTarget(null)}
           actionVariant="destructive"
         />
       </PageContentWrapper>

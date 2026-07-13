@@ -947,6 +947,32 @@ class ApiClient {
         statusText: response.statusText,
       };
     },
+
+    update: async (
+      id: string,
+      data: { quantity: number },
+    ): Promise<ApiResponse<StockAllocation>> => {
+      const response = await this.client.put<StockAllocation>(
+        `${API_ENDPOINTS.stockAllocations.base}/${id}`,
+        data,
+      );
+      return {
+        data: response.data,
+        status: response.status,
+        statusText: response.statusText,
+      };
+    },
+
+    delete: async (id: string): Promise<ApiResponse<{ success: boolean }>> => {
+      const response = await this.client.delete<{ success: boolean }>(
+        `${API_ENDPOINTS.stockAllocations.base}/${id}`,
+      );
+      return {
+        data: response.data,
+        status: response.status,
+        statusText: response.statusText,
+      };
+    },
   };
 
   /**

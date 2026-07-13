@@ -52,6 +52,8 @@ export default function HomePage({
   const { data: allProducts = [] } = useProducts(initialProducts);
 
   useSyncSsrQueryData(queryKeys.products.lists(), initialProducts);
+  useSyncSsrQueryData(queryKeys.categories.lists(), initialCategories);
+  useSyncSsrQueryData(queryKeys.suppliers.lists(), initialSuppliers);
 
   const [isRefreshingOAuth, setIsRefreshingOAuth] = useState(false);
   const [oauthRefreshComplete, setOauthRefreshComplete] = useState(false);

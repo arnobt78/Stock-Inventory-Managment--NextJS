@@ -27,7 +27,12 @@ import {
   useUpdateProduct,
   useCategories,
   useSuppliers,
+  useStockByProduct,
 } from "@/hooks/queries";
+import { planCatalogQuantityReconcile } from "@/lib/stock-allocation/catalog-quantity-reconcile";
+import { formatCatalogAllocationSummary } from "@/lib/stock-allocation/catalog-allocation-copy";
+import { AlertDialogWrapper } from "@/components/dialogs";
+import type { UpdateProductInput } from "@/types";
 import { logger } from "@/lib/logger";
 import ProductName from "./form-fields/NameField";
 import SKU from "./form-fields/SKUField";
@@ -43,6 +48,7 @@ import {
   type ProductFormData,
 } from "@/lib/validations";
 import { DeferredSelectGate, DIALOG_FORM_FIELD_ROSE, DialogSubmitButton, GLASS_GHOST_BUTTON } from "@/components/shared";
+import { AvatarInlineLink } from "@/components/shared/AvatarInlineLink";
 import { cn } from "@/lib/utils";
 
 interface AddProductDialogProps {
@@ -76,6 +82,11 @@ export default function AddProductDialog({
   // Inline validation errors for category/supplier — outside RHF so Zod productSchema cannot cover them
   const [categoryError, setCategoryError] = useState<string>("");
   const [supplierError, setSupplierError] = useState<string>("");
+  const [quantityReconcileError, setQuantityReconcileError] = useState("");
+  const [shrinkConfirmOpen, setShrinkConfirmOpen] = useState(false);
+  const [pendingUpdatePayload, setPendingUpdatePayload] =
+    useState<UpdateProductInput | null>(null);
+  const [pendingShrinkUnits, setPendingShrinkUnits] = useState(0);
   const dialogCloseRef = useRef<HTMLButtonElement | null>(null);
 
   // Keep UI state in Zustand (openProductDialog, selectedProduct)
@@ -102,6 +113,11 @@ export default function AddProductDialog({
   // Use TanStack Query mutations
   const createProductMutation = useCreateProduct();
   const updateProductMutation = useUpdateProduct();
+  const { data: productAllocations = [] } = useStockByProduct(
+    selectedProduct?.id ?? "",
+    undefined,
+    { enabled: openProductDialog && !!selectedProduct },
+  );
 
   useEffect(() => {
     if (selectedProduct) {
@@ -135,7 +151,16 @@ export default function AddProductDialog({
     // Clear inline validation errors on every dialog open/close or product change
     setCategoryError("");
     setSupplierError("");
+    setQuantityReconcileError("");
   }, [selectedProduct, openProductDialog, reset]);
+
+  const submitProductUpdate = async (payload: UpdateProductInput) => {
+    await updateProductMutation.mutateAsync(payload);
+    setOpenProductDialog(false);
+    setShrinkConfirmOpen(false);
+    setPendingUpdatePayload(null);
+    setPendingShrinkUnits(0);
+  };
 
   const onSubmit = async (data: ProductFormData) => {
     const submitValidation = productFormSubmitSchema.safeParse({
@@ -197,8 +222,28 @@ export default function AddProductDialog({
         dialogCloseRef.current?.click();
         setOpenProductDialog(false);
       } else {
-        // Update existing product using TanStack Query mutation
-        await updateProductMutation.mutateAsync({
+        const reconcilePlan = planCatalogQuantityReconcile({
+          currentCatalog: selectedProduct.quantity,
+          newCatalog: quantity,
+          productReserved: selectedProduct.reservedQuantity ?? 0,
+          allocations: productAllocations.map((row) => ({
+            id: row.id,
+            quantity: row.quantity,
+            reservedQuantity: row.reservedQuantity,
+          })),
+        });
+
+        if (!reconcilePlan.ok) {
+          setQuantityReconcileError(
+            reconcilePlan.blockedReason ??
+              "Cannot lower catalog quantity with current warehouse allocations.",
+          );
+          return;
+        }
+
+        setQuantityReconcileError("");
+
+        const updatePayload: UpdateProductInput = {
           id: selectedProduct.id,
           name: data.productName,
           sku: data.sku,
@@ -210,10 +255,16 @@ export default function AddProductDialog({
           imageUrl: data.imageUrl || undefined,
           imageFileId: data.imageFileId || undefined,
           expirationDate: expirationDate,
-        });
+        };
 
-        // Close dialog on success (toast is handled by mutation hook)
-        setOpenProductDialog(false);
+        if (reconcilePlan.unitsRemoved > 0) {
+          setPendingUpdatePayload(updatePayload);
+          setPendingShrinkUnits(reconcilePlan.unitsRemoved);
+          setShrinkConfirmOpen(true);
+          return;
+        }
+
+        await submitProductUpdate(updatePayload);
       }
     } catch (error) {
       // Mutation onError already toasts; catch log is a dev signal (4xx skipped in prod Sentry)
@@ -226,6 +277,20 @@ export default function AddProductDialog({
     createProductMutation.isPending || updateProductMutation.isPending;
 
   const formValues = watch();
+  const parsedQuantity =
+    typeof formValues.quantity === "string" && formValues.quantity === ""
+      ? 0
+      : Number(formValues.quantity);
+  const allocatedTotal = productAllocations.reduce(
+    (sum, row) => sum + row.quantity,
+    0,
+  );
+  const catalogPreviewQty = selectedProduct
+    ? Number.isFinite(parsedQuantity)
+      ? parsedQuantity
+      : selectedProduct.quantity
+    : 0;
+  const unallocatedPreview = Math.max(0, catalogPreviewQty - allocatedTotal);
   const isFormValid = productFormSubmitSchema.safeParse({
     ...formValues,
     categoryId: selectedCategory,
@@ -270,6 +335,20 @@ export default function AddProductDialog({
               <ProductName />
               <SKU allProducts={allProducts} />
               <Quantity />
+              {selectedProduct && productAllocations.length > 0 ? (
+                <p className="text-xs text-white/60 sm:col-span-2 -mt-1">
+                  {formatCatalogAllocationSummary(
+                    catalogPreviewQty,
+                    allocatedTotal,
+                    unallocatedPreview,
+                  )}
+                </p>
+              ) : null}
+              {quantityReconcileError ? (
+                <p className="text-xs text-red-400 sm:col-span-2 -mt-1">
+                  {quantityReconcileError}
+                </p>
+              ) : null}
               <Price />
               <ExpirationDateField />
               <ImageField />
@@ -351,7 +430,26 @@ export default function AddProductDialog({
                       }}
                     >
                       <SelectTrigger className={cn("h-11 w-full", DIALOG_FORM_FIELD_ROSE)}>
-                        <SelectValue placeholder="Select Supplier" />
+                        <SelectValue placeholder="Select Supplier">
+                          {selectedSupplier ? (
+                            <AvatarInlineLink
+                              label={
+                                activeSuppliers.find(
+                                  (s) => s.id === selectedSupplier,
+                                )?.name ?? "Select Supplier"
+                              }
+                              seed={
+                                activeSuppliers.find(
+                                  (s) => s.id === selectedSupplier,
+                                )?.userId ?? selectedSupplier
+                              }
+                              size={22}
+                              linkClassName="text-sm font-normal text-gray-700 dark:text-white"
+                            />
+                          ) : (
+                            "Select Supplier"
+                          )}
+                        </SelectValue>
                       </SelectTrigger>
                       <SelectContent
                         className="border-rose-400/20 dark:border-white/10 bg-white/80 dark:bg-popover/50 backdrop-blur-md z-[100]"
@@ -365,7 +463,12 @@ export default function AddProductDialog({
                             value={supplier.id}
                             className="cursor-pointer text-gray-700 dark:text-white focus:bg-rose-100 dark:focus:bg-white/10 focus:text-gray-700 dark:focus:text-white"
                           >
-                            {supplier.name}
+                            <AvatarInlineLink
+                              label={supplier.name}
+                              seed={supplier.userId ?? supplier.id}
+                              size={22}
+                              linkClassName="text-sm font-normal text-gray-700 dark:text-white"
+                            />
                           </SelectItem>
                         ))}
                       </SelectContent>
@@ -401,6 +504,26 @@ export default function AddProductDialog({
           </form>
         </FormProvider>
       </DialogContent>
+
+      <AlertDialogWrapper
+        open={shrinkConfirmOpen}
+        onOpenChange={setShrinkConfirmOpen}
+        title="Reduce warehouse allocations?"
+        description={`Lowering catalog quantity will remove ${pendingShrinkUnits} unreserved unit(s) from warehouse allocations. Reserved stock is not affected.`}
+        actionLabel="Update product"
+        actionLoadingLabel="Updating…"
+        isLoading={updateProductMutation.isPending}
+        onAction={async () => {
+          if (!pendingUpdatePayload) return;
+          await submitProductUpdate(pendingUpdatePayload);
+        }}
+        onCancel={() => {
+          setShrinkConfirmOpen(false);
+          setPendingUpdatePayload(null);
+          setPendingShrinkUnits(0);
+        }}
+        actionVariant="destructive"
+      />
     </Dialog>
   );
 }

@@ -346,6 +346,7 @@ export default function AdminSupplierPortalContent({
                           image={s.image}
                           href={`/admin/suppliers/${s.id}`}
                           size={28}
+                          linkClassName="text-sm font-normal"
                         />
                       </td>
                       <td className="py-2 px-2 pr-4 hidden sm:table-cell text-gray-700 dark:text-white truncate max-w-[200px]">

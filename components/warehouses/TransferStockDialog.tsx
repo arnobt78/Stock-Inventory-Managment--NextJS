@@ -43,7 +43,6 @@ import {
   DIALOG_EDGE_SCROLL_INNER,
   DIALOG_EDGE_SCROLL_SHELL,
   DIALOG_FORM_FIELD_TEAL,
-  DeferredSelectGate,
   DialogSubmitButton,
   GLASS_GHOST_BUTTON,
   StockQuantityField,
@@ -197,7 +196,10 @@ export default function TransferStockDialog({
                           name={selectedAllocation.product.name}
                           imageUrl={selectedAllocation.product.imageUrl}
                           price={selectedAllocation.product.price}
-                          availableQuantity={maxAvailable}
+                          availableQuantity={
+                            selectedAllocation.quantity -
+                            selectedAllocation.reservedQuantity
+                          }
                           categoryName={
                             selectedAllocation.product.categoryName
                           }
@@ -205,6 +207,7 @@ export default function TransferStockDialog({
                             selectedAllocation.product.supplierName
                           }
                           showMeta
+                          metaOnDark
                           size="sm"
                           className="flex-1"
                         />
@@ -269,36 +272,31 @@ export default function TransferStockDialog({
                 )}
               </div>
 
-              <div>
+              <div className="min-h-11">
                 <Label className="text-sm text-white/80">Destination *</Label>
-                <DeferredSelectGate enabled={open}>
-                  {({ selectRemountKey }) => (
-                    <Select
-                      key={selectRemountKey}
-                      value={toWarehouseId}
-                      onValueChange={setToWarehouseId}
-                      disabled={
-                        isPending || destinationOptions.length === 0
-                      }
-                    >
-                      <SelectTrigger
-                        className={cn(
-                          "mt-1 h-11 w-full rounded-xl",
-                          DIALOG_FORM_FIELD_TEAL,
-                        )}
-                      >
-                        <SelectValue placeholder="Select warehouse…" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {destinationOptions.map((w) => (
-                          <SelectItem key={w.id} value={w.id}>
-                            {w.name}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  )}
-                </DeferredSelectGate>
+                <Select
+                  value={toWarehouseId}
+                  onValueChange={setToWarehouseId}
+                  disabled={
+                    isPending || destinationOptions.length === 0
+                  }
+                >
+                  <SelectTrigger
+                    className={cn(
+                      "mt-1 h-11 w-full rounded-xl",
+                      DIALOG_FORM_FIELD_TEAL,
+                    )}
+                  >
+                    <SelectValue placeholder="Select warehouse…" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {destinationOptions.map((w) => (
+                      <SelectItem key={w.id} value={w.id}>
+                        {w.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
 
               <StockQuantityField

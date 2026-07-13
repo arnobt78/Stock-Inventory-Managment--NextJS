@@ -61,6 +61,7 @@ const API_WRITE_ROUTE_INVALIDATION_SPEC: Record<string, readonly string[]> = {
   "app/api/invoices/reminders/route.ts": ["scheduleInvalidateInvoiceCaches"],
   "app/api/warehouses/route.ts": ["scheduleInvalidateWarehouseCaches"],
   "app/api/stock-allocations/route.ts": ["scheduleInvalidateStockAllocationCaches"],
+  "app/api/stock-allocations/[id]/route.ts": ["scheduleInvalidateStockAllocationCaches"],
   "app/api/stock-transfers/route.ts": ["scheduleInvalidateStockAllocationCaches"],
   "app/api/product-reviews/route.ts": ["scheduleInvalidateProductReviewCaches"],
   "app/api/product-reviews/[id]/route.ts": ["scheduleInvalidateProductReviewCaches"],

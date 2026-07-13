@@ -1,7 +1,6 @@
 "use client";
 
 import React from "react";
-import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import { useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
@@ -85,11 +84,9 @@ export default function AdminHistoryDetailContent({
     return (
       <PageContentWrapper>
         <div className={APP_SHELL_DETAIL_CLASS}>
-          <Button size="sm" asChild className={cn("gap-2", GLASS_GHOST_BUTTON)}>
-            <Link href={backHref}>
-              <ArrowLeft className="h-4 w-4" />
-              Back to History
-            </Link>
+          <Button size="sm" onClick={handleBack} className={cn("gap-2", GLASS_GHOST_BUTTON)}>
+            <ArrowLeft className="h-4 w-4" />
+            Back to History
           </Button>
           <GlassCard variant="rose">
             <p className="py-8 text-center text-gray-600 dark:text-white/70">
@@ -106,11 +103,9 @@ export default function AdminHistoryDetailContent({
     return (
       <PageContentWrapper>
         <div className={APP_SHELL_DETAIL_CLASS}>
-          <Button size="sm" asChild className={cn("gap-2", GLASS_GHOST_BUTTON)}>
-            <Link href={backHref}>
-              <ArrowLeft className="h-4 w-4" />
-              Back to History
-            </Link>
+          <Button size="sm" onClick={handleBack} className={cn("gap-2", GLASS_GHOST_BUTTON)}>
+            <ArrowLeft className="h-4 w-4" />
+            Back to History
           </Button>
           <GlassCard variant="rose">
             <p className="py-8 text-center text-gray-600 dark:text-white/70">
@@ -135,10 +130,13 @@ export default function AdminHistoryDetailContent({
           tone="violet"
           icon={FileText}
           leading={
-            <Button variant="ghost" size="icon" asChild>
-              <Link href={backHref} className={DETAIL_HEADER_BACK_ICON_CLASS}>
-                <ArrowLeft className="h-5 w-5" />
-              </Link>
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={handleBack}
+              className={DETAIL_HEADER_BACK_ICON_CLASS}
+            >
+              <ArrowLeft className="h-5 w-5" />
             </Button>
           }
           title="Import History Details"

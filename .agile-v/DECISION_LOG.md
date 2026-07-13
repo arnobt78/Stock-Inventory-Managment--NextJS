@@ -266,4 +266,11 @@ Format: `TIMESTAMP | AGENT | DECISION | RATIONALE | REQ-ID`
 2026-07-13T13:50:00Z | red-team | REQ-0099 gates | lint ✓ test 418 ✓ invalidate 205 ✓ build ✓ | REQ-0099
 2026-07-13T13:57:00Z | build-agent | Avatar seed userId ?? id | Stale Redis supplierPortal cache may omit userId until TTL | REQ-0100
 2026-07-13T13:57:00Z | build-agent | No cache-key bump | Avoid deploy-wide DB reload; UI fallback sufficient | REQ-0100
+2026-07-13T15:08:00Z | build-agent | REQ-0102 enrichment consistency | Single enrichStockAllocationRows impl; warehouse SSR alias; remove dead enrichProductAllocationTotals; OrderLineWarehouseSelect gate; catalog copy DRY | REQ-0102
+2026-07-13T15:02:00Z | build-agent | REQ-0102 enrichment parity | enrichStockAllocationRows unified API+product SSR; warehouse row catalog meta; AllocateStockDialog fetch gate | REQ-0102
+2026-07-13T14:56:00Z | build-agent | REQ-0102 gap closure | Cross-warehouse totals on warehouse SSR/API; useUpdateStockAllocation; gated product form fetch; apply reconcile test | REQ-0102
+2026-07-13T14:48:00Z | build-agent | Catalog reconcile on product PUT | Reserved floor + greedy unreserved shrink; sync Redis stock caches | REQ-0102
+2026-07-13T14:48:00Z | build-agent | Warehouse delete blockers | Reserved allocations, active order picks, pending transfers → 409 | REQ-0102
+2026-07-13T14:48:00Z | build-agent | ProductFormDialog shrink confirm | Client preview via shared pure reconcile lib | REQ-0102
+2026-07-13T14:48:00Z | red-team | REQ-0102 gates | lint ✓ test 441 ✓ invalidate 208 ✓ build ✓ | REQ-0102
 2026-07-13T13:57:00Z | red-team | REQ-0100 gates | lint ✓ test 418 ✓ invalidate 205 ✓ build ✓ | REQ-0100

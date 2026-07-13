@@ -4,6 +4,7 @@
  */
 
 import { NextRequest, NextResponse } from "next/server";
+import { getWarehouseDeleteBlockers } from "@/lib/warehouses/warehouse-delete-guards";
 import { getSessionFromRequest } from "@/utils/auth";
 import { logger } from "@/lib/logger";
 import { prisma } from "@/prisma/client";
@@ -224,6 +225,17 @@ export async function DELETE(request: NextRequest) {
       return NextResponse.json(
         { error: "Warehouse not found or unauthorized" },
         { status: 404 },
+      );
+    }
+
+    const blockers = await getWarehouseDeleteBlockers(id);
+    if (blockers.blocked) {
+      return NextResponse.json(
+        {
+          error: "Cannot delete warehouse while stock commitments exist.",
+          reasons: blockers.reasons,
+        },
+        { status: 409 },
       );
     }
 

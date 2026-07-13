@@ -65,6 +65,7 @@ import { PageContentWrapper, DataSlotPulse, PageSectionHeader } from "@/componen
 import { DETAIL_PAGE_HEADER_SPACING_CLASS } from "@/lib/ui/shell-layout-styles";
 import {
   InventoryHealthBadge,
+  ProductStockStatusBadge,
   StockQuantityLeftBadge,
 } from "@/lib/ui/semantic-badges";
 import { useProducts, useOrders } from "@/hooks/queries";
@@ -189,6 +190,7 @@ export default function BusinessInsightPage({
         totalValue: 0,
         lowStockItems: 0,
         outOfStockItems: 0,
+        availableStockItems: 0,
         averagePrice: 0,
         totalQuantity: 0,
         categoryDistribution: [],
@@ -220,6 +222,10 @@ export default function BusinessInsightPage({
     // CORRECTED: Out of stock items - products with quantity = 0
     const outOfStockItems = filteredProducts.filter(
       (product) => Number(product.quantity) === 0,
+    ).length;
+
+    const availableStockItems = filteredProducts.filter(
+      (product) => Number(product.quantity) > 20,
     ).length;
 
     // CORRECTED: Total quantity - sum of all quantities
@@ -415,6 +421,7 @@ export default function BusinessInsightPage({
       totalValue,
       lowStockItems,
       outOfStockItems,
+      availableStockItems,
       averagePrice,
       totalQuantity,
       stockUtilization,
@@ -1173,6 +1180,20 @@ export default function BusinessInsightPage({
                       icon={Activity}
                       variant="blue"
                     >
+                      <div className="mb-3 flex flex-wrap items-center gap-2">
+                        <ProductStockStatusBadge
+                          status="available"
+                          label={`Available (${analyticsData.availableStockItems})`}
+                        />
+                        <ProductStockStatusBadge
+                          status="stock_low"
+                          label={`Stock Low (${analyticsData.lowStockItems})`}
+                        />
+                        <ProductStockStatusBadge
+                          status="stock_out"
+                          label={`Stock Out (${analyticsData.outOfStockItems})`}
+                        />
+                      </div>
                       <DeferredChartSection
                         loading={dataLoading}
                         hasData={analyticsData.statusDistribution.length > 0}
@@ -1584,11 +1605,10 @@ export default function BusinessInsightPage({
                   </p>
                   <Button
                     size="sm"
-                    variant="ghost"
                     className={cn(
+                      "w-full h-11 gap-2",
                       GLASS_BUTTON_ICON_HOVER,
                       GLASS_BUTTON_SHELL_RESET,
-                      "gap-2",
                       GLASS_PRIMARY_BUTTON.amber,
                     )}
                     onClick={handleGenerateAiInsights}
@@ -1614,11 +1634,10 @@ export default function BusinessInsightPage({
                   </p>
                   <Button
                     size="sm"
-                    variant="ghost"
                     className={cn(
+                      "w-full h-11",
                       GLASS_BUTTON_ICON_HOVER,
                       GLASS_BUTTON_SHELL_RESET,
-                      "gap-2",
                       GLASS_PRIMARY_BUTTON.amber,
                     )}
                     onClick={handleGenerateAiInsights}

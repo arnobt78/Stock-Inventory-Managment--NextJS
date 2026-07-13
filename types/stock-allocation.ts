@@ -29,8 +29,16 @@ export interface StockAllocation {
     price?: number;
     /** Global product stock (not warehouse allocation qty) */
     quantity?: number;
+    categoryId?: string | null;
     categoryName?: string | null;
+    supplierId?: string | null;
     supplierName?: string | null;
+    /** REQ-0102 — soft-deleted product still visible on warehouse detail */
+    deletedAt?: string | null;
+    isArchived?: boolean;
+    /** Derived when all product allocations are loaded */
+    allocatedTotal?: number;
+    unallocated?: number;
   };
   warehouse?: {
     id: string;

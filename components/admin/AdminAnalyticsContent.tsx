@@ -1475,11 +1475,10 @@ export default function AdminAnalyticsContent({
         >
           <div className="flex flex-col gap-4">
             <Button
-              variant="ghost"
               onClick={handleGenerateAiInsights}
               disabled={aiLoading || !stats}
               className={cn(
-                "shrink-0 gap-2",
+                "inline-flex h-11 w-auto min-w-0 shrink-0 gap-2 px-2 sm:px-4 self-start",
                 GLASS_BUTTON_ICON_HOVER,
                 GLASS_BUTTON_SHELL_RESET,
                 GLASS_PRIMARY_BUTTON.amber,

@@ -7,7 +7,7 @@ export function withInitialData<T>(initialData?: T) {
   return {
     initialData,
     initialDataUpdatedAt: Date.now(),
-    // SSR data is fresh — skip immediate client refetch on mount (REQ-0024 perf).
-    refetchOnMount: false,
+    // Skip refetch on first mount; refetch when invalidated (back nav after CRUD).
+    refetchOnMount: (query: { isStale: () => boolean }) => query.isStale(),
   } as const;
 }

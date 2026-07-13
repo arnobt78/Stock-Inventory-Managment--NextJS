@@ -4,7 +4,7 @@
  */
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { apiClient, getErrorMessage } from "@/lib/api";
+import { apiClient, getErrorMessage, isAxiosError } from "@/lib/api";
 import {
   queryKeys,
   invalidateAllRelatedQueries,
@@ -145,9 +145,21 @@ export function useDeleteWarehouse() {
       });
     },
     onError: (error) => {
+      let description = getErrorMessage(error);
+      if (isAxiosError(error)) {
+        const data = error.response?.data;
+        if (
+          data &&
+          typeof data === "object" &&
+          "reasons" in data &&
+          Array.isArray(data.reasons)
+        ) {
+          description = [description, ...data.reasons].join(" ");
+        }
+      }
       toast({
-        title: "Error",
-        description: getErrorMessage(error),
+        title: "Cannot delete warehouse",
+        description,
         variant: "destructive",
       });
     },

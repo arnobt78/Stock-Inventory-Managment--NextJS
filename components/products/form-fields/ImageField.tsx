@@ -132,7 +132,7 @@ export default function ImageField() {
   };
 
   return (
-    <div className="mt-5 flex flex-col gap-2">
+    <div className="mt-5 flex h-full flex-col gap-2">
       <Label htmlFor="product-image" className="text-white/80">
         Product Image
       </Label>
@@ -164,15 +164,15 @@ export default function ImageField() {
         </div>
       )}
 
-      {/* Upload Button */}
+      {/* Upload control — match h-11 input height in product dialog grid */}
       {!imageUrl && (
-        <div className="flex items-center gap-2">
+        <div className="flex w-full flex-col gap-2">
           <Button
             type="button"
             variant="secondary"
             onClick={() => fileInputRef.current?.click()}
             disabled={isUploading}
-            className="h-10 rounded-md border border-rose-400/30 dark:border-rose-400/30 bg-gradient-to-r from-rose-500/30 via-rose-500/20 to-rose-500/15 dark:from-rose-500/30 dark:via-rose-500/20 dark:to-rose-500/15 text-gray-700 dark:text-white shadow-[0_10px_30px_rgba(225,29,72,0.2)] backdrop-blur-md transition duration-200 hover:border-rose-300/40 hover:from-rose-500/40 hover:via-rose-500/30 hover:to-rose-500/20 dark:hover:border-rose-300/40 dark:hover:from-rose-500/40 dark:hover:via-rose-500/30 dark:hover:to-rose-500/20 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="h-11 w-full rounded-xl border border-rose-400/30 dark:border-rose-400/30 bg-gradient-to-r from-rose-500/30 via-rose-500/20 to-rose-500/15 dark:from-rose-500/30 dark:via-rose-500/20 dark:to-rose-500/15 text-gray-700 dark:text-white shadow-[0_10px_30px_rgba(225,29,72,0.2)] backdrop-blur-md transition duration-200 hover:border-rose-300/40 hover:from-rose-500/40 hover:via-rose-500/30 hover:to-rose-500/20 dark:hover:border-rose-300/40 dark:hover:from-rose-500/40 dark:hover:via-rose-500/30 dark:hover:to-rose-500/20 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {isUploading ? (
               <>

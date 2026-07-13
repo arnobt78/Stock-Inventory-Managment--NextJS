@@ -6,6 +6,7 @@ import { prisma } from "@/prisma/client";
 import {
   fetchStockAllocationProductMap,
   transformStockAllocationRow,
+  enrichStockAllocationRows,
 } from "@/lib/stock-allocation/stock-allocation-enrich";
 import type { SessionForDetail } from "@/lib/server/order-detail-data";
 import type { StockAllocation } from "@/types";
@@ -41,7 +42,9 @@ export async function getStockByWarehouseForPage(
     warehouses.map((w) => [w.id, { name: w.name, status: Boolean(w.status) }]),
   );
 
-  return allocations.map((a) =>
+  const rows = allocations.map((a) =>
     transformStockAllocationRow(a, productMap, warehouseMap),
   );
+
+  return enrichStockAllocationRows(rows);
 }

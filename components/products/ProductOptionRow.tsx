@@ -74,8 +74,14 @@ export type ProductOptionRowProps = {
   size?: "sm" | "md";
   /** When true, show price/stock meta on the right (dropdown list). */
   showMeta?: boolean;
+  /** Dark glass dialog trigger only — popover list items use default readable meta. */
+  metaOnDark?: boolean;
   className?: string;
 };
+
+/** Readable meta on light popover surfaces (allocate/transfer product picker). */
+const PRODUCT_OPTION_META_POPOVER_CLASS =
+  "text-gray-600 dark:text-gray-400";
 
 function formatCatalogMeta(props: ProductOptionRowProps): string | null {
   const parts: string[] = [];
@@ -100,6 +106,7 @@ export function ProductOptionRow({
   supplierName,
   size = "sm",
   showMeta = false,
+  metaOnDark = false,
   className,
 }: ProductOptionRowProps) {
   const meta = showMeta
@@ -122,7 +129,14 @@ export function ProductOptionRow({
       <span className="flex min-w-0 flex-1 flex-col gap-0.5 text-left">
         <span className="truncate">{name}</span>
         {meta ? (
-          <span className="truncate text-xs text-muted-foreground dark:text-white/60">
+          <span
+            className={cn(
+              "truncate text-xs",
+              metaOnDark
+                ? "text-white/85"
+                : PRODUCT_OPTION_META_POPOVER_CLASS,
+            )}
+          >
             {meta}
           </span>
         ) : null}

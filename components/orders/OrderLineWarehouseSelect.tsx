@@ -36,7 +36,11 @@ export function OrderLineWarehouseSelect({
   dialogOpen,
   disabled,
 }: OrderLineWarehouseSelectProps) {
-  const { data: allocations, isLoading } = useStockByProduct(productId);
+  const { data: allocations, isLoading } = useStockByProduct(
+    productId,
+    undefined,
+    { enabled: dialogOpen && !!productId },
+  );
 
   const options = useMemo(() => {
     if (!allocations?.length) return [];

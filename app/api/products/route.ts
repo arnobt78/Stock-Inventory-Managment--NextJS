@@ -23,7 +23,18 @@ import { mergeProductListWhere } from "@/lib/products/product-query";
 import { prisma } from "@/prisma/client";
 import { getSupplierByUserId } from "@/prisma/supplier";
 import { checkAndSendStockAlerts } from "@/lib/email/notifications";
-import { getCache, setCache, invalidateCache, cacheKeys, invalidateOnProductChange, scheduleAfterResponse } from "@/lib/cache";
+import {
+  getCache,
+  setCache,
+  invalidateCache,
+  cacheKeys,
+  invalidateOnProductChange,
+  scheduleAfterResponse,
+  scheduleInvalidateStockAllocationCaches,
+} from "@/lib/cache";
+import { getStockAllocationsByProduct } from "@/prisma/stock-allocation";
+import { planCatalogQuantityReconcile } from "@/lib/stock-allocation/catalog-quantity-reconcile";
+import { applyCatalogQuantityReconcile } from "@/lib/stock-allocation/apply-catalog-quantity-reconcile";
 import { withRateLimit, defaultRateLimits } from "@/lib/api/rate-limit";
 import { createAuditLog } from "@/prisma/audit-log";
 import {
@@ -435,33 +446,87 @@ export async function PUT(request: NextRequest) {
       });
     }
 
-    // Update product with audit fields
-    const product = await prisma.product.update({
-      where: { id },
-      data: {
-        ...(name && { name }),
-        ...(sku && { sku }),
-        ...(price !== undefined && { price }),
-        ...(quantity !== undefined && { quantity: BigInt(quantity) as any }),
-        ...(status && { status }),
-        ...(categoryId && { categoryId }),
-        ...(supplierId && { supplierId }),
-        ...(imageUrl !== undefined && {
-          imageUrl: imageUrl === "" ? null : imageUrl,
-        }),
-        ...(imageFileId !== undefined && {
-          imageFileId: imageFileId === "" ? null : imageFileId,
-        }),
-        ...(expirationDate !== undefined && {
-          expirationDate:
-            expirationDate === "" || expirationDate === null
-              ? null
-              : new Date(expirationDate),
-        }),
-        updatedBy: session.id, // Track who updated the product
-        updatedAt: new Date(), // Update timestamp
-      },
-    });
+    const productUpdateData = {
+      ...(name && { name }),
+      ...(sku && { sku }),
+      ...(price !== undefined && { price }),
+      ...(status && { status }),
+      ...(categoryId && { categoryId }),
+      ...(supplierId && { supplierId }),
+      ...(imageUrl !== undefined && {
+        imageUrl: imageUrl === "" ? null : imageUrl,
+      }),
+      ...(imageFileId !== undefined && {
+        imageFileId: imageFileId === "" ? null : imageFileId,
+      }),
+      ...(expirationDate !== undefined && {
+        expirationDate:
+          expirationDate === "" || expirationDate === null
+            ? null
+            : new Date(expirationDate),
+      }),
+      updatedBy: session.id,
+      updatedAt: new Date(),
+    };
+
+    const quantityChanged =
+      quantity !== undefined &&
+      existingProduct.quantity !== BigInt(quantity);
+
+    let stockReconcile: { unitsRemovedFromWarehouses: number } | undefined;
+
+    if (quantityChanged) {
+      const allocationRows = await getStockAllocationsByProduct(id);
+      const reconcilePlan = planCatalogQuantityReconcile({
+        currentCatalog: Number(existingProduct.quantity),
+        newCatalog: quantity,
+        productReserved: Number(existingProduct.reservedQuantity ?? 0),
+        allocations: allocationRows.map((row) => ({
+          id: row.id,
+          quantity: Number(row.quantity),
+          reservedQuantity: Number(row.reservedQuantity ?? 0),
+        })),
+      });
+
+      if (!reconcilePlan.ok) {
+        return NextResponse.json(
+          {
+            error: reconcilePlan.blockedReason,
+            reservedCommitment: reconcilePlan.reservedCommitment,
+            totalAllocated: reconcilePlan.totalAllocated,
+            reducible: reconcilePlan.reducible,
+            overage: reconcilePlan.overage,
+          },
+          { status: 409 },
+        );
+      }
+
+      if (reconcilePlan.shrinkSteps.length > 0) {
+        stockReconcile = await applyCatalogQuantityReconcile({
+          productId: id,
+          newCatalog: quantity,
+          shrinkSteps: reconcilePlan.shrinkSteps,
+          productUpdate: productUpdateData,
+        });
+      } else {
+        await prisma.product.update({
+          where: { id },
+          data: {
+            ...productUpdateData,
+            quantity: BigInt(quantity) as never,
+          },
+        });
+      }
+
+      await scheduleInvalidateStockAllocationCaches();
+    } else {
+      await prisma.product.update({
+        where: { id },
+        data: productUpdateData,
+      });
+    }
+
+    const product = await prisma.product.findUniqueOrThrow({ where: { id } });
 
     const fieldsUpdated: string[] = [];
     if (name && name !== existingProduct.name) fieldsUpdated.push("Name");
@@ -598,6 +663,9 @@ export async function PUT(request: NextRequest) {
       imageUrl: product.imageUrl || null,
       imageFileId: product.imageFileId || null,
       expirationDate: product.expirationDate?.toISOString() || null,
+      ...(stockReconcile
+        ? { stockReconcile: { unitsRemovedFromWarehouses: stockReconcile.unitsRemovedFromWarehouses } }
+        : {}),
     };
 
     return NextResponse.json(transformedProduct);

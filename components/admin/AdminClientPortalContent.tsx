@@ -343,6 +343,7 @@ export default function AdminClientPortalContent({
                           image={c.image}
                           href={`/admin/user-management/${c.id}`}
                           size={28}
+                          linkClassName="text-sm font-normal"
                         />
                       </td>
                       <td className="py-2 pr-4 hidden sm:table-cell text-gray-600 dark:text-gray-400 truncate max-w-[160px]">

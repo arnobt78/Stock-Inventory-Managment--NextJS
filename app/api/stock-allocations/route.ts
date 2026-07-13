@@ -15,6 +15,7 @@ import {
 } from "@/prisma/stock-allocation";
 import { prisma } from "@/prisma/client";
 import { findAccessibleProduct } from "@/lib/products/stock-product-access";
+import { validateAllocationUpsert } from "@/lib/stock-allocation/validate-allocation-quantity";
 import { getCache, setCache, cacheKeys, scheduleInvalidateStockAllocationCaches } from "@/lib/cache";
 import { withRateLimit, defaultRateLimits } from "@/lib/api/rate-limit";
 import { createStockAllocationSchema } from "@/lib/validations";
@@ -22,6 +23,7 @@ import type { StockAllocation, WarehouseStockSummary } from "@/types";
 import {
   fetchStockAllocationProductMap,
   transformStockAllocationRow,
+  enrichStockAllocationRows,
 } from "@/lib/stock-allocation/stock-allocation-enrich";
 
 function transform(
@@ -132,9 +134,14 @@ export async function GET(request: NextRequest) {
       warehouses.map((w) => [w.id, { name: w.name, status: Boolean(w.status) }]),
     );
 
-    const result = allocations.map((a) =>
+    let result = allocations.map((a) =>
       transform(a, products, warehouseMap),
     );
+
+    if (result.length > 0) {
+      result = await enrichStockAllocationRows(result);
+    }
+
     await setCache(cacheKey, result, 300);
 
     return NextResponse.json(result);
@@ -189,6 +196,35 @@ export async function POST(request: NextRequest) {
     );
     if (!product) {
       return NextResponse.json({ error: "Product not found" }, { status: 404 });
+    }
+
+    const productRow = await prisma.product.findFirst({
+      where: { id: data.productId },
+      select: { quantity: true },
+    });
+    if (!productRow) {
+      return NextResponse.json({ error: "Product not found" }, { status: 404 });
+    }
+
+    const existingRows = await prisma.stockAllocation.findMany({
+      where: { productId: data.productId },
+      select: { warehouseId: true, quantity: true, reservedQuantity: true },
+    });
+    const targetRow = existingRows.find(
+      (row) => row.warehouseId === data.warehouseId,
+    );
+    const validationResult = validateAllocationUpsert({
+      catalogQty: Number(productRow.quantity),
+      allocations: existingRows.map((row) => ({
+        warehouseId: row.warehouseId,
+        quantity: Number(row.quantity),
+      })),
+      targetWarehouseId: data.warehouseId,
+      newAbsoluteQty: data.quantity,
+      rowReserved: Number(targetRow?.reservedQuantity ?? 0),
+    });
+    if (!validationResult.ok) {
+      return NextResponse.json({ error: validationResult.error }, { status: 409 });
     }
 
     // Verify warehouse belongs to user

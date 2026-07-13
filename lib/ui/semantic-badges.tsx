@@ -175,7 +175,7 @@ const ADMIN_ORDER_SOURCE: Record<string, BadgeTone> = {
 
 /** Forecast reorder urgency */
 const FORECAST_URGENCY: Record<string, BadgeTone> = {
-  low: { className: GLASS_BADGE_CLASS.gray, icon: Clock },
+  low: { className: GLASS_BADGE_CLASS.amber, icon: Clock },
   medium: { className: GLASS_BADGE_CLASS.amber, icon: AlertCircle },
   high: { className: GLASS_BADGE_CLASS.orange, icon: AlertTriangle },
   critical: { className: GLASS_BADGE_CLASS.red, icon: AlertTriangle },

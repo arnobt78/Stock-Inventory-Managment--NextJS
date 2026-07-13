@@ -239,6 +239,11 @@
 | ART-0231 | REQ-0098 | `semantic-badges.tsx`, Api pages, `AdminAnalyticsContent.tsx`, portal pages, `NotificationDropdown.tsx`, `BusinessInsightPage.tsx` | Admin portal UI parity + glow badge sweep |
 | ART-0232 | REQ-0099 | `AdminAnalyticsContent.tsx`, `supplier-portal.ts`, `supplier-portal-data.ts`, `AdminSupplierPortalContent.tsx`, `package.json` | gap-6 sections; userId avatar seed; dead script cleanup |
 | ART-0233 | REQ-0100 | `AdminSupplierPortalContent.tsx` | Avatar seed `userId ?? id` stale-cache fallback |
+| ART-0234 | REQ-0102 | `lib/stock-allocation/catalog-quantity-reconcile.ts`, `apply-catalog-quantity-reconcile.ts`, `validate-allocation-quantity.ts`, `warehouse-delete-guards.ts` | Catalog reconcile + allocation validation + warehouse delete guards |
+| ART-0235 | REQ-0102 | `app/api/products/route.ts`, `stock-allocations/*`, `warehouses/route.ts` | Server enforcement + Redis invalidation |
+| ART-0236 | REQ-0102 | `ProductFormDialog.tsx`, `WarehouseStockAllocationRow.tsx`, `stock-allocation-enrich.ts` | Shrink confirm UI + archived rows + derived totals |
+| ART-0237 | REQ-0102 | `enrichStockAllocationRows`, `product-stock-data.ts`, `stock-allocations/route.ts`, `WarehouseStockAllocationRow.tsx`, `AllocateStockDialog.tsx` | Enrichment parity API + product SSR + warehouse row meta |
+| ART-0238 | REQ-0102 | `catalog-allocation-copy.ts`, `warehouse-stock-data.ts`, `OrderLineWarehouseSelect.tsx`, enrich lib consolidation | Enrichment consistency closure |
 
 ## Tests
 
@@ -275,3 +280,4 @@
 | TC-0030 | REQ-0094 | `lib/navigation/role-nav-config.test.ts` |
 | TC-0031 | REQ-0096 | `lib/server/warehouse-detail-data.test.ts` |
 | TC-0032 | REQ-0096 | `lib/orders/transform-order-detail.test.ts` (creator/updater) |
+| TC-0033 | REQ-0102 | `lib/stock-allocation/catalog-quantity-reconcile.test.ts`, `validate-allocation-quantity.test.ts`, `lib/warehouses/warehouse-delete-guards.test.ts` |

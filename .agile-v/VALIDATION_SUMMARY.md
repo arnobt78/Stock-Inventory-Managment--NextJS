@@ -3,7 +3,58 @@
 **Generated:** 2026-07-13  
 **eval_gate_status:** PENDING (Human Gate 2)  
 **Prod target SHA:** pending REQ-0094 deploy  
-**Red Team:** lint ✓ test 418 ✓ invalidate 205 ✓ build ✓ (2026-07-13 REQ-0100)
+**Red Team:** lint ✓ test 449 ✓ invalidate 208 ✓ build ✓ (2026-07-13 REQ-0102 enrichment consistency)
+
+---
+
+## REQ-0102 enrichment consistency evidence
+
+| Check | Result |
+|-------|--------|
+| Single enrich impl | `enrichStockAllocationRows` only; `enrichWarehouseAllocationRows` alias |
+| All SSR paths | `product-stock-data.ts` + `warehouse-stock-data.ts` use `enrichStockAllocationRows` |
+| Dead code removed | `enrichProductAllocationTotals` deleted |
+| Fetch gates | ProductFormDialog, AllocateStockDialog, OrderLineWarehouseSelect |
+| DRY catalog copy | `formatCatalogAllocationSummary` shared helper |
+
+---
+
+## REQ-0102 enrichment parity evidence
+
+| Check | Result |
+|-------|--------|
+| Unified enrich | `enrichStockAllocationRows` on API GET all scopes + product SSR |
+| Product SSR | `product-stock-data.ts` shared transform + cross-warehouse totals |
+| Warehouse row UI | Catalog / allocated / unallocated meta on `WarehouseStockAllocationRow` |
+| Allocate dialog gate | `useStockByProduct({ enabled: open && activeProductId })` |
+| Dead script | `fix-product2-stock.ts` absent |
+
+---
+
+## REQ-0102 gap closure evidence
+
+| Check | Result |
+|-------|--------|
+| Warehouse cross-totals | `enrichStockAllocationRows` on SSR + API all list scopes |
+| Edit allocation | `useUpdateStockAllocation` + AllocateStockDialog PUT in edit mode |
+| Product form gate | `useStockByProduct({ enabled: open && selected })` |
+| Reconcile apply test | `apply-catalog-quantity-reconcile.test.ts` |
+| Dead script | `fix-product2-stock.ts` absent |
+
+---
+
+## REQ-0102 evidence
+
+| Check | Command | Result | REQ-IDs |
+|-------|---------|--------|---------|
+| Lint | `npm run lint` | PASS | REQ-0102 |
+| Unit tests | `npm run test` | PASS (449) | REQ-0102 |
+| Invalidation audit | `npm run test:invalidate` | PASS (208) | REQ-0102 |
+| Build | `npm run build` | PASS | REQ-0102 |
+| Catalog reconcile | `planCatalogQuantityReconcile` + product PUT transaction | PASS | REQ-0102 AC1–2 |
+| Allocation guards | POST/PUT `validateAllocationUpsert` | PASS | REQ-0102 AC3 |
+| Warehouse delete | `getWarehouseDeleteBlockers` 409 | PASS | REQ-0102 AC4 |
+| Archived rows | `isArchived` enrich + read-only warehouse row | PASS | REQ-0102 AC5 |
 
 ---
 

@@ -27,6 +27,11 @@ import { ChartCard } from "@/components/ui/chart-card";
 import { DeferredChartSection } from "@/components/ui/deferred-chart-section";
 import { ResponsiveChartContainer } from "@/components/ui/responsive-chart-container";
 import { WAREHOUSE_STOCK_PIE_COLORS } from "@/lib/ui/catalog-insights-chart-data";
+import {
+  CHART_LABEL_TOP_MARGIN,
+  createChartBarLabelRenderer,
+  formatChartCountLabel,
+} from "@/lib/ui/chart-point-label";
 import { DetailInfoRow } from "@/components/orders/detail";
 import { GlassCard, SectionTitleRow } from "@/components/shared";
 import type { WarehouseInsights } from "@/types/warehouse-insights";
@@ -191,7 +196,12 @@ export function WarehouseInsightsSection({
             <ResponsiveChartContainer>
               <BarChart
                 data={categoryChartData}
-                margin={{ top: 8, right: 8, left: 8, bottom: 8 }}
+                margin={{
+                  top: CHART_LABEL_TOP_MARGIN,
+                  right: 8,
+                  left: 8,
+                  bottom: 8,
+                }}
               >
                 <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
                 <XAxis
@@ -212,6 +222,7 @@ export function WarehouseInsightsSection({
                   fill="hsl(var(--chart-2))"
                   name="SKUs"
                   radius={[4, 4, 0, 0]}
+                  label={createChartBarLabelRenderer(formatChartCountLabel)}
                 />
               </BarChart>
             </ResponsiveChartContainer>

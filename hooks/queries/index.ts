@@ -130,6 +130,8 @@ export {
   useStockByProduct,
   useStockByWarehouse,
   useCreateStockAllocation,
+  useUpdateStockAllocation,
+  useDeleteStockAllocation,
   useCreateStockTransfer,
 } from "./use-stock-allocation";
 

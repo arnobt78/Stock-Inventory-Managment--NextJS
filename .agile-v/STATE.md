@@ -3,15 +3,31 @@
 | Field | Value |
 |-------|-------|
 | **Cycle** | C1 (closing) → **C2 open** |
-| **Phase** | C2 — REQ-0100 **done** |
+| **Phase** | C2 — REQ-0102 **done** |
 | **Infinity Loop stage** | Verify ✓ (Gate 2 open) |
-| **Last updated** | 2026-07-13 (REQ-0100 avatar seed fallback) |
-| **Session** | **ACTIVE** — REQ-0100 complete |
-| **Active REQ range** | REQ-0001 … REQ-0100 **done** |
-| **Prod deploy target** | pending — REQ-0100 |
+| **Last updated** | 2026-07-13 (REQ-0102 stock allocation sync) |
+| **Session** | **ACTIVE** — REQ-0102 complete |
+| **Active REQ range** | REQ-0001 … REQ-0102 **done** |
+| **Prod deploy target** | pending — REQ-0102 |
 | **Human Gate 1** | APPROVED (retroactive bootstrap) |
 | **Human Gate 2** | PENDING — Sentry 24h after prod deploy |
 | **Resume token** | `Gate-2-deploy` — prod SHA + Sentry 24h |
+
+## REQ-0102 enrichment consistency (2026-07-13)
+
+Single `enrichStockAllocationRows` implementation; warehouse SSR aligned; dead `enrichProductAllocationTotals` removed; OrderLineWarehouseSelect fetch gate; `formatCatalogAllocationSummary` DRY. Gates: lint ✓ test 449 ✓ invalidate 208 ✓ build ✓.
+
+## REQ-0102 enrichment parity (2026-07-13)
+
+Unified `enrichStockAllocationRows` on API GET all scopes + product SSR; warehouse row catalog meta; AllocateStockDialog fetch gate. Gates: lint ✓ test 447 ✓ invalidate 208 ✓ build ✓.
+
+## REQ-0102 done (2026-07-13)
+
+Catalog vs warehouse allocation sync: reconcile on product PUT (reserved floor + greedy unreserved shrink), allocation POST/PUT budget validation, warehouse DELETE blockers, archived product rows on warehouse detail, shrink confirm in ProductFormDialog. Gates: lint ✓ test 441 ✓ invalidate 208 ✓ build ✓.
+
+## REQ-0102 gap closure (2026-07-13)
+
+Cross-warehouse totals on warehouse detail, `useUpdateStockAllocation`, product form fetch gate, reconcile apply tests. Gates: lint ✓ test 446 ✓ invalidate 208 ✓ build ✓.
 
 ## REQ-0100 done (2026-07-13)
 
@@ -29,12 +45,12 @@ Admin portal UI parity: GlassCardBody Api pages; QR truncate; semantic glow badg
 
 | Priority | Item |
 |----------|------|
-| P0 | Prod deploy REQ-0100; Sentry 24h Gate 2 |
-| P1 | Manual smoke — `/admin/supplier-portal` avatars with stale cache |
+| P0 | Prod deploy REQ-0102; Sentry 24h Gate 2 |
+| P1 | Manual smoke — catalog decrease + warehouse delete 409 paths |
 
 ## Current focus
 
-1. **REQ-0100** — done
+1. **REQ-0102** — done
 2. **Gate 2** — Sentry 24h post-deploy (REQ-0009)
 
 ## Session resume (every chat)

@@ -35,14 +35,16 @@ export function AvatarInlineLink({
     <Link
       href={href}
       className={cn(
-        "font-medium text-sky-600 dark:text-sky-400 hover:text-sky-500 dark:hover:text-sky-300 truncate",
+        "text-sm font-normal text-sky-600 dark:text-sky-400 hover:text-sky-500 dark:hover:text-sky-300 truncate",
         linkClassName,
       )}
     >
       {label}
     </Link>
   ) : (
-    <span className={cn("font-medium truncate", linkClassName)}>{label}</span>
+    <span className={cn("text-sm font-normal truncate", linkClassName)}>
+      {label}
+    </span>
   );
 
   return (

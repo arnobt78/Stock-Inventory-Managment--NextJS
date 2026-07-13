@@ -7,6 +7,7 @@ import { Supplier } from "@/types";
 import { Column, ColumnDef } from "@tanstack/react-table";
 import SupplierActions from "./SupplierActions";
 import { ActiveInactiveBadge } from "@/lib/ui/semantic-badges";
+import { AvatarInlineLink } from "@/components/shared/AvatarInlineLink";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -102,11 +103,13 @@ const truncateText = (
 function NameLinkWithClose({
   href,
   name,
+  userId,
   onBeforeNavigate,
   linkClass,
 }: {
   href: string;
   name: string;
+  userId: string;
   onBeforeNavigate: () => void;
   linkClass: string;
 }) {
@@ -121,7 +124,12 @@ function NameLinkWithClose({
       }}
       className={`${linkClass} text-left`}
     >
-      {name}
+      <AvatarInlineLink
+        label={name}
+        seed={userId}
+        size={28}
+        linkClassName="text-sm font-normal"
+      />
     </button>
   );
 }
@@ -148,6 +156,7 @@ export const createSupplierColumns = (
             <NameLinkWithClose
               href={href}
               name={supplier.name}
+              userId={supplier.userId ?? supplier.id}
               onBeforeNavigate={onBeforeNavigate}
               linkClass={linkClass}
             />
@@ -155,7 +164,12 @@ export const createSupplierColumns = (
         }
         return (
           <Link href={href} className={linkClass}>
-            {supplier.name}
+            <AvatarInlineLink
+              label={supplier.name}
+              seed={supplier.userId ?? supplier.id}
+              size={28}
+              linkClassName="text-sm font-normal"
+            />
           </Link>
         );
       },

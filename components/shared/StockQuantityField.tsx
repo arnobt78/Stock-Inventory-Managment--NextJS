@@ -17,8 +17,12 @@ export type StockQuantityFieldProps = {
   mode: StockQuantityMode;
   disabled?: boolean;
   fieldClassName: string;
-  /** Global product stock — shown on allocate when product selected */
-  productStock?: number;
+  /** Catalog total — allocate mode breakdown */
+  catalogTotal?: number;
+  /** Sum allocated across all warehouses */
+  allocatedTotal?: number;
+  /** Catalog minus total allocated (can still be placed in warehouses) */
+  unallocatedRemaining?: number;
 };
 
 function parseQty(raw: string): number | null {
@@ -65,7 +69,9 @@ export function StockQuantityField({
   mode,
   disabled,
   fieldClassName,
-  productStock,
+  catalogTotal,
+  allocatedTotal,
+  unallocatedRemaining,
 }: StockQuantityFieldProps) {
   const validation = getStockQuantityValidation(value, maxAvailable, mode);
   const qty = parseQty(value);
@@ -73,10 +79,10 @@ export function StockQuantityField({
   const hint =
     mode === "transfer"
       ? maxAvailable > 0
-        ? `${maxAvailable} available to transfer`
+        ? `${maxAvailable} available in this warehouse · up to ${maxAvailable} can transfer`
         : "Select a product with available stock"
-      : productStock !== undefined
-        ? `${productStock} in product stock · up to ${maxAvailable} can be added here`
+      : catalogTotal !== undefined && unallocatedRemaining !== undefined
+        ? `${catalogTotal} catalog total · ${allocatedTotal ?? 0} allocated · up to ${unallocatedRemaining} can be added here`
         : null;
 
   return (
@@ -86,7 +92,7 @@ export function StockQuantityField({
           Quantity *
         </Label>
         {hint ? (
-          <span className="text-xs text-white/60">{hint}</span>
+          <span className="text-xs text-white/80">{hint}</span>
         ) : null}
       </div>
       <Input
