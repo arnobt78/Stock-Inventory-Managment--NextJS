@@ -2,7 +2,7 @@
 
 **Generated:** 2026-07-13  
 **eval_gate_status:** PENDING (Human Gate 2)  
-**Prod target SHA:** pending REQ-0094 deploy  
+**Prod target SHA:** `554af8e` (REQ-0102)  
 **Red Team:** lint ✓ test 449 ✓ invalidate 208 ✓ build ✓ (2026-07-13 REQ-0102 enrichment consistency)
 
 ---
