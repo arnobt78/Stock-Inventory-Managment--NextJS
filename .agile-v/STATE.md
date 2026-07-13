@@ -5,29 +5,17 @@
 | **Cycle** | C1 (closing) → **C2 open** |
 | **Phase** | C2 — REQ-0102 **done** |
 | **Infinity Loop stage** | Verify ✓ (Gate 2 open) |
-| **Last updated** | 2026-07-13 (REQ-0102 stock allocation sync) |
-| **Session** | **ACTIVE** — REQ-0102 complete |
+| **Last updated** | 2026-07-13 (REQ-0102 complete) |
+| **Session** | **ACTIVE** — REQ-0102 done |
 | **Active REQ range** | REQ-0001 … REQ-0102 **done** |
-| **Prod deploy target** | pending — REQ-0102 |
+| **Prod deploy target** | `554af8e` — REQ-0102 |
 | **Human Gate 1** | APPROVED (retroactive bootstrap) |
 | **Human Gate 2** | PENDING — Sentry 24h after prod deploy |
 | **Resume token** | `Gate-2-deploy` — prod SHA + Sentry 24h |
 
-## REQ-0102 enrichment consistency (2026-07-13)
-
-Single `enrichStockAllocationRows` implementation; warehouse SSR aligned; dead `enrichProductAllocationTotals` removed; OrderLineWarehouseSelect fetch gate; `formatCatalogAllocationSummary` DRY. Gates: lint ✓ test 449 ✓ invalidate 208 ✓ build ✓.
-
-## REQ-0102 enrichment parity (2026-07-13)
-
-Unified `enrichStockAllocationRows` on API GET all scopes + product SSR; warehouse row catalog meta; AllocateStockDialog fetch gate. Gates: lint ✓ test 447 ✓ invalidate 208 ✓ build ✓.
-
 ## REQ-0102 done (2026-07-13)
 
-Catalog vs warehouse allocation sync: reconcile on product PUT (reserved floor + greedy unreserved shrink), allocation POST/PUT budget validation, warehouse DELETE blockers, archived product rows on warehouse detail, shrink confirm in ProductFormDialog. Gates: lint ✓ test 441 ✓ invalidate 208 ✓ build ✓.
-
-## REQ-0102 gap closure (2026-07-13)
-
-Cross-warehouse totals on warehouse detail, `useUpdateStockAllocation`, product form fetch gate, reconcile apply tests. Gates: lint ✓ test 446 ✓ invalidate 208 ✓ build ✓.
+Catalog reconcile + allocation validation + warehouse delete guards + archived rows + unified `enrichStockAllocationRows` (API + SSR) + `formatCatalogAllocationSummary` + dialog fetch gates. Commit `554af8e`. Gates: lint ✓ test 449 ✓ invalidate 208 ✓ build ✓.
 
 ## REQ-0100 done (2026-07-13)
 

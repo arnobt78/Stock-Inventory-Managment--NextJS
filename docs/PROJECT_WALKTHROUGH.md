@@ -233,6 +233,7 @@ flowchart LR
 | Admin portal UI (REQ-0098) | `semantic-badges` glow badges; Api `GlassCardBody`; QR truncate; dashboard CTAs; portal `AvatarInlineLink` + SSR image; notification dropdown UX |
 | Post-0098 gaps (REQ-0099) | `AdminAnalyticsContent` section `gap-6`; supplier portal `userId` + User `image` SSR; dead stock scripts removed |
 | Avatar stale-cache (REQ-0100) | `AdminSupplierPortalContent` `seed={userId ?? id}` — no cache-key bump; TTL/invalidation sufficient |
+| Stock allocation sync (REQ-0102) | Catalog reconcile on product PUT; `enrichStockAllocationRows` unified API+SSR enrich; `useUpdateStockAllocation`; warehouse delete guards; archived rows; `formatCatalogAllocationSummary`; dialog fetch gates |
 | Next | Gate 2 — prod deploy + Sentry 24h |
 | AI warehouse insights (REQ-0067) | `POST /api/ai/insights` enriches payload with `getWarehouseStockSummary` |
 | Per-warehouse order picking (REQ-0068) | `OrderItem.warehouseId`; `stock-allocation-order-sync.ts`; `OrderLineWarehouseSelect`; reserve/fulfill/cancel sync; invoice-paid gap; `f892b65` removed unused `deleteCache`/`getRateLimitStatus` |
@@ -253,9 +254,9 @@ flowchart LR
 |-------|--------|
 | `npm run lint` | pass |
 | `npm run build` | pass |
-| `npm run test` | 418 passed |
-| `npm run test:invalidate` | 205 passed |
-| Prod commit | REQ-0100 pending push |
+| `npm run test` | 449 passed |
+| `npm run test:invalidate` | 208 passed |
+| Prod commit | `554af8e` REQ-0102 |
 | Radix table Select | `useDeferredRadixSelect` + `PaginationSelector` (11 tables) |
 | Pagination clamp + page-size reset | `useClampPaginationIndex` + `PaginationSelector` pageIndex 0 |
 | Sentry | tunnel + translate scrub + `syncSentryUserFromAuth` |
