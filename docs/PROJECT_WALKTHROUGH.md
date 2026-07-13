@@ -236,6 +236,7 @@ flowchart LR
 | Stock allocation sync (REQ-0102) | Catalog reconcile on product PUT; `enrichStockAllocationRows` unified API+SSR enrich; warehouse delete guards; archived rows |
 | Disjoint reservation (REQ-0103) | `order-stock-reservation.ts`; `committedQuantity` on product lists; catalog floor 20 not 40 |
 | committedQuantity parity (REQ-0104) | Category/supplier detail SSR enrich; forecasting card/API; supplier dashboard avail |
+| Product detail SSR (REQ-0105) | `product-detail-data.ts` committedQuantity enrich + cache guard; `ProductDetailPage` `getDisplayCommittedQuantity`; `CLAUDE.md` in git |
 | Next | Gate 2 — prod deploy + Sentry 24h |
 | AI warehouse insights (REQ-0067) | `POST /api/ai/insights` enriches payload with `getWarehouseStockSummary` |
 | Per-warehouse order picking (REQ-0068) | `OrderItem.warehouseId`; `stock-allocation-order-sync.ts`; `OrderLineWarehouseSelect`; reserve/fulfill/cancel sync; invoice-paid gap; `f892b65` removed unused `deleteCache`/`getRateLimitStatus` |

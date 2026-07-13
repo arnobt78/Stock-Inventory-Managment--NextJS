@@ -244,6 +244,7 @@
 | ART-0236 | REQ-0102 | `ProductFormDialog.tsx`, `WarehouseStockAllocationRow.tsx`, `stock-allocation-enrich.ts` | Shrink confirm UI + archived rows + derived totals |
 | ART-0237 | REQ-0102 | `enrichStockAllocationRows`, `product-stock-data.ts`, `stock-allocations/route.ts`, `WarehouseStockAllocationRow.tsx`, `AllocateStockDialog.tsx` | Enrichment parity API + product SSR + warehouse row meta |
 | ART-0238 | REQ-0102 | `catalog-allocation-copy.ts`, `warehouse-stock-data.ts`, `OrderLineWarehouseSelect.tsx`, enrich lib consolidation | Enrichment consistency closure |
+| ART-0239 | REQ-0105 | `enrich-product-committed-quantity.ts`, `product-detail-data.ts`, `ProductDetailPage.tsx`, `.gitignore`, `CLAUDE.md` | Product detail committedQuantity SSR + display DRY |
 
 ## Tests
 
@@ -283,3 +284,4 @@
 | TC-0033 | REQ-0102 | `lib/stock-allocation/catalog-quantity-reconcile.test.ts`, `validate-allocation-quantity.test.ts`, `lib/warehouses/warehouse-delete-guards.test.ts` |
 | TC-0034 | REQ-0103 | `lib/products/order-stock-reservation.test.ts`, `enrich-product-committed-quantity.test.ts` |
 | TC-0035 | REQ-0104 | detail SSR enrich + forecast/supplier-dashboard committed avail |
+| TC-0036 | REQ-0105 | `product-detail-data.test.ts`, `enrich-product-committed-quantity.test.ts` (single-product enrich) |

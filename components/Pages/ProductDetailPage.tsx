@@ -72,7 +72,10 @@ import {
 } from "@/components/shared";
 import { findProductForecast } from "@/lib/forecasting/entity-forecast";
 import { enrichProductInsightsWithWarehouseStock } from "@/lib/insights/product-insights-enrich";
-import { computeCommittedQuantity } from "@/lib/products/enrich-product-committed-quantity";
+import {
+  computeCommittedQuantity,
+  getDisplayCommittedQuantity,
+} from "@/lib/products/enrich-product-committed-quantity";
 import {
   buildSalesChartData,
   buildWarehouseAllocationStockChartData,
@@ -206,9 +209,10 @@ export default function ProductDetailPage({
     (sum, row) => sum + (row.quantity - row.reservedQuantity),
     0,
   );
+  // REQ-0105 — shared display helper; warehouse fallback when TanStack lags stock hook
   const displayCommitted = useMemo(() => {
     if (product?.committedQuantity != null) {
-      return product.committedQuantity;
+      return getDisplayCommittedQuantity(product);
     }
     const allocationReservedSum = warehouseAllocations.reduce(
       (sum, row) => sum + row.reservedQuantity,
@@ -218,11 +222,7 @@ export default function ProductDetailPage({
       product?.reservedQuantity ?? 0,
       allocationReservedSum,
     );
-  }, [
-    product?.committedQuantity,
-    product?.reservedQuantity,
-    warehouseAllocations,
-  ]);
+  }, [product, warehouseAllocations]);
   const recentOrderCount = product?.recentOrders?.length ?? 0;
   const ownerProductsHref = (ownerId: string) =>
     embedInAdmin

@@ -56,7 +56,6 @@ PROJECT_PLAN.md
 .env.sentry-build-plugin
 
 # Claude
-CLAUDE.md
 .claude
 
 

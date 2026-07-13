@@ -279,3 +279,6 @@ Format: `TIMESTAMP | AGENT | DECISION | RATIONALE | REQ-ID`
 2026-07-13T18:15:00Z | red-team | REQ-0103 gates | lint ✓ test 460 ✓ invalidate 208 ✓ build ✓ | REQ-0103
 2026-07-13T18:22:00Z | build-agent | REQ-0104 committedQuantity parity | Detail SSR + forecast + supplier dashboard avail math | REQ-0104
 2026-07-13T18:22:00Z | red-team | REQ-0104 gates | lint ✓ test 461 ✓ invalidate 208 ✓ build ✓ | REQ-0104
+2026-07-13T18:30:00Z | build-agent | REQ-0105 product detail SSR | Single-product enrich + cache guard; CLAUDE.md un-ignored | REQ-0105
+2026-07-13T18:30:00Z | red-team | REQ-0105 gates | lint ✓ test 464 ✓ invalidate 208 ✓ build ✓ | REQ-0105
+2026-07-13T18:35:00Z | build-agent | REQ-0105 AC6 P3 DRY | ProductDetailPage uses getDisplayCommittedQuantity + warehouse fallback | REQ-0105

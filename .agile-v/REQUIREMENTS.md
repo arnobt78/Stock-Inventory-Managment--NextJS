@@ -2317,6 +2317,31 @@ Canonical REQ source. All artifacts link via `REQ-XXXX`. Status: `done` | `verif
 
 ---
 
+## REQ-0105 — product detail committedQuantity SSR
+
+| Field | Value |
+|-------|-------|
+| **Priority** | P2 |
+| **Risk** | R1 |
+| **Status** | done |
+| **Cycle** | C2 |
+| **Parent** | REQ-0104 |
+
+**Intent:** Close product detail SSR/API gap — expose `committedQuantity` on `getProductDetailForPage` (same parity as category/supplier detail lists) and track `CLAUDE.md` in git for agent docs.
+
+**Acceptance criteria**
+
+- AC1: `enrichProductDetailWithCommittedQuantity` in `enrich-product-committed-quantity.ts`
+- AC2: `product-detail-data.ts` enriches after transform; Redis cache guard requires `committedQuantity`
+- AC3: `GET /api/products/:id` returns enriched shape via shared helper
+- AC4: Remove `CLAUDE.md` from `.gitignore`; REQ-0103/0104/0105 sections in tracked `CLAUDE.md`
+- AC5: Unit tests + gates (lint, test 464, invalidate 208, build)
+- AC6: `ProductDetailPage` — `getDisplayCommittedQuantity` primary path; warehouse fallback when TanStack lags stock hook
+
+**Artifacts:** `lib/products/enrich-product-committed-quantity.ts`, `lib/server/product-detail-data.ts`, `components/Pages/ProductDetailPage.tsx`, `.gitignore`, `CLAUDE.md`
+
+---
+
 ## REQ-0020 — Locale-aware admin format (hydration-safe)
 
 | Field        | Value |

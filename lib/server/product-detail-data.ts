@@ -1,7 +1,7 @@
 /**
  * Server-side product detail fetch for SSR prefetch.
  * Mirrors GET /api/products/:id auth + response shape (includes Redis cache).
- * REQ-0024
+ * REQ-0024, REQ-0105 — committedQuantity display field (disjoint paths summed).
  */
 
 import { getProductById } from "@/prisma/product";
@@ -9,6 +9,7 @@ import { getSupplierByUserId } from "@/prisma/supplier";
 import { getCache, setCache, cacheKeys } from "@/lib/cache";
 import { prisma } from "@/prisma/client";
 import { mergeProductListWhere } from "@/lib/products/product-query";
+import { enrichProductDetailWithCommittedQuantity } from "@/lib/products/enrich-product-committed-quantity";
 import { logger } from "@/lib/logger";
 import type { SessionForDetail } from "@/lib/server/order-detail-data";
 import { computeProductInsights } from "@/lib/server/product-insights";
@@ -193,7 +194,16 @@ function transformProductDetail(
   };
 }
 
-export type ProductDetailForPage = ReturnType<typeof transformProductDetail>;
+export type ProductDetailForPage = ReturnType<typeof transformProductDetail> & {
+  /** REQ-0105 — display-only; ProductFormDialog uses raw reservedQuantity + allocation rows */
+  committedQuantity: number;
+};
+
+function productDetailCacheValid(
+  cached: ProductDetailForPage | null | undefined,
+): cached is ProductDetailForPage {
+  return !!cached && typeof cached.committedQuantity === "number";
+}
 
 /** Role-scoped product detail for page SSR — null when not found or unauthorized. */
 export async function getProductDetailForPage(
@@ -207,7 +217,7 @@ export async function getProductDetailForPage(
 
   const cacheKey = cacheKeys.products.detail(id);
   const cachedProduct = await getCache<ProductDetailForPage>(cacheKey);
-  if (cachedProduct) {
+  if (productDetailCacheValid(cachedProduct)) {
     logger.info(`✅ Cache hit for product: ${cacheKey}`);
     return cachedProduct;
   }
@@ -292,6 +302,9 @@ export async function getProductDetailForPage(
     orderUserMap,
   );
 
-  await setCache(cacheKey, transformedProduct, 300);
-  return transformedProduct;
+  const enrichedProduct =
+    await enrichProductDetailWithCommittedQuantity(transformedProduct);
+
+  await setCache(cacheKey, enrichedProduct, 300);
+  return enrichedProduct;
 }

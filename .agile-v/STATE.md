@@ -3,15 +3,19 @@
 | Field | Value |
 |-------|-------|
 | **Cycle** | C1 (closing) → **C2 open** |
-| **Phase** | C2 — REQ-0104 **done** |
+| **Phase** | C2 — REQ-0105 **done** |
 | **Infinity Loop stage** | Verify ✓ (Gate 2 open) |
-| **Last updated** | 2026-07-13 (REQ-0104 complete) |
-| **Session** | **ACTIVE** — REQ-0104 done |
-| **Active REQ range** | REQ-0001 … REQ-0104 **done** |
-| **Prod deploy target** | pending — REQ-0104 |
+| **Last updated** | 2026-07-13 (REQ-0105 complete) |
+| **Session** | **ACTIVE** — REQ-0105 done |
+| **Active REQ range** | REQ-0001 … REQ-0105 **done** |
+| **Prod deploy target** | pending — REQ-0105 |
 | **Human Gate 1** | APPROVED (retroactive bootstrap) |
 | **Human Gate 2** | PENDING — Sentry 24h after prod deploy |
 | **Resume token** | `Gate-2-deploy` — prod SHA + Sentry 24h |
+
+## REQ-0105 — product detail committedQuantity SSR (2026-07-13)
+
+Product detail SSR/API + Redis cache guard expose `committedQuantity`; `CLAUDE.md` tracked in git. Gates: lint ✓ test 464 ✓ invalidate 208 ✓ build ✓.
 
 ## REQ-0104 — committedQuantity parity (2026-07-13)
 
@@ -29,12 +33,12 @@ Catalog reconcile + allocation validation + warehouse delete guards + archived r
 
 | Priority | Item |
 |----------|------|
-| P0 | Prod deploy REQ-0104; Sentry 24h Gate 2 |
+| P0 | Prod deploy REQ-0105; Sentry 24h Gate 2 |
 | P1 | Manual smoke — Beats fixture after reset-demo-db (catalog floor 20) |
 
 ## Current focus
 
-1. **REQ-0104** — done
+1. **REQ-0105** — done
 2. **Gate 2** — Sentry 24h post-deploy (REQ-0009)
 
 ## Session resume (every chat)

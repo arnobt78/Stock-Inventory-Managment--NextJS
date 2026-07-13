@@ -74,6 +74,17 @@ export async function enrichProductsWithCommittedQuantity<
   );
 }
 
+/** REQ-0105 — single product detail/API enrich (one allocation sum query). */
+export async function enrichProductDetailWithCommittedQuantity<
+  T extends { id: string; reservedQuantity?: number | null },
+>(product: T): Promise<T & { committedQuantity: number }> {
+  const allocationSums = await batchSumAllocationReserved([product.id]);
+  return withCommittedQuantity(
+    product,
+    allocationSums.get(product.id) ?? 0,
+  );
+}
+
 /** Read committed qty from a list row (display-only). */
 export function getDisplayCommittedQuantity(
   product: ProductWithCommittedFields,

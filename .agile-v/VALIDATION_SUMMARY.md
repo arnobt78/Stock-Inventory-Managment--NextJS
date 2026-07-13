@@ -2,8 +2,21 @@
 
 **Generated:** 2026-07-13  
 **eval_gate_status:** PENDING (Human Gate 2)  
-**Prod target SHA:** pending (REQ-0104)  
-**Red Team:** lint ✓ test 461 ✓ invalidate 208 ✓ build ✓ (2026-07-13 REQ-0104 committedQuantity parity)
+**Prod target SHA:** pending (REQ-0105)
+**Red Team:** lint ✓ test 464 ✓ invalidate 208 ✓ build ✓ (2026-07-13 REQ-0105 product detail committedQuantity SSR)
+
+---
+
+## REQ-0105 product detail committedQuantity SSR evidence
+
+| Check | Result |
+|-------|--------|
+| Single enrich | `enrichProductDetailWithCommittedQuantity` — one allocation sum query |
+| Detail SSR/API | `getProductDetailForPage` enriches after transform |
+| Cache guard | Stale Redis entries without `committedQuantity` refetch |
+| Display UI | `ProductDetailPage` — `getDisplayCommittedQuantity` + warehouse fallback |
+| CLAUDE.md | Removed from `.gitignore`; REQ-0103/0104/0105 sections tracked |
+| Invalidation | unchanged — `PRODUCT_PATTERNS` clears `products:*` on order/stock CRUD |
 
 ---
 
