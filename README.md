@@ -11,7 +11,6 @@ A full-stack warehouse and stock inventory management system built with Next.js,
 
 - **Live Demo:** [https://stockly-inventory.vercel.app/](https://stockly-inventory.vercel.app/)
 
-![Screenshot 2026-03-07 at 12 15 24](https://github.com/user-attachments/assets/67518003-8e10-4c71-b682-911506173cdf)
 ![Screenshot 2026-03-07 at 12 16 27](https://github.com/user-attachments/assets/f00d8441-4c1c-467d-b9fa-f5505a48feb0)
 ![Screenshot 2026-03-07 at 12 16 46](https://github.com/user-attachments/assets/64b0dd00-126f-4740-9ab4-fb2a8bc5fca5)
 ![Screenshot 2026-03-07 at 12 16 58](https://github.com/user-attachments/assets/6f617e37-934c-484f-a554-11e5db02a53f)
