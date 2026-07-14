@@ -61,3 +61,21 @@ export const DIALOG_TABLE_LINK =
 /** Kebab / row action icon in embedded dialog tables */
 export const DIALOG_TABLE_ACTION_ICON =
   "text-gray-600 dark:text-white/70 hover:text-gray-800 dark:hover:text-white";
+
+/** REQ-0109 — full-width feedback row below dialog field grids */
+export const DIALOG_FORM_FEEDBACK_ROW =
+  "col-span-full mt-1 w-full space-y-1 sm:col-span-2";
+
+/** REQ-0109 — inline hint under dialog fields (dark glass dialogs) */
+export const DIALOG_FORM_HINT_TEXT = "text-xs text-white/60";
+
+/** REQ-0109 — validation error copy */
+export const DIALOG_FORM_ERROR_TEXT =
+  "text-xs text-rose-400 dark:text-rose-300";
+
+/** REQ-0109 — valid quantity confirmation */
+export const DIALOG_FORM_SUCCESS_TEXT =
+  "text-xs text-emerald-500/90 dark:text-emerald-400/90";
+
+/** REQ-0109 — shrink / caution preview */
+export const DIALOG_FORM_WARN_TEXT = "text-xs text-amber-400/90";

@@ -212,7 +212,18 @@ Example split for **Demo Wireless Headphone** (catalog qty `100`):
 
 ---
 
-## 9. Troubleshooting (REQ-0103)
+## 9. Troubleshooting (REQ-0103 / REQ-0106)
 
 If catalog edit blocks at **40 reserved** after a **20-unit** warehouse-pick order, the DB may have stale double-reservation from before REQ-0103. Run `npm run reset-demo-db`, recreate fixtures, and retest — the floor should be **20**, not 40.
 
+### Beats auto-assign order (REQ-0106)
+
+Fixture: **Beats** catalog **50**, **Main Warehouse** allocated **30**, **20 unallocated**.
+
+| Step | Role | Action | Expected |
+| ---- | ---- | ------ | -------- |
+| 1 | Client | Create order — Beats qty **40**, warehouse **Auto-assign warehouses** | Order succeeds; list shows **10 available**, **40 reserved** (or committed display) |
+| 2 | Client | Retry qty **40** with manual **Main Warehouse** pick | Blocked — max **30** at warehouse |
+| 3 | Client | After step 1, auto-assign qty **40** | Blocked — catalog available **10** |
+
+Admin may optionally pick a warehouse; default remains auto-assign for all roles.

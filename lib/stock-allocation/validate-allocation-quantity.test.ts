@@ -1,5 +1,8 @@
 import { describe, expect, it } from "vitest";
-import { validateAllocationUpsert } from "./validate-allocation-quantity";
+import {
+  getAllocationQtyBounds,
+  validateAllocationUpsert,
+} from "./validate-allocation-quantity";
 
 describe("validateAllocationUpsert", () => {
   const allocations = [
@@ -55,5 +58,21 @@ describe("validateAllocationUpsert", () => {
     if (!result.ok) {
       expect(result.error).toContain("reserved");
     }
+  });
+
+  it("getAllocationQtyBounds returns min/max and budget parts", () => {
+    const bounds = getAllocationQtyBounds({
+      catalogQty: 100,
+      allocations,
+      targetWarehouseId: "wh-a",
+      newAbsoluteQty: 0,
+      rowReserved: 10,
+    });
+    expect(bounds).toEqual({
+      minQty: 10,
+      maxQty: 80,
+      unallocated: 40,
+      currentInWarehouse: 40,
+    });
   });
 });

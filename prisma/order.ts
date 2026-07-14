@@ -10,11 +10,11 @@ import type { CreateOrderInput, UpdateOrderInput } from "@/types/order";
 import { invalidateCache, cacheKeys } from "@/lib/cache";
 import { decrementStockAllocations } from "@/lib/products/decrement-stock-allocations";
 import {
-  getAvailableCatalogForOrder,
   fulfillPendingOrderLines,
   releasePendingOrderLines,
   reservePendingOrderLines,
 } from "@/lib/products/order-stock-reservation";
+import { getOrderLineCatalogAvailable } from "@/lib/orders/order-line-stock-validation";
 import {
   productRequiresWarehousePick,
   resolveWarehouseName,
@@ -103,11 +103,12 @@ export async function createOrder(data: CreateOrderInput, userId: string) {
     let availableStock: number;
 
     if (needsPick) {
+      // REQ-0111 — live DB rows; client uses TanStack cache + committedQuantity fallback
       const allocationRows = await prisma.stockAllocation.findMany({
         where: { productId: item.productId },
         select: { reservedQuantity: true },
       });
-      availableStock = getAvailableCatalogForOrder(
+      availableStock = getOrderLineCatalogAvailable(
         productQty,
         productReserved,
         allocationRows.map((row) => ({
@@ -128,15 +129,15 @@ export async function createOrder(data: CreateOrderInput, userId: string) {
     let warehouseName: string | null = null;
 
     if (needsPick) {
-      if (!warehouseId) {
-        throw new Error(
-          `Warehouse pick required for product ${product.name} (has warehouse allocations)`,
-        );
-      }
-      await validateWarehousePick(item.productId, warehouseId, item.quantity);
-      warehouseName = await resolveWarehouseName(warehouseId, ownerUserId);
-      if (!warehouseName) {
-        throw new Error(`Warehouse not found or unauthorized: ${warehouseId}`);
+      if (warehouseId) {
+        await validateWarehousePick(item.productId, warehouseId, item.quantity);
+        warehouseName = await resolveWarehouseName(warehouseId, ownerUserId);
+        if (!warehouseName) {
+          throw new Error(`Warehouse not found or unauthorized: ${warehouseId}`);
+        }
+      } else {
+        // REQ-0106 — auto-assign: reserve on product path; fulfill greedily across warehouses
+        warehouseId = null;
       }
     } else {
       warehouseId = null;

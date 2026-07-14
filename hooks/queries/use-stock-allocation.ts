@@ -13,6 +13,27 @@ import type {
   StockTransfer,
   WarehouseStockSummary,
 } from "@/types";
+import type { QueryClient } from "@tanstack/react-query";
+
+/** Shared queryFn for useStockByProduct + prefetch (REQ-0110). */
+export async function fetchStockByProduct(
+  productId: string,
+): Promise<StockAllocation[]> {
+  const response = await apiClient.stockAllocations.getByProduct(productId);
+  return response.data;
+}
+
+/** Warm allocation cache before order-line validation (read-only). */
+export function prefetchStockByProduct(
+  queryClient: QueryClient,
+  productId: string,
+): Promise<void> {
+  if (!productId) return Promise.resolve();
+  return queryClient.prefetchQuery({
+    queryKey: queryKeys.stockAllocation.byProduct(productId),
+    queryFn: () => fetchStockByProduct(productId),
+  });
+}
 
 /**
  * Get all stock allocations
@@ -53,11 +74,7 @@ export function useStockByProduct(
 ) {
   return useQuery({
     queryKey: queryKeys.stockAllocation.byProduct(productId),
-    queryFn: async () => {
-      const response =
-        await apiClient.stockAllocations.getByProduct(productId);
-      return response.data;
-    },
+    queryFn: () => fetchStockByProduct(productId),
     enabled: (options?.enabled ?? true) && !!productId,
     ...withInitialData(initialData),
   });

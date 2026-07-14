@@ -74,6 +74,20 @@ describe("order-stock-reservation", () => {
     expect(mockReserveAllocation).not.toHaveBeenCalled();
   });
 
+  it("REQ-0106 auto-assign reserves catalog pool only (qty 40, no warehouse pick)", async () => {
+    await reservePendingOrderLine({
+      productId: "prod1",
+      quantity: 40,
+      warehouseId: null,
+    });
+
+    expect(mockProductUpdate).toHaveBeenCalledWith({
+      where: { id: "prod1" },
+      data: { reservedQuantity: { increment: 40 } },
+    });
+    expect(mockReserveAllocation).not.toHaveBeenCalled();
+  });
+
   it("releasePendingOrderLine with warehouse pick releases allocation only", async () => {
     await releasePendingOrderLine({
       productId: "prod1",

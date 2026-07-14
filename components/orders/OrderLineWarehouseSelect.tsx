@@ -1,7 +1,8 @@
 "use client";
 
 /**
- * REQ-0068/0074 — warehouse picker aligned in order line grid (h-11, Warehouse icon).
+ * REQ-0068/0111/0113 — warehouse picker in order line grid (presentation-only).
+ * Parent hook owns fetch + validation; receives allocationRows from useOrderLineStockValidation.
  */
 
 import React, { useMemo } from "react";
@@ -15,54 +16,69 @@ import {
 } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
 import { DeferredSelectGate } from "@/components/shared";
-import { useStockByProduct } from "@/hooks/queries";
-import { DIALOG_FORM_FIELD_VIOLET } from "@/components/shared";
+import {
+  DIALOG_FORM_FIELD_VIOLET,
+  DIALOG_FORM_ERROR_TEXT,
+  DIALOG_FORM_FEEDBACK_ROW,
+  DIALOG_FORM_HINT_TEXT,
+} from "@/components/shared";
 import { cn } from "@/lib/utils";
+import {
+  AUTO_WAREHOUSE_VALUE,
+  buildOrderLineWarehousePickOptions,
+  formatOrderLineAutoAssignHint,
+  type OrderLineAllocationRow,
+} from "@/lib/orders/order-line-stock-validation";
 
 export type OrderLineWarehouseSelectProps = {
   productId: string;
   value?: string;
-  onChange: (warehouseId: string) => void;
-  quantity?: number;
+  onChange: (warehouseId: string | undefined) => void;
   dialogOpen: boolean;
   disabled?: boolean;
+  /** Catalog committed available when auto-assign (from parent validator). */
+  catalogAvailable?: number;
+  /** True when product has warehouse allocation rows. */
+  hasAllocations?: boolean;
+  /** REQ-0111 — manual-pick cap error from parent validator. */
+  manualPickError?: string | null;
+  /** REQ-0113 — required; parent injects from useOrderLineStockValidation. */
+  allocationRows: OrderLineAllocationRow[];
+  allocationsLoading: boolean;
 };
 
 export function OrderLineWarehouseSelect({
   productId,
   value,
   onChange,
-  quantity,
   dialogOpen,
   disabled,
+  catalogAvailable,
+  hasAllocations = false,
+  manualPickError = null,
+  allocationRows,
+  allocationsLoading,
 }: OrderLineWarehouseSelectProps) {
-  const { data: allocations, isLoading } = useStockByProduct(
-    productId,
-    undefined,
-    { enabled: dialogOpen && !!productId },
+  const options = useMemo(
+    () => buildOrderLineWarehousePickOptions(allocationRows, value),
+    [allocationRows, value],
   );
 
-  const options = useMemo(() => {
-    if (!allocations?.length) return [];
-    return allocations
-      .map((a) => {
-        const available =
-          Number(a.quantity) - Number(a.reservedQuantity ?? 0);
-        return {
-          warehouseId: a.warehouseId,
-          name: a.warehouse?.name ?? "Warehouse",
-          available,
-        };
-      })
-      .filter((o) => o.available > 0)
-      .sort((a, b) => b.available - a.available);
-  }, [allocations]);
+  const isManualPick =
+    value != null &&
+    value !== AUTO_WAREHOUSE_VALUE &&
+    String(value).trim() !== "";
 
-  const hasOptions = options.length > 0;
-  const selected = options.find((o) => o.warehouseId === value);
-  const qty = quantity ?? 0;
-  const overCap =
-    selected != null && qty > 0 && qty > selected.available;
+  const selectValue =
+    isManualPick && value ? value : AUTO_WAREHOUSE_VALUE;
+
+  const handleValueChange = (next: string) => {
+    if (next === AUTO_WAREHOUSE_VALUE) {
+      onChange(undefined);
+      return;
+    }
+    onChange(next);
+  };
 
   if (!productId) {
     return (
@@ -83,7 +99,7 @@ export function OrderLineWarehouseSelect({
     );
   }
 
-  if (isLoading) {
+  if (allocationsLoading) {
     return (
       <div className="flex flex-col gap-2">
         <Label className="flex items-center gap-2 text-white/80 text-sm">
@@ -95,7 +111,7 @@ export function OrderLineWarehouseSelect({
     );
   }
 
-  if (!hasOptions) {
+  if (!allocationRows.length) {
     return (
       <div className="flex flex-col gap-2">
         <Label className="flex items-center gap-2 text-white/80 text-sm">
@@ -119,22 +135,26 @@ export function OrderLineWarehouseSelect({
       <Label className="flex items-center gap-2 text-white/80 text-sm">
         <Warehouse className="h-4 w-4 shrink-0 text-violet-400" />
         Warehouse
+        <span className="text-xs font-normal text-white/50">(optional)</span>
       </Label>
       <DeferredSelectGate enabled={dialogOpen}>
         {({ selectRemountKey }) => (
           <Select
             key={selectRemountKey}
-            value={value ?? ""}
-            onValueChange={onChange}
+            value={selectValue}
+            onValueChange={handleValueChange}
             disabled={disabled}
           >
             <SelectTrigger
               className={cn(DIALOG_FORM_FIELD_VIOLET, "h-11 text-sm gap-2")}
             >
               <Warehouse className="h-4 w-4 shrink-0 text-violet-400" />
-              <SelectValue placeholder="Select warehouse" />
+              <SelectValue placeholder="Auto-assign warehouses" />
             </SelectTrigger>
             <SelectContent>
+              <SelectItem value={AUTO_WAREHOUSE_VALUE}>
+                Auto-assign warehouses
+              </SelectItem>
               {options.map((o) => (
                 <SelectItem key={o.warehouseId} value={o.warehouseId}>
                   {o.name} ({o.available} available)
@@ -144,16 +164,23 @@ export function OrderLineWarehouseSelect({
           </Select>
         )}
       </DeferredSelectGate>
-      {overCap && (
-        <p className="text-xs text-rose-600 dark:text-rose-400">
-          Max {selected!.available} at {selected!.name}
-        </p>
-      )}
-      {!value && (
-        <p className="text-xs text-amber-600 dark:text-amber-400">
-          Warehouse required for this product
-        </p>
-      )}
+      <div className={DIALOG_FORM_FEEDBACK_ROW}>
+        {manualPickError ? (
+          <p className={DIALOG_FORM_ERROR_TEXT} role="alert">
+            {manualPickError}
+          </p>
+        ) : null}
+        {!isManualPick && hasAllocations && catalogAvailable != null ? (
+          <p className={DIALOG_FORM_HINT_TEXT}>
+            {formatOrderLineAutoAssignHint(catalogAvailable)}
+          </p>
+        ) : null}
+        {!isManualPick && hasAllocations ? (
+          <p className="text-xs text-white/50">
+            Optional — leave auto to pull from catalog and warehouses
+          </p>
+        ) : null}
+      </div>
     </div>
   );
 }

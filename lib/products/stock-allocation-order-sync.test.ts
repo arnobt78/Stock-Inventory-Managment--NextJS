@@ -76,9 +76,10 @@ describe("stock-allocation-order-sync", () => {
       quantity: 5n,
       reservedQuantity: 4n,
     });
+    mockFindFirst.mockResolvedValueOnce({ name: "Main Warehouse" });
     await expect(
       validateWarehousePick("prod1", "wh1", 2),
-    ).rejects.toThrow(/Insufficient warehouse stock/);
+    ).rejects.toThrow("Max 1 at Main Warehouse");
   });
 
   it("reserveAllocationForOrderItem increments reservedQuantity", async () => {

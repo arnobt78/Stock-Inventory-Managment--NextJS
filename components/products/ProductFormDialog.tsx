@@ -31,6 +31,7 @@ import {
 } from "@/hooks/queries";
 import { planCatalogQuantityReconcile } from "@/lib/stock-allocation/catalog-quantity-reconcile";
 import { formatCatalogAllocationSummary } from "@/lib/stock-allocation/catalog-allocation-copy";
+import { useCatalogQuantityReconcilePreview } from "@/hooks/use-catalog-quantity-reconcile-preview";
 import { AlertDialogWrapper } from "@/components/dialogs";
 import type { UpdateProductInput } from "@/types";
 import { logger } from "@/lib/logger";
@@ -47,7 +48,20 @@ import {
   calculateProductStatus,
   type ProductFormData,
 } from "@/lib/validations";
-import { DeferredSelectGate, DIALOG_FORM_FIELD_ROSE, DialogSubmitButton, GLASS_GHOST_BUTTON } from "@/components/shared";
+import {
+  DeferredSelectGate,
+  DIALOG_EDGE_SCROLL_BODY,
+  DIALOG_EDGE_SCROLL_HEADER,
+  DIALOG_EDGE_SCROLL_INNER,
+  DIALOG_EDGE_SCROLL_SHELL,
+  DIALOG_FORM_FIELD_ROSE,
+  DIALOG_FORM_ERROR_TEXT,
+  DIALOG_FORM_FEEDBACK_ROW,
+  DIALOG_FORM_HINT_TEXT,
+  DIALOG_FORM_WARN_TEXT,
+  DialogSubmitButton,
+  GLASS_GHOST_BUTTON,
+} from "@/components/shared";
 import { AvatarInlineLink } from "@/components/shared/AvatarInlineLink";
 import { cn } from "@/lib/utils";
 
@@ -82,7 +96,7 @@ export default function AddProductDialog({
   // Inline validation errors for category/supplier — outside RHF so Zod productSchema cannot cover them
   const [categoryError, setCategoryError] = useState<string>("");
   const [supplierError, setSupplierError] = useState<string>("");
-  const [quantityReconcileError, setQuantityReconcileError] = useState("");
+  const [quantityReconcileError, setQuantityReconcileError] = useState(""); // fallback when shrink confirm race; live preview handles normal edit
   const [shrinkConfirmOpen, setShrinkConfirmOpen] = useState(false);
   const [pendingUpdatePayload, setPendingUpdatePayload] =
     useState<UpdateProductInput | null>(null);
@@ -277,25 +291,18 @@ export default function AddProductDialog({
     createProductMutation.isPending || updateProductMutation.isPending;
 
   const formValues = watch();
-  const parsedQuantity =
-    typeof formValues.quantity === "string" && formValues.quantity === ""
-      ? 0
-      : Number(formValues.quantity);
-  const allocatedTotal = productAllocations.reduce(
-    (sum, row) => sum + row.quantity,
-    0,
-  );
-  const catalogPreviewQty = selectedProduct
-    ? Number.isFinite(parsedQuantity)
-      ? parsedQuantity
-      : selectedProduct.quantity
-    : 0;
-  const unallocatedPreview = Math.max(0, catalogPreviewQty - allocatedTotal);
+  const reconcilePreview = useCatalogQuantityReconcilePreview({
+    selectedProduct,
+    allocations: productAllocations,
+    quantityRaw: formValues.quantity,
+  });
   const isFormValid = productFormSubmitSchema.safeParse({
     ...formValues,
     categoryId: selectedCategory,
     supplierId: selectedSupplier,
   }).success;
+  const canSubmitUpdate =
+    isFormValid && (!selectedProduct || reconcilePreview.ok);
 
   const handleOpenChange = (open: boolean) => {
     if (open) {
@@ -318,10 +325,13 @@ export default function AddProductDialog({
         )}
       </DialogTrigger>
       <DialogContent
-        className="p-2 sm:p-4 sm:px-8 poppins max-h-[90vh] overflow-y-auto border-rose-400/30 dark:border-rose-400/30 shadow-[0_30px_80px_rgba(225,29,72,0.35)] dark:shadow-[0_30px_80px_rgba(225,29,72,0.25)]"
+        className={cn(
+          DIALOG_EDGE_SCROLL_SHELL,
+          "poppins border-rose-400/30 dark:border-rose-400/30 shadow-[0_30px_80px_rgba(225,29,72,0.35)] dark:shadow-[0_30px_80px_rgba(225,29,72,0.25)]",
+        )}
         onOpenAutoFocus={(e) => e.preventDefault()}
       >
-        <DialogHeader>
+        <DialogHeader className={DIALOG_EDGE_SCROLL_HEADER}>
           <DialogTitle className="text-[22px] text-white">
             {selectedProduct ? "Update Product" : "Add Product"}
           </DialogTitle>
@@ -330,24 +340,47 @@ export default function AddProductDialog({
           </DialogDescription>
         </DialogHeader>
         <FormProvider {...methods}>
-          <form onSubmit={methods.handleSubmit(onSubmit)}>
+          <form
+            onSubmit={methods.handleSubmit(onSubmit)}
+            className={DIALOG_EDGE_SCROLL_BODY}
+          >
+            <div className={DIALOG_EDGE_SCROLL_INNER}>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
               <ProductName />
               <SKU allProducts={allProducts} />
               <Quantity />
               {selectedProduct && productAllocations.length > 0 ? (
-                <p className="text-xs text-white/60 sm:col-span-2 -mt-1">
-                  {formatCatalogAllocationSummary(
-                    catalogPreviewQty,
-                    allocatedTotal,
-                    unallocatedPreview,
-                  )}
-                </p>
-              ) : null}
-              {quantityReconcileError ? (
-                <p className="text-xs text-red-400 sm:col-span-2 -mt-1">
-                  {quantityReconcileError}
-                </p>
+                <div className={DIALOG_FORM_FEEDBACK_ROW}>
+                  <p className={DIALOG_FORM_HINT_TEXT}>
+                    {formatCatalogAllocationSummary(
+                      reconcilePreview.catalogPreviewQty,
+                      reconcilePreview.allocatedTotal,
+                      reconcilePreview.unallocatedPreview,
+                    )}
+                  </p>
+                  {reconcilePreview.reservedCommitment > 0 ? (
+                    <p className={DIALOG_FORM_HINT_TEXT}>
+                      {reconcilePreview.reservedCommitment} reserved on active orders
+                      — catalog cannot go below that
+                    </p>
+                  ) : null}
+                  {!reconcilePreview.ok && reconcilePreview.blockedReason ? (
+                    <p className={DIALOG_FORM_ERROR_TEXT} role="alert">
+                      {reconcilePreview.blockedReason}
+                    </p>
+                  ) : null}
+                  {reconcilePreview.ok && reconcilePreview.shrinkUnits > 0 ? (
+                    <p className={DIALOG_FORM_WARN_TEXT}>
+                      Will remove {reconcilePreview.shrinkUnits} unreserved unit(s)
+                      from warehouse allocations on save
+                    </p>
+                  ) : null}
+                  {quantityReconcileError ? (
+                    <p className={DIALOG_FORM_ERROR_TEXT} role="alert">
+                      {quantityReconcileError}
+                    </p>
+                  ) : null}
+                </div>
               ) : null}
               <Price />
               <ExpirationDateField />
@@ -497,10 +530,11 @@ export default function AddProductDialog({
                 }
                 label={selectedProduct ? "Update Product" : "Add Product"}
                 hue="rose"
-                disabled={!isFormValid}
+                disabled={!canSubmitUpdate}
                 className="h-11 px-11"
               />
             </DialogFooter>
+            </div>
           </form>
         </FormProvider>
       </DialogContent>

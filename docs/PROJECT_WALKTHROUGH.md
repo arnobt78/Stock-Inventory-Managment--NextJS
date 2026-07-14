@@ -1,6 +1,6 @@
 # PROJECT_WALKTHROUGH.md
 
-Agent-oriented map of **stock-inventory** (Stockly). Last updated: 2026-07-13.
+Agent-oriented map of **stock-inventory** (Stockly). Last updated: 2026-07-14.
 
 ## 1. What this app is
 
@@ -237,7 +237,12 @@ flowchart LR
 | Disjoint reservation (REQ-0103) | `order-stock-reservation.ts`; `committedQuantity` on product lists; catalog floor 20 not 40 |
 | committedQuantity parity (REQ-0104) | Category/supplier detail SSR enrich; forecasting card/API; supplier dashboard avail |
 | Product detail SSR (REQ-0105) | `product-detail-data.ts` committedQuantity enrich + cache guard; `ProductDetailPage` `getDisplayCommittedQuantity`; `CLAUDE.md` in git |
-| Next | Gate 2 — prod deploy + Sentry 24h |
+| Order stock UX (REQ-0106–0109) | Auto-assign greedy pick; catalog cap; product allocation summary; live reconcile preview; feedback layout tokens |
+| Stock gap closure (REQ-0110) | committedQty order cap; `prefetchStockByProduct`; `getAllocationQtyBounds`; dialog shells + tests |
+| Order workflow (REQ-0111) | `useOrderLineStockValidation`; `OrderDialogCreateLineItem`; `ensureStockAllocationsAndValidate`; server message parity |
+| Line fetch DRY (REQ-0112) | Single stock fetch per line; injected rows; `lineStockErrors` by `field.id` |
+| Warehouse select (REQ-0113) | `OrderLineWarehouseSelect` props-only; `OrderFormData` merged; `.types.ts` deleted |
+| Next | Gate 2 — prod deploy + Sentry 24h; Beats §9 manual smoke |
 | AI warehouse insights (REQ-0067) | `POST /api/ai/insights` enriches payload with `getWarehouseStockSummary` |
 | Per-warehouse order picking (REQ-0068) | `OrderItem.warehouseId`; `stock-allocation-order-sync.ts`; `OrderLineWarehouseSelect`; reserve/fulfill/cancel sync; invoice-paid gap; `f892b65` removed unused `deleteCache`/`getRateLimitStatus` |
 | Demo reset | `npm run script:reset-demo-db` — accounts-only (3 users + Test Supplier); opt-in catalog via `seed-demo-catalog` |
@@ -251,15 +256,15 @@ flowchart LR
 3. Sentry **stock-inventory** — 24h: compare cases 1–7 vs `docs/SENTRY_ERRORS.md`
 4. Log result in `.agile-v/REVALIDATION_LOG.md`; CAPA if regression
 
-## 8. Quality gates (audit 2026-07-13)
+## 8. Quality gates (audit 2026-07-14)
 
 | Check | Status |
 |-------|--------|
 | `npm run lint` | pass |
 | `npm run build` | pass |
-| `npm run test` | 449 passed |
+| `npm run test` | 488 passed |
 | `npm run test:invalidate` | 208 passed |
-| Prod commit | `554af8e` REQ-0102 |
+| Prod commit | `3cc5c4b` REQ-0105; REQ-0106–0113 pending push |
 | Radix table Select | `useDeferredRadixSelect` + `PaginationSelector` (11 tables) |
 | Pagination clamp + page-size reset | `useClampPaginationIndex` + `PaginationSelector` pageIndex 0 |
 | Sentry | tunnel + translate scrub + `syncSentryUserFromAuth` |

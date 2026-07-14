@@ -128,12 +128,15 @@ export {
   useStockAllocations,
   useWarehouseStockSummary,
   useStockByProduct,
+  prefetchStockByProduct,
   useStockByWarehouse,
   useCreateStockAllocation,
   useUpdateStockAllocation,
   useDeleteStockAllocation,
   useCreateStockTransfer,
 } from "./use-stock-allocation";
+
+export { useOrderLineStockValidation } from "../use-order-line-stock-validation";
 
 // System Configuration hooks
 export { useSystemConfigs, useUpdateSystemConfigs } from "./use-system-config";

@@ -6,6 +6,10 @@
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
+import {
+  DIALOG_FORM_ERROR_TEXT,
+  DIALOG_FORM_SUCCESS_TEXT,
+} from "@/components/shared/dialog-edge-scroll";
 
 export type StockQuantityMode = "allocate" | "transfer";
 
@@ -23,6 +27,8 @@ export type StockQuantityFieldProps = {
   allocatedTotal?: number;
   /** Catalog minus total allocated (can still be placed in warehouses) */
   unallocatedRemaining?: number;
+  /** REQ-0108 — edit mode reserved floor per warehouse row */
+  minReserved?: number;
 };
 
 function parseQty(raw: string): number | null {
@@ -35,6 +41,7 @@ export function getStockQuantityValidation(
   raw: string,
   maxAvailable: number,
   mode: StockQuantityMode,
+  minReserved = 0,
 ): { valid: boolean; message: string | null } {
   const qty = parseQty(raw);
   if (qty === null) {
@@ -42,6 +49,12 @@ export function getStockQuantityValidation(
   }
   if (qty < 0) {
     return { valid: false, message: "Quantity cannot be negative." };
+  }
+  if (mode === "allocate" && minReserved > 0 && qty < minReserved) {
+    return {
+      valid: false,
+      message: `Quantity cannot be below ${minReserved} reserved unit(s) for this warehouse.`,
+    };
   }
   if (mode === "transfer" && qty < 1) {
     return { valid: false, message: "Transfer at least 1 unit." };
@@ -72,8 +85,14 @@ export function StockQuantityField({
   catalogTotal,
   allocatedTotal,
   unallocatedRemaining,
+  minReserved = 0,
 }: StockQuantityFieldProps) {
-  const validation = getStockQuantityValidation(value, maxAvailable, mode);
+  const validation = getStockQuantityValidation(
+    value,
+    maxAvailable,
+    mode,
+    minReserved,
+  );
   const qty = parseQty(value);
 
   const hint =
@@ -81,9 +100,11 @@ export function StockQuantityField({
       ? maxAvailable > 0
         ? `${maxAvailable} available in this warehouse · up to ${maxAvailable} can transfer`
         : "Select a product with available stock"
-      : catalogTotal !== undefined && unallocatedRemaining !== undefined
-        ? `${catalogTotal} catalog total · ${allocatedTotal ?? 0} allocated · up to ${unallocatedRemaining} can be added here`
-        : null;
+      : minReserved > 0
+        ? `${minReserved} reserved in this warehouse · minimum ${minReserved}`
+        : catalogTotal !== undefined && unallocatedRemaining !== undefined
+          ? `${catalogTotal} catalog total · ${allocatedTotal ?? 0} allocated · up to ${unallocatedRemaining} can be added here`
+          : null;
 
   return (
     <div>
@@ -98,7 +119,7 @@ export function StockQuantityField({
       <Input
         id={id}
         type="number"
-        min={mode === "transfer" ? 1 : 0}
+        min={mode === "transfer" ? 1 : minReserved > 0 ? minReserved : 0}
         max={maxAvailable > 0 ? maxAvailable : undefined}
         step={1}
         value={value}
@@ -115,11 +136,11 @@ export function StockQuantityField({
         )}
       />
       {!validation.valid && value.trim() !== "" ? (
-        <p className="mt-1 text-xs text-rose-400 dark:text-rose-300" role="alert">
+        <p className={cn("mt-1", DIALOG_FORM_ERROR_TEXT)} role="alert">
           {validation.message}
         </p>
-      ) : validation.valid && qty !== null && qty >= 0 ? (
-        <p className="mt-1 text-xs text-emerald-500/90 dark:text-emerald-400/90">
+      ) : validation.valid && qty !== null && qty >= 0 && qty >= minReserved ? (
+        <p className={cn("mt-1", DIALOG_FORM_SUCCESS_TEXT)}>
           {mode === "transfer"
             ? `Transferring ${qty} of ${maxAvailable} available unit(s).`
             : `Allocating ${qty} unit(s) to this warehouse.`}

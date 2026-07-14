@@ -9,6 +9,7 @@
  */
 
 import { prisma } from "@/prisma/client";
+import { getOrderLineWarehouseAvailable } from "@/lib/orders/order-line-stock-validation";
 
 export type WarehousePickOption = {
   warehouseId: string;
@@ -111,12 +112,18 @@ export async function validateWarehousePick(
     );
   }
 
-  const available =
-    Number(allocation.quantity) - Number(allocation.reservedQuantity ?? 0);
-  if (available < quantity) {
-    throw new Error(
-      `Insufficient warehouse stock. Available: ${available}, Requested: ${quantity}`,
-    );
+  const maxQty = getOrderLineWarehouseAvailable(
+    Number(allocation.quantity),
+    Number(allocation.reservedQuantity ?? 0),
+  );
+
+  if (quantity > maxQty) {
+    const warehouse = await prisma.warehouse.findFirst({
+      where: { id: warehouseId },
+      select: { name: true },
+    });
+    const name = warehouse?.name?.trim() || "warehouse";
+    throw new Error(`Max ${maxQty} at ${name}`);
   }
 }
 

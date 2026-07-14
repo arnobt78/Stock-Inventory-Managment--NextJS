@@ -2342,6 +2342,194 @@ Canonical REQ source. All artifacts link via `REQ-XXXX`. Status: `done` | `verif
 
 ---
 
+## REQ-0106 — order dialog auto-assign stock UX
+
+| Field | Value |
+|-------|-------|
+| **Priority** | P0 |
+| **Risk** | R2 |
+| **Status** | done |
+| **Cycle** | C2 |
+| **Parent** | REQ-0103 |
+
+**Intent:** Client-facing order dialog uses catalog committed available by default; warehouse pick optional (auto-assign). Manual pick caps per-warehouse. Fixes conflicting UI validators.
+
+**Acceptance criteria**
+
+- AC1: `lib/orders/order-line-stock-validation.ts` — shared `validateOrderLineStock` + tests
+- AC2: `createOrder` allows `needsPick && !warehouseId` — auto reserve on product path; catalog cap unchanged
+- AC3: `OrderDialog` + `OrderLineWarehouseSelect` — auto-assign default; optional manual warehouse; submit disabled uses committed available
+- AC4: All roles: "Auto-assign warehouses" first option; admin helper for optional override
+- AC5: No invalidation registry changes; gates pass
+- AC6: `MANUAL_TEST_FIXTURES.md` §9 Beats auto-order 40 path
+
+**Artifacts:** `lib/orders/order-line-stock-validation.ts`, `prisma/order.ts`, `components/orders/OrderDialog.tsx`, `components/orders/OrderLineWarehouseSelect.tsx`
+
+---
+
+## REQ-0107 — product detail allocation summary
+
+| Field | Value |
+|-------|-------|
+| **Priority** | P1 |
+| **Risk** | R1 |
+| **Status** | done |
+| **Cycle** | C2 |
+| **Parent** | REQ-0102 |
+
+**Intent:** Product detail Warehouse Stock card shows full `Catalog · allocated · unallocated · reserved` summary; catalog available badge.
+
+**Acceptance criteria**
+
+- AC1: `formatCatalogAllocationDetailSummary` in `catalog-allocation-copy.ts`
+- AC2: `ProductDetailPage` subtitle + catalog available badge in Warehouse Stock card
+- AC3: Derives from `useProduct` + `useStockByProduct`; no new SSR fields
+- AC4: Gates pass
+
+**Artifacts:** `lib/stock-allocation/catalog-allocation-copy.ts`, `components/Pages/ProductDetailPage.tsx`
+
+---
+
+## REQ-0108 — live dialog stock validation
+
+| Field | Value |
+|-------|-------|
+| **Priority** | P1 |
+| **Risk** | R1 |
+| **Status** | done |
+| **Cycle** | C2 |
+| **Parent** | REQ-0102 |
+
+**Intent:** Product edit and allocate dialogs show reserved-floor errors live; submit disabled when invalid.
+
+**Acceptance criteria**
+
+- AC1: `useCatalogQuantityReconcilePreview` hook — live `planCatalogQuantityReconcile`
+- AC2: `ProductFormDialog` — inline blocked/shrink preview; submit gated on `plan.ok`
+- AC3: `StockQuantityField` + `AllocateStockDialog` — `minReserved` in edit mode; no false success message
+- AC4: Unit tests + gates pass
+
+**Artifacts:** `hooks/use-catalog-quantity-reconcile-preview.ts`, `components/products/ProductFormDialog.tsx`, `components/shared/StockQuantityField.tsx`, `components/warehouses/AllocateStockDialog.tsx`
+
+---
+
+## REQ-0109 — dialog feedback layout tokens
+
+| Field | Value |
+|-------|-------|
+| **Priority** | P2 |
+| **Risk** | R1 |
+| **Status** | done |
+| **Cycle** | C2 |
+| **Parent** | REQ-0046 |
+
+**Intent:** Shared CSS tokens for dialog hint/error/success rows; fix cramped helper alignment.
+
+**Acceptance criteria**
+
+- AC1: `DIALOG_FORM_FEEDBACK_*` tokens in `dialog-edge-scroll.ts`; export from shared barrel
+- AC2: Apply to ProductForm, Order, OrderLineWarehouseSelect, Allocate, StockQuantityField
+- AC3: Gates pass
+
+**Artifacts:** `components/shared/dialog-edge-scroll.ts`, dialog components listed in AC2
+
+---
+
+## REQ-0110 — stock UX gap closure
+
+| Field | Value |
+|-------|-------|
+| **Priority** | P1 |
+| **Risk** | R1 |
+| **Status** | done |
+| **Cycle** | C2 |
+| **Parent** | REQ-0106 |
+
+**Intent:** Close REQ-0106–0109 minor gaps: committedQuantity order cap fallback, stock prefetch, warehouse name errors, allocation bounds DRY, reserve tests, dialog shell parity.
+
+**Acceptance criteria**
+
+- AC1: `getOrderLineCatalogAvailableFromProduct` + `resolveOrderLineHasAllocations` + committedQuantity tests
+- AC2: `prefetchStockByProduct` on OrderDialog product select
+- AC3: Manual-pick error uses warehouse name
+- AC4: `getAllocationQtyBounds` DRY in validate-allocation-quantity + AllocateStockDialog
+- AC5: `order-stock-reservation` auto-assign reserve path test
+- AC6: ProductForm `DIALOG_EDGE_SCROLL` shell; Allocate feedback wrapper
+- AC7: Gates pass
+
+**Artifacts:** `order-line-stock-validation.ts`, `use-stock-allocation.ts`, `OrderDialog.tsx`, `validate-allocation-quantity.ts`, `ProductFormDialog.tsx`, `AllocateStockDialog.tsx`
+
+---
+
+## REQ-0111 — order stock workflow consistency
+
+| Field | Value |
+|-------|-------|
+| **Priority** | P1 |
+| **Risk** | R1 |
+| **Status** | done |
+| **Cycle** | C2 |
+| **Parent** | REQ-0110 |
+
+**Intent:** Reactive order-line validation (cache-aware hook), DRY manual-pick errors, server/client message parity, submit-time ensureQueryData.
+
+**Acceptance criteria**
+
+- AC1: `mapStockAllocationsToOrderLineRows` + `validateOrderLineStockForItem` + `ensureStockAllocationsAndValidate`
+- AC2: `useOrderLineStockValidation` hook; `OrderDialogCreateLineItem` child
+- AC3: `OrderLineWarehouseSelect` uses `manualPickError` from parent (no local overCap)
+- AC4: `validateWarehousePick` throws `Max {n} at {name}`; prisma uses `getOrderLineCatalogAvailable`
+- AC5: Gates pass
+
+**Artifacts:** `order-line-stock-validation.ts`, `use-order-line-stock-validation.ts`, `OrderDialog.tsx`, `OrderDialogCreateLineItem.tsx`, `OrderLineWarehouseSelect.tsx`, `stock-allocation-order-sync.ts`, `prisma/order.ts`
+
+---
+
+## REQ-0112 — order line fetch DRY + stock error state
+
+| Field | Value |
+|-------|-------|
+| **Priority** | P1 |
+| **Risk** | R1 |
+| **Status** | done |
+| **Cycle** | C2 |
+| **Parent** | REQ-0111 |
+
+**Intent:** Single `useStockByProduct` per order line; stable `lineStockErrors` keyed by `field.id`.
+
+**Acceptance criteria**
+
+- AC1: `buildOrderLineWarehousePickOptions` + tests
+- AC2: Hook returns `allocationRows`; warehouse select accepts injected rows
+- AC3: `lineStockErrors` prune on remove + reset on dialog close
+- AC4: Gates pass
+
+**Artifacts:** `order-line-stock-validation.ts`, `use-order-line-stock-validation.ts`, `OrderLineWarehouseSelect.tsx`, `OrderDialogCreateLineItem.tsx`, `OrderDialog.tsx`
+
+---
+
+## REQ-0113 — warehouse select fetch removal
+
+| Field | Value |
+|-------|-------|
+| **Priority** | P1 |
+| **Risk** | R1 |
+| **Status** | done |
+| **Cycle** | C2 |
+| **Parent** | REQ-0112 |
+
+**Intent:** Remove dead `useStockByProduct` fallback from `OrderLineWarehouseSelect`; require parent-injected rows; merge `OrderFormData` types.
+
+**Acceptance criteria**
+
+- AC1: `OrderLineWarehouseSelect` props-only (no internal fetch)
+- AC2: `OrderFormData` inlined in `OrderDialogCreateLineItem.tsx`; `.types.ts` deleted
+- AC3: Gates pass
+
+**Artifacts:** `OrderLineWarehouseSelect.tsx`, `OrderDialogCreateLineItem.tsx`, `OrderDialog.tsx`
+
+---
+
 ## REQ-0020 — Locale-aware admin format (hydration-safe)
 
 | Field        | Value |

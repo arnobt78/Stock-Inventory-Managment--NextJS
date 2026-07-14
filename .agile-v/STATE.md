@@ -3,19 +3,17 @@
 | Field | Value |
 |-------|-------|
 | **Cycle** | C1 (closing) → **C2 open** |
-| **Phase** | C2 — REQ-0105 **done** |
-| **Infinity Loop stage** | Verify ✓ (Gate 2 open) |
-| **Last updated** | 2026-07-13 (REQ-0105 complete) |
-| **Session** | **ACTIVE** — REQ-0105 done |
-| **Active REQ range** | REQ-0001 … REQ-0105 **done** |
-| **Prod deploy target** | pending — REQ-0105 |
+| **Phase** | C2 — REQ-0106 … REQ-0113 **done** |
+| **Last updated** | 2026-07-14 (REQ-0113) |
+| **Active REQ range** | REQ-0001 … REQ-0113 **done** |
+| **Prod deploy target** | `3cc5c4b` (REQ-0105) — pushed `origin/main` |
 | **Human Gate 1** | APPROVED (retroactive bootstrap) |
 | **Human Gate 2** | PENDING — Sentry 24h after prod deploy |
 | **Resume token** | `Gate-2-deploy` — prod SHA + Sentry 24h |
 
 ## REQ-0105 — product detail committedQuantity SSR (2026-07-13)
 
-Product detail SSR/API + Redis cache guard expose `committedQuantity`; `CLAUDE.md` tracked in git. Gates: lint ✓ test 464 ✓ invalidate 208 ✓ build ✓.
+Product detail SSR/API + Redis cache guard expose `committedQuantity`; `CLAUDE.md` tracked in git. AC6: `ProductDetailPage` primary path `getDisplayCommittedQuantity(product)`; warehouse `computeCommittedQuantity` fallback. Commit `3cc5c4b` pushed `origin/main`. Gates: lint ✓ test 464 ✓ invalidate 208 ✓ build ✓ (re-verified 2026-07-14).
 
 ## REQ-0104 — committedQuantity parity (2026-07-13)
 
@@ -29,17 +27,38 @@ Disjoint order reservation — warehouse pick reserves allocation only; `committ
 
 Catalog reconcile + allocation validation + warehouse delete guards + archived rows + unified `enrichStockAllocationRows` (API + SSR) + `formatCatalogAllocationSummary` + dialog fetch gates. Commit `554af8e`. Gates: lint ✓ test 449 ✓ invalidate 208 ✓ build ✓.
 
+## REQ-0106–0109 — stock UX gaps (2026-07-14)
+
+Order auto-assign + catalog cap (0106); product detail allocation summary (0107); live dialog validation (0108); feedback layout tokens (0109). Gates: lint ✓ test 479 ✓ invalidate 208 ✓ build ✓.
+
+## REQ-0110 — stock UX gap closure (2026-07-14)
+
+committedQuantity order cap fallback + prefetch; warehouse name errors; `getAllocationQtyBounds` DRY; reserve auto-assign test; ProductForm edge-scroll shell; Allocate feedback wrapper. Gates: lint ✓ test 484 ✓ invalidate 208 ✓ build ✓.
+
+## REQ-0111 — order stock workflow consistency (2026-07-14)
+
+Reactive `useOrderLineStockValidation` hook; `OrderDialogCreateLineItem`; `manualPickError` DRY; `ensureStockAllocationsAndValidate` on submit; server `Max {n} at {name}` parity. Gates: lint ✓ test 486 ✓ invalidate 208 ✓ build ✓.
+
+## REQ-0112 — order line fetch DRY (2026-07-14)
+
+Single useStockByProduct per line; injected allocationRows; lineStockErrors keyed by field.id. Gates: lint ✓ test 488 ✓ invalidate 208 ✓ build ✓.
+
+## REQ-0113 — warehouse select fetch removal (2026-07-14)
+
+OrderLineWarehouseSelect props-only; OrderFormData merged; .types.ts deleted. Gates: lint ✓ test 488 ✓ invalidate 208 ✓ build ✓.
+
 ## Next session
 
-| Priority | Item |
-|----------|------|
-| P0 | Prod deploy REQ-0105; Sentry 24h Gate 2 |
-| P1 | Manual smoke — Beats fixture after reset-demo-db (catalog floor 20) |
+| Priority | Item | REQ |
+|----------|------|-----|
+| P0 | Confirm Vercel prod SHA; Sentry 24h Gate 2 | REQ-0009 |
+| P1 | Manual smoke — Beats fixture §9 with auto-assign 40 | REQ-0106 |
 
 ## Current focus
 
-1. **REQ-0105** — done
-2. **Gate 2** — Sentry 24h post-deploy (REQ-0009)
+1. **REQ-0106–0113** — done
+2. **Gate 2** — deploy confirm + Sentry 24h
+3. **Manual QA** — Beats auto-order walkthrough
 
 ## Session resume (every chat)
 

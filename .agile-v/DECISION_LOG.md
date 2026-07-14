@@ -282,3 +282,17 @@ Format: `TIMESTAMP | AGENT | DECISION | RATIONALE | REQ-ID`
 2026-07-13T18:30:00Z | build-agent | REQ-0105 product detail SSR | Single-product enrich + cache guard; CLAUDE.md un-ignored | REQ-0105
 2026-07-13T18:30:00Z | red-team | REQ-0105 gates | lint ✓ test 464 ✓ invalidate 208 ✓ build ✓ | REQ-0105
 2026-07-13T18:35:00Z | build-agent | REQ-0105 AC6 P3 DRY | ProductDetailPage uses getDisplayCommittedQuantity + warehouse fallback | REQ-0105
+2026-07-14T09:48:00Z | orchestrator | Session bootstrap | Resume C2 from REQ-0105 @ 3cc5c4b; Red Team re-run PASS; Gate 2 still PENDING deploy+Sentry | REQ-0105, REQ-0009
+2026-07-14T10:42:00Z | build-agent | REQ-0106 order auto-assign | Shared validator; server optional warehouse; client default auto | REQ-0106
+2026-07-14T10:42:00Z | build-agent | REQ-0107 detail summary | formatCatalogAllocationDetailSummary + Warehouse Stock card | REQ-0107
+2026-07-14T10:42:00Z | build-agent | REQ-0108 live validation | Reconcile preview hook; allocate minReserved floor | REQ-0108
+2026-07-14T10:42:00Z | build-agent | REQ-0109 feedback tokens | DIALOG_FORM_FEEDBACK_* applied across dialogs | REQ-0109
+2026-07-14T10:42:00Z | red-team | REQ-0106–0109 gates | lint ✓ test 479 ✓ invalidate 208 ✓ build ✓ | REQ-0106–0109
+2026-07-14T13:10:00Z | build-agent | REQ-0110 gap closure | committedQuantity fallback; prefetch; bounds DRY; dialog shells | REQ-0110
+2026-07-14T13:10:00Z | red-team | REQ-0110 gates | lint ✓ test 484 ✓ invalidate 208 ✓ build ✓ | REQ-0110
+2026-07-14T13:20:00Z | build-agent | REQ-0111 workflow | Reactive hook; CreateLineItem; server message parity | REQ-0111
+2026-07-14T13:20:00Z | red-team | REQ-0111 gates | lint ✓ test 486 ✓ invalidate 208 ✓ build ✓ | REQ-0111
+2026-07-14T13:27:00Z | build-agent | REQ-0112 fetch DRY | Injected allocationRows; field.id stock errors | REQ-0112
+2026-07-14T13:27:00Z | red-team | REQ-0112 gates | lint ✓ test 488 ✓ invalidate 208 ✓ build ✓ | REQ-0112
+2026-07-14T13:34:00Z | build-agent | REQ-0113 warehouse select | Removed internal fetch; merged OrderFormData types | REQ-0113
+2026-07-14T13:34:00Z | red-team | REQ-0113 gates | lint ✓ test 488 ✓ invalidate 208 ✓ build ✓ | REQ-0113

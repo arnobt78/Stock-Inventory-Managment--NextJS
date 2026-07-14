@@ -72,6 +72,8 @@ import {
 } from "@/components/shared";
 import { findProductForecast } from "@/lib/forecasting/entity-forecast";
 import { enrichProductInsightsWithWarehouseStock } from "@/lib/insights/product-insights-enrich";
+import { sumAllocatedQuantity } from "@/lib/insights/warehouse-stock-aggregate";
+import { formatCatalogAllocationDetailSummary } from "@/lib/stock-allocation/catalog-allocation-copy";
 import {
   computeCommittedQuantity,
   getDisplayCommittedQuantity,
@@ -209,6 +211,10 @@ export default function ProductDetailPage({
     (sum, row) => sum + (row.quantity - row.reservedQuantity),
     0,
   );
+  const allocatedTotal = useMemo(
+    () => sumAllocatedQuantity(warehouseAllocations),
+    [warehouseAllocations],
+  );
   // REQ-0105 — shared display helper; warehouse fallback when TanStack lags stock hook
   const displayCommitted = useMemo(() => {
     if (product?.committedQuantity != null) {
@@ -223,6 +229,20 @@ export default function ProductDetailPage({
       allocationReservedSum,
     );
   }, [product, warehouseAllocations]);
+  const catalogAvailableQty = useMemo(() => {
+    if (catalogQuantity == null) return undefined;
+    return Math.max(0, catalogQuantity - displayCommitted);
+  }, [catalogQuantity, displayCommitted]);
+  const allocationDetailSummary = useMemo(() => {
+    if (catalogQuantity == null) return null;
+    const unallocated = Math.max(0, catalogQuantity - allocatedTotal);
+    return formatCatalogAllocationDetailSummary(
+      catalogQuantity,
+      allocatedTotal,
+      unallocated,
+      displayCommitted,
+    );
+  }, [catalogQuantity, allocatedTotal, displayCommitted]);
   const recentOrderCount = product?.recentOrders?.length ?? 0;
   const ownerProductsHref = (ownerId: string) =>
     embedInAdmin
@@ -777,22 +797,36 @@ export default function ProductDetailPage({
                   iconClassName="text-teal-600 dark:text-teal-400"
                   title="Warehouse Stock"
                   trailing={
-                    !warehouseStockLoading &&
-                    warehouseAllocations.length > 0 ? (
+                    !warehouseStockLoading && product != null ? (
                       <>
-                        <SectionCountBadge>
-                          {warehouseAllocations.length} warehouses
-                        </SectionCountBadge>
-                        <SectionCountBadge>
-                          {totalWarehouseAvailable} available
-                        </SectionCountBadge>
+                        {warehouseAllocations.length > 0 ? (
+                          <SectionCountBadge>
+                            {warehouseAllocations.length} warehouses
+                          </SectionCountBadge>
+                        ) : null}
+                        {catalogAvailableQty != null ? (
+                          <SectionCountBadge>
+                            {catalogAvailableQty} catalog avail
+                          </SectionCountBadge>
+                        ) : null}
+                        {warehouseAllocations.length > 0 ? (
+                          <SectionCountBadge>
+                            {totalWarehouseAvailable} in warehouses
+                          </SectionCountBadge>
+                        ) : null}
                       </>
                     ) : undefined
                   }
                 />
-                <p className="text-xs text-gray-600 dark:text-white/60">
-                  Allocated per warehouse; unallocated qty stays on catalog total
-                </p>
+                {allocationDetailSummary ? (
+                  <p className="text-xs text-gray-600 dark:text-white/60">
+                    {allocationDetailSummary}
+                  </p>
+                ) : (
+                  <p className="text-xs text-gray-600 dark:text-white/60">
+                    Allocated per warehouse; unallocated qty stays on catalog total
+                  </p>
+                )}
                 {warehouseStockLoading ? (
                   <DataSlotPulse variant="text-sm" className="mt-4 h-16" />
                 ) : warehouseAllocations.length > 0 ? (

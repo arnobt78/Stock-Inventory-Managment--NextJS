@@ -62,6 +62,11 @@ export {
   DIALOG_TABLE_SURFACE,
   DIALOG_TABLE_TEXT,
   DIALOG_TABLE_TEXT_MUTED,
+  DIALOG_FORM_FEEDBACK_ROW,
+  DIALOG_FORM_HINT_TEXT,
+  DIALOG_FORM_ERROR_TEXT,
+  DIALOG_FORM_SUCCESS_TEXT,
+  DIALOG_FORM_WARN_TEXT,
 } from "./dialog-edge-scroll";
 export { DialogTableScrollArea } from "./DialogTableScrollArea";
 export type { DialogTableScrollAreaProps } from "./DialogTableScrollArea";

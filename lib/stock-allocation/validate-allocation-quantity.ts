@@ -22,17 +22,38 @@ export type AllocationValidationResult =
   | { ok: true }
   | { ok: false; error: string };
 
+export type AllocationQtyBounds = {
+  minQty: number;
+  maxQty: number;
+  unallocated: number;
+  currentInWarehouse: number;
+};
+
+/** REQ-0110 — shared min/max for allocate dialog + server validation. */
+export function getAllocationQtyBounds(
+  input: ValidateAllocationUpsertInput,
+): AllocationQtyBounds {
+  const budget = computeAllocateBudget(
+    input.catalogQty,
+    input.allocations,
+    input.targetWarehouseId,
+  );
+
+  return {
+    minQty: input.rowReserved,
+    maxQty: budget.maxSetQuantity,
+    unallocated: budget.unallocated,
+    currentInWarehouse: budget.currentInWarehouse,
+  };
+}
+
 /** Validate absolute allocation qty against reserved floor and catalog budget. */
 export function validateAllocationUpsert(
   input: ValidateAllocationUpsertInput,
 ): AllocationValidationResult {
-  const {
-    catalogQty,
-    allocations,
-    targetWarehouseId,
-    newAbsoluteQty,
-    rowReserved,
-  } = input;
+  const { newAbsoluteQty, rowReserved } = input;
+  const { maxQty, unallocated, currentInWarehouse } =
+    getAllocationQtyBounds(input);
 
   if (newAbsoluteQty < rowReserved) {
     return {
@@ -41,16 +62,10 @@ export function validateAllocationUpsert(
     };
   }
 
-  const budget = computeAllocateBudget(
-    catalogQty,
-    allocations,
-    targetWarehouseId,
-  );
-
-  if (newAbsoluteQty > budget.maxSetQuantity) {
+  if (newAbsoluteQty > maxQty) {
     return {
       ok: false,
-      error: `Quantity exceeds catalog budget. Maximum assignable: ${budget.maxSetQuantity} (${budget.unallocated} unallocated + ${budget.currentInWarehouse} in this warehouse).`,
+      error: `Quantity exceeds catalog budget. Maximum assignable: ${maxQty} (${unallocated} unallocated + ${currentInWarehouse} in this warehouse).`,
     };
   }
 

@@ -35,6 +35,7 @@ import {
   DIALOG_EDGE_SCROLL_HEADER,
   DIALOG_EDGE_SCROLL_INNER,
   DIALOG_EDGE_SCROLL_SHELL,
+  DIALOG_FORM_FEEDBACK_ROW,
   DIALOG_FORM_FIELD_VIOLET,
   DialogSubmitButton,
   GLASS_GHOST_BUTTON,
@@ -47,7 +48,7 @@ import {
   productSupplierLabel,
 } from "@/components/products/ProductOptionRow";
 import { useCreateStockAllocation, useProducts, useStockByProduct, useUpdateStockAllocation } from "@/hooks/queries";
-import { computeAllocateBudget } from "@/lib/stock-allocation/compute-allocate-budget";
+import { getAllocationQtyBounds } from "@/lib/stock-allocation/validate-allocation-quantity";
 import type { StockAllocation } from "@/types";
 import { cn } from "@/lib/utils";
 
@@ -93,23 +94,41 @@ export default function AllocateStockDialog({
     [products, activeProductId],
   );
 
-  const allocateBudget = useMemo(() => {
-    if (!selectedProduct) return null;
-    return computeAllocateBudget(
-      selectedProduct.quantity,
+  const allocationRows = useMemo(
+    () =>
       productAllocations.map((row) => ({
         warehouseId: row.warehouseId,
         quantity: row.quantity,
       })),
-      warehouseId,
-    );
-  }, [productAllocations, selectedProduct, warehouseId]);
+    [productAllocations],
+  );
 
-  const maxProductStock = allocateBudget?.maxSetQuantity ?? 0;
+  const rowReserved =
+    isEditMode && editAllocation
+      ? Number(editAllocation.reservedQuantity ?? 0)
+      : 0;
+
+  const allocationBounds = useMemo(() => {
+    if (!selectedProduct) return null;
+    return getAllocationQtyBounds({
+      catalogQty: selectedProduct.quantity,
+      allocations: allocationRows,
+      targetWarehouseId: warehouseId,
+      newAbsoluteQty: 0,
+      rowReserved,
+    });
+  }, [allocationRows, rowReserved, selectedProduct, warehouseId]);
+
+  const maxProductStock = allocationBounds?.maxQty ?? 0;
+  const allocatedTotal = allocationRows.reduce(
+    (sum, row) => sum + row.quantity,
+    0,
+  );
   const qtyValidation = getStockQuantityValidation(
     quantity,
     maxProductStock,
     "allocate",
+    rowReserved,
   );
   const qtyNum = parseInt(quantity, 10);
   const isValid =
@@ -117,6 +136,7 @@ export default function AllocateStockDialog({
     qtyValidation.valid &&
     Number.isFinite(qtyNum) &&
     qtyNum >= 0 &&
+    qtyNum >= rowReserved &&
     !!warehouseId;
 
   const handleOpenChange = useCallback(
@@ -268,18 +288,21 @@ export default function AllocateStockDialog({
                 </Popover>
               </div>
 
-              <StockQuantityField
-                id="alloc-qty"
-                value={quantity}
-                onChange={setQuantity}
-                maxAvailable={maxProductStock}
-                catalogTotal={allocateBudget?.catalogTotal}
-                allocatedTotal={allocateBudget?.totalAllocated}
-                unallocatedRemaining={allocateBudget?.unallocated}
-                mode="allocate"
-                disabled={isPending || !activeProductId}
-                fieldClassName={DIALOG_FORM_FIELD_VIOLET}
-              />
+              <div className={DIALOG_FORM_FEEDBACK_ROW}>
+                <StockQuantityField
+                  id="alloc-qty"
+                  value={quantity}
+                  onChange={setQuantity}
+                  maxAvailable={maxProductStock}
+                  catalogTotal={selectedProduct?.quantity}
+                  allocatedTotal={allocatedTotal}
+                  unallocatedRemaining={allocationBounds?.unallocated}
+                  minReserved={rowReserved}
+                  mode="allocate"
+                  disabled={isPending || !activeProductId}
+                  fieldClassName={DIALOG_FORM_FIELD_VIOLET}
+                />
+              </div>
             </div>
 
             <DialogFooter className="mt-9 mb-4 flex w-full min-w-0 flex-col sm:flex-row items-center gap-2">

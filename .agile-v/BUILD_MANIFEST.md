@@ -245,6 +245,14 @@
 | ART-0237 | REQ-0102 | `enrichStockAllocationRows`, `product-stock-data.ts`, `stock-allocations/route.ts`, `WarehouseStockAllocationRow.tsx`, `AllocateStockDialog.tsx` | Enrichment parity API + product SSR + warehouse row meta |
 | ART-0238 | REQ-0102 | `catalog-allocation-copy.ts`, `warehouse-stock-data.ts`, `OrderLineWarehouseSelect.tsx`, enrich lib consolidation | Enrichment consistency closure |
 | ART-0239 | REQ-0105 | `enrich-product-committed-quantity.ts`, `product-detail-data.ts`, `ProductDetailPage.tsx`, `.gitignore`, `CLAUDE.md` | Product detail committedQuantity SSR + display DRY |
+| ART-0240 | REQ-0106 | `order-line-stock-validation.ts`, `prisma/order.ts`, `OrderDialog.tsx`, `OrderLineWarehouseSelect.tsx` | Order auto-assign + catalog cap |
+| ART-0241 | REQ-0107 | `catalog-allocation-copy.ts`, `ProductDetailPage.tsx` | Detail allocation summary line |
+| ART-0242 | REQ-0108 | `use-catalog-quantity-reconcile-preview.ts`, `ProductFormDialog.tsx`, `StockQuantityField.tsx`, `AllocateStockDialog.tsx` | Live reserved-floor validation |
+| ART-0243 | REQ-0109 | `dialog-edge-scroll.ts`, dialog components | Feedback layout tokens |
+| ART-0244 | REQ-0110 | `order-line-stock-validation.ts`, `use-stock-allocation.ts`, `OrderDialog.tsx`, `validate-allocation-quantity.ts`, `ProductFormDialog.tsx`, `AllocateStockDialog.tsx` | Stock UX gap closure |
+| ART-0245 | REQ-0111 | `order-line-stock-validation.ts`, `use-order-line-stock-validation.ts`, `OrderDialogCreateLineItem.tsx`, `OrderLineWarehouseSelect.tsx`, `stock-allocation-order-sync.ts`, `prisma/order.ts` | Reactive order stock workflow |
+| ART-0246 | REQ-0112 | `order-line-stock-validation.ts`, `use-order-line-stock-validation.ts`, `OrderLineWarehouseSelect.tsx`, `OrderDialog.tsx` | Single fetch per line + stable stock errors |
+| ART-0247 | REQ-0113 | `OrderLineWarehouseSelect.tsx`, `OrderDialogCreateLineItem.tsx` | Props-only warehouse select; types merge |
 
 ## Tests
 
@@ -285,3 +293,9 @@
 | TC-0034 | REQ-0103 | `lib/products/order-stock-reservation.test.ts`, `enrich-product-committed-quantity.test.ts` |
 | TC-0035 | REQ-0104 | detail SSR enrich + forecast/supplier-dashboard committed avail |
 | TC-0036 | REQ-0105 | `product-detail-data.test.ts`, `enrich-product-committed-quantity.test.ts` (single-product enrich) |
+| TC-0037 | REQ-0106 | `order-line-stock-validation.test.ts` |
+| TC-0038 | REQ-0107 | `catalog-allocation-copy.test.ts` |
+| TC-0039 | REQ-0108 | `use-catalog-quantity-reconcile-preview.test.ts`, `StockQuantityField.test.ts` |
+| TC-0040 | REQ-0110 | `order-line-stock-validation.test.ts`, `validate-allocation-quantity.test.ts`, `order-stock-reservation.test.ts` |
+| TC-0041 | REQ-0111 | `order-line-stock-validation.test.ts`, `stock-allocation-order-sync.test.ts` |
+| TC-0042 | REQ-0112 | `order-line-stock-validation.test.ts` (buildOrderLineWarehousePickOptions) |

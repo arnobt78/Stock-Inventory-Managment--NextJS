@@ -76,9 +76,9 @@ The app uses **Next.js 16 App Router**, **Prisma** with **MongoDB**, **JWT** aut
 
 - **Products:** CRUD, SKU, categories, suppliers, stock levels, status (available / stock low / out), QR codes, import (CSV/Excel), export.
 - **Categories & Suppliers:** CRUD with status; used for filtering and reporting.
-- **Orders:** Create/edit orders with line items, tax/shipping/discount rules, status and payment status; client vs admin views.
+- **Orders:** Create/edit orders with line items, per-warehouse stock picking, reactive availability validation (`committedQuantity` + allocation caps), tax/shipping/discount rules, status and payment status; client vs admin views.
 - **Invoices:** One per order; status (draft, sent, paid, overdue, cancelled); PDF, send email, Stripe payment link.
-- **Warehouses:** CRUD, types, status; used for organization and future stock allocation.
+- **Warehouses:** CRUD, types, status; stock allocations per product, transfers, order-line warehouse picks, catalog quantity reconcile on product edits.
 - **Payments:** Stripe Checkout for orders/invoices; webhook for fulfillment.
 - **Shipping:** Shippo labels, rates, tracking; webhook for status.
 

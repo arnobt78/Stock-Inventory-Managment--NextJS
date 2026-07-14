@@ -47,6 +47,11 @@ import {
   useClientBrowseProducts,
 } from "@/hooks/queries";
 import {
+  OrderDialogCreateLineItem,
+  type OrderFormData,
+} from "@/components/orders/OrderDialogCreateLineItem";
+import { ensureStockAllocationsAndValidate } from "@/lib/orders/order-line-stock-validation";
+import {
   DeferredSelectGate,
   DIALOG_FORM_FIELD_VIOLET,
   DialogSubmitButton,
@@ -63,20 +68,15 @@ import type {
   Order,
   OrderStatus,
   PaymentStatus,
-  Product,
   ShippingAddress,
   BillingAddress,
   CreateOrderInput,
 } from "@/types";
 import { logger } from "@/lib/logger";
-import { Plus, Trash2, X, Package, Layers } from "lucide-react";
-import { ProductOptionRow } from "@/components/products/ProductOptionRow";
-import { OrderLineWarehouseSelect } from "@/components/orders/OrderLineWarehouseSelect";
+import { Plus } from "lucide-react";
 import { useAuth } from "@/contexts";
 import { useToast } from "@/hooks/use-toast";
 import { useQueryClient } from "@tanstack/react-query";
-import { queryKeys } from "@/lib/react-query";
-import type { StockAllocation } from "@/types";
 
 interface OrderDialogProps {
   children?: React.ReactNode;
@@ -86,37 +86,6 @@ interface OrderDialogProps {
   onEditOrder?: (order: Order | null) => void;
   /** For client role: product owner ID - products shown come from this owner */
   defaultOwnerId?: string;
-}
-
-/**
- * Extended form data type for creating orders (includes order items array and UI state)
- */
-interface OrderFormData {
-  items: Array<{
-    productId: string;
-    quantity?: number | undefined;
-    /** REQ-0068 — required when product has warehouse allocations */
-    warehouseId?: string;
-  }>;
-  shippingAddress?: {
-    street: string;
-    city: string;
-    state?: string;
-    zipCode: string;
-    country: string;
-  };
-  billingAddress?: {
-    street: string;
-    city: string;
-    state?: string;
-    zipCode: string;
-    country: string;
-  };
-  useSameAddress?: boolean;
-  tax?: number;
-  shipping?: number;
-  discount?: number;
-  notes?: string;
 }
 
 /**
@@ -299,6 +268,27 @@ export default function OrderDialog({
     name: "items",
   });
 
+  /** REQ-0112 — keyed by field.id (stable across remove/reindex). */
+  const [lineStockErrors, setLineStockErrors] = useState<Record<string, boolean>>(
+    {},
+  );
+
+  const handleLineStockValidityChange = useCallback(
+    (lineId: string, hasStockError: boolean) => {
+      setLineStockErrors((prev) => {
+        if (prev[lineId] === hasStockError) return prev;
+        return { ...prev, [lineId]: hasStockError };
+      });
+    },
+    [],
+  );
+
+  useEffect(() => {
+    if (!open) {
+      setLineStockErrors({});
+    }
+  }, [open]);
+
   // Watch form values for calculations - use useWatch for reactive watching of items array
   const watchedItems =
     useWatch({
@@ -410,48 +400,25 @@ export default function OrderDialog({
       }, 0);
       const fees = getOrderFeesFromSubtotal(submitSubtotal);
 
-      // Check stock availability for each item (product + warehouse pick when allocated)
+      // REQ-0111 — ensure fresh allocation cache before submit validation
       for (const item of validItems) {
         const product = availableProducts.find((p) => p.id === item.productId);
         if (!product) {
           throw new Error(`Product not found: ${item.productId}`);
         }
-        const requestedQty =
-          item.quantity !== undefined && item.quantity !== null
-            ? Number(item.quantity)
-            : 0;
-
-        const allocations = queryClient.getQueryData<StockAllocation[]>(
-          queryKeys.stockAllocation.byProduct(item.productId),
+        const stockCheck = await ensureStockAllocationsAndValidate(
+          queryClient,
+          {
+            quantity: Number(product.quantity),
+            reservedQuantity: product.reservedQuantity,
+          },
+          item,
         );
-        const hasAllocations = (allocations?.length ?? 0) > 0;
-
-        if (hasAllocations) {
-          if (!item.warehouseId) {
-            throw new Error(
-              `Select a warehouse for ${product.name} (product has warehouse stock)`,
-            );
-          }
-          const pick = allocations?.find(
-            (a) => a.warehouseId === item.warehouseId,
+        if (!stockCheck.ok) {
+          throw new Error(
+            stockCheck.message ??
+              `Insufficient stock for ${product.name}. Available: ${stockCheck.maxQty}`,
           );
-          const warehouseAvail =
-            Number(pick?.quantity ?? 0) -
-            Number(pick?.reservedQuantity ?? 0);
-          if (requestedQty > warehouseAvail) {
-            throw new Error(
-              `Insufficient stock at warehouse for ${product.name}. Available: ${warehouseAvail}, Requested: ${requestedQty}`,
-            );
-          }
-        } else {
-          const availableStock =
-            Number(product.quantity) -
-            Number(product.reservedQuantity ?? 0);
-          if (requestedQty > availableStock) {
-            throw new Error(
-              `Insufficient stock for ${product.name}. Available: ${availableStock}, Requested: ${requestedQty}`,
-            );
-          }
         }
       }
 
@@ -542,9 +509,15 @@ export default function OrderDialog({
   };
 
   // Remove order item
-  const handleRemoveItem = (index: number) => {
+  const handleRemoveItem = (index: number, lineId: string) => {
     if (fields.length > 1) {
       remove(index);
+      setLineStockErrors((prev) => {
+        if (!(lineId in prev)) return prev;
+        const next = { ...prev };
+        delete next[lineId];
+        return next;
+      });
     }
   };
 
@@ -1070,264 +1043,26 @@ export default function OrderDialog({
                     </Button>
                   </div>
 
-                  {fields.map((field, index) => {
-                    const productId = createWatch(`items.${index}.productId`);
-                    const quantityValue = createWatch(
-                      `items.${index}.quantity`,
-                    );
-                    // Convert quantity to number for calculations, but keep as-is for display
-                    const quantity =
-                      quantityValue !== undefined && quantityValue !== null
-                        ? Number(quantityValue)
-                        : 0;
-                    const selectedProduct = availableProducts.find(
-                      (p) => p.id === productId,
-                    );
-                    const availableStock = selectedProduct
-                      ? Number(selectedProduct.quantity)
-                      : 0;
-                    const itemSubtotal =
-                      selectedProduct && quantity > 0
-                        ? Number(selectedProduct.price) * quantity
-                        : 0;
-
-                    // Check if quantity exceeds available stock
-                    const exceedsStock =
-                      selectedProduct && quantity > availableStock;
-
-                    return (
-                      <div
-                        key={field.id}
-                        className="p-4 border border-violet-400/20 rounded-lg bg-white/5 space-y-2"
-                      >
-                        <div className="flex items-start justify-between gap-2">
-                          <div className="flex-1 grid grid-cols-1 md:grid-cols-[minmax(0,1fr)_100px_minmax(0,1fr)] gap-2 items-start">
-                            {/* Product Selection */}
-                            <div className="flex flex-col gap-2">
-                              <Label className="flex items-center gap-2 text-white/80 text-sm">
-                                <Package className="h-4 w-4 shrink-0 text-violet-400" />
-                                Product {index + 1}
-                              </Label>
-                              <DeferredSelectGate
-                                enabled={open}
-                                placeholder={
-                                  <div
-                                    className="flex h-11 w-full items-center rounded-md border border-violet-400/30 bg-white/10 px-2 text-sm"
-                                    aria-hidden
-                                  >
-                                    {selectedProduct ? (
-                                      <ProductOptionRow
-                                        name={selectedProduct.name}
-                                        imageUrl={selectedProduct.imageUrl}
-                                        size="sm"
-                                        className="text-white/90"
-                                      />
-                                    ) : (
-                                      <span className="text-white/60">
-                                        {productSelectPlaceholder}
-                                      </span>
-                                    )}
-                                  </div>
-                                }
-                              >
-                                {({ selectRemountKey }) => (
-                                  <Select
-                                    key={selectRemountKey}
-                                    value={productId || ""}
-                                    onValueChange={(value) => {
-                                      createSetValue(
-                                        `items.${index}.productId`,
-                                        value,
-                                      );
-                                      createSetValue(
-                                        `items.${index}.quantity`,
-                                        1,
-                                      );
-                                      createSetValue(
-                                        `items.${index}.warehouseId`,
-                                        undefined,
-                                      );
-                                    }}
-                                    disabled={
-                                      isClientCreatingOrder &&
-                                      availableProducts.length === 0
-                                    }
-                                  >
-                                    <SelectTrigger className={cn("h-11 w-full", DIALOG_FORM_FIELD_VIOLET)}>
-                                      <SelectValue placeholder={productSelectPlaceholder}>
-                                        {selectedProduct ? (
-                                          <ProductOptionRow
-                                            name={selectedProduct.name}
-                                            imageUrl={selectedProduct.imageUrl}
-                                            size="sm"
-                                            className="text-white/90"
-                                          />
-                                        ) : null}
-                                      </SelectValue>
-                                    </SelectTrigger>
-                                    <SelectContent
-                                      className="border-violet-400/20 dark:border-white/10 bg-white/80 dark:bg-popover/50 backdrop-blur-md z-[100]"
-                                      position="popper"
-                                      sideOffset={5}
-                                      align="start"
-                                    >
-                                      {availableProducts.length === 0 &&
-                                      isClientCreatingOrder &&
-                                      productOwner ? (
-                                        <div className="px-2 text-sm text-muted-foreground dark:text-white/60 text-center">
-                                          {productOwner.name} hasn&apos;t added
-                                          any products yet
-                                        </div>
-                                      ) : (
-                                        availableProducts.map((product) => (
-                                          <SelectItem
-                                            key={product.id}
-                                            value={product.id}
-                                            className="cursor-pointer py-2 text-gray-700 dark:text-white focus:bg-violet-100 dark:focus:bg-white/10 focus:text-gray-700 dark:focus:text-white"
-                                          >
-                                            <ProductOptionRow
-                                              name={product.name}
-                                              imageUrl={product.imageUrl}
-                                              price={Number(product.price)}
-                                              quantity={Number(product.quantity)}
-                                              size="sm"
-                                              showMeta
-                                            />
-                                          </SelectItem>
-                                        ))
-                                      )}
-                                    </SelectContent>
-                                  </Select>
-                                )}
-                              </DeferredSelectGate>
-                              {createErrors.items?.[index]?.productId && (
-                                <p className="text-red-500 text-xs">
-                                  {String(
-                                    createErrors.items[index]?.productId
-                                      ?.message,
-                                  )}
-                                </p>
-                              )}
-                            </div>
-
-                            {/* Quantity */}
-                            <div className="flex flex-col gap-2">
-                              <Label className="flex items-center gap-2 text-white/80 text-sm">
-                                <Layers className="h-4 w-4 shrink-0 text-violet-400" />
-                                Quantity
-                              </Label>
-                              <Input
-                                type="number"
-                                min="1"
-                                value={
-                                  quantityValue !== undefined &&
-                                  quantityValue !== null
-                                    ? quantityValue.toString()
-                                    : ""
-                                }
-                                onChange={(e) => {
-                                  const inputValue = e.target.value;
-                                  // Allow empty string, or parse as integer if value exists
-                                  if (
-                                    inputValue === "" ||
-                                    inputValue === null ||
-                                    inputValue === undefined
-                                  ) {
-                                    createSetValue(
-                                      `items.${index}.quantity`,
-                                      undefined,
-                                      { shouldValidate: true },
-                                    );
-                                  } else {
-                                    const parsedValue = parseInt(
-                                      inputValue,
-                                      10,
-                                    );
-                                    if (
-                                      !isNaN(parsedValue) &&
-                                      parsedValue > 0
-                                    ) {
-                                      createSetValue(
-                                        `items.${index}.quantity`,
-                                        parsedValue as number,
-                                        { shouldValidate: true },
-                                      );
-                                    } else {
-                                      createSetValue(
-                                        `items.${index}.quantity`,
-                                        undefined,
-                                        { shouldValidate: true },
-                                      );
-                                    }
-                                  }
-                                }}
-                                placeholder="Enter quantity"
-                                className={cn("h-11", DIALOG_FORM_FIELD_VIOLET, "[&:invalid]:border-violet-400/30")}
-                              />
-                              {createErrors.items?.[index]?.quantity && (
-                                <p className="text-red-500 text-xs">
-                                  {String(
-                                    createErrors.items[index]?.quantity
-                                      ?.message,
-                                  )}
-                                </p>
-                              )}
-                            </div>
-
-                            {/* REQ-0068 — warehouse in same grid row (REQ-0074 alignment) */}
-                            <OrderLineWarehouseSelect
-                              productId={productId}
-                              value={createWatch(`items.${index}.warehouseId`)}
-                              onChange={(whId) =>
-                                createSetValue(
-                                  `items.${index}.warehouseId`,
-                                  whId,
-                                )
-                              }
-                              quantity={quantity}
-                              dialogOpen={open}
-                            />
-                          </div>
-
-                          {/* Remove Button */}
-                          {fields.length > 1 && (
-                            <Button
-                              type="button"
-                              onClick={() => handleRemoveItem(index)}
-                              variant="ghost"
-                              size="icon"
-                              className="h-8 w-8 text-red-400 hover:text-red-300 hover:bg-red-500/10"
-                            >
-                              <X className="h-4 w-4" />
-                            </Button>
-                          )}
-                        </div>
-
-                        {/* Item Subtotal and Warning - Same row aligned with columns */}
-                        {selectedProduct && (
-                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                            {/* Subtotal - aligned with product column */}
-                            <div className="text-sm text-white/70">
-                              Subtotal: ${itemSubtotal.toFixed(2)} (
-                              {selectedProduct.name} × {quantity || 0})
-                            </div>
-                            {/* Stock validation warning - aligned with quantity column */}
-                            <div>
-                              {exceedsStock && (
-                                <p className="text-red-500 text-xs flex items-center gap-1">
-                                  <span>⚠️</span>
-                                  <span>
-                                    Quantity exceeds available stock. Available:{" "}
-                                    {availableStock}
-                                  </span>
-                                </p>
-                              )}
-                            </div>
-                          </div>
-                        )}
-                      </div>
-                    );
-                  })}
+                  {fields.map((field, index) => (
+                    <OrderDialogCreateLineItem
+                      key={field.id}
+                      lineId={field.id}
+                      index={index}
+                      productId={createWatch(`items.${index}.productId`) ?? ""}
+                      quantityValue={createWatch(`items.${index}.quantity`)}
+                      warehouseId={createWatch(`items.${index}.warehouseId`)}
+                      availableProducts={availableProducts}
+                      productSelectPlaceholder={productSelectPlaceholder}
+                      isClientCreatingOrder={isClientCreatingOrder}
+                      productOwner={productOwner}
+                      dialogOpen={open}
+                      canRemove={fields.length > 1}
+                      createSetValue={createSetValue}
+                      createErrors={createErrors}
+                      onRemove={() => handleRemoveItem(index, field.id)}
+                      onStockValidityChange={handleLineStockValidityChange}
+                    />
+                  ))}
 
                   {createErrors.items &&
                     typeof createErrors.items === "object" &&
@@ -1513,16 +1248,7 @@ export default function OrderDialog({
                     !watchedItems.some(
                       (item) => item?.productId && (item?.quantity ?? 0) > 0,
                     ) ||
-                    watchedItems.some((item) => {
-                      if (!item?.productId || !item?.quantity) return false;
-                      const product = availableProducts.find(
-                        (p) => p.id === item.productId,
-                      );
-                      const itemQty = item.quantity ?? 0;
-                      return (
-                        product && Number(itemQty) > Number(product.quantity)
-                      );
-                    })
+                    Object.values(lineStockErrors).some(Boolean)
                   }
                   className="px-11"
                 />

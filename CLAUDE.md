@@ -748,18 +748,16 @@ Hub: `lib/ui/typography-scale.ts`. Hubs import tokens; ~45 inline files use equi
 
 **No TanStack/Redis/invalidation changes** — UI/CSS + one SSR trim + unit tests only.
 
-## Pre-commit audit (2026-07-13)
+## Pre-commit audit (2026-07-14)
 
 | Check | Status |
 |-------|--------|
 | `npm run lint` | pass |
 | `npm run build` | pass |
-| `npm run test` | 418 passed |
-| `npm run test:invalidate` | 205 passed |
-| Prod SHA | pending REQ-0100 push |
-| REQ-0098 admin portal UI | glow badges; dashboard CTAs; portal avatars; notification dropdown |
-| REQ-0099 gap closure | AdminAnalytics `gap-6`; supplier `userId` seed; dead stock scripts removed |
-| REQ-0100 avatar fallback | `seed={userId ?? id}` stale Redis guard; no cache-key bump |
+| `npm run test` | 488 passed |
+| `npm run test:invalidate` | 208 passed |
+| Prod SHA | `3cc5c4b` (REQ-0105); REQ-0106–0113 pending push |
+| REQ-0106–0113 | order stock UX + reactive validation + props-only warehouse select |
 
 ## Post-mutation cache (REQ-0052 + REQ-0055)
 
@@ -823,7 +821,7 @@ Hub: `lib/ui/typography-scale.ts`. Hubs import tokens; ~45 inline files use equi
 | Delete guards | `warehouse-delete-guards.ts` — reserved / active orders / pending transfers |
 | Product PUT | `app/api/products/route.ts` — reconcile + `scheduleInvalidateStockAllocationCaches` |
 | UI | ProductFormDialog shrink confirm; WarehouseStockAllocationRow archived badge + catalog meta |
-| Fetch gates | ProductFormDialog, AllocateStockDialog, OrderLineWarehouseSelect — `useStockByProduct({ enabled })` |
+| Fetch gates | ProductFormDialog, AllocateStockDialog — `useStockByProduct({ enabled })`; order lines via `useOrderLineStockValidation` |
 
 **Invalidation:** `invalidateAfterStockChange` on allocation/product qty mutations; Redis awaited before API 200; `useSyncSsrQueryData` on detail pages.
 
@@ -863,6 +861,21 @@ Hub: `lib/ui/typography-scale.ts`. Hubs import tokens; ~45 inline files use equi
 **ProductFormDialog:** uses raw `reservedQuantity` + allocation rows — do not merge `committedQuantity` into API `reservedQuantity`.
 
 **No invalidation changes** — `PRODUCT_PATTERNS` already clears `products:*` on order/stock CRUD.
+
+## Order stock UX (REQ-0106–0113)
+
+| Piece | Location |
+|-------|----------|
+| Auto-assign + cap | `prisma/order.ts` greedy pick; `getOrderLineCatalogAvailable` catalog cap |
+| Reactive lines | `useOrderLineStockValidation` — one `useStockByProduct` per line; `prefetchStockByProduct` on product pick |
+| Line UI | `OrderDialogCreateLineItem` + `OrderLineWarehouseSelect` props-only (`allocationRows`, `allocationsLoading`) |
+| Pick/validate | `buildOrderLineWarehousePickOptions`, `ensureStockAllocationsAndValidate`; `Max {n} at {name}` client+server |
+| Errors | `lineStockErrors` keyed by `field.id`; `getAllocationQtyBounds` DRY |
+| Product UX | `formatCatalogAllocationSummary` on detail; `useCatalogQuantityReconcilePreview`; dialog edge-scroll shells |
+| Types | `OrderFormData` in `OrderDialogCreateLineItem.tsx` (`.types.ts` removed) |
+| Tests | `order-line-stock-validation.test.ts`; Beats §9 `MANUAL_TEST_FIXTURES.md` |
+
+**Invalidation unchanged** — `invalidateAfterOrderGraphChange` + `invalidateAfterStockChange`.
 
 ## Hydration-safe dates
 

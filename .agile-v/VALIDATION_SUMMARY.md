@@ -1,9 +1,119 @@
 # Validation Summary — Cycle C1
 
-**Generated:** 2026-07-13  
+**Generated:** 2026-07-14  
 **eval_gate_status:** PENDING (Human Gate 2)  
-**Prod target SHA:** pending (REQ-0105)
-**Red Team:** lint ✓ test 464 ✓ invalidate 208 ✓ build ✓ (2026-07-13 REQ-0105 product detail committedQuantity SSR)
+**Prod target SHA:** pending (REQ-0106–0113 push)  
+**Red Team:** lint ✓ test 488 ✓ invalidate 208 ✓ build ✓ (2026-07-14 REQ-0113)
+
+---
+
+## REQ-0106 order auto-assign evidence
+
+| Check | Result |
+|-------|--------|
+| Shared validator | `validateOrderLineStock` — auto catalog cap + manual warehouse cap |
+| Server createOrder | `needsPick && !warehouseId` allowed — product-path reserve |
+| OrderDialog | Submit disabled uses committed available; auto-assign default |
+| OrderLineWarehouseSelect | Optional picker; "Auto-assign warehouses" sentinel |
+| Manual fixture | `MANUAL_TEST_FIXTURES.md` §9 Beats path |
+
+---
+
+## REQ-0107 product detail summary evidence
+
+| Check | Result |
+|-------|--------|
+| Detail summary | `formatCatalogAllocationDetailSummary` on Warehouse Stock card |
+| Badges | catalog avail + in-warehouses counts |
+| Invalidation | unchanged — derives from existing hooks |
+
+---
+
+## REQ-0108 live validation evidence
+
+| Check | Result |
+|-------|--------|
+| Product edit | `useCatalogQuantityReconcilePreview` — live block + shrink preview |
+| Allocate edit | `minReserved` floor in `StockQuantityField` |
+| Submit gate | disabled when reconcile `!ok` or below reserved |
+
+---
+
+## REQ-0113 warehouse select fetch removal evidence
+
+| Check | Result |
+|-------|--------|
+| Props-only select | No `useStockByProduct` in `OrderLineWarehouseSelect` |
+| Required rows | `allocationRows` + `allocationsLoading` from parent hook |
+| Types merge | `OrderFormData` in `OrderDialogCreateLineItem.tsx`; `.types.ts` deleted |
+| Invalidation | unchanged |
+
+```
+Scope: built/verified | Traceability: REQ-0113 | Findings: PASS
+Commands: lint, test, test:invalidate, build
+```
+
+---
+
+## REQ-0112 order line fetch DRY evidence
+
+| Check | Result |
+|-------|--------|
+| Single fetch | Hook returns `allocationRows`; warehouse select skips internal query when injected |
+| Options DRY | `buildOrderLineWarehousePickOptions` shared lib |
+| Stock errors | `lineStockErrors` keyed by `field.id`; prune on remove; reset on dialog close |
+| Invalidation | unchanged — no registry changes |
+
+```
+Scope: built/verified | Traceability: REQ-0112 | Findings: PASS
+Commands: lint, test, test:invalidate, build
+```
+
+---
+
+## REQ-0111 order stock workflow evidence
+
+| Check | Result |
+|-------|--------|
+| Reactive validation | `useOrderLineStockValidation` + `useStockByProduct` |
+| Submit ensure | `ensureStockAllocationsAndValidate` before create |
+| Manual error DRY | `OrderLineWarehouseSelect.manualPickError` from parent |
+| Server parity | `validateWarehousePick` → `Max {n} at {name}` |
+| Catalog DRY | `prisma/order.ts` uses `getOrderLineCatalogAvailable` |
+| Invalidation | unchanged — no registry changes |
+
+```
+Scope: built/verified | Traceability: REQ-0111 | Findings: PASS
+Commands: lint, test, test:invalidate, build
+```
+
+---
+
+## REQ-0110 stock UX gap closure evidence
+
+| Check | Result |
+|-------|--------|
+| Order cap fallback | `getOrderLineCatalogAvailableFromProduct` + `resolveOrderLineHasAllocations` |
+| Prefetch | `prefetchStockByProduct` on OrderDialog product select |
+| Warehouse errors | Manual pick `Max {n} at {warehouseName}` |
+| Bounds DRY | `getAllocationQtyBounds` in validate + AllocateStockDialog |
+| Reserve test | Auto-assign qty 40 → product `reservedQuantity` only |
+| Dialog shells | ProductForm `DIALOG_EDGE_SCROLL_*`; Allocate `DIALOG_FORM_FEEDBACK_ROW` |
+| Invalidation | unchanged — no registry changes |
+
+```
+Scope: built/verified | Traceability: REQ-0110 | Findings: PASS
+Commands: lint, test, test:invalidate, build
+```
+
+---
+
+## REQ-0109 dialog feedback tokens evidence
+
+| Check | Result |
+|-------|--------|
+| Tokens | `DIALOG_FORM_FEEDBACK_*` in `dialog-edge-scroll.ts` |
+| Applied | ProductForm, Order, OrderLineWarehouseSelect, StockQuantityField |
 
 ---
 
@@ -301,7 +411,7 @@
 - [x] Deploy REQ-0020 (`21d7fc4`)
 - [x] Push REQ-0021 (`733681a`)
 - [x] Push REQ-0022–0029 (`3ebb4db`)
-- [ ] Confirm Vercel prod SHA = `3ebb4db`
+- [ ] Confirm Vercel prod SHA = `3cc5c4b` (REQ-0105)
 - [ ] Sentry 24h: no OAuth state error, no ErrorBoundary removeChild on admin/suppliers nav
 - [ ] Manual: supplier product → category/supplier detail (REQ-0029)
 
