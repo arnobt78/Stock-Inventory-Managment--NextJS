@@ -6,7 +6,7 @@
 | **Phase** | C2 — REQ-0106 … REQ-0116 **done** |
 | **Last updated** | 2026-07-14 (REQ-0116) |
 | **Active REQ range** | REQ-0001 … REQ-0116 **done** |
-| **Prod deploy target** | pending (REQ-0114–0116) — commit pending push |
+| **Prod deploy target** | `7b5c999` (REQ-0114–0116) — pushed `origin/main` |
 | **Human Gate 1** | APPROVED (retroactive bootstrap) |
 | **Human Gate 2** | PENDING — Sentry 24h after prod deploy |
 | **Resume token** | `Gate-2-deploy` — prod SHA + Sentry 24h |
