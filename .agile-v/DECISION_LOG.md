@@ -308,3 +308,4 @@ Format: `TIMESTAMP | AGENT | DECISION | RATIONALE | REQ-ID`
 2026-07-14T18:22:00Z | red-team | REQ-0118 gates | lint ✓ test 498 ✓ invalidate 208 ✓ build ✓ | REQ-0118
 2026-07-14T18:30:00Z | build-agent | REQ-0119 gap closure | catalog popover parity; OrderAddressFields; business insights warehouse tab + SSR | REQ-0119
 2026-07-14T18:30:00Z | red-team | REQ-0119 gates | lint ✓ test 504 ✓ invalidate 208 ✓ build ✓ | REQ-0119
+2026-07-14T18:33:00Z | release | REQ-0117–0119 push | SHA 46127b2 → origin/main | REQ-0117, REQ-0118, REQ-0119
