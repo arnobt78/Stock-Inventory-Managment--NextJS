@@ -15,7 +15,6 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/label";
 import {
   Command,
   CommandEmpty,
@@ -36,13 +35,14 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Check, ChevronDown } from "lucide-react";
+import { Check, ChevronDown, ArrowRightLeft, Package, Warehouse, X } from "lucide-react";
 import {
   DIALOG_EDGE_SCROLL_BODY,
   DIALOG_EDGE_SCROLL_HEADER,
   DIALOG_EDGE_SCROLL_INNER,
   DIALOG_EDGE_SCROLL_SHELL,
   DIALOG_FORM_FIELD_TEAL,
+  DialogFormLabel,
   DialogSubmitButton,
   GLASS_GHOST_BUTTON,
   StockQuantityField,
@@ -176,7 +176,9 @@ export default function TransferStockDialog({
           <div className={DIALOG_EDGE_SCROLL_INNER}>
             <div className="mt-2 space-y-4">
               <div>
-                <Label className="text-sm text-white/80">Product *</Label>
+                <DialogFormLabel icon={Package} required>
+                  Product
+                </DialogFormLabel>
                 <Popover open={pickerOpen} onOpenChange={setPickerOpen}>
                   <PopoverTrigger asChild>
                     <Button
@@ -273,7 +275,9 @@ export default function TransferStockDialog({
               </div>
 
               <div className="min-h-11">
-                <Label className="text-sm text-white/80">Destination *</Label>
+                <DialogFormLabel icon={Warehouse} required>
+                  Destination
+                </DialogFormLabel>
                 <Select
                   value={toWarehouseId}
                   onValueChange={setToWarehouseId}
@@ -316,14 +320,16 @@ export default function TransferStockDialog({
                 variant="secondary"
                 onClick={() => handleOpenChange(false)}
                 disabled={isPending}
-                className={cn("w-full sm:w-auto px-11", GLASS_GHOST_BUTTON)}
+                className={cn("w-full sm:w-auto px-11 gap-2", GLASS_GHOST_BUTTON)}
               >
+                <X className="h-4 w-4 shrink-0" aria-hidden />
                 Cancel
               </Button>
               <DialogSubmitButton
                 isPending={isPending}
                 pendingLabel="Transferring…"
                 label="Transfer"
+                icon={ArrowRightLeft}
                 hue="teal"
                 disabled={!isValid}
               />

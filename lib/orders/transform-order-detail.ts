@@ -102,6 +102,9 @@ export function transformOrderDetail(
         : null,
     creator: enrichment.creator ?? null,
     updater: enrichment.updater ?? null,
-    items: mapOrderItemsFromRaw(order.items),
+    items: mapOrderItemsFromRaw(order.items, {
+      subtotal: order.subtotal,
+      total: order.total,
+    }),
   } as unknown as Order;
 }

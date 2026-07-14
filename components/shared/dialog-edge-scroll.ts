@@ -8,7 +8,7 @@ export const DIALOG_EDGE_SCROLL_SHELL =
   "flex max-h-[90vh] flex-col overflow-hidden min-w-0 pl-4 sm:pl-8 pt-4 sm:pt-7 pb-4 sm:pb-7 pr-0";
 
 /** DialogHeader — inset content, not the scroll track */
-export const DIALOG_EDGE_SCROLL_HEADER = "flex-shrink-0 .5 pr-4 sm:pr-8";
+export const DIALOG_EDGE_SCROLL_HEADER = "flex-shrink-0 pb-0.5 pr-4 sm:pr-8";
 
 /** Full-width scroll region; y-scrollbar flush to the shell right edge (no overflow-x-hidden — avoids clipping input/table shadows) */
 export const DIALOG_EDGE_SCROLL_BODY =
@@ -79,3 +79,13 @@ export const DIALOG_FORM_SUCCESS_TEXT =
 
 /** REQ-0109 — shrink / caution preview */
 export const DIALOG_FORM_WARN_TEXT = "text-xs text-amber-400/90";
+
+/** REQ-0114 — dialog field labels */
+export const DIALOG_FORM_LABEL = "text-sm font-medium text-white/80";
+
+/** REQ-0114 — required field asterisk */
+export const DIALOG_FORM_REQUIRED_MARK = "text-red-400";
+
+/** REQ-0114 — catalog meta links in tables (light + dark) */
+export const TABLE_CATALOG_LINK_CLASS =
+  "text-xs font-normal text-sky-600 dark:text-sky-400 hover:text-sky-500 dark:hover:text-sky-300";

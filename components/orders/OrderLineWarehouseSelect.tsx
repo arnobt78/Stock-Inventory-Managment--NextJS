@@ -14,19 +14,16 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Label } from "@/components/ui/label";
-import { DeferredSelectGate } from "@/components/shared";
+import { DeferredSelectGate, DialogFormLabel } from "@/components/shared";
 import {
   DIALOG_FORM_FIELD_VIOLET,
   DIALOG_FORM_ERROR_TEXT,
   DIALOG_FORM_FEEDBACK_ROW,
-  DIALOG_FORM_HINT_TEXT,
 } from "@/components/shared";
 import { cn } from "@/lib/utils";
 import {
   AUTO_WAREHOUSE_VALUE,
   buildOrderLineWarehousePickOptions,
-  formatOrderLineAutoAssignHint,
   type OrderLineAllocationRow,
 } from "@/lib/orders/order-line-stock-validation";
 
@@ -53,8 +50,6 @@ export function OrderLineWarehouseSelect({
   onChange,
   dialogOpen,
   disabled,
-  catalogAvailable,
-  hasAllocations = false,
   manualPickError = null,
   allocationRows,
   allocationsLoading,
@@ -83,10 +78,9 @@ export function OrderLineWarehouseSelect({
   if (!productId) {
     return (
       <div className="flex flex-col gap-2">
-        <Label className="flex items-center gap-2 text-white/80 text-sm">
-          <Warehouse className="h-4 w-4 shrink-0 text-violet-400" />
+        <DialogFormLabel icon={Warehouse} optional>
           Warehouse
-        </Label>
+        </DialogFormLabel>
         <div
           className={cn(
             DIALOG_FORM_FIELD_VIOLET,
@@ -102,10 +96,9 @@ export function OrderLineWarehouseSelect({
   if (allocationsLoading) {
     return (
       <div className="flex flex-col gap-2">
-        <Label className="flex items-center gap-2 text-white/80 text-sm">
-          <Warehouse className="h-4 w-4 shrink-0 text-violet-400" />
+        <DialogFormLabel icon={Warehouse} optional>
           Warehouse
-        </Label>
+        </DialogFormLabel>
         <div className={cn(DIALOG_FORM_FIELD_VIOLET, "h-11 animate-pulse")} />
       </div>
     );
@@ -114,10 +107,9 @@ export function OrderLineWarehouseSelect({
   if (!allocationRows.length) {
     return (
       <div className="flex flex-col gap-2">
-        <Label className="flex items-center gap-2 text-white/80 text-sm">
-          <Warehouse className="h-4 w-4 shrink-0 text-violet-400" />
+        <DialogFormLabel icon={Warehouse} optional>
           Warehouse
-        </Label>
+        </DialogFormLabel>
         <div
           className={cn(
             DIALOG_FORM_FIELD_VIOLET,
@@ -132,11 +124,9 @@ export function OrderLineWarehouseSelect({
 
   return (
     <div className="flex flex-col gap-2">
-      <Label className="flex items-center gap-2 text-white/80 text-sm">
-        <Warehouse className="h-4 w-4 shrink-0 text-violet-400" />
+      <DialogFormLabel icon={Warehouse} optional>
         Warehouse
-        <span className="text-xs font-normal text-white/50">(optional)</span>
-      </Label>
+      </DialogFormLabel>
       <DeferredSelectGate enabled={dialogOpen}>
         {({ selectRemountKey }) => (
           <Select
@@ -148,7 +138,6 @@ export function OrderLineWarehouseSelect({
             <SelectTrigger
               className={cn(DIALOG_FORM_FIELD_VIOLET, "h-11 text-sm gap-2")}
             >
-              <Warehouse className="h-4 w-4 shrink-0 text-violet-400" />
               <SelectValue placeholder="Auto-assign warehouses" />
             </SelectTrigger>
             <SelectContent>
@@ -156,31 +145,28 @@ export function OrderLineWarehouseSelect({
                 Auto-assign warehouses
               </SelectItem>
               {options.map((o) => (
-                <SelectItem key={o.warehouseId} value={o.warehouseId}>
-                  {o.name} ({o.available} available)
+                <SelectItem
+                  key={o.warehouseId}
+                  value={o.warehouseId}
+                  className="flex justify-between gap-4"
+                >
+                  <span className="truncate">{o.name}</span>
+                  <span className="shrink-0 text-white/60">
+                    ({o.available} available)
+                  </span>
                 </SelectItem>
               ))}
             </SelectContent>
           </Select>
         )}
       </DeferredSelectGate>
-      <div className={DIALOG_FORM_FEEDBACK_ROW}>
-        {manualPickError ? (
+      {manualPickError ? (
+        <div className={DIALOG_FORM_FEEDBACK_ROW}>
           <p className={DIALOG_FORM_ERROR_TEXT} role="alert">
             {manualPickError}
           </p>
-        ) : null}
-        {!isManualPick && hasAllocations && catalogAvailable != null ? (
-          <p className={DIALOG_FORM_HINT_TEXT}>
-            {formatOrderLineAutoAssignHint(catalogAvailable)}
-          </p>
-        ) : null}
-        {!isManualPick && hasAllocations ? (
-          <p className="text-xs text-white/50">
-            Optional — leave auto to pull from catalog and warehouses
-          </p>
-        ) : null}
-      </div>
+        </div>
+      ) : null}
     </div>
   );
 }

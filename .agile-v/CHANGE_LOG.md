@@ -56,3 +56,5 @@
 | 2026-07-13 | Stock allocation sync — catalog reconcile, unified enrich, warehouse guards, archived rows | REQ-0102 `554af8e` |
 | 2026-07-13 | Disjoint order reservation — fix double-count floor; committedQuantity list enrich | REQ-0103 |
 | 2026-07-13 | committedQuantity parity — detail SSR, forecast, supplier dashboard | REQ-0104 |
+| 2026-07-14 | Order stock UX workflow — auto-assign, reactive validation, fetch DRY | REQ-0106–0113 |
+| 2026-07-14 | Stock UX + dialog/UI closure — proportional pricing, labels, typography | REQ-0114–0116 |

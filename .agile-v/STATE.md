@@ -3,10 +3,10 @@
 | Field | Value |
 |-------|-------|
 | **Cycle** | C1 (closing) → **C2 open** |
-| **Phase** | C2 — REQ-0106 … REQ-0113 **done** |
-| **Last updated** | 2026-07-14 (REQ-0113) |
-| **Active REQ range** | REQ-0001 … REQ-0113 **done** |
-| **Prod deploy target** | `8de1827` (REQ-0106–0113) — pushed `origin/main` |
+| **Phase** | C2 — REQ-0106 … REQ-0116 **done** |
+| **Last updated** | 2026-07-14 (REQ-0116) |
+| **Active REQ range** | REQ-0001 … REQ-0116 **done** |
+| **Prod deploy target** | pending (REQ-0114–0116) — commit pending push |
 | **Human Gate 1** | APPROVED (retroactive bootstrap) |
 | **Human Gate 2** | PENDING — Sentry 24h after prod deploy |
 | **Resume token** | `Gate-2-deploy` — prod SHA + Sentry 24h |
@@ -47,6 +47,18 @@ Single useStockByProduct per line; injected allocationRows; lineStockErrors keye
 
 OrderLineWarehouseSelect props-only; OrderFormData merged; .types.ts deleted. Gates: lint ✓ test 488 ✓ invalidate 208 ✓ build ✓.
 
+## REQ-0114 — Stock UX clarity + dialog/detail UI parity (2026-07-14)
+
+Catalog-commit warehouse hints + `committedQuantity` on allocation enrich; `computeWarehouseInsights` DRY on warehouse detail; proportional order line amounts; `DialogFormLabel` + dialog sweep; `DetailInfoRow` font-normal + `DetailInfoRowGroup`; `TABLE_CATALOG_LINK_CLASS`. Gates: lint ✓ test 492 ✓ invalidate 208 ✓ build ✓.
+
+## REQ-0115 — REQ-0114 dialog gap closure (2026-07-14)
+
+`mapWarehouseStockSummary` + test; Invoice/Order/SupportTicket/Payment dialog label+footer parity; ImageField + Category/Supplier label sweep. Gates: lint ✓ test 494 ✓ invalidate 208 ✓ build ✓.
+
+## REQ-0116 — Dialog parity + proportional price DRY + detail typography (2026-07-14)
+
+`ProportionalPriceDisplay` + test; supplier create / order notes / payment cancel / warehouse status dialog labels; order-create proportional preview; `DETAIL_DATA_VALUE_CLASS` + detail stat tone tokens. Gates: lint ✓ test 498 ✓ invalidate 208 ✓ build ✓.
+
 ## Next session
 
 | Priority | Item | REQ |
@@ -56,7 +68,7 @@ OrderLineWarehouseSelect props-only; OrderFormData merged; .types.ts deleted. Ga
 
 ## Current focus
 
-1. **REQ-0106–0113** — done
+1. **REQ-0106–0116** — done
 2. **Gate 2** — deploy confirm + Sentry 24h
 3. **Manual QA** — Beats auto-order walkthrough
 

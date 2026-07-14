@@ -19,6 +19,25 @@ export const TYPO_SUBTITLE =
 export const TYPO_STAT_VALUE =
   "text-sm sm:text-lg font-medium text-gray-700 dark:text-white";
 
+/** REQ-0116 — detail page data values (font-normal; section titles stay TYPO_CARD_TITLE) */
+export const DETAIL_DATA_VALUE_CLASS =
+  "font-normal text-gray-700 dark:text-white";
+
+const detailStatValueTones = {
+  sky: "font-normal text-sky-600 dark:text-sky-400",
+  emerald: "font-normal text-emerald-600 dark:text-emerald-400",
+  amber: "font-normal text-amber-600 dark:text-amber-400",
+  rose: "font-normal text-rose-600 dark:text-rose-400",
+  violet: "font-normal text-violet-600 dark:text-violet-400",
+} as const;
+
+export type DetailStatValueTone = keyof typeof detailStatValueTones;
+
+/** Semantic hue for detail stat card metric values */
+export function detailStatValueToneClass(tone: DetailStatValueTone): string {
+  return detailStatValueTones[tone];
+}
+
 /** REQ-0064 — default body text color (use when no explicit tone is set) */
 export const TYPO_BODY = "text-gray-700 dark:text-white";
 

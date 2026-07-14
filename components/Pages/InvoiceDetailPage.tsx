@@ -390,7 +390,7 @@ export default function InvoiceDetailPage({
                 <>
                   <div
                     className={cn(
-                      "text-sm sm:text-lg font-medium",
+                      "text-sm sm:text-lg font-normal",
                       invoice!.amountDue > 0 && !isOverdue
                         ? "text-amber-600 dark:text-amber-400"
                         : invoice!.amountDue > 0 && isOverdue
@@ -672,6 +672,8 @@ export default function InvoiceDetailPage({
                           ? "owner"
                           : "none"
                     }
+                    orderSubtotal={invoice!.subtotal}
+                    orderTotal={invoice!.total}
                     showReviews={invoice!.status === "paid"}
                     order={{
                       id: invoice!.orderId,

@@ -51,6 +51,7 @@ import {
   DialogSubmitButton,
   AuditUserDetailRow,
   CatalogInsightsSection,
+  DetailInfoRowGroup,
   CatalogDetailProductGrid,
   CatalogDetailRecentOrdersList,
   SectionTitleRow,
@@ -73,6 +74,7 @@ import {
   useSyncSsrQueryData,
 } from "@/lib/react-query";
 import { cn } from "@/lib/utils";
+import { TYPO_BODY_MUTED } from "@/lib/ui/typography-scale";
 import { APP_SHELL_DETAIL_CLASS, DETAIL_PAGE_HEADER_SPACING_CLASS } from "@/lib/ui/shell-layout-styles";
 
 export type SupplierDetailPageProps = {
@@ -346,26 +348,28 @@ export default function SupplierDetailPage({
                       {supplier.notes}
                     </DetailInfoRow>
                   )}
-                  <DetailInfoRow
-                    icon={Calendar}
-                    label="Created:"
-                    tone="teal"
-                    loading={dataLoading}
-                  >
-                    {!dataLoading && <ClientDateTime date={createdAt} />}
-                  </DetailInfoRow>
-                  {(dataLoading || updatedAt) && (
+                  <DetailInfoRowGroup>
                     <DetailInfoRow
                       icon={Calendar}
-                      label="Updated:"
-                      tone="sky"
+                      label="Created:"
+                      tone="teal"
                       loading={dataLoading}
                     >
-                      {!dataLoading && updatedAt && (
-                        <ClientDateTime date={updatedAt} />
-                      )}
+                      {!dataLoading && <ClientDateTime date={createdAt} />}
                     </DetailInfoRow>
-                  )}
+                    {(dataLoading || updatedAt) && (
+                      <DetailInfoRow
+                        icon={Calendar}
+                        label="Updated:"
+                        tone="sky"
+                        loading={dataLoading}
+                      >
+                        {!dataLoading && updatedAt && (
+                          <ClientDateTime date={updatedAt} />
+                        )}
+                      </DetailInfoRow>
+                    )}
+                  </DetailInfoRowGroup>
                   {!dataLoading && supplier?.creator && (
                     <AuditUserDetailRow
                       label="Created by:"
@@ -447,14 +451,19 @@ export default function SupplierDetailPage({
                   </DetailInfoRow>
                   <DetailInfoRow
                     icon={Wallet}
-                    label="Current Stock Value:"
+                    label="Inventory value (list price):"
                     tone="blue"
                     loading={dataLoading}
                   >
                     {!dataLoading && (
-                      <span className="text-blue-600 dark:text-blue-400">
-                        ${stats.totalValue.toFixed(2)}
-                      </span>
+                      <div className="flex flex-col items-end gap-0.5">
+                        <span className="text-blue-600 dark:text-blue-400">
+                          ${stats.totalValue.toFixed(2)}
+                        </span>
+                        <span className={cn("text-xs", TYPO_BODY_MUTED)}>
+                          price × on-hand qty
+                        </span>
+                      </div>
                     )}
                   </DetailInfoRow>
                 </div>

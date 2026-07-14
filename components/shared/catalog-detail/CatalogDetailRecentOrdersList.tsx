@@ -12,6 +12,7 @@ import {
   CopyableText,
   DataSlotPulse,
   ListIndexBadge,
+  ProportionalPriceDisplay,
 } from "@/components/shared";
 import { ProductThumb } from "@/components/products/ProductOptionRow";
 import { OrderStatusBadge } from "@/lib/ui/semantic-badges";
@@ -166,21 +167,11 @@ export function CatalogDetailRecentOrdersList({
                 )}
               </div>
               <div className="text-left sm:text-right shrink-0">
-                <p className="font-medium text-gray-700 dark:text-white">
-                  {typeof order.proportionalAmount === "number" &&
-                  order.proportionalAmount !== order.subtotal ? (
-                    <>
-                      <span className="text-gray-500 dark:text-white/50 line-through mr-2">
-                        ${order.subtotal.toFixed(2)}
-                      </span>
-                      <span className="text-rose-600 dark:text-rose-400">
-                        ${order.proportionalAmount.toFixed(2)}
-                      </span>
-                    </>
-                  ) : (
-                    `$${order.subtotal.toFixed(2)}`
-                  )}
-                </p>
+                <ProportionalPriceDisplay
+                  listAmount={order.subtotal}
+                  adjustedAmount={order.proportionalAmount}
+                  size="sm"
+                />
                 <OrderStatusBadge
                   status={order.orderStatus ?? "pending"}
                   className="mt-1"

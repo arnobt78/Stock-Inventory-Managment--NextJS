@@ -129,7 +129,9 @@ async function enrichInvoice(
     invoiceProductOwners,
     linkedOrderNumber: order?.orderNumber ?? null,
     linkedOrderItems: await enrichOrderItemsCatalogNames(
-      mapOrderItemsFromRaw(order?.items),
+      mapOrderItemsFromRaw(order?.items, order
+        ? { subtotal: order.subtotal, total: order.total }
+        : undefined),
     ),
     creator: toParty(
       invoice.createdBy ? userMap.get(invoice.createdBy) ?? null : null,

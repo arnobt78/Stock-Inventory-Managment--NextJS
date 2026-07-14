@@ -388,6 +388,15 @@ Commands: lint, test, test:invalidate, build
 | VS-039 | INFO | Category gap closure + non-blocking forecast (REQ-0082) | PASS (automated) |
 | VS-040 | INFO | Category forecast loading shell parity (REQ-0083) | PASS (automated) |
 | VS-041 | INFO | Detail insights parity + forecast SSR sync (REQ-0084) | PASS (automated) |
+| VS-042 | INFO | Stock UX clarity + dialog/detail UI parity (REQ-0114) | PASS (automated) |
+| VS-043 | INFO | REQ-0114 dialog gap closure + warehouse summary test (REQ-0115) | PASS (automated) |
+| VS-044 | INFO | Dialog parity + proportional price DRY + detail typography (REQ-0116) | PASS (automated) |
+
+**Evidence summary (REQ-0114):** Scope: built/verified | Traceability: REQ-0114 | Findings: PASS | Commands: lint, test 492, test:invalidate 208, build
+
+**Evidence summary (REQ-0115):** Scope: built/verified | Traceability: REQ-0115 | Findings: PASS | Commands: lint, test 494, test:invalidate 208, build
+
+**Evidence summary (REQ-0116):** Scope: built/verified | Traceability: REQ-0116 | Findings: PASS | Commands: lint, test 498, test:invalidate 208, build
 
 ---
 

@@ -13,7 +13,6 @@ import {
   DialogClose,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import {
   Select,
@@ -22,11 +21,19 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { MessageSquare } from "lucide-react";
+import {
+  AlertTriangle,
+  FileText,
+  MessageSquare,
+  Send,
+  User,
+  X,
+} from "lucide-react";
 import {
   DeferredSelectGate,
   DIALOG_FORM_FIELD_VIOLET,
   DIALOG_FORM_FIELD_SKY,
+  DialogFormLabel,
   GLASS_GHOST_BUTTON,
   DialogSubmitButton,
 } from "@/components/shared";
@@ -117,7 +124,6 @@ export default function SupportTicketDialog({
   const inputClass = isViolet
     ? DIALOG_FORM_FIELD_VIOLET
     : DIALOG_FORM_FIELD_SKY;
-  const labelClass = "text-white/80";
   const descClass = "text-white/50";
   const titleClass = "text-[22px] text-white";
   const submitHue = isViolet ? "violet" : "sky";
@@ -153,12 +159,13 @@ export default function SupportTicketDialog({
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4 mt-4">
           <div className="space-y-2">
-            <Label
+            <DialogFormLabel
               htmlFor="support-ticket-subject"
-              className={cn("text-sm font-medium", labelClass)}
+              icon={MessageSquare}
+              required
             >
-              Subject *
-            </Label>
+              Subject
+            </DialogFormLabel>
             <Input
               id="support-ticket-subject"
               placeholder="Brief subject of your issue"
@@ -170,12 +177,13 @@ export default function SupportTicketDialog({
             />
           </div>
           <div className="space-y-2">
-            <Label
+            <DialogFormLabel
               htmlFor="support-ticket-description"
-              className={cn("text-sm font-medium", labelClass)}
+              icon={FileText}
+              required
             >
-              Description *
-            </Label>
+              Description
+            </DialogFormLabel>
             <Textarea
               id="support-ticket-description"
               placeholder="Describe the issue or request in detail..."
@@ -187,12 +195,13 @@ export default function SupportTicketDialog({
           </div>
           {productOwners.length > 0 && (
             <div className="space-y-2">
-              <Label
+              <DialogFormLabel
                 htmlFor="support-ticket-send-to"
-                className={cn("text-sm font-medium", labelClass)}
+                icon={User}
+                optional
               >
                 Send to (product owner)
-              </Label>
+              </DialogFormLabel>
               <DeferredSelectGate
                 enabled={open}
                 placeholder={
@@ -249,12 +258,13 @@ export default function SupportTicketDialog({
             </div>
           )}
           <div className="space-y-2">
-            <Label
+            <DialogFormLabel
               htmlFor="support-ticket-priority"
-              className={cn("text-sm font-medium", labelClass)}
+              icon={AlertTriangle}
+              required
             >
               Priority
-            </Label>
+            </DialogFormLabel>
             <DeferredSelectGate
               enabled={open}
               placeholder={
@@ -307,9 +317,10 @@ export default function SupportTicketDialog({
               <Button
                 type="button"
                 variant="secondary"
-                className={cn("h-11 rounded-xl", GLASS_GHOST_BUTTON)}
+                className={cn("h-11 rounded-xl gap-2", GLASS_GHOST_BUTTON)}
                 disabled={isPending}
               >
+                <X className="h-4 w-4 shrink-0" aria-hidden />
                 Cancel
               </Button>
             </DialogClose>
@@ -317,6 +328,7 @@ export default function SupportTicketDialog({
               isPending={isPending}
               pendingLabel="Creating ticket…"
               label="Create Ticket"
+              icon={Send}
               hue={submitHue}
               disabled={!subject.trim() || !description.trim()}
               className="h-11 rounded-xl"

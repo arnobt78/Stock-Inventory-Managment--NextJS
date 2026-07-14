@@ -1,8 +1,9 @@
 "use client";
 
+import { DialogFormLabel } from "@/components/shared";
 import { DIALOG_FORM_FIELD_ROSE } from "@/components/shared/dialog-form-field";
+import { DollarSign } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { MdError } from "react-icons/md";
 import { NumericFormat } from "react-number-format";
@@ -16,9 +17,9 @@ export default function Price() {
 
   return (
     <div className="flex flex-col gap-2 pt-[6px]">
-      <Label htmlFor="price" className="text-white/80">
+      <DialogFormLabel htmlFor="price" icon={DollarSign} required>
         Price
-      </Label>
+      </DialogFormLabel>
       <Controller
         name="price"
         control={control}

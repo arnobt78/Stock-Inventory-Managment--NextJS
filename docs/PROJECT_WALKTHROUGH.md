@@ -242,7 +242,8 @@ flowchart LR
 | Order workflow (REQ-0111) | `useOrderLineStockValidation`; `OrderDialogCreateLineItem`; `ensureStockAllocationsAndValidate`; server message parity |
 | Line fetch DRY (REQ-0112) | Single stock fetch per line; injected rows; `lineStockErrors` by `field.id` |
 | Warehouse select (REQ-0113) | `OrderLineWarehouseSelect` props-only; `OrderFormData` merged; `.types.ts` deleted |
-| Next | Gate 2 — prod deploy + Sentry 24h; Beats §9 manual smoke |
+| Stock UX + dialog/UI closure (REQ-0114–0116) | `ProportionalPriceDisplay`; catalog-commit hints; proportional pricing; dialog labels; detail typography | Gates: test 498 |
+| Next | Gate 2 deploy + Sentry 24h; **manual QA from scratch** — `MANUAL_TEST_FIXTURES.md` §9 |
 | AI warehouse insights (REQ-0067) | `POST /api/ai/insights` enriches payload with `getWarehouseStockSummary` |
 | Per-warehouse order picking (REQ-0068) | `OrderItem.warehouseId`; `stock-allocation-order-sync.ts`; `OrderLineWarehouseSelect`; reserve/fulfill/cancel sync; invoice-paid gap; `f892b65` removed unused `deleteCache`/`getRateLimitStatus` |
 | Demo reset | `npm run script:reset-demo-db` — accounts-only (3 users + Test Supplier); opt-in catalog via `seed-demo-catalog` |

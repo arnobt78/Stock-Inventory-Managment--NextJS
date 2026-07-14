@@ -17,8 +17,8 @@ import {
   DIALOG_TABLE_HEAD_TEXT,
   DIALOG_TABLE_LINK,
   DIALOG_TABLE_TEXT,
+  TABLE_CATALOG_LINK_CLASS,
 } from "@/components/shared/dialog-edge-scroll";
-import { TABLE_LINK_PRIMARY } from "@/lib/ui/table-typography";
 
 export type TableColumnContext = "page" | "dialog";
 
@@ -35,7 +35,7 @@ function columnTextClasses(context: TableColumnContext) {
     : {
         body: PAGE_BODY_TEXT,
         header: PAGE_HEADER_TEXT,
-        link: TABLE_LINK_PRIMARY,
+        link: TABLE_CATALOG_LINK_CLASS,
       };
 }
 

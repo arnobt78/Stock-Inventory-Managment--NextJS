@@ -11,6 +11,7 @@ import { prisma } from "@/prisma/client";
 import { mergeProductListWhere } from "@/lib/products/product-query";
 import { enrichProductDetailWithCommittedQuantity } from "@/lib/products/enrich-product-committed-quantity";
 import { logger } from "@/lib/logger";
+import { computeProportionalLineAmount } from "@/lib/orders/proportional-line-amount";
 import type { SessionForDetail } from "@/lib/server/order-detail-data";
 import { computeProductInsights } from "@/lib/server/product-insights";
 
@@ -162,10 +163,11 @@ function transformProductDetail(
         userId?: string;
       };
       const orderSubtotal = order.subtotal ?? 0;
-      const proportionalAmount =
-        orderSubtotal > 0
-          ? (item.subtotal / orderSubtotal) * order.total
-          : item.subtotal;
+      const proportionalAmount = computeProportionalLineAmount(
+        item.subtotal,
+        orderSubtotal,
+        order.total,
+      );
       const placedByUserId = order.userId;
       const placedBy = placedByUserId
         ? orderUserMap.get(placedByUserId)

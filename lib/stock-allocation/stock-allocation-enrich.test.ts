@@ -49,6 +49,8 @@ describe("transformStockAllocationRow", () => {
           supplierName: "Acme",
           deletedAt: null,
           isArchived: false,
+          reservedQuantity: 0,
+          committedQuantity: 0,
         },
       ],
     ]);
@@ -129,6 +131,7 @@ describe("fetchStockAllocationProductMap", () => {
         categoryId: "cat-1",
         supplierId: "sup-1",
         deletedAt: null,
+        reservedQuantity: 0,
       },
     ] as never);
     vi.mocked(prisma.category.findMany).mockResolvedValue([
@@ -137,6 +140,7 @@ describe("fetchStockAllocationProductMap", () => {
     vi.mocked(prisma.supplier.findMany).mockResolvedValue([
       { id: "sup-1", name: "Acme" },
     ] as never);
+    vi.mocked(prisma.stockAllocation.findMany).mockResolvedValue([] as never);
 
     const map = await fetchStockAllocationProductMap(["prod-1"]);
 
@@ -152,6 +156,8 @@ describe("fetchStockAllocationProductMap", () => {
       supplierName: "Acme",
       deletedAt: null,
       isArchived: false,
+      reservedQuantity: 0,
+      committedQuantity: 0,
     });
   });
 });

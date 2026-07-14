@@ -33,6 +33,11 @@ export type { AvatarInlineLinkProps } from "./AvatarInlineLink";
 export { ProductLineItemsList } from "./ProductLineItemsList";
 export type { ProductLineItemsListProps } from "./ProductLineItemsList";
 export {
+  ProportionalPriceDisplay,
+  shouldShowAdjustedPrice,
+} from "./ProportionalPriceDisplay";
+export type { ProportionalPriceDisplayProps } from "./ProportionalPriceDisplay";
+export {
   DIALOG_FORM_FIELD_AMBER,
   DIALOG_FORM_FIELD_BLUE,
   DIALOG_FORM_FIELD_CYAN,
@@ -67,7 +72,14 @@ export {
   DIALOG_FORM_ERROR_TEXT,
   DIALOG_FORM_SUCCESS_TEXT,
   DIALOG_FORM_WARN_TEXT,
+  DIALOG_FORM_LABEL,
+  DIALOG_FORM_REQUIRED_MARK,
+  TABLE_CATALOG_LINK_CLASS,
 } from "./dialog-edge-scroll";
+export { DetailInfoRowGroup } from "./DetailInfoRowGroup";
+export type { DetailInfoRowGroupProps } from "./DetailInfoRowGroup";
+export { DialogFormLabel } from "./dialog-form-label";
+export type { DialogFormLabelProps } from "./dialog-form-label";
 export { DialogTableScrollArea } from "./DialogTableScrollArea";
 export type { DialogTableScrollAreaProps } from "./DialogTableScrollArea";
 export { PageContentWrapper } from "./PageContentWrapper";

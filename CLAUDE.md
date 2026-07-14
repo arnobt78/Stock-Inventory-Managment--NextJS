@@ -877,6 +877,16 @@ Hub: `lib/ui/typography-scale.ts`. Hubs import tokens; ~45 inline files use equi
 
 **Invalidation unchanged** — `invalidateAfterOrderGraphChange` + `invalidateAfterStockChange`.
 
+## Stock UX + dialog/UI closure (REQ-0114–0116, 2026-07-14)
+
+| REQ | Summary | Key files |
+|-----|---------|-----------|
+| 0114 | Catalog-commit hints; `committedQuantity` enrich; proportional line amounts; `DialogFormLabel`/`DetailInfoRowGroup`; warehouse insights DRY | `catalog-allocation-copy.ts`, `proportional-line-amount.ts`, `ProductLineItemsList`, `WarehouseDetailPage` |
+| 0115 | `mapWarehouseStockSummary` + test; remaining dialog label/footer sweep | `warehouse-insights-compute.ts`, `InvoiceDialog`, `OrderDialog`, `SupportTicketDialog`, `PaymentDialog` |
+| 0116 | `ProportionalPriceDisplay` DRY; final dialog gaps; `DETAIL_DATA_VALUE_CLASS` detail typography | `ProportionalPriceDisplay.tsx`, `typography-scale.ts`, `OrderDialogCreateLineItem` |
+
+Gates: lint ✓ test **498** ✓ invalidate **208** ✓ build ✓. **No invalidation/SSR/API changes** — display + CSS only. Manual QA: `docs/MANUAL_TEST_FIXTURES.md` §9.
+
 ## Hydration-safe dates
 
 - `lib/format/` — stable (`format-stable`) + client (`client-locale`) barrel

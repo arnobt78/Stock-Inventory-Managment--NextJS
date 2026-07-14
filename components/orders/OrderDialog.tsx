@@ -54,6 +54,7 @@ import { ensureStockAllocationsAndValidate } from "@/lib/orders/order-line-stock
 import {
   DeferredSelectGate,
   DIALOG_FORM_FIELD_VIOLET,
+  DialogFormLabel,
   DialogSubmitButton,
   GLASS_GHOST_BUTTON,
 } from "@/components/shared";
@@ -73,7 +74,15 @@ import type {
   CreateOrderInput,
 } from "@/types";
 import { logger } from "@/lib/logger";
-import { Plus } from "lucide-react";
+import {
+  DollarSign,
+  MapPin,
+  Package,
+  Plus,
+  Save,
+  StickyNote,
+  X,
+} from "lucide-react";
 import { useAuth } from "@/contexts";
 import { useToast } from "@/hooks/use-toast";
 import { useQueryClient } from "@tanstack/react-query";
@@ -924,12 +933,15 @@ export default function OrderDialog({
                 ) : null}
 
                 {/* Notes */}
-                <div className="sm:col-span-2">
+                <div className="sm:col-span-2 space-y-2">
+                  <DialogFormLabel htmlFor="notes" icon={StickyNote} optional>
+                    Notes
+                  </DialogFormLabel>
                   <FormField
                     name="notes"
                     label="Notes"
                     placeholder="Enter order notes..."
-                    labelClassName="text-white/80"
+                    showLabel={false}
                     inputClassName={DIALOG_FORM_FIELD_VIOLET}
                   />
                 </div>
@@ -939,14 +951,16 @@ export default function OrderDialog({
                 <Button
                   onClick={handleCancelEdit}
                   variant="secondary"
-                  className={cn("w-full sm:w-auto px-11", GLASS_GHOST_BUTTON)}
+                  className={cn("w-full sm:w-auto px-11 gap-2", GLASS_GHOST_BUTTON)}
                 >
+                  <X className="h-4 w-4 shrink-0" aria-hidden />
                   Cancel
                 </Button>
                 <DialogSubmitButton
                   isPending={isUpdating}
                   pendingLabel="Updating order…"
                   label="Update Order"
+                  icon={Save}
                   hue="violet"
                   disabled={isUpdating}
                   className="px-11"
@@ -1029,9 +1043,7 @@ export default function OrderDialog({
                 {/* Order Items Section */}
                 <div className="space-y-4">
                   <div className="flex items-center justify-between">
-                    <Label className="text-white/80 text-base font-medium">
-                      Order Items
-                    </Label>
+                    <DialogFormLabel icon={Package}>Order Items</DialogFormLabel>
                     <Button
                       type="button"
                       onClick={handleAddItem}
@@ -1061,6 +1073,8 @@ export default function OrderDialog({
                       createErrors={createErrors}
                       onRemove={() => handleRemoveItem(index, field.id)}
                       onStockValidityChange={handleLineStockValidityChange}
+                      orderSubtotal={subtotal}
+                      orderTotal={total}
                     />
                   ))}
 
@@ -1075,9 +1089,7 @@ export default function OrderDialog({
 
                 {/* Addresses Section */}
                 <div className="space-y-4">
-                  <Label className="text-white/80 text-base font-medium">
-                    Shipping Address
-                  </Label>
+                  <DialogFormLabel icon={MapPin}>Shipping Address</DialogFormLabel>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                     <FormField
                       name="shippingAddress.street"
@@ -1139,9 +1151,7 @@ export default function OrderDialog({
                   {/* Billing Address */}
                   {!useSameAddress && (
                     <div className="space-y-4 pt-4 border-t border-violet-400/20">
-                      <Label className="text-white/80 text-base font-medium">
-                        Billing Address
-                      </Label>
+                      <DialogFormLabel icon={MapPin}>Billing Address</DialogFormLabel>
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                         <FormField
                           name="billingAddress.street"
@@ -1186,9 +1196,7 @@ export default function OrderDialog({
 
                 {/* Order Totals Section — tax 7%, shipping $4.99, discount by subtotal tier (computed, no dropdowns) */}
                 <div className="space-y-4">
-                  <Label className="text-white/80 text-base font-medium">
-                    Order Totals
-                  </Label>
+                  <DialogFormLabel icon={DollarSign}>Order Totals</DialogFormLabel>
                   <div className="p-4 border border-violet-400/20 rounded-lg bg-white/5 space-y-2">
                     <div className="flex justify-between text-sm text-white/70">
                       <span>Subtotal:</span>
@@ -1216,12 +1224,15 @@ export default function OrderDialog({
                 </div>
 
                 {/* Notes */}
-                <div>
+                <div className="space-y-2">
+                  <DialogFormLabel htmlFor="notes" icon={StickyNote} optional>
+                    Order Notes
+                  </DialogFormLabel>
                   <FormField
                     name="notes"
                     label="Order Notes"
                     placeholder="Additional notes or instructions..."
-                    labelClassName="text-white/80"
+                    showLabel={false}
                     inputClassName={DIALOG_FORM_FIELD_VIOLET}
                   />
                 </div>
@@ -1232,8 +1243,9 @@ export default function OrderDialog({
                   <Button
                     ref={dialogCloseRef}
                     variant="secondary"
-                    className={cn("w-full sm:w-auto px-11", GLASS_GHOST_BUTTON)}
+                    className={cn("w-full sm:w-auto px-11 gap-2", GLASS_GHOST_BUTTON)}
                   >
+                    <X className="h-4 w-4 shrink-0" aria-hidden />
                     Cancel
                   </Button>
                 </DialogClose>
@@ -1241,6 +1253,7 @@ export default function OrderDialog({
                   isPending={isCreating}
                   pendingLabel="Creating order…"
                   label="Create Order"
+                  icon={Package}
                   hue="violet"
                   disabled={
                     isCreating ||

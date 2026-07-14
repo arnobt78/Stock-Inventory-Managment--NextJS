@@ -39,6 +39,9 @@ export interface StockAllocation {
     /** Derived when all product allocations are loaded */
     allocatedTotal?: number;
     unallocated?: number;
+    /** REQ-0114 — catalog-level order commitment for warehouse row hints */
+    committedQuantity?: number;
+    reservedQuantity?: number;
   };
   warehouse?: {
     id: string;

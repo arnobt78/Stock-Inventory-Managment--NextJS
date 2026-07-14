@@ -636,7 +636,7 @@ export default function AdminOrderDetailContent({
                   <AlertDialogDescription>
                     Cancel this order and issue a full refund via Stripe?
                     Amount:{" "}
-                    <span className="font-medium text-gray-700 dark:text-white">
+                    <span className="font-normal text-gray-700 dark:text-white">
                       ${Number(order!.total).toFixed(2)}
                     </span>
                     . Status will be cancelled, stock restored, invoice

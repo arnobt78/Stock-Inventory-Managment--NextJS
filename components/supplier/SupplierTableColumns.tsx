@@ -20,8 +20,8 @@ import {
   DIALOG_TABLE_HEAD_TEXT,
   DIALOG_TABLE_LINK,
   DIALOG_TABLE_TEXT,
+  TABLE_CATALOG_LINK_CLASS,
 } from "@/components/shared/dialog-edge-scroll";
-import { TABLE_LINK_PRIMARY } from "@/lib/ui/table-typography";
 import type { TableColumnContext } from "@/components/category/CategoryTableColumns";
 
 const PAGE_BODY_TEXT = "text-gray-700 dark:text-white";
@@ -37,7 +37,7 @@ function columnTextClasses(context: TableColumnContext) {
     : {
         body: PAGE_BODY_TEXT,
         header: PAGE_HEADER_TEXT,
-        link: TABLE_LINK_PRIMARY,
+        link: TABLE_CATALOG_LINK_CLASS,
       };
 }
 
@@ -128,7 +128,7 @@ function NameLinkWithClose({
         label={name}
         seed={userId}
         size={28}
-        linkClassName="text-sm font-normal"
+        linkClassName={TABLE_CATALOG_LINK_CLASS}
       />
     </button>
   );
@@ -168,7 +168,7 @@ export const createSupplierColumns = (
               label={supplier.name}
               seed={supplier.userId ?? supplier.id}
               size={28}
-              linkClassName="text-sm font-normal"
+              linkClassName={TABLE_CATALOG_LINK_CLASS}
             />
           </Link>
         );

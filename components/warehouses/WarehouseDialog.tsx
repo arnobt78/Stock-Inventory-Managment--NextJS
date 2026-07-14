@@ -14,7 +14,6 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import {
   Select,
@@ -26,10 +25,12 @@ import {
 import {
   DeferredSelectGate,
   DIALOG_FORM_FIELD_TEAL,
+  DialogFormLabel,
   GLASS_GHOST_BUTTON,
   DialogSubmitButton,
 } from "@/components/shared";
 import { cn } from "@/lib/utils";
+import { Building2, MapPin, Layers, Plus, X } from "lucide-react";
 import { useCreateWarehouse, useUpdateWarehouse } from "@/hooks/queries";
 import { Warehouse } from "@/types";
 
@@ -168,12 +169,9 @@ export default function WarehouseDialog({
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4 mt-4">
           <div className="space-y-2">
-            <Label
-              htmlFor="warehouse-name"
-              className="text-sm font-medium text-white/80"
-            >
-              Warehouse Name *
-            </Label>
+            <DialogFormLabel htmlFor="warehouse-name" icon={Building2} required>
+              Warehouse Name
+            </DialogFormLabel>
             <Input
               id="warehouse-name"
               value={name}
@@ -184,12 +182,9 @@ export default function WarehouseDialog({
             />
           </div>
           <div className="space-y-2">
-            <Label
-              htmlFor="warehouse-address"
-              className="text-sm font-medium text-white/80"
-            >
+            <DialogFormLabel htmlFor="warehouse-address" icon={MapPin} optional>
               Address
-            </Label>
+            </DialogFormLabel>
             <Textarea
               id="warehouse-address"
               value={address}
@@ -200,12 +195,9 @@ export default function WarehouseDialog({
             />
           </div>
           <div className="space-y-2">
-            <Label
-              htmlFor="warehouse-type"
-              className="text-sm font-medium text-white/80"
-            >
+            <DialogFormLabel htmlFor="warehouse-type" icon={Layers}>
               Warehouse Type
-            </Label>
+            </DialogFormLabel>
             <DeferredSelectGate
               enabled={open}
               placeholder={
@@ -257,12 +249,12 @@ export default function WarehouseDialog({
               className="data-[state=checked]:bg-teal-500"
             />
             <div className="flex flex-col">
-              <Label
+              <DialogFormLabel
                 htmlFor="warehouse-status"
-                className="text-sm font-medium text-white/80 cursor-pointer"
+                className="cursor-pointer"
               >
                 Active Status
-              </Label>
+              </DialogFormLabel>
               <span className="text-xs text-white/50">
                 {status
                   ? "Warehouse is currently active"
@@ -275,9 +267,10 @@ export default function WarehouseDialog({
               <Button
                 type="button"
                 variant="secondary"
-                className={cn("h-11 w-full sm:w-auto px-8", GLASS_GHOST_BUTTON)}
+                className={cn("h-11 w-full sm:w-auto px-8 gap-2", GLASS_GHOST_BUTTON)}
                 disabled={isSubmitting}
               >
+                <X className="h-4 w-4 shrink-0" aria-hidden />
                 Cancel
               </Button>
             </DialogClose>
@@ -289,6 +282,7 @@ export default function WarehouseDialog({
               label={
                 editingWarehouse ? "Update Warehouse" : "Create Warehouse"
               }
+              icon={Plus}
               hue="teal"
               disabled={!isValid}
               className="h-11 px-8"

@@ -24,3 +24,11 @@ export function formatCatalogAllocationDetailSummary(
   if (reservedCommitment <= 0) return base;
   return `${base} · ${reservedCommitment} reserved`;
 }
+
+/**
+ * REQ-0114 — auto-assign orders commit at catalog level; warehouse row qty unchanged until fulfill.
+ */
+export function formatCatalogCommitWarehouseHint(catalogCommitted: number): string {
+  if (catalogCommitted <= 0) return "";
+  return `${catalogCommitted} on catalog orders — warehouse row unchanged until fulfilled`;
+}

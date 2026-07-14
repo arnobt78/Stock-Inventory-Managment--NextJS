@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   formatCatalogAllocationDetailSummary,
   formatCatalogAllocationSummary,
+  formatCatalogCommitWarehouseHint,
 } from "./catalog-allocation-copy";
 
 describe("catalog-allocation-copy", () => {
@@ -20,6 +21,12 @@ describe("catalog-allocation-copy", () => {
   it("formatCatalogAllocationDetailSummary omits reserved when zero", () => {
     expect(formatCatalogAllocationDetailSummary(50, 30, 20, 0)).toBe(
       "Catalog 50 · allocated 30 · unallocated 20",
+    );
+  });
+
+  it("formatCatalogCommitWarehouseHint", () => {
+    expect(formatCatalogCommitWarehouseHint(20)).toBe(
+      "20 on catalog orders — warehouse row unchanged until fulfilled",
     );
   });
 });

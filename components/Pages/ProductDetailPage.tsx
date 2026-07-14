@@ -65,7 +65,9 @@ import {
   SectionTitleRow,
   SectionCountBadge,
   ListIndexBadge,
+  ProportionalPriceDisplay,
   CatalogInsightsSection,
+  DetailInfoRowGroup,
   GlassCard,
   GlassCardBody,
   GLASS_CARD_VARIANT_CONFIG as variantConfig,
@@ -73,7 +75,10 @@ import {
 import { findProductForecast } from "@/lib/forecasting/entity-forecast";
 import { enrichProductInsightsWithWarehouseStock } from "@/lib/insights/product-insights-enrich";
 import { sumAllocatedQuantity } from "@/lib/insights/warehouse-stock-aggregate";
-import { formatCatalogAllocationDetailSummary } from "@/lib/stock-allocation/catalog-allocation-copy";
+import {
+  formatCatalogAllocationDetailSummary,
+  formatCatalogCommitWarehouseHint,
+} from "@/lib/stock-allocation/catalog-allocation-copy";
 import {
   computeCommittedQuantity,
   getDisplayCommittedQuantity,
@@ -99,6 +104,7 @@ import type {
 } from "@/types";
 import type { ReviewEligibilityResult } from "@/lib/server/product-reviews-detail-data";
 import { cn } from "@/lib/utils";
+import { TYPO_BODY_MUTED } from "@/lib/ui/typography-scale";
 import { APP_SHELL_DETAIL_CLASS, DETAIL_PAGE_HEADER_SPACING_CLASS } from "@/lib/ui/shell-layout-styles";
 import { CARD_EMPTY_MESSAGE_CLASS } from "@/lib/ui/card-empty-styles";
 import { SafeImage } from "@/components/ui/safe-image";
@@ -609,26 +615,28 @@ export default function ProductDetailPage({
                         />
                       </DetailInfoRow>
                     )}
-                  <DetailInfoRow
-                    icon={Calendar}
-                    label="Created:"
-                    tone="teal"
-                    loading={dataLoading}
-                  >
-                    {!dataLoading && <ClientDateTime date={createdAt} />}
-                  </DetailInfoRow>
-                  {(dataLoading || updatedAt) && (
+                  <DetailInfoRowGroup>
                     <DetailInfoRow
                       icon={Calendar}
-                      label="Updated:"
-                      tone="sky"
+                      label="Created:"
+                      tone="teal"
                       loading={dataLoading}
                     >
-                      {!dataLoading && updatedAt && (
-                        <ClientDateTime date={updatedAt} />
-                      )}
+                      {!dataLoading && <ClientDateTime date={createdAt} />}
                     </DetailInfoRow>
-                  )}
+                    {(dataLoading || updatedAt) && (
+                      <DetailInfoRow
+                        icon={Calendar}
+                        label="Updated:"
+                        tone="sky"
+                        loading={dataLoading}
+                      >
+                        {!dataLoading && updatedAt && (
+                          <ClientDateTime date={updatedAt} />
+                        )}
+                      </DetailInfoRow>
+                    )}
+                  </DetailInfoRowGroup>
                   {!dataLoading && expirationDate && (
                     <DetailInfoRow
                       icon={Calendar}
@@ -639,7 +647,7 @@ export default function ProductDetailPage({
                     </DetailInfoRow>
                   )}
                   {!dataLoading && product && (
-                    <>
+                    <DetailInfoRowGroup>
                       <DetailInfoRow
                         icon={Package}
                         label="Stock qty:"
@@ -663,7 +671,7 @@ export default function ProductDetailPage({
                       >
                         {(product.quantity ?? 0) - displayCommitted}
                       </DetailInfoRow>
-                    </>
+                    </DetailInfoRowGroup>
                   )}
                   {!dataLoading && product?.deletedAt && (
                     <DetailInfoRow icon={Package} label="Archived:" tone="rose">
@@ -740,14 +748,19 @@ export default function ProductDetailPage({
                   </DetailInfoRow>
                   <DetailInfoRow
                     icon={Wallet}
-                    label="Current Stock Value:"
+                    label="Inventory value (list price):"
                     tone="blue"
                     loading={dataLoading}
                   >
                     {!dataLoading && (
-                      <span className="text-blue-600 dark:text-blue-400">
-                        ${(stats.totalValue ?? 0).toFixed(2)}
-                      </span>
+                      <div className="flex flex-col items-end gap-0.5">
+                        <span className="text-blue-600 dark:text-blue-400">
+                          ${(stats.totalValue ?? 0).toFixed(2)}
+                        </span>
+                        <span className={cn("text-xs", TYPO_BODY_MUTED)}>
+                          price × on-hand qty
+                        </span>
+                      </div>
                     )}
                   </DetailInfoRow>
                 </div>
@@ -833,6 +846,11 @@ export default function ProductDetailPage({
                   <div className="space-y-2 mt-4">
                     {warehouseAllocations.map((row) => {
                       const avail = row.quantity - row.reservedQuantity;
+                      const catalogOnlyCommit =
+                        displayCommitted > Number(row.reservedQuantity ?? 0);
+                      const commitHint = catalogOnlyCommit
+                        ? formatCatalogCommitWarehouseHint(displayCommitted)
+                        : "";
                       const whHref = embedInAdmin
                         ? `/admin/warehouses/${row.warehouseId}`
                         : `/warehouses/${row.warehouseId}`;
@@ -861,7 +879,7 @@ export default function ProductDetailPage({
                               />
                             )}
                           </div>
-                          <span className="text-sm text-gray-700 dark:text-white shrink-0">
+                          <span className="text-sm font-normal text-gray-700 dark:text-white shrink-0">
                             {avail}{" "}
                             <span className="text-gray-500 dark:text-gray-400">
                               available
@@ -872,6 +890,11 @@ export default function ProductDetailPage({
                               </span>
                             ) : null}
                           </span>
+                          {commitHint ? (
+                            <p className="text-xs text-amber-600/90 dark:text-amber-400/90 sm:text-right">
+                              {commitHint}
+                            </p>
+                          ) : null}
                         </div>
                       );
                     })}
@@ -1002,21 +1025,11 @@ export default function ProductDetailPage({
                             )}
                           </div>
                           <div className="text-left sm:text-right shrink-0">
-                            <p className="font-medium text-gray-700 dark:text-white">
-                              {typeof order.proportionalAmount === "number" &&
-                              order.proportionalAmount !== order.subtotal ? (
-                                <>
-                                  <span className="text-gray-500 dark:text-white/50 line-through mr-2">
-                                    ${order.subtotal.toFixed(2)}
-                                  </span>
-                                  <span className="text-rose-600 dark:text-rose-400">
-                                    ${order.proportionalAmount.toFixed(2)}
-                                  </span>
-                                </>
-                              ) : (
-                                `$${order.subtotal.toFixed(2)}`
-                              )}
-                            </p>
+                            <ProportionalPriceDisplay
+                              listAmount={order.subtotal}
+                              adjustedAmount={order.proportionalAmount}
+                              size="sm"
+                            />
                             <OrderStatusBadge
                               status={order.orderStatus ?? "pending"}
                               className="mt-1"

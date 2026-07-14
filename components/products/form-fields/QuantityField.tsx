@@ -1,8 +1,9 @@
 "use client";
 
+import { DialogFormLabel } from "@/components/shared";
 import { DIALOG_FORM_FIELD_ROSE } from "@/components/shared/dialog-form-field";
+import { Layers } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { MdError } from "react-icons/md";
 import { useFormContext } from "react-hook-form";
@@ -14,9 +15,9 @@ export default function Quantity() {
   } = useFormContext();
   return (
     <div className=" flex flex-col gap-2 pt-[6px]">
-      <Label htmlFor="quantity" className="text-white/80">
-        {`Quantity`}
-      </Label>
+      <DialogFormLabel htmlFor="quantity" icon={Layers} required>
+        Quantity
+      </DialogFormLabel>
       <Input
         {...register("quantity", {
           valueAsNumber: true,

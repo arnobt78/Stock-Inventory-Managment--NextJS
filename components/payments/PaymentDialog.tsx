@@ -8,8 +8,10 @@
 import React, { useState } from "react";
 import {
   Dialog,
+  DialogClose,
   DialogContent,
   DialogDescription,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
@@ -17,13 +19,14 @@ import {
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { useCreateCheckout } from "@/hooks/queries";
-import { CreditCard, ShieldCheck } from "lucide-react";
+import { CreditCard, ShieldCheck, X } from "lucide-react";
 import TestCredentialsCard from "./TestCredentialsCard";
 import type { CheckoutType } from "@/types";
 import { cn } from "@/lib/utils";
 import {
   CopyableText,
   DialogSubmitButton,
+  GLASS_GHOST_BUTTON,
 } from "@/components/shared";
 
 interface PaymentDialogProps {
@@ -183,21 +186,35 @@ export default function PaymentDialog({
               <TestCredentialsCard />
             </div>
 
-            {/* Pay Button */}
+            {/* Pay / Cancel */}
             <div className="flex flex-col gap-2 flex-shrink-0">
               <p className="text-xs text-center text-white/80">
                 No card entry here — you&apos;ll enter payment details on
                 Stripe&apos;s page after clicking below.
               </p>
-              <DialogSubmitButton
-                type="button"
-                onClick={handlePayment}
-                isPending={isLoading}
-                pendingLabel="Redirecting to payment…"
-                label="Secure checkout with Link"
-                hue="sky"
-                className="px-11"
-              />
+              <DialogFooter className="flex flex-col sm:flex-row items-center gap-2 sm:justify-center">
+                <DialogClose asChild>
+                  <Button
+                    type="button"
+                    variant="secondary"
+                    disabled={isLoading}
+                    className={cn("w-full sm:w-auto px-11 gap-2", GLASS_GHOST_BUTTON)}
+                  >
+                    <X className="h-4 w-4 shrink-0" aria-hidden />
+                    Cancel
+                  </Button>
+                </DialogClose>
+                <DialogSubmitButton
+                  type="button"
+                  onClick={handlePayment}
+                  isPending={isLoading}
+                  pendingLabel="Redirecting to payment…"
+                  label="Secure checkout with Link"
+                  icon={CreditCard}
+                  hue="sky"
+                  className="px-11"
+                />
+              </DialogFooter>
 
               <p className="text-xs text-center text-white">
                 You&apos;ll be redirected to Stripe&apos;s secure checkout page

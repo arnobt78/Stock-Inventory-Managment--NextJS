@@ -13,6 +13,7 @@ import { Separator } from "@/components/ui/separator";
 import { DataSlotPulse } from "@/components/shared";
 import type { Order } from "@/types";
 import { cn } from "@/lib/utils";
+import { DETAIL_DATA_VALUE_CLASS } from "@/lib/ui/typography-scale";
 import { GlassCard, variantConfig } from "./order-detail-primitives";
 
 export type OrderSummaryCardProps = {
@@ -39,7 +40,7 @@ function SummaryRow({
         <Icon className="h-3.5 w-3.5 shrink-0" />
         {label}
       </span>
-      <span className={cn("font-medium text-gray-700 dark:text-white", valueClassName)}>
+      <span className={cn(DETAIL_DATA_VALUE_CLASS, valueClassName)}>
         {loading ? <DataSlotPulse variant="currency" /> : value}
       </span>
     </div>
@@ -96,12 +97,12 @@ export function OrderSummaryCard({
           />
         )}
         <Separator className="my-2 bg-teal-200/50 dark:bg-teal-400/20" />
-        <div className="flex justify-between text-sm sm:text-lg font-medium p-2 rounded-xl bg-gradient-to-r from-emerald-100/50 via-emerald-50/30 to-transparent dark:from-emerald-500/15 dark:via-emerald-500/10 dark:to-transparent border border-emerald-200/30 dark:border-emerald-400/20">
-          <span className="text-gray-700 dark:text-white inline-flex items-center gap-1.5">
+        <div className="flex justify-between text-sm sm:text-lg p-2 rounded-xl bg-gradient-to-r from-emerald-100/50 via-emerald-50/30 to-transparent dark:from-emerald-500/15 dark:via-emerald-500/10 dark:to-transparent border border-emerald-200/30 dark:border-emerald-400/20">
+          <span className="text-gray-700 dark:text-white inline-flex items-center gap-1.5 font-normal">
             <CircleDollarSign className="h-4 w-4 shrink-0 text-emerald-600 dark:text-emerald-400" />
             Total:
           </span>
-          <span className="text-emerald-600 dark:text-emerald-400">
+          <span className="font-normal text-emerald-600 dark:text-emerald-400">
             {dataLoading ? (
               <DataSlotPulse variant="currency" />
             ) : (

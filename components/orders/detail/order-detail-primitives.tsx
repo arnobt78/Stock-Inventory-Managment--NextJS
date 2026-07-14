@@ -115,12 +115,15 @@ export function DetailInfoRow({
   children,
   tone = "orange",
   loading,
+  valueClassName,
 }: {
   icon: LucideIcon;
   label: string;
   children: React.ReactNode;
   tone?: DetailInfoTone;
   loading?: boolean;
+  /** REQ-0114 — optional emphasis override on value span */
+  valueClassName?: string;
 }) {
   const styles = detailInfoToneClasses[tone];
   return (
@@ -132,7 +135,12 @@ export function DetailInfoRow({
     >
       <Icon className={cn("h-4 w-4 shrink-0", styles.icon)} />
       <span className="text-gray-600 dark:text-gray-400">{label}</span>
-      <span className="font-medium text-gray-700 dark:text-white">
+      <span
+        className={cn(
+          "font-normal text-gray-700 dark:text-white",
+          valueClassName,
+        )}
+      >
         {loading ? (
           <DataSlotPulse variant="text-sm" className="w-24" />
         ) : (

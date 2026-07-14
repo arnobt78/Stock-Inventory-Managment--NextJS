@@ -25,7 +25,6 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { usePathname } from "next/navigation";
 import {
@@ -47,13 +46,14 @@ import type {
 } from "@/types";
 import { useAuth } from "@/contexts";
 import { useToast } from "@/hooks/use-toast";
-import { Calendar as CalendarIcon } from "lucide-react";
+import { Calendar as CalendarIcon, FileText, Save, ShoppingCart, StickyNote, X } from "lucide-react";
 import { useForm, FormProvider } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { FormField, FormNumberField } from "@/components/forms";
 import {
   DeferredSelectGate,
   DIALOG_FORM_FIELD_INDIGO,
+  DialogFormLabel,
   DialogSubmitButton,
   GLASS_GHOST_BUTTON,
 } from "@/components/shared";
@@ -674,14 +674,16 @@ export default function InvoiceDialog({
                 <Button
                   onClick={handleCancelEdit}
                   variant="secondary"
-                  className={cn("w-full sm:w-auto px-11", GLASS_GHOST_BUTTON)}
+                  className={cn("w-full sm:w-auto px-11 gap-2", GLASS_GHOST_BUTTON)}
                 >
+                  <X className="h-4 w-4 shrink-0" aria-hidden />
                   Cancel
                 </Button>
                 <DialogSubmitButton
                   isPending={isUpdating}
                   pendingLabel="Updating invoice…"
                   label="Update Invoice"
+                  icon={Save}
                   hue="indigo"
                   disabled={isUpdating}
                   className="px-11"
@@ -695,12 +697,9 @@ export default function InvoiceDialog({
             <div className="space-y-4 mt-4">
               {/* Order Selection */}
               <div className="space-y-2">
-                <Label
-                  htmlFor="order-select"
-                  className="text-sm font-medium text-white/80"
-                >
-                  Select Order <span className="text-red-400">*</span>
-                </Label>
+                <DialogFormLabel htmlFor="order-select" icon={ShoppingCart} required>
+                  Select Order
+                </DialogFormLabel>
                 {/* REQ-0060: searchable order picker (type-to-filter) replaces plain Select */}
                 <OrderPickerCommand
                   orders={availableOrders}
@@ -720,13 +719,9 @@ export default function InvoiceDialog({
 
               {/* Due Date */}
               <div className="space-y-2">
-                <Label
-                  htmlFor="due-date"
-                  className="text-sm font-medium text-white/80 flex items-center gap-2"
-                >
-                  <CalendarIcon className="h-4 w-4" />
-                  Due Date <span className="text-red-400">*</span>
-                </Label>
+                <DialogFormLabel htmlFor="due-date" icon={CalendarIcon} required>
+                  Due Date
+                </DialogFormLabel>
                 <div className="relative">
                   <Input
                     id="due-date"
@@ -780,12 +775,9 @@ export default function InvoiceDialog({
 
               {/* Notes */}
               <div className="space-y-2">
-                <Label
-                  htmlFor="notes"
-                  className="text-sm font-medium text-white/80"
-                >
-                  Notes (Optional)
-                </Label>
+                <DialogFormLabel htmlFor="notes" icon={StickyNote} optional>
+                  Notes
+                </DialogFormLabel>
                 <Textarea
                   id="notes"
                   value={notes}
@@ -802,14 +794,16 @@ export default function InvoiceDialog({
                 type="button"
                 onClick={handleCancel}
                 variant="secondary"
-                className={cn("w-full sm:w-auto px-11", GLASS_GHOST_BUTTON)}
+                className={cn("w-full sm:w-auto px-11 gap-2", GLASS_GHOST_BUTTON)}
               >
+                <X className="h-4 w-4 shrink-0" aria-hidden />
                 Cancel
               </Button>
               <DialogSubmitButton
                 isPending={isCreating}
                 pendingLabel="Generating invoice…"
                 label="Generate Invoice"
+                icon={FileText}
                 hue="indigo"
                 disabled={isCreating || !selectedOrderId || !dueDate}
                 className="px-11"

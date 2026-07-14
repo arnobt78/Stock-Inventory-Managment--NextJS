@@ -3,6 +3,10 @@
  */
 import { prisma } from "@/prisma/client";
 import { isProductArchived } from "@/lib/products/product-query";
+import {
+  batchSumAllocationReserved,
+  computeCommittedQuantity,
+} from "@/lib/products/enrich-product-committed-quantity";
 import type { StockAllocation } from "@/types";
 
 export type StockAllocationWarehouseSnapshot = {
@@ -22,6 +26,8 @@ export type StockAllocationProductSnapshot = {
   supplierName: string | null;
   deletedAt: string | null;
   isArchived: boolean;
+  reservedQuantity: number;
+  committedQuantity?: number;
 };
 
 type AllocationRow = {
@@ -53,6 +59,7 @@ export async function fetchStockAllocationProductMap(
       categoryId: true,
       supplierId: true,
       deletedAt: true,
+      reservedQuantity: true,
     },
   });
 
@@ -72,24 +79,31 @@ export async function fetchStockAllocationProductMap(
 
   const categoryMap = new Map(categories.map((c) => [c.id, c.name]));
   const supplierMap = new Map(suppliers.map((s) => [s.id, s.name]));
+  const allocationSums = await batchSumAllocationReserved(products.map((p) => p.id));
 
   return new Map(
-    products.map((p) => [
-      p.id,
-      {
-        name: p.name,
-        sku: p.sku,
-        imageUrl: p.imageUrl ?? null,
-        price: p.price,
-        quantity: Number(p.quantity),
-        categoryId: p.categoryId ?? null,
-        categoryName: categoryMap.get(p.categoryId) ?? null,
-        supplierId: p.supplierId ?? null,
-        supplierName: supplierMap.get(p.supplierId) ?? null,
-        deletedAt: p.deletedAt?.toISOString() ?? null,
-        isArchived: isProductArchived(p),
-      },
-    ]),
+    products.map((p) => {
+      const allocSum = allocationSums.get(p.id) ?? 0;
+      const productReserved = Number(p.reservedQuantity ?? 0);
+      return [
+        p.id,
+        {
+          name: p.name,
+          sku: p.sku,
+          imageUrl: p.imageUrl ?? null,
+          price: p.price,
+          quantity: Number(p.quantity),
+          categoryId: p.categoryId ?? null,
+          categoryName: categoryMap.get(p.categoryId) ?? null,
+          supplierId: p.supplierId ?? null,
+          supplierName: supplierMap.get(p.supplierId) ?? null,
+          deletedAt: p.deletedAt?.toISOString() ?? null,
+          isArchived: isProductArchived(p),
+          reservedQuantity: productReserved,
+          committedQuantity: computeCommittedQuantity(productReserved, allocSum),
+        },
+      ];
+    }),
   );
 }
 
@@ -205,6 +219,8 @@ export function transformStockAllocationRow(
           supplierName: product.supplierName,
           deletedAt: product.deletedAt,
           isArchived: product.isArchived,
+          reservedQuantity: product.reservedQuantity,
+          committedQuantity: product.committedQuantity,
         }
       : undefined,
     warehouse: warehouse

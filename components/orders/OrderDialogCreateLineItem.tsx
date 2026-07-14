@@ -14,7 +14,6 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import type { UseFormSetValue, FieldErrors } from "react-hook-form";
 import { useQueryClient } from "@tanstack/react-query";
 import { Package, Layers, X } from "lucide-react";
@@ -22,16 +21,23 @@ import { ProductOptionRow } from "@/components/products/ProductOptionRow";
 import { OrderLineWarehouseSelect } from "@/components/orders/OrderLineWarehouseSelect";
 import {
   DeferredSelectGate,
+  DialogFormLabel,
   DIALOG_FORM_FIELD_VIOLET,
   DIALOG_FORM_ERROR_TEXT,
-  DIALOG_FORM_FEEDBACK_ROW,
+  DIALOG_FORM_HINT_TEXT,
+  ProportionalPriceDisplay,
 } from "@/components/shared";
 import { cn } from "@/lib/utils";
+import {
+  computeProportionalLineAmount,
+  orderHasFeeAdjustments,
+} from "@/lib/orders/proportional-line-amount";
 import {
   prefetchStockByProduct,
   useOrderLineStockValidation,
 } from "@/hooks/queries";
 import type { OrderLineStockProduct } from "@/lib/orders/order-line-stock-validation";
+import { formatOrderLineAutoAssignHint } from "@/lib/orders/order-line-stock-validation";
 
 /** Create-order form shape shared with OrderDialog (REQ-0111/0113). */
 export type OrderFormData = {
@@ -85,6 +91,9 @@ export type OrderDialogCreateLineItemProps = {
   createErrors: FieldErrors<OrderFormData>;
   onRemove: () => void;
   onStockValidityChange: (lineId: string, hasStockError: boolean) => void;
+  /** REQ-0116 — order totals for proportional line preview in create dialog */
+  orderSubtotal: number;
+  orderTotal: number;
 };
 
 export function OrderDialogCreateLineItem({
@@ -103,6 +112,8 @@ export function OrderDialogCreateLineItem({
   createErrors,
   onRemove,
   onStockValidityChange,
+  orderSubtotal,
+  orderTotal,
 }: OrderDialogCreateLineItemProps) {
   const queryClient = useQueryClient();
 
@@ -130,6 +141,15 @@ export function OrderDialogCreateLineItem({
       ? validation.message
       : null;
 
+  const isManualPick =
+    warehouseId != null && String(warehouseId).trim() !== "";
+
+  const showAutoAssignHint =
+    selectedProduct &&
+    hasAllocations &&
+    !isManualPick &&
+    validation?.maxQty != null;
+
   useEffect(() => {
     onStockValidityChange(lineId, Boolean(stockError));
   }, [lineId, onStockValidityChange, stockError]);
@@ -139,15 +159,20 @@ export function OrderDialogCreateLineItem({
       ? Number(selectedProduct.price) * quantity
       : 0;
 
+  const showFeeAdjusted =
+    itemSubtotal > 0 && orderHasFeeAdjustments(orderSubtotal, orderTotal);
+  const proportionalLineAmount = showFeeAdjusted
+    ? computeProportionalLineAmount(itemSubtotal, orderSubtotal, orderTotal)
+    : itemSubtotal;
+
   return (
     <div className="p-4 border border-violet-400/20 rounded-lg bg-white/5 space-y-2">
       <div className="flex items-start justify-between gap-2">
         <div className="flex-1 grid grid-cols-1 md:grid-cols-[minmax(0,1fr)_100px_minmax(0,1fr)] gap-2 items-start">
           <div className="flex flex-col gap-2">
-            <Label className="flex items-center gap-2 text-white/80 text-sm">
-              <Package className="h-4 w-4 shrink-0 text-violet-400" />
+            <DialogFormLabel icon={Package} required>
               Product {index + 1}
-            </Label>
+            </DialogFormLabel>
             <DeferredSelectGate
               enabled={dialogOpen}
               placeholder={
@@ -240,10 +265,9 @@ export function OrderDialogCreateLineItem({
           </div>
 
           <div className="flex flex-col gap-2">
-            <Label className="flex items-center gap-2 text-white/80 text-sm">
-              <Layers className="h-4 w-4 shrink-0 text-violet-400" />
+            <DialogFormLabel icon={Layers} required>
               Quantity
-            </Label>
+            </DialogFormLabel>
             <Input
               type="number"
               min="1"
@@ -302,6 +326,44 @@ export function OrderDialogCreateLineItem({
             allocationRows={allocationRows}
             allocationsLoading={allocationsLoading}
           />
+
+          {selectedProduct ? (
+            <div className="col-span-full md:col-span-3 flex flex-wrap justify-between gap-x-4 gap-y-1 pt-1">
+              <div className="text-sm text-white/70 min-w-0 inline-flex flex-wrap items-center gap-x-2 gap-y-1">
+                <span>Subtotal:</span>
+                <ProportionalPriceDisplay
+                  listAmount={itemSubtotal}
+                  adjustedAmount={
+                    showFeeAdjusted ? proportionalLineAmount : undefined
+                  }
+                  size="sm"
+                  adjustedTone="sky"
+                  className="text-white/90"
+                />
+                <span>
+                  ({selectedProduct.name} × {quantity || 0})
+                </span>
+              </div>
+              {showAutoAssignHint ? (
+                <p className={cn(DIALOG_FORM_HINT_TEXT, "text-right max-w-sm")}>
+                  {formatOrderLineAutoAssignHint(validation!.maxQty!)}
+                </p>
+              ) : null}
+            </div>
+          ) : null}
+
+          {stockError ? (
+            <p
+              className={cn(
+                DIALOG_FORM_ERROR_TEXT,
+                "col-span-full md:col-span-3 flex items-center gap-1",
+              )}
+              role="alert"
+            >
+              <span>⚠️</span>
+              <span>{stockError}</span>
+            </p>
+          ) : null}
         </div>
 
         {canRemove ? (
@@ -316,24 +378,6 @@ export function OrderDialogCreateLineItem({
           </Button>
         ) : null}
       </div>
-
-      {selectedProduct ? (
-        <div className={DIALOG_FORM_FEEDBACK_ROW}>
-          <div className="text-sm text-white/70">
-            Subtotal: ${itemSubtotal.toFixed(2)} ({selectedProduct.name} ×{" "}
-            {quantity || 0})
-          </div>
-          {stockError ? (
-            <p
-              className={cn(DIALOG_FORM_ERROR_TEXT, "flex items-center gap-1")}
-              role="alert"
-            >
-              <span>⚠️</span>
-              <span>{stockError}</span>
-            </p>
-          ) : null}
-        </div>
-      ) : null}
     </div>
   );
 }

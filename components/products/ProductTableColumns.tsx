@@ -6,7 +6,7 @@ import { Product } from "@/types";
 import { Column, ColumnDef } from "@tanstack/react-table";
 //import { ReactNode } from "react";
 
-import { CopyableText, AvatarInlineLink } from "@/components/shared";
+import { CopyableText, AvatarInlineLink, TABLE_CATALOG_LINK_CLASS } from "@/components/shared";
 import ProductsDropDown from "@/components/products/ProductActions";
 
 import {
@@ -18,6 +18,7 @@ import {
 import { QRCodeHover } from "@/components/ui/qr-code-hover";
 import { ProductStockFromQuantityBadge } from "@/lib/ui/semantic-badges";
 import { getDisplayCommittedQuantity } from "@/lib/products/enrich-product-committed-quantity";
+import { cn } from "@/lib/utils";
 import { AlertTriangle, ArrowUpDown } from "lucide-react";
 import { IoMdArrowDown, IoMdArrowUp } from "react-icons/io";
 
@@ -112,7 +113,7 @@ export function createProductColumns(
               <Link
                 href={detailHref(detailBase, "products", product.id)}
                 prefetch
-                className="truncate font-normal text-sky-600 dark:text-sky-400 hover:text-sky-500 dark:hover:text-sky-300"
+                className={cn("truncate", TABLE_CATALOG_LINK_CLASS)}
                 title={product.name}
               >
                 <CopyableText value={product.name}>{product.name}</CopyableText>
@@ -247,7 +248,7 @@ export function createProductColumns(
           return (
             <Link
               href={detailHref(detailBase, "categories", product.categoryId)}
-              className="font-normal text-sky-600 dark:text-sky-400 hover:text-sky-500 dark:hover:text-sky-300"
+              className={TABLE_CATALOG_LINK_CLASS}
             >
               {categoryName}
             </Link>
@@ -268,7 +269,7 @@ export function createProductColumns(
               return (
                 <Link
                   href={detailHref(detailBase, "products", product.id)}
-                  className="font-normal text-sky-600 dark:text-sky-400 hover:text-sky-500 dark:hover:text-sky-300"
+                  className={TABLE_CATALOG_LINK_CLASS}
                 >
                   {name}
                 </Link>
@@ -297,7 +298,7 @@ export function createProductColumns(
                       product.supplierId,
                     )}
                     size={24}
-                    linkClassName="font-normal text-sky-600 dark:text-sky-400 hover:text-sky-500 dark:hover:text-sky-300"
+                    linkClassName={TABLE_CATALOG_LINK_CLASS}
                   />
                 );
               }

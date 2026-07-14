@@ -53,6 +53,7 @@ import {
   DETAIL_HEADER_BACK_ICON_CLASS,
   DialogSubmitButton,
   WarehouseInsightsSection,
+  DetailInfoRowGroup,
   AuditUserDetailRow,
   GlassCard,
   GlassCardBody,
@@ -60,7 +61,7 @@ import {
   GLASS_CARD_VARIANT_CONFIG as variantConfig,
 } from "@/components/shared";
 import { buildCategoryForecastRollup } from "@/lib/forecasting/category-forecast-rollup";
-import { computeWarehouseInsights } from "@/lib/insights/warehouse-insights-compute";
+import { computeWarehouseInsights, mapWarehouseStockSummary } from "@/lib/insights/warehouse-insights-compute";
 import { DetailInfoRow } from "@/components/orders/detail";
 import WarehouseDialog from "@/components/warehouses/WarehouseDialog";
 import AllocateStockDialog from "@/components/warehouses/AllocateStockDialog";
@@ -79,6 +80,7 @@ import {
 } from "@/lib/react-query";
 import { cn } from "@/lib/utils";
 import { APP_SHELL_DETAIL_CLASS, DETAIL_PAGE_HEADER_SPACING_CLASS } from "@/lib/ui/shell-layout-styles";
+import { detailStatValueToneClass } from "@/lib/ui/typography-scale";
 
 export type WarehouseDetailPageProps = {
   embedInAdmin?: boolean;
@@ -151,7 +153,13 @@ export default function WarehouseDetailPage({
     initialForecasting ?? undefined,
   );
 
-  const allocationRows = stockAllocations ?? initialStockAllocations ?? [];
+  const allocationRows = useMemo(() => {
+    if (stockAllocations && stockAllocations.length > 0) {
+      return stockAllocations;
+    }
+    return initialStockAllocations ?? [];
+  }, [stockAllocations, initialStockAllocations]);
+
   const productIdSet = useMemo(
     () => new Set(allocationRows.map((row) => row.productId)),
     [allocationRows],
@@ -167,10 +175,10 @@ export default function WarehouseDetailPage({
     );
   }, [isAdminRole, forecastQuery.data, productIdSet]);
 
-  const warehouseInsights = useMemo(() => {
-    const rows = stockAllocations ?? initialStockAllocations ?? [];
-    return computeWarehouseInsights(rows);
-  }, [stockAllocations, initialStockAllocations]);
+  const warehouseInsights = useMemo(
+    () => computeWarehouseInsights(allocationRows),
+    [allocationRows],
+  );
 
   const productHref = (productId: string) =>
     embedInAdmin ? `/admin/products/${productId}` : `/products/${productId}`;
@@ -264,21 +272,11 @@ export default function WarehouseDetailPage({
       : warehouse?.updatedAt
     : null;
 
-  // Calculate stock summary
-  const stockSummary = stockAllocations
-    ? {
-        totalProducts: stockAllocations.length,
-        totalQuantity: stockAllocations.reduce((sum, a) => sum + a.quantity, 0),
-        availableQuantity: stockAllocations.reduce(
-          (sum, a) => sum + (a.quantity - a.reservedQuantity),
-          0,
-        ),
-        reservedQuantity: stockAllocations.reduce(
-          (sum, a) => sum + a.reservedQuantity,
-          0,
-        ),
-      }
-    : null;
+  // REQ-0114/0115 — stat cards share computeWarehouseInsights (SSR fallback when query empty)
+  const stockSummary = mapWarehouseStockSummary(
+    warehouseInsights,
+    allocationRows.length,
+  );
 
   return (
     <PageWrapper>
@@ -333,7 +331,12 @@ export default function WarehouseDetailPage({
                   >
                     <Boxes className="h-5 w-5 text-sky-600 dark:text-sky-400" />
                   </div>
-                  <p className="text-sm sm:text-base font-medium text-gray-700 dark:text-white">
+                  <p
+                    className={cn(
+                      "text-sm sm:text-base",
+                      detailStatValueToneClass("sky"),
+                    )}
+                  >
                     {stockSummary.totalProducts}
                   </p>
                   <p className="text-xs text-gray-600 dark:text-gray-400">
@@ -352,7 +355,12 @@ export default function WarehouseDetailPage({
                   >
                     <Package className="h-5 w-5 text-violet-600 dark:text-violet-400" />
                   </div>
-                  <p className="text-sm sm:text-base font-medium text-gray-700 dark:text-white">
+                  <p
+                    className={cn(
+                      "text-sm sm:text-base",
+                      detailStatValueToneClass("violet"),
+                    )}
+                  >
                     {stockSummary.totalQuantity}
                   </p>
                   <p className="text-xs text-gray-600 dark:text-gray-400">
@@ -371,7 +379,12 @@ export default function WarehouseDetailPage({
                   >
                     <CheckCircle2 className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
                   </div>
-                  <p className="text-sm sm:text-lg font-medium text-emerald-600 dark:text-emerald-400">
+                  <p
+                    className={cn(
+                      "text-sm sm:text-lg",
+                      detailStatValueToneClass("emerald"),
+                    )}
+                  >
                     {stockSummary.availableQuantity}
                   </p>
                   <p className="text-xs text-gray-600 dark:text-gray-400">
@@ -390,7 +403,12 @@ export default function WarehouseDetailPage({
                   >
                     <Clock className="h-5 w-5 text-amber-600 dark:text-amber-400" />
                   </div>
-                  <p className="text-sm sm:text-lg font-medium text-amber-600 dark:text-amber-400">
+                  <p
+                    className={cn(
+                      "text-sm sm:text-lg",
+                      detailStatValueToneClass("amber"),
+                    )}
+                  >
                     {stockSummary.reservedQuantity}
                   </p>
                   <p className="text-xs text-gray-600 dark:text-gray-400">
@@ -475,14 +493,16 @@ export default function WarehouseDetailPage({
                 >
                   <ActiveInactiveBadge active={Boolean(warehouse?.status)} />
                 </DetailInfoRow>
-                <DetailInfoRow icon={Calendar} label="Created:" tone="orange">
-                  <ClientDateTime date={createdAt} />
-                </DetailInfoRow>
-                {updatedAt && (
-                  <DetailInfoRow icon={Clock} label="Updated:" tone="violet">
-                    <ClientRelativeTime date={updatedAt} />
+                <DetailInfoRowGroup>
+                  <DetailInfoRow icon={Calendar} label="Created:" tone="orange">
+                    <ClientDateTime date={createdAt} />
                   </DetailInfoRow>
-                )}
+                  {updatedAt && (
+                    <DetailInfoRow icon={Clock} label="Updated:" tone="violet">
+                      <ClientRelativeTime date={updatedAt} />
+                    </DetailInfoRow>
+                  )}
+                </DetailInfoRowGroup>
                 {stockSummary && (
                   <DetailInfoRow icon={Boxes} label="Allocations:" tone="sky">
                     {stockSummary.totalProducts} products ·{" "}

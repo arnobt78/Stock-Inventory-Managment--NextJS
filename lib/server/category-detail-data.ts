@@ -10,6 +10,7 @@ import { getCache, setCache, cacheKeys } from "@/lib/cache";
 import { prisma } from "@/prisma/client";
 import { mergeProductListWhere } from "@/lib/products/product-query";
 import { logger } from "@/lib/logger";
+import { computeProportionalLineAmount } from "@/lib/orders/proportional-line-amount";
 import type { SessionForDetail } from "@/lib/server/order-detail-data";
 import {
   catalogDetailCacheScope,
@@ -115,10 +116,11 @@ function transformCategoryDetail(
       const order = item.order;
       const orderSubtotal = order?.subtotal ?? 0;
       const orderTotal = order?.total ?? 0;
-      const proportionalAmount =
-        orderSubtotal > 0
-          ? (item.subtotal / orderSubtotal) * orderTotal
-          : item.subtotal;
+      const proportionalAmount = computeProportionalLineAmount(
+        item.subtotal,
+        orderSubtotal,
+        orderTotal,
+      );
       const placedBy = order?.userId
         ? toParty(orderUserMap.get(order.userId))
         : null;

@@ -60,9 +60,11 @@ import {
   DIALOG_TABLE_TEXT_MUTED,
   GLASS_GHOST_BUTTON,
   DialogSubmitButton,
+  DialogFormLabel,
 } from "@/components/shared";
 import { Supplier } from "@/types";
 import { createSupplierColumns } from "./SupplierTableColumns";
+import { Plus, Truck, X, FileText, StickyNote } from "lucide-react";
 
 const SUPPLIER_DIALOG_CONTENT_CLASS = `${DIALOG_EDGE_SCROLL_SHELL} poppins border-emerald-400/30 dark:border-emerald-400/30 shadow-[0_30px_80px_rgba(16,185,129,0.35)] dark:shadow-[0_30px_80px_rgba(16,185,129,0.25)]`;
 
@@ -338,9 +340,9 @@ export default function AddSupplierDialog({
             {editingSupplier ? (
               <div className="mt-4">
                 <div className="pb-4">
-                  <label className="text-sm font-medium mb-2 block text-white/80 dark:text-white/80">
+                  <DialogFormLabel icon={Truck} required className="mb-2 block">
                     Supplier Name
-                  </label>
+                  </DialogFormLabel>
                   <Input
                     value={newSupplierName}
                     onChange={(e) => setNewSupplierName(e.target.value)}
@@ -349,9 +351,9 @@ export default function AddSupplierDialog({
                   />
                 </div>
                 <div className="pb-4">
-                  <Label className="text-sm font-medium mb-2 block text-white/80 dark:text-white/80">
-                    Description (Optional)
-                  </Label>
+                  <DialogFormLabel icon={FileText} optional className="mb-2 block">
+                    Description
+                  </DialogFormLabel>
                   <Textarea
                     value={newSupplierDescription}
                     onChange={(e) => setNewSupplierDescription(e.target.value)}
@@ -362,9 +364,9 @@ export default function AddSupplierDialog({
                   />
                 </div>
                 <div className="pb-4">
-                  <Label className="text-sm font-medium mb-2 block text-white/80 dark:text-white/80">
-                    Notes (Optional)
-                  </Label>
+                  <DialogFormLabel icon={StickyNote} optional className="mb-2 block">
+                    Notes
+                  </DialogFormLabel>
                   <Textarea
                     value={newSupplierNotes}
                     onChange={(e) => setNewSupplierNotes(e.target.value)}
@@ -395,8 +397,9 @@ export default function AddSupplierDialog({
                   <Button
                     onClick={handleCancelEdit}
                     variant="secondary"
-                    className={cn("w-full sm:w-auto px-11", GLASS_GHOST_BUTTON)}
+                    className={cn("w-full sm:w-auto px-11 gap-2", GLASS_GHOST_BUTTON)}
                   >
+                    <X className="h-4 w-4 shrink-0" aria-hidden />
                     Cancel
                   </Button>
                   <DialogSubmitButton
@@ -405,6 +408,7 @@ export default function AddSupplierDialog({
                     isPending={isEditing}
                     pendingLabel="Saving…"
                     label="Save Changes"
+                    icon={Plus}
                     hue="emerald"
                     disabled={!isEditValid}
                     className="px-11"
@@ -414,17 +418,26 @@ export default function AddSupplierDialog({
             ) : (
               <>
                 <div className="pb-4">
+                  <DialogFormLabel
+                    htmlFor="supplier-create-name"
+                    icon={Truck}
+                    required
+                    className="mb-2 block"
+                  >
+                    Supplier Name
+                  </DialogFormLabel>
                   <Input
+                    id="supplier-create-name"
                     value={supplierName}
                     onChange={(e) => setSupplierName(e.target.value)}
                     placeholder="New Supplier"
-                    className={cn("mt-4 w-full", DIALOG_FORM_FIELD_EMERALD)}
+                    className={cn("mt-2 w-full", DIALOG_FORM_FIELD_EMERALD)}
                   />
                 </div>
                 <div className="pb-4">
-                  <Label className="text-sm font-medium mb-2 block text-white/80 dark:text-white/80">
-                    Description (Optional)
-                  </Label>
+                  <DialogFormLabel icon={FileText} optional className="mb-2 block">
+                    Description
+                  </DialogFormLabel>
                   <Textarea
                     value={supplierDescription}
                     onChange={(e) => setSupplierDescription(e.target.value)}
@@ -435,9 +448,9 @@ export default function AddSupplierDialog({
                   />
                 </div>
                 <div className="pb-4">
-                  <Label className="text-sm font-medium mb-2 block text-white/80 dark:text-white/80">
-                    Notes (Optional)
-                  </Label>
+                  <DialogFormLabel icon={StickyNote} optional className="mb-2 block">
+                    Notes
+                  </DialogFormLabel>
                   <Textarea
                     value={supplierNotes}
                     onChange={(e) => setSupplierNotes(e.target.value)}
@@ -468,8 +481,9 @@ export default function AddSupplierDialog({
                   <DialogClose asChild>
                     <Button
                       variant={"secondary"}
-                      className={cn("w-full sm:w-auto px-11", GLASS_GHOST_BUTTON)}
+                      className={cn("w-full sm:w-auto px-11 gap-2", GLASS_GHOST_BUTTON)}
                     >
+                      <X className="h-4 w-4 shrink-0" aria-hidden />
                       Cancel
                     </Button>
                   </DialogClose>
@@ -479,6 +493,7 @@ export default function AddSupplierDialog({
                     isPending={isSubmitting}
                     pendingLabel="Creating…"
                     label="Add Supplier"
+                    icon={Plus}
                     hue="emerald"
                     disabled={!isAddValid}
                     className="px-11"

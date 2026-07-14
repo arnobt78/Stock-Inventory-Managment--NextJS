@@ -38,6 +38,9 @@ describe("getStockByWarehouseForPage", () => {
           updatedAt: null,
         },
       ] as never)
+      .mockResolvedValueOnce([
+        { productId: "prod-1", reservedQuantity: 0 },
+      ] as never)
       .mockResolvedValueOnce([{ productId: "prod-1", quantity: BigInt(40) }] as never);
 
     vi.mocked(prisma.product.findMany)
@@ -52,6 +55,7 @@ describe("getStockByWarehouseForPage", () => {
           categoryId: null,
           supplierId: null,
           deletedAt: null,
+          reservedQuantity: 0,
         },
       ] as never)
       .mockResolvedValueOnce([{ id: "prod-1", quantity: BigInt(100) }] as never);

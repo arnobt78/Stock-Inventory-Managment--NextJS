@@ -7,11 +7,11 @@
 
 import { useState, useRef } from "react";
 import { SafeImage } from "@/components/ui/safe-image";
-import { Label } from "@/components/ui/label";
+import { DialogFormLabel } from "@/components/shared";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { MdError } from "react-icons/md";
-import { Upload, X, Loader2 } from "lucide-react";
+import { Image as ImageIcon, Upload, X, Loader2 } from "lucide-react";
 import { useFormContext } from "react-hook-form";
 import { useToast } from "@/hooks/use-toast";
 
@@ -133,9 +133,9 @@ export default function ImageField() {
 
   return (
     <div className="mt-5 flex h-full flex-col gap-2">
-      <Label htmlFor="product-image" className="text-white/80">
+      <DialogFormLabel htmlFor="product-image" icon={ImageIcon} optional>
         Product Image
-      </Label>
+      </DialogFormLabel>
 
       {/* Hidden input for form registration */}
       <Input {...register("imageUrl")} type="hidden" id="imageUrl" />
@@ -143,7 +143,7 @@ export default function ImageField() {
 
       {/* Image Preview */}
       {imageUrl && (
-        <div className="relative w-full max-w-xs">
+        <div className="relative w-full">
           <SafeImage
             src={imageUrl}
             alt="Product preview"

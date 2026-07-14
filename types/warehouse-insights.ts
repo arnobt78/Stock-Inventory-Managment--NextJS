@@ -16,3 +16,11 @@ export type WarehouseInsights = {
   stockBreakdown: { available: number; reserved: number };
   categoryMix: WarehouseCategoryMixPoint[];
 };
+
+/** REQ-0115 — stat-card shape on WarehouseDetailPage (maps from WarehouseInsights). */
+export type WarehouseStockSummary = {
+  totalProducts: number;
+  totalQuantity: number;
+  availableQuantity: number;
+  reservedQuantity: number;
+};

@@ -1,8 +1,9 @@
 "use client";
 
+import { DialogFormLabel } from "@/components/shared";
 import { DIALOG_FORM_FIELD_ROSE } from "@/components/shared/dialog-form-field";
+import { Hash } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { HelpTooltip } from "@/components/shared";
 import { MdError } from "react-icons/md";
@@ -44,9 +45,9 @@ export default function SKU({ allProducts }: SKUProps) {
   return (
     <div className="mt-5 flex flex-col gap-2">
       <div className="flex items-center gap-1">
-        <Label htmlFor="sku" className="text-white/80">
+        <DialogFormLabel htmlFor="sku" icon={Hash} required>
           SKU
-        </Label>
+        </DialogFormLabel>
         <HelpTooltip
           content="Unique code; letters, numbers, hyphens, underscores only."
           side="top"

@@ -296,3 +296,9 @@ Format: `TIMESTAMP | AGENT | DECISION | RATIONALE | REQ-ID`
 2026-07-14T13:27:00Z | red-team | REQ-0112 gates | lint ✓ test 488 ✓ invalidate 208 ✓ build ✓ | REQ-0112
 2026-07-14T13:34:00Z | build-agent | REQ-0113 warehouse select | Removed internal fetch; merged OrderFormData types | REQ-0113
 2026-07-14T13:34:00Z | red-team | REQ-0113 gates | lint ✓ test 488 ✓ invalidate 208 ✓ build ✓ | REQ-0113
+2026-07-14T14:52:00Z | build-agent | REQ-0114 stock UX + dialog parity | Catalog-commit hints; proportional pricing; DialogFormLabel; DetailInfoRowGroup; no invalidation changes | REQ-0114
+2026-07-14T14:52:00Z | red-team | REQ-0114 gates | lint ✓ test 492 ✓ invalidate 208 ✓ build ✓ | REQ-0114
+2026-07-14T16:59:00Z | build-agent | REQ-0115 dialog gap closure | mapWarehouseStockSummary; Invoice/Order/SupportTicket/Payment dialogs; ImageField + Category/Supplier labels | REQ-0115
+2026-07-14T16:59:00Z | red-team | REQ-0115 gates | lint ✓ test 494 ✓ invalidate 208 ✓ build ✓ | REQ-0115
+2026-07-14T17:12:00Z | build-agent | REQ-0116 UI closure | ProportionalPriceDisplay; dialog gaps; detail typography tokens | REQ-0116
+2026-07-14T17:12:00Z | red-team | REQ-0116 gates | lint ✓ test 498 ✓ invalidate 208 ✓ build ✓ | REQ-0116

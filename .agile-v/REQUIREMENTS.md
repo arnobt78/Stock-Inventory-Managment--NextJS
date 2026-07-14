@@ -2530,6 +2530,77 @@ Canonical REQ source. All artifacts link via `REQ-XXXX`. Status: `done` | `verif
 
 ---
 
+## REQ-0114 — Stock UX clarity + dialog/detail UI parity
+
+| Field | Value |
+|-------|-------|
+| **Priority** | P1 |
+| **Risk** | R1 |
+| **Status** | done |
+| **Cycle** | C2 |
+| **Parent** | REQ-0103, REQ-0110–0113 |
+
+**Intent:** Fix stock/catalog display gaps, pricing display bugs, warehouse summary inconsistency, and dialog/detail UI issues from screenshots—shared tokens/components, SSR-safe patterns, existing invalidation only.
+
+**Acceptance criteria**
+
+- AC1: `formatCatalogCommitWarehouseHint` + `committedQuantity` on allocation enrich; warehouse/product rows show catalog-commit hint when `committedQuantity > allocation.reservedQuantity`
+- AC2: `WarehouseDetailPage` stat cards use single `computeWarehouseInsights` source (SSR fallback when TanStack `[]`)
+- AC3: `computeProportionalLineAmount` + `ProductLineItemsList` strikethrough subtotal when order has fee adjustments; inventory value label renamed
+- AC4: `DialogFormLabel` + `TABLE_CATALOG_LINK_CLASS`; Product/Order line dialog layout fixes; dialog sweep footers/icons
+- AC5: `DetailInfoRow` font-normal + `DetailInfoRowGroup` on catalog detail pages
+- AC6: Unit tests + gates pass
+
+**Artifacts:** `catalog-allocation-copy.ts`, `stock-allocation-enrich.ts`, `proportional-line-amount.ts`, `ProductLineItemsList.tsx`, `WarehouseDetailPage.tsx`, `dialog-form-label.tsx`, `DetailInfoRowGroup.tsx`, `ProductFormDialog.tsx`, `OrderDialogCreateLineItem.tsx`, table columns
+
+---
+
+## REQ-0115 — REQ-0114 dialog gap closure + warehouse summary test
+
+| Field | Value |
+|-------|-------|
+| **Priority** | P2 |
+| **Risk** | R1 |
+| **Status** | done |
+| **Cycle** | C2 |
+| **Parent** | REQ-0114 |
+
+**Intent:** Close REQ-0114 deferred UI gaps: remaining dialog `DialogFormLabel`/footer sweep, minor label parity, DRY `mapWarehouseStockSummary` + unit test. CSS/UI only — no invalidation changes.
+
+**Acceptance criteria**
+
+- AC1: `mapWarehouseStockSummary` in `warehouse-insights-compute.ts` + test; `WarehouseDetailPage` consumer
+- AC2: `DialogFormLabel` + footer icons on Invoice/Order/SupportTicket dialogs; PaymentDialog submit icon
+- AC3: ImageField + Category/Supplier description/notes + CategoryDialog create name label
+- AC4: Gates pass; dead imports removed
+
+**Artifacts:** `warehouse-insights-compute.ts`, `InvoiceDialog.tsx`, `OrderDialog.tsx`, `SupportTicketDialog.tsx`, `PaymentDialog.tsx`, `ImageField.tsx`, `CategoryDialog.tsx`, `SupplierDialog.tsx`
+
+---
+
+## REQ-0116 — Dialog parity + proportional price DRY + detail typography
+
+| Field | Value |
+|-------|-------|
+| **Priority** | P2 |
+| **Risk** | R1 |
+| **Status** | done |
+| **Cycle** | C2 |
+| **Parent** | REQ-0114, REQ-0115 |
+
+**Intent:** Close final deferred dialog gaps (supplier create name, order notes, payment cancel, warehouse status label); DRY `ProportionalPriceDisplay` for fee-adjusted line amounts; detail data values `font-normal` + semantic hues. CSS/UI only — no invalidation changes.
+
+**Acceptance criteria**
+
+- AC1: Supplier create `DialogFormLabel`; Order create/edit notes `DialogFormLabel`; PaymentDialog Cancel footer; WarehouseDialog status `DialogFormLabel`
+- AC2: `ProportionalPriceDisplay` + test; refactor `ProductLineItemsList`, `CatalogDetailRecentOrdersList`, `ProductDetailPage`; order-create live preview in `OrderDialogCreateLineItem`
+- AC3: `DETAIL_DATA_VALUE_CLASS` + `detailStatValueToneClass`; `OrderSummaryCard`, `WarehouseDetailPage` stats, `InvoiceDetailPage` amount due, admin refund amount → `font-normal`
+- AC4: Gates pass; dead imports removed
+
+**Artifacts:** `ProportionalPriceDisplay.tsx`, `SupplierDialog.tsx`, `OrderDialog.tsx`, `PaymentDialog.tsx`, `WarehouseDialog.tsx`, `OrderDialogCreateLineItem.tsx`, `typography-scale.ts`, `OrderSummaryCard.tsx`
+
+---
+
 ## REQ-0020 — Locale-aware admin format (hydration-safe)
 
 | Field        | Value |

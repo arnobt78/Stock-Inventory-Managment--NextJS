@@ -60,9 +60,11 @@ import {
   DIALOG_TABLE_TEXT_MUTED,
   GLASS_GHOST_BUTTON,
   DialogSubmitButton,
+  DialogFormLabel,
 } from "@/components/shared";
 import { Category } from "@/types";
 import { createCategoryColumns } from "./CategoryTableColumns";
+import { Plus, Tag, X, FileText, StickyNote } from "lucide-react";
 
 const CATEGORY_DIALOG_CONTENT_CLASS = `${DIALOG_EDGE_SCROLL_SHELL} poppins border-sky-400/30 dark:border-sky-400/30 shadow-[0_30px_80px_rgba(2,132,199,0.35)] dark:shadow-[0_30px_80px_rgba(2,132,199,0.25)]`;
 
@@ -334,9 +336,9 @@ export default function AddCategoryDialog({
             {editingCategory ? (
               <div className="mt-4">
                 <div className="pb-4">
-                  <label className="text-sm font-medium mb-2 block text-white/80">
+                  <DialogFormLabel icon={Tag} required className="mb-2 block">
                     Category Name
-                  </label>
+                  </DialogFormLabel>
                   <Input
                     value={newCategoryName}
                     onChange={(e) => setNewCategoryName(e.target.value)}
@@ -345,9 +347,9 @@ export default function AddCategoryDialog({
                   />
                 </div>
                 <div className="pb-4">
-                  <Label className="text-sm font-medium mb-2 block text-white/80">
-                    Description (Optional)
-                  </Label>
+                  <DialogFormLabel icon={FileText} optional className="mb-2 block">
+                    Description
+                  </DialogFormLabel>
                   <Textarea
                     value={newCategoryDescription}
                     onChange={(e) => setNewCategoryDescription(e.target.value)}
@@ -358,9 +360,9 @@ export default function AddCategoryDialog({
                   />
                 </div>
                 <div className="pb-4">
-                  <Label className="text-sm font-medium mb-2 block text-white/80">
-                    Notes (Optional)
-                  </Label>
+                  <DialogFormLabel icon={StickyNote} optional className="mb-2 block">
+                    Notes
+                  </DialogFormLabel>
                   <Textarea
                     value={newCategoryNotes}
                     onChange={(e) => setNewCategoryNotes(e.target.value)}
@@ -391,8 +393,9 @@ export default function AddCategoryDialog({
                   <Button
                     onClick={handleCancelEdit}
                     variant="secondary"
-                    className={cn("w-full sm:w-auto px-11", GLASS_GHOST_BUTTON)}
+                    className={cn("w-full sm:w-auto px-11 gap-2", GLASS_GHOST_BUTTON)}
                   >
+                    <X className="h-4 w-4 shrink-0" aria-hidden />
                     Cancel
                   </Button>
                   <DialogSubmitButton
@@ -401,6 +404,7 @@ export default function AddCategoryDialog({
                     isPending={isEditing}
                     pendingLabel="Saving…"
                     label="Save Changes"
+                    icon={Plus}
                     hue="sky"
                     disabled={!isEditValid}
                     className="px-11"
@@ -410,17 +414,20 @@ export default function AddCategoryDialog({
             ) : (
               <>
                 <div className="pb-4">
+                  <DialogFormLabel icon={Tag} required className="mb-2 block">
+                    Category Name
+                  </DialogFormLabel>
                   <Input
                     value={categoryName}
                     onChange={(e) => setCategoryName(e.target.value)}
                     placeholder="New Category"
-                    className={cn("mt-4 w-full", DIALOG_FORM_FIELD_SKY)}
+                    className={cn("w-full", DIALOG_FORM_FIELD_SKY)}
                   />
                 </div>
                 <div className="pb-4">
-                  <Label className="text-sm font-medium mb-2 block text-white/80">
-                    Description (Optional)
-                  </Label>
+                  <DialogFormLabel icon={FileText} optional className="mb-2 block">
+                    Description
+                  </DialogFormLabel>
                   <Textarea
                     value={categoryDescription}
                     onChange={(e) => setCategoryDescription(e.target.value)}
@@ -431,9 +438,9 @@ export default function AddCategoryDialog({
                   />
                 </div>
                 <div className="pb-4">
-                  <Label className="text-sm font-medium mb-2 block text-white/80">
-                    Notes (Optional)
-                  </Label>
+                  <DialogFormLabel icon={StickyNote} optional className="mb-2 block">
+                    Notes
+                  </DialogFormLabel>
                   <Textarea
                     value={categoryNotes}
                     onChange={(e) => setCategoryNotes(e.target.value)}
@@ -464,8 +471,9 @@ export default function AddCategoryDialog({
                   <DialogClose asChild>
                     <Button
                       variant={"secondary"}
-                      className={cn("w-full sm:w-auto px-11", GLASS_GHOST_BUTTON)}
+                      className={cn("w-full sm:w-auto px-11 gap-2", GLASS_GHOST_BUTTON)}
                     >
+                      <X className="h-4 w-4 shrink-0" aria-hidden />
                       Cancel
                     </Button>
                   </DialogClose>
@@ -475,6 +483,7 @@ export default function AddCategoryDialog({
                     isPending={isSubmitting}
                     pendingLabel="Creating…"
                     label="Add Category"
+                    icon={Plus}
                     hue="sky"
                     disabled={!isAddValid}
                     className="px-11"

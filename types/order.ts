@@ -68,6 +68,8 @@ export interface OrderItem {
   warehouseName?: string | null;
   /** Current product image for line-item thumbnails (REQ-0059; null when product deleted) */
   imageUrl?: string | null;
+  /** REQ-0114 — line share of order.total when fees/discount apply */
+  proportionalAmount?: number;
 }
 
 /**

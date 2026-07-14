@@ -72,6 +72,8 @@ export function OrderItemsCard({
             items={order?.items ?? []}
             linkMode={linkMode}
             warehouseLinkMode={warehouseLinkMode}
+            orderSubtotal={order?.subtotal}
+            orderTotal={order?.total}
             emptyMessage="No items in this order"
             showReviews
             order={order}

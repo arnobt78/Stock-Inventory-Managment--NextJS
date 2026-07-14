@@ -15,7 +15,6 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/label";
 import {
   Command,
   CommandEmpty,
@@ -29,7 +28,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { Check, ChevronDown } from "lucide-react";
+import { Check, ChevronDown, Package, Save, X } from "lucide-react";
 import {
   DIALOG_EDGE_SCROLL_BODY,
   DIALOG_EDGE_SCROLL_HEADER,
@@ -37,6 +36,7 @@ import {
   DIALOG_EDGE_SCROLL_SHELL,
   DIALOG_FORM_FEEDBACK_ROW,
   DIALOG_FORM_FIELD_VIOLET,
+  DialogFormLabel,
   DialogSubmitButton,
   GLASS_GHOST_BUTTON,
   StockQuantityField,
@@ -207,7 +207,9 @@ export default function AllocateStockDialog({
           <div className={DIALOG_EDGE_SCROLL_INNER}>
             <div className="mt-2 space-y-4">
               <div>
-                <Label className="text-sm text-white/80">Product *</Label>
+                <DialogFormLabel icon={Package} required>
+                  Product
+                </DialogFormLabel>
                 <Popover open={pickerOpen} onOpenChange={setPickerOpen}>
                   <PopoverTrigger asChild>
                     <Button
@@ -311,14 +313,16 @@ export default function AllocateStockDialog({
                 variant="secondary"
                 onClick={() => handleOpenChange(false)}
                 disabled={isPending}
-                className={cn("w-full sm:w-auto px-11", GLASS_GHOST_BUTTON)}
+                className={cn("w-full sm:w-auto px-11 gap-2", GLASS_GHOST_BUTTON)}
               >
+                <X className="h-4 w-4 shrink-0" aria-hidden />
                 Cancel
               </Button>
               <DialogSubmitButton
                 isPending={isPending}
                 pendingLabel="Saving allocation…"
                 label={isEditMode ? "Save changes" : "Save allocation"}
+                icon={Save}
                 hue="violet"
                 disabled={!isValid}
               />

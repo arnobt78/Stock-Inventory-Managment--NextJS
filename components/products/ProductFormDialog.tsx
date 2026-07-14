@@ -59,11 +59,13 @@ import {
   DIALOG_FORM_FEEDBACK_ROW,
   DIALOG_FORM_HINT_TEXT,
   DIALOG_FORM_WARN_TEXT,
+  DialogFormLabel,
   DialogSubmitButton,
   GLASS_GHOST_BUTTON,
 } from "@/components/shared";
 import { AvatarInlineLink } from "@/components/shared/AvatarInlineLink";
 import { cn } from "@/lib/utils";
+import { PackagePlus, Tag, Truck, X } from "lucide-react";
 
 interface AddProductDialogProps {
   allProducts: Product[];
@@ -349,6 +351,8 @@ export default function AddProductDialog({
               <ProductName />
               <SKU allProducts={allProducts} />
               <Quantity />
+              <Price />
+              <ExpirationDateField />
               {selectedProduct && productAllocations.length > 0 ? (
                 <div className={DIALOG_FORM_FEEDBACK_ROW}>
                   <p className={DIALOG_FORM_HINT_TEXT}>
@@ -382,13 +386,11 @@ export default function AddProductDialog({
                   ) : null}
                 </div>
               ) : null}
-              <Price />
-              <ExpirationDateField />
               <ImageField />
               <div className="mt-5 flex flex-col gap-2">
-                <label className="text-sm font-medium text-white/80">
+                <DialogFormLabel icon={Tag} required>
                   Category
-                </label>
+                </DialogFormLabel>
                 {/* Always string value — avoids controlled/uncontrolled flip from `|| undefined` */}
                 <DeferredSelectGate
                   enabled={openProductDialog}
@@ -438,9 +440,9 @@ export default function AddProductDialog({
                 )}
               </div>
               <div className="mt-5 flex flex-col gap-2">
-                <label className="text-sm font-medium text-white/80">
+                <DialogFormLabel icon={Truck} required>
                   Supplier
-                </label>
+                </DialogFormLabel>
                 <DeferredSelectGate
                   enabled={openProductDialog}
                   placeholder={
@@ -462,7 +464,12 @@ export default function AddProductDialog({
                         setSupplierError("");
                       }}
                     >
-                      <SelectTrigger className={cn("h-11 w-full", DIALOG_FORM_FIELD_ROSE)}>
+                      <SelectTrigger
+                        className={cn(
+                          "h-11 w-full [&>span]:line-clamp-none",
+                          DIALOG_FORM_FIELD_ROSE,
+                        )}
+                      >
                         <SelectValue placeholder="Select Supplier">
                           {selectedSupplier ? (
                             <AvatarInlineLink
@@ -477,7 +484,7 @@ export default function AddProductDialog({
                                 )?.userId ?? selectedSupplier
                               }
                               size={22}
-                              linkClassName="text-sm font-normal text-gray-700 dark:text-white"
+                              linkClassName="text-sm font-normal text-white/90"
                             />
                           ) : (
                             "Select Supplier"
@@ -500,7 +507,7 @@ export default function AddProductDialog({
                               label={supplier.name}
                               seed={supplier.userId ?? supplier.id}
                               size={22}
-                              linkClassName="text-sm font-normal text-gray-700 dark:text-white"
+                              linkClassName="text-sm font-normal text-white/90"
                             />
                           </SelectItem>
                         ))}
@@ -518,8 +525,9 @@ export default function AddProductDialog({
                 <Button
                   ref={dialogCloseRef}
                   variant="secondary"
-                  className={cn("h-11 w-full sm:w-auto px-11", GLASS_GHOST_BUTTON)}
+                  className={cn("h-11 w-full sm:w-auto px-11 gap-2", GLASS_GHOST_BUTTON)}
                 >
+                  <X className="h-4 w-4 shrink-0" aria-hidden />
                   Cancel
                 </Button>
               </DialogClose>
@@ -529,6 +537,7 @@ export default function AddProductDialog({
                   selectedProduct ? "Updating product…" : "Adding product…"
                 }
                 label={selectedProduct ? "Update Product" : "Add Product"}
+                icon={PackagePlus}
                 hue="rose"
                 disabled={!canSubmitUpdate}
                 className="h-11 px-11"

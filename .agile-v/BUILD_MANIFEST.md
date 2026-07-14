@@ -253,6 +253,16 @@
 | ART-0245 | REQ-0111 | `order-line-stock-validation.ts`, `use-order-line-stock-validation.ts`, `OrderDialogCreateLineItem.tsx`, `OrderLineWarehouseSelect.tsx`, `stock-allocation-order-sync.ts`, `prisma/order.ts` | Reactive order stock workflow |
 | ART-0246 | REQ-0112 | `order-line-stock-validation.ts`, `use-order-line-stock-validation.ts`, `OrderLineWarehouseSelect.tsx`, `OrderDialog.tsx` | Single fetch per line + stable stock errors |
 | ART-0247 | REQ-0113 | `OrderLineWarehouseSelect.tsx`, `OrderDialogCreateLineItem.tsx` | Props-only warehouse select; types merge |
+| ART-0248 | REQ-0114 | `catalog-allocation-copy.ts`, `stock-allocation-enrich.ts`, `proportional-line-amount.ts` | Catalog-commit hints; proportional line amounts |
+| ART-0249 | REQ-0114 | `ProductLineItemsList.tsx`, `WarehouseDetailPage.tsx` | Fee-adjusted line display; insights DRY stat cards |
+| ART-0250 | REQ-0114 | `dialog-form-label.tsx`, `DetailInfoRowGroup.tsx`, `dialog-edge-scroll.ts` | Dialog labels + table link tokens + detail row groups |
+| ART-0251 | REQ-0114 | `ProductFormDialog.tsx`, `OrderDialogCreateLineItem.tsx`, catalog CRUD dialogs | Dialog UX parity sweep |
+| ART-0252 | REQ-0115 | `warehouse-insights-compute.ts`, `types/warehouse-insights.ts` | `mapWarehouseStockSummary` DRY + test |
+| ART-0253 | REQ-0115 | `InvoiceDialog.tsx`, `OrderDialog.tsx`, `SupportTicketDialog.tsx`, `PaymentDialog.tsx` | Remaining dialog label/footer sweep |
+| ART-0254 | REQ-0115 | `ImageField.tsx`, `CategoryDialog.tsx`, `SupplierDialog.tsx` | Minor DialogFormLabel parity |
+| ART-0255 | REQ-0116 | `ProportionalPriceDisplay.tsx`, `proportional-line-amount.ts` | DRY fee-adjusted line price display + test |
+| ART-0256 | REQ-0116 | `SupplierDialog.tsx`, `OrderDialog.tsx`, `PaymentDialog.tsx`, `WarehouseDialog.tsx` | Final dialog label/footer gaps |
+| ART-0257 | REQ-0116 | `OrderDialogCreateLineItem.tsx`, `typography-scale.ts`, `OrderSummaryCard.tsx` | Create preview + detail data typography |
 
 ## Tests
 

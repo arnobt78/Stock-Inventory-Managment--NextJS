@@ -5,7 +5,7 @@
 
 import { CATALOG_LOW_STOCK_THRESHOLD } from "@/lib/insights/constants";
 import { aggregateWarehouseStockFromAllocations } from "@/lib/insights/warehouse-stock-aggregate";
-import type { WarehouseInsights } from "@/types/warehouse-insights";
+import type { WarehouseInsights, WarehouseStockSummary } from "@/types/warehouse-insights";
 import type { StockAllocation } from "@/types";
 
 /** Aggregate warehouse KPIs, stock pie, and category mix from enriched allocation rows. */
@@ -54,5 +54,21 @@ export function computeWarehouseInsights(
     lowStockSkuCount,
     stockBreakdown,
     categoryMix,
+  };
+}
+
+/**
+ * REQ-0115 — map insights KPIs to warehouse detail stat cards; null when no rows.
+ */
+export function mapWarehouseStockSummary(
+  insights: WarehouseInsights,
+  allocationRowCount: number,
+): WarehouseStockSummary | null {
+  if (allocationRowCount <= 0) return null;
+  return {
+    totalProducts: insights.totalSkus,
+    totalQuantity: insights.totalUnits,
+    availableQuantity: insights.availableUnits,
+    reservedQuantity: insights.reservedUnits,
   };
 }

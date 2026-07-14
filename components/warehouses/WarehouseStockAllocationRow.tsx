@@ -12,13 +12,14 @@ import { Button } from "@/components/ui/button";
 import { ProductThumb } from "@/components/products/ProductOptionRow";
 import { AvatarInlineLink } from "@/components/shared/AvatarInlineLink";
 import { CopyableText } from "@/components/shared/CopyableText";
+import { TABLE_CATALOG_LINK_CLASS } from "@/components/shared/dialog-edge-scroll";
 import type { StockAllocation } from "@/types";
-import { formatCatalogAllocationSummary } from "@/lib/stock-allocation/catalog-allocation-copy";
+import {
+  formatCatalogAllocationDetailSummary,
+  formatCatalogAllocationSummary,
+  formatCatalogCommitWarehouseHint,
+} from "@/lib/stock-allocation/catalog-allocation-copy";
 import { cn } from "@/lib/utils";
-
-/** Clickable catalog labels — text-xs font-normal (REQ-0101 warehouse stock row). */
-const CATALOG_LINK_CLASS =
-  "text-xs font-normal text-sky-600 dark:text-sky-400 hover:text-sky-500 dark:hover:text-sky-300 truncate";
 
 const META_ROW_CLASS = "text-xs text-gray-600 dark:text-gray-400";
 
@@ -48,7 +49,7 @@ function MetaLink({
     <span className={cn("inline-flex min-w-0 items-center gap-1", META_ROW_CLASS)}>
       <Icon className="h-3 w-3 shrink-0 text-gray-500 dark:text-gray-400" />
       {label}{" "}
-      <Link href={href} className={CATALOG_LINK_CLASS}>
+      <Link href={href} className={cn(TABLE_CATALOG_LINK_CLASS, "truncate")}>
         {children}
       </Link>
     </span>
@@ -69,6 +70,12 @@ export function WarehouseStockAllocationRow({
   const available = allocation.quantity - allocation.reservedQuantity;
   const name = product?.name ?? "Unknown Product";
   const isArchived = product?.isArchived === true;
+  const catalogCommitted = product?.committedQuantity ?? 0;
+  const catalogOnlyCommit =
+    catalogCommitted > Number(allocation.reservedQuantity ?? 0);
+  const commitHint = catalogOnlyCommit
+    ? formatCatalogCommitWarehouseHint(catalogCommitted)
+    : "";
 
   return (
     <div
@@ -85,7 +92,7 @@ export function WarehouseStockAllocationRow({
             <Link
               href={productHref}
               className={cn(
-                CATALOG_LINK_CLASS,
+                TABLE_CATALOG_LINK_CLASS,
                 isArchived && "text-gray-500 dark:text-gray-400",
               )}
             >
@@ -139,7 +146,7 @@ export function WarehouseStockAllocationRow({
                   seed={product.supplierId}
                   href={supplierHref}
                   size={18}
-                  linkClassName="text-xs font-normal text-sky-600 dark:text-sky-400"
+                  linkClassName={TABLE_CATALOG_LINK_CLASS}
                 />
               </span>
             ) : product?.supplierName ? (
@@ -152,11 +159,23 @@ export function WarehouseStockAllocationRow({
             product?.allocatedTotal != null &&
             product?.unallocated != null ? (
               <span className={META_ROW_CLASS}>
-                {formatCatalogAllocationSummary(
-                  product.quantity,
-                  product.allocatedTotal,
-                  product.unallocated,
-                )}
+                {product.committedQuantity != null && product.committedQuantity > 0
+                  ? formatCatalogAllocationDetailSummary(
+                      product.quantity,
+                      product.allocatedTotal,
+                      product.unallocated,
+                      product.committedQuantity,
+                    )
+                  : formatCatalogAllocationSummary(
+                      product.quantity,
+                      product.allocatedTotal,
+                      product.unallocated,
+                    )}
+              </span>
+            ) : null}
+            {commitHint ? (
+              <span className="text-xs text-amber-600/90 dark:text-amber-400/90">
+                {commitHint}
               </span>
             ) : null}
           </div>

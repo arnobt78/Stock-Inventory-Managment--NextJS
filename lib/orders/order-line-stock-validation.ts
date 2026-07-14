@@ -304,5 +304,5 @@ export function validateOrderLineStock(
 
 /** Hint copy for auto-assign warehouse picker. */
 export function formatOrderLineAutoAssignHint(maxQty: number): string {
-  return `Up to ${maxQty} from catalog (incl. unallocated)`;
+  return `Auto-assign — up to ${maxQty} from catalog (incl. unallocated)`;
 }

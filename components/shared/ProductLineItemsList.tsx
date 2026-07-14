@@ -10,15 +10,20 @@ import Link from "next/link";
 import { Hash, Package, Tag, Truck, Warehouse } from "lucide-react";
 import { ProductThumb } from "@/components/products/ProductOptionRow";
 import { AvatarInlineLink } from "@/components/shared/AvatarInlineLink";
+import { ProportionalPriceDisplay } from "@/components/shared/ProportionalPriceDisplay";
 import ProductReviewsSection from "@/components/product-reviews/ProductReviewsSection";
 import type { Order, OrderItem } from "@/types";
 import type { OrderReviewContext } from "@/lib/server/order-review-context-data";
+import { orderHasFeeAdjustments } from "@/lib/orders/proportional-line-amount";
 
 export type ProductLineItemsListProps = {
   items: OrderItem[];
   linkMode: "admin" | "portal" | "none";
   /** REQ-0073 — warehouse link for admin/owner; plain text for client/supplier */
   warehouseLinkMode?: "admin" | "owner" | "none";
+  /** REQ-0114 — order totals for proportional line display */
+  orderSubtotal?: number;
+  orderTotal?: number;
   emptyMessage?: string;
   showReviews?: boolean;
   order?: Pick<Order, "id" | "paymentStatus">;
@@ -71,6 +76,8 @@ export function ProductLineItemsList({
   items,
   linkMode,
   warehouseLinkMode = "none",
+  orderSubtotal,
+  orderTotal,
   emptyMessage = "No items",
   showReviews = false,
   order,
@@ -104,6 +111,13 @@ export function ProductLineItemsList({
             : item.warehouseId && warehouseLinkMode === "owner"
               ? `/warehouses/${item.warehouseId}`
               : null;
+
+        const showAdjusted =
+          typeof item.proportionalAmount === "number" &&
+          (orderSubtotal != null &&
+          orderTotal != null
+            ? orderHasFeeAdjustments(orderSubtotal, orderTotal)
+            : item.proportionalAmount !== item.subtotal);
 
         return (
           <div
@@ -142,9 +156,12 @@ export function ProductLineItemsList({
                 </p>
               </div>
               <div className="text-left sm:text-right flex flex-col items-end gap-2 shrink-0">
-                <p className="font-medium text-sky-600 dark:text-sky-400 text-sm sm:text-lg">
-                  ${Number(item.subtotal).toFixed(2)}
-                </p>
+                <ProportionalPriceDisplay
+                  listAmount={Number(item.subtotal)}
+                  adjustedAmount={
+                    showAdjusted ? Number(item.proportionalAmount) : undefined
+                  }
+                />
                 {showReviews &&
                   order?.paymentStatus === "paid" &&
                   item.productId &&
