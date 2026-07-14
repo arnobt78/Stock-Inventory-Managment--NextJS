@@ -17,10 +17,7 @@ import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
-  DialogDescription,
   DialogFooter,
-  DialogHeader,
-  DialogTitle,
   DialogTrigger,
   DialogClose,
 } from "@/components/ui/dialog";
@@ -50,11 +47,15 @@ import {
   OrderDialogCreateLineItem,
   type OrderFormData,
 } from "@/components/orders/OrderDialogCreateLineItem";
+import { OrderAddressFields } from "@/components/orders/OrderAddressFields";
 import { ensureStockAllocationsAndValidate } from "@/lib/orders/order-line-stock-validation";
 import {
   DeferredSelectGate,
   DIALOG_FORM_FIELD_VIOLET,
+  DIALOG_SELECT_CONTENT_CLASS,
+  DIALOG_SELECT_ITEM_CLASS,
   DialogFormLabel,
+  DialogHeaderBrand,
   DialogSubmitButton,
   GLASS_GHOST_BUTTON,
 } from "@/components/shared";
@@ -75,12 +76,17 @@ import type {
 } from "@/types";
 import { logger } from "@/lib/logger";
 import {
+  CircleDollarSign,
   DollarSign,
   MapPin,
   Package,
+  Percent,
   Plus,
+  Receipt,
   Save,
   StickyNote,
+  Tag,
+  Truck,
   X,
 } from "lucide-react";
 import { useAuth } from "@/contexts";
@@ -336,6 +342,15 @@ export default function OrderDialog({
     orderFees.taxAmount +
     orderFees.shippingAmount -
     orderFees.discountAmount;
+
+  const hasValidLineItems = useMemo(
+    () =>
+      watchedItems?.some(
+        (item) => item?.productId && (item?.quantity ?? 0) > 0,
+      ) ?? false,
+    [watchedItems],
+  );
+  const showOrderTotals = hasValidLineItems && subtotal > 0;
 
   // Sync billing address with shipping address if checkbox is checked
   useEffect(() => {
@@ -705,18 +720,20 @@ export default function OrderDialog({
         className="p-2 sm:p-4 sm:px-8 poppins max-h-[90vh] overflow-y-auto border-violet-400/30 dark:border-violet-400/30 shadow-[0_30px_80px_rgba(139,92,246,0.45)] dark:shadow-[0_30px_80px_rgba(139,92,246,0.25)]"
         onOpenAutoFocus={(e) => e.preventDefault()}
       >
-        <DialogHeader>
-          <DialogTitle className="text-[22px] text-white">
-            {editingOrder
+        <DialogHeaderBrand
+          icon={Package}
+          tone="violet"
+          title={
+            editingOrder
               ? `Edit Order ${editingOrder.orderNumber}`
-              : "Create New Order"}
-          </DialogTitle>
-          <DialogDescription className="text-white/70">
-            {editingOrder
+              : "Create New Order"
+          }
+          description={
+            editingOrder
               ? "Update order status, payment status, tracking information, and notes."
-              : "Add products, quantities, addresses, and order details below."}
-          </DialogDescription>
-        </DialogHeader>
+              : "Add products, quantities, addresses, and order details below."
+          }
+        />
 
         {/* Edit Order Form (shown when editing) */}
         {editingOrder ? (
@@ -761,7 +778,7 @@ export default function OrderDialog({
                           <SelectValue placeholder="Select Status" />
                         </SelectTrigger>
                         <SelectContent
-                          className="border-violet-400/20 dark:border-white/10 bg-white/80 dark:bg-popover/50 backdrop-blur-md z-[100]"
+                          className={cn(DIALOG_SELECT_CONTENT_CLASS, "z-[100]")}
                           position="popper"
                           sideOffset={5}
                           align="start"
@@ -770,7 +787,7 @@ export default function OrderDialog({
                             <SelectItem
                               key={option.value}
                               value={option.value}
-                              className="cursor-pointer text-gray-700 dark:text-white focus:bg-violet-100 dark:focus:bg-white/10 focus:text-gray-700 dark:focus:text-white"
+                              className={DIALOG_SELECT_ITEM_CLASS}
                             >
                               {option.label}
                             </SelectItem>
@@ -820,7 +837,7 @@ export default function OrderDialog({
                           <SelectValue placeholder="Select Payment Status" />
                         </SelectTrigger>
                         <SelectContent
-                          className="border-violet-400/20 dark:border-white/10 bg-white/80 dark:bg-popover/50 backdrop-blur-md z-[100]"
+                          className={cn(DIALOG_SELECT_CONTENT_CLASS, "z-[100]")}
                           position="popper"
                           sideOffset={5}
                           align="start"
@@ -829,7 +846,7 @@ export default function OrderDialog({
                             <SelectItem
                               key={option.value}
                               value={option.value}
-                              className="cursor-pointer text-gray-700 dark:text-white focus:bg-violet-100 dark:focus:bg-white/10 focus:text-gray-700 dark:focus:text-white"
+                              className={DIALOG_SELECT_ITEM_CLASS}
                             >
                               {option.label}
                             </SelectItem>
@@ -1090,44 +1107,7 @@ export default function OrderDialog({
                 {/* Addresses Section */}
                 <div className="space-y-4">
                   <DialogFormLabel icon={MapPin}>Shipping Address</DialogFormLabel>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                    <FormField
-                      name="shippingAddress.street"
-                      label="Street Address"
-                      placeholder="123 Main St"
-                      labelClassName="text-white/80"
-                      inputClassName={DIALOG_FORM_FIELD_VIOLET}
-                    />
-                    <FormField
-                      name="shippingAddress.city"
-                      label="City"
-                      placeholder="New York"
-                      labelClassName="text-white/80"
-                      inputClassName={DIALOG_FORM_FIELD_VIOLET}
-                    />
-                    <FormField
-                      name="shippingAddress.state"
-                      label="State/Province"
-                      placeholder="NY"
-                      labelClassName="text-white/80"
-                      inputClassName={DIALOG_FORM_FIELD_VIOLET}
-                    />
-                    <FormField
-                      name="shippingAddress.zipCode"
-                      label="Zip Code"
-                      placeholder="10001"
-                      labelClassName="text-white/80"
-                      inputClassName={DIALOG_FORM_FIELD_VIOLET}
-                    />
-                    <FormField
-                      name="shippingAddress.country"
-                      label="Country"
-                      placeholder="United States"
-                      labelClassName="text-white/80"
-                      className="sm:col-span-2"
-                      inputClassName={DIALOG_FORM_FIELD_VIOLET}
-                    />
-                  </div>
+                  <OrderAddressFields prefix="shippingAddress" />
 
                   {/* Use Same Address Checkbox */}
                   <div className="flex items-center gap-2">
@@ -1152,44 +1132,7 @@ export default function OrderDialog({
                   {!useSameAddress && (
                     <div className="space-y-4 pt-4 border-t border-violet-400/20">
                       <DialogFormLabel icon={MapPin}>Billing Address</DialogFormLabel>
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                        <FormField
-                          name="billingAddress.street"
-                          label="Street Address"
-                          placeholder="123 Main St"
-                          labelClassName="text-white/80"
-                          inputClassName={DIALOG_FORM_FIELD_VIOLET}
-                        />
-                        <FormField
-                          name="billingAddress.city"
-                          label="City"
-                          placeholder="New York"
-                          labelClassName="text-white/80"
-                          inputClassName={DIALOG_FORM_FIELD_VIOLET}
-                        />
-                        <FormField
-                          name="billingAddress.state"
-                          label="State/Province"
-                          placeholder="NY"
-                          labelClassName="text-white/80"
-                          inputClassName={DIALOG_FORM_FIELD_VIOLET}
-                        />
-                        <FormField
-                          name="billingAddress.zipCode"
-                          label="Zip Code"
-                          placeholder="10001"
-                          labelClassName="text-white/80"
-                          inputClassName={DIALOG_FORM_FIELD_VIOLET}
-                        />
-                        <FormField
-                          name="billingAddress.country"
-                          label="Country"
-                          placeholder="United States"
-                          labelClassName="text-white/80"
-                          className="sm:col-span-2"
-                          inputClassName={DIALOG_FORM_FIELD_VIOLET}
-                        />
-                      </div>
+                      <OrderAddressFields prefix="billingAddress" />
                     </div>
                   )}
                 </div>
@@ -1197,30 +1140,52 @@ export default function OrderDialog({
                 {/* Order Totals Section — tax 7%, shipping $4.99, discount by subtotal tier (computed, no dropdowns) */}
                 <div className="space-y-4">
                   <DialogFormLabel icon={DollarSign}>Order Totals</DialogFormLabel>
-                  <div className="p-4 border border-violet-400/20 rounded-lg bg-white/5 space-y-2">
-                    <div className="flex justify-between text-sm text-white/70">
-                      <span>Subtotal:</span>
-                      <span>${subtotal.toFixed(2)}</span>
+                  {showOrderTotals ? (
+                    <div className="p-4 border border-violet-400/20 rounded-lg bg-white/5 space-y-2">
+                      <div className="flex justify-between text-sm text-white/70">
+                        <span className="inline-flex items-center gap-1.5">
+                          <Receipt className="h-3.5 w-3.5 shrink-0" />
+                          Subtotal:
+                        </span>
+                        <span>${subtotal.toFixed(2)}</span>
+                      </div>
+                      <div className="flex justify-between text-sm text-white/70">
+                        <span className="inline-flex items-center gap-1.5">
+                          <Percent className="h-3.5 w-3.5 shrink-0" />
+                          Tax (7%):
+                        </span>
+                        <span>${orderFees.taxAmount.toFixed(2)}</span>
+                      </div>
+                      <div className="flex justify-between text-sm text-white/70">
+                        <span className="inline-flex items-center gap-1.5">
+                          <Truck className="h-3.5 w-3.5 shrink-0" />
+                          Shipping:
+                        </span>
+                        <span>${orderFees.shippingAmount.toFixed(2)}</span>
+                      </div>
+                      <div className="flex justify-between text-sm text-white/70">
+                        <span className="inline-flex items-center gap-1.5">
+                          <Tag className="h-3.5 w-3.5 shrink-0" />
+                          Discount ({orderFees.discountPercent}%):
+                        </span>
+                        <span className="text-red-400">
+                          -${orderFees.discountAmount.toFixed(2)}
+                        </span>
+                      </div>
+                      <div className="flex justify-between text-base font-medium text-white pt-2 border-t border-violet-400/20">
+                        <span className="inline-flex items-center gap-1.5">
+                          <CircleDollarSign className="h-4 w-4 shrink-0" />
+                          Total:
+                        </span>
+                        <span>${total.toFixed(2)}</span>
+                      </div>
                     </div>
-                    <div className="flex justify-between text-sm text-white/70">
-                      <span>Tax (7%):</span>
-                      <span>${orderFees.taxAmount.toFixed(2)}</span>
+                  ) : (
+                    <div className="flex flex-col items-center justify-center gap-2 rounded-lg border border-violet-400/20 bg-white/5 p-6 text-center text-white/60">
+                      <Package className="h-8 w-8 shrink-0 opacity-70" aria-hidden />
+                      <p className="text-sm">Add products to see totals</p>
                     </div>
-                    <div className="flex justify-between text-sm text-white/70">
-                      <span>Shipping:</span>
-                      <span>${orderFees.shippingAmount.toFixed(2)}</span>
-                    </div>
-                    <div className="flex justify-between text-sm text-white/70">
-                      <span>Discount ({orderFees.discountPercent}%):</span>
-                      <span className="text-red-400">
-                        -${orderFees.discountAmount.toFixed(2)}
-                      </span>
-                    </div>
-                    <div className="flex justify-between text-base font-medium text-white pt-2 border-t border-violet-400/20">
-                      <span>Total:</span>
-                      <span>${total.toFixed(2)}</span>
-                    </div>
-                  </div>
+                  )}
                 </div>
 
                 {/* Notes */}

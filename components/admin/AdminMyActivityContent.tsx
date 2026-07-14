@@ -37,7 +37,7 @@ import {
 import { cn } from "@/lib/utils";
 import { isAnyDataSlotLoading, isDataSlotLoading, queryKeys, useSyncSsrQueryDataMany } from "@/lib/react-query";
 import { useAuth } from "@/contexts";
-import { PageContentWrapper, PageSectionHeader } from "@/components/shared";
+import { PageContentWrapper, PageSectionHeader, SectionTitleRow } from "@/components/shared";
 import { FILTER_SEARCH_INPUT_SKY_CLASS } from "@/lib/ui/filter-toolbar-styles";
 import { ClientCurrency, ClientCompactDateTime } from "@/components/shared";
 import { formatStableCurrency } from "@/lib/format";
@@ -443,10 +443,13 @@ export default function AdminMyActivityContent({
         >
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-4">
             <div>
-              <h2 className="text-sm sm:text-base font-medium text-gray-700 dark:text-white">
-                Recent Orders
-              </h2>
-              <p className="text-sm text-gray-600 dark:text-gray-400">
+              <SectionTitleRow
+                as="h3"
+                title="Recent Orders"
+                icon={ShoppingCart}
+                iconClassName="text-teal-600 dark:text-teal-400"
+              />
+              <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
                 Latest 5 orders (self: {authUser?.name ?? "—"},{" "}
                 {authUser?.email ?? "—"})
               </p>
@@ -463,7 +466,7 @@ export default function AdminMyActivityContent({
           </div>
           <Table>
             <TableHeader>
-              <TableRow className="border-gray-300/30 dark:border-white/10 hover:bg-transparent">
+              <TableRow className="bg-white/40 dark:bg-white/10 border-gray-300/30 dark:border-white/10 hover:bg-transparent">
                 <TableHead className="text-gray-700 dark:text-gray-300">
                   Order ID
                 </TableHead>
@@ -492,19 +495,30 @@ export default function AdminMyActivityContent({
             ) : (
               <TableBody>
                 {recentOrders.length === 0 ? (
-                  <TableRow className="border-gray-300/30 dark:border-white/10">
+                  <TableRow className="border-gray-300/30 dark:border-white/10 hover:bg-transparent">
                     <TableCell
                       colSpan={7}
-                      className="text-center text-gray-600 dark:text-gray-400 py-8"
+                      className="text-center text-gray-600 dark:text-gray-400 py-10"
                     >
-                      No orders found
+                      <div className="flex flex-col items-center justify-center gap-2">
+                        <ShoppingCart
+                          className="h-8 w-8 opacity-50"
+                          aria-hidden
+                        />
+                        <span>No orders found</span>
+                      </div>
                     </TableCell>
                   </TableRow>
                 ) : (
-                  recentOrders.map((order) => (
+                  recentOrders.map((order, index) => (
                     <TableRow
                       key={order.id}
-                      className="border-gray-300/30 dark:border-white/10"
+                      className={cn(
+                        "border-gray-300/30 dark:border-white/10",
+                        index % 2 === 0
+                          ? "bg-white/30 dark:bg-white/5"
+                          : "bg-white/20 dark:bg-white/10",
+                      )}
                     >
                       <TableCell className="font-mono text-xs text-gray-700 dark:text-gray-100">
                         {order.id.slice(0, 8)}…

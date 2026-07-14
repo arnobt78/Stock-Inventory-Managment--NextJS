@@ -1,3 +1,9 @@
+import { cn } from "@/lib/utils";
+import {
+  filterCommandPopoverClass,
+  FILTER_COMMAND_INPUT_WRAPPER_CLASS,
+} from "@/lib/ui/popover-readability-styles";
+
 /**
  * Order Status Filter Dropdown Component
  * Reusable dropdown for filtering orders by status (matching Product StatusDropDown style)
@@ -73,7 +79,7 @@ export function OrderStatusDropDown({
           </Button>
         </PopoverTrigger>
         <PopoverContent
-          className="p-0 w-48 poppins rounded-[28px] border border-rose-400/20 dark:border-white/10 bg-white/80 dark:bg-popover/50 backdrop-blur-md shadow-[0_10px_30px_rgba(225,29,72,0.15)] [&_[cmdk-input-wrapper]]:border-b [&_[cmdk-input-wrapper]]:border-gray-300/50 [&_[cmdk-input-wrapper]]:dark:border-white/10 [&_[cmdk-input-wrapper]]:bg-white/10 [&_[cmdk-input-wrapper]]:dark:bg-white/5 [&_[cmdk-input-wrapper]]:backdrop-blur-md"
+          className={cn("p-0 w-48 poppins", filterCommandPopoverClass("rose"), FILTER_COMMAND_INPUT_WRAPPER_CLASS)}
           side="bottom"
           align="center"
         >

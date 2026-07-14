@@ -9,6 +9,11 @@ import {
   SelectTrigger,
 } from "@/components/ui/select";
 import { AUTH_FORM_FIELD_SKY } from "@/components/auth/auth-glass-styles";
+import {
+  DIALOG_SELECT_CONTENT_CLASS,
+  DIALOG_SELECT_ITEM_CLASS,
+  filterCommandPopoverClass,
+} from "@/lib/ui/popover-readability-styles";
 import { cn } from "@/lib/utils";
 import {
   roleMeta,
@@ -63,7 +68,7 @@ export function LoginRoleSelect({
         </span>
       </SelectTrigger>
       <SelectContent
-        className="border-sky-400/20 dark:border-white/10 bg-white/80 dark:bg-popover/50 backdrop-blur-md z-[100]"
+        className={cn(filterCommandPopoverClass("sky"))}
         position="popper"
         sideOffset={5}
         align="start"
@@ -74,7 +79,7 @@ export function LoginRoleSelect({
             <SelectItem
               key={key}
               value={key}
-              className="cursor-pointer text-gray-700 dark:text-white focus:bg-sky-100 dark:focus:bg-white/10 focus:text-gray-700 dark:focus:text-white"
+              className={DIALOG_SELECT_ITEM_CLASS}
             >
               <span className="flex items-center gap-2">
                 <Icon
@@ -88,7 +93,7 @@ export function LoginRoleSelect({
         {selectedRole ? (
           <SelectItem
             value="clear"
-            className="cursor-pointer text-gray-500 dark:text-white/60 opacity-60 focus:bg-sky-100 dark:focus:bg-white/10 focus:text-gray-500 dark:focus:text-white/60"
+            className={cn(DIALOG_SELECT_ITEM_CLASS, "opacity-60")}
           >
             <span className="flex items-center gap-2">
               <X className="h-4 w-4 shrink-0" />

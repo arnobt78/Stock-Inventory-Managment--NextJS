@@ -11,10 +11,7 @@ import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
-  DialogDescription,
   DialogFooter,
-  DialogHeader,
-  DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
 import {
@@ -46,14 +43,18 @@ import type {
 } from "@/types";
 import { useAuth } from "@/contexts";
 import { useToast } from "@/hooks/use-toast";
-import { Calendar as CalendarIcon, FileText, Save, ShoppingCart, StickyNote, X } from "lucide-react";
+import { FileText, Save, ShoppingCart, StickyNote, X } from "lucide-react";
 import { useForm, FormProvider } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { FormField, FormNumberField } from "@/components/forms";
 import {
   DeferredSelectGate,
   DIALOG_FORM_FIELD_INDIGO,
+  DIALOG_SELECT_CONTENT_CLASS,
+  DIALOG_SELECT_ITEM_CLASS,
+  DialogDateField,
   DialogFormLabel,
+  DialogHeaderBrand,
   DialogSubmitButton,
   GLASS_GHOST_BUTTON,
 } from "@/components/shared";
@@ -493,18 +494,20 @@ export default function InvoiceDialog({
         className="p-2 sm:p-4 sm:px-8 poppins max-h-[90vh] overflow-y-auto border-indigo-400/30 dark:border-indigo-400/30 shadow-[0_30px_80px_rgba(99,102,241,0.45)] dark:shadow-[0_30px_80px_rgba(99,102,241,0.25)]"
         onOpenAutoFocus={(e) => e.preventDefault()}
       >
-        <DialogHeader>
-          <DialogTitle className="text-[22px] text-white">
-            {editingInvoice
+        <DialogHeaderBrand
+          icon={FileText}
+          tone="indigo"
+          title={
+            editingInvoice
               ? `Edit Invoice ${editingInvoice.invoiceNumber}`
-              : "Generate Invoice from Order"}
-          </DialogTitle>
-          <DialogDescription className="text-white/70">
-            {editingInvoice
+              : "Generate Invoice from Order"
+          }
+          description={
+            editingInvoice
               ? "Update invoice status, payment information, dates, and notes."
-              : "Select an order and set invoice details to generate a new invoice."}
-          </DialogDescription>
-        </DialogHeader>
+              : "Select an order and set invoice details to generate a new invoice."
+          }
+        />
 
         {/* Edit Invoice Form (shown when editing) */}
         {editingInvoice ? (
@@ -545,16 +548,16 @@ export default function InvoiceDialog({
                           <SelectValue placeholder="Select Status" />
                         </SelectTrigger>
                         <SelectContent
-                          className="border-indigo-400/20 dark:border-white/10 bg-white/80 dark:bg-popover/50 backdrop-blur-md z-[100]"
+                          className={cn(DIALOG_SELECT_CONTENT_CLASS, "z-[100]")}
                           position="popper"
                           sideOffset={5}
                           align="start"
                         >
-                          <SelectItem value="draft">Draft</SelectItem>
-                          <SelectItem value="sent">Sent</SelectItem>
-                          <SelectItem value="paid">Paid</SelectItem>
-                          <SelectItem value="overdue">Overdue</SelectItem>
-                          <SelectItem value="cancelled">Cancelled</SelectItem>
+                          <SelectItem value="draft" className={DIALOG_SELECT_ITEM_CLASS}>Draft</SelectItem>
+                          <SelectItem value="sent" className={DIALOG_SELECT_ITEM_CLASS}>Sent</SelectItem>
+                          <SelectItem value="paid" className={DIALOG_SELECT_ITEM_CLASS}>Paid</SelectItem>
+                          <SelectItem value="overdue" className={DIALOG_SELECT_ITEM_CLASS}>Overdue</SelectItem>
+                          <SelectItem value="cancelled" className={DIALOG_SELECT_ITEM_CLASS}>Cancelled</SelectItem>
                         </SelectContent>
                       </Select>
                     )}
@@ -717,23 +720,16 @@ export default function InvoiceDialog({
                 )}
               </div>
 
-              {/* Due Date */}
-              <div className="space-y-2">
-                <DialogFormLabel htmlFor="due-date" icon={CalendarIcon} required>
-                  Due Date
-                </DialogFormLabel>
-                <div className="relative">
-                  <Input
-                    id="due-date"
-                    type="date"
-                    value={dueDate}
-                    onChange={(e) => setDueDate(e.target.value)}
-                    className={cn("w-full pr-10", DIALOG_FORM_FIELD_INDIGO)}
-                    min={new Date().toISOString().split("T")[0]}
-                  />
-                  <CalendarIcon className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-white dark:text-white/40 pointer-events-none" />
-                </div>
-              </div>
+              <DialogDateField
+                id="due-date"
+                label="Due Date"
+                value={dueDate}
+                onChange={setDueDate}
+                inputClassName={DIALOG_FORM_FIELD_INDIGO}
+                min={new Date().toISOString().split("T")[0]}
+                required
+                labelIcon={null}
+              />
 
               {/* Order Pricing Summary (read-only — values calculated at order time) */}
               {selectedOrder && (

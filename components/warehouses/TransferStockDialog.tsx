@@ -46,6 +46,10 @@ import {
   DialogSubmitButton,
   GLASS_GHOST_BUTTON,
   StockQuantityField,
+  filterCommandPopoverClass,
+  FILTER_COMMAND_INPUT_WRAPPER_CLASS,
+  DIALOG_SELECT_CONTENT_CLASS,
+  DIALOG_SELECT_ITEM_CLASS,
   getStockQuantityValidation,
 } from "@/components/shared";
 import { ProductOptionRow } from "@/components/products/ProductOptionRow";
@@ -223,7 +227,11 @@ export default function TransferStockDialog({
                   </PopoverTrigger>
                   <PopoverContent
                     align="start"
-                    className="w-[var(--radix-popover-trigger-width)] p-0 rounded-[28px] border border-teal-400/20 bg-white/80 dark:bg-popover/50 backdrop-blur-md"
+                    className={cn(
+                      "w-[var(--radix-popover-trigger-width)] p-0",
+                      filterCommandPopoverClass("teal"),
+                      FILTER_COMMAND_INPUT_WRAPPER_CLASS,
+                    )}
                   >
                     <Command className="bg-transparent">
                       <CommandInput placeholder="Search products…" />
@@ -293,9 +301,18 @@ export default function TransferStockDialog({
                   >
                     <SelectValue placeholder="Select warehouse…" />
                   </SelectTrigger>
-                  <SelectContent>
+                  <SelectContent
+                    className={cn(DIALOG_SELECT_CONTENT_CLASS)}
+                    position="popper"
+                    sideOffset={5}
+                    align="start"
+                  >
                     {destinationOptions.map((w) => (
-                      <SelectItem key={w.id} value={w.id}>
+                      <SelectItem
+                        key={w.id}
+                        value={w.id}
+                        className={DIALOG_SELECT_ITEM_CLASS}
+                      >
                         {w.name}
                       </SelectItem>
                     ))}

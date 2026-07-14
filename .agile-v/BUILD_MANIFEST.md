@@ -263,6 +263,15 @@
 | ART-0255 | REQ-0116 | `ProportionalPriceDisplay.tsx`, `proportional-line-amount.ts` | DRY fee-adjusted line price display + test |
 | ART-0256 | REQ-0116 | `SupplierDialog.tsx`, `OrderDialog.tsx`, `PaymentDialog.tsx`, `WarehouseDialog.tsx` | Final dialog label/footer gaps |
 | ART-0257 | REQ-0116 | `OrderDialogCreateLineItem.tsx`, `typography-scale.ts`, `OrderSummaryCard.tsx` | Create preview + detail data typography |
+| ART-0258 | REQ-0117 | `dialog-form-label.tsx`, `DialogDateField.tsx`, `DialogHeaderBrand.tsx`, `dialog-edge-scroll.ts` | Flex-safe labels + select tokens + date/header primitives |
+| ART-0259 | REQ-0117 | `OrderDialog.tsx`, `InvoiceDialog.tsx`, `OrderPickerCommand.tsx`, catalog CRUD dialogs | Dialog UX sweep (totals empty state, selects, headers) |
+| ART-0260 | REQ-0117 | `AdminEmbedDataTable.tsx`, `AdminClientPortalContent.tsx`, `AdminSupplierPortalContent.tsx`, `AdminMyActivityContent.tsx` | Admin embed table parity |
+| ART-0261 | REQ-0118 | `lib/ui/popover-readability-styles.ts`, `pagination-select-styles.ts`, `filter-command-item.tsx` | Readable popover token hub |
+| ART-0262 | REQ-0118 | `PaymentDialog.tsx`, warehouse dialogs, `OrderDialogCreateLineItem.tsx`, auth/shipping/admin selects | Dialog gap closure |
+| ART-0263 | REQ-0118 | 15 `*Filter.tsx` + `ProductOwnerSelect.tsx` | Full list filter Command sweep |
+| ART-0264 | REQ-0119 | `catalog-filter-tokens.ts`, `popover-readability-styles.ts` | Catalog/export popover readability parity |
+| ART-0265 | REQ-0119 | `OrderAddressFields.tsx`, `dialog-edge-scroll.ts` | Order address sub-label tokens |
+| ART-0266 | REQ-0119 | `business-insights-warehouse-rollup.ts`, `BusinessInsightsWarehouseSection.tsx`, `app/business-insights/page.tsx` | Warehouse rollup tab + SSR |
 
 ## Tests
 

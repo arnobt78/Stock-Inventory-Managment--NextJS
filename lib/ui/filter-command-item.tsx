@@ -8,6 +8,7 @@
 import * as React from "react";
 import { CommandItem } from "@/components/ui/command";
 import { Checkbox } from "@/components/ui/checkbox";
+import { READABLE_POPOVER_ITEM_CLASS } from "@/lib/ui/popover-readability-styles";
 import { cn } from "@/lib/utils";
 
 export type FilterCommandCheckboxItemProps = {
@@ -36,7 +37,8 @@ export function FilterCommandCheckboxItem({
       value={value}
       onSelect={() => onToggle(toggleValue)}
       className={cn(
-        "mb-2 flex w-full cursor-pointer items-center text-gray-700 dark:text-white/80 focus:bg-rose-100 focus:text-gray-700 dark:focus:bg-white/10 dark:focus:text-white",
+        "mb-2 flex w-full items-center",
+        READABLE_POPOVER_ITEM_CLASS,
         className,
       )}
     >

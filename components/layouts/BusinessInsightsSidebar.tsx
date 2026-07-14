@@ -6,6 +6,7 @@ import {
   PieChart as PieChartIcon,
   TrendingUp,
   AlertTriangle,
+  Warehouse,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -22,6 +23,7 @@ const TAB_ITEMS: {
   { value: "overview", label: "Overview", icon: BarChart3 },
   { value: "distribution", label: "Distribution", icon: PieChartIcon },
   { value: "trends", label: "Trends", icon: TrendingUp },
+  { value: "warehouses", label: "Warehouses", icon: Warehouse },
   { value: "alerts", label: "Alerts", icon: AlertTriangle },
 ];
 

@@ -30,7 +30,7 @@ import {
   useGenerateShippingLabel,
   useAddTrackingNumber,
 } from "@/hooks/queries";
-import { DeferredSelectGate, DIALOG_FORM_FIELD_EMERALD, CopyableText } from "@/components/shared";
+import { DeferredSelectGate, DIALOG_FORM_FIELD_EMERALD, DIALOG_SELECT_CONTENT_CLASS, DIALOG_SELECT_ITEM_CLASS, CopyableText } from "@/components/shared";
 import {
   GLASS_BUTTON_DISABLED,
   GLASS_BUTTON_ICON_HOVER,
@@ -243,7 +243,7 @@ export default function ShippingManagement({
                         <SelectValue placeholder="Select carrier" />
                       </SelectTrigger>
                       <SelectContent
-                        className="border-emerald-400/20 dark:border-white/10 bg-white/80 dark:bg-popover/50 backdrop-blur-md z-[100]"
+                        className={cn(DIALOG_SELECT_CONTENT_CLASS)}
                         position="popper"
                         sideOffset={5}
                         align="start"
@@ -252,7 +252,7 @@ export default function ShippingManagement({
                           <SelectItem
                             key={c.value}
                             value={c.value}
-                            className="cursor-pointer text-gray-700 dark:text-white focus:bg-emerald-100 dark:focus:bg-white/10 focus:text-gray-700 dark:focus:text-white"
+                            className={DIALOG_SELECT_ITEM_CLASS}
                           >
                             {c.label}
                           </SelectItem>
@@ -330,7 +330,7 @@ export default function ShippingManagement({
                         <SelectValue placeholder="Select carrier" />
                       </SelectTrigger>
                       <SelectContent
-                        className="border-emerald-400/20 dark:border-white/10 bg-white/80 dark:bg-popover/50 backdrop-blur-md z-[100]"
+                        className={cn(DIALOG_SELECT_CONTENT_CLASS)}
                         position="popper"
                         sideOffset={5}
                         align="start"
@@ -339,7 +339,7 @@ export default function ShippingManagement({
                           <SelectItem
                             key={c.value}
                             value={c.value}
-                            className="cursor-pointer text-gray-700 dark:text-white focus:bg-emerald-100 dark:focus:bg-white/10 focus:text-gray-700 dark:focus:text-white"
+                            className={DIALOG_SELECT_ITEM_CLASS}
                           >
                             {c.label}
                           </SelectItem>

@@ -40,6 +40,8 @@ import {
   DialogSubmitButton,
   GLASS_GHOST_BUTTON,
   StockQuantityField,
+  filterCommandPopoverClass,
+  FILTER_COMMAND_INPUT_WRAPPER_CLASS,
   getStockQuantityValidation,
 } from "@/components/shared";
 import {
@@ -249,7 +251,11 @@ export default function AllocateStockDialog({
                   </PopoverTrigger>
                   <PopoverContent
                     align="start"
-                    className="w-[var(--radix-popover-trigger-width)] p-0 rounded-[28px] border border-violet-400/20 bg-white/80 dark:bg-popover/50 backdrop-blur-md"
+                    className={cn(
+                      "w-[var(--radix-popover-trigger-width)] p-0",
+                      filterCommandPopoverClass("violet"),
+                      FILTER_COMMAND_INPUT_WRAPPER_CLASS,
+                    )}
                   >
                     <Command className="bg-transparent">
                       <CommandInput placeholder="Search products…" />

@@ -5,10 +5,7 @@ import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
-  DialogDescription,
   DialogFooter,
-  DialogHeader,
-  DialogTitle,
   DialogTrigger,
   DialogClose,
 } from "@/components/ui/dialog";
@@ -61,6 +58,7 @@ import {
   GLASS_GHOST_BUTTON,
   DialogSubmitButton,
   DialogFormLabel,
+  DialogHeaderBrand,
 } from "@/components/shared";
 import { Category } from "@/types";
 import { createCategoryColumns } from "./CategoryTableColumns";
@@ -320,23 +318,24 @@ export default function AddCategoryDialog({
         )}
       </DialogTrigger>
       <DialogContent className={CATEGORY_DIALOG_CONTENT_CLASS}>
-        <DialogHeader className={DIALOG_EDGE_SCROLL_HEADER}>
-          <DialogTitle className="text-[22px] text-white">
-            {editingCategory ? "Edit Category" : "Add Category"}
-          </DialogTitle>
-          <DialogDescription className="text-white/70">
-            {editingCategory
+        <DialogHeaderBrand
+          className={DIALOG_EDGE_SCROLL_HEADER}
+          icon={Tag}
+          tone="sky"
+          title={editingCategory ? "Edit Category" : "Add Category"}
+          description={
+            editingCategory
               ? "Update the category name"
-              : "Enter the name of the new category"}
-          </DialogDescription>
-        </DialogHeader>
+              : "Enter the name of the new category"
+          }
+        />
         <div className={DIALOG_EDGE_SCROLL_BODY}>
           <div className={DIALOG_EDGE_SCROLL_INNER}>
             {/* Edit Category Form (shown when editing) */}
             {editingCategory ? (
               <div className="mt-4">
                 <div className="pb-4">
-                  <DialogFormLabel icon={Tag} required className="mb-2 block">
+                  <DialogFormLabel icon={Tag} required wrapperClassName="mb-2">
                     Category Name
                   </DialogFormLabel>
                   <Input
@@ -347,7 +346,7 @@ export default function AddCategoryDialog({
                   />
                 </div>
                 <div className="pb-4">
-                  <DialogFormLabel icon={FileText} optional className="mb-2 block">
+                  <DialogFormLabel icon={FileText} optional wrapperClassName="mb-2">
                     Description
                   </DialogFormLabel>
                   <Textarea
@@ -360,7 +359,7 @@ export default function AddCategoryDialog({
                   />
                 </div>
                 <div className="pb-4">
-                  <DialogFormLabel icon={StickyNote} optional className="mb-2 block">
+                  <DialogFormLabel icon={StickyNote} optional wrapperClassName="mb-2">
                     Notes
                   </DialogFormLabel>
                   <Textarea
@@ -414,7 +413,7 @@ export default function AddCategoryDialog({
             ) : (
               <>
                 <div className="pb-4">
-                  <DialogFormLabel icon={Tag} required className="mb-2 block">
+                  <DialogFormLabel icon={Tag} required wrapperClassName="mb-2">
                     Category Name
                   </DialogFormLabel>
                   <Input
@@ -425,7 +424,7 @@ export default function AddCategoryDialog({
                   />
                 </div>
                 <div className="pb-4">
-                  <DialogFormLabel icon={FileText} optional className="mb-2 block">
+                  <DialogFormLabel icon={FileText} optional wrapperClassName="mb-2">
                     Description
                   </DialogFormLabel>
                   <Textarea
@@ -438,7 +437,7 @@ export default function AddCategoryDialog({
                   />
                 </div>
                 <div className="pb-4">
-                  <DialogFormLabel icon={StickyNote} optional className="mb-2 block">
+                  <DialogFormLabel icon={StickyNote} optional wrapperClassName="mb-2">
                     Notes
                   </DialogFormLabel>
                   <Textarea

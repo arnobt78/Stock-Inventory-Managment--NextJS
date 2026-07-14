@@ -25,6 +25,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { Check, ChevronDown } from "lucide-react";
+import { DIALOG_SELECT_CONTENT_CLASS } from "@/components/shared/dialog-edge-scroll";
 import { cn } from "@/lib/utils";
 import type { Order } from "@/types";
 
@@ -91,15 +92,18 @@ export function OrderPickerCommand({
       {/* z-[100]: render above the dialog overlay (same as edit-form SelectContent) */}
       <PopoverContent
         align="start"
-        className="p-0 w-[min(100vw-2rem,420px)] z-[100] rounded-[20px] border border-indigo-400/20 dark:border-white/10 bg-white/90 dark:bg-popover/70 backdrop-blur-md"
+        className={cn(
+          "p-0 w-[var(--radix-popover-trigger-width)] rounded-md",
+          DIALOG_SELECT_CONTENT_CLASS,
+        )}
       >
-        <Command className="bg-transparent">
+        <Command className="bg-popover text-popover-foreground">
           <CommandInput
             placeholder="Search order #, customer, total..."
-            className="bg-transparent border-0 focus:ring-0 text-gray-700 dark:text-white/80 placeholder:text-gray-500 dark:placeholder:text-white/40"
+            className="h-11"
           />
           <CommandList className="max-h-[min(60vh,280px)]">
-            <CommandEmpty className="text-gray-600 dark:text-white/60 text-sm text-center p-5">
+            <CommandEmpty className="text-sm text-center p-5 text-muted-foreground">
               No matching order found.
             </CommandEmpty>
             <CommandGroup>
@@ -110,17 +114,16 @@ export function OrderPickerCommand({
                 return (
                   <CommandItem
                     key={order.id}
-                    // Search across number + placer + total + status
                     value={`${order.orderNumber} ${placer ?? ""} ${order.total} ${order.status}`}
                     onSelect={() => handleSelect(order.id)}
-                    className="cursor-pointer text-gray-700 dark:text-white/80 focus:bg-indigo-100 dark:focus:bg-white/10 focus:text-gray-700 dark:focus:text-white"
+                    className="cursor-pointer"
                   >
                     <span className="flex min-w-0 flex-1 flex-col gap-0.5">
                       <span className="truncate">
                         {order.orderNumber} - {fmt(order.total)} ({order.status})
                       </span>
                       {placerLabel && (
-                        <span className="truncate text-xs text-muted-foreground dark:text-white/50">
+                        <span className="truncate text-xs text-muted-foreground">
                           {placerLabel}
                         </span>
                       )}

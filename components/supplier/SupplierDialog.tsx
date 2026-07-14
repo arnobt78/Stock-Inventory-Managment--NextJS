@@ -5,10 +5,7 @@ import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
-  DialogDescription,
   DialogFooter,
-  DialogHeader,
-  DialogTitle,
   DialogTrigger,
   DialogClose,
 } from "@/components/ui/dialog";
@@ -61,6 +58,7 @@ import {
   GLASS_GHOST_BUTTON,
   DialogSubmitButton,
   DialogFormLabel,
+  DialogHeaderBrand,
 } from "@/components/shared";
 import { Supplier } from "@/types";
 import { createSupplierColumns } from "./SupplierTableColumns";
@@ -324,23 +322,24 @@ export default function AddSupplierDialog({
         )}
       </DialogTrigger>
       <DialogContent className={SUPPLIER_DIALOG_CONTENT_CLASS}>
-        <DialogHeader className={DIALOG_EDGE_SCROLL_HEADER}>
-          <DialogTitle className="text-[22px] text-white">
-            {editingSupplier ? "Edit Supplier" : "Add Supplier"}
-          </DialogTitle>
-          <DialogDescription className="text-white/70">
-            {editingSupplier
+        <DialogHeaderBrand
+          className={DIALOG_EDGE_SCROLL_HEADER}
+          icon={Truck}
+          tone="emerald"
+          title={editingSupplier ? "Edit Supplier" : "Add Supplier"}
+          description={
+            editingSupplier
               ? "Update the supplier name"
-              : "Enter the name of the new supplier"}
-          </DialogDescription>
-        </DialogHeader>
+              : "Enter the name of the new supplier"
+          }
+        />
         <div className={DIALOG_EDGE_SCROLL_BODY}>
           <div className={DIALOG_EDGE_SCROLL_INNER}>
             {/* Conditional rendering for Add/Edit forms */}
             {editingSupplier ? (
               <div className="mt-4">
                 <div className="pb-4">
-                  <DialogFormLabel icon={Truck} required className="mb-2 block">
+                  <DialogFormLabel icon={Truck} required wrapperClassName="mb-2">
                     Supplier Name
                   </DialogFormLabel>
                   <Input
@@ -351,7 +350,7 @@ export default function AddSupplierDialog({
                   />
                 </div>
                 <div className="pb-4">
-                  <DialogFormLabel icon={FileText} optional className="mb-2 block">
+                  <DialogFormLabel icon={FileText} optional wrapperClassName="mb-2">
                     Description
                   </DialogFormLabel>
                   <Textarea
@@ -364,7 +363,7 @@ export default function AddSupplierDialog({
                   />
                 </div>
                 <div className="pb-4">
-                  <DialogFormLabel icon={StickyNote} optional className="mb-2 block">
+                  <DialogFormLabel icon={StickyNote} optional wrapperClassName="mb-2">
                     Notes
                   </DialogFormLabel>
                   <Textarea
@@ -422,7 +421,7 @@ export default function AddSupplierDialog({
                     htmlFor="supplier-create-name"
                     icon={Truck}
                     required
-                    className="mb-2 block"
+                    wrapperClassName="mb-2"
                   >
                     Supplier Name
                   </DialogFormLabel>
@@ -435,7 +434,7 @@ export default function AddSupplierDialog({
                   />
                 </div>
                 <div className="pb-4">
-                  <DialogFormLabel icon={FileText} optional className="mb-2 block">
+                  <DialogFormLabel icon={FileText} optional wrapperClassName="mb-2">
                     Description
                   </DialogFormLabel>
                   <Textarea
@@ -448,7 +447,7 @@ export default function AddSupplierDialog({
                   />
                 </div>
                 <div className="pb-4">
-                  <DialogFormLabel icon={StickyNote} optional className="mb-2 block">
+                  <DialogFormLabel icon={StickyNote} optional wrapperClassName="mb-2">
                     Notes
                   </DialogFormLabel>
                   <Textarea

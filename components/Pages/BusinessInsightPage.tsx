@@ -68,12 +68,19 @@ import {
   ProductStockStatusBadge,
   StockQuantityLeftBadge,
 } from "@/lib/ui/semantic-badges";
-import { useProducts, useOrders } from "@/hooks/queries";
-import { isDataSlotLoading } from "@/lib/react-query";
+import { useProducts, useOrders, useWarehouseStockSummary } from "@/hooks/queries";
+import { isDataSlotLoading, queryKeys, useSyncSsrQueryData } from "@/lib/react-query";
 import { exportToExcel, exportToCSV } from "@/lib/export";
 import type { Product, Order } from "@/types";
 import type { ProductForHome } from "@/lib/server/home-data";
 import type { OrderForPage } from "@/lib/server/orders-data";
+import type { WarehouseStockSummary } from "@/types/stock-allocation";
+import { BusinessInsightsWarehouseSection } from "@/components/business-insights/BusinessInsightsWarehouseSection";
+import {
+  buildWarehouseQuantityChartData,
+  buildWarehouseRollupMetrics,
+  formatWarehouseRollupForAi,
+} from "@/lib/insights/business-insights-warehouse-rollup";
 import { cn } from "@/lib/utils";
 import {
   FOCUS_NO_LAYOUT_SHIFT_CLASS,
@@ -97,6 +104,8 @@ const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042", "#8884D8"];
 export type BusinessInsightPageProps = {
   initialProducts?: ProductForHome[];
   initialOrders?: OrderForPage[];
+  /** REQ-0119 — warehouse stock summary for Warehouses tab SSR */
+  initialWarehouseSummary?: WarehouseStockSummary[];
 };
 
 /**
@@ -107,16 +116,29 @@ export type BusinessInsightPageProps = {
 export default function BusinessInsightPage({
   initialProducts,
   initialOrders,
+  initialWarehouseSummary,
 }: BusinessInsightPageProps = {}) {
   const productsQuery = useProducts(initialProducts as Product[] | undefined);
   const ordersQuery = useOrders(initialOrders as Order[] | undefined);
+  const warehouseSummaryQuery = useWarehouseStockSummary(initialWarehouseSummary);
   const allProducts = (productsQuery.data ??
     initialProducts ??
     []) as Product[];
   const allOrders = (ordersQuery.data ?? initialOrders ?? []) as Order[];
+  const warehouseSummaryRows =
+    warehouseSummaryQuery.data ?? initialWarehouseSummary ?? [];
   const productsLoading = isDataSlotLoading(productsQuery, initialProducts);
   const ordersLoading = isDataSlotLoading(ordersQuery, initialOrders);
+  const warehouseSummaryLoading = isDataSlotLoading(
+    warehouseSummaryQuery,
+    initialWarehouseSummary,
+  );
   const dataLoading = productsLoading;
+
+  useSyncSsrQueryData(
+    queryKeys.stockAllocation.summary(),
+    initialWarehouseSummary,
+  );
   const { user } = useAuth();
   const { toast } = useToast();
 
@@ -748,8 +770,17 @@ export default function BusinessInsightPage({
         .join("; ");
       parts.push(`Top categories by quantity: ${top}.`);
     }
+    const warehouseMetrics = buildWarehouseRollupMetrics(warehouseSummaryRows);
+    if (warehouseMetrics.warehousesWithStock > 0) {
+      parts.push(
+        formatWarehouseRollupForAi(
+          warehouseMetrics,
+          buildWarehouseQuantityChartData(warehouseSummaryRows),
+        ).trim(),
+      );
+    }
     return parts.join(" ");
-  }, [analyticsData]);
+  }, [analyticsData, warehouseSummaryRows]);
 
   /** Generate AI insights via OpenRouter (button-triggered, no auto-call) */
   const handleGenerateAiInsights = useCallback(async () => {
@@ -982,9 +1013,10 @@ export default function BusinessInsightPage({
             {!isMounted ? (
               <>
                 <div
-                  className="grid w-full grid-cols-4 h-9 items-center justify-center rounded-lg bg-muted p-1 text-muted-foreground mb-4"
+                  className="grid w-full grid-cols-5 h-9 items-center justify-center rounded-lg bg-muted p-1 text-muted-foreground mb-4"
                   role="presentation"
                 >
+                  <div className="h-7 rounded-md bg-gray-200/60 dark:bg-white/10 animate-pulse w-full max-w-[120px]" />
                   <div className="h-7 rounded-md bg-gray-200/60 dark:bg-white/10 animate-pulse w-full max-w-[120px]" />
                   <div className="h-7 rounded-md bg-gray-200/60 dark:bg-white/10 animate-pulse w-full max-w-[120px]" />
                   <div className="h-7 rounded-md bg-gray-200/60 dark:bg-white/10 animate-pulse w-full max-w-[120px]" />
@@ -997,10 +1029,11 @@ export default function BusinessInsightPage({
               </>
             ) : (
               <Tabs value={insightsTab} onValueChange={setInsightsTab}>
-                <TabsList className="hidden sm:grid w-full grid-cols-4 mb-4">
+                <TabsList className="hidden sm:grid w-full grid-cols-5 mb-4">
                   <TabsTrigger value="overview">Overview</TabsTrigger>
                   <TabsTrigger value="distribution">Distribution</TabsTrigger>
                   <TabsTrigger value="trends">Trends</TabsTrigger>
+                  <TabsTrigger value="warehouses">Warehouses</TabsTrigger>
                   <TabsTrigger value="alerts">Alerts</TabsTrigger>
                 </TabsList>
 
@@ -1417,6 +1450,13 @@ export default function BusinessInsightPage({
                       </DeferredChartSection>
                     </ChartCard>
                   </div>
+                </TabsContent>
+
+                <TabsContent value="warehouses">
+                  <BusinessInsightsWarehouseSection
+                    rows={warehouseSummaryRows}
+                    loading={warehouseSummaryLoading}
+                  />
                 </TabsContent>
 
                 <TabsContent value="alerts">

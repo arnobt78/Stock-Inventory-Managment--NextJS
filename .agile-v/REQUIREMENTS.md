@@ -2601,6 +2601,80 @@ Canonical REQ source. All artifacts link via `REQ-XXXX`. Status: `done` | `verif
 
 ---
 
+## REQ-0117 — Dialog UX parity + admin embed tables + network audit
+
+| Field | Value |
+|-------|-------|
+| **Priority** | P2 |
+| **Risk** | R1 UI; R2 admin table refactor |
+| **Status** | done |
+| **Cycle** | C2 |
+| **Parent** | REQ-0114–0116 |
+
+**Intent:** Fix dialog label/layout regressions (icon+label two-line bug), dropdown readability, order-create empty totals, invoice picker width, dialog headers, support/review parity, and admin portal embed table consistency. Phase 4 read-only admin network audit — no invalidation changes.
+
+**Acceptance criteria**
+
+- AC1: `DialogFormLabel` flex-safe (`DIALOG_FORM_LABEL_ROW`); `DIALOG_TABLE_SECTION_TITLE` white; `DIALOG_SELECT_*` tokens
+- AC2: `DialogDateField` + `DialogHeaderBrand`; Category/Supplier/Product/Order/Invoice/Warehouse/Support/Review dialog sweep
+- AC3: Order create totals empty state + row icons; `OrderPickerCommand` full trigger width
+- AC4: `AdminEmbedDataTable` — Client/Supplier portal + My Activity Recent Orders parity
+- AC5: VS-045 network audit documented; defer prefetch reduction unless duplicate proven
+- AC6: Gates pass; exports in `components/shared/index.ts`
+
+**Artifacts:** `dialog-form-label.tsx`, `DialogDateField.tsx`, `DialogHeaderBrand.tsx`, `AdminEmbedDataTable.tsx`, `OrderDialog.tsx`, `InvoiceDialog.tsx`, `OrderPickerCommand.tsx`, portal embed tables
+
+---
+
+## REQ-0118 — Readable popover full sweep + REQ-0117 gap closure
+
+| Field | Value |
+|-------|-------|
+| **Priority** | P2 |
+| **Risk** | R1 CSS-only (~22 files) |
+| **Status** | done |
+| **Cycle** | C2 |
+| **Parent** | REQ-0117 |
+
+**Intent:** Close REQ-0117 deferred gaps (PaymentDialog header, warehouse/line pickers, dead imports) and DRY readable popover tokens across all remaining `bg-white/80` Select/Command surfaces including list filters and pagination. No invalidation/SSR/API changes.
+
+**Acceptance criteria**
+
+- AC1: `lib/ui/popover-readability-styles.ts` — `READABLE_POPOVER_*`, `filterCommandPopoverClass`, `paginationPopoverContentClass`
+- AC2: PaymentDialog `DialogHeaderBrand`; OrderDialogCreateLineItem; Allocate/Transfer; CreateUser; Shipping; LoginRoleSelect
+- AC3: Full filter Command sweep (15) + ProductOwnerSelect + pagination-select-styles + `FilterCommandCheckboxItem`
+- AC4: Dead `DialogHeader`/`DialogTitle` imports removed from migrated dialogs; README accidental trim reverted
+- AC5: VS-046 confirms VS-045 prod network verdict (OK — defer prefetch trim unless HAR duplicate)
+- AC6: Gates pass
+
+**Artifacts:** `popover-readability-styles.ts`, `PaymentDialog.tsx`, filter `*Filter.tsx` files, `pagination-select-styles.ts`, `filter-command-item.tsx`
+
+---
+
+## REQ-0119 — Catalog popover parity + order address labels + warehouse rollup
+
+| Field | Value |
+|-------|-------|
+| **Priority** | P2 |
+| **Risk** | R1 CSS (~3 files); R2 business-insights tab (~5 files) |
+| **Status** | done |
+| **Cycle** | C2 |
+| **Parent** | REQ-0117, REQ-0118 |
+
+**Intent:** Close REQ-0117/0118 deferred gaps: catalog export/status popover readability, OrderDialog address sub-label tokens, Business Insights warehouse rollup tab with SSR prefetch. No invalidation/Redis/API write changes.
+
+**Acceptance criteria**
+
+- AC1: `catalog-filter-tokens.ts` uses `popover-readability-styles` helpers; zero `bg-white/80` blur in `lib/ui` + `components`
+- AC2: `DIALOG_FORM_SUB_LABEL` + `OrderAddressFields` on OrderDialog create address grid
+- AC3: `business-insights-warehouse-rollup.ts` + test; `BusinessInsightsWarehouseSection`; SSR `getWarehouseStockSummary` in `app/business-insights/page.tsx`
+- AC4: `useWarehouseStockSummary` + `useSyncSsrQueryData` on BusinessInsightPage; Warehouses sidebar tab; AI summary includes warehouse rollup
+- AC5: Gates pass
+
+**Artifacts:** `popover-readability-styles.ts`, `catalog-filter-tokens.ts`, `OrderAddressFields.tsx`, `business-insights-warehouse-rollup.ts`, `BusinessInsightsWarehouseSection.tsx`, `BusinessInsightPage.tsx`, `app/business-insights/page.tsx`
+
+---
+
 ## REQ-0020 — Locale-aware admin format (hydration-safe)
 
 | Field        | Value |

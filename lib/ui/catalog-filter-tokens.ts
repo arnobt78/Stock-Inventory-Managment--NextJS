@@ -5,6 +5,11 @@
 import type { LucideIcon } from "lucide-react";
 import { FolderTree, Truck, Warehouse } from "lucide-react";
 import { FOCUS_NO_LAYOUT_SHIFT_CLASS, GLASS_FOCUS_RING, type GlassFocusHue } from "@/lib/ui/focus-ring-styles";
+import {
+  catalogEntityPopoverContentClass,
+  exportMenuPopoverContentClass,
+  READABLE_POPOVER_ITEM_CLASS,
+} from "@/lib/ui/popover-readability-styles";
 
 export type CatalogEntity = "category" | "supplier" | "warehouse";
 
@@ -52,30 +57,24 @@ export const CATALOG_ENTITY_META: Record<
     icon: FolderTree,
     selectTriggerClass: catalogSelectTriggerClass(CATEGORY_HUE, "sky"),
     selectPlaceholderClass: catalogSelectPlaceholderClass(CATEGORY_HUE),
-    selectContentClass:
-      "rounded-[28px] border border-sky-400/20 dark:border-white/10 bg-white/80 dark:bg-popover/50 backdrop-blur-md shadow-[0_10px_30px_rgba(2,132,199,0.15)]",
-    selectItemClass:
-      "text-gray-700 dark:text-white/80 focus:bg-sky-100 dark:focus:bg-white/10 focus:text-gray-700 dark:focus:text-white",
+    selectContentClass: catalogEntityPopoverContentClass("category"),
+    selectItemClass: READABLE_POPOVER_ITEM_CLASS,
   },
   supplier: {
     allLabel: "All Suppliers",
     icon: Truck,
     selectTriggerClass: catalogSelectTriggerClass(SUPPLIER_HUE, "emerald"),
     selectPlaceholderClass: catalogSelectPlaceholderClass(SUPPLIER_HUE),
-    selectContentClass:
-      "rounded-[28px] border border-emerald-400/20 dark:border-white/10 bg-white/80 dark:bg-popover/50 backdrop-blur-md shadow-[0_10px_30px_rgba(16,185,129,0.15)]",
-    selectItemClass:
-      "text-gray-700 dark:text-white/80 focus:bg-emerald-100 dark:focus:bg-white/10 focus:text-gray-700 dark:focus:text-white",
+    selectContentClass: catalogEntityPopoverContentClass("supplier"),
+    selectItemClass: READABLE_POPOVER_ITEM_CLASS,
   },
   warehouse: {
     allLabel: "All Warehouses",
     icon: Warehouse,
     selectTriggerClass: catalogSelectTriggerClass(WAREHOUSE_HUE, "cyan"),
     selectPlaceholderClass: catalogSelectPlaceholderClass(WAREHOUSE_HUE),
-    selectContentClass:
-      "rounded-[28px] border border-cyan-400/20 dark:border-white/10 bg-white/80 dark:bg-popover/50 backdrop-blur-md shadow-[0_10px_30px_rgba(6,182,212,0.15)]",
-    selectItemClass:
-      "text-gray-700 dark:text-white/80 focus:bg-cyan-100 dark:focus:bg-white/10 focus:text-gray-700 dark:focus:text-white",
+    selectContentClass: catalogEntityPopoverContentClass("warehouse"),
+    selectItemClass: READABLE_POPOVER_ITEM_CLASS,
   },
 };
 
@@ -95,16 +94,12 @@ export const EXPORT_MENU_STYLES: Record<
 > = {
   violet: {
     triggerClass: exportTriggerClass(VIOLET_EXPORT_HUE, "violet"),
-    contentClass:
-      "rounded-[28px] border border-violet-400/20 dark:border-white/10 bg-white/80 dark:bg-popover/50 backdrop-blur-md",
-    itemFocusClass:
-      "cursor-pointer text-gray-700 dark:text-white/80 hover:text-gray-700 dark:hover:text-white focus:bg-violet-100 dark:focus:bg-white/10 focus:text-gray-700 dark:focus:text-white",
+    contentClass: exportMenuPopoverContentClass("violet"),
+    itemFocusClass: READABLE_POPOVER_ITEM_CLASS,
   },
   teal: {
     triggerClass: exportTriggerClass(TEAL_EXPORT_HUE, "teal"),
-    contentClass:
-      "rounded-[28px] border border-teal-400/20 dark:border-white/10 bg-white/80 dark:bg-popover/50 backdrop-blur-md",
-    itemFocusClass:
-      "cursor-pointer text-gray-700 dark:text-white/80 hover:text-gray-700 dark:hover:text-white focus:bg-teal-100 dark:focus:bg-white/10 focus:text-gray-700 dark:focus:text-white",
+    contentClass: exportMenuPopoverContentClass("teal"),
+    itemFocusClass: READABLE_POPOVER_ITEM_CLASS,
   },
 };

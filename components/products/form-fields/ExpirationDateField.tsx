@@ -1,14 +1,14 @@
 /**
  * Product Expiration Date Field Component
- * Uses native date input with calendar icon
+ * REQ-0117 — DialogFormLabel + single trailing calendar icon
  */
 
 "use client";
 
 import { useRef } from "react";
 import { DIALOG_FORM_FIELD_ROSE } from "@/components/shared/dialog-form-field";
+import { DialogFormLabel } from "@/components/shared/dialog-form-label";
 import { cn } from "@/lib/utils";
-import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { MdError } from "react-icons/md";
 import { Calendar as CalendarIcon } from "lucide-react";
@@ -23,16 +23,13 @@ export default function ExpirationDateField() {
 
   const inputRef = useRef<HTMLInputElement | null>(null);
 
-  // Watch expirationDate to format it for input
   const expirationDate = watch("expirationDate");
 
-  // Format date for input (YYYY-MM-DD)
   const formattedDate =
     expirationDate && expirationDate !== ""
       ? new Date(expirationDate).toISOString().split("T")[0]
       : "";
 
-  // Handle calendar icon click - focus the input to open native date picker
   const handleCalendarIconClick = () => {
     inputRef.current?.focus();
     inputRef.current?.showPicker?.();
@@ -40,9 +37,9 @@ export default function ExpirationDateField() {
 
   return (
     <div className="mt-5 flex flex-col gap-2">
-      <Label htmlFor="expiration-date" className="text-white/80">
-        Expiration Date (Optional)
-      </Label>
+      <DialogFormLabel htmlFor="expiration-date" icon={CalendarIcon} optional>
+        Expiration Date
+      </DialogFormLabel>
       <div className="relative">
         <Input
           {...register("expirationDate")}
@@ -61,7 +58,7 @@ export default function ExpirationDateField() {
         <button
           type="button"
           onClick={handleCalendarIconClick}
-          className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-white dark:text-white/40 hover:text-white dark:hover:text-white/60 transition-colors cursor-pointer focus:outline-none focus:ring-2 focus:ring-rose-400/50 rounded pointer-events-auto"
+          className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded pointer-events-auto"
           aria-label="Open calendar"
         >
           <CalendarIcon className="h-4 w-4" />

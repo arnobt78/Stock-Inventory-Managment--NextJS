@@ -59,13 +59,16 @@ import {
   DIALOG_FORM_FEEDBACK_ROW,
   DIALOG_FORM_HINT_TEXT,
   DIALOG_FORM_WARN_TEXT,
+  DIALOG_SELECT_CONTENT_CLASS,
+  DIALOG_SELECT_ITEM_CLASS,
   DialogFormLabel,
+  DialogHeaderBrand,
   DialogSubmitButton,
   GLASS_GHOST_BUTTON,
 } from "@/components/shared";
 import { AvatarInlineLink } from "@/components/shared/AvatarInlineLink";
 import { cn } from "@/lib/utils";
-import { PackagePlus, Tag, Truck, X } from "lucide-react";
+import { Package, PackagePlus, Tag, Truck, X } from "lucide-react";
 
 interface AddProductDialogProps {
   allProducts: Product[];
@@ -333,14 +336,13 @@ export default function AddProductDialog({
         )}
         onOpenAutoFocus={(e) => e.preventDefault()}
       >
-        <DialogHeader className={DIALOG_EDGE_SCROLL_HEADER}>
-          <DialogTitle className="text-[22px] text-white">
-            {selectedProduct ? "Update Product" : "Add Product"}
-          </DialogTitle>
-          <DialogDescription className="text-white/70">
-            Enter the details of the product below.
-          </DialogDescription>
-        </DialogHeader>
+        <DialogHeaderBrand
+          className={DIALOG_EDGE_SCROLL_HEADER}
+          icon={Package}
+          tone="rose"
+          title={selectedProduct ? "Update Product" : "Add Product"}
+          description="Enter the details of the product below."
+        />
         <FormProvider {...methods}>
           <form
             onSubmit={methods.handleSubmit(onSubmit)}
@@ -417,7 +419,7 @@ export default function AddProductDialog({
                         <SelectValue placeholder="Select Category" />
                       </SelectTrigger>
                       <SelectContent
-                        className="border-rose-400/20 dark:border-white/10 bg-white/80 dark:bg-popover/50 backdrop-blur-md z-[100]"
+                        className={cn(DIALOG_SELECT_CONTENT_CLASS, "z-[100]")}
                         position="popper"
                         sideOffset={5}
                         align="start"
@@ -426,7 +428,7 @@ export default function AddProductDialog({
                           <SelectItem
                             key={category.id}
                             value={category.id}
-                            className="cursor-pointer text-gray-700 dark:text-white focus:bg-rose-100 dark:focus:bg-white/10 focus:text-gray-700 dark:focus:text-white"
+                            className={DIALOG_SELECT_ITEM_CLASS}
                           >
                             {category.name}
                           </SelectItem>
@@ -492,7 +494,7 @@ export default function AddProductDialog({
                         </SelectValue>
                       </SelectTrigger>
                       <SelectContent
-                        className="border-rose-400/20 dark:border-white/10 bg-white/80 dark:bg-popover/50 backdrop-blur-md z-[100]"
+                        className={cn(DIALOG_SELECT_CONTENT_CLASS, "z-[100]")}
                         position="popper"
                         sideOffset={5}
                         align="start"
@@ -501,7 +503,7 @@ export default function AddProductDialog({
                           <SelectItem
                             key={supplier.id}
                             value={supplier.id}
-                            className="cursor-pointer text-gray-700 dark:text-white focus:bg-rose-100 dark:focus:bg-white/10 focus:text-gray-700 dark:focus:text-white"
+                            className={DIALOG_SELECT_ITEM_CLASS}
                           >
                             <AvatarInlineLink
                               label={supplier.name}

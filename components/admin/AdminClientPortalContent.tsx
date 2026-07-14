@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useMemo } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { OrderStatusBadge, InvoiceStatusBadge } from "@/lib/ui/semantic-badges";
@@ -42,7 +42,11 @@ import {
 } from "lucide-react";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
-import type { ClientPortalStats } from "@/types";
+import type { ClientPortalClient, ClientPortalStats } from "@/types";
+import {
+  AdminEmbedDataTable,
+  type AdminEmbedColumn,
+} from "@/components/admin/AdminEmbedDataTable";
 
 export type AdminClientPortalContentProps = {
   initialStats?: ClientPortalStats | null;
@@ -58,6 +62,54 @@ export default function AdminClientPortalContent({
   useSyncSsrQueryData(
     queryKeys.clientPortal.overview(),
     initialStats ?? undefined,
+  );
+
+  const clientColumns = useMemo<AdminEmbedColumn<ClientPortalClient>[]>(
+    () => [
+      {
+        id: "name",
+        header: "Name",
+        render: (c) => (
+          <AvatarInlineLink
+            label={c.name}
+            seed={c.id}
+            image={c.image}
+            href={`/admin/user-management/${c.id}`}
+            size={28}
+            linkClassName="text-sm font-normal"
+          />
+        ),
+      },
+      {
+        id: "email",
+        header: "Email",
+        headerClassName: "hidden sm:table-cell",
+        cellClassName: "hidden sm:table-cell text-gray-600 dark:text-gray-400 truncate max-w-[160px]",
+        render: (c) => c.email,
+      },
+      {
+        id: "orders",
+        header: "Orders",
+        headerClassName: "text-right",
+        cellClassName: "text-right text-gray-700 dark:text-white",
+        render: (c) => c.orderCount,
+      },
+      {
+        id: "invoices",
+        header: "Invoices",
+        headerClassName: "text-right",
+        cellClassName: "text-right text-gray-700 dark:text-white",
+        render: (c) => c.invoiceCount,
+      },
+      {
+        id: "spent",
+        header: "Total Spent",
+        headerClassName: "text-right",
+        cellClassName: "text-right text-gray-700 dark:text-white",
+        render: (c) => `$${c.totalSpent.toLocaleString()}`,
+      },
+    ],
+    [],
   );
 
   return (
@@ -307,63 +359,14 @@ export default function AdminClientPortalContent({
               </p>
             </div>
           </div>
-          {dataLoading ? (
-            <div className="space-y-3 py-4">
-              {[1, 2, 3, 4, 5].map((i) => (
-                <div key={i} className="flex justify-between gap-2">
-                  <DataSlotPulse variant="text-sm" className="w-40" />
-                  <DataSlotPulse variant="metric" />
-                </div>
-              ))}
-            </div>
-          ) : (stats?.clients?.length ?? 0) === 0 ? (
-            <p className="text-sm text-muted-foreground text-center py-8">
-              No client users yet. Assign &ldquo;client&rdquo; role to users
-              from User Management.
-            </p>
-          ) : (
-            <div className="overflow-x-auto">
-              <table className="min-w-full text-sm">
-                <thead>
-                  <tr className="border-b border-violet-200/40 dark:border-white/10 text-left text-gray-600 dark:text-gray-400">
-                    <th className="py-2 pr-4">Name</th>
-                    <th className="py-2 pr-4 hidden sm:table-cell">Email</th>
-                    <th className="py-2 pr-4 text-right">Orders</th>
-                    <th className="py-2 pr-4 text-right">Invoices</th>
-                    <th className="py-2 text-right">Total Spent</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-violet-200/40 dark:divide-white/10">
-                  {(stats?.clients ?? []).map((c) => (
-                    <tr key={c.id}>
-                      <td className="py-2 pr-4">
-                        <AvatarInlineLink
-                          label={c.name}
-                          seed={c.id}
-                          image={c.image}
-                          href={`/admin/user-management/${c.id}`}
-                          size={28}
-                          linkClassName="text-sm font-normal"
-                        />
-                      </td>
-                      <td className="py-2 pr-4 hidden sm:table-cell text-gray-600 dark:text-gray-400 truncate max-w-[160px]">
-                        {c.email}
-                      </td>
-                      <td className="py-2 pr-4 text-right text-gray-700 dark:text-white">
-                        {c.orderCount}
-                      </td>
-                      <td className="py-2 pr-4 text-right text-gray-700 dark:text-white">
-                        {c.invoiceCount}
-                      </td>
-                      <td className="py-2 text-right text-gray-700 dark:text-white">
-                        ${c.totalSpent.toLocaleString()}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )}
+          <AdminEmbedDataTable
+            columns={clientColumns}
+            data={stats?.clients ?? []}
+            loading={dataLoading}
+            emptyMessage='No client users yet. Assign "client" role to users from User Management.'
+            emptyIcon={Users}
+            getRowKey={(c) => c.id}
+          />
           {stats && (stats.clients?.length ?? 0) > 0 && (
             <Button
               variant="ghost"

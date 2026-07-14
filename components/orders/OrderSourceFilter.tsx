@@ -1,3 +1,10 @@
+import { cn } from "@/lib/utils";
+import {
+  filterCommandPopoverClass,
+  FILTER_COMMAND_INPUT_WRAPPER_CLASS,
+  READABLE_POPOVER_ITEM_CLASS,
+} from "@/lib/ui/popover-readability-styles";
+
 /**
  * Order source/type filter for admin combined Orders view.
  * Options: Client orders, Personal orders, View both, Clear.
@@ -71,7 +78,7 @@ export function OrderSourceDropDown({
         </Button>
       </PopoverTrigger>
       <PopoverContent
-        className="p-0 w-52 poppins rounded-[28px] border border-teal-400/20 dark:border-white/10 bg-white/80 dark:bg-popover/50 backdrop-blur-md shadow-[0_10px_30px_rgba(20,184,166,0.15)]"
+        className={cn("p-0 w-52 poppins", filterCommandPopoverClass("teal"))}
         side="bottom"
         align="start"
       >
@@ -81,7 +88,7 @@ export function OrderSourceDropDown({
               {options.map((opt) => (
                 <CommandItem
                   key={opt.value}
-                  className="h-10 flex items-center text-gray-700 dark:text-white/80 focus:bg-teal-100 dark:focus:bg-white/10 focus:text-gray-700 dark:focus:text-white cursor-pointer"
+                  className={cn("h-10 flex items-center", READABLE_POPOVER_ITEM_CLASS)}
                   value={opt.value}
                   onSelect={() => {
                     onChange(opt.value);

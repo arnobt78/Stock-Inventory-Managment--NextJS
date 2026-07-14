@@ -1,5 +1,10 @@
 "use client";
 
+import { cn } from "@/lib/utils";
+import {
+  filterCommandPopoverClass,
+  FILTER_COMMAND_INPUT_WRAPPER_CLASS,
+} from "@/lib/ui/popover-readability-styles";
 import * as React from "react";
 import { Button } from "@/components/ui/button";
 import {
@@ -66,7 +71,7 @@ export function CategoryDropDown({
           </Button>
         </PopoverTrigger>
         <PopoverContent
-          className="p-0 w-56 poppins rounded-[28px] border border-sky-400/20 dark:border-white/10 bg-white/80 dark:bg-popover/50 backdrop-blur-md shadow-[0_10px_30px_rgba(2,132,199,0.15)] [&_[cmdk-input-wrapper]]:border-b [&_[cmdk-input-wrapper]]:border-gray-300/50 [&_[cmdk-input-wrapper]]:dark:border-white/10 [&_[cmdk-input-wrapper]]:bg-white/10 [&_[cmdk-input-wrapper]]:dark:bg-white/5 [&_[cmdk-input-wrapper]]:backdrop-blur-md"
+          className={cn("p-0 w-56 poppins", filterCommandPopoverClass("sky"), FILTER_COMMAND_INPUT_WRAPPER_CLASS)}
           side="bottom"
           align="end"
         >

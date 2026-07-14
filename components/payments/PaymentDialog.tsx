@@ -10,21 +10,20 @@ import {
   Dialog,
   DialogClose,
   DialogContent,
-  DialogDescription,
   DialogFooter,
-  DialogHeader,
-  DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { useCreateCheckout } from "@/hooks/queries";
-import { CreditCard, ShieldCheck, X } from "lucide-react";
+import { CreditCard, X } from "lucide-react";
 import TestCredentialsCard from "./TestCredentialsCard";
 import type { CheckoutType } from "@/types";
 import { cn } from "@/lib/utils";
 import {
   CopyableText,
+  DIALOG_EDGE_SCROLL_HEADER,
+  DialogHeaderBrand,
   DialogSubmitButton,
   GLASS_GHOST_BUTTON,
 } from "@/components/shared";
@@ -81,15 +80,13 @@ export default function PaymentDialog({
         )}
       </DialogTrigger>
       <DialogContent className="poppins max-h-[90vh] flex flex-col overflow-hidden pl-4 sm:pl-8 pt-4 sm:pt-7 pb-4 sm:pb-7 pr-0 border-sky-400/30 dark:border-sky-400/30 shadow-[0_30px_80px_rgba(2,132,199,0.35)] dark:shadow-[0_30px_80px_rgba(2,132,199,0.25)]">
-        <DialogHeader className="flex-shrink-0 .5 pr-4 sm:pr-8">
-          <DialogTitle className="flex items-center gap-2 text-sm sm:text-base text-white">
-            Complete Payment
-            <ShieldCheck className="h-5 w-5 text-green-500 shrink-0" />
-          </DialogTitle>
-          <DialogDescription className="text-sm text-white/80">
-            Secure payment powered by Stripe
-          </DialogDescription>
-        </DialogHeader>
+        <DialogHeaderBrand
+          className={DIALOG_EDGE_SCROLL_HEADER}
+          icon={CreditCard}
+          tone="sky"
+          title="Complete Payment"
+          description="Secure payment powered by Stripe"
+        />
 
         <div className="flex flex-col gap-2 sm:gap-4 overflow-y-auto min-h-0 flex-1 w-full">
           <div className="pr-4 sm:pr-8 flex flex-col gap-2 sm:gap-4">

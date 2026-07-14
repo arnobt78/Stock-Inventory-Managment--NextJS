@@ -5,10 +5,7 @@ import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
-  DialogDescription,
   DialogFooter,
-  DialogHeader,
-  DialogTitle,
   DialogTrigger,
   DialogClose,
 } from "@/components/ui/dialog";
@@ -33,12 +30,16 @@ import {
   DeferredSelectGate,
   DIALOG_FORM_FIELD_VIOLET,
   DIALOG_FORM_FIELD_SKY,
+  DIALOG_SELECT_CONTENT_CLASS,
+  DIALOG_SELECT_ITEM_CLASS,
   DialogFormLabel,
+  DialogHeaderBrand,
   GLASS_GHOST_BUTTON,
   DialogSubmitButton,
 } from "@/components/shared";
 import { useCreateSupportTicket } from "@/hooks/queries";
 import { cn } from "@/lib/utils";
+import { TicketPriorityBadge } from "@/lib/ui/semantic-badges";
 import type { SupportTicketPriority } from "@/types";
 
 export type ProductOwnerOption = { id: string; name: string; email: string };
@@ -117,15 +118,9 @@ export default function SupportTicketDialog({
   const shadowClass = isViolet
     ? "shadow-[0_30px_80px_rgba(139,92,246,0.35)] dark:shadow-[0_30px_80px_rgba(139,92,246,0.25)]"
     : "shadow-[0_30px_80px_rgba(2,132,199,0.35)] dark:shadow-[0_30px_80px_rgba(2,132,199,0.25)]";
-  const iconBorderClass = isViolet
-    ? "border-violet-300/30 bg-violet-100/50 dark:border-violet-400/30 dark:bg-violet-500/20"
-    : "border-sky-300/30 bg-sky-100/50 dark:border-sky-400/30 dark:bg-sky-500/20";
-  const iconColorClass = isViolet ? "text-violet-400" : "text-sky-400";
   const inputClass = isViolet
     ? DIALOG_FORM_FIELD_VIOLET
     : DIALOG_FORM_FIELD_SKY;
-  const descClass = "text-white/50";
-  const titleClass = "text-[22px] text-white";
   const submitHue = isViolet ? "violet" : "sky";
 
   return (
@@ -144,19 +139,16 @@ export default function SupportTicketDialog({
           if (first && first instanceof HTMLElement) first.focus();
         }}
       >
-        <DialogHeader>
-          <DialogTitle className={cn("flex items-center gap-2", titleClass)}>
-            <div className={cn("p-2 rounded-xl border", iconBorderClass)}>
-              <MessageSquare className={cn("h-5 w-5", iconColorClass)} />
-            </div>
-            Create Support Ticket
-          </DialogTitle>
-          <DialogDescription className={descClass}>
-            {productOwners.length > 0
+        <DialogHeaderBrand
+          icon={MessageSquare}
+          tone={isViolet ? "violet" : "sky"}
+          title="Create Support Ticket"
+          description={
+            productOwners.length > 0
               ? "Open a new support ticket. Add a subject, description, and choose who to send it to (product owner)."
-              : "Open a new support ticket. Add a subject and description."}
-          </DialogDescription>
-        </DialogHeader>
+              : "Open a new support ticket. Add a subject and description."
+          }
+        />
         <form onSubmit={handleSubmit} className="space-y-4 mt-4">
           <div className="space-y-2">
             <DialogFormLabel
@@ -235,18 +227,18 @@ export default function SupportTicketDialog({
                       <SelectValue placeholder="Select product owner (optional)" />
                     </SelectTrigger>
                     <SelectContent
-                      className="rounded-xl border-sky-400/20 dark:border-white/10 bg-white/95 dark:bg-popover/95 backdrop-blur-md"
+                      className={cn(DIALOG_SELECT_CONTENT_CLASS, "rounded-xl")}
                       position="popper"
                       sideOffset={5}
                     >
-                      <SelectItem value="none" className="cursor-pointer">
+                      <SelectItem value="none" className={DIALOG_SELECT_ITEM_CLASS}>
                         — No specific owner —
                       </SelectItem>
                       {productOwners.map((po) => (
                         <SelectItem
                           key={po.id}
                           value={po.id}
-                          className="cursor-pointer"
+                          className={DIALOG_SELECT_ITEM_CLASS}
                         >
                           {po.name} ({po.email})
                         </SelectItem>
@@ -291,10 +283,12 @@ export default function SupportTicketDialog({
                     id="support-ticket-priority"
                     className={cn("h-11 rounded-xl w-full", inputClass)}
                   >
-                    <SelectValue />
+                    <SelectValue>
+                      <TicketPriorityBadge status={priority} size="compact" />
+                    </SelectValue>
                   </SelectTrigger>
                   <SelectContent
-                    className="rounded-xl border-sky-400/20 dark:border-white/10 bg-white/95 dark:bg-popover/95"
+                    className={cn(DIALOG_SELECT_CONTENT_CLASS, "rounded-xl")}
                     position="popper"
                     sideOffset={5}
                   >
@@ -302,9 +296,9 @@ export default function SupportTicketDialog({
                       <SelectItem
                         key={p.value}
                         value={p.value}
-                        className="cursor-pointer"
+                        className={DIALOG_SELECT_ITEM_CLASS}
                       >
-                        {p.label}
+                        <TicketPriorityBadge status={p.value} size="compact" />
                       </SelectItem>
                     ))}
                   </SelectContent>

@@ -21,13 +21,22 @@ export const DIALOG_EDGE_SCROLL_INNER = "flex flex-col pr-4 sm:pr-8 pl-2 pb-4";
 /** Wrapper around dialog embedded list tables */
 export const DIALOG_TABLE_SECTION = "mt-6 min-w-0";
 
-/** Embedded table heading above Category/Supplier dialog lists — light readable, dark glass (REQ-0050) */
-export const DIALOG_TABLE_SECTION_TITLE =
-  "text-gray-700 dark:text-white/90";
+/** Embedded table heading — dark glass dialogs always use white title (REQ-0117) */
+export const DIALOG_TABLE_SECTION_TITLE = "text-white/90";
 
-/**
- * Table frame for category dialog — light opaque island + dark glass (REQ-0049).
- */
+/** REQ-0117 — icon + label stay on one row; !important beats stray `block` on Label */
+export const DIALOG_FORM_LABEL_ROW =
+  "!inline-flex items-center gap-2 w-full min-w-0";
+
+/** REQ-0117/0118 — aliases; canonical tokens in lib/ui/popover-readability-styles.ts */
+export {
+  DIALOG_SELECT_CONTENT_CLASS,
+  DIALOG_SELECT_ITEM_CLASS,
+  READABLE_POPOVER_CONTENT_CLASS,
+  READABLE_POPOVER_ITEM_CLASS,
+} from "@/lib/ui/popover-readability-styles";
+
+/** REQ-0114 — dialog field labels; table frame for category dialog — light opaque island + dark glass (REQ-0049). */
 export const DIALOG_TABLE_FRAME_SKY =
   "rounded-md border border-white/10 bg-white/60 bg-gradient-to-br from-white/20 via-white/15 to-white/10 dark:from-white/5 dark:via-white/5 dark:to-white/5 backdrop-blur-md ring-1 ring-sky-400/25 shadow-sm";
 
@@ -82,6 +91,9 @@ export const DIALOG_FORM_WARN_TEXT = "text-xs text-amber-400/90";
 
 /** REQ-0114 — dialog field labels */
 export const DIALOG_FORM_LABEL = "text-sm font-medium text-white/80";
+
+/** REQ-0119 — compact grid field labels under a section DialogFormLabel */
+export const DIALOG_FORM_SUB_LABEL = "text-xs font-medium text-white/70";
 
 /** REQ-0114 — required field asterisk */
 export const DIALOG_FORM_REQUIRED_MARK = "text-red-400";

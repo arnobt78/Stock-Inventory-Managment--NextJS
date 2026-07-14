@@ -887,6 +887,42 @@ Hub: `lib/ui/typography-scale.ts`. Hubs import tokens; ~45 inline files use equi
 
 Gates: lint ✓ test **498** ✓ invalidate **208** ✓ build ✓. **No invalidation/SSR/API changes** — display + CSS only. Manual QA: `docs/MANUAL_TEST_FIXTURES.md` §9.
 
+## Dialog UX parity + admin embed tables (REQ-0117, 2026-07-14)
+
+| Piece | Location |
+|-------|----------|
+| Flex-safe labels | `dialog-form-label.tsx` + `DIALOG_FORM_LABEL_ROW` in `dialog-edge-scroll.ts` — `wrapperClassName` for spacing; consumer `block` cannot kill flex |
+| Select tokens | `DIALOG_SELECT_CONTENT_CLASS` / `DIALOG_SELECT_ITEM_CLASS` — readable popover in light+dark |
+| Date field | `DialogDateField.tsx` — single trailing calendar icon |
+| Dialog headers | `DialogHeaderBrand.tsx` — icon tile + title + subtitle |
+| Order totals empty | `OrderDialog.tsx` — hide fees when no valid lines; `Package` empty state; Receipt/Percent/Truck/Tag row icons |
+| Invoice picker | `OrderPickerCommand.tsx` — `w-[var(--radix-popover-trigger-width)]` |
+| Admin tables | `AdminEmbedDataTable.tsx` — Client/Supplier portal + My Activity Recent Orders |
+| Network audit | VS-045 in `VALIDATION_SUMMARY.md` — defer prefetch cuts to REQ-0118 |
+
+**No TanStack/invalidation changes** — CSS/UI + read-only audit doc only.
+
+## Readable popover full sweep (REQ-0118, 2026-07-14)
+
+| Piece | Location |
+|-------|----------|
+| Token hub | `lib/ui/popover-readability-styles.ts` — `READABLE_POPOVER_*`, `filterCommandPopoverClass`, `paginationPopoverContentClass` |
+| Dialog gaps | `PaymentDialog` `DialogHeaderBrand`; `OrderDialogCreateLineItem`; Allocate/Transfer; CreateUser; Shipping; `LoginRoleSelect` |
+| List filters | 15 `*Filter.tsx` + `ProductOwnerSelect` + `pagination-select-styles.ts` + `FilterCommandCheckboxItem` |
+| Prod network | VS-046 — timings OK; defer prefetch trim unless HAR duplicate |
+
+**No TanStack/invalidation/SSR/API changes** — CSS-only sweep.
+
+## REQ-0119 gap closure (2026-07-14)
+
+| Piece | Location |
+|-------|----------|
+| Catalog popovers | `catalog-filter-tokens.ts` → `catalogEntityPopoverContentClass` / `exportMenuPopoverContentClass` (`cyan` hue added) |
+| Order address | `DIALOG_FORM_SUB_LABEL` + `OrderAddressFields.tsx` on OrderDialog create |
+| Warehouse rollup | `business-insights-warehouse-rollup.ts` + test; `BusinessInsightsWarehouseSection.tsx`; SSR `getWarehouseStockSummary` in `app/business-insights/page.tsx`; Warehouses sidebar tab |
+
+**Invalidation unchanged** — `stockAllocation.all` already cleared on stock CRUD; `useSyncSsrQueryData` on summary key.
+
 ## Hydration-safe dates
 
 - `lib/format/` — stable (`format-stable`) + client (`client-locale`) barrel

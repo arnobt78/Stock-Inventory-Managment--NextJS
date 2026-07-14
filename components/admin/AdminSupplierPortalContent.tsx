@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useMemo } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import {
@@ -45,7 +45,11 @@ import {
 } from "lucide-react";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
-import type { SupplierPortalStats } from "@/types";
+import type { SupplierPortalStats, SupplierPortalSupplier } from "@/types";
+import {
+  AdminEmbedDataTable,
+  type AdminEmbedColumn,
+} from "@/components/admin/AdminEmbedDataTable";
 
 export type AdminSupplierPortalContentProps = {
   initialStats?: SupplierPortalStats | null;
@@ -61,6 +65,54 @@ export default function AdminSupplierPortalContent({
   useSyncSsrQueryData(
     queryKeys.supplierPortal.overview(),
     initialStats ?? undefined,
+  );
+
+  const supplierColumns = useMemo<AdminEmbedColumn<SupplierPortalSupplier>[]>(
+    () => [
+      {
+        id: "name",
+        header: "Name",
+        render: (s) => (
+          <AvatarInlineLink
+            label={s.name}
+            seed={s.userId ?? s.id}
+            image={s.image}
+            href={`/admin/suppliers/${s.id}`}
+            size={28}
+            linkClassName="text-sm font-normal"
+          />
+        ),
+      },
+      {
+        id: "email",
+        header: "Email",
+        headerClassName: "hidden sm:table-cell",
+        cellClassName: "hidden sm:table-cell text-gray-600 dark:text-gray-400 truncate max-w-[200px]",
+        render: (s) => s.email,
+      },
+      {
+        id: "products",
+        header: "Products",
+        headerClassName: "text-right",
+        cellClassName: "text-right text-gray-700 dark:text-white",
+        render: (s) => s.productCount,
+      },
+      {
+        id: "orders",
+        header: "Orders",
+        headerClassName: "text-right",
+        cellClassName: "text-right text-gray-700 dark:text-white",
+        render: (s) => s.orderCount,
+      },
+      {
+        id: "inventory",
+        header: "Inventory Value",
+        headerClassName: "text-right",
+        cellClassName: "text-right text-gray-700 dark:text-white",
+        render: (s) => `$${s.totalValue.toLocaleString()}`,
+      },
+    ],
+    [],
   );
 
   return (
@@ -304,69 +356,14 @@ export default function AdminSupplierPortalContent({
               </p>
             </div>
           </div>
-          {dataLoading ? (
-            <div className="space-y-3 py-4">
-              {[1, 2, 3, 4, 5].map((i) => (
-                <div key={i} className="flex justify-between gap-2">
-                  <DataSlotPulse variant="text-sm" className="w-40" />
-                  <DataSlotPulse variant="metric" />
-                </div>
-              ))}
-            </div>
-          ) : (stats?.suppliers?.length ?? 0) === 0 ? (
-            <p className="text-sm text-muted-foreground text-center py-8">
-              No suppliers yet. Add suppliers from the Suppliers page.
-            </p>
-          ) : (
-            <div className="overflow-x-auto">
-              <table className="min-w-full text-sm">
-                <thead>
-                  <tr className="border-b border-violet-200/40 dark:border-white/10 text-left text-gray-600 dark:text-gray-400">
-                    <th className="px-2 pr-4 font-medium">Name</th>
-                    <th className="px-2 pr-4 hidden sm:table-cell font-medium">
-                      Email
-                    </th>
-                    <th className="px-2 pr-4 text-right font-medium">
-                      Products
-                    </th>
-                    <th className="px-2 pr-4 text-right font-medium">Orders</th>
-                    <th className="px-2 text-right font-medium">
-                      Inventory Value
-                    </th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-border dark:divide-white/10">
-                  {(stats?.suppliers ?? []).map((s) => (
-                    <tr key={s.id}>
-                      <td className="py-2 px-2 pr-4">
-                        {/* REQ-0100: stale Redis may omit userId until TTL or supplierPortal:* invalidation */}
-                        <AvatarInlineLink
-                          label={s.name}
-                          seed={s.userId ?? s.id}
-                          image={s.image}
-                          href={`/admin/suppliers/${s.id}`}
-                          size={28}
-                          linkClassName="text-sm font-normal"
-                        />
-                      </td>
-                      <td className="py-2 px-2 pr-4 hidden sm:table-cell text-gray-700 dark:text-white truncate max-w-[200px]">
-                        {s.email}
-                      </td>
-                      <td className="py-2 px-2 pr-4 text-right text-gray-700 dark:text-white">
-                        {s.productCount}
-                      </td>
-                      <td className="py-2 px-2 pr-4 text-right text-gray-700 dark:text-white">
-                        {s.orderCount}
-                      </td>
-                      <td className="py-2 px-2 text-right font-normal text-gray-700 dark:text-white">
-                        ${s.totalValue.toLocaleString()}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )}
+          <AdminEmbedDataTable
+            columns={supplierColumns}
+            data={stats?.suppliers ?? []}
+            loading={dataLoading}
+            emptyMessage="No suppliers yet. Add suppliers from the Suppliers page."
+            emptyIcon={Truck}
+            getRowKey={(s) => s.id}
+          />
           {stats && stats.suppliers.length > 0 && (
             <Button
               variant="ghost"

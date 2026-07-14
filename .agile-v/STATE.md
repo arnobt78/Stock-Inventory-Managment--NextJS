@@ -3,9 +3,9 @@
 | Field | Value |
 |-------|-------|
 | **Cycle** | C1 (closing) → **C2 open** |
-| **Phase** | C2 — REQ-0106 … REQ-0116 **done** |
-| **Last updated** | 2026-07-14 (REQ-0116) |
-| **Active REQ range** | REQ-0001 … REQ-0116 **done** |
+| **Phase** | C2 — REQ-0106 … REQ-0119 **done** |
+| **Last updated** | 2026-07-14 (REQ-0119) |
+| **Active REQ range** | REQ-0001 … REQ-0119 **done** |
 | **Prod deploy target** | `7b5c999` (REQ-0114–0116) — pushed `origin/main` |
 | **Human Gate 1** | APPROVED (retroactive bootstrap) |
 | **Human Gate 2** | PENDING — Sentry 24h after prod deploy |
@@ -59,16 +59,28 @@ Catalog-commit warehouse hints + `committedQuantity` on allocation enrich; `comp
 
 `ProportionalPriceDisplay` + test; supplier create / order notes / payment cancel / warehouse status dialog labels; order-create proportional preview; `DETAIL_DATA_VALUE_CLASS` + detail stat tone tokens. Gates: lint ✓ test 498 ✓ invalidate 208 ✓ build ✓.
 
+## REQ-0117 — Dialog UX parity + admin embed tables + network audit (2026-07-14)
+
+`DialogFormLabel` flex-safe + `DIALOG_SELECT_*` tokens; `DialogDateField` + `DialogHeaderBrand`; order-create totals empty state; `AdminEmbedDataTable`; admin portal table parity; VS-045 network audit (defer prefetch cuts to REQ-0118). Gates: lint ✓ test 498 ✓ invalidate 208 ✓ build ✓.
+
+## REQ-0118 — Readable popover full sweep + REQ-0117 gap closure (2026-07-14)
+
+`lib/ui/popover-readability-styles.ts` hub; PaymentDialog `DialogHeaderBrand`; warehouse/order line pickers; 15 filter Command popovers + pagination + `FilterCommandCheckboxItem`; dead import cleanup; README revert; VS-046 prod network confirm. Gates: lint ✓ test 498 ✓ invalidate 208 ✓ build ✓.
+
+## REQ-0119 — Catalog popover parity + order address labels + warehouse rollup (2026-07-14)
+
+Catalog/export popover readability via `catalogEntityPopoverContentClass`; `DIALOG_FORM_SUB_LABEL` + `OrderAddressFields`; Business Insights Warehouses tab + SSR `getWarehouseStockSummary` + rollup helper/test. Gates: lint ✓ test 504 ✓ invalidate 208 ✓ build ✓.
+
 ## Next session
 
 | Priority | Item | REQ |
 |----------|------|-----|
 | P0 | Confirm Vercel prod SHA; Sentry 24h Gate 2 | REQ-0009 |
-| P1 | Manual smoke — Beats fixture §9 with auto-assign 40 | REQ-0106 |
+| P1 | Manual smoke — dialog UX + admin portal tables | REQ-0117 |
 
 ## Current focus
 
-1. **REQ-0106–0116** — done
+1. **REQ-0106–0119** — done
 2. **Gate 2** — deploy confirm + Sentry 24h
 3. **Manual QA** — Beats auto-order walkthrough
 

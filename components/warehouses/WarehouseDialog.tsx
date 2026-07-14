@@ -5,10 +5,7 @@ import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
-  DialogDescription,
   DialogFooter,
-  DialogHeader,
-  DialogTitle,
   DialogTrigger,
   DialogClose,
 } from "@/components/ui/dialog";
@@ -25,7 +22,10 @@ import {
 import {
   DeferredSelectGate,
   DIALOG_FORM_FIELD_TEAL,
+  DIALOG_SELECT_CONTENT_CLASS,
+  DIALOG_SELECT_ITEM_CLASS,
   DialogFormLabel,
+  DialogHeaderBrand,
   GLASS_GHOST_BUTTON,
   DialogSubmitButton,
 } from "@/components/shared";
@@ -157,16 +157,16 @@ export default function WarehouseDialog({
         className="p-2 sm:p-4 sm:px-8 poppins max-h-[90vh] overflow-y-auto border-teal-400/30 dark:border-teal-400/30 shadow-[0_30px_80px_rgba(20,184,166,0.35)] dark:shadow-[0_30px_80px_rgba(20,184,166,0.25)]"
         onOpenAutoFocus={(e) => e.preventDefault()}
       >
-        <DialogHeader>
-          <DialogTitle className="text-[22px] text-white">
-            {editingWarehouse ? "Edit Warehouse" : "Add Warehouse"}
-          </DialogTitle>
-          <DialogDescription className="text-white/70">
-            {editingWarehouse
+        <DialogHeaderBrand
+          icon={Building2}
+          tone="teal"
+          title={editingWarehouse ? "Edit Warehouse" : "Add Warehouse"}
+          description={
+            editingWarehouse
               ? "Update warehouse details below."
-              : "Enter the details for the new warehouse location."}
-          </DialogDescription>
-        </DialogHeader>
+              : "Enter the details for the new warehouse location."
+          }
+        />
         <form onSubmit={handleSubmit} className="space-y-4 mt-4">
           <div className="space-y-2">
             <DialogFormLabel htmlFor="warehouse-name" icon={Building2} required>
@@ -195,7 +195,7 @@ export default function WarehouseDialog({
             />
           </div>
           <div className="space-y-2">
-            <DialogFormLabel htmlFor="warehouse-type" icon={Layers}>
+            <DialogFormLabel htmlFor="warehouse-type" icon={Layers} optional>
               Warehouse Type
             </DialogFormLabel>
             <DeferredSelectGate
@@ -222,7 +222,7 @@ export default function WarehouseDialog({
                     <SelectValue placeholder="Select type" />
                   </SelectTrigger>
                   <SelectContent
-                    className="border-teal-400/20 dark:border-white/10 bg-white/80 dark:bg-popover/50 backdrop-blur-md z-[100]"
+                    className={cn(DIALOG_SELECT_CONTENT_CLASS, "z-[100]")}
                     position="popper"
                     sideOffset={5}
                     align="start"
@@ -231,7 +231,7 @@ export default function WarehouseDialog({
                       <SelectItem
                         key={wt.value}
                         value={wt.value}
-                        className="cursor-pointer text-gray-700 dark:text-white focus:bg-teal-100 dark:focus:bg-white/10 focus:text-gray-700 dark:focus:text-white"
+                        className={DIALOG_SELECT_ITEM_CLASS}
                       >
                         {wt.label}
                       </SelectItem>

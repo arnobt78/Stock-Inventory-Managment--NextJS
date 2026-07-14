@@ -36,6 +36,8 @@ import {
   GLASS_BUTTON_SHELL_RESET,
   GLASS_GHOST_BUTTON,
   GLASS_PRIMARY_BUTTON,
+  DIALOG_SELECT_CONTENT_CLASS,
+  DIALOG_SELECT_ITEM_CLASS,
 } from "@/components/shared";
 import { Plus, Eye, EyeOff, UserPlus } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -265,7 +267,10 @@ export default function CreateUserDialog() {
                     <SelectValue placeholder="Select role" />
                   </SelectTrigger>
                   <SelectContent
-                    className="border-blue-400/20 dark:border-white/10 bg-white/80 dark:bg-popover/50 backdrop-blur-md z-[100]"
+                    className={cn(
+                      DIALOG_SELECT_CONTENT_CLASS,
+                      "border-blue-400/20",
+                    )}
                     position="popper"
                     sideOffset={5}
                     align="start"
@@ -274,7 +279,7 @@ export default function CreateUserDialog() {
                       <SelectItem
                         key={opt.value}
                         value={opt.value}
-                        className={`cursor-pointer focus:bg-blue-100 dark:focus:bg-white/10 focus:text-gray-700 dark:focus:text-white ${opt.color}`}
+                        className={cn(DIALOG_SELECT_ITEM_CLASS, opt.color)}
                       >
                         {opt.label}
                       </SelectItem>

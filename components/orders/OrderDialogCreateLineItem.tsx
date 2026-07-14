@@ -25,6 +25,8 @@ import {
   DIALOG_FORM_FIELD_VIOLET,
   DIALOG_FORM_ERROR_TEXT,
   DIALOG_FORM_HINT_TEXT,
+  DIALOG_SELECT_CONTENT_CLASS,
+  DIALOG_SELECT_ITEM_CLASS,
   ProportionalPriceDisplay,
 } from "@/components/shared";
 import { cn } from "@/lib/utils";
@@ -224,7 +226,7 @@ export function OrderDialogCreateLineItem({
                     </SelectValue>
                   </SelectTrigger>
                   <SelectContent
-                    className="border-violet-400/20 dark:border-white/10 bg-white/80 dark:bg-popover/50 backdrop-blur-md z-[100]"
+                    className={cn(DIALOG_SELECT_CONTENT_CLASS)}
                     position="popper"
                     sideOffset={5}
                     align="start"
@@ -240,7 +242,7 @@ export function OrderDialogCreateLineItem({
                         <SelectItem
                           key={product.id}
                           value={product.id}
-                          className="cursor-pointer py-2 text-gray-700 dark:text-white focus:bg-violet-100 dark:focus:bg-white/10 focus:text-gray-700 dark:focus:text-white"
+                          className={cn("py-2", DIALOG_SELECT_ITEM_CLASS)}
                         >
                           <ProductOptionRow
                             name={product.name}

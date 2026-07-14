@@ -243,6 +243,9 @@ flowchart LR
 | Line fetch DRY (REQ-0112) | Single stock fetch per line; injected rows; `lineStockErrors` by `field.id` |
 | Warehouse select (REQ-0113) | `OrderLineWarehouseSelect` props-only; `OrderFormData` merged; `.types.ts` deleted |
 | Stock UX + dialog/UI closure (REQ-0114–0116) | `ProportionalPriceDisplay`; catalog-commit hints; proportional pricing; dialog labels; detail typography | Gates: test 498 |
+| Dialog UX parity + admin embed tables (REQ-0117) | `DialogFormLabel` flex-safe; `DialogDateField`/`DialogHeaderBrand`; `AdminEmbedDataTable`; order totals empty state; VS-045 network audit | Gates: test 498 |
+| Readable popover full sweep (REQ-0118) | `popover-readability-styles.ts`; PaymentDialog header; all filter/pagination popovers; VS-046 prod network OK | Gates: test 498 |
+| REQ-0119 gap closure | Catalog/export popover parity; `OrderAddressFields`; Business Insights Warehouses tab + SSR warehouse summary | Gates: test 504 |
 | Next | Gate 2 deploy + Sentry 24h; **manual QA from scratch** — `MANUAL_TEST_FIXTURES.md` §9 |
 | AI warehouse insights (REQ-0067) | `POST /api/ai/insights` enriches payload with `getWarehouseStockSummary` |
 | Per-warehouse order picking (REQ-0068) | `OrderItem.warehouseId`; `stock-allocation-order-sync.ts`; `OrderLineWarehouseSelect`; reserve/fulfill/cancel sync; invoice-paid gap; `f892b65` removed unused `deleteCache`/`getRateLimitStatus` |

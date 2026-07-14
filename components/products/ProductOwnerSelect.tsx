@@ -17,6 +17,11 @@ import {
 } from "@/components/ui/popover";
 import { ChevronDown } from "lucide-react";
 import { cn } from "@/lib/utils";
+import {
+  filterCommandPopoverClass,
+  FILTER_COMMAND_INPUT_WRAPPER_CLASS,
+  READABLE_POPOVER_ITEM_CLASS,
+} from "@/lib/ui/popover-readability-styles";
 import { SafeAvatarImage } from "@/components/ui/safe-avatar-image";
 import { resolveAvatarSourcesFromSeed } from "@/lib/ui/user-avatar-sources";
 import { AVATAR_RING_CLASS } from "@/lib/ui/avatar-ring-styles";
@@ -123,7 +128,7 @@ export function ProductOwnerSelect({
       </PopoverTrigger>
       <PopoverContent
         align="end"
-        className="p-0 w-[min(100vw-2rem,320px)] rounded-[28px] border border-violet-400/20 dark:border-white/10 bg-white/80 dark:bg-popover/50 backdrop-blur-md"
+        className={cn("p-0 w-[min(100vw-2rem,320px)]", filterCommandPopoverClass("violet"), FILTER_COMMAND_INPUT_WRAPPER_CLASS)}
       >
         <Command className="bg-transparent">
           <CommandInput
@@ -140,7 +145,7 @@ export function ProductOwnerSelect({
                   key={owner.id}
                   value={`${owner.name} ${owner.email}`}
                   onSelect={() => handleSelect(owner.id)}
-                  className="cursor-pointer items-start gap-2 py-2 text-gray-700 dark:text-white/80 focus:bg-violet-100 dark:focus:bg-white/10 focus:text-gray-700 dark:focus:text-white"
+                  className={READABLE_POPOVER_ITEM_CLASS}
                 >
                   <OwnerPickerRow owner={owner} avatarSize={32} />
                 </CommandItem>

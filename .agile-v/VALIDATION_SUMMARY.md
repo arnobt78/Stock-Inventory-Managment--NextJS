@@ -391,12 +391,45 @@ Commands: lint, test, test:invalidate, build
 | VS-042 | INFO | Stock UX clarity + dialog/detail UI parity (REQ-0114) | PASS (automated) |
 | VS-043 | INFO | REQ-0114 dialog gap closure + warehouse summary test (REQ-0115) | PASS (automated) |
 | VS-044 | INFO | Dialog parity + proportional price DRY + detail typography (REQ-0116) | PASS (automated) |
+| VS-045 | INFO | Dialog UX parity + admin embed tables + admin network audit (REQ-0117) | PASS (automated + audit doc) |
+| VS-046 | INFO | Readable popover full sweep + prod network confirm (REQ-0118) | PASS (automated) |
+| VS-047 | INFO | Catalog popover parity + order address labels + warehouse rollup (REQ-0119) | PASS (automated) |
 
 **Evidence summary (REQ-0114):** Scope: built/verified | Traceability: REQ-0114 | Findings: PASS | Commands: lint, test 492, test:invalidate 208, build
 
 **Evidence summary (REQ-0115):** Scope: built/verified | Traceability: REQ-0115 | Findings: PASS | Commands: lint, test 494, test:invalidate 208, build
 
 **Evidence summary (REQ-0116):** Scope: built/verified | Traceability: REQ-0116 | Findings: PASS | Commands: lint, test 498, test:invalidate 208, build
+
+**Evidence summary (REQ-0117):** Scope: built/verified | Traceability: REQ-0117 | Findings: PASS | Commands: lint, test 498, test:invalidate 208, build
+
+**Evidence summary (REQ-0118):** Scope: built/verified | Traceability: REQ-0118 | Findings: PASS | Commands: lint, test 498, test:invalidate 208, build
+
+**Evidence summary (REQ-0119):** Scope: built/verified | Traceability: REQ-0119 | Findings: PASS | Commands: lint, test 504, test:invalidate 208, build
+
+### VS-045 — Admin network audit (REQ-0117, read-only)
+
+| Pattern | Sample | Verdict |
+|---------|--------|---------|
+| RSC prefetch `*_rsc=` | 200–650 ms repeat nav | Expected — `RouteWarmPrefetch` idle + staggered `router.prefetch` |
+| Cold list API (`orders`, `products`) | 1.0–2.0 s | Expected — MongoDB + Redis miss on Vercel |
+| `session` / `jwe` | 20–290 ms | Expected |
+| High total requests (~292–453) | Warm prefetch + TanStack warm + RSC | Expected aggregate — **no duplicate API call proven** |
+| Admin My Activity hooks | `useOrders`/`useProducts`/… + SSR `initial*` + `useSyncSsrQueryDataMany` | OK — `withInitialData` / `refetchOnMount:false` pattern (REQ-0021) |
+
+**Recommendation:** Defer prefetch reduction unless HAR shows same endpoint twice on single page mount (confirmed VS-046).
+
+### VS-046 — Production network confirm (REQ-0118)
+
+**Verdict: OK for production** — timings are acceptable for this architecture; not a bug.
+
+| Signal | Range | Status |
+|--------|-------|--------|
+| Repeat RSC nav | 96–650 ms | Good — warm prefetch working |
+| Cold list API | 1.0–2.0 s | Expected — Mongo + Redis miss on serverless |
+| session/jwe | 20–290 ms | Normal |
+| High request count | ~292–453 | Intentional warm tradeoff — no duplicate proven |
+| CRUD instant UI | `invalidateAllRelatedQueries` + `useBackWithRefresh` + SSR `initialData` | Unchanged — no regression |
 
 ---
 

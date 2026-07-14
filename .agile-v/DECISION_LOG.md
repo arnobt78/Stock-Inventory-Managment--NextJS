@@ -302,3 +302,9 @@ Format: `TIMESTAMP | AGENT | DECISION | RATIONALE | REQ-ID`
 2026-07-14T16:59:00Z | red-team | REQ-0115 gates | lint ✓ test 494 ✓ invalidate 208 ✓ build ✓ | REQ-0115
 2026-07-14T17:12:00Z | build-agent | REQ-0116 UI closure | ProportionalPriceDisplay; dialog gaps; detail typography tokens | REQ-0116
 2026-07-14T17:12:00Z | red-team | REQ-0116 gates | lint ✓ test 498 ✓ invalidate 208 ✓ build ✓ | REQ-0116
+2026-07-14T18:15:00Z | build-agent | REQ-0117 dialog UX + admin tables | DialogFormLabel flex-safe; DialogDateField/DialogHeaderBrand; AdminEmbedDataTable; VS-045 audit doc-only | REQ-0117
+2026-07-14T18:15:00Z | red-team | REQ-0117 gates | lint ✓ test 498 ✓ invalidate 208 ✓ build ✓ | REQ-0117
+2026-07-14T18:22:00Z | build-agent | REQ-0118 popover sweep | Readable popover hub; PaymentDialog header; full filter/pagination sweep; hygiene | REQ-0118
+2026-07-14T18:22:00Z | red-team | REQ-0118 gates | lint ✓ test 498 ✓ invalidate 208 ✓ build ✓ | REQ-0118
+2026-07-14T18:30:00Z | build-agent | REQ-0119 gap closure | catalog popover parity; OrderAddressFields; business insights warehouse tab + SSR | REQ-0119
+2026-07-14T18:30:00Z | red-team | REQ-0119 gates | lint ✓ test 504 ✓ invalidate 208 ✓ build ✓ | REQ-0119

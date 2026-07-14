@@ -5,14 +5,10 @@ import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
-  DialogDescription,
   DialogFooter,
-  DialogHeader,
-  DialogTitle,
   DialogTrigger,
   DialogClose,
 } from "@/components/ui/dialog";
-import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import {
   Select,
@@ -21,10 +17,14 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Star } from "lucide-react";
+import { Package, Star, X } from "lucide-react";
 import {
   DeferredSelectGate,
   DIALOG_FORM_FIELD_AMBER,
+  DIALOG_SELECT_CONTENT_CLASS,
+  DIALOG_SELECT_ITEM_CLASS,
+  DialogFormLabel,
+  DialogHeaderBrand,
   DialogSubmitButton,
   GLASS_GHOST_BUTTON,
 } from "@/components/shared";
@@ -77,7 +77,6 @@ export default function ProductReviewDialog({
 
   const isPending = createMutation.isPending;
 
-  // Render star icons for visual rating display
   const renderStars = (count: number) => {
     return (
       <span className="flex items-center gap-0.5">
@@ -102,26 +101,21 @@ export default function ProductReviewDialog({
         className="p-2 sm:p-4 sm:px-8 poppins max-h-[90vh] overflow-y-auto border-amber-400/30 dark:border-amber-400/30 shadow-[0_30px_80px_rgba(245,158,11,0.35)] dark:shadow-[0_30px_80px_rgba(245,158,11,0.25)]"
         onOpenAutoFocus={(e) => e.preventDefault()}
       >
-        <DialogHeader>
-          <DialogTitle className="text-[22px] text-white flex items-center gap-2">
-            <div className="p-2 rounded-xl border border-amber-300/30 bg-amber-100/50 dark:border-amber-400/30 dark:bg-amber-500/20">
-              <Star className="h-5 w-5 text-amber-600 dark:text-amber-400 fill-amber-500/50" />
-            </div>
-            Add Product Review
-          </DialogTitle>
-          <DialogDescription className="text-white/70">
-            Add a review for a product. Select product, rating (1–5), and
-            comment.
-          </DialogDescription>
-        </DialogHeader>
+        <DialogHeaderBrand
+          icon={Star}
+          tone="amber"
+          title="Add Product Review"
+          description="Add a review for a product. Select product, rating (1–5), and comment."
+        />
         <form onSubmit={handleSubmit} className="space-y-4 mt-4">
           <div className="space-y-2">
-            <Label
+            <DialogFormLabel
               htmlFor="product-review-product"
-              className="text-sm font-medium text-white/80"
+              icon={Package}
+              required
             >
-              Product *
-            </Label>
+              Product
+            </DialogFormLabel>
             <DeferredSelectGate
               enabled={open}
               placeholder={
@@ -148,7 +142,7 @@ export default function ProductReviewDialog({
                     <SelectValue placeholder="Select product to review" />
                   </SelectTrigger>
                   <SelectContent
-                    className="border-amber-400/20 dark:border-white/10 bg-white/80 dark:bg-popover/50 backdrop-blur-md z-[100] max-h-[200px]"
+                    className={cn(DIALOG_SELECT_CONTENT_CLASS, "z-[100] max-h-[200px]")}
                     position="popper"
                     sideOffset={5}
                     align="start"
@@ -157,7 +151,7 @@ export default function ProductReviewDialog({
                       <SelectItem
                         key={p.id}
                         value={p.id}
-                        className="cursor-pointer text-gray-700 dark:text-white focus:bg-amber-100 dark:focus:bg-white/10 focus:text-gray-700 dark:focus:text-white"
+                        className={DIALOG_SELECT_ITEM_CLASS}
                       >
                         {p.name} {p.sku ? `(${p.sku})` : ""}
                       </SelectItem>
@@ -168,12 +162,13 @@ export default function ProductReviewDialog({
             </DeferredSelectGate>
           </div>
           <div className="space-y-2">
-            <Label
+            <DialogFormLabel
               htmlFor="product-review-rating"
-              className="text-sm font-medium text-white/80"
+              icon={Star}
+              required
             >
               Rating
-            </Label>
+            </DialogFormLabel>
             <DeferredSelectGate
               enabled={open}
               placeholder={
@@ -199,14 +194,14 @@ export default function ProductReviewDialog({
                     <SelectValue>
                       <span className="flex items-center gap-2">
                         {renderStars(rating)}
-                        <span className="text-white/60 text-sm">
+                        <span className="text-muted-foreground text-sm">
                           ({rating} star{rating !== 1 ? "s" : ""})
                         </span>
                       </span>
                     </SelectValue>
                   </SelectTrigger>
                   <SelectContent
-                    className="border-amber-400/20 dark:border-white/10 bg-white/80 dark:bg-popover/50 backdrop-blur-md z-[100]"
+                    className={cn(DIALOG_SELECT_CONTENT_CLASS, "z-[100]")}
                     position="popper"
                     sideOffset={5}
                     align="start"
@@ -215,11 +210,11 @@ export default function ProductReviewDialog({
                       <SelectItem
                         key={r}
                         value={String(r)}
-                        className="cursor-pointer focus:bg-amber-100 dark:focus:bg-white/10"
+                        className={DIALOG_SELECT_ITEM_CLASS}
                       >
                         <span className="flex items-center gap-2">
                           {renderStars(r)}
-                          <span className="text-gray-600 dark:text-white/60 text-sm">
+                          <span className="text-muted-foreground text-sm">
                             ({r} star{r !== 1 ? "s" : ""})
                           </span>
                         </span>
@@ -231,12 +226,13 @@ export default function ProductReviewDialog({
             </DeferredSelectGate>
           </div>
           <div className="space-y-2">
-            <Label
+            <DialogFormLabel
               htmlFor="product-review-comment"
-              className="text-sm font-medium text-white/80"
+              icon={Star}
+              required
             >
-              Review Comment *
-            </Label>
+              Review Comment
+            </DialogFormLabel>
             <Textarea
               id="product-review-comment"
               placeholder="Write your review about the product..."
@@ -258,9 +254,10 @@ export default function ProductReviewDialog({
               <Button
                 type="button"
                 variant="secondary"
-                className={cn("h-11 w-full sm:w-auto px-8", GLASS_GHOST_BUTTON)}
+                className={cn("h-11 w-full sm:w-auto px-8 gap-2", GLASS_GHOST_BUTTON)}
                 disabled={isPending}
               >
+                <X className="h-4 w-4 shrink-0" aria-hidden />
                 Cancel
               </Button>
             </DialogClose>
@@ -268,6 +265,7 @@ export default function ProductReviewDialog({
               isPending={isPending}
               pendingLabel="Adding review…"
               label="Add Review"
+              icon={Star}
               hue="amber"
               disabled={!productId.trim() || !comment.trim()}
               className="h-11 px-8"
