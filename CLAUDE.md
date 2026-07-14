@@ -756,7 +756,7 @@ Hub: `lib/ui/typography-scale.ts`. Hubs import tokens; ~45 inline files use equi
 | `npm run build` | pass |
 | `npm run test` | 488 passed |
 | `npm run test:invalidate` | 208 passed |
-| Prod SHA | `3cc5c4b` (REQ-0105); REQ-0106–0113 pending push |
+| Prod SHA | `8de1827` (REQ-0106–0113) pushed `origin/main` |
 | REQ-0106–0113 | order stock UX + reactive validation + props-only warehouse select |
 
 ## Post-mutation cache (REQ-0052 + REQ-0055)
