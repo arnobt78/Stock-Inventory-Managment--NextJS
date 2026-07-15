@@ -340,3 +340,4 @@
 | TC-0056 | REQ-0134 | Session 1d JWT+cookie; auth focus refetch; QR second invalidate; gcTime 30m |
 | TC-0057 | REQ-0135 | Redis pattern asymmetries — invoice stock, portals, auth/import, category/supplier enrich |
 | TC-0058 | REQ-0135 | post-mutation.test.ts pattern membership (+5); products unused import removed |
+| TC-0059 | Gate-2 | Manual: redeploy `177cac2` → UI blockers → §10 A1/A2/B1 (tomorrow) |

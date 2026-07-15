@@ -570,6 +570,25 @@ Commands: lint, test, test:invalidate, build
 
 ---
 
+## EOD 2026-07-15 → Tomorrow Gate-2 QA
+
+**Left:** REQ-0133–0135 shipped (`177cac2`); unit gates PASS; **manual cache + UI not run**.
+
+**Tomorrow (short — do not full-matrix):**
+
+| Order | Task | Done when |
+|------|------|-----------|
+| 0 | Redeploy Vercel + re-login | Cookie/JWT 1d |
+| 1 | UI blockers only | Can open lists/dialogs without broken chrome |
+| 2 | §10 A1 product edit + 5 min | No revert |
+| 3 | §10 A2 back from detail | List shows update |
+| 4 | §10 B1 invoice paid → stock | No revert |
+| 5 | Stop / optionally one-CRUD each domain | Record PASS/FAIL here |
+
+**Defer:** Infinity staleTime, full B2–D, every role×route. Record results under this section after QA.
+
+---
+
 ## REQ-0135 — Redis invalidate pattern asymmetry (2026-07-15)
 
 **Scope:** `INVOICE_PATTERNS` +`stockAllocation`; supplier/warehouse/auth/import portal parity; category/supplier +stock for enrich labels. Shipped with REQ-0134. Post-audit: unused import removed; pattern membership tests (+5).

@@ -3,13 +3,31 @@
 | Field | Value |
 |-------|-------|
 | **Cycle** | C1 (closing) → **C2 open** |
-| **Phase** | C2 — REQ-0121–0135 **done** |
-| **Last updated** | 2026-07-15 (audit + pattern tests) |
-| **Active REQ range** | REQ-0001 … REQ-0135 **done** |
-| **Prod deploy target** | push after audit commit; redeploy Vercel before Gate 2 |
+| **Phase** | C2 code done → **manual Gate-2 QA** |
+| **Last updated** | 2026-07-15 EOD |
+| **Active REQ range** | REQ-0001 … REQ-0135 **code done** |
+| **Prod SHA** | `177cac2` on `origin/main` — **redeploy Vercel before QA** |
 | **Human Gate 1** | APPROVED (retroactive bootstrap) |
-| **Human Gate 2** | PENDING — Sentry 24h after prod deploy |
-| **Resume token** | `Gate-2-QA` — UI polish then §10 cache checklist |
+| **Human Gate 2** | PENDING — short QA (§10) + Sentry 24h |
+| **Resume token** | `tomorrow-QA` — see **Where we left / Tomorrow** below |
+
+## Where we left (2026-07-15 EOD)
+
+- **Shipped:** REQ-0133 cache coherence · REQ-0134 session 1d + QR + gcTime · REQ-0135 Redis pattern asymmetries + membership tests
+- **Architecture stance:** keep Next SSR + Redis + TanStack; codebook-style SPA rewrite **out of scope**; optional `staleTime: Infinity` only if §10 still feels chatty
+- **Not done today:** prod deploy verification · manual cache smoke · UI bug fix pass
+- **Docs:** `docs/MANUAL_TEST_FIXTURES.md` §10 (A→B→C→D); do **not** aim for full entity×role matrix
+
+## Tomorrow (2026-07-16) — short QA only
+
+1. Redeploy Vercel from `177cac2` (or later) → **logout / login once** (1d cookie)
+2. **UI blockers first** (~30–60 min) — layout/click/nav that hides wrong data; fix as found
+3. **Cache smoke only** — §10 **A1, A2, B1** (+ Back). Pass = stay fresh ~5 min after CRUD
+4. If A1/A2/B1 PASS → treat cache as good; fix remaining UI opportunistically (product/order/invoice/stock allocate one-each)
+5. Skip deep B2–D / full role matrix until core three pass; stop when exhausted — resume same token next session
+6. After QA stable → Sentry 24h for Gate 2 sign-off
+
+**Pass rule:** A1/A2/B1 no revert → cache goal met. Do not mix UI polish into cache pass/fail.
 
 ## REQ-0105 — product detail committedQuantity SSR (2026-07-13)
 
@@ -89,13 +107,13 @@ Business Insights `useSyncSsrQueryDataMany` (products/orders/warehouse); Admin M
 
 ## Current focus
 
-1. **REQ-0001–0121** — code-complete, REQ-0121 uncommitted
-2. **Gate 2** — prod SHA confirm + Sentry 24h (blocks release sign-off)
-3. **Manual QA** — reset-demo-db + Beats §9 + back-nav after CRUD
+1. **Tomorrow QA** — UI blockers → §10 A1/A2/B1 → stop (see above)
+2. **Gate 2** — after smoke PASS: prod confirm + Sentry 24h
+3. Optional later: `staleTime: Infinity` polish (not required for Gate 2)
 
 ## Session resume (every chat)
 
-1. Read `.agile-v/STATE.md` + `.agile-v/REQUIREMENTS.md` + `.agile-v/PLAYBOOK.md`
+1. Read `.agile-v/STATE.md` (resume token + Tomorrow checklist)
 2. Load skill: `.agile-v/skills/SKILLS_INDEX.md` (01 core → task skill)
 3. Map work to REQ-XXXX; halt if missing traceability
 4. Red Team: lint, test, test:invalidate, build before Gate 2 claim

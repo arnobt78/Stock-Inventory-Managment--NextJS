@@ -62,3 +62,4 @@
 | 2026-07-15 | Session 1d JWT+cookie; auth focus; QR second invalidate; gcTime 30m | REQ-0134 |
 | 2026-07-15 | Redis pattern asymmetries — invoice stock, portals, auth/import | REQ-0135 |
 | 2026-07-15 | Audit: pattern tests + §10 checklist; unused import | REQ-0135 |
+| 2026-07-15 | EOD: resume `tomorrow-QA` — UI then §10 A1/A2/B1; SHA `177cac2` | Gate-2 |

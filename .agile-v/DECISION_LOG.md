@@ -348,3 +348,5 @@ Format: `TIMESTAMP | AGENT | DECISION | RATIONALE | REQ-ID`
 2026-07-15T20:05:00Z | red-team | REQ-0134+0135 gates | lint/test/invalidate/build (see VALIDATION_SUMMARY) | REQ-0134,REQ-0135
 2026-07-15T20:05:00Z | red-team | post-ship audit | wiring PASS; unused import fix; +pattern membership tests; manual §10 | REQ-0135
 2026-07-15T20:05:00Z | product | QA order | UI blockers first, then MANUAL_TEST_FIXTURES §10 cache (do not mix) | REQ-0135
+2026-07-15T20:20:00Z | product | EOD park | Keep Redis+SSR; no SPA rewrite; tomorrow short QA only A1/A2/B1; resume `tomorrow-QA` | REQ-0135
+2026-07-15T20:20:00Z | product | codebook lesson | Infinity stale optional later; do not dump Redis for Gate 2 | REQ-0133
