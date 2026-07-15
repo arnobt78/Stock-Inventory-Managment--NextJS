@@ -2,7 +2,7 @@
 
 **Generated:** 2026-07-15  
 **eval_gate_status:** PENDING (Human Gate 2)  
-**Prod target SHA:** `46127b2` (REQ-0117–0119)  
+**Prod target SHA:** `9d7ec21` (REQ-0120)  
 **Red Team:** lint ✓ test 504 ✓ invalidate 208 ✓ build ✓ (2026-07-15 REQ-0120)
 
 ---
@@ -472,11 +472,12 @@ Commands: lint, test, test:invalidate, build
 - [x] Deploy REQ-0020 (`21d7fc4`)
 - [x] Push REQ-0021 (`733681a`)
 - [x] Push REQ-0022–0029 (`3ebb4db`)
-- [ ] Confirm Vercel prod SHA = `46127b2` (REQ-0117–0119)
+- [ ] Confirm Vercel prod SHA = `9d7ec21` (REQ-0120)
 - [ ] Sentry 24h: no OAuth state error, no ErrorBoundary removeChild on admin/suppliers nav (REQ-0009)
 - [ ] Manual: supplier product → category/supplier detail read-only (REQ-0029)
 - [ ] Manual: dialog UX + admin portal embed tables (REQ-0117)
 - [ ] Manual: Beats order stock walkthrough after `reset-demo-db` (REQ-0103–0113; `MANUAL_TEST_FIXTURES.md` §9)
+- [ ] Manual: back-nav (history/support-ticket) + post-delete redirect (REQ-0120)
 
 **Approver:** _pending_  
 **Date:** _pending_
