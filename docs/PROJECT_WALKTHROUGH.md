@@ -104,6 +104,17 @@ Details: `docs/Redis_Sentry_PostHog_INTEGRATION_GUIDE.md`
 
 **Exempt webhooks (no Redis/TanStack):** `app/api/email/queue/process/route.ts`, auth, AI insights, shipping rates, notifications POST — see `API_WRITE_EXEMPT` in invalidate-coverage test.
 
+### Instant UI (REQ-0122–0124)
+
+| Piece | File |
+|-------|------|
+| Patch helpers | `lib/react-query/patch-mutation-cache.ts` — `patchDetailCache`, `patchListCaches`, `patchOrderGraphListCaches`, `patchProductInPortalCaches`, stock allocation helpers |
+| Loading predicates | `lib/react-query/is-data-slot-loading.ts` — `isDataSlotLoading` (cold), `isDataSlotUnsettled` (stale refetch on aggregates) |
+| SSR sync guard | `lib/react-query/ssr-sync-policy.ts` — skip apply when client `updatedAt >= server` |
+| Mutation pattern | patch detail + list caches **before** `invalidateAllRelatedQueries` / `invalidateAfterOrderGraphChange` |
+| Domains patched | products/categories/suppliers/warehouses, orders/invoices (+ client variants), portal browse, support tickets, product reviews, user management |
+| Intentional pulse-only | dashboard/home KPI counts (server aggregates); stock transfer (multi-warehouse — invalidate + pulse) |
+
 ## 7b. Table pagination Select (Radix portal, 2026-05-22)
 
 | Piece | File |
@@ -146,7 +157,7 @@ Prevents `NotFoundError: removeChild` when App Router navigates between pages wh
 | Filter/login/dialog Selects | `DeferredSelectGate` on status/view Selects, `LoginPage`, order/product/invoice/support dialogs, admin form dialogs |
 | Admin dashboard hydration (REQ-0019) | `formatStableCurrency` + `formatStableCompactDateTime` (UTC) in `AdminAnalyticsContent`; `LLM_INSIGHTS_MAX_TOKENS=512` in forecasting route; cache key `forecasting:summary:v2` |
 | Locale-aware admin (REQ-0020) | `lib/format/client-locale.ts` + `ClientFormatDisplay.tsx`; browser local TZ/currency after mount on admin dashboard + my-activity |
-| Shell-first nav (REQ-0021) | `DataSlotPulse` + `isDataSlotLoading`; `page.tsx` Suspense shell + streamed SSR; hooks `initialData`; tables keep headers, body pulses; invalidation unchanged |
+| Shell-first nav (REQ-0021) | `DataSlotPulse` + `isDataSlotLoading` / `isDataSlotUnsettled`; `page.tsx` Suspense shell + streamed SSR; hooks `initialData`; tables keep headers, body pulses; REQ-0122+ patch-then-invalidate |
 | Supplier catalog detail (REQ-0029) | `lib/server/catalog-entity-access.ts`; supplier read-only `/categories/[id]` + `/suppliers/[id]` via product links; scoped Redis `detail(id, supplier:{entityId})`; `disableCrud` on detail pages |
 | Auth login/register (REQ-0030–0033) | `components/auth/*` — `AuthPageShell`, flat left list, `AuthFormCard` glass, `LoginRoleSelect`; copy in `auth-panel-copy.ts`; `auth-page-root` scrollbar-gutter; no TanStack changes |
 | Auth session toasts (REQ-0034) | `AuthSessionToasts` + `post-login-welcome.ts` / `post-logout-goodbye.ts`; `Toaster` before consumer in `app/layout.tsx`; welcome on `/` `/client` `/supplier`; goodbye on `/login` |

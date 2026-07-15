@@ -2684,6 +2684,115 @@ Canonical REQ source. All artifacts link via `REQ-XXXX`. Status: `done` | `verif
 
 ---
 
+## REQ-0121 — UI/data-sync bug sweep (FAB, dialogs, order fees, catalog copy)
+
+| Field | Value |
+|-------|-------|
+| **Priority** | P1 |
+| **Risk** | R1 |
+| **Status** | done |
+| **Cycle** | C2 |
+| **Parent** | REQ-0120 (nav/SSR sync), REQ-0114–0119 (dialog UX), REQ-0102 (allocation copy) |
+
+**Intent:** Close a 13-item manual-QA bug list surfaced by live reproduction of a product qty edit (50→20, 20 reserved) plus a set of dialog/table UX defects. P0 (cross-page stale product qty) was investigated via live browser repro across same-page, cross-page nav, and browser-back paths at HEAD `9d7ec21`/`efb2e88` — all showed correct fresh data, confirming REQ-0120 already closed that gap; one related latent bug was found and fixed in `WarehouseDetailPage.tsx` (stale-fallback ternary that would re-show frozen SSR data whenever a live query resolved to an empty array). P1–P12 are independently-verified UI defects with concrete fixes.
+
+**Acceptance criteria**
+
+- AC1 (P0): `WarehouseDetailPage.tsx` `allocationRows` — replace `stockAllocations && stockAllocations.length > 0 ? stockAllocations : initialStockAllocations` with `stockAllocations ?? initialStockAllocations ?? []` so a live empty-array result is never masked by a stale SSR snapshot
+- AC2 (P1): `ProductFormDialog.tsx` gains optional `onOpenChange`; `FloatingActionButtons.tsx` wires it through for `home`/`products` variants so the FAB collapses on dialog close like the other five FAB dialogs
+- AC3 (P2): `DialogDateField.tsx` + `ExpirationDateField.tsx` — `[color-scheme:dark]` on the date input so the native `dd.mm.yyyy` placeholder and picker render legibly against the dark dialog chrome
+- AC4 (P3): `ProductFormDialog.tsx` supplier `SelectItem` — `AvatarInlineLink` `linkClassName` changed from hardcoded `text-white/90` to `text-popover-foreground` (matches Category item pattern; trigger-side rendering unchanged since its background stays dark)
+- AC5 (P4): `OrderLineWarehouseSelect.tsx` — `rounded-md` added to the three plain-`div` placeholder/loading states so they match the `SelectTrigger`'s built-in rounding
+- AC6 (P5): `lib/ui/popover-readability-styles.ts` — `filterCommandPopoverClass` and `paginationPopoverContentClass` (and its `catalogEntityPopoverContentClass`/`exportMenuPopoverContentClass` composites) changed `rounded-[28px]` → `rounded-md`; propagates to all ~25 Command-popover consumers
+- AC7 (P6): `OrderDialogCreateLineItem.tsx` line preview shows plain `listAmount` only (dead `showFeeAdjusted`/`proportionalLineAmount`/`orderSubtotal`/`orderTotal` props removed from the component and its `OrderDialog.tsx` call site)
+- AC8 (P7): `OrderDialog.tsx` `getOrderFeesFromSubtotal` — shipping is `$0` on the 10% (`< $100`) discount tier so `total <= subtotal` holds on small orders; single source of truth (no server-side duplicate to sync)
+- AC9 (P8): `OrderPickerCommand.tsx` rows show status badge, buyer (`AvatarInlineLink`, gated by `showPlacer`), order date, item/qty counts, and product names; `InvoiceDialog.tsx` selected-order summary expands to status/payment badges, buyer, date, and a line-item list
+- AC10 (P9): `OrderTableColumns.tsx` Order # cell gains a muted status+item/qty/date line; `InvoiceTableColumns.tsx` Invoice # cell gains a muted status+linked-order#+due-date line (previously absent — order linkage wasn't shown anywhere in the table)
+- AC11 (P10): `ProductFormDialog.tsx` — `ExpirationDateField` and `ImageField` reordered to sit adjacent in the 2-col grid; the conditional reconcile-hint block (`DIALOG_FORM_FEEDBACK_ROW`, already `col-span-full`) moved after both so it never lands between them
+- AC12 (P11): `WarehouseDetailPage.tsx` Allocations `DetailInfoRow` — capitalized, per-metric colored spans (Products slate, Total sky, Available emerald, Reserved amber); `WarehouseStockAllocationRow.tsx` — SKU moved off the product-name title row into the meta row, catalog/allocated/unallocated/committed summary and commit hint moved from the meta row into the right-side qty card with the same colored-badge treatment (no more duplicate catalog string between the warehouse-info card and the stock row)
+- AC13 (P12): `ProductDetailPage.tsx` — Warehouse Stock header catalog subtitle only shown when there's ≤1 warehouse row (avoids a misleading global summary above multiple per-warehouse rows); Inventory Value row changed from a stacked `flex-col` block to an inline `flex-wrap items-baseline` span so label/value/caption stay on one row like sibling `DetailInfoRow`s
+- AC14: Gates pass — lint, test (504), invalidate (208), build
+
+**Artifacts:** `components/Pages/WarehouseDetailPage.tsx`, `components/products/ProductFormDialog.tsx`, `components/shared/FloatingActionButtons.tsx`, `components/shared/DialogDateField.tsx`, `components/products/form-fields/ExpirationDateField.tsx`, `components/orders/OrderLineWarehouseSelect.tsx`, `lib/ui/popover-readability-styles.ts`, `components/orders/OrderDialogCreateLineItem.tsx`, `components/orders/OrderDialog.tsx`, `components/invoices/OrderPickerCommand.tsx`, `components/invoices/InvoiceDialog.tsx`, `components/orders/OrderTableColumns.tsx`, `components/invoices/InvoiceTableColumns.tsx`, `components/warehouses/WarehouseStockAllocationRow.tsx`, `components/Pages/ProductDetailPage.tsx`
+
+**Build note:** `SemanticBadgeProps.size` is `"compact" | "detail"`, not `"sm"` — caught by `next build` type check on the first pass (AC9/AC10 badges), fixed before final gate run.
+
+---
+
+## REQ-0122 — Instant UI / no stale flash (patch + pulse)
+
+| Field | Value |
+|-------|-------|
+| **Priority** | P0 |
+| **Risk** | R2 |
+| **Status** | done |
+| **Cycle** | C2 |
+| **Parent** | REQ-0121 (manual QA), REQ-0021 (shell-first), REQ-0069 (SSR sync) |
+
+**Intent:** Eliminate visible stale numbers after CRUD without blocking shell-first navigation. Patch TanStack cache on mutation success (`setQueryData` via shared helpers) before `invalidateAllRelatedQueries`; harden SSR sync to skip when client cache is fresher (`updatedAt`); pulse aggregate data slots during stale refetch (`isDataSlotUnsettled`) while patched detail/list rows show correct values immediately.
+
+**Acceptance criteria**
+
+- AC1: `lib/react-query/patch-mutation-cache.ts` — `patchDetailCache`, `patchListCaches`, `removeFromListCaches`, `patchStockAllocationInCaches`
+- AC2: `isDataSlotRefreshing` + `isDataSlotUnsettled` in `is-data-slot-loading.ts`; cold-load `isDataSlotLoading` unchanged
+- AC3: `resolveSsrSyncAction` skips apply when `cached.updatedAt >= serverData.updatedAt`
+- AC4: Product/category/supplier/warehouse mutation hooks — patch detail + list before invalidate; stock allocation hooks patch product/warehouse caches
+- AC5: Dashboard/portal/forecast/stock aggregate UI uses `isDataSlotUnsettled`; patched entity detail uses `isDataSlotLoading` only
+- AC6: Dialog submit stays pending until `mutateAsync` completes (patch runs in `onSuccess` before close)
+- AC7: Gates pass — lint, test (516), invalidate (208), build
+
+**Artifacts:** `lib/react-query/patch-mutation-cache.ts`, `is-data-slot-loading.ts`, `ssr-sync-policy.ts`, `hooks/queries/use-products.ts`, `use-categories.ts`, `use-suppliers.ts`, `use-warehouses.ts`, `use-stock-allocation.ts`, list/detail/portal stat components
+
+---
+
+## REQ-0123 — Instant UI gap closure (order graph + portal browse)
+
+| Field | Value |
+|-------|-------|
+| **Priority** | P1 |
+| **Risk** | R2 |
+| **Status** | done |
+| **Cycle** | C2 |
+| **Parent** | REQ-0122 |
+
+**Intent:** Close REQ-0122 audit gaps — patch order/invoice list caches, nested portal browse product caches, stock allocation delete cache removal, AdminMyActivity unsettled pulse. Dashboard KPIs remain pulse-only (server aggregates).
+
+**Acceptance criteria**
+
+- AC1: `patchOrderGraphListCaches`, `patchProductInPortalCaches`, `removeProductFromPortalCaches` in `patch-mutation-cache.ts`
+- AC2: `use-orders.ts` / `use-invoices.ts` — patch detail + list before `invalidateAfterOrderGraphChange`
+- AC3: `use-products.ts` — `patchProductInPortalCaches` on create/update; `removeProductFromPortalCaches` on hard delete
+- AC4: `useDeleteStockAllocation` — scoped `{ id, productId, warehouseId }` + `removeStockAllocationFromCaches`
+- AC5: `AdminMyActivityContent` — `isAnyDataSlotUnsettled` for stat cards
+- AC6: Gates pass — lint, test (518), invalidate (208), build
+
+**Artifacts:** `patch-mutation-cache.ts`, `use-orders.ts`, `use-invoices.ts`, `use-products.ts`, `use-stock-allocation.ts`, `WarehouseDetailPage.tsx`, `AdminMyActivityContent.tsx`
+
+---
+
+## REQ-0124 — Instant UI secondary entities + soft-delete portal
+
+| Field | Value |
+|-------|-------|
+| **Priority** | P2 |
+| **Risk** | R1 |
+| **Status** | done |
+| **Cycle** | C2 |
+| **Parent** | REQ-0123 |
+
+**Intent:** Close final audit backlog — patch list caches for support tickets, product reviews, user management; remove archived products from portal browse cache on soft delete; document dashboard pulse-only and stock-transfer invalidate-only in walkthrough.
+
+**Acceptance criteria**
+
+- AC1: `use-support-tickets.ts`, `use-product-reviews.ts`, `use-user-management.ts` — `patchDetailCache` + `patchListCaches` before invalidate; delete uses `removeFromListCaches`
+- AC2: `use-products.ts` — `removeProductFromPortalCaches` on soft and hard delete
+- AC3: `docs/PROJECT_WALKTHROUGH.md` §7 Instant UI subsection; compact `CLAUDE.md` Instant UI block
+- AC4: Gates pass — lint, test, invalidate (208), build
+
+**Artifacts:** `use-support-tickets.ts`, `use-product-reviews.ts`, `use-user-management.ts`, `use-products.ts`, `CLAUDE.md`, `docs/PROJECT_WALKTHROUGH.md`
+
+---
+
 ## REQ-0020 — Locale-aware admin format (hydration-safe)
 
 | Field        | Value |

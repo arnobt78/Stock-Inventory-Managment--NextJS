@@ -12,7 +12,24 @@ export {
   invalidateAfterStockChange,
 } from "./invalidate-all";
 export { cancelOrRemoveDetailQuery } from "./cancel-or-remove-detail";
-export { isDataSlotLoading, isAnyDataSlotLoading } from "./is-data-slot-loading";
+export {
+  isDataSlotLoading,
+  isAnyDataSlotLoading,
+  isDataSlotRefreshing,
+  isDataSlotUnsettled,
+  isAnyDataSlotUnsettled,
+} from "./is-data-slot-loading";
+export type { DataSlotQueryHint } from "./is-data-slot-loading";
+export {
+  patchDetailCache,
+  patchListCaches,
+  patchOrderGraphListCaches,
+  patchProductInPortalCaches,
+  removeProductFromPortalCaches,
+  removeFromListCaches,
+  patchStockAllocationInCaches,
+  removeStockAllocationFromCaches,
+} from "./patch-mutation-cache";
 export { withInitialData } from "./initial-data-options";
 export {
   useSyncSsrQueryData,

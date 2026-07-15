@@ -23,7 +23,7 @@ import {
   useDashboard,
   useClientPortalDashboard,
 } from "@/hooks/queries";
-import { isDataSlotLoading, queryKeys, useSyncSsrQueryData } from "@/lib/react-query";
+import { isDataSlotLoading, isDataSlotUnsettled, queryKeys, useSyncSsrQueryData } from "@/lib/react-query";
 import { APP_SHELL_WIDTH_CLASS } from "@/lib/ui/shell-layout-styles";
 import InvoiceFilters from "./InvoiceFilters";
 import InvoiceDialog from "./InvoiceDialog";
@@ -312,10 +312,10 @@ const InvoiceList = React.memo(
           : isDataSlotLoading(invoicesQuery, initialInvoices) ||
             isSearchDebouncing;
     const dashboardCardsLoading = enableDashboard
-      ? isDataSlotLoading(dashboardQuery, initialStats ?? undefined)
+      ? isDataSlotUnsettled(dashboardQuery, initialStats ?? undefined)
       : false;
     const clientPortalCardsLoading = enableClientPortal
-      ? isDataSlotLoading(portalDashboardQuery, initialClientPortal)
+      ? isDataSlotUnsettled(portalDashboardQuery, initialClientPortal)
       : false;
 
     const isClientInvoices = dataSource === "clientInvoices";

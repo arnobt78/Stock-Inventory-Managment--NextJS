@@ -143,6 +143,15 @@ export const createInvoiceColumns = (
                 {invoice.issuedByEmail ? ` (${invoice.issuedByEmail})` : ""}
               </span>
             )}
+            <div className="flex items-center gap-1.5 flex-wrap">
+              <InvoiceStatusBadge status={invoice.status} size="compact" />
+              <span className="text-xs text-gray-500 dark:text-gray-400">
+                {invoice.linkedOrderNumber
+                  ? `Order: ${invoice.linkedOrderNumber} · `
+                  : ""}
+                Due {format(new Date(invoice.dueDate), "MMM dd, yyyy")}
+              </span>
+            </div>
           </div>
         );
       },

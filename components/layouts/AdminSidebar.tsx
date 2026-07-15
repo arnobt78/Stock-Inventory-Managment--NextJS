@@ -21,7 +21,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAdminCounts } from "@/hooks/queries";
-import { isDataSlotLoading } from "@/lib/react-query";
+import { isDataSlotUnsettled } from "@/lib/react-query";
 import { DataSlotPulse } from "@/components/shared/DataSlotPulse";
 import {
   ADMIN_MANAGEMENT_ITEMS,
@@ -61,7 +61,7 @@ export default function AdminSidebar({
   const pathname = usePathname();
   const countsQuery = useAdminCounts(initialCounts);
   const counts = countsQuery.data ?? initialCounts;
-  const countsLoading = isDataSlotLoading(countsQuery, initialCounts);
+  const countsLoading = isDataSlotUnsettled(countsQuery, initialCounts);
 
   const getCount = (key: AdminNavItemConfig["countKey"]): number | undefined => {
     if (!counts || !key) return undefined;

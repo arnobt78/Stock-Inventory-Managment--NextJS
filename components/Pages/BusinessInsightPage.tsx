@@ -69,7 +69,7 @@ import {
   StockQuantityLeftBadge,
 } from "@/lib/ui/semantic-badges";
 import { useProducts, useOrders, useWarehouseStockSummary } from "@/hooks/queries";
-import { isDataSlotLoading, queryKeys, useSyncSsrQueryDataMany } from "@/lib/react-query";
+import { isDataSlotLoading, isDataSlotUnsettled, queryKeys, useSyncSsrQueryDataMany } from "@/lib/react-query";
 import { exportToExcel, exportToCSV } from "@/lib/export";
 import type { Product, Order } from "@/types";
 import type { ProductForHome } from "@/lib/server/home-data";
@@ -128,8 +128,8 @@ export default function BusinessInsightPage({
   const warehouseSummaryRows =
     warehouseSummaryQuery.data ?? initialWarehouseSummary ?? [];
   const productsLoading = isDataSlotLoading(productsQuery, initialProducts);
-  const ordersLoading = isDataSlotLoading(ordersQuery, initialOrders);
-  const warehouseSummaryLoading = isDataSlotLoading(
+  const ordersLoading = isDataSlotUnsettled(ordersQuery, initialOrders);
+  const warehouseSummaryLoading = isDataSlotUnsettled(
     warehouseSummaryQuery,
     initialWarehouseSummary,
   );

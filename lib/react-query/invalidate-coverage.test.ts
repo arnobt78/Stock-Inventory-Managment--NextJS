@@ -358,6 +358,9 @@ describe("update mutations refresh mounted detail cache", () => {
       const touchesDetail =
         /\.detail\(/.test(content) &&
         (content.includes("setQueryData") ||
+          content.includes("patchDetailCache") ||
+          content.includes("patchOrderGraphListCaches") ||
+          content.includes("patchListCaches") ||
           content.includes("invalidateQueries"));
       expect(touchesDetail).toBe(true);
     });

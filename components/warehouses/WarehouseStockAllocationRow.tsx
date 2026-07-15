@@ -14,11 +14,7 @@ import { AvatarInlineLink } from "@/components/shared/AvatarInlineLink";
 import { CopyableText } from "@/components/shared/CopyableText";
 import { TABLE_CATALOG_LINK_CLASS } from "@/components/shared/dialog-edge-scroll";
 import type { StockAllocation } from "@/types";
-import {
-  formatCatalogAllocationDetailSummary,
-  formatCatalogAllocationSummary,
-  formatCatalogCommitWarehouseHint,
-} from "@/lib/stock-allocation/catalog-allocation-copy";
+import { formatCatalogCommitWarehouseHint } from "@/lib/stock-allocation/catalog-allocation-copy";
 import { cn } from "@/lib/utils";
 
 const META_ROW_CLASS = "text-xs text-gray-600 dark:text-gray-400";
@@ -106,6 +102,8 @@ export function WarehouseStockAllocationRow({
                 Archived
               </Badge>
             ) : null}
+          </div>
+          <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
             {product?.sku ? (
               <span
                 className={cn(
@@ -120,8 +118,6 @@ export function WarehouseStockAllocationRow({
                 </CopyableText>
               </span>
             ) : null}
-          </div>
-          <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
             {product?.categoryName && categoryHref ? (
               <MetaLink href={categoryHref} icon={Tag} label="Category:">
                 {product.categoryName}
@@ -155,29 +151,6 @@ export function WarehouseStockAllocationRow({
                 {product.supplierName}
               </span>
             ) : null}
-            {product?.quantity != null &&
-            product?.allocatedTotal != null &&
-            product?.unallocated != null ? (
-              <span className={META_ROW_CLASS}>
-                {product.committedQuantity != null && product.committedQuantity > 0
-                  ? formatCatalogAllocationDetailSummary(
-                      product.quantity,
-                      product.allocatedTotal,
-                      product.unallocated,
-                      product.committedQuantity,
-                    )
-                  : formatCatalogAllocationSummary(
-                      product.quantity,
-                      product.allocatedTotal,
-                      product.unallocated,
-                    )}
-              </span>
-            ) : null}
-            {commitHint ? (
-              <span className="text-xs text-amber-600/90 dark:text-amber-400/90">
-                {commitHint}
-              </span>
-            ) : null}
           </div>
         </div>
       </div>
@@ -199,6 +172,37 @@ export function WarehouseStockAllocationRow({
           {allocation.reservedQuantity > 0 ? (
             <p className="text-xs text-amber-600 dark:text-amber-400">
               {allocation.reservedQuantity} reserved
+            </p>
+          ) : null}
+          {product?.quantity != null &&
+          product?.allocatedTotal != null &&
+          product?.unallocated != null ? (
+            <p className="mt-1 flex flex-wrap items-center justify-end gap-x-1 text-xs">
+              <span className="text-slate-600 dark:text-slate-300">
+                {product.quantity} Catalog
+              </span>
+              <span className="text-gray-400 dark:text-white/30">·</span>
+              <span className="text-sky-600 dark:text-sky-400">
+                {product.allocatedTotal} Allocated
+              </span>
+              <span className="text-gray-400 dark:text-white/30">·</span>
+              <span className="text-emerald-600 dark:text-emerald-400">
+                {product.unallocated} Unallocated
+              </span>
+              {product.committedQuantity != null &&
+              product.committedQuantity > 0 ? (
+                <>
+                  <span className="text-gray-400 dark:text-white/30">·</span>
+                  <span className="text-amber-600 dark:text-amber-400">
+                    {product.committedQuantity} Reserved
+                  </span>
+                </>
+              ) : null}
+            </p>
+          ) : null}
+          {commitHint ? (
+            <p className="mt-1 text-xs text-amber-600/90 dark:text-amber-400/90">
+              {commitHint}
             </p>
           ) : null}
         </div>

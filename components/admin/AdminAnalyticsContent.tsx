@@ -16,7 +16,7 @@ import {
   GLASS_PRIMARY_BUTTON,
 } from "@/lib/ui/glass-button-styles";
 import { useDashboard } from "@/hooks/queries";
-import { isDataSlotLoading, queryKeys, useSyncSsrQueryData } from "@/lib/react-query";
+import { isDataSlotUnsettled, queryKeys, useSyncSsrQueryData } from "@/lib/react-query";
 import { useAuth } from "@/contexts";
 import { useToast } from "@/hooks/use-toast";
 import {
@@ -88,7 +88,7 @@ export default function AdminAnalyticsContent({
   const { user } = useAuth();
   const dashboardQuery = useDashboard(initialStats ?? undefined);
   const stats = dashboardQuery.data ?? initialStats ?? null;
-  const dataLoading = isDataSlotLoading(dashboardQuery, initialStats);
+  const dataLoading = isDataSlotUnsettled(dashboardQuery, initialStats);
 
   useSyncSsrQueryData(
     queryKeys.dashboard.overview(user?.id ?? ""),

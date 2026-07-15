@@ -10,6 +10,9 @@ import {
   invalidateAllRelatedQueries,
   cancelOrRemoveDetailQuery,
   withInitialData,
+  patchDetailCache,
+  patchListCaches,
+  removeFromListCaches,
 } from "@/lib/react-query";
 import { useToast } from "@/hooks/use-toast";
 import type {
@@ -69,6 +72,16 @@ export function useCreateSupplier() {
       return response.data;
     },
     onSuccess: (newSupplier) => {
+      if (newSupplier.id) {
+        patchDetailCache(
+          queryClient,
+          queryKeys.suppliers.detail(newSupplier.id),
+          newSupplier,
+        );
+        patchListCaches(queryClient, queryKeys.suppliers.all, newSupplier, {
+          prependIfMissing: true,
+        });
+      }
       invalidateAllRelatedQueries(queryClient);
       toast({
         title: "Success",
@@ -100,12 +113,15 @@ export function useUpdateSupplier() {
       return response.data;
     },
     onSuccess: (updatedSupplier) => {
-      invalidateAllRelatedQueries(queryClient);
       if (updatedSupplier.id) {
-        queryClient.invalidateQueries({
-          queryKey: queryKeys.suppliers.detail(updatedSupplier.id),
-        });
+        patchDetailCache(
+          queryClient,
+          queryKeys.suppliers.detail(updatedSupplier.id),
+          updatedSupplier,
+        );
+        patchListCaches(queryClient, queryKeys.suppliers.all, updatedSupplier);
       }
+      invalidateAllRelatedQueries(queryClient);
       toast({
         title: "Success",
         description: `Supplier "${updatedSupplier.name}" updated successfully`,
@@ -143,6 +159,7 @@ export function useDeleteSupplier() {
       return { id, name: supplierName };
     },
     onSuccess: (deletedData) => {
+      removeFromListCaches(queryClient, queryKeys.suppliers.all, deletedData.id);
       cancelOrRemoveDetailQuery(
         queryClient,
         queryKeys.suppliers.detail(deletedData.id),

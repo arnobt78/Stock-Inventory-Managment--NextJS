@@ -78,6 +78,7 @@ import {
 } from "@/components/ui/table";
 import {
   isDataSlotLoading,
+  isDataSlotUnsettled,
   queryKeys,
   useSyncSsrQueryData,
 } from "@/lib/react-query";
@@ -124,7 +125,7 @@ export default function CategoryDetailPage({
   const forecastQuery = useForecastingSummary(initialForecasting ?? undefined, {
     enabled: isAdminRole,
   });
-  const forecastLoading = isDataSlotLoading(
+  const forecastLoading = isDataSlotUnsettled(
     forecastQuery,
     initialForecasting ?? undefined,
   );

@@ -4,7 +4,7 @@
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { apiClient, getErrorMessage } from "@/lib/api";
-import { invalidateAfterStockChange, queryKeys, withInitialData } from "@/lib/react-query";
+import { invalidateAfterStockChange, queryKeys, withInitialData, patchStockAllocationInCaches, removeStockAllocationFromCaches } from "@/lib/react-query";
 import { useToast } from "@/hooks/use-toast";
 import type {
   StockAllocation,
@@ -112,6 +112,10 @@ export function useCreateStockAllocation() {
       return response.data;
     },
     onSuccess: (data: StockAllocation) => {
+      patchStockAllocationInCaches(queryClient, data, {
+        byProduct: queryKeys.stockAllocation.byProduct,
+        byWarehouse: queryKeys.stockAllocation.byWarehouse,
+      });
       invalidateAfterStockChange(queryClient);
       toast({
         title: "Stock allocation saved",
@@ -144,6 +148,10 @@ export function useUpdateStockAllocation() {
       return response.data;
     },
     onSuccess: (data: StockAllocation) => {
+      patchStockAllocationInCaches(queryClient, data, {
+        byProduct: queryKeys.stockAllocation.byProduct,
+        byWarehouse: queryKeys.stockAllocation.byWarehouse,
+      });
       invalidateAfterStockChange(queryClient);
       toast({
         title: "Allocation updated",
@@ -161,6 +169,12 @@ export function useUpdateStockAllocation() {
   });
 }
 
+export type DeleteStockAllocationInput = {
+  id: string;
+  productId: string;
+  warehouseId: string;
+};
+
 /**
  * Delete stock allocation row from a warehouse
  */
@@ -169,11 +183,20 @@ export function useDeleteStockAllocation() {
   const { toast } = useToast();
 
   return useMutation({
-    mutationFn: async (id: string) => {
-      const response = await apiClient.stockAllocations.delete(id);
-      return response.data;
+    mutationFn: async (input: DeleteStockAllocationInput) => {
+      await apiClient.stockAllocations.delete(input.id);
+      return input;
     },
-    onSuccess: () => {
+    onSuccess: (input) => {
+      removeStockAllocationFromCaches(
+        queryClient,
+        input.id,
+        {
+          byProduct: queryKeys.stockAllocation.byProduct,
+          byWarehouse: queryKeys.stockAllocation.byWarehouse,
+        },
+        { productId: input.productId, warehouseId: input.warehouseId },
+      );
       invalidateAfterStockChange(queryClient);
       toast({
         title: "Allocation removed",

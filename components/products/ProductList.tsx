@@ -14,7 +14,7 @@ import {
   useDashboard,
   useSupplierPortalDashboard,
 } from "@/hooks/queries";
-import { isDataSlotLoading, queryKeys, useSyncSsrQueryData } from "@/lib/react-query";
+import { isDataSlotLoading, isDataSlotUnsettled, queryKeys, useSyncSsrQueryData } from "@/lib/react-query";
 import ProductFilters from "./ProductFilters";
 import { StatisticsCard } from "@/components/home/StatisticsCard";
 import { Package, DollarSign, Truck, FolderTree } from "lucide-react";
@@ -108,10 +108,10 @@ const ProductList = React.memo(function ProductList({
   // REQ-0021: shell-first — only data slots pulse
   const tableDataLoading = isDataSlotLoading(productsQuery, initialProducts);
   const dashboardCardsLoading = enableDashboard
-    ? isDataSlotLoading(dashboardQuery, initialStats)
+    ? isDataSlotUnsettled(dashboardQuery, initialStats)
     : false;
   const supplierCardsLoading = isSupplierProductsPage
-    ? isDataSlotLoading(
+    ? isDataSlotUnsettled(
         supplierPortalQuery,
         initialSupplierPortal ?? undefined,
       )

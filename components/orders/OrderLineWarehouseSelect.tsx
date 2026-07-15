@@ -81,7 +81,7 @@ export function OrderLineWarehouseSelect({
         <div
           className={cn(
             DIALOG_FORM_FIELD_VIOLET,
-            "h-11 flex items-center px-3 text-sm text-white/50",
+            "h-11 rounded-md flex items-center px-3 text-sm text-white/50",
           )}
         >
           Select product first
@@ -96,7 +96,9 @@ export function OrderLineWarehouseSelect({
         <DialogFormLabel icon={Warehouse} optional>
           Warehouse
         </DialogFormLabel>
-        <div className={cn(DIALOG_FORM_FIELD_VIOLET, "h-11 animate-pulse")} />
+        <div
+          className={cn(DIALOG_FORM_FIELD_VIOLET, "h-11 rounded-md animate-pulse")}
+        />
       </div>
     );
   }
@@ -110,7 +112,7 @@ export function OrderLineWarehouseSelect({
         <div
           className={cn(
             DIALOG_FORM_FIELD_VIOLET,
-            "h-11 flex items-center px-3 text-sm text-white/50",
+            "h-11 rounded-md flex items-center px-3 text-sm text-white/50",
           )}
         >
           Not warehouse-tracked

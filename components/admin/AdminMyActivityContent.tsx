@@ -27,7 +27,7 @@ import {
   useUsers,
 } from "@/hooks/queries";
 import { cn } from "@/lib/utils";
-import { isAnyDataSlotLoading, isDataSlotLoading, queryKeys, useSyncSsrQueryDataMany } from "@/lib/react-query";
+import { isAnyDataSlotUnsettled, isDataSlotLoading, queryKeys, useSyncSsrQueryDataMany } from "@/lib/react-query";
 import { useAuth } from "@/contexts";
 import { PageContentWrapper, PageSectionHeader, SectionTitleRow } from "@/components/shared";
 import { FILTER_SEARCH_INPUT_SKY_CLASS } from "@/lib/ui/filter-toolbar-styles";
@@ -102,7 +102,7 @@ export default function AdminMyActivityContent({
   const users = usersQuery.data ?? initialUsers ?? [];
 
   // REQ-0021: shell-first — headers/cards stay visible; values pulse
-  const cardsDataLoading = isAnyDataSlotLoading([
+  const cardsDataLoading = isAnyDataSlotUnsettled([
     { query: ordersQuery, serverInitial: initialOrders },
     { query: productsQuery, serverInitial: initialProducts },
     { query: suppliersQuery, serverInitial: initialSuppliers },

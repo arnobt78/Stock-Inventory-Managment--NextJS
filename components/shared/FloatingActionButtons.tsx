@@ -117,7 +117,11 @@ export default function FloatingActionButtons({
     >
       {variant === "home" && (
         <div className={wrapClass(isExpanded)}>
-          <AddProductDialog allProducts={allProducts} userId={userId}>
+          <AddProductDialog
+            allProducts={allProducts}
+            userId={userId}
+            onOpenChange={handleDialogOpenChange}
+          >
             <FabButton hue="rose" expanded={isExpanded} {...fabClickProps}>
               <Package className="h-5 w-5 flex-shrink-0" />
               <span className={labelClass(isExpanded)}>Add Product</span>
@@ -128,7 +132,11 @@ export default function FloatingActionButtons({
 
       {variant === "products" && (
         <div className={wrapClass(isExpanded)}>
-          <AddProductDialog allProducts={allProducts} userId={userId}>
+          <AddProductDialog
+            allProducts={allProducts}
+            userId={userId}
+            onOpenChange={handleDialogOpenChange}
+          >
             <FabButton hue="rose" expanded={isExpanded} {...fabClickProps}>
               <Package className="h-5 w-5 flex-shrink-0" />
               <span className={labelClass(isExpanded)}>Add Product</span>

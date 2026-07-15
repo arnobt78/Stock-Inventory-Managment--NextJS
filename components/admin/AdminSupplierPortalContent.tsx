@@ -32,7 +32,7 @@ import {
 } from "@/lib/ui/glass-button-styles";
 import { useSupplierPortal } from "@/hooks/queries";
 import {
-  isDataSlotLoading,
+  isDataSlotUnsettled,
   queryKeys,
   useSyncSsrQueryData,
 } from "@/lib/react-query";
@@ -60,7 +60,7 @@ export default function AdminSupplierPortalContent({
 }: AdminSupplierPortalContentProps = {}) {
   const portalQuery = useSupplierPortal(initialStats ?? undefined);
   const stats = portalQuery.data ?? initialStats ?? null;
-  const dataLoading = isDataSlotLoading(portalQuery, initialStats);
+  const dataLoading = isDataSlotUnsettled(portalQuery, initialStats);
 
   useSyncSsrQueryData(
     queryKeys.supplierPortal.overview(),

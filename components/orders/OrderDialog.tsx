@@ -151,9 +151,10 @@ function getOrderFeesFromSubtotal(subtotal: number): {
   discountAmount: number;
 } {
   const taxAmount = subtotal * TAX_RATE;
-  const shippingAmount = SHIPPING_FIXED;
   const discountPercent = getDiscountPercent(subtotal);
   const discountAmount = subtotal * (discountPercent / 100);
+  // Free shipping on the 10% (< $100) discount tier — keeps total <= subtotal on small orders.
+  const shippingAmount = discountPercent === 10 ? 0 : SHIPPING_FIXED;
   return { taxAmount, shippingAmount, discountPercent, discountAmount };
 }
 
@@ -411,7 +412,7 @@ export default function OrderDialog({
         throw new Error("At least one order item is required");
       }
 
-      // Compute subtotal and fees (tax 7%, shipping $4.99, discount by tier) for payload
+      // Compute subtotal and fees (tax 7%, shipping $4.99 except free on 10% tier, discount by tier) for payload
       const submitSubtotal = validItems.reduce((sum, item) => {
         const product = availableProducts.find((p) => p.id === item.productId);
         if (!product) return sum;
@@ -1089,8 +1090,6 @@ export default function OrderDialog({
                       createErrors={createErrors}
                       onRemove={() => handleRemoveItem(index, field.id)}
                       onStockValidityChange={handleLineStockValidityChange}
-                      orderSubtotal={subtotal}
-                      orderTotal={total}
                     />
                   ))}
 

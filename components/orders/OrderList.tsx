@@ -24,7 +24,7 @@ import {
   useClientPortalDashboard,
   useSupplierPortalDashboard,
 } from "@/hooks/queries";
-import { isDataSlotLoading, queryKeys, useSyncSsrQueryData } from "@/lib/react-query";
+import { isDataSlotLoading, isDataSlotUnsettled, queryKeys, useSyncSsrQueryData } from "@/lib/react-query";
 import { APP_SHELL_WIDTH_CLASS } from "@/lib/ui/shell-layout-styles";
 import OrderFilters from "./OrderFilters";
 import OrderDialog from "./OrderDialog";
@@ -286,13 +286,13 @@ const OrderList = React.memo(
           ? isDataSlotLoading(ordersQueryClient, initialClientOrders)
           : isDataSlotLoading(ordersQuery, initialOrders);
     const dashboardCardsLoading = enableDashboard
-      ? isDataSlotLoading(dashboardQuery, initialStats ?? undefined)
+      ? isDataSlotUnsettled(dashboardQuery, initialStats ?? undefined)
       : false;
     const clientPortalCardsLoading = enableClientPortal
-      ? isDataSlotLoading(portalDashboardQuery, initialClientPortal)
+      ? isDataSlotUnsettled(portalDashboardQuery, initialClientPortal)
       : false;
     const supplierPortalCardsLoading = enableSupplierPortal
-      ? isDataSlotLoading(
+      ? isDataSlotUnsettled(
           supplierPortalQuery,
           initialSupplierPortal ?? undefined,
         )

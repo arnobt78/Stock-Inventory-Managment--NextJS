@@ -10,6 +10,9 @@ import {
   invalidateAfterOrderGraphChange,
   cancelOrRemoveDetailQuery,
   withInitialData,
+  patchDetailCache,
+  patchOrderGraphListCaches,
+  removeFromListCaches,
 } from "@/lib/react-query";
 import { useToast } from "@/hooks/use-toast";
 import type {
@@ -96,11 +99,8 @@ export function useCreateInvoice() {
       return response.data;
     },
     onSuccess: (data: Invoice) => {
-      // Update the query cache with new invoice data
-      queryClient.setQueryData<Invoice>(
-        queryKeys.invoices.detail(data.id),
-        data,
-      );
+      patchDetailCache(queryClient, queryKeys.invoices.detail(data.id), data);
+      patchOrderGraphListCaches(queryClient, data, { prependIfMissing: true });
 
       invalidateAfterOrderGraphChange(queryClient);
 
@@ -203,6 +203,8 @@ export function useUpdateInvoice() {
       invalidateAfterOrderGraphChange(queryClient);
     },
     onSuccess: (data) => {
+      patchDetailCache(queryClient, queryKeys.invoices.detail(data.id), data);
+      patchOrderGraphListCaches(queryClient, data);
       toast({
         title: "Invoice Updated!",
         description: `Invoice #${data.invoiceNumber} has been successfully updated.`,
@@ -223,6 +225,8 @@ export function useDeleteInvoice() {
       await apiClient.invoices.delete(invoiceId);
     },
     onSuccess: (_, invoiceId) => {
+      removeFromListCaches(queryClient, queryKeys.invoices.all, invoiceId);
+      removeFromListCaches(queryClient, queryKeys.clientInvoices.all, invoiceId);
       cancelOrRemoveDetailQuery(
         queryClient,
         queryKeys.invoices.detail(invoiceId),
@@ -263,11 +267,12 @@ export function useSendInvoice() {
       return response.data;
     },
     onSuccess: (data, invoiceId) => {
-      // Update the invoice in cache with sent status
-      queryClient.setQueryData<Invoice>(
+      patchDetailCache(
+        queryClient,
         queryKeys.invoices.detail(invoiceId),
         data.invoice,
       );
+      patchOrderGraphListCaches(queryClient, data.invoice);
 
       invalidateAfterOrderGraphChange(queryClient);
 

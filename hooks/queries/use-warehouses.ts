@@ -11,6 +11,9 @@ import {
   invalidateAfterStockChange,
   cancelOrRemoveDetailQuery,
   withInitialData,
+  patchDetailCache,
+  patchListCaches,
+  removeFromListCaches,
 } from "@/lib/react-query";
 import { useToast } from "@/hooks/use-toast";
 import type {
@@ -62,6 +65,16 @@ export function useCreateWarehouse() {
       return response.data;
     },
     onSuccess: (newWarehouse) => {
+      if (newWarehouse.id) {
+        patchDetailCache(
+          queryClient,
+          queryKeys.warehouses.detail(newWarehouse.id),
+          newWarehouse,
+        );
+        patchListCaches(queryClient, queryKeys.warehouses.all, newWarehouse, {
+          prependIfMissing: true,
+        });
+      }
       invalidateAllRelatedQueries(queryClient);
       toast({
         title: "Success",
@@ -92,12 +105,15 @@ export function useUpdateWarehouse() {
       return response.data;
     },
     onSuccess: (updatedWarehouse) => {
-      invalidateAllRelatedQueries(queryClient);
       if (updatedWarehouse.id) {
-        queryClient.invalidateQueries({
-          queryKey: queryKeys.warehouses.detail(updatedWarehouse.id),
-        });
+        patchDetailCache(
+          queryClient,
+          queryKeys.warehouses.detail(updatedWarehouse.id),
+          updatedWarehouse,
+        );
+        patchListCaches(queryClient, queryKeys.warehouses.all, updatedWarehouse);
       }
+      invalidateAllRelatedQueries(queryClient);
       toast({
         title: "Success",
         description: `Warehouse "${updatedWarehouse.name}" updated successfully`,
@@ -133,6 +149,7 @@ export function useDeleteWarehouse() {
       return { id, name: warehouseName };
     },
     onSuccess: (deletedData) => {
+      removeFromListCaches(queryClient, queryKeys.warehouses.all, deletedData.id);
       cancelOrRemoveDetailQuery(
         queryClient,
         queryKeys.warehouses.detail(deletedData.id),

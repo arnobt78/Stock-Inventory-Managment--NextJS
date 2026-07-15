@@ -314,3 +314,13 @@ Format: `TIMESTAMP | AGENT | DECISION | RATIONALE | REQ-ID`
 2026-07-15T09:52:00Z | red-team | REQ-0120 gates | lint ✓ test 504 ✓ invalidate 208 ✓ build ✓ | REQ-0120
 2026-07-15T10:05:00Z | release | REQ-0120 push | SHA 9d7ec21 → origin/main | REQ-0120
 2026-07-15T13:00:00Z | red-team | REQ-0120 docs commit re-verify | lint ✓ test 504 ✓ invalidate 208 ✓ build ✓ at HEAD 9d7ec21; docs-only diff cleared for commit | REQ-0120
+2026-07-15T14:15:00Z | build-agent | REQ-0121 P0 investigation | Live browser repro (reset-demo-db → product qty 50→20 with 20 reserved) across same-page/cross-page/back-nav/dialog-reopen — no staleness reproduced at HEAD efb2e88; REQ-0120 already fixed it. Fixed adjacent defect: WarehouseDetailPage allocationRows fallback ternary masked live empty-array data with stale SSR snapshot | REQ-0121
+2026-07-15T14:35:00Z | build-agent | REQ-0121 P1-P12 fixes | FAB onOpenChange wiring, date input color-scheme, supplier dropdown popover-foreground, warehouse-select rounded-md, popover content rounded-md sweep (25+ consumers via shared token), order-line plain subtotal, free-shipping <$100 tier, rich order picker + invoice summary, order/invoice table meta lines, product-dialog grid reorder, warehouse allocation copy capitalize/color + dedupe, product-detail layout fixes | REQ-0121
+2026-07-15T14:42:00Z | red-team | REQ-0121 build-time catch | next build type-check failed: SemanticBadgeProps.size is "compact"|"detail" not "sm" (4 files); fixed via sed, re-verified | REQ-0121
+2026-07-15T14:45:00Z | red-team | REQ-0121 gates | lint ✓ test 504 ✓ invalidate 208 ✓ build ✓ at HEAD efb2e88 + uncommitted REQ-0121 diff; not yet committed pending user go-ahead | REQ-0121
+2026-07-15T14:25:00Z | build-agent | REQ-0122 instant UI | patch-mutation-cache + isDataSlotUnsettled + updatedAt SSR skip + catalog/stock hook patches + aggregate pulse wiring | REQ-0122
+2026-07-15T14:25:00Z | red-team | REQ-0122 gates | lint ✓ test 516 ✓ invalidate 208 ✓ build ✓ | REQ-0122
+2026-07-15T14:32:00Z | build-agent | REQ-0123 gap closure | patchOrderGraphListCaches + patchProductInPortalCaches; order/invoice/product/stock hooks; AdminMyActivity unsettled | REQ-0123
+2026-07-15T14:32:00Z | red-team | REQ-0123 gates | lint ✓ test 518 ✓ invalidate 208 ✓ build ✓ | REQ-0123
+2026-07-15T14:45:00Z | build-agent | REQ-0124 backlog | tickets/reviews/users list patch; soft-delete portal remove; walkthrough + CLAUDE docs | REQ-0124
+2026-07-15T14:46:00Z | red-team | REQ-0124 gates | lint ✓ test ✓ invalidate ✓ build ✓ | REQ-0124

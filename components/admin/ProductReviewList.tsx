@@ -7,7 +7,7 @@
 
 import React, { useState, useEffect, useRef, useMemo } from "react";
 import { useProductReviews, useDashboard } from "@/hooks/queries";
-import { isDataSlotLoading, queryKeys, useSyncSsrQueryData } from "@/lib/react-query";
+import { isDataSlotLoading, isDataSlotUnsettled, queryKeys, useSyncSsrQueryData } from "@/lib/react-query";
 import { useAuth } from "@/contexts";
 import { APP_SHELL_WIDTH_CLASS } from "@/lib/ui/shell-layout-styles";
 import { PaginationType } from "@/components/shared/PaginationSelector";
@@ -99,7 +99,7 @@ export default function ProductReviewList({
   );
 
   // REQ-0021: shell-first — only data slots pulse
-  const dashboardCardsLoading = isDataSlotLoading(dashboardQuery, initialStats);
+  const dashboardCardsLoading = isDataSlotUnsettled(dashboardQuery, initialStats);
   const reviewsCardsLoading = isDataSlotLoading(reviewsQuery, initialReviews);
   const tableDataLoading = isDataSlotLoading(reviewsQuery, initialReviews);
 

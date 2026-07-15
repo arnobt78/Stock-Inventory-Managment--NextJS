@@ -1,7 +1,10 @@
 import { describe, expect, it } from "vitest";
 import {
   isAnyDataSlotLoading,
+  isAnyDataSlotUnsettled,
   isDataSlotLoading,
+  isDataSlotRefreshing,
+  isDataSlotUnsettled,
 } from "./is-data-slot-loading";
 
 describe("isDataSlotLoading", () => {
@@ -30,6 +33,57 @@ describe("isDataSlotLoading", () => {
   });
 });
 
+describe("isDataSlotRefreshing", () => {
+  it("returns true when refetching stale cached data", () => {
+    expect(
+      isDataSlotRefreshing({
+        isPending: false,
+        data: [1],
+        isFetching: true,
+        isStale: true,
+      }),
+    ).toBe(true);
+  });
+
+  it("returns false on initial pending fetch", () => {
+    expect(
+      isDataSlotRefreshing({
+        isPending: true,
+        data: undefined,
+        isFetching: true,
+        isStale: true,
+      }),
+    ).toBe(false);
+  });
+
+  it("returns false when fetch completes (not stale)", () => {
+    expect(
+      isDataSlotRefreshing({
+        isPending: false,
+        data: [1],
+        isFetching: false,
+        isStale: false,
+      }),
+    ).toBe(false);
+  });
+});
+
+describe("isDataSlotUnsettled", () => {
+  it("returns true when refreshing even with server initial", () => {
+    expect(
+      isDataSlotUnsettled(
+        {
+          isPending: false,
+          data: [1],
+          isFetching: true,
+          isStale: true,
+        },
+        [{ id: "1" }],
+      ),
+    ).toBe(true);
+  });
+});
+
 describe("isAnyDataSlotLoading", () => {
   it("returns true if any entry is loading", () => {
     expect(
@@ -47,5 +101,22 @@ describe("isAnyDataSlotLoading", () => {
         { query: { isPending: false, data: [2] }, serverInitial: [2] },
       ]),
     ).toBe(false);
+  });
+});
+
+describe("isAnyDataSlotUnsettled", () => {
+  it("returns true when any query is refreshing", () => {
+    expect(
+      isAnyDataSlotUnsettled([
+        {
+          query: {
+            isPending: false,
+            data: [1],
+            isFetching: true,
+            isStale: true,
+          },
+        },
+      ]),
+    ).toBe(true);
   });
 });

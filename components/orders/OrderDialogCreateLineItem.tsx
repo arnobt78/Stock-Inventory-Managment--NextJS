@@ -31,10 +31,6 @@ import {
 } from "@/components/shared";
 import { cn } from "@/lib/utils";
 import {
-  computeProportionalLineAmount,
-  orderHasFeeAdjustments,
-} from "@/lib/orders/proportional-line-amount";
-import {
   prefetchStockByProduct,
   useOrderLineStockValidation,
 } from "@/hooks/queries";
@@ -93,9 +89,6 @@ export type OrderDialogCreateLineItemProps = {
   createErrors: FieldErrors<OrderFormData>;
   onRemove: () => void;
   onStockValidityChange: (lineId: string, hasStockError: boolean) => void;
-  /** REQ-0116 — order totals for proportional line preview in create dialog */
-  orderSubtotal: number;
-  orderTotal: number;
 };
 
 export function OrderDialogCreateLineItem({
@@ -114,8 +107,6 @@ export function OrderDialogCreateLineItem({
   createErrors,
   onRemove,
   onStockValidityChange,
-  orderSubtotal,
-  orderTotal,
 }: OrderDialogCreateLineItemProps) {
   const queryClient = useQueryClient();
 
@@ -160,12 +151,6 @@ export function OrderDialogCreateLineItem({
     selectedProduct && quantity > 0
       ? Number(selectedProduct.price) * quantity
       : 0;
-
-  const showFeeAdjusted =
-    itemSubtotal > 0 && orderHasFeeAdjustments(orderSubtotal, orderTotal);
-  const proportionalLineAmount = showFeeAdjusted
-    ? computeProportionalLineAmount(itemSubtotal, orderSubtotal, orderTotal)
-    : itemSubtotal;
 
   return (
     <div className="p-4 border border-violet-400/20 rounded-lg bg-white/5 space-y-2">
@@ -333,11 +318,7 @@ export function OrderDialogCreateLineItem({
                 <span>Subtotal:</span>
                 <ProportionalPriceDisplay
                   listAmount={itemSubtotal}
-                  adjustedAmount={
-                    showFeeAdjusted ? proportionalLineAmount : undefined
-                  }
                   size="sm"
-                  adjustedTone="sky"
                   className="text-white/90"
                 />
                 <span>

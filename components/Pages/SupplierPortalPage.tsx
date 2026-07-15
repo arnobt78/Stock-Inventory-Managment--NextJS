@@ -61,7 +61,7 @@ import {
   ProductStockFromQuantityBadge,
 } from "@/lib/ui/semantic-badges";
 import { StatisticsCard } from "@/components/home/StatisticsCard";
-import { isDataSlotLoading, queryKeys, useSyncSsrQueryData } from "@/lib/react-query";
+import { isDataSlotUnsettled, queryKeys, useSyncSsrQueryData } from "@/lib/react-query";
 import { cn } from "@/lib/utils";
 import { PAGE_STATS_GRID_CLASS } from "@/lib/ui/shell-layout-styles";
 import { createChartDotLabelRenderer, CHART_LABEL_TOP_MARGIN } from "@/lib/ui/chart-point-label";
@@ -84,7 +84,7 @@ export default function SupplierPortalPage({
   );
 
   const dashboard = dashboardQuery.data ?? initialDashboard;
-  const dataLoading = isDataSlotLoading(dashboardQuery, initialDashboard);
+  const dataLoading = isDataSlotUnsettled(dashboardQuery, initialDashboard);
   const showError =
     !dataLoading && !isCheckingAuth && (dashboardQuery.isError || !dashboard);
 

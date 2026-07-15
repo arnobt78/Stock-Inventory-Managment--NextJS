@@ -74,12 +74,14 @@ interface AddProductDialogProps {
   allProducts: Product[];
   userId: string;
   children?: React.ReactNode;
+  onOpenChange?: (open: boolean) => void;
 }
 
 export default function AddProductDialog({
   allProducts,
   userId,
   children,
+  onOpenChange,
 }: AddProductDialogProps) {
   const methods = useForm<ProductFormData>({
     resolver: zodResolver(productSchema),
@@ -318,6 +320,7 @@ export default function AddProductDialog({
       setSelectedProduct(null);
     }
     setOpenProductDialog(open);
+    onOpenChange?.(open);
   };
 
   return (
@@ -355,6 +358,7 @@ export default function AddProductDialog({
               <Quantity />
               <Price />
               <ExpirationDateField />
+              <ImageField />
               {selectedProduct && productAllocations.length > 0 ? (
                 <div className={DIALOG_FORM_FEEDBACK_ROW}>
                   <p className={DIALOG_FORM_HINT_TEXT}>
@@ -388,7 +392,6 @@ export default function AddProductDialog({
                   ) : null}
                 </div>
               ) : null}
-              <ImageField />
               <div className="mt-5 flex flex-col gap-2">
                 <DialogFormLabel icon={Tag} required>
                   Category
@@ -509,7 +512,7 @@ export default function AddProductDialog({
                               label={supplier.name}
                               seed={supplier.userId ?? supplier.id}
                               size={22}
-                              linkClassName="text-sm font-normal text-white/90"
+                              linkClassName="text-sm font-normal text-popover-foreground"
                             />
                           </SelectItem>
                         ))}

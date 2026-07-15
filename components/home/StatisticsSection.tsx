@@ -17,7 +17,7 @@ import {
 } from "lucide-react";
 import { StatisticsCard } from "./StatisticsCard";
 import { useDashboard } from "@/hooks/queries/use-dashboard";
-import { isDataSlotLoading, queryKeys, useSyncSsrQueryData } from "@/lib/react-query";
+import { isDataSlotUnsettled, queryKeys, useSyncSsrQueryData } from "@/lib/react-query";
 import { useAuth } from "@/contexts";
 import type { DashboardStats } from "@/types";
 
@@ -36,7 +36,7 @@ export function StatisticsSection({ initialStats }: StatisticsSectionProps = {})
   const { user } = useAuth();
   const dashboardQuery = useDashboard(initialStats ?? undefined);
   const stats = dashboardQuery.data ?? initialStats ?? null;
-  const dataLoading = isDataSlotLoading(dashboardQuery, initialStats);
+  const dataLoading = isDataSlotUnsettled(dashboardQuery, initialStats);
 
   useSyncSsrQueryData(
     queryKeys.dashboard.overview(user?.id ?? ""),

@@ -10,6 +10,9 @@ import {
   invalidateAllRelatedQueries,
   cancelOrRemoveDetailQuery,
   withInitialData,
+  patchDetailCache,
+  patchListCaches,
+  removeFromListCaches,
 } from "@/lib/react-query";
 import { useToast } from "@/hooks/use-toast";
 import type {
@@ -69,6 +72,16 @@ export function useCreateCategory() {
       return response.data;
     },
     onSuccess: (newCategory) => {
+      if (newCategory.id) {
+        patchDetailCache(
+          queryClient,
+          queryKeys.categories.detail(newCategory.id),
+          newCategory,
+        );
+        patchListCaches(queryClient, queryKeys.categories.all, newCategory, {
+          prependIfMissing: true,
+        });
+      }
       invalidateAllRelatedQueries(queryClient);
       toast({
         title: "Success",
@@ -100,12 +113,15 @@ export function useUpdateCategory() {
       return response.data;
     },
     onSuccess: (updatedCategory) => {
-      invalidateAllRelatedQueries(queryClient);
       if (updatedCategory.id) {
-        queryClient.invalidateQueries({
-          queryKey: queryKeys.categories.detail(updatedCategory.id),
-        });
+        patchDetailCache(
+          queryClient,
+          queryKeys.categories.detail(updatedCategory.id),
+          updatedCategory,
+        );
+        patchListCaches(queryClient, queryKeys.categories.all, updatedCategory);
       }
+      invalidateAllRelatedQueries(queryClient);
       toast({
         title: "Success",
         description: `Category "${updatedCategory.name}" updated successfully`,
@@ -143,6 +159,7 @@ export function useDeleteCategory() {
       return { id, name: categoryName };
     },
     onSuccess: (deletedData) => {
+      removeFromListCaches(queryClient, queryKeys.categories.all, deletedData.id);
       cancelOrRemoveDetailQuery(
         queryClient,
         queryKeys.categories.detail(deletedData.id),

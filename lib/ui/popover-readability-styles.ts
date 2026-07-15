@@ -73,7 +73,7 @@ export function filterCommandPopoverClass(
   ...extra: (string | undefined)[]
 ): string {
   return cn(
-    "rounded-[28px] dark:border-white/10",
+    "rounded-md dark:border-white/10",
     HUE_BORDER[hue],
     READABLE_POPOVER_CONTENT_CLASS,
     HUE_SHADOW[hue],
@@ -84,7 +84,7 @@ export function filterCommandPopoverClass(
 /** Pagination / compact select dropdown shell */
 export function paginationPopoverContentClass(hue: PopoverHue): string {
   return cn(
-    "rounded-[28px] dark:border-white/10",
+    "rounded-md dark:border-white/10",
     HUE_BORDER[hue],
     READABLE_POPOVER_CONTENT_CLASS,
     HUE_SHADOW[hue],

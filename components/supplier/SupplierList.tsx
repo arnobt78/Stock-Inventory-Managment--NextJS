@@ -13,7 +13,7 @@ import { PaginationType } from "@/components/shared/PaginationSelector";
 import { createSupplierColumns } from "./SupplierTableColumns";
 import { useAuth } from "@/contexts";
 import { useSuppliers, useDashboard } from "@/hooks/queries";
-import { isDataSlotLoading, queryKeys, useSyncSsrQueryData } from "@/lib/react-query";
+import { isDataSlotLoading, isDataSlotUnsettled, queryKeys, useSyncSsrQueryData } from "@/lib/react-query";
 import { APP_SHELL_WIDTH_CLASS } from "@/lib/ui/shell-layout-styles";
 import SupplierFilters from "./SupplierFilters";
 import AddSupplierDialog from "./SupplierDialog";
@@ -105,7 +105,7 @@ const SupplierList = React.memo(function SupplierList({
   // REQ-0021: shell-first — only data slots pulse
   const tableDataLoading = isDataSlotLoading(suppliersQuery, initialSuppliers);
   const cardsDataLoading = isUserSuppliersPage
-    ? isDataSlotLoading(dashboardQuery, initialStats)
+    ? isDataSlotUnsettled(dashboardQuery, initialStats)
     : false;
 
   // Create table columns with edit handler

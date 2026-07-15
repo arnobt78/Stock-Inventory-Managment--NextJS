@@ -324,3 +324,7 @@
 | TC-0040 | REQ-0110 | `order-line-stock-validation.test.ts`, `validate-allocation-quantity.test.ts`, `order-stock-reservation.test.ts` |
 | TC-0041 | REQ-0111 | `order-line-stock-validation.test.ts`, `stock-allocation-order-sync.test.ts` |
 | TC-0042 | REQ-0112 | `order-line-stock-validation.test.ts` (buildOrderLineWarehousePickOptions) |
+| TC-0043 | REQ-0122 | `lib/react-query/patch-mutation-cache.test.ts`, `ssr-sync-policy.test.ts`, `is-data-slot-loading.test.ts` |
+| TC-0044 | REQ-0122 | Catalog mutation hooks patch detail+list before invalidate |
+| TC-0045 | REQ-0123 | Order/invoice graph list patch + portal browse nested patch |
+| TC-0046 | REQ-0124 | Support/reviews/users list patch + soft-delete portal remove |

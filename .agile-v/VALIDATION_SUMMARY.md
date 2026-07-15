@@ -3,7 +3,57 @@
 **Generated:** 2026-07-15  
 **eval_gate_status:** PENDING (Human Gate 2)  
 **Prod target SHA:** `9d7ec21` (REQ-0120)  
-**Red Team:** lint ✓ test 504 ✓ invalidate 208 ✓ build ✓ (2026-07-15 REQ-0120)
+**Red Team:** lint ✓ test 518 ✓ invalidate 208 ✓ build ✓ (2026-07-15 REQ-0124)
+
+---
+
+## REQ-0124 secondary entities evidence
+
+| Check | Result |
+|-------|--------|
+| Support/reviews/users | list+detail patch before invalidate |
+| Soft-delete portal | `removeProductFromPortalCaches` on soft + hard delete |
+| Docs | PROJECT_WALKTHROUGH §7 Instant UI; CLAUDE compact block |
+| Stock transfer / dashboard KPI | invalidate-only / pulse-only (documented) |
+
+```
+Scope: built/verified | Traceability: REQ-0124 | Findings: PASS
+Commands: lint, test, invalidate, build
+```
+
+---
+
+## REQ-0123 instant UI gap closure evidence
+
+| Check | Result |
+|-------|--------|
+| Order graph lists | `patchOrderGraphListCaches` on orders/invoices create/update/cancel/send |
+| Portal browse | `patchProductInPortalCaches` + `removeProductFromPortalCaches` on product CRUD |
+| Stock delete | `removeStockAllocationFromCaches` wired with scoped delete input |
+| Admin activity | `isAnyDataSlotUnsettled` on stat cards |
+| Dashboard KPIs | pulse-only (intentional — no client-side aggregate patch) |
+
+```
+Scope: built/verified | Traceability: REQ-0123 | Findings: PASS
+Commands: lint, test 518, test:invalidate 208, build
+```
+
+---
+
+## REQ-0122 instant UI evidence
+
+| Check | Result |
+|-------|--------|
+| Cache patch | `patchDetailCache` + `patchListCaches` on catalog CRUD hooks before invalidate |
+| SSR sync | `resolveSsrSyncAction` skips when cached `updatedAt >= server` |
+| Pulse | `isDataSlotUnsettled` on dashboard/portal/forecast/stock aggregates |
+| Dialog | `mutateAsync` + patch in `onSuccess` before close |
+| Invalidation registry | audit accepts `patchDetailCache`; 208 checks pass |
+
+```
+Scope: built/verified | Traceability: REQ-0122 | Findings: PASS
+Commands: lint, test 516, test:invalidate 208, build
+```
 
 ---
 
@@ -462,6 +512,22 @@ Commands: lint, test, test:invalidate, build
 
 ---
 
+## REQ-0121 — UI/data-sync bug sweep (2026-07-15)
+
+**Repro method:** Live browser QA against `npm run dev` (Redis + Mongo dev instances) using `reset-demo-db` → admin login → created category/warehouse/product (Sony TV, SK34, qty 50, $50) → allocated 20 to Main Warehouse → created 20-unit order (auto-assign) → edited product qty 50→20.
+
+**P0 finding:** Every reproduction path (same-page mutation, cross-page nav via Link, browser back-button to a pre-mutation-cached page, dialog reopen) showed correct fresh data at HEAD `efb2e88` (post-REQ-0120). No repro. Found and fixed one adjacent real defect: `WarehouseDetailPage.tsx` `allocationRows` fallback ternary would keep showing frozen SSR `initialStockAllocations` whenever the live query resolved to `[]` (e.g. last allocation deleted) — changed to `stockAllocations ?? initialStockAllocations ?? []`.
+
+**P1–P12 findings:** Visually confirmed via live browser (zoomed screenshots) before fixing: date-field placeholder near-invisible in dark dialog (P2), supplier dropdown item text white-on-white in light popover (P3), order-line subtotal showing fee-adjusted total instead of plain line amount at qty 120 (P6), order fee tier producing total > subtotal on a $1000 test order (P7 — server totals confirmed client-only computation, no server duplicate to sync). Remaining items (P1, P4, P5, P8–P12) fixed from code-level analysis matching existing sibling patterns (Category dropdown readability, `OrderPickerCommand`'s existing `rounded-md`, other FAB dialogs' `onOpenChange`).
+
+**Build-time catch:** First `next build` after AC9/AC10 failed TypeScript check — `SemanticBadgeProps.size` is `"compact" | "detail"`, not `"sm"`; fixed across 4 files, gate re-run clean.
+
+**Gates:** lint ✓ · test 504/504 ✓ · invalidate 208/208 ✓ · build ✓ (all re-verified after the size-prop fix, HEAD `efb2e88` + uncommitted REQ-0121 changes).
+
+**Not yet committed** — 15 files changed, pending user go-ahead to commit/push.
+
+---
+
 ## Human Gate 2 checklist
 
 - [x] Deploy REQ-0010–0013 (`9a2e37c`)
@@ -478,6 +544,7 @@ Commands: lint, test, test:invalidate, build
 - [ ] Manual: dialog UX + admin portal embed tables (REQ-0117)
 - [ ] Manual: Beats order stock walkthrough after `reset-demo-db` (REQ-0103–0113; `MANUAL_TEST_FIXTURES.md` §9)
 - [ ] Manual: back-nav (history/support-ticket) + post-delete redirect (REQ-0120)
+- [ ] Commit + push REQ-0121; confirm prod SHA after deploy (REQ-0121)
 
 **Approver:** _pending_  
 **Date:** _pending_

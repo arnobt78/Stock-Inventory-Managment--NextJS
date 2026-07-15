@@ -58,6 +58,9 @@ import {
   DialogSubmitButton,
   GLASS_GHOST_BUTTON,
 } from "@/components/shared";
+import { AvatarInlineLink } from "@/components/shared/AvatarInlineLink";
+import { ClientCompactDateTime } from "@/components/shared/ClientFormatDisplay";
+import { OrderStatusBadge, PaymentStatusBadge } from "@/lib/ui/semantic-badges";
 import { cn } from "@/lib/utils";
 import { OrderPickerCommand } from "./OrderPickerCommand";
 
@@ -713,10 +716,50 @@ export default function InvoiceDialog({
                   triggerClassName={DIALOG_FORM_FIELD_INDIGO}
                 />
                 {selectedOrder && (
-                  <p className="text-xs text-white/60">
-                    Order Total: ${selectedOrder.total.toFixed(2)} | Items:{" "}
-                    {selectedOrder.items?.length || 0}
-                  </p>
+                  <div className="rounded-md border border-indigo-400/20 bg-white/5 p-3 space-y-2">
+                    <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-white/70">
+                      <OrderStatusBadge status={selectedOrder.status} size="compact" />
+                      <PaymentStatusBadge
+                        status={selectedOrder.paymentStatus}
+                        size="compact"
+                      />
+                      <ClientCompactDateTime date={selectedOrder.createdAt} />
+                      {(selectedOrder.placedByName ||
+                        selectedOrder.placedByEmail) && (
+                        <AvatarInlineLink
+                          label={
+                            selectedOrder.placedByName ||
+                            selectedOrder.placedByEmail ||
+                            ""
+                          }
+                          seed={
+                            selectedOrder.placedByUserId ??
+                            selectedOrder.userId
+                          }
+                          image={selectedOrder.placedByImage}
+                          size={16}
+                          linkClassName="text-xs font-normal text-white/70"
+                        />
+                      )}
+                    </div>
+                    <p className="text-xs text-white/60">
+                      Order Total: {fmt(selectedOrder.total)} | Items:{" "}
+                      {selectedOrder.items?.length || 0}
+                    </p>
+                    {selectedOrder.items && selectedOrder.items.length > 0 && (
+                      <ul className="space-y-0.5">
+                        {selectedOrder.items.map((item) => (
+                          <li
+                            key={item.id}
+                            className="truncate text-xs text-gray-600 dark:text-gray-400"
+                          >
+                            {item.productName}
+                            {item.sku ? ` (${item.sku})` : ""} × {item.quantity}
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+                  </div>
                 )}
               </div>
 

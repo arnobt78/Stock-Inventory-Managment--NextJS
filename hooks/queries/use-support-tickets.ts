@@ -10,6 +10,9 @@ import {
   invalidateAllRelatedQueries,
   cancelOrRemoveDetailQuery,
   withInitialData,
+  patchDetailCache,
+  patchListCaches,
+  removeFromListCaches,
 } from "@/lib/react-query";
 import { useToast } from "@/hooks/use-toast";
 import type {
@@ -63,6 +66,14 @@ export function useCreateSupportTicket() {
       return response.data;
     },
     onSuccess: (data: SupportTicket) => {
+      patchDetailCache(
+        queryClient,
+        queryKeys.supportTickets.detail(data.id),
+        data,
+      );
+      patchListCaches(queryClient, queryKeys.supportTickets.all, data, {
+        prependIfMissing: true,
+      });
       invalidateAllRelatedQueries(queryClient);
       toast({
         title: "Ticket created",
@@ -96,10 +107,12 @@ export function useUpdateSupportTicket() {
       return response.data;
     },
     onSuccess: (data: SupportTicket) => {
-      queryClient.setQueryData<SupportTicket>(
+      patchDetailCache(
+        queryClient,
         queryKeys.supportTickets.detail(data.id),
         data,
       );
+      patchListCaches(queryClient, queryKeys.supportTickets.all, data);
       invalidateAllRelatedQueries(queryClient);
       toast({
         title: "Ticket updated",
@@ -175,6 +188,7 @@ export function useDeleteSupportTicket() {
       return response.data;
     },
     onSuccess: (_data, id) => {
+      removeFromListCaches(queryClient, queryKeys.supportTickets.all, id);
       cancelOrRemoveDetailQuery(
         queryClient,
         queryKeys.supportTickets.detail(id),

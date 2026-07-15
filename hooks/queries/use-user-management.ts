@@ -9,6 +9,9 @@ import {
   invalidateAllRelatedQueries,
   cancelOrRemoveDetailQuery,
   withInitialData,
+  patchDetailCache,
+  patchListCaches,
+  removeFromListCaches,
 } from "@/lib/react-query";
 import { useToast } from "@/hooks/use-toast";
 import type {
@@ -59,10 +62,12 @@ export function useUpdateUser() {
       return response.data;
     },
     onSuccess: (data: UserForAdmin) => {
-      queryClient.setQueryData<UserForAdmin>(
+      patchDetailCache(
+        queryClient,
         queryKeys.userManagement.detail(data.id),
         data,
       );
+      patchListCaches(queryClient, queryKeys.userManagement.all, data);
       invalidateAllRelatedQueries(queryClient);
       toast({
         title: "User updated",
@@ -89,6 +94,14 @@ export function useCreateUser() {
       return response.data;
     },
     onSuccess: (data: UserForAdmin) => {
+      patchDetailCache(
+        queryClient,
+        queryKeys.userManagement.detail(data.id),
+        data,
+      );
+      patchListCaches(queryClient, queryKeys.userManagement.all, data, {
+        prependIfMissing: true,
+      });
       invalidateAllRelatedQueries(queryClient);
       toast({
         title: "User created",
@@ -115,6 +128,7 @@ export function useDeleteUser() {
       return response.data;
     },
     onSuccess: (data: UserForAdmin) => {
+      removeFromListCaches(queryClient, queryKeys.userManagement.all, data.id);
       cancelOrRemoveDetailQuery(
         queryClient,
         queryKeys.userManagement.detail(data.id),

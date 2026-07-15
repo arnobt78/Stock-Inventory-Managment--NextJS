@@ -10,6 +10,9 @@ import {
   invalidateAfterOrderGraphChange,
   cancelOrRemoveDetailQuery,
   withInitialData,
+  patchDetailCache,
+  patchListCaches,
+  patchOrderGraphListCaches,
 } from "@/lib/react-query";
 import { useToast } from "@/hooks/use-toast";
 import type { Order, CreateOrderInput, UpdateOrderInput } from "@/types";
@@ -87,6 +90,13 @@ export function useCreateOrder() {
       return response.data;
     },
     onSuccess: (data: Order) => {
+      patchDetailCache(queryClient, queryKeys.orders.detail(data.id), data);
+      patchListCaches(queryClient, queryKeys.orders.all, data, {
+        prependIfMissing: true,
+      });
+      patchListCaches(queryClient, queryKeys.clientOrders.all, data, {
+        prependIfMissing: true,
+      });
       invalidateAfterOrderGraphChange(queryClient);
 
       // Show success toast
@@ -127,7 +137,8 @@ export function useUpdateOrder() {
       return response.data;
     },
     onSuccess: (data: Order) => {
-      queryClient.setQueryData<Order>(queryKeys.orders.detail(data.id), data);
+      patchDetailCache(queryClient, queryKeys.orders.detail(data.id), data);
+      patchOrderGraphListCaches(queryClient, data);
       invalidateAfterOrderGraphChange(queryClient);
 
       // Show success toast
@@ -162,6 +173,8 @@ export function useDeleteOrder() {
       return response.data;
     },
     onSuccess: (data: Order) => {
+      patchDetailCache(queryClient, queryKeys.orders.detail(data.id), data);
+      patchOrderGraphListCaches(queryClient, data);
       cancelOrRemoveDetailQuery(queryClient, queryKeys.orders.detail(data.id));
       invalidateAfterOrderGraphChange(queryClient);
 

@@ -13,7 +13,7 @@ import { PaginationType } from "@/components/shared/PaginationSelector";
 import { createWarehouseColumns } from "./WarehouseTableColumns";
 import { useAuth } from "@/contexts";
 import { useWarehouses, useDashboard, useWarehouseStockSummary } from "@/hooks/queries";
-import { isDataSlotLoading, queryKeys, useSyncSsrQueryData } from "@/lib/react-query";
+import { isDataSlotLoading, isDataSlotUnsettled, queryKeys, useSyncSsrQueryData } from "@/lib/react-query";
 import { APP_SHELL_WIDTH_CLASS } from "@/lib/ui/shell-layout-styles";
 import WarehouseFilters from "./WarehouseFilters";
 import WarehouseDialog from "./WarehouseDialog";
@@ -145,10 +145,10 @@ export default function WarehouseList({
     initialWarehouses,
   );
   const userCardsDataLoading = isUserWarehousesPage
-    ? isDataSlotLoading(dashboardQuery, initialStats)
+    ? isDataSlotUnsettled(dashboardQuery, initialStats)
     : false;
   const adminCardsDataLoading = isAdmin
-    ? isDataSlotLoading(dashboardQuery, initialStats)
+    ? isDataSlotUnsettled(dashboardQuery, initialStats)
     : false;
 
   const handleEditWarehouse = useCallback((warehouse: Warehouse) => {

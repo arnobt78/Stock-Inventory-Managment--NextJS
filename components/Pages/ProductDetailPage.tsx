@@ -91,6 +91,7 @@ import {
 import { DetailInfoRow } from "@/components/orders/detail";
 import {
   isDataSlotLoading,
+  isDataSlotUnsettled,
   queryKeys,
   useSyncSsrQueryData,
   useSyncSsrQueryDataMany,
@@ -149,7 +150,7 @@ export default function ProductDetailPage({
     initialStockByProduct,
   );
   const warehouseAllocations = stockByProductQuery.data ?? [];
-  const warehouseStockLoading = isDataSlotLoading(
+  const warehouseStockLoading = isDataSlotUnsettled(
     stockByProductQuery,
     initialStockByProduct,
   );
@@ -185,7 +186,7 @@ export default function ProductDetailPage({
   const forecastQuery = useForecastingSummary(initialForecasting ?? undefined, {
     enabled: isAdminRole,
   });
-  const forecastLoading = isDataSlotLoading(
+  const forecastLoading = isDataSlotUnsettled(
     forecastQuery,
     initialForecasting ?? undefined,
   );
@@ -753,14 +754,14 @@ export default function ProductDetailPage({
                     loading={dataLoading}
                   >
                     {!dataLoading && (
-                      <div className="flex flex-col items-end gap-0.5">
+                      <span className="inline-flex flex-wrap items-baseline gap-x-1.5">
                         <span className="text-blue-600 dark:text-blue-400">
                           ${(stats.totalValue ?? 0).toFixed(2)}
                         </span>
                         <span className={cn("text-xs", TYPO_BODY_MUTED)}>
-                          price × on-hand qty
+                          (price × on-hand qty)
                         </span>
-                      </div>
+                      </span>
                     )}
                   </DetailInfoRow>
                 </div>
@@ -831,7 +832,7 @@ export default function ProductDetailPage({
                     ) : undefined
                   }
                 />
-                {allocationDetailSummary ? (
+                {allocationDetailSummary && warehouseAllocations.length <= 1 ? (
                   <p className="text-xs text-gray-600 dark:text-white/60">
                     {allocationDetailSummary}
                   </p>

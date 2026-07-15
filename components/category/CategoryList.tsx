@@ -7,7 +7,7 @@ import { PaginationType } from "@/components/shared/PaginationSelector";
 import { createCategoryColumns } from "./CategoryTableColumns";
 import { useAuth } from "@/contexts";
 import { useCategories, useDashboard } from "@/hooks/queries";
-import { isDataSlotLoading, queryKeys, useSyncSsrQueryData } from "@/lib/react-query";
+import { isDataSlotLoading, isDataSlotUnsettled, queryKeys, useSyncSsrQueryData } from "@/lib/react-query";
 import { APP_SHELL_WIDTH_CLASS } from "@/lib/ui/shell-layout-styles";
 import CategoryFilters from "./CategoryFilters";
 import AddCategoryDialog from "./CategoryDialog";
@@ -59,7 +59,7 @@ const CategoryList = React.memo(function CategoryList({
     ? (dashboardQuery.data ?? null)
     : null;
   const cardsDataLoading = isUserCategoriesPage
-    ? isDataSlotLoading(dashboardQuery, initialStats)
+    ? isDataSlotUnsettled(dashboardQuery, initialStats)
     : false;
   const tableDataLoading = isDataSlotLoading(
     categoriesQuery,

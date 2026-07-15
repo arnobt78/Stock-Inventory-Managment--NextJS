@@ -10,6 +10,9 @@ import {
   invalidateAllRelatedQueries,
   cancelOrRemoveDetailQuery,
   withInitialData,
+  patchDetailCache,
+  patchListCaches,
+  removeFromListCaches,
 } from "@/lib/react-query";
 import { useToast } from "@/hooks/use-toast";
 import type {
@@ -98,6 +101,14 @@ export function useCreateProductReview() {
       return response.data;
     },
     onSuccess: (data: ProductReview) => {
+      patchDetailCache(
+        queryClient,
+        queryKeys.productReviews.detail(data.id),
+        data,
+      );
+      patchListCaches(queryClient, queryKeys.productReviews.all, data, {
+        prependIfMissing: true,
+      });
       invalidateAllRelatedQueries(queryClient);
       toast({
         title: "Review created",
@@ -131,10 +142,12 @@ export function useUpdateProductReview() {
       return response.data;
     },
     onSuccess: (data: ProductReview) => {
-      queryClient.setQueryData<ProductReview>(
+      patchDetailCache(
+        queryClient,
         queryKeys.productReviews.detail(data.id),
         data,
       );
+      patchListCaches(queryClient, queryKeys.productReviews.all, data);
       invalidateAllRelatedQueries(queryClient);
       toast({
         title: "Review updated",
@@ -162,6 +175,7 @@ export function useDeleteProductReview() {
       return response.data;
     },
     onSuccess: (_data, id) => {
+      removeFromListCaches(queryClient, queryKeys.productReviews.all, id);
       cancelOrRemoveDetailQuery(
         queryClient,
         queryKeys.productReviews.detail(id),

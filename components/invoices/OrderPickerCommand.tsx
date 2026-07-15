@@ -26,6 +26,9 @@ import {
 } from "@/components/ui/popover";
 import { Check, ChevronDown } from "lucide-react";
 import { DIALOG_SELECT_CONTENT_CLASS } from "@/components/shared/dialog-edge-scroll";
+import { AvatarInlineLink } from "@/components/shared/AvatarInlineLink";
+import { ClientCompactDateTime } from "@/components/shared/ClientFormatDisplay";
+import { OrderStatusBadge } from "@/lib/ui/semantic-badges";
 import { cn } from "@/lib/utils";
 import type { Order } from "@/types";
 
@@ -108,23 +111,55 @@ export function OrderPickerCommand({
             </CommandEmpty>
             <CommandGroup>
               {orders.map((order) => {
-                const placer =
-                  order.placedByName || order.placedByEmail || null;
-                const placerLabel = showPlacer && placer ? placer : null;
+                const placer = showPlacer
+                  ? order.placedByName || order.placedByEmail || null
+                  : null;
+                const items = order.items ?? [];
+                const totalQty = items.reduce(
+                  (sum, item) => sum + item.quantity,
+                  0,
+                );
+                const productNames = items
+                  .map((item) =>
+                    item.sku ? `${item.productName} (${item.sku})` : item.productName,
+                  )
+                  .join(", ");
                 return (
                   <CommandItem
                     key={order.id}
-                    value={`${order.orderNumber} ${placer ?? ""} ${order.total} ${order.status}`}
+                    value={`${order.orderNumber} ${placer ?? ""} ${order.total} ${order.status} ${productNames}`}
                     onSelect={() => handleSelect(order.id)}
-                    className="cursor-pointer"
+                    className="cursor-pointer items-start py-2"
                   >
-                    <span className="flex min-w-0 flex-1 flex-col gap-0.5">
-                      <span className="truncate">
-                        {order.orderNumber} - {fmt(order.total)} ({order.status})
+                    <span className="flex min-w-0 flex-1 flex-col gap-1">
+                      <span className="flex flex-wrap items-center gap-x-2 gap-y-1">
+                        <span className="truncate font-medium">
+                          {order.orderNumber}
+                        </span>
+                        <OrderStatusBadge status={order.status} size="compact" />
+                        <span className="text-xs text-muted-foreground">
+                          {fmt(order.total)}
+                        </span>
                       </span>
-                      {placerLabel && (
-                        <span className="truncate text-xs text-muted-foreground">
-                          {placerLabel}
+                      <span className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted-foreground">
+                        {placer && (
+                          <AvatarInlineLink
+                            label={placer}
+                            seed={order.placedByUserId ?? order.userId}
+                            image={order.placedByImage}
+                            size={16}
+                            linkClassName="text-xs font-normal text-muted-foreground"
+                          />
+                        )}
+                        <ClientCompactDateTime date={order.createdAt} />
+                        <span>
+                          {items.length} item{items.length === 1 ? "" : "s"} ·{" "}
+                          {totalQty} unit{totalQty === 1 ? "" : "s"}
+                        </span>
+                      </span>
+                      {productNames && (
+                        <span className="truncate text-xs text-gray-600 dark:text-gray-400">
+                          {productNames}
                         </span>
                       )}
                     </span>

@@ -6,7 +6,7 @@
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { apiClient, getErrorMessage, isAxiosError } from "@/lib/api";
-import { invalidateAllRelatedQueries, cancelOrRemoveDetailQuery, invalidateAfterStockChange, queryKeys, withInitialData } from "@/lib/react-query";
+import { invalidateAllRelatedQueries, cancelOrRemoveDetailQuery, invalidateAfterStockChange, queryKeys, withInitialData, patchDetailCache, patchListCaches, patchProductInPortalCaches, removeFromListCaches, removeProductFromPortalCaches } from "@/lib/react-query";
 import { useToast } from "@/hooks/use-toast";
 import type {
   Product,
@@ -69,6 +69,17 @@ export function useCreateProduct() {
       return response.data;
     },
     onSuccess: (newProduct) => {
+      if (newProduct.id) {
+        patchDetailCache(
+          queryClient,
+          queryKeys.products.detail(newProduct.id),
+          newProduct,
+        );
+        patchListCaches(queryClient, queryKeys.products.all, newProduct, {
+          prependIfMissing: true,
+        });
+        patchProductInPortalCaches(queryClient, newProduct);
+      }
       invalidateAllRelatedQueries(queryClient);
       const name = (newProduct as { name?: string })?.name ?? "Product";
       toast({
@@ -101,14 +112,18 @@ export function useUpdateProduct() {
       return response.data;
     },
     onSuccess: (updatedProduct, variables) => {
+      if (updatedProduct.id) {
+        patchDetailCache(
+          queryClient,
+          queryKeys.products.detail(updatedProduct.id),
+          updatedProduct,
+        );
+        patchListCaches(queryClient, queryKeys.products.all, updatedProduct);
+        patchProductInPortalCaches(queryClient, updatedProduct);
+      }
       invalidateAllRelatedQueries(queryClient);
       if (variables.quantity !== undefined) {
         invalidateAfterStockChange(queryClient);
-      }
-      if (updatedProduct.id) {
-        queryClient.invalidateQueries({
-          queryKey: queryKeys.products.detail(updatedProduct.id),
-        });
       }
       const name = (updatedProduct as { name?: string })?.name ?? "Product";
       const stockReconcile = (
@@ -162,6 +177,8 @@ export function useDeleteProduct() {
     },
     onSuccess: (deletedData) => {
       const detailKey = queryKeys.products.detail(deletedData.id);
+      removeFromListCaches(queryClient, queryKeys.products.all, deletedData.id);
+      removeProductFromPortalCaches(queryClient, deletedData.id);
       // Skip removeQueries while detail page mounted — avoids GET 404 after soft-delete
       cancelOrRemoveDetailQuery(queryClient, detailKey);
       invalidateAllRelatedQueries(queryClient);

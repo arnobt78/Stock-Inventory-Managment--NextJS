@@ -75,6 +75,7 @@ import type {
 } from "@/types";
 import {
   isDataSlotLoading,
+  isDataSlotUnsettled,
   queryKeys,
   useSyncSsrQueryData,
 } from "@/lib/react-query";
@@ -112,7 +113,7 @@ export default function WarehouseDetailPage({
   const dataLoading = isDataSlotLoading(warehouseQuery, initialWarehouse);
   const stockQuery = useStockByWarehouse(warehouseId, initialStockAllocations);
   const stockAllocations = stockQuery.data;
-  const isLoadingStock = isDataSlotLoading(stockQuery, initialStockAllocations);
+  const isLoadingStock = isDataSlotUnsettled(stockQuery, initialStockAllocations);
   const deleteWarehouseMutation = useDeleteWarehouse();
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [editingWarehouse, setEditingWarehouse] =
@@ -148,17 +149,15 @@ export default function WarehouseDetailPage({
   const forecastQuery = useForecastingSummary(initialForecasting ?? undefined, {
     enabled: isAdminRole,
   });
-  const forecastLoading = isDataSlotLoading(
+  const forecastLoading = isDataSlotUnsettled(
     forecastQuery,
     initialForecasting ?? undefined,
   );
 
-  const allocationRows = useMemo(() => {
-    if (stockAllocations && stockAllocations.length > 0) {
-      return stockAllocations;
-    }
-    return initialStockAllocations ?? [];
-  }, [stockAllocations, initialStockAllocations]);
+  const allocationRows = useMemo(
+    () => stockAllocations ?? initialStockAllocations ?? [],
+    [stockAllocations, initialStockAllocations],
+  );
 
   const productIdSet = useMemo(
     () => new Set(allocationRows.map((row) => row.productId)),
@@ -202,10 +201,17 @@ export default function WarehouseDetailPage({
 
   const handleConfirmDeleteAllocation = () => {
     if (!deleteAllocationTarget) return;
-    deleteAllocationMutation.mutate(deleteAllocationTarget.id, {
+    deleteAllocationMutation.mutate(
+      {
+        id: deleteAllocationTarget.id,
+        productId: deleteAllocationTarget.productId,
+        warehouseId: deleteAllocationTarget.warehouseId,
+      },
+      {
       onSuccess: () => setDeleteAllocationTarget(null),
       onError: () => setDeleteAllocationTarget(null),
-    });
+    },
+    );
   };
 
   const handleEdit = () => {
@@ -505,10 +511,23 @@ export default function WarehouseDetailPage({
                 </DetailInfoRowGroup>
                 {stockSummary && (
                   <DetailInfoRow icon={Boxes} label="Allocations:" tone="sky">
-                    {stockSummary.totalProducts} products ·{" "}
-                    {stockSummary.totalQuantity} total ·{" "}
-                    {stockSummary.availableQuantity} available ·{" "}
-                    {stockSummary.reservedQuantity} reserved
+                    <span className="inline-flex flex-wrap items-center gap-x-1.5">
+                      <span className="text-slate-600 dark:text-slate-300">
+                        {stockSummary.totalProducts} Products
+                      </span>
+                      <span className="text-gray-400 dark:text-white/30">·</span>
+                      <span className="text-sky-600 dark:text-sky-400">
+                        {stockSummary.totalQuantity} Total
+                      </span>
+                      <span className="text-gray-400 dark:text-white/30">·</span>
+                      <span className="text-emerald-600 dark:text-emerald-400">
+                        {stockSummary.availableQuantity} Available
+                      </span>
+                      <span className="text-gray-400 dark:text-white/30">·</span>
+                      <span className="text-amber-600 dark:text-amber-400">
+                        {stockSummary.reservedQuantity} Reserved
+                      </span>
+                    </span>
                   </DetailInfoRow>
                 )}
                 {warehouse?.creator && (

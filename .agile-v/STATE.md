@@ -3,10 +3,10 @@
 | Field | Value |
 |-------|-------|
 | **Cycle** | C1 (closing) → **C2 open** |
-| **Phase** | C2 — REQ-0120 **done** |
-| **Last updated** | 2026-07-15 (REQ-0120) |
-| **Active REQ range** | REQ-0001 … REQ-0120 **done** |
-| **Prod deploy target** | `9d7ec21` (REQ-0120) — pushed `origin/main` |
+| **Phase** | C2 — REQ-0121–0124 **done, not yet pushed** |
+| **Last updated** | 2026-07-15 (REQ-0124) |
+| **Active REQ range** | REQ-0001 … REQ-0124 **done** |
+| **Prod deploy target** | `9d7ec21` (REQ-0120) — pushed `origin/main`; REQ-0121–0124 local only |
 | **Human Gate 1** | APPROVED (retroactive bootstrap) |
 | **Human Gate 2** | PENDING — Sentry 24h after prod deploy |
 | **Resume token** | `Gate-2-deploy` — prod SHA + Sentry 24h |
@@ -75,16 +75,21 @@ Catalog/export popover readability via `catalogEntityPopoverContentClass`; `DIAL
 
 Business Insights `useSyncSsrQueryDataMany` (products/orders/warehouse); Admin My Activity `AdminEmbedDataTable`; `useBackWithRefresh("history"|"support-ticket")`; post-delete `navigateTo` on catalog/warehouse detail; dead props/imports cleanup; duplicate REQ-0051 doc removed. Gates: lint ✓ test 504 ✓ invalidate 208 ✓ build ✓.
 
+## REQ-0121 — UI/data-sync bug sweep (2026-07-15)
+
+13-item manual-QA bug list closed: FAB dialog-close (product FAB `onOpenChange`), date placeholder contrast (`color-scheme:dark`), supplier dropdown readability (`text-popover-foreground`), warehouse-select rounding, popover-content `rounded-md` sweep (`filterCommandPopoverClass`/`paginationPopoverContentClass`), order-line subtotal (drop fee-adjusted display), order fee tier (free shipping < $100 subtotal so total ≤ subtotal), rich invoice order picker + selected-order summary, order/invoice table secondary meta lines, product-dialog reconcile-hint grid fix, warehouse allocation copy (capitalized/colored, dedupe stale catalog string off the stock row into the qty card), product-detail warehouse-section + inventory-value layout. P0 (stale product qty across pages) investigated via live browser repro at HEAD `efb2e88` — no repro found (REQ-0120 already fixed it); one related latent bug fixed (`WarehouseDetailPage.tsx` stale-fallback ternary on empty-array live data). Gates: lint ✓ test 504 ✓ invalidate 208 ✓ build ✓. **Not yet committed/pushed.**
+
 ## Next session
 
 | Priority | Item | REQ |
 |----------|------|-----|
-| P0 | Human Gate 2 — confirm Vercel prod SHA; Sentry 24h review | REQ-0009 |
-| P1 | Manual smoke — Beats §9 + catalog CRUD back-nav after REQ-0120 | REQ-0103–0120 |
+| P0 | Commit + push REQ-0121 (awaiting user go-ahead) | REQ-0121 |
+| P1 | Human Gate 2 — confirm Vercel prod SHA; Sentry 24h review | REQ-0009 |
+| P2 | Manual smoke — Beats §9 + catalog CRUD back-nav after REQ-0120/0121 | REQ-0103–0121 |
 
 ## Current focus
 
-1. **REQ-0001–0120** — code-complete
+1. **REQ-0001–0121** — code-complete, REQ-0121 uncommitted
 2. **Gate 2** — prod SHA confirm + Sentry 24h (blocks release sign-off)
 3. **Manual QA** — reset-demo-db + Beats §9 + back-nav after CRUD
 

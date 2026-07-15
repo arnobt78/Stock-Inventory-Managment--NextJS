@@ -71,7 +71,7 @@ import {
   ProductStockStatusBadge,
 } from "@/lib/ui/semantic-badges";
 import { StatisticsCard } from "@/components/home/StatisticsCard";
-import { isDataSlotLoading, queryKeys, useSyncSsrQueryData } from "@/lib/react-query";
+import { isDataSlotUnsettled, queryKeys, useSyncSsrQueryData } from "@/lib/react-query";
 import { cn } from "@/lib/utils";
 import { PAGE_STATS_GRID_CLASS, PAGE_SECTION_SPACING_CLASS } from "@/lib/ui/shell-layout-styles";
 import { createChartDotLabelRenderer, CHART_LABEL_TOP_MARGIN } from "@/lib/ui/chart-point-label";
@@ -137,8 +137,8 @@ export default function ClientPortalPage({
 
   const dashboard = dashboardQuery.data ?? initialDashboard;
   const catalog = catalogQuery.data ?? initialCatalog;
-  const dashboardLoading = isDataSlotLoading(dashboardQuery, initialDashboard);
-  const catalogLoading = isDataSlotLoading(catalogQuery, initialCatalog);
+  const dashboardLoading = isDataSlotUnsettled(dashboardQuery, initialDashboard);
+  const catalogLoading = isDataSlotUnsettled(catalogQuery, initialCatalog);
   const showError =
     !dashboardLoading &&
     !isCheckingAuth &&

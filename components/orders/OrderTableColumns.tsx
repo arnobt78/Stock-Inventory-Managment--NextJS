@@ -26,6 +26,12 @@ import Link from "next/link";
 import { CopyableText } from "@/components/shared";
 import OrderActions from "./OrderActions";
 
+const compactOrderMeta = (order: Order) => {
+  const items = order.items || [];
+  const totalQty = items.reduce((sum, item) => sum + item.quantity, 0);
+  return `${items.length} item${items.length === 1 ? "" : "s"} · ${totalQty} unit${totalQty === 1 ? "" : "s"} · ${format(new Date(order.createdAt), "MMM dd, yyyy")}`;
+};
+
 /**
  * Sortable Header Props
  */
@@ -153,6 +159,12 @@ export const createOrderColumns = (
               {order.productOwnerEmail ? ` (${order.productOwnerEmail})` : ""}
             </span>
           )}
+          <div className="flex items-center gap-1.5 flex-wrap">
+            <OrderStatusBadge status={order.status} size="compact" />
+            <span className="text-xs text-gray-500 dark:text-gray-400">
+              {compactOrderMeta(order)}
+            </span>
+          </div>
         </div>
       );
     },

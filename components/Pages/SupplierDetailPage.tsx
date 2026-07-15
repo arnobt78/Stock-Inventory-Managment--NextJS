@@ -70,6 +70,7 @@ import { AlertDialogWrapper } from "@/components/dialogs";
 import type { ForecastingSummary, Supplier } from "@/types";
 import {
   isDataSlotLoading,
+  isDataSlotUnsettled,
   queryKeys,
   useSyncSsrQueryData,
 } from "@/lib/react-query";
@@ -112,7 +113,7 @@ export default function SupplierDetailPage({
   const forecastQuery = useForecastingSummary(initialForecasting ?? undefined, {
     enabled: isAdminRole,
   });
-  const forecastLoading = isDataSlotLoading(
+  const forecastLoading = isDataSlotUnsettled(
     forecastQuery,
     initialForecasting ?? undefined,
   );
