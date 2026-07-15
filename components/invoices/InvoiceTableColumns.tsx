@@ -9,6 +9,7 @@ import React from "react";
 import { Column, ColumnDef } from "@tanstack/react-table";
 import { Invoice } from "@/types";
 import { InvoiceStatusBadge, AdminOrderSourceBadge } from "@/lib/ui/semantic-badges";
+import { compactInvoiceMeta } from "@/lib/invoices/compact-invoice-meta";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -116,6 +117,9 @@ export const createInvoiceColumns = (
           (invoice.issuedByName || invoice.issuedByEmail);
         return (
           <div className="flex flex-col gap-0.5">
+            <span className="text-xs text-gray-500 dark:text-gray-400">
+              Created {format(new Date(invoice.createdAt), "MMM dd, yyyy")}
+            </span>
             {/* CopyableText: click icon copies invoice # without triggering the row link */}
             <CopyableText value={invoice.invoiceNumber}>
               <Link
@@ -143,16 +147,32 @@ export const createInvoiceColumns = (
                 {invoice.issuedByEmail ? ` (${invoice.issuedByEmail})` : ""}
               </span>
             )}
-            <div className="flex items-center gap-1.5 flex-wrap">
-              <InvoiceStatusBadge status={invoice.status} size="compact" />
-              <span className="text-xs text-gray-500 dark:text-gray-400">
-                {invoice.linkedOrderNumber
-                  ? `Order: ${invoice.linkedOrderNumber} · `
-                  : ""}
-                Due {format(new Date(invoice.dueDate), "MMM dd, yyyy")}
-              </span>
-            </div>
+            <span className="text-xs text-gray-500 dark:text-gray-400">
+              {compactInvoiceMeta(invoice)}
+            </span>
           </div>
+        );
+      },
+    },
+    {
+      accessorKey: "dueDate",
+      header: ({ column }) => (
+        <SortableHeader column={column} label="Due Date" />
+      ),
+      cell: ({ getValue }) => {
+        const date = getValue<Date>();
+        const dueDate = new Date(date);
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        dueDate.setHours(0, 0, 0, 0);
+        const isOverdue = dueDate < today;
+
+        return (
+          <span
+            className={isOverdue ? "text-red-600 dark:text-red-400" : undefined}
+          >
+            {format(new Date(date), "MMM dd, yyyy")}
+          </span>
         );
       },
     },
@@ -184,42 +204,6 @@ export const createInvoiceColumns = (
             className={`font-normal ${amountDue > 0 ? "text-red-600 dark:text-red-400" : "text-green-600 dark:text-green-400"}`}
           >
             ${amountDue.toFixed(2)}
-          </span>
-        );
-      },
-    },
-    {
-      accessorKey: "dueDate",
-      header: ({ column }) => (
-        <SortableHeader column={column} label="Due Date" />
-      ),
-      cell: ({ getValue }) => {
-        const date = getValue<Date>();
-        const dueDate = new Date(date);
-        const today = new Date();
-        today.setHours(0, 0, 0, 0);
-        dueDate.setHours(0, 0, 0, 0);
-        const isOverdue = dueDate < today;
-
-        return (
-          <span
-            className={isOverdue ? "text-red-600 dark:text-red-400" : undefined}
-          >
-            {format(new Date(date), "MMM dd, yyyy")}
-          </span>
-        );
-      },
-    },
-    {
-      accessorKey: "createdAt",
-      header: ({ column }) => (
-        <SortableHeader column={column} label="Created" />
-      ),
-      cell: ({ getValue }) => {
-        const date = getValue<Date>();
-        return (
-          <span>
-            {format(new Date(date), "MMM dd, yyyy")}
           </span>
         );
       },

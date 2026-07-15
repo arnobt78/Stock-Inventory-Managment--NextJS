@@ -9,6 +9,7 @@ import type { LucideIcon } from "lucide-react";
 import { Calendar as CalendarIcon } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { DialogFormLabel } from "@/components/shared/dialog-form-label";
+import { DIALOG_DATE_CALENDAR_ICON_CLASS } from "@/components/shared/dialog-form-field";
 import { cn } from "@/lib/utils";
 
 export type DialogDateFieldProps = {
@@ -72,7 +73,10 @@ export function DialogDateField({
           type="button"
           onClick={openPicker}
           disabled={disabled}
-          className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded pointer-events-auto"
+          className={cn(
+            "absolute right-3 top-1/2 -translate-y-1/2 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded pointer-events-auto",
+            DIALOG_DATE_CALENDAR_ICON_CLASS,
+          )}
           aria-label="Open calendar"
         >
           <CalendarIcon className="h-4 w-4" />

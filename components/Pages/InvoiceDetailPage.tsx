@@ -14,11 +14,8 @@ import {
   Calendar,
   MapPin,
   CreditCard,
-  DollarSign,
   Send,
-  CheckCircle,
   AlertTriangle,
-  XCircle,
   Edit,
   Download,
   ExternalLink,
@@ -65,6 +62,7 @@ import {
   mapOrderProductOwners,
 } from "@/components/shared/PartiesRolesCard";
 import { InvoiceSummaryCard } from "@/components/invoices/detail/InvoiceSummaryCard";
+import { InvoiceDetailFactsGrid } from "@/components/invoices/detail/InvoiceDetailFactsGrid";
 import { DetailInfoRow } from "@/components/orders/detail/order-detail-primitives";
 import type { InvoiceStatus } from "@/types";
 import type { Invoice } from "@/types";
@@ -447,70 +445,17 @@ export default function InvoiceDetailPage({
                   <span className="font-mono text-xs">{invoice.id}</span>
                 </DetailInfoRow>
               )}
-              <DetailInfoRow
-                icon={DollarSign}
-                label="Amount Paid:"
-                tone="emerald"
-                loading={dataLoading}
-              >
-                {!dataLoading && invoice && `$${invoice.amountPaid.toFixed(2)}`}
-              </DetailInfoRow>
-              <DetailInfoRow
-                icon={DollarSign}
-                label="Amount Due:"
-                tone={!dataLoading && isOverdue ? "rose" : "amber"}
-                loading={dataLoading}
-              >
-                {!dataLoading && invoice && (
-                  <>
-                    ${invoice.amountDue.toFixed(2)}
-                    {isOverdue ? " (Overdue)" : ""}
-                  </>
-                )}
-              </DetailInfoRow>
-              <DetailInfoRow
-                icon={Calendar}
-                label="Issued:"
-                tone="orange"
-                loading={dataLoading}
-              >
-                {!dataLoading && <ClientDateTime date={issuedAt} />}
-              </DetailInfoRow>
-              <DetailInfoRow
-                icon={Calendar}
-                label="Due Date:"
-                tone={!dataLoading && isOverdue ? "rose" : "amber"}
-                loading={dataLoading}
-              >
-                {!dataLoading && <ClientDateTime date={dueDate} />}
-              </DetailInfoRow>
-              <DetailInfoRow
-                icon={Send}
-                label="Sent:"
-                tone="blue"
-                loading={dataLoading}
-              >
-                {!dataLoading &&
-                  (sentAt ? <ClientDateTime date={sentAt} /> : "—")}
-              </DetailInfoRow>
-              <DetailInfoRow
-                icon={CheckCircle}
-                label="Paid:"
-                tone="emerald"
-                loading={dataLoading}
-              >
-                {!dataLoading &&
-                  (paidAt ? <ClientDateTime date={paidAt} /> : "—")}
-              </DetailInfoRow>
-              <DetailInfoRow
-                icon={XCircle}
-                label="Cancelled:"
-                tone="rose"
-                loading={dataLoading}
-              >
-                {!dataLoading &&
-                  (cancelledAt ? <ClientDateTime date={cancelledAt} /> : "—")}
-              </DetailInfoRow>
+              <InvoiceDetailFactsGrid
+                dataLoading={dataLoading}
+                amountPaid={invoice?.amountPaid}
+                amountDue={invoice?.amountDue}
+                isOverdue={Boolean(isOverdue)}
+                issuedAt={issuedAt}
+                dueDate={dueDate}
+                sentAt={sentAt}
+                paidAt={paidAt}
+                cancelledAt={cancelledAt}
+              />
               {(dataLoading || updatedAt) && (
                 <DetailInfoRow
                   icon={Calendar}
@@ -693,52 +638,50 @@ export default function InvoiceDetailPage({
             invoice?.client != null ||
             (invoice?.invoiceProductOwners &&
               invoice.invoiceProductOwners.length > 0)) && (
-            <GlassCard padding="body" variant="teal">
-              <PartiesRolesCard
-                dataLoading={dataLoading}
-                headerIcon={FileText}
-                invoiceCreatedBy={invoice?.invoiceCreatedBy ?? null}
-                orderedBy={invoice?.orderedBy ?? null}
-                customer={invoice?.client ?? null}
-                customerLabel="Customer / Bill to"
-                productOwners={mapOrderProductOwners(
-                  invoice?.invoiceProductOwners ?? [],
-                )}
-              />
-            </GlassCard>
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-2 sm:gap-4">
+              <GlassCard padding="body" variant="teal">
+                <PartiesRolesCard
+                  dataLoading={dataLoading}
+                  headerIcon={FileText}
+                  invoiceCreatedBy={invoice?.invoiceCreatedBy ?? null}
+                  orderedBy={invoice?.orderedBy ?? null}
+                  customer={invoice?.client ?? null}
+                  customerLabel="Customer / Bill to"
+                  productOwners={mapOrderProductOwners(
+                    invoice?.invoiceProductOwners ?? [],
+                  )}
+                />
+              </GlassCard>
+              <InvoiceSummaryCard invoice={invoice} dataLoading={dataLoading} />
+            </div>
           )}
 
-          {/* Billing Address & Totals */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-2 sm:gap-4">
-            {/* Billing Address — shell visible while loading */}
-            {(dataLoading || invoice?.billingAddress) && (
-              <GlassCard padding="body" variant="sky">
-                <div className="flex items-center gap-2 mb-3">
-                  <div
-                    className={cn(
-                      "p-2 rounded-xl border",
-                      variantConfig.sky.iconBg,
-                      "dark:border-sky-400/30 dark:bg-sky-500/20",
-                    )}
-                  >
-                    <MapPin className="h-5 w-5 text-sky-600 dark:text-sky-400" />
-                  </div>
-                  <h3 className="text-sm sm:text-base font-medium text-gray-700 dark:text-white">
-                    Billing Address
-                  </h3>
-                </div>
-                <p className="text-sm text-gray-700 dark:text-white p-2 rounded-xl bg-gradient-to-r from-sky-100/40 via-sky-50/20 to-transparent dark:from-sky-500/10 dark:via-sky-500/5 dark:to-transparent border border-sky-200/30 dark:border-sky-400/10">
-                  {dataLoading ? (
-                    <DataSlotPulse variant="text-md" className="w-full" />
-                  ) : (
-                    formatAddress(invoice!.billingAddress)
+          {/* Billing Address */}
+          {(dataLoading || invoice?.billingAddress) && (
+            <GlassCard padding="body" variant="sky">
+              <div className="flex items-center gap-2 mb-3">
+                <div
+                  className={cn(
+                    "p-2 rounded-xl border",
+                    variantConfig.sky.iconBg,
+                    "dark:border-sky-400/30 dark:bg-sky-500/20",
                   )}
-                </p>
-              </GlassCard>
-            )}
-
-            <InvoiceSummaryCard invoice={invoice} dataLoading={dataLoading} />
-          </div>
+                >
+                  <MapPin className="h-5 w-5 text-sky-600 dark:text-sky-400" />
+                </div>
+                <h3 className="text-sm sm:text-base font-medium text-gray-700 dark:text-white">
+                  Billing Address
+                </h3>
+              </div>
+              <p className="text-sm text-gray-700 dark:text-white p-2 rounded-xl bg-gradient-to-r from-sky-100/40 via-sky-50/20 to-transparent dark:from-sky-500/10 dark:via-sky-500/5 dark:to-transparent border border-sky-200/30 dark:border-sky-400/10">
+                {dataLoading ? (
+                  <DataSlotPulse variant="text-md" className="w-full" />
+                ) : (
+                  formatAddress(invoice!.billingAddress)
+                )}
+              </p>
+            </GlassCard>
+          )}
 
           {/* Actions — Back, Edit Invoice, Send Invoice, Delete Invoice; same layout as order detail */}
           <div className="flex flex-col sm:flex-row flex-wrap gap-2">
@@ -779,6 +722,7 @@ export default function InvoiceDetailPage({
                   isPending={isSending}
                   pendingLabel="Sending…"
                   label="Send Invoice"
+                  icon={Send}
                   hue="sky"
                   className="group w-full sm:w-auto gap-2"
                 />
@@ -820,6 +764,13 @@ export default function InvoiceDetailPage({
                   id={invoice.id}
                   referenceNumber={invoice.invoiceNumber}
                   amount={invoice.amountDue}
+                  subtotal={invoice.subtotal}
+                  items={(invoice.linkedOrderItems ?? []).map((item) => ({
+                    name: item.productName,
+                    quantity: item.quantity,
+                    price: item.subtotal,
+                    imageUrl: item.imageUrl,
+                  }))}
                   tax={invoice.tax ?? undefined}
                   shipping={invoice.shipping ?? undefined}
                   discount={invoice.discount ?? undefined}

@@ -1,7 +1,7 @@
 "use client";
 
 /**
- * REQ-0068/0111/0113 — warehouse picker in order line grid (presentation-only).
+ * REQ-0068/0111/0113/0126 — warehouse picker in order line grid (presentation-only).
  * Parent hook owns fetch + validation; receives allocationRows from useOrderLineStockValidation.
  */
 
@@ -25,6 +25,7 @@ import { cn } from "@/lib/utils";
 import {
   AUTO_WAREHOUSE_VALUE,
   buildOrderLineWarehousePickOptions,
+  formatWarehouseAvailLabel,
   type OrderLineAllocationRow,
 } from "@/lib/orders/order-line-stock-validation";
 
@@ -63,6 +64,15 @@ export function OrderLineWarehouseSelect({
 
   const selectValue =
     isManualPick && value ? value : AUTO_WAREHOUSE_VALUE;
+
+  const selectedOption = useMemo(
+    () => options.find((o) => o.warehouseId === value),
+    [options, value],
+  );
+
+  const triggerLabel = isManualPick && selectedOption
+    ? formatWarehouseAvailLabel(selectedOption.name, selectedOption.available)
+    : "Auto-assign warehouses";
 
   const handleValueChange = (next: string) => {
     if (next === AUTO_WAREHOUSE_VALUE) {
@@ -137,7 +147,9 @@ export function OrderLineWarehouseSelect({
             <SelectTrigger
               className={cn(DIALOG_FORM_FIELD_VIOLET, "h-11 text-sm gap-2")}
             >
-              <SelectValue placeholder="Auto-assign warehouses" />
+              <SelectValue placeholder="Auto-assign warehouses">
+                {triggerLabel}
+              </SelectValue>
             </SelectTrigger>
             <SelectContent>
               <SelectItem value={AUTO_WAREHOUSE_VALUE}>
@@ -149,9 +161,8 @@ export function OrderLineWarehouseSelect({
                   value={o.warehouseId}
                   className="flex justify-between gap-4"
                 >
-                  <span className="truncate">{o.name}</span>
-                  <span className="shrink-0 text-white/60">
-                    ({o.available} available)
+                  <span className="truncate">
+                    {formatWarehouseAvailLabel(o.name, o.available)}
                   </span>
                 </SelectItem>
               ))}

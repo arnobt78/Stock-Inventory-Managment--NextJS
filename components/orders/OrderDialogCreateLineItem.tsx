@@ -127,7 +127,12 @@ export function OrderDialogCreateLineItem({
   });
 
   const stockError =
-    validation && quantity > 0 && !validation.ok ? validation.message : null;
+    validation &&
+    quantity > 0 &&
+    !validation.ok &&
+    validation.mode !== "manual"
+      ? validation.message
+      : null;
 
   const manualPickError =
     validation?.mode === "manual" && !validation.ok

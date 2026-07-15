@@ -26,9 +26,10 @@ import {
 } from "@/components/ui/popover";
 import { Check, ChevronDown } from "lucide-react";
 import { DIALOG_SELECT_CONTENT_CLASS } from "@/components/shared/dialog-edge-scroll";
+import { READABLE_POPOVER_CONTENT_CLASS } from "@/lib/ui/popover-readability-styles";
 import { AvatarInlineLink } from "@/components/shared/AvatarInlineLink";
 import { ClientCompactDateTime } from "@/components/shared/ClientFormatDisplay";
-import { OrderStatusBadge } from "@/lib/ui/semantic-badges";
+import { OrderStatusBadge, PaymentStatusBadge } from "@/lib/ui/semantic-badges";
 import { cn } from "@/lib/utils";
 import type { Order } from "@/types";
 
@@ -97,6 +98,7 @@ export function OrderPickerCommand({
         align="start"
         className={cn(
           "p-0 w-[var(--radix-popover-trigger-width)] rounded-md",
+          READABLE_POPOVER_CONTENT_CLASS,
           DIALOG_SELECT_CONTENT_CLASS,
         )}
       >
@@ -136,10 +138,23 @@ export function OrderPickerCommand({
                         <span className="truncate font-medium">
                           {order.orderNumber}
                         </span>
-                        <OrderStatusBadge status={order.status} size="compact" />
-                        <span className="text-xs text-muted-foreground">
+                        <OrderStatusBadge status={order.status} size="detail" />
+                        <PaymentStatusBadge
+                          status={order.paymentStatus}
+                          size="detail"
+                        />
+                      </span>
+                      <span className="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-muted-foreground">
+                        <span className="font-medium text-foreground">
                           {fmt(order.total)}
                         </span>
+                        <span>
+                          {items.length} item{items.length === 1 ? "" : "s"} ·{" "}
+                          {totalQty} unit{totalQty === 1 ? "" : "s"}
+                        </span>
+                        {productNames && (
+                          <span className="truncate">{productNames}</span>
+                        )}
                       </span>
                       <span className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted-foreground">
                         {placer && (
@@ -152,16 +167,7 @@ export function OrderPickerCommand({
                           />
                         )}
                         <ClientCompactDateTime date={order.createdAt} />
-                        <span>
-                          {items.length} item{items.length === 1 ? "" : "s"} ·{" "}
-                          {totalQty} unit{totalQty === 1 ? "" : "s"}
-                        </span>
                       </span>
-                      {productNames && (
-                        <span className="truncate text-xs text-gray-600 dark:text-gray-400">
-                          {productNames}
-                        </span>
-                      )}
                     </span>
                     {order.id === selectedOrderId && (
                       <Check className="h-4 w-4 shrink-0 text-indigo-500 dark:text-indigo-400" />

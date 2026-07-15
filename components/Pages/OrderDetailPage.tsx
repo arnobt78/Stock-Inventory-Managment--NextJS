@@ -545,10 +545,12 @@ export default function OrderDetailPage({
                         id={order.id}
                         referenceNumber={order.orderNumber}
                         amount={order.total}
+                        subtotal={order.subtotal}
                         items={order.items.map((item) => ({
                           name: item.productName,
                           quantity: item.quantity,
                           price: item.subtotal,
+                          imageUrl: item.imageUrl,
                         }))}
                         tax={order.tax ?? undefined}
                         shipping={order.shipping ?? undefined}

@@ -22,30 +22,62 @@ export type InvoiceSummaryCardProps = {
   dataLoading: boolean;
 };
 
-function SummaryRow({
+/** Shared summary row — exported for PaymentDialog (REQ-0126). */
+export function InvoiceSummaryRow({
   icon: Icon,
   label,
   value,
   valueClassName,
   loading,
+  variant = "teal",
 }: {
   icon: React.ComponentType<{ className?: string }>;
   label: string;
   value: React.ReactNode;
   valueClassName?: string;
   loading?: boolean;
+  variant?: "teal" | "glass";
 }) {
+  const rowClass =
+    variant === "glass"
+      ? "flex justify-between items-center text-sm p-2 rounded-lg bg-white/5"
+      : "flex justify-between items-center text-sm p-2 rounded-lg bg-gradient-to-r from-teal-100/40 via-teal-50/20 to-transparent dark:from-teal-500/10 dark:via-teal-500/5 dark:to-transparent";
+
   return (
-    <div className="flex justify-between items-center text-sm p-2 rounded-lg bg-gradient-to-r from-teal-100/40 via-teal-50/20 to-transparent dark:from-teal-500/10 dark:via-teal-500/5 dark:to-transparent">
-      <span className="text-gray-600 dark:text-gray-400 inline-flex items-center gap-1.5">
+    <div className={rowClass}>
+      <span
+        className={cn(
+          "inline-flex items-center gap-1.5",
+          variant === "glass"
+            ? "text-white/80"
+            : "text-gray-600 dark:text-gray-400",
+        )}
+      >
         <Icon className="h-3.5 w-3.5 shrink-0" />
         {label}
       </span>
-      <span className={cn("font-medium text-gray-700 dark:text-white", valueClassName)}>
+      <span
+        className={cn(
+          "font-medium",
+          variant === "glass"
+            ? "text-white"
+            : "text-gray-700 dark:text-white",
+          valueClassName,
+        )}
+      >
         {loading ? <DataSlotPulse variant="currency" /> : value}
       </span>
     </div>
   );
+}
+
+function SummaryRow(
+  props: Omit<
+    React.ComponentProps<typeof InvoiceSummaryRow>,
+    "variant"
+  >,
+) {
+  return <InvoiceSummaryRow {...props} />;
 }
 
 export function InvoiceSummaryCard({

@@ -131,6 +131,6 @@ export function glassDetailBackButtonClass(extra?: string): string {
   );
 }
 
-/** Icon-only back control in PageSectionHeader leading slot (REQ-0072). */
+/** Icon-only back control in PageSectionHeader leading slot (REQ-0072 / REQ-0126 sky glass). */
 export const DETAIL_HEADER_BACK_ICON_CLASS =
-  "h-10 w-10 shrink-0 self-center rounded-xl border border-gray-300/30 bg-white/50 dark:bg-white/5 dark:border-white/10 hover:bg-gray-100/50 dark:hover:bg-white/10";
+  "h-10 w-10 shrink-0 self-center rounded-xl border border-sky-400/30 bg-gradient-to-r from-sky-500/70 via-sky-500/50 to-sky-500/30 dark:from-sky-500/70 dark:via-sky-500/50 dark:to-sky-500/30 text-white shadow-[0_10px_30px_rgba(2,132,199,0.25)] hover:from-sky-500/80 hover:via-sky-500/60 hover:to-sky-500/40";

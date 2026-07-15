@@ -60,9 +60,17 @@ import {
 } from "@/components/shared";
 import { AvatarInlineLink } from "@/components/shared/AvatarInlineLink";
 import { ClientCompactDateTime } from "@/components/shared/ClientFormatDisplay";
-import { OrderStatusBadge, PaymentStatusBadge } from "@/lib/ui/semantic-badges";
+import { OrderStatusBadge, PaymentStatusBadge, InvoiceStatusBadge } from "@/lib/ui/semantic-badges";
+import { ProductThumb } from "@/components/products/ProductOptionRow";
 import { cn } from "@/lib/utils";
 import { OrderPickerCommand } from "./OrderPickerCommand";
+
+/** ISO date string for native date inputs (REQ-0126). */
+function toDateInputValue(value?: Date | string | null): string {
+  if (!value) return "";
+  const d = new Date(value);
+  return Number.isNaN(d.getTime()) ? "" : (d.toISOString().split("T")[0] ?? "");
+}
 
 interface InvoiceDialogProps {
   children?: React.ReactNode;
@@ -517,11 +525,11 @@ export default function InvoiceDialog({
           <FormProvider {...editFormMethods}>
             <form onSubmit={editFormMethods.handleSubmit(handleUpdateInvoice)}>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mt-4">
-                {/* Invoice Status */}
+                {/* Invoice Status — REQ-0126 DialogFormLabel + badge select items */}
                 <div className="flex flex-col gap-2">
-                  <label className="text-sm font-medium text-white/80">
+                  <DialogFormLabel htmlFor="invoice-status">
                     Invoice Status
-                  </label>
+                  </DialogFormLabel>
                   <DeferredSelectGate
                     enabled={open}
                     placeholder={
@@ -547,8 +555,19 @@ export default function InvoiceDialog({
                           )
                         }
                       >
-                        <SelectTrigger className={cn("h-11 w-full", DIALOG_FORM_FIELD_INDIGO)}>
-                          <SelectValue placeholder="Select Status" />
+                        <SelectTrigger
+                          id="invoice-status"
+                          className={cn("h-11 w-full", DIALOG_FORM_FIELD_INDIGO)}
+                        >
+                          <SelectValue placeholder="Select Status">
+                            <InvoiceStatusBadge
+                              status={
+                                (editWatch("status") ||
+                                  editingInvoice.status) as InvoiceStatus
+                              }
+                              size="detail"
+                            />
+                          </SelectValue>
                         </SelectTrigger>
                         <SelectContent
                           className={cn(DIALOG_SELECT_CONTENT_CLASS, "z-[100]")}
@@ -556,26 +575,41 @@ export default function InvoiceDialog({
                           sideOffset={5}
                           align="start"
                         >
-                          <SelectItem value="draft" className={DIALOG_SELECT_ITEM_CLASS}>Draft</SelectItem>
-                          <SelectItem value="sent" className={DIALOG_SELECT_ITEM_CLASS}>Sent</SelectItem>
-                          <SelectItem value="paid" className={DIALOG_SELECT_ITEM_CLASS}>Paid</SelectItem>
-                          <SelectItem value="overdue" className={DIALOG_SELECT_ITEM_CLASS}>Overdue</SelectItem>
-                          <SelectItem value="cancelled" className={DIALOG_SELECT_ITEM_CLASS}>Cancelled</SelectItem>
+                          <SelectItem value="draft" className={DIALOG_SELECT_ITEM_CLASS}>
+                            <InvoiceStatusBadge status="draft" size="detail" />
+                          </SelectItem>
+                          <SelectItem value="sent" className={DIALOG_SELECT_ITEM_CLASS}>
+                            <InvoiceStatusBadge status="sent" size="detail" />
+                          </SelectItem>
+                          <SelectItem value="paid" className={DIALOG_SELECT_ITEM_CLASS}>
+                            <InvoiceStatusBadge status="paid" size="detail" />
+                          </SelectItem>
+                          <SelectItem value="overdue" className={DIALOG_SELECT_ITEM_CLASS}>
+                            <InvoiceStatusBadge status="overdue" size="detail" />
+                          </SelectItem>
+                          <SelectItem value="cancelled" className={DIALOG_SELECT_ITEM_CLASS}>
+                            <InvoiceStatusBadge status="cancelled" size="detail" />
+                          </SelectItem>
                         </SelectContent>
                       </Select>
                     )}
                   </DeferredSelectGate>
                 </div>
 
-                {/* Amount Paid */}
-                <FormNumberField
-                  name="amountPaid"
-                  label="Amount Paid"
-                  placeholder="0.00"
-                  allowNegative={false}
-                  labelClassName="text-white/80"
-                  inputClassName={cn("h-11", DIALOG_FORM_FIELD_INDIGO)}
-                />
+                {/* Amount Paid — aligned label with status */}
+                <div className="flex flex-col gap-2">
+                  <DialogFormLabel htmlFor="amount-paid">
+                    Amount Paid
+                  </DialogFormLabel>
+                  <FormNumberField
+                    name="amountPaid"
+                    label="Amount Paid"
+                    placeholder="0.00"
+                    allowNegative={false}
+                    labelClassName="sr-only"
+                    inputClassName={cn("h-11", DIALOG_FORM_FIELD_INDIGO)}
+                  />
+                </div>
 
                 {/* Order Pricing Summary (read-only — values come from the order) */}
                 <div className="sm:col-span-2 p-4 border border-indigo-400/20 rounded-lg bg-white/5 space-y-2">
@@ -609,12 +643,20 @@ export default function InvoiceDialog({
                   </div>
                 </div>
 
-                {/* Due Date */}
-                <FormField
-                  name="dueDate"
+                {/* Due Date — REQ-0126 DialogDateField */}
+                <DialogDateField
+                  id="edit-due-date"
                   label="Due Date"
-                  type="date"
-                  labelClassName="text-white/80"
+                  labelIcon={null}
+                  value={String(
+                    editWatch("dueDate") ??
+                      toDateInputValue(editingInvoice.dueDate),
+                  )}
+                  onChange={(v) =>
+                    editFormMethods.setValue("dueDate", v, {
+                      shouldValidate: true,
+                    })
+                  }
                   inputClassName={DIALOG_FORM_FIELD_INDIGO}
                 />
 
@@ -622,33 +664,60 @@ export default function InvoiceDialog({
                 {editWatch("status") === "sent" ||
                 editWatch("status") === "paid" ||
                 editWatch("status") === "overdue" ? (
-                  <FormField
-                    name="sentAt"
+                  <DialogDateField
+                    id="edit-sent-at"
                     label="Sent At"
-                    type="date"
-                    labelClassName="text-white/80"
+                    optional
+                    labelIcon={null}
+                    value={String(
+                      editWatch("sentAt") ??
+                        toDateInputValue(editingInvoice.sentAt),
+                    )}
+                    onChange={(v) =>
+                      editFormMethods.setValue("sentAt", v, {
+                        shouldValidate: true,
+                      })
+                    }
                     inputClassName={DIALOG_FORM_FIELD_INDIGO}
                   />
                 ) : null}
 
                 {/* Paid At */}
                 {editWatch("status") === "paid" ? (
-                  <FormField
-                    name="paidAt"
+                  <DialogDateField
+                    id="edit-paid-at"
                     label="Paid At"
-                    type="date"
-                    labelClassName="text-white/80"
+                    optional
+                    labelIcon={null}
+                    value={String(
+                      editWatch("paidAt") ??
+                        toDateInputValue(editingInvoice.paidAt),
+                    )}
+                    onChange={(v) =>
+                      editFormMethods.setValue("paidAt", v, {
+                        shouldValidate: true,
+                      })
+                    }
                     inputClassName={DIALOG_FORM_FIELD_INDIGO}
                   />
                 ) : null}
 
                 {/* Cancelled At */}
                 {editWatch("status") === "cancelled" ? (
-                  <FormField
-                    name="cancelledAt"
+                  <DialogDateField
+                    id="edit-cancelled-at"
                     label="Cancelled At"
-                    type="date"
-                    labelClassName="text-white/80"
+                    optional
+                    labelIcon={null}
+                    value={String(
+                      editWatch("cancelledAt") ??
+                        toDateInputValue(editingInvoice.cancelledAt),
+                    )}
+                    onChange={(v) =>
+                      editFormMethods.setValue("cancelledAt", v, {
+                        shouldValidate: true,
+                      })
+                    }
                     inputClassName={DIALOG_FORM_FIELD_INDIGO}
                   />
                 ) : null}
@@ -718,10 +787,13 @@ export default function InvoiceDialog({
                 {selectedOrder && (
                   <div className="rounded-md border border-indigo-400/20 bg-white/5 p-3 space-y-2">
                     <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-white/70">
-                      <OrderStatusBadge status={selectedOrder.status} size="compact" />
+                      <OrderStatusBadge
+                        status={selectedOrder.status}
+                        size="detail"
+                      />
                       <PaymentStatusBadge
                         status={selectedOrder.paymentStatus}
-                        size="compact"
+                        size="detail"
                       />
                       <ClientCompactDateTime date={selectedOrder.createdAt} />
                       {(selectedOrder.placedByName ||
@@ -747,14 +819,25 @@ export default function InvoiceDialog({
                       {selectedOrder.items?.length || 0}
                     </p>
                     {selectedOrder.items && selectedOrder.items.length > 0 && (
-                      <ul className="space-y-0.5">
+                      <ul className="space-y-1.5">
                         {selectedOrder.items.map((item) => (
                           <li
                             key={item.id}
-                            className="truncate text-xs text-gray-600 dark:text-gray-400"
+                            className="flex items-center gap-2 text-xs text-gray-600 dark:text-gray-400 min-w-0"
                           >
-                            {item.productName}
-                            {item.sku ? ` (${item.sku})` : ""} × {item.quantity}
+                            <ProductThumb
+                              name={item.productName}
+                              imageUrl={item.imageUrl}
+                              size="sm"
+                            />
+                            <span className="truncate min-w-0 flex-1">
+                              {item.productName}
+                              {item.sku ? ` (${item.sku})` : ""} ×{" "}
+                              {item.quantity}
+                            </span>
+                            <span className="shrink-0 text-white/70">
+                              {fmt(item.subtotal)}
+                            </span>
                           </li>
                         ))}
                       </ul>

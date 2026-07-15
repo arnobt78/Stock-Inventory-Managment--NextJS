@@ -14,6 +14,14 @@ import type { StockAllocation } from "@/types";
 /** Sentinel for auto-assign warehouse mode (Radix Select requires non-empty value). */
 export const AUTO_WAREHOUSE_VALUE = "__auto__";
 
+/** REQ-0126 — warehouse picker label: "Main Warehouse · 20 avail." */
+export function formatWarehouseAvailLabel(
+  name: string,
+  available: number,
+): string {
+  return `${name} · ${available} avail.`;
+}
+
 export type OrderLineAllocationRow = {
   warehouseId: string;
   quantity: number;

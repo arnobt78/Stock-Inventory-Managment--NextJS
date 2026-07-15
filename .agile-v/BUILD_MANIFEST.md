@@ -329,3 +329,4 @@
 | TC-0045 | REQ-0123 | Order/invoice graph list patch + portal browse nested patch |
 | TC-0046 | REQ-0124 | Support/reviews/users list patch + soft-delete portal remove |
 | TC-0047 | REQ-0125 | Dashboard list stats SSR + split loading + invoice optimistic patch |
+| TC-0048 | REQ-0126 | Order/invoice UI sweep — table meta, dialog dates, payment checkout (UI-only) |

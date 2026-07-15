@@ -160,13 +160,20 @@ export const createOrderColumns = (
             </span>
           )}
           <div className="flex items-center gap-1.5 flex-wrap">
-            <OrderStatusBadge status={order.status} size="compact" />
             <span className="text-xs text-gray-500 dark:text-gray-400">
               {compactOrderMeta(order)}
             </span>
           </div>
         </div>
       );
+    },
+  },
+  {
+    accessorKey: "total",
+    header: ({ column }) => <SortableHeader column={column} label="Total" />,
+    cell: ({ getValue }) => {
+      const total = getValue<number>();
+      return <span>${total.toFixed(2)}</span>;
     },
   },
   {
@@ -183,39 +190,6 @@ export const createOrderColumns = (
     cell: ({ row }) => {
       const paymentStatus = row.original.paymentStatus;
       return <PaymentStatusBadge status={paymentStatus} />;
-    },
-  },
-  {
-    accessorKey: "total",
-    header: ({ column }) => <SortableHeader column={column} label="Total" />,
-    cell: ({ getValue }) => {
-      const total = getValue<number>();
-      return <span>${total.toFixed(2)}</span>;
-    },
-  },
-  {
-    accessorKey: "items",
-    header: "Items",
-    cell: ({ row }) => {
-      const items = row.original.items || [];
-      const totalItems = items.reduce((sum, item) => sum + item.quantity, 0);
-      return (
-        <span>
-          {totalItems} item{totalItems !== 1 ? "s" : ""}
-        </span>
-      );
-    },
-  },
-  {
-    accessorKey: "createdAt",
-    header: ({ column }) => <SortableHeader column={column} label="Date" />,
-    cell: ({ getValue }) => {
-      const date = getValue<Date>();
-      return (
-        <span>
-          {format(new Date(date), "MMM dd, yyyy")}
-        </span>
-      );
     },
   },
   {

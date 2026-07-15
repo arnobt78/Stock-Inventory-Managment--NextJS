@@ -44,3 +44,7 @@ export const DIALOG_FORM_FIELD_CYAN = glassFormFieldClasses("cyan", cyanShell);
 
 /** Admin create-user — blue accent */
 export const DIALOG_FORM_FIELD_BLUE = glassFormFieldClasses("blue", blueShell);
+
+/** REQ-0126 — trailing calendar icon in dialog date fields (match Select chevron contrast). */
+export const DIALOG_DATE_CALENDAR_ICON_CLASS =
+  "text-white/80 hover:text-white transition-colors";

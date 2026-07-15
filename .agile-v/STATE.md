@@ -3,10 +3,10 @@
 | Field | Value |
 |-------|-------|
 | **Cycle** | C1 (closing) → **C2 open** |
-| **Phase** | C2 — REQ-0121–0125 **done, not yet pushed** |
-| **Last updated** | 2026-07-15 (REQ-0125) |
-| **Active REQ range** | REQ-0001 … REQ-0125 **done** |
-| **Prod deploy target** | `9d7ec21` (REQ-0120) — pushed `origin/main`; REQ-0121–0125 local only |
+| **Phase** | C2 — REQ-0121–0126 **done, not yet pushed** |
+| **Last updated** | 2026-07-15 (REQ-0126) |
+| **Active REQ range** | REQ-0001 … REQ-0126 **done** |
+| **Prod deploy target** | `9d7ec21` (REQ-0120) — pushed `origin/main`; REQ-0121–0126 local only |
 | **Human Gate 1** | APPROVED (retroactive bootstrap) |
 | **Human Gate 2** | PENDING — Sentry 24h after prod deploy |
 | **Resume token** | `Gate-2-deploy` — prod SHA + Sentry 24h |

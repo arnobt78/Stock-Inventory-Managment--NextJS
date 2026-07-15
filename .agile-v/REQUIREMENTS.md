@@ -2817,6 +2817,32 @@ Canonical REQ source. All artifacts link via `REQ-XXXX`. Status: `done` | `verif
 
 ---
 
+## REQ-0126 — Order/invoice UI bug sweep (12 points)
+
+| Field | Value |
+|-------|-------|
+| **Priority** | P2 |
+| **Risk** | R1 |
+| **Status** | done |
+| **Cycle** | C2 |
+| **Parent** | REQ-0125 |
+
+**Intent:** Fix 12 order/invoice UI bugs from prod smoke screenshots — CSS/layout only using shared components (PartiesRolesCard, DialogDateField, table meta helpers, semantic badges, PaymentDialog checkout).
+
+**Acceptance criteria**
+
+- AC1: Shared helpers — `formatWarehouseAvailLabel`, date calendar icon token, PartiesRolesCard stack + sky email, sky detail header back
+- AC2: Order dialog/table/detail — duplicate stock error fix; warehouse `· N avail.`; table column reorder; payment badge newline
+- AC3: Date sweep — OrderDialog + InvoiceDialog edit dates via `DialogDateField`
+- AC4: Invoice picker/dialog — readable badges; richer picker rows; edit status badge select + aligned labels
+- AC5: Invoice table/detail — `compactInvoiceMeta`; Created above #; Due Date column; parties + summary side-by-side; facts grid; Send icon
+- AC6: PaymentDialog — subtotal row; fee icons; ProductThumb line items; wired from order/invoice detail
+- AC7: Gates pass — lint, test, invalidate (208), build
+
+**Artifacts:** `order-line-stock-validation.ts`, `OrderTableColumns.tsx`, `InvoiceTableColumns.tsx`, `InvoiceDialog.tsx`, `OrderPickerCommand.tsx`, `InvoiceDetailPage.tsx`, `PaymentDialog.tsx`, `InvoiceDetailFactsGrid.tsx`, `compact-invoice-meta.ts`
+
+---
+
 ## REQ-0020 — Locale-aware admin format (hydration-safe)
 
 | Field        | Value |

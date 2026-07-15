@@ -53,6 +53,7 @@ import {
   DIALOG_FORM_FIELD_VIOLET,
   DIALOG_SELECT_CONTENT_CLASS,
   DIALOG_SELECT_ITEM_CLASS,
+  DialogDateField,
   DialogFormLabel,
   DialogHeaderBrand,
   DialogSubmitButton,
@@ -91,6 +92,13 @@ import {
 import { useAuth } from "@/contexts";
 import { useToast } from "@/hooks/use-toast";
 import { useQueryClient } from "@tanstack/react-query";
+
+/** ISO date string for native date inputs (REQ-0126). */
+function toDateInputValue(value?: Date | string | null): string {
+  if (!value) return "";
+  const d = new Date(value);
+  return Number.isNaN(d.getTime()) ? "" : (d.toISOString().split("T")[0] ?? "");
+}
 
 interface OrderDialogProps {
   children?: React.ReactNode;
@@ -876,77 +884,73 @@ export default function OrderDialog({
                   inputClassName={DIALOG_FORM_FIELD_VIOLET}
                 />
 
-                {/* Estimated Delivery */}
-                <FormField
-                  name="estimatedDelivery"
+                {/* Estimated Delivery — REQ-0126 DialogDateField */}
+                <DialogDateField
+                  id="estimated-delivery"
                   label="Estimated Delivery"
-                  type="date"
-                  labelClassName="text-white/80"
+                  optional
+                  labelIcon={null}
+                  value={toDateInputValue(editWatch("estimatedDelivery"))}
+                  onChange={(v) =>
+                    editFormMethods.setValue(
+                      "estimatedDelivery",
+                      v || undefined,
+                      { shouldValidate: true },
+                    )
+                  }
                   inputClassName={DIALOG_FORM_FIELD_VIOLET}
                 />
 
                 {/* Shipped At */}
                 {currentStatus === "shipped" ||
                 currentStatus === "delivered" ? (
-                  <div className="flex flex-col gap-2">
-                    <label className="text-sm font-medium text-white/80">
-                      Shipped At
-                    </label>
-                    <input
-                      {...editFormMethods.register("shippedAt")}
-                      type="date"
-                      className={cn("h-11 w-full rounded-md px-2 py-2", DIALOG_FORM_FIELD_VIOLET)}
-                      defaultValue={
-                        editingOrder.shippedAt
-                          ? new Date(editingOrder.shippedAt)
-                              .toISOString()
-                              .split("T")[0]
-                          : ""
-                      }
-                    />
-                  </div>
+                  <DialogDateField
+                    id="shipped-at"
+                    label="Shipped At"
+                    optional
+                    labelIcon={null}
+                    value={toDateInputValue(editWatch("shippedAt"))}
+                    onChange={(v) =>
+                      editFormMethods.setValue("shippedAt", v || undefined, {
+                        shouldValidate: true,
+                      })
+                    }
+                    inputClassName={DIALOG_FORM_FIELD_VIOLET}
+                  />
                 ) : null}
 
                 {/* Delivered At */}
                 {currentStatus === "delivered" ? (
-                  <div className="flex flex-col gap-2">
-                    <label className="text-sm font-medium text-white/80">
-                      Delivered At
-                    </label>
-                    <input
-                      {...editFormMethods.register("deliveredAt")}
-                      type="date"
-                      className={cn("h-11 w-full rounded-md px-2 py-2", DIALOG_FORM_FIELD_VIOLET)}
-                      defaultValue={
-                        editingOrder.deliveredAt
-                          ? new Date(editingOrder.deliveredAt)
-                              .toISOString()
-                              .split("T")[0]
-                          : ""
-                      }
-                    />
-                  </div>
+                  <DialogDateField
+                    id="delivered-at"
+                    label="Delivered At"
+                    optional
+                    labelIcon={null}
+                    value={toDateInputValue(editWatch("deliveredAt"))}
+                    onChange={(v) =>
+                      editFormMethods.setValue("deliveredAt", v || undefined, {
+                        shouldValidate: true,
+                      })
+                    }
+                    inputClassName={DIALOG_FORM_FIELD_VIOLET}
+                  />
                 ) : null}
 
                 {/* Cancelled At */}
                 {currentStatus === "cancelled" ? (
-                  <div className="flex flex-col gap-2">
-                    <label className="text-sm font-medium text-white/80">
-                      Cancelled At
-                    </label>
-                    <input
-                      {...editFormMethods.register("cancelledAt")}
-                      type="date"
-                      className={cn("h-11 w-full rounded-md px-2 py-2", DIALOG_FORM_FIELD_VIOLET)}
-                      defaultValue={
-                        editingOrder.cancelledAt
-                          ? new Date(editingOrder.cancelledAt)
-                              .toISOString()
-                              .split("T")[0]
-                          : ""
-                      }
-                    />
-                  </div>
+                  <DialogDateField
+                    id="cancelled-at"
+                    label="Cancelled At"
+                    optional
+                    labelIcon={null}
+                    value={toDateInputValue(editWatch("cancelledAt"))}
+                    onChange={(v) =>
+                      editFormMethods.setValue("cancelledAt", v || undefined, {
+                        shouldValidate: true,
+                      })
+                    }
+                    inputClassName={DIALOG_FORM_FIELD_VIOLET}
+                  />
                 ) : null}
 
                 {/* Notes */}

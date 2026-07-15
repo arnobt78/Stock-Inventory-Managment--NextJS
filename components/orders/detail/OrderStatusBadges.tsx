@@ -47,7 +47,9 @@ export function OrderStatusBadges({
         {dataLoading ? (
           <DataSlotPulse variant="badge" className="h-7 w-20 rounded-full" />
         ) : (
-          <PaymentStatusBadge status={paymentStatus!} className="text-sm" />
+          <div className="flex flex-wrap items-center gap-2">
+            <PaymentStatusBadge status={paymentStatus!} className="text-sm" />
+          </div>
         )}
       </GlassCard>
     </div>

@@ -773,6 +773,18 @@ Hub: `lib/ui/typography-scale.ts`. Hubs import tokens; ~45 inline files use equi
 
 **Rule:** Patched rows show correct data immediately; pulse only unpatchable aggregates.
 
+## Order/invoice UI sweep (REQ-0126)
+
+| Piece | Location |
+|-------|----------|
+| Warehouse avail | `formatWarehouseAvailLabel` → `OrderLineWarehouseSelect` trigger + items |
+| Date fields | `DialogDateField` + `DIALOG_DATE_CALENDAR_ICON_CLASS` — OrderDialog edit, InvoiceDialog edit |
+| Table meta | `compactInvoiceMeta` — invoice list; order table drops duplicate status/Items/Date |
+| Detail layout | `InvoiceDetailFactsGrid`; parties + summary `lg:grid-cols-2`; sky header back |
+| Payment checkout | `PaymentDialog` — subtotal, fee icons, `ProductThumb` line items |
+
+**No TanStack/SSR/invalidation changes** — CSS/UI/layout only.
+
 ## Post-mutation cache (REQ-0052 + REQ-0055)
 
 | Piece | Location |

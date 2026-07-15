@@ -16,7 +16,15 @@ import {
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { useCreateCheckout } from "@/hooks/queries";
-import { CreditCard, X } from "lucide-react";
+import {
+  CreditCard,
+  X,
+  Receipt,
+  Percent,
+  Truck,
+  Tag,
+  CircleDollarSign,
+} from "lucide-react";
 import TestCredentialsCard from "./TestCredentialsCard";
 import type { CheckoutType } from "@/types";
 import { cn } from "@/lib/utils";
@@ -27,16 +35,21 @@ import {
   DialogSubmitButton,
   GLASS_GHOST_BUTTON,
 } from "@/components/shared";
+import { ProductThumb } from "@/components/products/ProductOptionRow";
+import { InvoiceSummaryRow } from "@/components/invoices/detail/InvoiceSummaryCard";
 
 interface PaymentDialogProps {
   type: CheckoutType;
   id: string;
   referenceNumber: string;
   amount: number;
+  /** Line subtotal before tax/shipping/discount (REQ-0126) */
+  subtotal?: number | null;
   items?: Array<{
     name: string;
     quantity?: number;
     price: number;
+    imageUrl?: string | null;
   }>;
   /** Optional: show above Total when present */
   tax?: number | null;
@@ -53,6 +66,7 @@ export default function PaymentDialog({
   id,
   referenceNumber,
   amount,
+  subtotal,
   items,
   tax,
   shipping,
@@ -68,6 +82,14 @@ export default function PaymentDialog({
   };
 
   const isLoading = checkoutMutation.isPending;
+  const displaySubtotal =
+    subtotal ??
+    (items?.reduce((sum, item) => sum + item.price, 0) || amount);
+
+  const hasFeeRows =
+    (tax != null && tax > 0) ||
+    (shipping != null && shipping > 0) ||
+    (discount != null && discount > 0);
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -110,7 +132,13 @@ export default function PaymentDialog({
                       key={idx}
                       className="flex items-center justify-between text-sm gap-2"
                     >
-                      <span className="flex items-center gap-2 min-w-0">
+                      <span className="flex items-center gap-2 min-w-0 flex-1">
+                        <ProductThumb
+                          name={item.name}
+                          imageUrl={item.imageUrl}
+                          size="sm"
+                          className="border-sky-400/30"
+                        />
                         {item.quantity != null && (
                           <span className="px-1 py-0.5 rounded bg-primary/10 text-white text-xs font-medium shrink-0">
                             {item.quantity}
@@ -131,50 +159,56 @@ export default function PaymentDialog({
                 </div>
               ) : (
                 <div className="text-sm">
-                  {/* REQ-0064: copyable reference number (matches order/invoice number pattern) */}
                   <CopyableText value={referenceNumber} className="text-white">
                     {type === "order" ? "Order" : "Invoice"} #{referenceNumber}
                   </CopyableText>
                 </div>
               )}
 
-              {(tax != null && tax > 0) ||
-              (shipping != null && shipping > 0) ||
-              (discount != null && discount > 0) ? (
-                <>
-                  <Separator className="my-3" />
-                  <div className=".5 text-sm">
-                    {tax != null && tax > 0 && (
-                      <div className="flex items-center justify-between text-white">
-                        <span>Tax</span>
-                        <span>${tax.toFixed(2)}</span>
-                      </div>
-                    )}
-                    {shipping != null && shipping > 0 && (
-                      <div className="flex items-center justify-between text-white">
-                        <span>Shipping</span>
-                        <span>${shipping.toFixed(2)}</span>
-                      </div>
-                    )}
-                    {discount != null && discount > 0 && (
-                      <div className="flex items-center justify-between text-white">
-                        <span>Discount</span>
-                        <span className="text-emerald-400">
-                          -${discount.toFixed(2)}
-                        </span>
-                      </div>
-                    )}
-                  </div>
-                </>
-              ) : null}
+              <Separator className="my-3 bg-sky-400/20" />
 
-              <Separator className="my-3" />
+              <div className="space-y-1">
+                <InvoiceSummaryRow
+                  icon={Receipt}
+                  label="Subtotal:"
+                  value={`$${displaySubtotal.toFixed(2)}`}
+                  variant="glass"
+                />
+                {tax != null && tax > 0 && (
+                  <InvoiceSummaryRow
+                    icon={Percent}
+                    label="Tax:"
+                    value={`$${tax.toFixed(2)}`}
+                    variant="glass"
+                  />
+                )}
+                {shipping != null && shipping > 0 && (
+                  <InvoiceSummaryRow
+                    icon={Truck}
+                    label="Shipping:"
+                    value={`$${shipping.toFixed(2)}`}
+                    variant="glass"
+                  />
+                )}
+                {discount != null && discount > 0 && (
+                  <InvoiceSummaryRow
+                    icon={Tag}
+                    label="Discount:"
+                    value={`-$${discount.toFixed(2)}`}
+                    valueClassName="text-emerald-400"
+                    variant="glass"
+                  />
+                )}
+              </div>
 
-              <div className="flex items-center justify-between pt-1">
-                <span className="font-medium text-white">Total</span>
-                <span className="text-sm sm:text-lg font-medium text-white">
-                  ${amount.toFixed(2)}
+              {hasFeeRows && <Separator className="my-2 bg-sky-400/20" />}
+
+              <div className="flex items-center justify-between pt-1 text-sm sm:text-lg font-medium">
+                <span className="text-white inline-flex items-center gap-1.5">
+                  <CircleDollarSign className="h-4 w-4 shrink-0" />
+                  Total
                 </span>
+                <span className="text-white">${amount.toFixed(2)}</span>
               </div>
             </div>
 

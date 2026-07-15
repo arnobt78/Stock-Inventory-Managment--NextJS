@@ -326,3 +326,5 @@ Format: `TIMESTAMP | AGENT | DECISION | RATIONALE | REQ-ID`
 2026-07-15T14:46:00Z | red-team | REQ-0124 gates | lint ✓ test ✓ invalidate ✓ build ✓ | REQ-0124
 2026-07-15T15:00:00Z | build-agent | REQ-0125 gap closure | patchDetailCacheMerge; invoice optimistic DRY; admin list dashboard stats + split loading | REQ-0125
 2026-07-15T15:01:00Z | red-team | REQ-0125 gates | lint ✓ test ✓ invalidate ✓ build ✓ | REQ-0125
+2026-07-15T16:40:00Z | build-agent | REQ-0126 UI sweep | 12 order/invoice UI fixes — shared helpers, table columns, dialog dates, payment checkout; no TanStack/SSR changes | REQ-0126
+2026-07-15T16:40:00Z | red-team | REQ-0126 gates | lint ✓ test 519 ✓ invalidate 208 ✓ build ✓ | REQ-0126

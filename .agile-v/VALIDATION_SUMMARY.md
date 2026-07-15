@@ -561,6 +561,22 @@ Commands: lint, test, test:invalidate, build
 - [ ] Manual: Beats order stock walkthrough after `reset-demo-db` (REQ-0103–0113; `MANUAL_TEST_FIXTURES.md` §9)
 - [ ] Manual: back-nav (history/support-ticket) + post-delete redirect (REQ-0120)
 - [ ] Commit + push REQ-0121; confirm prod SHA after deploy (REQ-0121)
+- [ ] Manual: order/invoice UI sweep smoke on prod (REQ-0126)
 
 **Approver:** _pending_  
 **Date:** _pending_
+
+---
+
+## REQ-0126 — Order/invoice UI bug sweep (2026-07-15)
+
+**Scope:** CSS/UI/layout only — no TanStack, Redis, SSR, or invalidation changes.
+
+**Gates:** lint ✓ · test 519/519 ✓ · invalidate 208/208 ✓ · build ✓
+
+**Evidence summary**
+
+```
+Scope: built/verified | Traceability: REQ-0126 | Findings: PASS
+Commands: lint, test, test:invalidate, build
+```

@@ -2,7 +2,7 @@
 
 /**
  * REQ-0074 — shared Parties & roles card with avatar rings and per-party glow cards.
- * REQ-0077 — PartyPersonDisplay uses AvatarInlineLink for consistency.
+ * REQ-0126 — vertical stack per party; sky CopyableText email on line 2.
  */
 
 import React from "react";
@@ -14,7 +14,7 @@ import {
   MapPin,
   Users,
 } from "lucide-react";
-import { AvatarInlineLink, DataSlotPulse } from "@/components/shared";
+import { AvatarInlineLink, CopyableText, DataSlotPulse } from "@/components/shared";
 import { cn } from "@/lib/utils";
 
 export type PartyPerson = {
@@ -52,21 +52,23 @@ function PartyPersonDisplay({
   const displayName = person.name ?? person.email;
 
   return (
-    <div className="flex items-center gap-2 min-w-0 flex-wrap">
+    <div className="flex flex-col gap-1 min-w-0">
       <AvatarInlineLink
         seed={seed}
         image={person.image}
         label={displayName}
         href={person.href}
         size={28}
-        linkClassName="text-gray-700 dark:text-white hover:text-sky-600 dark:hover:text-sky-400"
+        linkClassName="text-gray-700 dark:text-white hover:text-sky-600 dark:hover:text-sky-400 font-normal"
       />
-      {person.name && (
-        <span className="text-sm text-gray-500 dark:text-gray-400 truncate">
-          <span className="text-gray-400 dark:text-gray-500 mx-1">·</span>
+      {person.name ? (
+        <CopyableText
+          value={person.email}
+          className="text-sm text-sky-600 dark:text-sky-400 font-normal pl-0.5"
+        >
           {person.email}
-        </span>
-      )}
+        </CopyableText>
+      ) : null}
     </div>
   );
 }
@@ -129,7 +131,7 @@ export function PartiesRolesCard({
           Parties &amp; roles
         </h3>
       </div>
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm">
+      <div className="flex flex-col gap-2 text-sm">
         {showInvoiceCreated && (
           <PartyFieldCard label="Invoice created by" icon={FileText}>
             <PartyPersonDisplay person={invoiceCreatedBy} loading={dataLoading} />
@@ -146,11 +148,7 @@ export function PartiesRolesCard({
           </PartyFieldCard>
         )}
         {showOwners && (
-          <PartyFieldCard
-            label="Product owner(s)"
-            icon={Users}
-            className="sm:col-span-2"
-          >
+          <PartyFieldCard label="Product owner(s)" icon={Users}>
             {dataLoading ? (
               <DataSlotPulse variant="text-md" className="w-48" />
             ) : (
