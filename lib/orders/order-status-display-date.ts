@@ -2,7 +2,7 @@
  * REQ-0127 — pick the most relevant timestamp for recent-order status display.
  */
 
-type OrderStatusDateInput = {
+export type OrderStatusDateInput = {
   status?: string | null;
   paymentStatus?: string | null;
   paidAt?: Date | string | null;
@@ -38,8 +38,16 @@ export function resolveOrderStatusAt(
     return toIso(order.shippedAt);
   }
   if (status === "paid" || paymentStatus === "paid" || paymentStatus === "partial") {
-    return toIso(order.paidAt);
+    return toIso(order.paidAt) ?? toIso(order.updatedAt);
   }
 
   return undefined;
+}
+
+/** Attach computed statusAt ISO string for recent-order list rows. */
+export function withOrderStatusAt<T extends OrderStatusDateInput>(
+  row: T,
+): T & { statusAt?: string } {
+  const statusAt = resolveOrderStatusAt(row);
+  return statusAt ? { ...row, statusAt } : row;
 }

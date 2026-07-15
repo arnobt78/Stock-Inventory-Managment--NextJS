@@ -8,8 +8,6 @@ import {
   AlertCircle,
   AlertTriangle,
   Ban,
-  Building,
-  Building2,
   CheckCircle,
   CircleDollarSign,
   Clock,
@@ -41,6 +39,9 @@ import {
   GLASS_BADGE_CLASS,
   OPAQUE_BADGE_CLASS,
 } from "@/lib/ui/glass-badge-styles";
+import {
+  getWarehouseTypeTone,
+} from "@/lib/ui/warehouse-type-styles";
 import { cn } from "@/lib/utils";
 
 /** Human-readable label: snake_case / lowercase → Title case */
@@ -92,15 +93,6 @@ const PRODUCT_STOCK_STATUS: Record<string, BadgeTone> = {
 const ACTIVE_INACTIVE: Record<string, BadgeTone> = {
   active: { className: GLASS_BADGE_CLASS.emerald, icon: CheckCircle },
   inactive: { className: GLASS_BADGE_CLASS.slate, icon: Ban },
-};
-
-const WAREHOUSE_TYPE: Record<string, BadgeTone> = {
-  main: { className: OPAQUE_BADGE_CLASS.blue, icon: Building },
-  secondary: { className: OPAQUE_BADGE_CLASS.teal, icon: Building2 },
-  storage: { className: OPAQUE_BADGE_CLASS.amber, icon: Building2 },
-  distribution: { className: OPAQUE_BADGE_CLASS.violet, icon: Truck },
-  retail: { className: OPAQUE_BADGE_CLASS.sky, icon: Building },
-  other: { className: OPAQUE_BADGE_CLASS.gray, icon: Building },
 };
 
 const TICKET_PRIORITY: Record<string, BadgeTone> = {
@@ -388,7 +380,7 @@ export function WarehouseTypeBadge({
   className?: string;
   size?: "compact" | "detail";
 }) {
-  const tone = resolveTone(WAREHOUSE_TYPE, type);
+  const tone = getWarehouseTypeTone(type);
   return (
     <SemanticBadgeBase
       tone={tone}

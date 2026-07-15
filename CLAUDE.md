@@ -800,6 +800,17 @@ Hub: `lib/ui/typography-scale.ts`. Hubs import tokens; ~45 inline files use equi
 
 **No TanStack/invalidation changes** — CSS/UI + read-only SSR enrichment only.
 
+## REQ-0127 gap closure (REQ-0128)
+
+| Piece | Location |
+|-------|----------|
+| Dead code | Removed `getProductById` from `prisma/product.ts` |
+| Status date SSR | `orderStatusAtSelect` + `withOrderStatusAt` — portal + dashboard SSR |
+| Shared column | `RecentOrderStatusColumn` — catalog detail + 5 portal/analytics UIs |
+| Warehouse icons | `warehouse-type-styles.ts` — `getWarehouseTypeIcon`; ProductDetailPage stock rows |
+
+**No TanStack/invalidation changes** — read-only SSR + UI DRY only.
+
 ## Post-mutation cache (REQ-0052 + REQ-0055)
 
 | Piece | Location |

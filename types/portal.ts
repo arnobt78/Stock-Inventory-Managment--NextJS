@@ -83,6 +83,8 @@ export interface SupplierPortalDashboard {
     total: number;
     createdAt: string;
     productCount: number;
+    /** REQ-0128 — terminal status date for recent-order cards */
+    statusAt?: string;
   }>;
   lowStockProducts: Array<{
     id: string;
@@ -154,6 +156,8 @@ export interface ClientPortalDashboard {
     total: number;
     createdAt: string;
     itemCount: number;
+    /** REQ-0128 — terminal status date for recent-order cards */
+    statusAt?: string;
   }>;
   recentInvoices: Array<{
     id: string;

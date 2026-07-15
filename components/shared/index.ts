@@ -132,6 +132,8 @@ export type {
 } from "./AuditUserDetailRow";
 export { PersonInlineRow } from "./PersonInlineRow";
 export type { PersonInlineRowProps } from "./PersonInlineRow";
+export { RecentOrderStatusColumn } from "./RecentOrderStatusColumn";
+export type { RecentOrderStatusColumnProps } from "./RecentOrderStatusColumn";
 export {
   GlassCard,
   GlassCardBody,

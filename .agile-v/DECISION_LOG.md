@@ -330,3 +330,5 @@ Format: `TIMESTAMP | AGENT | DECISION | RATIONALE | REQ-ID`
 2026-07-15T16:40:00Z | red-team | REQ-0126 gates | lint ✓ test 519 ✓ invalidate 208 ✓ build ✓ | REQ-0126
 2026-07-15T17:25:00Z | build-agent | REQ-0127 detail parity | PersonInlineRow + table/forecast/recent-order/warehouse stock UI; read-only SSR statusAt + supplier email + warehouse address/type | REQ-0127
 2026-07-15T17:25:00Z | red-team | REQ-0127 gates | lint ✓ test 522 ✓ invalidate 208 ✓ build ✓ | REQ-0127
+2026-07-15T17:32:00Z | build-agent | REQ-0128 gap closure | dead getProductById; portal statusAt SSR; RecentOrderStatusColumn; warehouse type icons | REQ-0128
+2026-07-15T17:32:00Z | red-team | REQ-0128 gates | lint ✓ test 527 ✓ invalidate 208 ✓ build ✓ | REQ-0128

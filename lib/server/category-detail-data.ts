@@ -127,7 +127,6 @@ function transformCategoryDetail(
           ? resolveOrderStatusAt({
               status: order.status,
               paymentStatus: order.paymentStatus,
-              paidAt: order.paidAt,
               cancelledAt: order.cancelledAt,
               deliveredAt: order.deliveredAt,
               shippedAt: order.shippedAt,

@@ -1,12 +1,12 @@
 import { describe, expect, it } from "vitest";
-import { resolveOrderStatusAt } from "./order-status-display-date";
+import { resolveOrderStatusAt, withOrderStatusAt } from "./order-status-display-date";
 
 describe("resolveOrderStatusAt", () => {
-  it("returns paidAt for paid orders", () => {
+  it("returns updatedAt for paid paymentStatus when paidAt absent", () => {
     expect(
       resolveOrderStatusAt({
-        status: "paid",
-        paidAt: "2026-07-15T12:00:00.000Z",
+        paymentStatus: "paid",
+        updatedAt: "2026-07-15T12:00:00.000Z",
       }),
     ).toBe("2026-07-15T12:00:00.000Z");
   });
@@ -22,5 +22,27 @@ describe("resolveOrderStatusAt", () => {
 
   it("returns undefined for pending without terminal dates", () => {
     expect(resolveOrderStatusAt({ status: "pending" })).toBeUndefined();
+  });
+
+  it("withOrderStatusAt attaches statusAt when resolved", () => {
+    expect(
+      withOrderStatusAt({
+        id: "o1",
+        status: "delivered",
+        deliveredAt: "2026-07-13T10:00:00.000Z",
+      }),
+    ).toEqual({
+      id: "o1",
+      status: "delivered",
+      deliveredAt: "2026-07-13T10:00:00.000Z",
+      statusAt: "2026-07-13T10:00:00.000Z",
+    });
+  });
+
+  it("withOrderStatusAt omits statusAt key when unresolved", () => {
+    expect(withOrderStatusAt({ id: "o2", status: "pending" })).toEqual({
+      id: "o2",
+      status: "pending",
+    });
   });
 });

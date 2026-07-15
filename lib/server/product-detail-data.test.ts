@@ -22,10 +22,6 @@ vi.mock("@/lib/products/product-query", () => ({
   mergeProductListWhere: vi.fn((where: object) => where),
 }));
 
-vi.mock("@/prisma/product", () => ({
-  getProductById: vi.fn(),
-}));
-
 vi.mock("@/prisma/supplier", () => ({
   getSupplierByUserId: vi.fn(),
 }));

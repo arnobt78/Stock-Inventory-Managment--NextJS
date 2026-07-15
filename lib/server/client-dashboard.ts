@@ -4,6 +4,7 @@
 
 import { prisma } from "@/prisma/client";
 import type { ClientPortalDashboard } from "@/types";
+import { withOrderStatusAt } from "@/lib/orders/order-status-display-date";
 
 /**
  * Get client portal dashboard for a client user
@@ -105,14 +106,21 @@ export async function getClientDashboard(
     .reduce((sum, inv) => sum + inv.amountDue, 0);
 
   // Recent orders (last 10)
-  const recentOrders = orders.slice(0, 10).map((o) => ({
-    id: o.id,
-    orderNumber: o.orderNumber,
-    status: o.status,
-    total: o.total,
-    createdAt: o.createdAt.toISOString(),
-    itemCount: o.items.length,
-  }));
+  const recentOrders = orders.slice(0, 10).map((o) =>
+    withOrderStatusAt({
+      id: o.id,
+      orderNumber: o.orderNumber,
+      status: o.status,
+      total: o.total,
+      createdAt: o.createdAt.toISOString(),
+      itemCount: o.items.length,
+      paymentStatus: o.paymentStatus,
+      cancelledAt: o.cancelledAt,
+      deliveredAt: o.deliveredAt,
+      shippedAt: o.shippedAt,
+      updatedAt: o.updatedAt,
+    }),
+  );
 
   // Recent invoices (last 10)
   const recentInvoices = invoices.slice(0, 10).map((inv) => ({

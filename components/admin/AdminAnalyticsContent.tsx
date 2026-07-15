@@ -48,12 +48,11 @@ import {
 } from "recharts";
 import { ResponsiveChartContainer } from "@/components/ui/responsive-chart-container";
 import { DeferredChartSection } from "@/components/ui/deferred-chart-section";
-import { ClientCompactDateTime, CopyableText } from "@/components/shared";
+import { ClientCompactDateTime, CopyableText, RecentOrderStatusColumn } from "@/components/shared";
 import { formatStableCurrency, formatClientCurrency } from "@/lib/format";
 import type { DashboardStats } from "@/types";
 import ForecastingSection from "@/components/admin/ForecastingSection";
 import {
-  OrderStatusBadge,
   TicketStatusBadge,
   ReviewStatusBadge,
   ImportStatusBadge,
@@ -1285,12 +1284,15 @@ export default function AdminAnalyticsContent({
                             <ClientCompactDateTime date={o.createdAt} />
                           </p>
                         </div>
-                        <div className="flex items-center gap-2 shrink-0">
-                          <OrderStatusBadge status={o.status} />
-                          <span className="text-xs text-gray-700 dark:text-white">
-                            {formatStableCurrency(o.total)}
-                          </span>
-                        </div>
+                        <RecentOrderStatusColumn
+                          status={o.status}
+                          statusAt={o.statusAt}
+                          trailing={
+                            <span className="text-xs text-gray-700 dark:text-white">
+                              {formatStableCurrency(o.total)}
+                            </span>
+                          }
+                        />
                       </li>
                     ))}
                   </ul>

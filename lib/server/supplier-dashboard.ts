@@ -8,6 +8,8 @@ import {
   batchSumAllocationReserved,
   computeCommittedQuantity,
 } from "@/lib/products/enrich-product-committed-quantity";
+import { withOrderStatusAt } from "@/lib/orders/order-status-display-date";
+import { orderStatusAtSelect } from "@/lib/server/catalog-detail-order-select";
 import type { SupplierPortalDashboard } from "@/types";
 
 /**
@@ -57,12 +59,11 @@ export async function getSupplierDashboard(
         select: {
           id: true,
           orderNumber: true,
-          status: true,
-          paymentStatus: true,
           subtotal: true,
           total: true,
           createdAt: true,
           items: { select: { id: true } },
+          ...orderStatusAtSelect,
         },
       },
     },
@@ -82,6 +83,10 @@ export async function getSupplierDashboard(
       createdAt: Date;
       productCount: number;
       supplierSubtotal: number;
+      cancelledAt: Date | null;
+      deliveredAt: Date | null;
+      shippedAt: Date | null;
+      updatedAt: Date | null;
     }
   >();
 
@@ -98,6 +103,10 @@ export async function getSupplierDashboard(
         createdAt: order.createdAt,
         productCount: order.items.length,
         supplierSubtotal: item.subtotal,
+        cancelledAt: order.cancelledAt,
+        deliveredAt: order.deliveredAt,
+        shippedAt: order.shippedAt,
+        updatedAt: order.updatedAt,
       });
     } else {
       const existing = ordersMap.get(order.id)!;
@@ -211,14 +220,19 @@ export async function getSupplierDashboard(
     .map((o) => {
       const revenueShare =
         o.subtotal > 0 ? (o.supplierSubtotal / o.subtotal) * o.total : 0;
-      return {
+      return withOrderStatusAt({
         id: o.id,
         orderNumber: o.orderNumber,
         status: o.status,
         total: revenueShare,
         createdAt: o.createdAt.toISOString(),
         productCount: o.productCount,
-      };
+        paymentStatus: o.paymentStatus,
+        cancelledAt: o.cancelledAt,
+        deliveredAt: o.deliveredAt,
+        shippedAt: o.shippedAt,
+        updatedAt: o.updatedAt,
+      });
     });
 
   const STOCK_LOW_MAX = 20;

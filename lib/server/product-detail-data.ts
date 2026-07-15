@@ -175,7 +175,6 @@ function transformProductDetail(
         statusAt: resolveOrderStatusAt({
           status: item.order.status,
           paymentStatus: item.order.paymentStatus,
-          paidAt: item.order.paidAt,
           cancelledAt: item.order.cancelledAt,
           deliveredAt: item.order.deliveredAt,
           shippedAt: item.order.shippedAt,

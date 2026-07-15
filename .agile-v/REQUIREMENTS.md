@@ -2870,6 +2870,30 @@ Canonical REQ source. All artifacts link via `REQ-XXXX`. Status: `done` | `verif
 
 ---
 
+## REQ-0128 — REQ-0127 gap closure (dead code + statusAt parity + warehouse icons)
+
+| Field | Value |
+|-------|-------|
+| **Priority** | P2 |
+| **Risk** | R1 |
+| **Status** | done |
+| **Cycle** | C2 |
+| **Parent** | REQ-0127 |
+
+**Intent:** Close REQ-0127 audit gaps — remove dead `getProductById`, extend `statusAt` to portal/dashboard recent orders, DRY `RecentOrderStatusColumn`, dynamic warehouse type icons. Read-only SSR + UI only.
+
+**Acceptance criteria**
+
+- AC1: Delete unused `getProductById`; clean stale test mock
+- AC2: `orderStatusAtSelect` + `withOrderStatusAt`; portal/dashboard SSR + types
+- AC3: `RecentOrderStatusColumn` wired to catalog detail + 5 portal/analytics UIs
+- AC4: `warehouse-type-styles.ts` — `getWarehouseTypeIcon`; ProductDetailPage + `WarehouseTypeBadge` DRY
+- AC5: Gates pass — lint, test, invalidate (208), build
+
+**Artifacts:** `RecentOrderStatusColumn.tsx`, `warehouse-type-styles.ts`, `catalog-detail-order-select.ts`, portal/dashboard SSR files
+
+---
+
 ## REQ-0020 — Locale-aware admin format (hydration-safe)
 
 | Field        | Value |

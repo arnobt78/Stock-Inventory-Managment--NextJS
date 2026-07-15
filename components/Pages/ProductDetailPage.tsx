@@ -107,6 +107,7 @@ import type { ReviewEligibilityResult } from "@/lib/server/product-reviews-detai
 import { cn } from "@/lib/utils";
 import { TYPO_BODY_MUTED } from "@/lib/ui/typography-scale";
 import { APP_SHELL_DETAIL_CLASS, DETAIL_PAGE_HEADER_SPACING_CLASS } from "@/lib/ui/shell-layout-styles";
+import { getWarehouseTypeIcon } from "@/lib/ui/warehouse-type-styles";
 import { CARD_EMPTY_MESSAGE_CLASS } from "@/lib/ui/card-empty-styles";
 import { SafeImage } from "@/components/ui/safe-image";
 import ProductFormDialog from "@/components/products/ProductFormDialog";
@@ -881,6 +882,7 @@ export default function ProductDetailPage({
                       const whHref = embedInAdmin
                         ? `/admin/warehouses/${row.warehouseId}`
                         : `/warehouses/${row.warehouseId}`;
+                      const WhIcon = getWarehouseTypeIcon(row.warehouse?.type);
                       return (
                         <div
                           key={row.id}
@@ -888,7 +890,7 @@ export default function ProductDetailPage({
                         >
                           <div className="flex items-start gap-3 min-w-0 flex-1">
                             <div className="p-2 rounded-xl border border-teal-400/30 bg-teal-500/20 shrink-0">
-                              <Building2
+                              <WhIcon
                                 className="h-5 w-5 text-teal-600 dark:text-teal-400"
                                 aria-hidden
                               />

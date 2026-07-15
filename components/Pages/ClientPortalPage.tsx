@@ -57,6 +57,7 @@ import {
   GLASS_BUTTON_ICON_HOVER,
   GLASS_BUTTON_SHELL_RESET,
   ClientCompactDateTime,
+  RecentOrderStatusColumn,
   SectionTitleRow,
 } from "@/components/shared";
 import {
@@ -67,7 +68,6 @@ import {
 import {
   ActiveInactiveBadge,
   InvoiceStatusBadge,
-  OrderStatusBadge,
   ProductStockStatusBadge,
 } from "@/lib/ui/semantic-badges";
 import { StatisticsCard } from "@/components/home/StatisticsCard";
@@ -788,12 +788,15 @@ export default function ClientPortalPage({
                             <ClientCompactDateTime date={order.createdAt} />
                           </span>
                         </div>
-                        <div className="flex items-center gap-2 flex-shrink-0 overflow-visible py-1">
-                          <OrderStatusBadge status={order.status} />
-                          <span className="text-xs font-normal text-gray-700 dark:text-white">
-                            ${order.total.toFixed(2)}
-                          </span>
-                        </div>
+                        <RecentOrderStatusColumn
+                          status={order.status}
+                          statusAt={order.statusAt}
+                          trailing={
+                            <span className="text-xs font-normal text-gray-700 dark:text-white">
+                              ${order.total.toFixed(2)}
+                            </span>
+                          }
+                        />
                       </li>
                     ))}
                   </ul>

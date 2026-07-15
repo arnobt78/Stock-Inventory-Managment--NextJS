@@ -7,6 +7,8 @@
 import { getCache, setCache, cacheKeys } from "@/lib/cache";
 import { prisma } from "@/prisma/client";
 import { mergeProductListWhere } from "@/lib/products/product-query";
+import { orderStatusAtSelect } from "@/lib/server/catalog-detail-order-select";
+import { withOrderStatusAt } from "@/lib/orders/order-status-display-date";
 import { getSuppliersForAdminIncludingDemo } from "@/prisma/supplier";
 import type {
   SupplierPortalStats,
@@ -89,9 +91,9 @@ export async function getSupplierPortalForAdmin(
         select: {
           id: true,
           orderNumber: true,
-          status: true,
           total: true,
           createdAt: true,
+          ...orderStatusAtSelect,
         },
         orderBy: { createdAt: "desc" },
       })
@@ -141,7 +143,7 @@ export async function getSupplierPortalForAdmin(
     .slice(0, 10)
     .map((o) => {
       const supplierId = orderSupplierMap.get(o.id) ?? "";
-      return {
+      return withOrderStatusAt({
         id: o.id,
         orderNumber: o.orderNumber,
         status: o.status,
@@ -149,7 +151,12 @@ export async function getSupplierPortalForAdmin(
         supplierId,
         supplierName: supplierMap.get(supplierId)?.name ?? "Unknown",
         createdAt: o.createdAt.toISOString(),
-      };
+        paymentStatus: o.paymentStatus,
+        cancelledAt: o.cancelledAt,
+        deliveredAt: o.deliveredAt,
+        shippedAt: o.shippedAt,
+        updatedAt: o.updatedAt,
+      });
     });
 
   // Supplier summary (based on Supplier entities; email from linked User via userId)

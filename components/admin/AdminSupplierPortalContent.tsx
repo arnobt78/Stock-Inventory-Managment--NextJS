@@ -4,7 +4,6 @@ import React, { useMemo } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import {
-  OrderStatusBadge,
   ProductStockStatusBadge,
 } from "@/lib/ui/semantic-badges";
 import {
@@ -21,6 +20,8 @@ import {
   GlassCard,
   SectionCountBadge,
   AvatarInlineLink,
+  ClientCompactDateTime,
+  RecentOrderStatusColumn,
   GLASS_CARD_VARIANT_CONFIG as variantConfig,
 } from "@/components/shared";
 import { DETAIL_PAGE_HEADER_SPACING_CLASS } from "@/lib/ui/shell-layout-styles";
@@ -43,7 +44,6 @@ import {
   DollarSign,
   ArrowRight,
 } from "lucide-react";
-import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 import type { SupplierPortalStats, SupplierPortalSupplier } from "@/types";
 import {
@@ -301,15 +301,18 @@ export default function AdminSupplierPortalContent({
                       </CopyableText>
                       <span className={CARD_LIST_META_CLASS}>
                         {o.supplierName} ·{" "}
-                        {format(new Date(o.createdAt), "MMM d, yyyy")}
+                        <ClientCompactDateTime date={o.createdAt} />
                       </span>
                     </div>
-                    <div className="flex items-center gap-2 flex-shrink-0">
-                      <OrderStatusBadge status={o.status} />
-                      <span className="text-xs font-normal text-gray-700 dark:text-white">
-                        ${o.total.toLocaleString()}
-                      </span>
-                    </div>
+                    <RecentOrderStatusColumn
+                      status={o.status}
+                      statusAt={o.statusAt}
+                      trailing={
+                        <span className="text-xs font-normal text-gray-700 dark:text-white">
+                          ${o.total.toLocaleString()}
+                        </span>
+                      }
+                    />
                   </li>
                 ))}
               </ul>

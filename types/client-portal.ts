@@ -30,6 +30,8 @@ export interface ClientPortalRecentOrder {
   clientId: string;
   clientName: string;
   createdAt: string;
+  /** REQ-0128 — terminal status date for recent-order cards */
+  statusAt?: string;
 }
 
 export interface ClientPortalRecentInvoice {

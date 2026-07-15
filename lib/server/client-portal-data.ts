@@ -6,6 +6,8 @@
 
 import { getCache, setCache, cacheKeys } from "@/lib/cache";
 import { prisma } from "@/prisma/client";
+import { orderStatusAtSelect } from "@/lib/server/catalog-detail-order-select";
+import { withOrderStatusAt } from "@/lib/orders/order-status-display-date";
 import type {
   ClientPortalStats,
   ClientPortalCounts,
@@ -37,10 +39,10 @@ export async function getClientPortalForAdmin(): Promise<ClientPortalStats> {
         select: {
           id: true,
           orderNumber: true,
-          status: true,
           total: true,
           userId: true,
           createdAt: true,
+          ...orderStatusAtSelect,
         },
         orderBy: { createdAt: "desc" },
       })
@@ -83,15 +85,22 @@ export async function getClientPortalForAdmin(): Promise<ClientPortalStats> {
   // Recent orders (last 10)
   const recentOrders: ClientPortalRecentOrder[] = orders
     .slice(0, 10)
-    .map((o) => ({
-      id: o.id,
-      orderNumber: o.orderNumber,
-      status: o.status,
-      total: o.total ?? 0,
-      clientId: o.userId,
-      clientName: userMap.get(o.userId)?.name ?? "Unknown",
-      createdAt: o.createdAt.toISOString(),
-    }));
+    .map((o) =>
+      withOrderStatusAt({
+        id: o.id,
+        orderNumber: o.orderNumber,
+        status: o.status,
+        total: o.total ?? 0,
+        clientId: o.userId,
+        clientName: userMap.get(o.userId)?.name ?? "Unknown",
+        createdAt: o.createdAt.toISOString(),
+        paymentStatus: o.paymentStatus,
+        cancelledAt: o.cancelledAt,
+        deliveredAt: o.deliveredAt,
+        shippedAt: o.shippedAt,
+        updatedAt: o.updatedAt,
+      }),
+    );
 
   // Recent invoices (last 10)
   const recentInvoices: ClientPortalRecentInvoice[] = invoices

@@ -563,9 +563,25 @@ Commands: lint, test, test:invalidate, build
 - [ ] Commit + push REQ-0121; confirm prod SHA after deploy (REQ-0121)
 - [ ] Manual: order/invoice UI sweep smoke on prod (REQ-0126)
 - [ ] Manual: detail person rows + product table + forecast parity (REQ-0127)
+- [ ] Manual: portal recent orders statusAt + warehouse type icons (REQ-0128)
 
 **Approver:** _pending_  
 **Date:** _pending_
+
+---
+
+## REQ-0128 — REQ-0127 gap closure (2026-07-15)
+
+**Scope:** Read-only SSR enrichment + shared UI/DRY cleanup — no TanStack/invalidation changes.
+
+**Gates:** lint ✓ · test 527/527 ✓ · invalidate 208/208 ✓ · build ✓
+
+**Evidence summary**
+
+```
+Scope: built/verified | Traceability: REQ-0128 | Findings: PASS
+Commands: lint, test, test:invalidate, build
+```
 
 ---
 

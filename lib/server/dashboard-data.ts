@@ -9,6 +9,8 @@
 import { getCache, setCache, cacheKeys } from "@/lib/cache";
 import { prisma } from "@/prisma/client";
 import { mergeProductListWhere } from "@/lib/products/product-query";
+import { orderStatusAtSelect } from "@/lib/server/catalog-detail-order-select";
+import { withOrderStatusAt } from "@/lib/orders/order-status-display-date";
 import { getDemoSupplierUserId } from "@/prisma/supplier";
 import type {
   DashboardStats,
@@ -235,8 +237,8 @@ export async function getDashboardForAdmin(userId: string): Promise<DashboardSta
         id: true,
         orderNumber: true,
         total: true,
-        status: true,
         createdAt: true,
+        ...orderStatusAtSelect,
       },
       orderBy: { createdAt: "desc" },
       take: 10,
@@ -481,13 +483,19 @@ export async function getDashboardForAdmin(userId: string): Promise<DashboardSta
 
   const recent: DashboardRecent = {
     orders: recentOrders.map(
-      (o): DashboardRecentOrder => ({
-        id: o.id,
-        orderNumber: o.orderNumber,
-        total: Number(o.total),
-        status: o.status,
-        createdAt: o.createdAt.toISOString(),
-      }),
+      (o): DashboardRecentOrder =>
+        withOrderStatusAt({
+          id: o.id,
+          orderNumber: o.orderNumber,
+          total: Number(o.total),
+          status: o.status,
+          createdAt: o.createdAt.toISOString(),
+          paymentStatus: o.paymentStatus,
+          cancelledAt: o.cancelledAt,
+          deliveredAt: o.deliveredAt,
+          shippedAt: o.shippedAt,
+          updatedAt: o.updatedAt,
+        }),
     ),
     tickets: recentTickets.map(
       (t): DashboardRecentTicket => ({

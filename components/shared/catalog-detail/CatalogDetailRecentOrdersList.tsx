@@ -9,17 +9,15 @@ import Link from "next/link";
 import { Calendar, Hash, Package, User } from "lucide-react";
 import {
   AvatarInlineLink,
-  ClientCompactDateTime,
   ClientDate,
   CopyableText,
   DataSlotPulse,
   ListIndexBadge,
   ProportionalPriceDisplay,
+  RecentOrderStatusColumn,
 } from "@/components/shared";
 import { ProductThumb } from "@/components/products/ProductOptionRow";
-import { OrderStatusBadge } from "@/lib/ui/semantic-badges";
 import { CARD_EMPTY_MESSAGE_CLASS } from "@/lib/ui/card-empty-styles";
-import { TYPO_BODY_MUTED } from "@/lib/ui/typography-scale";
 import type { CatalogDetailRecentOrderItem } from "@/types/catalog-detail-lists";
 import { cn } from "@/lib/utils";
 
@@ -183,27 +181,17 @@ export function CatalogDetailRecentOrdersList({
                   </div>
                 )}
               </div>
-              <div className="flex flex-col items-start sm:items-end gap-1 shrink-0">
-                <ProportionalPriceDisplay
-                  listAmount={order.subtotal}
-                  adjustedAmount={order.proportionalAmount}
-                  size="sm"
-                />
-                <OrderStatusBadge
-                  status={order.orderStatus ?? "pending"}
-                />
-                {order.statusAt ? (
-                  <span
-                    className={cn(
-                      "inline-flex items-center gap-1 text-xs",
-                      TYPO_BODY_MUTED,
-                    )}
-                  >
-                    <Calendar className="h-3.5 w-3.5 shrink-0" aria-hidden />
-                    <ClientCompactDateTime date={order.statusAt} />
-                  </span>
-                ) : null}
-              </div>
+              <RecentOrderStatusColumn
+                status={order.orderStatus ?? "pending"}
+                statusAt={order.statusAt}
+                trailing={
+                  <ProportionalPriceDisplay
+                    listAmount={order.subtotal}
+                    adjustedAmount={order.proportionalAmount}
+                    size="sm"
+                  />
+                }
+              />
             </div>
           </div>
         );
