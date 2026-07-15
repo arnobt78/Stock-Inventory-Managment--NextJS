@@ -4,12 +4,12 @@
 |-------|-------|
 | **Cycle** | C1 (closing) → **C2 open** |
 | **Phase** | C2 — REQ-0121–0135 **done** |
-| **Last updated** | 2026-07-15 (REQ-0135) |
+| **Last updated** | 2026-07-15 (audit + pattern tests) |
 | **Active REQ range** | REQ-0001 … REQ-0135 **done** |
-| **Prod deploy target** | `47d203b` (REQ-0134–0135) — pushed `origin/main`; redeploy Vercel before Gate 2 |
+| **Prod deploy target** | push after audit commit; redeploy Vercel before Gate 2 |
 | **Human Gate 1** | APPROVED (retroactive bootstrap) |
 | **Human Gate 2** | PENDING — Sentry 24h after prod deploy |
-| **Resume token** | `Gate-2-deploy` — prod SHA + Sentry 24h |
+| **Resume token** | `Gate-2-QA` — UI polish then §10 cache checklist |
 
 ## REQ-0105 — product detail committedQuantity SSR (2026-07-13)
 

@@ -572,15 +572,15 @@ Commands: lint, test, test:invalidate, build
 
 ## REQ-0135 — Redis invalidate pattern asymmetry (2026-07-15)
 
-**Scope:** `INVOICE_PATTERNS` +`stockAllocation`; supplier/warehouse/auth/import portal parity; category/supplier +stock for enrich labels. Shipped with REQ-0134.
+**Scope:** `INVOICE_PATTERNS` +`stockAllocation`; supplier/warehouse/auth/import portal parity; category/supplier +stock for enrich labels. Shipped with REQ-0134. Post-audit: unused import removed; pattern membership tests (+5).
 
-**Gates:** lint ✓ · test 544/544 ✓ · invalidate 213/213 ✓ · build ✓
+**Gates:** lint ✓ · test 549/549 ✓ · invalidate 213/213 ✓
 
 **Evidence summary**
 
 ```
-Scope: built/verified | Traceability: REQ-0134,REQ-0135 | Findings: PASS
-Commands: lint, test, test:invalidate, build
+Scope: audited + hardened | Traceability: REQ-0134,REQ-0135 | Findings: PASS (wiring OK; manual Gate-2 tomorrow)
+Commands: lint, test, test:invalidate
 ```
 
 ---

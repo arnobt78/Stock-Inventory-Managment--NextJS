@@ -346,3 +346,5 @@ Format: `TIMESTAMP | AGENT | DECISION | RATIONALE | REQ-ID`
 2026-07-15T19:36:00Z | red-team | REQ-0134 gates | lint ✓ test 544 ✓ invalidate 213 ✓ build ✓ | REQ-0134
 2026-07-15T20:00:00Z | build-agent | REQ-0135 Redis pattern close | INVOICE+stock; SUPPLIER/WAREHOUSE portals; CATEGORY/SUPPLIER stock; AUTH/IMPORT portals | REQ-0135
 2026-07-15T20:05:00Z | red-team | REQ-0134+0135 gates | lint/test/invalidate/build (see VALIDATION_SUMMARY) | REQ-0134,REQ-0135
+2026-07-15T20:05:00Z | red-team | post-ship audit | wiring PASS; unused import fix; +pattern membership tests; manual §10 | REQ-0135
+2026-07-15T20:05:00Z | product | QA order | UI blockers first, then MANUAL_TEST_FIXTURES §10 cache (do not mix) | REQ-0135

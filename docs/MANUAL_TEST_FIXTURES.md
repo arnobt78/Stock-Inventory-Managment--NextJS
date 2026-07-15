@@ -230,16 +230,39 @@ Admin may optionally pick a warehouse; default remains auto-assign for all roles
 
 ---
 
-## 10. Cache coherence smoke (REQ-0133)
+## 10. Cache coherence smoke (REQ-0133–0135)
 
-After deploy with buster `v2.0.2`, verify post-CRUD data does **not** revert:
+Redeploy → **logout/login once** (1d cookie). Prefer Network: after write, GET must miss stale Redis. Then UI.
 
-| Step | Action | Expected |
-| ---- | ------ | -------- |
-| 1 | Edit product qty on `/products` | Table + detail show new qty immediately |
-| 2 | Open category detail with product grid | Grid qty matches product list |
-| 3 | Wait 6+ min, switch browser tab away/back | Values **unchanged** (no stale revert) |
-| 4 | Hard reload after CRUD | Fresh data from server (auth session may persist only) |
-| 5 | Back button from detail to list | List shows updated row (no SSR overwrite) |
+**A — Instant + no revert (core)**
 
-If revert persists: check Vercel logs for `Skipped stale cache re-warm` and confirm Redis env is set.
+| # | Action | Wait | Pass |
+|---|--------|------|------|
+| A1 | Edit product name/qty → list + detail + category/supplier grids | 0s + 5min tab away/back | No revert |
+| A2 | Detail → Back to list | — | Updated row (no SSR clobber) |
+| A3 | Hard reload after CRUD | — | Fresh; only auth may linger in persist |
+
+**B — Redis pattern gaps (0135)**
+
+| # | Action | Check elsewhere | Pass |
+|---|--------|-----------------|------|
+| B1 | Mark invoice **paid** (pending order) | Product/warehouse stock + allocations | No revert ~5min |
+| B2 | Rename category | Allocation enrich `categoryName` | Updates |
+| B3 | Rename supplier | Allocations + admin client portal | Updates |
+| B4 | Warehouse CRUD | Admin supplier portal | Fresh |
+| B5 | Register or Google OAuth new user | Admin client/supplier portal counts | Fresh |
+| B6 | Product import | Portals + product lists | Fresh |
+
+**C — Session / QR / idle (0134)**
+
+| # | Action | Pass |
+|---|--------|------|
+| C1 | Create/edit product with QR | QR URL on detail after ImageKit (2nd wipe) |
+| C2 | Idle tab ~30–60min then navigate | Lists load; session OK until 1d |
+| C3 | Focus window | Session may refetch; **lists** do not mass-refetch |
+
+**D — Roles (pick 1 entity each)** admin + client + supplier: order edit, invoice, warehouse allocate/transfer, review/ticket, history, notifications, home/portal stats — mutate → other open tabs/pages update without refresh.
+
+If revert: Vercel log `Skipped stale cache re-warm`; confirm Redis env.
+
+**UI bugs vs cache:** Fix blocking UI first (can't trust eyes). Then run A→B→C→D. Do **not** mix UI polish into cache pass/fail.

@@ -26,7 +26,6 @@ import { checkAndSendStockAlerts } from "@/lib/email/notifications";
 import {
   getCache,
   setCache,
-  invalidateCache,
   cacheKeys,
   invalidateOnProductChange,
   scheduleAfterResponse,

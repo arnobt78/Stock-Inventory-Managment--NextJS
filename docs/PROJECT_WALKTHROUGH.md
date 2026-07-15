@@ -261,7 +261,7 @@ flowchart LR
 | Semantic dates (REQ-0130–0132) | `semantic-date-styles.ts`; `ClientDate*` `semantic` prop; list tables + exports `formatStableDate`; ticket/PDF/script sweep | Gates: test 531 |
 | Cache coherence (REQ-0133) | SSR sync skip; Redis pattern widen; persist auth/user; `invalidateAfterCatalogChange`; `setCache` re-warm guard | Gates: test 544 |
 | Session + QR idle (REQ-0134) | JWT/cookie 1d; `useSession` focus refetch; product QR second Redis wipe; `gcTime` 30m | |
-| Redis pattern close (REQ-0135) | Invoice+stock; supplier/warehouse/auth/import portals; category/supplier stock enrich | |
+| Redis pattern close (REQ-0135) | Invoice+stock; portals; enrich; `post-mutation.test.ts` membership; manual §10 | |
 | Next | Gate 2 deploy + Sentry 24h; **manual QA from scratch** — `MANUAL_TEST_FIXTURES.md` §9 |
 | AI warehouse insights (REQ-0067) | `POST /api/ai/insights` enriches payload with `getWarehouseStockSummary` |
 | Per-warehouse order picking (REQ-0068) | `OrderItem.warehouseId`; `stock-allocation-order-sync.ts`; `OrderLineWarehouseSelect`; reserve/fulfill/cancel sync; invoice-paid gap; `f892b65` removed unused `deleteCache`/`getRateLimitStatus` |

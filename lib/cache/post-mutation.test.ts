@@ -46,13 +46,21 @@ import {
   invalidateOnProductChange,
   scheduleAfterResponse,
   scheduleInvalidateAllServerCaches,
+  scheduleInvalidateAuthCaches,
+  scheduleInvalidateCategoryCaches,
+  scheduleInvalidateImportCaches,
   scheduleInvalidateInvoiceCaches,
   scheduleInvalidateOrderGraphCaches,
   scheduleInvalidateProductReviewCaches,
+  scheduleInvalidateSupplierCaches,
   scheduleInvalidateSupportTicketCaches,
   scheduleInvalidateWarehouseCaches,
 } from "./post-mutation";
 import { invalidateAllServerCaches, invalidateCache } from "./cache-utils";
+
+function invalidatedPatterns(): string[] {
+  return vi.mocked(invalidateCache).mock.calls.map((c) => String(c[0]));
+}
 
 describe("post-mutation cache invalidation", () => {
   beforeEach(() => {
@@ -121,5 +129,56 @@ describe("post-mutation cache invalidation", () => {
     await invalidateOnOrderChange();
     expect(after).not.toHaveBeenCalled();
     expect(invalidateCache).toHaveBeenCalled();
+  });
+
+  // REQ-0135 — pattern membership (prevent silent regress on stock/portals)
+  it("invoice invalidate includes stock-allocation + portals", async () => {
+    await scheduleInvalidateInvoiceCaches();
+    const p = invalidatedPatterns();
+    expect(p).toEqual(
+      expect.arrayContaining([
+        "stock-allocation:*",
+        "clientPortal:*",
+        "supplierPortal:*",
+      ]),
+    );
+  });
+
+  it("supplier invalidate includes clientPortal + stock-allocation", async () => {
+    await scheduleInvalidateSupplierCaches();
+    const p = invalidatedPatterns();
+    expect(p).toEqual(
+      expect.arrayContaining(["clientPortal:*", "stock-allocation:*"]),
+    );
+  });
+
+  it("warehouse invalidate includes supplierPortal", async () => {
+    await scheduleInvalidateWarehouseCaches();
+    expect(invalidatedPatterns()).toContain("supplierPortal:*");
+  });
+
+  it("category invalidate includes stock-allocation", async () => {
+    await scheduleInvalidateCategoryCaches();
+    expect(invalidatedPatterns()).toContain("stock-allocation:*");
+  });
+
+  it("auth + import invalidate include portals", async () => {
+    await scheduleInvalidateAuthCaches();
+    expect(invalidatedPatterns()).toEqual(
+      expect.arrayContaining([
+        "portal:*",
+        "clientPortal:*",
+        "supplierPortal:*",
+      ]),
+    );
+    vi.clearAllMocks();
+    await scheduleInvalidateImportCaches();
+    expect(invalidatedPatterns()).toEqual(
+      expect.arrayContaining([
+        "portal:*",
+        "clientPortal:*",
+        "supplierPortal:*",
+      ]),
+    );
   });
 });

@@ -879,13 +879,7 @@ Hub: `lib/ui/typography-scale.ts`. Hubs import tokens; ~45 inline files use equi
 
 ## REQ-0135 Redis pattern asymmetries
 
-| Piece | Location |
-|-------|----------|
-| Invoice paid stock | `INVOICE_PATTERNS` → `stockAllocation:*` (fulfill on mark-paid) |
-| Portals | `SUPPLIER` +`clientPortal`; `WAREHOUSE` +`supplierPortal`; `AUTH`/`IMPORT` portal parity |
-| Enrich labels | `CATEGORY`/`SUPPLIER` +`stockAllocation` (stale categoryName/supplierName) |
-
-**Hub:** `lib/cache/post-mutation.ts` only — no TanStack registry change.
+Hub: `post-mutation.ts`. Invoice+stock; AUTH/IMPORT/SUPPLIER/WAREHOUSE portals; CATEGORY/SUPPLIER+stock. Tests: `post-mutation.test.ts` pattern membership. Manual: `MANUAL_TEST_FIXTURES.md` §10.
 
 ## Post-mutation cache (REQ-0052 + REQ-0055)
 
