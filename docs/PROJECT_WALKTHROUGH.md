@@ -284,7 +284,7 @@ flowchart LR
 | `npm run build` | pass |
 | `npm run test` | 544 passed |
 | `npm run test:invalidate` | 213 passed |
-| Prod commit | `8a2b73e` REQ-0133; REQ-0134–0135 pending this push |
+| Prod commit | `47d203b` REQ-0134–0135 (on `8a2b73e` REQ-0133) |
 | Radix table Select | `useDeferredRadixSelect` + `PaginationSelector` (11 tables) |
 | Pagination clamp + page-size reset | `useClampPaginationIndex` + `PaginationSelector` pageIndex 0 |
 | Sentry | tunnel + translate scrub + `syncSentryUserFromAuth` |
