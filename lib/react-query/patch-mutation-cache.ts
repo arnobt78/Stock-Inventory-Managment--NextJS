@@ -14,6 +14,21 @@ export function patchDetailCache<T>(
   queryClient.setQueryData<T>(detailKey, entity);
 }
 
+/**
+ * Functional merge into a detail cache key (optimistic updates).
+ * REQ-0125 — DRY alternative to inline setQueryData in mutation onMutate.
+ */
+export function patchDetailCacheMerge<T>(
+  queryClient: QueryClient,
+  detailKey: QueryKey,
+  merge: (old: T | undefined) => T | undefined,
+): void {
+  queryClient.setQueryData<T>(detailKey, (old) => {
+    const next = merge(old);
+    return next !== undefined ? next : old;
+  });
+}
+
 type Identifiable = { id: string };
 
 function mergeRowInArray<T extends Identifiable>(

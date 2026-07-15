@@ -759,13 +759,14 @@ Hub: `lib/ui/typography-scale.ts`. Hubs import tokens; ~45 inline files use equi
 | Prod SHA | `8de1827` (REQ-0106–0113) pushed `origin/main` |
 | REQ-0106–0113 | order stock UX + reactive validation + props-only warehouse select |
 
-## Instant UI (REQ-0122–0124)
+## Instant UI (REQ-0122–0125)
 
 | Piece | Location |
 |-------|----------|
-| Patch helpers | `lib/react-query/patch-mutation-cache.ts` |
+| Patch helpers | `lib/react-query/patch-mutation-cache.ts` — includes `patchDetailCacheMerge` (optimistic) |
 | Order | **patch detail/list → then invalidate** (never invalidate-only on visible rows) |
-| Pulse | `isDataSlotLoading` (cold) · `isDataSlotUnsettled` (aggregates during stale refetch) |
+| Pulse | `isDataSlotLoading` (cold + patched rows) · `isDataSlotUnsettled` (dashboard stat cards / stale refetch) |
+| Admin list stats | `prefetchListPageStats` in `page.tsx` + `useDashboard` — support tickets, user management (REQ-0125) |
 | SSR back | `resolveSsrSyncAction` skips when `cached.updatedAt >= server` |
 | Domains | catalog, order graph, portal browse, tickets/reviews/users; stock allocate/delete |
 | Dashboard KPIs | pulse-only (no client count patch) · stock transfer invalidate-only |

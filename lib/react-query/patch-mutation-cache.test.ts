@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import { QueryClient } from "@tanstack/react-query";
 import {
   patchDetailCache,
+  patchDetailCacheMerge,
   patchListCaches,
   patchOrderGraphListCaches,
   patchProductInPortalCaches,
@@ -9,6 +10,22 @@ import {
 } from "./patch-mutation-cache";
 
 describe("patch-mutation-cache", () => {
+  it("patchDetailCacheMerge merges partial fields into detail key", () => {
+    const qc = new QueryClient();
+    const key = ["invoices", "detail", "i1"] as const;
+    qc.setQueryData(key, { id: "i1", status: "draft", total: 100 });
+    patchDetailCacheMerge<{ id: string; status: string; total: number }>(
+      qc,
+      key,
+      (old) => (old ? { ...old, status: "sent" } : undefined),
+    );
+    expect(qc.getQueryData(key)).toEqual({
+      id: "i1",
+      status: "sent",
+      total: 100,
+    });
+  });
+
   it("patchDetailCache writes entity to detail key", () => {
     const qc = new QueryClient();
     const key = ["products", "detail", "p1"] as const;

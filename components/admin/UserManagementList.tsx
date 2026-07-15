@@ -5,8 +5,13 @@
 "use client";
 
 import React, { useState, useEffect, useRef, useMemo } from "react";
-import { useUsers } from "@/hooks/queries";
-import { isDataSlotLoading, queryKeys, useSyncSsrQueryData } from "@/lib/react-query";
+import { useUsers, useDashboard } from "@/hooks/queries";
+import {
+  isDataSlotLoading,
+  isDataSlotUnsettled,
+  queryKeys,
+  useSyncSsrQueryData,
+} from "@/lib/react-query";
 import { PaginationType } from "@/components/shared/PaginationSelector";
 import { PageSectionHeader } from "@/components/shared";
 import { createUserManagementColumns } from "./UserManagementTableColumns";
@@ -16,26 +21,36 @@ import CreateUserDialog from "./CreateUserDialog";
 import { StatisticsCard } from "@/components/home/StatisticsCard";
 import { Users, Shield, Truck, UserCircle } from "lucide-react";
 import { useAuth } from "@/contexts";
-import type { UserForAdmin } from "@/types";
+import type { UserForAdmin, DashboardStats } from "@/types";
 
 export type UserManagementListProps = {
   detailHrefBase?: string;
   /** SSR-passed users for first-render hydration (REQ-0021) */
   initialUsers?: UserForAdmin[];
+  /** SSR dashboard stats for role stat cards (REQ-0125 — CategoryList parity) */
+  initialStats?: DashboardStats;
 };
 
 export default function UserManagementList({
   detailHrefBase,
   initialUsers,
+  initialStats,
 }: UserManagementListProps = {}) {
   const isMountedRef = useRef(false);
   const [isMounted, setIsMounted] = useState(false);
   const usersQuery = useUsers(initialUsers);
+  const dashboardQuery = useDashboard(initialStats);
   const { user } = useAuth();
 
   useSyncSsrQueryData(queryKeys.userManagement.lists(), initialUsers);
+  useSyncSsrQueryData(
+    queryKeys.dashboard.overview(user?.id ?? ""),
+    user?.id && initialStats !== undefined ? initialStats : undefined,
+  );
 
   const allUsers = usersQuery.data ?? initialUsers ?? [];
+  const dashboard = dashboardQuery.data ?? null;
+  const roleBreakdown = dashboard?.userRoleBreakdown;
 
   useEffect(() => {
     if (!isMountedRef.current) {
@@ -60,17 +75,23 @@ export default function UserManagementList({
     [detailHrefBase, user?.id],
   );
 
-  // REQ-0021: shell-first — only data slots pulse
-  const cardsDataLoading = isDataSlotLoading(usersQuery, initialUsers);
+  // REQ-0125: dashboard role cards unsettled; patched table rows use loading only
+  const cardsDataLoading = isDataSlotUnsettled(dashboardQuery, initialStats);
   const tableDataLoading = isDataSlotLoading(usersQuery, initialUsers);
 
   const roleCounts = useMemo(() => {
-    const total = allUsers.length;
-    const admin = allUsers.filter((u) => u.role === "admin").length;
-    const supplier = allUsers.filter((u) => u.role === "supplier").length;
-    const client = allUsers.filter((u) => u.role === "client").length;
+    const total = dashboard?.counts?.users ?? allUsers.length;
+    const admin =
+      roleBreakdown?.admin ??
+      allUsers.filter((u) => u.role === "admin").length;
+    const supplier =
+      roleBreakdown?.supplier ??
+      allUsers.filter((u) => u.role === "supplier").length;
+    const client =
+      roleBreakdown?.client ??
+      allUsers.filter((u) => u.role === "client").length;
     return { total, admin, supplier, client };
-  }, [allUsers]);
+  }, [allUsers, dashboard?.counts?.users, roleBreakdown]);
 
   return (
     <div className="flex flex-col poppins">

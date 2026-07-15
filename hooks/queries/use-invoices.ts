@@ -11,6 +11,7 @@ import {
   cancelOrRemoveDetailQuery,
   withInitialData,
   patchDetailCache,
+  patchDetailCacheMerge,
   patchOrderGraphListCaches,
   removeFromListCaches,
 } from "@/lib/react-query";
@@ -22,6 +23,26 @@ import type {
   InvoiceFilters,
 } from "@/types";
 import type { InvoiceForPage } from "@/lib/server/invoices-data";
+
+/** Optimistic invoice merge — coerces date fields from UpdateInvoiceInput strings. REQ-0125 */
+function mergeOptimisticInvoiceUpdate(
+  old: Invoice | undefined,
+  partial: UpdateInvoiceInput,
+  fallback?: Invoice,
+): Invoice | undefined {
+  const base = old ?? fallback;
+  if (!base) return undefined;
+  return {
+    ...base,
+    ...partial,
+    dueDate: partial.dueDate ? new Date(partial.dueDate) : base.dueDate,
+    sentAt: partial.sentAt ? new Date(partial.sentAt) : base.sentAt,
+    paidAt: partial.paidAt ? new Date(partial.paidAt) : base.paidAt,
+    cancelledAt: partial.cancelledAt
+      ? new Date(partial.cancelledAt)
+      : base.cancelledAt,
+  };
+}
 
 /**
  * Fetch all invoices for the authenticated user
@@ -126,7 +147,8 @@ export function useCreateInvoice() {
 }
 
 /**
- * Update an existing invoice
+ * Update an existing invoice.
+ * Patch-then-invalidate: optimistic detail + list on onMutate; server row on onSuccess.
  */
 export function useUpdateInvoice() {
   const queryClient = useQueryClient();
@@ -146,50 +168,31 @@ export function useUpdateInvoice() {
       return response.data;
     },
     onMutate: async (updatedInvoiceData) => {
-      // Cancel any outgoing refetches for the invoice detail query
-      await queryClient.cancelQueries({
-        queryKey: queryKeys.invoices.detail(updatedInvoiceData.id),
-      });
+      const detailKey = queryKeys.invoices.detail(updatedInvoiceData.id);
+      await queryClient.cancelQueries({ queryKey: detailKey });
 
-      // Snapshot the previous value
-      const previousInvoice = queryClient.getQueryData<Invoice>(
-        queryKeys.invoices.detail(updatedInvoiceData.id),
+      const previousInvoice = queryClient.getQueryData<Invoice>(detailKey);
+      const optimistic = mergeOptimisticInvoiceUpdate(
+        previousInvoice,
+        updatedInvoiceData,
+        previousInvoice,
       );
 
-      // Optimistically update to the new value
-      queryClient.setQueryData<Invoice>(
-        queryKeys.invoices.detail(updatedInvoiceData.id),
-        (old) => {
-          if (!old) return previousInvoice;
-          return {
-            ...old,
-            ...updatedInvoiceData,
-            // Ensure dates are handled correctly if they are part of the update
-            dueDate: updatedInvoiceData.dueDate
-              ? new Date(updatedInvoiceData.dueDate)
-              : old.dueDate,
-            sentAt: updatedInvoiceData.sentAt
-              ? new Date(updatedInvoiceData.sentAt)
-              : old.sentAt,
-            paidAt: updatedInvoiceData.paidAt
-              ? new Date(updatedInvoiceData.paidAt)
-              : old.paidAt,
-            cancelledAt: updatedInvoiceData.cancelledAt
-              ? new Date(updatedInvoiceData.cancelledAt)
-              : old.cancelledAt,
-          };
-        },
-      );
+      if (optimistic) {
+        patchDetailCacheMerge(queryClient, detailKey, () => optimistic);
+        patchOrderGraphListCaches(queryClient, optimistic);
+      }
 
       return { previousInvoice };
     },
     onError: (error, updatedInvoiceData, context) => {
-      // Rollback to the previous value on error
       if (context?.previousInvoice) {
-        queryClient.setQueryData(
+        patchDetailCache(
+          queryClient,
           queryKeys.invoices.detail(updatedInvoiceData.id),
           context.previousInvoice,
         );
+        patchOrderGraphListCaches(queryClient, context.previousInvoice);
       }
       toast({
         title: "Invoice Update Failed",

@@ -324,3 +324,5 @@ Format: `TIMESTAMP | AGENT | DECISION | RATIONALE | REQ-ID`
 2026-07-15T14:32:00Z | red-team | REQ-0123 gates | lint ✓ test 518 ✓ invalidate 208 ✓ build ✓ | REQ-0123
 2026-07-15T14:45:00Z | build-agent | REQ-0124 backlog | tickets/reviews/users list patch; soft-delete portal remove; walkthrough + CLAUDE docs | REQ-0124
 2026-07-15T14:46:00Z | red-team | REQ-0124 gates | lint ✓ test ✓ invalidate ✓ build ✓ | REQ-0124
+2026-07-15T15:00:00Z | build-agent | REQ-0125 gap closure | patchDetailCacheMerge; invoice optimistic DRY; admin list dashboard stats + split loading | REQ-0125
+2026-07-15T15:01:00Z | red-team | REQ-0125 gates | lint ✓ test ✓ invalidate ✓ build ✓ | REQ-0125

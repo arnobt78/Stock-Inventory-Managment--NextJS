@@ -3,7 +3,23 @@
 **Generated:** 2026-07-15  
 **eval_gate_status:** PENDING (Human Gate 2)  
 **Prod target SHA:** `9d7ec21` (REQ-0120)  
-**Red Team:** lint ✓ test 518 ✓ invalidate 208 ✓ build ✓ (2026-07-15 REQ-0124)
+**Red Team:** lint ✓ test 519 ✓ invalidate 208 ✓ build ✓ (2026-07-15 REQ-0125)
+
+---
+
+## REQ-0125 loading parity evidence
+
+| Check | Result |
+|-------|--------|
+| patchDetailCacheMerge | helper + test + export |
+| useUpdateInvoice | optimistic detail + list; patchDetailCache rollback |
+| Admin support/users | prefetchListPageStats + split loading predicates |
+| Client tickets | unsettled stat cards + loading table |
+
+```
+Scope: built/verified | Traceability: REQ-0125 | Findings: PASS
+Commands: lint, test, invalidate, build
+```
 
 ---
 

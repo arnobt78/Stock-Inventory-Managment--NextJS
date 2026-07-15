@@ -22,6 +22,7 @@ export {
 export type { DataSlotQueryHint } from "./is-data-slot-loading";
 export {
   patchDetailCache,
+  patchDetailCacheMerge,
   patchListCaches,
   patchOrderGraphListCaches,
   patchProductInPortalCaches,

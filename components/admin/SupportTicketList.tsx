@@ -8,9 +8,15 @@
 import React, { useState, useEffect, useRef, useMemo } from "react";
 import {
   useSupportTickets,
+  useDashboard,
   type SupportTicketViewFilter,
 } from "@/hooks/queries";
-import { isDataSlotLoading, queryKeys, useSyncSsrQueryData } from "@/lib/react-query";
+import {
+  isDataSlotLoading,
+  isDataSlotUnsettled,
+  queryKeys,
+  useSyncSsrQueryData,
+} from "@/lib/react-query";
 import { APP_SHELL_WIDTH_CLASS } from "@/lib/ui/shell-layout-styles";
 import { PaginationType } from "@/components/shared/PaginationSelector";
 import { PageSectionHeader } from "@/components/shared";
@@ -21,32 +27,44 @@ import SupportTicketDialog from "@/components/support-tickets/SupportTicketDialo
 import { Button } from "@/components/ui/button";
 import { MessageSquare, AlertCircle } from "lucide-react";
 import { StatisticsCard } from "@/components/home/StatisticsCard";
+import { useAuth } from "@/contexts";
 import type { ProductOwnerOption } from "@/components/support-tickets/SupportTicketDialog";
-import type { SupportTicket } from "@/types";
+import type { SupportTicket, DashboardStats } from "@/types";
 
 export type SupportTicketListProps = {
   detailHrefBase?: string;
   productOwners?: ProductOwnerOption[];
   /** SSR-passed tickets for first-render hydration (REQ-0021) */
   initialTickets?: SupportTicket[];
+  /** SSR dashboard stats for status stat card (REQ-0125 — CategoryList parity) */
+  initialStats?: DashboardStats;
 };
 
 export default function SupportTicketList({
   detailHrefBase,
   productOwners = [],
   initialTickets,
+  initialStats,
 }: SupportTicketListProps = {}) {
   const isMountedRef = useRef(false);
   const [isMounted, setIsMounted] = useState(false);
   const [viewFilter, setViewFilter] = useState<SupportTicketViewFilter>("all");
+  const { user } = useAuth();
   const supportTicketsQuery = useSupportTickets(viewFilter, initialTickets);
+  const dashboardQuery = useDashboard(initialStats);
 
   useSyncSsrQueryData(
     queryKeys.supportTickets.list({ view: "all" }),
     viewFilter === "all" ? initialTickets : undefined,
   );
+  useSyncSsrQueryData(
+    queryKeys.dashboard.overview(user?.id ?? ""),
+    user?.id && initialStats !== undefined ? initialStats : undefined,
+  );
 
   const allTickets = supportTicketsQuery.data ?? initialTickets ?? [];
+  const dashboard = dashboardQuery.data ?? null;
+  const ticketBreakdown = dashboard?.ticketStatusBreakdown;
 
   const ticketStats = useMemo(() => {
     const statusCounts = { open: 0, in_progress: 0, resolved: 0, closed: 0 };
@@ -81,8 +99,13 @@ export default function SupportTicketList({
     [detailHrefBase],
   );
 
-  // REQ-0021: shell-first — only data slots pulse
-  const dataLoading = isDataSlotLoading(supportTicketsQuery, initialTickets);
+  // REQ-0125: dashboard status card unsettled; list-derived priority + table use loading (patched rows visible)
+  const statusCardsLoading = isDataSlotUnsettled(dashboardQuery, initialStats);
+  const listDerivedLoading = isDataSlotLoading(
+    supportTicketsQuery,
+    initialTickets,
+  );
+  const tableDataLoading = listDerivedLoading;
 
   return (
     <div className="flex flex-col poppins">
@@ -97,23 +120,32 @@ export default function SupportTicketList({
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-2 pb-6 items-stretch">
         <StatisticsCard
           title="Support Tickets"
-          value={allTickets.length}
+          value={dashboard?.counts?.tickets ?? allTickets.length}
           description="Sent by users, clients & suppliers"
           icon={MessageSquare}
           variant="violet"
-          valueLoading={dataLoading}
-          badgeValuesLoading={dataLoading}
+          valueLoading={statusCardsLoading}
+          badgeValuesLoading={statusCardsLoading}
           badges={[
-            { label: "Open", value: ticketStats.statusCounts.open },
+            {
+              label: "Open",
+              value: ticketBreakdown?.open ?? ticketStats.statusCounts.open,
+            },
             {
               label: "In progress",
-              value: ticketStats.statusCounts.in_progress,
+              value:
+                ticketBreakdown?.in_progress ??
+                ticketStats.statusCounts.in_progress,
             },
             {
               label: "Resolved",
-              value: ticketStats.statusCounts.resolved,
+              value:
+                ticketBreakdown?.resolved ?? ticketStats.statusCounts.resolved,
             },
-            { label: "Closed", value: ticketStats.statusCounts.closed },
+            {
+              label: "Closed",
+              value: ticketBreakdown?.closed ?? ticketStats.statusCounts.closed,
+            },
           ]}
         />
         <StatisticsCard
@@ -122,8 +154,8 @@ export default function SupportTicketList({
           description="Replies across tickets"
           icon={AlertCircle}
           variant="rose"
-          valueLoading={dataLoading}
-          badgeValuesLoading={dataLoading}
+          valueLoading={listDerivedLoading}
+          badgeValuesLoading={listDerivedLoading}
           badges={[
             { label: "Low", value: ticketStats.priorityCounts.low },
             { label: "Medium", value: ticketStats.priorityCounts.medium },
@@ -166,7 +198,7 @@ export default function SupportTicketList({
       <SupportTicketTable
         data={allTickets}
         columns={columns}
-        isLoading={dataLoading}
+        isLoading={tableDataLoading}
         searchTerm={searchTerm}
         pagination={pagination}
         setPagination={setPagination}

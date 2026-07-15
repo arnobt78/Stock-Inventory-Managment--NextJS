@@ -4,6 +4,7 @@ import {
   getSupportTicketsForAdmin,
   getProductOwnersForSupport,
 } from "@/lib/server/support-tickets-data";
+import { prefetchListPageStats } from "@/lib/server/list-page-stats";
 import AdminSupportTicketsContent from "@/components/admin/AdminSupportTicketsContent";
 
 /** REQ-0025 — blocking SSR prefetch (no Suspense shell flash). */
@@ -13,14 +14,16 @@ export default async function AdminSupportTicketsPage() {
   const user = await getSession();
   if (!user) redirect("/login");
 
-  const [initialTickets, productOwners] = await Promise.all([
+  const [initialTickets, productOwners, listStats] = await Promise.all([
     getSupportTicketsForAdmin(user.id),
     getProductOwnersForSupport(),
+    prefetchListPageStats(user),
   ]);
 
   return (
     <AdminSupportTicketsContent
       initialTickets={initialTickets}
+      initialStats={listStats.initialStats}
       productOwners={productOwners}
     />
   );

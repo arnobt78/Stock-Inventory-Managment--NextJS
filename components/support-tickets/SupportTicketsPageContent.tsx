@@ -5,7 +5,7 @@ import Navbar from "@/components/layouts/Navbar";
 import { PageContentWrapper, PageSectionHeader } from "@/components/shared";
 import { PaginationType } from "@/components/shared/PaginationSelector";
 import { useSupportTickets } from "@/hooks/queries";
-import { isDataSlotLoading, queryKeys, useSyncSsrQueryData } from "@/lib/react-query";
+import { isDataSlotLoading, isDataSlotUnsettled, queryKeys, useSyncSsrQueryData } from "@/lib/react-query";
 import { APP_SHELL_WIDTH_CLASS } from "@/lib/ui/shell-layout-styles";
 import { MessageSquare, MessageCircle, Plus } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -69,8 +69,8 @@ export default function SupportTicketsPageContent({
     [],
   );
 
-  // REQ-0021: shell-first — only data slots pulse
-  const cardsLoading = isDataSlotLoading(ticketsQuery, initialTickets);
+  // REQ-0125: stat cards unsettled on stale refetch; table loading keeps patched rows visible
+  const cardsLoading = isDataSlotUnsettled(ticketsQuery, initialTickets);
   const tableDataLoading = isDataSlotLoading(ticketsQuery, initialTickets);
 
   return (

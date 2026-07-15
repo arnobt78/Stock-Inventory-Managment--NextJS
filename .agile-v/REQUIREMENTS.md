@@ -2793,6 +2793,30 @@ Canonical REQ source. All artifacts link via `REQ-XXXX`. Status: `done` | `verif
 
 ---
 
+## REQ-0125 — Instant UI loading parity + invoice optimistic DRY
+
+| Field | Value |
+|-------|-------|
+| **Priority** | P2 |
+| **Risk** | R1 |
+| **Status** | done |
+| **Cycle** | C2 |
+| **Parent** | REQ-0124 |
+
+**Intent:** Close audit gaps — admin support/user list pages use dashboard SSR stats + split loading predicates (CategoryList parity); client tickets split unsettled/loading; `useUpdateInvoice` DRY via `patchDetailCacheMerge` with optimistic list patch.
+
+**Acceptance criteria**
+
+- AC1: `patchDetailCacheMerge` in `patch-mutation-cache.ts` + test + barrel export
+- AC2: `useUpdateInvoice` — optimistic detail + list patch in `onMutate`; rollback via `patchDetailCache`
+- AC3: Admin support tickets + user management — `prefetchListPageStats` in `page.tsx`; stat cards `isDataSlotUnsettled(dashboardQuery)`; table `isDataSlotLoading`
+- AC4: Client `SupportTicketsPageContent` — stat cards unsettled, table loading
+- AC5: Gates pass — lint, test, invalidate (208), build
+
+**Artifacts:** `patch-mutation-cache.ts`, `use-invoices.ts`, `SupportTicketList.tsx`, `UserManagementList.tsx`, `SupportTicketsPageContent.tsx`, admin `page.tsx` files
+
+---
+
 ## REQ-0020 — Locale-aware admin format (hydration-safe)
 
 | Field        | Value |

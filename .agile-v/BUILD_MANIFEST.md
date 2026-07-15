@@ -328,3 +328,4 @@
 | TC-0044 | REQ-0122 | Catalog mutation hooks patch detail+list before invalidate |
 | TC-0045 | REQ-0123 | Order/invoice graph list patch + portal browse nested patch |
 | TC-0046 | REQ-0124 | Support/reviews/users list patch + soft-delete portal remove |
+| TC-0047 | REQ-0125 | Dashboard list stats SSR + split loading + invoice optimistic patch |
