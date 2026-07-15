@@ -92,7 +92,7 @@ describe("getStockByProductForPage", () => {
 
     expect(prisma.warehouse.findMany).toHaveBeenCalledWith({
       where: { id: { in: ["wh-1"] }, userId: "admin-owner" },
-      select: { id: true, name: true, status: true },
+      select: { id: true, name: true, status: true, address: true, type: true },
     });
     expect(result).toHaveLength(1);
     expect(result![0].warehouse?.name).toBe("Main Warehouse");

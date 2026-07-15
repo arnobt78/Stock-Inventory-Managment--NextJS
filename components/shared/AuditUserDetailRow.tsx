@@ -2,19 +2,16 @@
 
 /**
  * REQ-0095 — merged audit user row for catalog detail pages.
- * REQ-0126 — sky CopyableText email; vertical-friendly inline alignment.
+ * REQ-0127 — PersonInlineRow: sky name · muted email, vertically centered.
  */
 
 import type { LucideIcon } from "lucide-react";
 import { User } from "lucide-react";
 import {
-  AvatarInlineLink,
-  CopyableText,
-} from "@/components/shared";
-import {
   DetailInfoRow,
   type CardVariant,
 } from "@/components/orders/detail";
+import { PersonInlineRow } from "@/components/shared/PersonInlineRow";
 
 export type AuditUserDetail = {
   id: string;
@@ -46,22 +43,13 @@ export function AuditUserDetailRow({
   return (
     <DetailInfoRow icon={icon} label={label} tone={tone} loading={loading}>
       {user ? (
-        <span className="inline-flex flex-wrap items-center gap-x-1.5 gap-y-0.5 min-w-0 font-normal">
-          <AvatarInlineLink
-            seed={user.id}
-            image={user.image}
-            label={user.name ?? user.email}
-            href={href}
-            size={24}
-            linkClassName="text-gray-700 dark:text-white hover:text-sky-600 dark:hover:text-sky-400"
-          />
-          <CopyableText
-            value={user.email}
-            className="text-sm text-sky-600 dark:text-sky-400 font-normal"
-          >
-            {user.email}
-          </CopyableText>
-        </span>
+        <PersonInlineRow
+          seed={user.id}
+          image={user.image}
+          name={user.name ?? user.email}
+          email={user.email}
+          href={href}
+        />
       ) : null}
     </DetailInfoRow>
   );

@@ -48,6 +48,9 @@ export interface StockAllocation {
     name: string;
     /** Warehouse active flag for product-detail inline badge (REQ-0077) */
     status?: boolean;
+    /** REQ-0127 — address + type for product detail warehouse stock rows */
+    address?: string | null;
+    type?: string | null;
   };
 }
 

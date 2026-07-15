@@ -39,6 +39,8 @@ export type CatalogDetailRecentOrderItem = {
   proportionalAmount?: number;
   orderTotal?: number;
   orderStatus: string;
+  /** REQ-0127 — terminal status date for recent-order cards */
+  statusAt?: string;
   owner?: CatalogDetailPartySnapshot | null;
   placedBy?: CatalogDetailPartySnapshot | null;
 };

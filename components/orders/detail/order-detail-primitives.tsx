@@ -137,7 +137,7 @@ export function DetailInfoRow({
       <span className="text-gray-600 dark:text-gray-400">{label}</span>
       <span
         className={cn(
-          "font-normal text-gray-700 dark:text-white",
+          "font-normal text-gray-700 dark:text-white inline-flex items-center min-w-0",
           valueClassName,
         )}
       >

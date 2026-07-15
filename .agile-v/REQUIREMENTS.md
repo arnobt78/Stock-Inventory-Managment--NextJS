@@ -2843,6 +2843,33 @@ Canonical REQ source. All artifacts link via `REQ-XXXX`. Status: `done` | `verif
 
 ---
 
+## REQ-0127 — Detail & table UI parity sweep (10 points)
+
+| Field | Value |
+|-------|-------|
+| **Priority** | P2 |
+| **Risk** | R1 |
+| **Status** | done |
+| **Cycle** | C2 |
+| **Parent** | REQ-0126 |
+
+**Intent:** Fix cross-page detail/table UI parity from prod screenshots — inline person rows (sky name + muted email), statistics alignment, product table column merge, shared urgent forecast table, recent-order status layout, warehouse stock row enrichment. CSS/UI + read-only SSR field additions only.
+
+**Acceptance criteria**
+
+- AC1: `PersonInlineRow` — audit/party rows single inline row; `AuditUserDetailRow` + `PartiesRolesCard` refactored
+- AC2: Category/Supplier statistics — inventory value inline (Product detail parity)
+- AC3: Product table — QR icon in Stock column; Created/Expire merged column; QR column removed
+- AC4: `UrgentReorderForecastTable` — icon title, ProductThumb column, `ForecastUrgencyBadge`; wired Catalog + Warehouse insights
+- AC5: Product detail — Created+Expiration same row; supplier email SSR + `PersonInlineRow`
+- AC6: Recent orders — status below price; `statusAt` SSR; Product detail DRY via `CatalogDetailRecentOrdersList` + `hideProductMeta`
+- AC7: Warehouse detail Address row always visible; product warehouse stock rows with address/type badges
+- AC8: Gates pass — lint, test, invalidate (208), build
+
+**Artifacts:** `PersonInlineRow.tsx`, `UrgentReorderForecastTable.tsx`, `catalog-detail-order-select.ts`, `order-status-display-date.ts`, `ProductTableColumns.tsx`, `ProductDetailPage.tsx`, `CatalogDetailRecentOrdersList.tsx`, `stock-allocation-enrich.ts`
+
+---
+
 ## REQ-0020 — Locale-aware admin format (hydration-safe)
 
 | Field        | Value |

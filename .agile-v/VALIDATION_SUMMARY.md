@@ -562,9 +562,25 @@ Commands: lint, test, test:invalidate, build
 - [ ] Manual: back-nav (history/support-ticket) + post-delete redirect (REQ-0120)
 - [ ] Commit + push REQ-0121; confirm prod SHA after deploy (REQ-0121)
 - [ ] Manual: order/invoice UI sweep smoke on prod (REQ-0126)
+- [ ] Manual: detail person rows + product table + forecast parity (REQ-0127)
 
 **Approver:** _pending_  
 **Date:** _pending_
+
+---
+
+## REQ-0127 — Detail & table UI parity sweep (2026-07-15)
+
+**Scope:** CSS/UI/layout + read-only SSR enrichment — no TanStack mutation, Redis invalidation, or API write changes.
+
+**Gates:** lint ✓ · test 522/522 ✓ · invalidate 208/208 ✓ · build ✓
+
+**Evidence summary**
+
+```
+Scope: built/verified | Traceability: REQ-0127 | Findings: PASS
+Commands: lint, test, test:invalidate, build
+```
 
 ---
 

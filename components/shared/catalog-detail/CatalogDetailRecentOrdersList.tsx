@@ -1,13 +1,15 @@
-/**
- * REQ-0086 — recent orders list for category/supplier detail pages (shared layout + responsive meta row).
- */
-
 "use client";
+
+/**
+ * REQ-0086 — recent orders list for category/supplier/product detail pages.
+ * REQ-0127 — status below price; statusAt on terminal orders; hideProductMeta for product detail.
+ */
 
 import Link from "next/link";
 import { Calendar, Hash, Package, User } from "lucide-react";
 import {
   AvatarInlineLink,
+  ClientCompactDateTime,
   ClientDate,
   CopyableText,
   DataSlotPulse,
@@ -17,6 +19,7 @@ import {
 import { ProductThumb } from "@/components/products/ProductOptionRow";
 import { OrderStatusBadge } from "@/lib/ui/semantic-badges";
 import { CARD_EMPTY_MESSAGE_CLASS } from "@/lib/ui/card-empty-styles";
+import { TYPO_BODY_MUTED } from "@/lib/ui/typography-scale";
 import type { CatalogDetailRecentOrderItem } from "@/types/catalog-detail-lists";
 import { cn } from "@/lib/utils";
 
@@ -29,6 +32,8 @@ export type CatalogDetailRecentOrdersListProps = {
   ownerProductsHref: (ownerId: string) => string;
   isAdminRole?: boolean;
   buyerAdminHref?: (userId: string) => string;
+  /** Product detail — omit thumb/name/SKU row (single-product context) */
+  hideProductMeta?: boolean;
   className?: string;
 };
 
@@ -41,6 +46,7 @@ export function CatalogDetailRecentOrdersList({
   ownerProductsHref,
   isAdminRole = false,
   buyerAdminHref = (userId) => `/admin/user-management/${userId}`,
+  hideProductMeta = false,
   className,
 }: CatalogDetailRecentOrdersListProps) {
   if (loading) {
@@ -86,42 +92,53 @@ export function CatalogDetailRecentOrdersList({
                     </Link>
                   </CopyableText>
                 </div>
-                {/* Single responsive row: product + SKU + qty/price + date */}
-                <p className="text-sm text-gray-600 dark:text-white/60 flex items-center gap-1.5 flex-wrap min-w-0">
-                  <ProductThumb
-                    name={order.productName}
-                    imageUrl={order.productImageUrl}
-                    size="sm"
-                    className="rounded-lg shrink-0"
-                  />
-                  <Link
-                    href={productHref(order.productId)}
-                    prefetch
-                    className="font-normal text-sm text-sky-600 dark:text-sky-400 hover:text-sky-500 truncate"
-                  >
-                    {order.productName}
-                  </Link>
-                  {order.productSku && (
-                    <>
-                      <span className="text-gray-400">•</span>
-                      <Hash className="h-3.5 w-3.5 shrink-0" aria-hidden />
-                      <span className="shrink-0 text-xs">SKU:</span>
-                      <CopyableText value={order.productSku}>
-                        <span className="font-mono text-xs">
-                          {order.productSku}
-                        </span>
-                      </CopyableText>
-                    </>
-                  )}
-                  <span className="text-gray-400">•</span>
-                  <Package className="h-3.5 w-3.5 shrink-0" aria-hidden />
-                  <span>
-                    Qty: {order.quantity} × ${order.price.toFixed(2)}
-                  </span>
-                  <span className="text-gray-400">•</span>
-                  <Calendar className="h-3.5 w-3.5 shrink-0" aria-hidden />
-                  <ClientDate date={order.orderDate} />
-                </p>
+                {!hideProductMeta ? (
+                  <p className="text-sm text-gray-600 dark:text-white/60 flex items-center gap-1.5 flex-wrap min-w-0">
+                    <ProductThumb
+                      name={order.productName}
+                      imageUrl={order.productImageUrl}
+                      size="sm"
+                      className="rounded-lg shrink-0"
+                    />
+                    <Link
+                      href={productHref(order.productId)}
+                      prefetch
+                      className="font-normal text-sm text-sky-600 dark:text-sky-400 hover:text-sky-500 truncate"
+                    >
+                      {order.productName}
+                    </Link>
+                    {order.productSku && (
+                      <>
+                        <span className="text-gray-400">•</span>
+                        <Hash className="h-3.5 w-3.5 shrink-0" aria-hidden />
+                        <span className="shrink-0 text-xs">SKU:</span>
+                        <CopyableText value={order.productSku}>
+                          <span className="font-mono text-xs">
+                            {order.productSku}
+                          </span>
+                        </CopyableText>
+                      </>
+                    )}
+                    <span className="text-gray-400">•</span>
+                    <Package className="h-3.5 w-3.5 shrink-0" aria-hidden />
+                    <span>
+                      Qty: {order.quantity} × ${order.price.toFixed(2)}
+                    </span>
+                    <span className="text-gray-400">•</span>
+                    <Calendar className="h-3.5 w-3.5 shrink-0" aria-hidden />
+                    <ClientDate date={order.orderDate} />
+                  </p>
+                ) : (
+                  <p className="text-sm text-gray-600 dark:text-white/60 flex items-center gap-1.5 flex-wrap min-w-0">
+                    <Package className="h-3.5 w-3.5 shrink-0" aria-hidden />
+                    <span>
+                      Qty: {order.quantity} × ${order.price.toFixed(2)}
+                    </span>
+                    <span className="text-gray-400">•</span>
+                    <Calendar className="h-3.5 w-3.5 shrink-0" aria-hidden />
+                    <ClientDate date={order.orderDate} />
+                  </p>
+                )}
                 {(order.owner || order.placedBy) && (
                   <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-gray-600 dark:text-white/60">
                     {order.owner && (
@@ -166,7 +183,7 @@ export function CatalogDetailRecentOrdersList({
                   </div>
                 )}
               </div>
-              <div className="text-left sm:text-right shrink-0">
+              <div className="flex flex-col items-start sm:items-end gap-1 shrink-0">
                 <ProportionalPriceDisplay
                   listAmount={order.subtotal}
                   adjustedAmount={order.proportionalAmount}
@@ -174,8 +191,18 @@ export function CatalogDetailRecentOrdersList({
                 />
                 <OrderStatusBadge
                   status={order.orderStatus ?? "pending"}
-                  className="mt-1"
                 />
+                {order.statusAt ? (
+                  <span
+                    className={cn(
+                      "inline-flex items-center gap-1 text-xs",
+                      TYPO_BODY_MUTED,
+                    )}
+                  >
+                    <Calendar className="h-3.5 w-3.5 shrink-0" aria-hidden />
+                    <ClientCompactDateTime date={order.statusAt} />
+                  </span>
+                ) : null}
               </div>
             </div>
           </div>

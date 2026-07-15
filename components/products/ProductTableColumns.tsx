@@ -6,7 +6,7 @@ import { Product } from "@/types";
 import { Column, ColumnDef } from "@tanstack/react-table";
 //import { ReactNode } from "react";
 
-import { CopyableText, AvatarInlineLink, TABLE_CATALOG_LINK_CLASS } from "@/components/shared";
+import { CopyableText, AvatarInlineLink, TABLE_CATALOG_LINK_CLASS, ClientDate } from "@/components/shared";
 import ProductsDropDown from "@/components/products/ProductActions";
 
 import {
@@ -140,21 +140,39 @@ export function createProductColumns(
         const isOutOfStock = available <= 0;
 
         return (
-          <div className="flex flex-col">
-            <div className="flex items-center gap-2">
-              <span>{available}</span>
-              {isLowStock && (
-                <AlertTriangle className="h-4 w-4 text-orange-500" />
-              )}
-              {isOutOfStock && (
-                <AlertTriangle className="h-4 w-4 text-red-500" />
+          <div className="flex items-start gap-2">
+            <QRCodeHover
+              data={JSON.stringify({
+                id: row.original.id,
+                name: row.original.name,
+                sku: row.original.sku,
+                price: row.original.price,
+                quantity: row.original.quantity,
+                status: row.original.status,
+                category: row.original.category,
+                supplier: row.original.supplier,
+              })}
+              qrCodeUrl={row.original.qrCodeUrl}
+              title={row.original.name}
+              size={200}
+              iconOnly
+            />
+            <div className="flex flex-col">
+              <div className="flex items-center gap-2">
+                <span>{available}</span>
+                {isLowStock && (
+                  <AlertTriangle className="h-4 w-4 text-orange-500" />
+                )}
+                {isOutOfStock && (
+                  <AlertTriangle className="h-4 w-4 text-red-500" />
+                )}
+              </div>
+              {reserved > 0 && (
+                <span className="text-muted-foreground">
+                  {reserved} reserved
+                </span>
               )}
             </div>
-            {reserved > 0 && (
-              <span className="text-muted-foreground">
-                {reserved} reserved
-              </span>
-            )}
           </div>
         );
       },
@@ -178,60 +196,46 @@ export function createProductColumns(
       cell: ({ getValue }) => `$${getValue<number>().toFixed(2)}`,
     },
     {
-      accessorKey: "createdAt",
-      header: ({ column }) => (
-        <SortableHeader column={column} label="Created At" />
-      ),
-      cell: ({ getValue }) => {
-        const dateValue = getValue<string | Date>();
-        const date =
-          typeof dateValue === "string" ? new Date(dateValue) : dateValue;
-
-        if (!date || isNaN(date.getTime())) {
-          return <span>Unknown Date</span>;
-        }
-
-        return (
-          <span>
-            {date.toLocaleDateString("en-US", {
-              year: "numeric",
-              month: "short",
-              day: "numeric",
-            })}
-          </span>
-        );
-      },
-    },
-    {
-      id: "expirationDate",
-      header: "Expiration Date",
+      id: "dates",
+      header: "Created / Expire",
       cell: ({ row }) => {
-        const expirationDate = row.original.expirationDate;
-        if (!expirationDate) {
-          return <span className="text-gray-500 dark:text-gray-400">-</span>;
-        }
-        const expDate = new Date(expirationDate);
-        const today = new Date();
-        const daysUntilExpiry = Math.ceil(
-          (expDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24),
-        );
+        const product = row.original;
+        const createdAt = product.createdAt;
+        const expirationDate = product.expirationDate;
 
-        // Color coding: red if expired, orange if expiring within 7 days, green otherwise
-        let dateClass = "";
-        if (daysUntilExpiry < 0) {
-          dateClass = "text-red-600 dark:text-red-400";
-        } else if (daysUntilExpiry <= 7) {
-          dateClass = "text-orange-600 dark:text-orange-400";
+        let expireClass = "";
+        if (expirationDate) {
+          const expDate = new Date(expirationDate);
+          const today = new Date();
+          const daysUntilExpiry = Math.ceil(
+            (expDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24),
+          );
+          if (daysUntilExpiry < 0) {
+            expireClass = "text-red-600 dark:text-red-400";
+          } else if (daysUntilExpiry <= 7) {
+            expireClass = "text-orange-600 dark:text-orange-400";
+          }
         }
 
         return (
-          <span className={dateClass}>
-            {expDate.toLocaleDateString("en-US", {
-              year: "numeric",
-              month: "short",
-              day: "numeric",
-            })}
-          </span>
+          <div className="flex flex-col gap-0.5 text-sm">
+            <span className="text-gray-700 dark:text-white">
+              Created:{" "}
+              {createdAt ? (
+                <ClientDate date={createdAt} />
+              ) : (
+                <span className="text-muted-foreground">—</span>
+              )}
+            </span>
+            <span className={expireClass || "text-gray-700 dark:text-white"}>
+              Expire:{" "}
+              {expirationDate ? (
+                <ClientDate date={expirationDate} />
+              ) : (
+                <span className="text-muted-foreground">—</span>
+              )}
+            </span>
+          </div>
         );
       },
     },
@@ -306,32 +310,6 @@ export function createProductColumns(
             },
           } as ColumnDef<Product>,
         ]),
-    {
-      id: "qrCode",
-      header: "QR Code",
-      cell: ({ row }) => {
-        const product = row.original;
-        const qrData = JSON.stringify({
-          id: product.id,
-          name: product.name,
-          sku: product.sku,
-          price: product.price,
-          quantity: product.quantity,
-          status: product.status,
-          category: product.category,
-          supplier: product.supplier,
-        });
-
-        return (
-          <QRCodeHover
-            data={qrData}
-            qrCodeUrl={product.qrCodeUrl}
-            title={product.name}
-            size={200}
-          />
-        );
-      },
-    },
     {
       id: "actions",
       header: "Actions",

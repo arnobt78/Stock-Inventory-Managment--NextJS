@@ -5,7 +5,6 @@
 "use client";
 
 import type { ReactNode } from "react";
-import Link from "next/link";
 import {
   AlertCircle,
   AlertTriangle,
@@ -17,16 +16,6 @@ import {
   Sparkles,
   TrendingUp,
 } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import { TableBodyPulseRows } from "@/components/ui/table-data-skeleton";
 import { ChartCard } from "@/components/ui/chart-card";
 import { DeferredChartSection } from "@/components/ui/deferred-chart-section";
 import { ResponsiveChartContainer } from "@/components/ui/responsive-chart-container";
@@ -38,6 +27,7 @@ import {
 import { CATALOG_STOCK_PIE_COLORS } from "@/lib/ui/catalog-insights-chart-data";
 import { DetailInfoRow } from "@/components/orders/detail";
 import { GlassCard, SectionTitleRow } from "@/components/shared";
+import { UrgentReorderForecastTable } from "@/components/shared/catalog-detail/UrgentReorderForecastTable";
 import type { CatalogEntityInsights } from "@/types/catalog-insights";
 import type { CategoryForecastUrgentRow } from "@/types/category";
 import type { ProductDemandForecast } from "@/types";
@@ -308,59 +298,13 @@ export function CatalogInsightsSection({
         </DeferredChartSection>
       </ChartCard>
 
-      {showUrgentTable && (
-        <GlassCard padding="body" variant="rose" className="lg:col-span-2">
-            <SectionTitleRow
-              as="h3"
-              title="Urgent reorder forecast"
-              count={
-                !forecastLoading ? urgentRows?.length : undefined
-              }
-            />
-            <div className="mt-4 overflow-x-auto">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Product</TableHead>
-                    <TableHead>SKU</TableHead>
-                    <TableHead>Available</TableHead>
-                    <TableHead>Days left</TableHead>
-                    <TableHead>Status</TableHead>
-                  </TableRow>
-                </TableHeader>
-                {forecastLoading ? (
-                  <TableBodyPulseRows rows={5} columnCount={5} />
-                ) : (
-                  <TableBody>
-                    {urgentRows?.map((row) => (
-                      <TableRow key={row.productId}>
-                        <TableCell>
-                          <Link
-                            href={productHref!(row.productId)}
-                            className="text-sm font-normal text-sky-600 dark:text-sky-400 hover:text-sky-500 truncate"
-                          >
-                            {row.productName}
-                          </Link>
-                        </TableCell>
-                        <TableCell className="font-mono text-xs">
-                          {row.sku}
-                        </TableCell>
-                        <TableCell>{row.availableStock}</TableCell>
-                        <TableCell>
-                          {row.daysUntilStockout ?? "∞"}
-                        </TableCell>
-                        <TableCell>
-                          <Badge variant="destructive">
-                            {row.reorderRecommendation}
-                          </Badge>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                )}
-              </Table>
-            </div>
-        </GlassCard>
+      {showUrgentTable && productHref && (
+        <UrgentReorderForecastTable
+          rows={urgentRows}
+          loading={forecastLoading}
+          productHref={productHref}
+          className="lg:col-span-2"
+        />
       )}
     </div>
   );

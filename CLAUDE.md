@@ -785,6 +785,21 @@ Hub: `lib/ui/typography-scale.ts`. Hubs import tokens; ~45 inline files use equi
 
 **No TanStack/SSR/invalidation changes** — CSS/UI/layout only.
 
+## Detail & table UI parity (REQ-0127)
+
+| Piece | Location |
+|-------|----------|
+| Person rows | `PersonInlineRow.tsx` — sky name · muted email; `AuditUserDetailRow`, `PartiesRolesCard` |
+| Stats inline | `CategoryDetailPage`, `SupplierDetailPage` — inventory value baseline like Product |
+| Product table | `ProductTableColumns` — QR in Stock column; merged Created/Expire; no QR column |
+| Urgent forecast | `UrgentReorderForecastTable` — ProductThumb + `ForecastUrgencyBadge`; Catalog + Warehouse insights |
+| Recent orders | `CatalogDetailRecentOrdersList` — status below price + `statusAt`; Product detail `hideProductMeta` |
+| Status date SSR | `order-status-display-date.ts`, `catalog-detail-order-select.ts` — category/supplier/product detail |
+| Warehouse stock | Product detail allocation rows — icon tile, type badge, MapPin address subtitle |
+| Address row | `WarehouseDetailPage` — always visible (`—` when empty) |
+
+**No TanStack/invalidation changes** — CSS/UI + read-only SSR enrichment only.
+
 ## Post-mutation cache (REQ-0052 + REQ-0055)
 
 | Piece | Location |

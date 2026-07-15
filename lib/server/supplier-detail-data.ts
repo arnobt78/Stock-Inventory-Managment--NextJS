@@ -20,6 +20,8 @@ import {
 } from "@/lib/server/catalog-entity-access";
 import type { CatalogPartyUserRow } from "@/lib/server/catalog-party-snapshot";
 import { enrichProductsWithCommittedQuantity } from "@/lib/products/enrich-product-committed-quantity";
+import { catalogDetailOrderSelect } from "@/lib/server/catalog-detail-order-select";
+import { resolveOrderStatusAt } from "@/lib/orders/order-status-display-date";
 
 type SupplierProductWithOrders = Awaited<
   ReturnType<
@@ -28,15 +30,7 @@ type SupplierProductWithOrders = Awaited<
         orderItems: {
           include: {
             order: {
-              select: {
-                id: true;
-                orderNumber: true;
-                status: true;
-                subtotal: true;
-                total: true;
-                createdAt: true;
-                userId: true;
-              };
+              select: typeof catalogDetailOrderSelect;
             };
           };
         };
@@ -115,6 +109,17 @@ function transformSupplierDetail(
         orderId: order?.id || "",
         orderNumber: order?.orderNumber || "",
         orderStatus: order?.status || "",
+        statusAt: order
+          ? resolveOrderStatusAt({
+              status: order.status,
+              paymentStatus: order.paymentStatus,
+              paidAt: order.paidAt,
+              cancelledAt: order.cancelledAt,
+              deliveredAt: order.deliveredAt,
+              shippedAt: order.shippedAt,
+              updatedAt: order.updatedAt,
+            })
+          : undefined,
         productId: product.id,
         productName: product.name,
         productSku: product.sku,
@@ -256,17 +261,9 @@ export async function getSupplierDetailForPage(
     include: {
       orderItems: {
         include: {
-          order: {
-            select: {
-              id: true,
-              orderNumber: true,
-              status: true,
-              subtotal: true,
-              total: true,
-              createdAt: true,
-              userId: true,
+            order: {
+              select: catalogDetailOrderSelect,
             },
-          },
         },
       },
     },

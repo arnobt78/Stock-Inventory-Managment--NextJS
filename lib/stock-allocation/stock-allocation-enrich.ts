@@ -12,6 +12,8 @@ import type { StockAllocation } from "@/types";
 export type StockAllocationWarehouseSnapshot = {
   name: string;
   status: boolean;
+  address?: string | null;
+  type?: string | null;
 };
 
 export type StockAllocationProductSnapshot = {
@@ -228,6 +230,8 @@ export function transformStockAllocationRow(
           id: row.warehouseId,
           name: warehouse.name,
           status: warehouse.status,
+          address: warehouse.address ?? null,
+          type: warehouse.type ?? null,
         }
       : undefined,
   };

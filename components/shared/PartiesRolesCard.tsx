@@ -2,7 +2,7 @@
 
 /**
  * REQ-0074 — shared Parties & roles card with avatar rings and per-party glow cards.
- * REQ-0126 — vertical stack per party; sky CopyableText email on line 2.
+ * REQ-0127 — single inline row per party: icon label + PersonInlineRow (sky name · muted email).
  */
 
 import React from "react";
@@ -14,7 +14,8 @@ import {
   MapPin,
   Users,
 } from "lucide-react";
-import { AvatarInlineLink, CopyableText, DataSlotPulse } from "@/components/shared";
+import { DataSlotPulse } from "@/components/shared";
+import { PersonInlineRow } from "@/components/shared/PersonInlineRow";
 import { cn } from "@/lib/utils";
 
 export type PartyPerson = {
@@ -52,28 +53,18 @@ function PartyPersonDisplay({
   const displayName = person.name ?? person.email;
 
   return (
-    <div className="flex flex-col gap-1 min-w-0">
-      <AvatarInlineLink
-        seed={seed}
-        image={person.image}
-        label={displayName}
-        href={person.href}
-        size={28}
-        linkClassName="text-gray-700 dark:text-white hover:text-sky-600 dark:hover:text-sky-400 font-normal"
-      />
-      {person.name ? (
-        <CopyableText
-          value={person.email}
-          className="text-sm text-sky-600 dark:text-sky-400 font-normal pl-0.5"
-        >
-          {person.email}
-        </CopyableText>
-      ) : null}
-    </div>
+    <PersonInlineRow
+      seed={seed}
+      image={person.image}
+      name={displayName}
+      email={person.email}
+      href={person.href}
+      avatarSize={28}
+    />
   );
 }
 
-function PartyFieldCard({
+function PartyFieldRow({
   label,
   icon: Icon,
   children,
@@ -87,18 +78,18 @@ function PartyFieldCard({
   return (
     <div
       className={cn(
-        "p-3 rounded-xl border border-teal-200/30 dark:border-teal-400/20",
+        "flex flex-wrap items-center gap-x-3 gap-y-2 p-3 rounded-xl border border-teal-200/30 dark:border-teal-400/20",
         "bg-gradient-to-br from-teal-100/40 via-white/30 to-transparent",
         "dark:from-teal-500/10 dark:via-white/5 dark:to-transparent",
         "shadow-[0_8px_24px_rgba(20,184,166,0.12)] dark:shadow-[0_8px_24px_rgba(20,184,166,0.08)]",
         className,
       )}
     >
-      <p className="text-gray-600 dark:text-gray-400 font-medium mb-1.5 inline-flex items-center gap-1.5 text-sm">
+      <span className="text-gray-600 dark:text-gray-400 font-medium inline-flex items-center gap-1.5 text-sm shrink-0">
         <Icon className="h-3.5 w-3.5 shrink-0" />
         {label}
-      </p>
-      {children}
+      </span>
+      <div className="min-w-0 flex-1">{children}</div>
     </div>
   );
 }
@@ -133,22 +124,25 @@ export function PartiesRolesCard({
       </div>
       <div className="flex flex-col gap-2 text-sm">
         {showInvoiceCreated && (
-          <PartyFieldCard label="Invoice created by" icon={FileText}>
-            <PartyPersonDisplay person={invoiceCreatedBy} loading={dataLoading} />
-          </PartyFieldCard>
+          <PartyFieldRow label="Invoice created by" icon={FileText}>
+            <PartyPersonDisplay
+              person={invoiceCreatedBy}
+              loading={dataLoading}
+            />
+          </PartyFieldRow>
         )}
         {showOrderedBy && (
-          <PartyFieldCard label="Ordered by" icon={User}>
+          <PartyFieldRow label="Ordered by" icon={User}>
             <PartyPersonDisplay person={orderedBy} loading={dataLoading} />
-          </PartyFieldCard>
+          </PartyFieldRow>
         )}
         {showCustomer && (
-          <PartyFieldCard label={customerLabel} icon={MapPin}>
+          <PartyFieldRow label={customerLabel} icon={MapPin}>
             <PartyPersonDisplay person={customer} loading={dataLoading} />
-          </PartyFieldCard>
+          </PartyFieldRow>
         )}
         {showOwners && (
-          <PartyFieldCard label="Product owner(s)" icon={Users}>
+          <PartyFieldRow label="Product owner(s)" icon={Users}>
             {dataLoading ? (
               <DataSlotPulse variant="text-md" className="w-48" />
             ) : (
@@ -161,7 +155,7 @@ export function PartiesRolesCard({
                 ))}
               </div>
             )}
-          </PartyFieldCard>
+          </PartyFieldRow>
         )}
       </div>
     </div>

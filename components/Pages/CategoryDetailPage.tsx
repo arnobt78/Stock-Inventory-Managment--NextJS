@@ -500,14 +500,14 @@ export default function CategoryDetailPage({
                     loading={dataLoading}
                   >
                     {!dataLoading && (
-                      <div className="flex flex-col items-end gap-0.5">
+                      <span className="inline-flex flex-wrap items-baseline gap-x-1.5">
                         <span className="text-blue-600 dark:text-blue-400">
-                          ${stats.totalValue.toFixed(2)}
+                          ${(stats.totalValue ?? 0).toFixed(2)}
                         </span>
                         <span className={cn("text-xs", TYPO_BODY_MUTED)}>
-                          price × on-hand qty
+                          (price × on-hand qty)
                         </span>
-                      </div>
+                      </span>
                     )}
                   </DetailInfoRow>
                 </div>

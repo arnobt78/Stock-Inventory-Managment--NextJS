@@ -30,7 +30,7 @@ export interface Product {
   categoryId: string;
   supplierId: string;
   category?: string | { id: string; name: string } | null;
-  supplier?: string | { id: string; name: string } | null;
+  supplier?: string | { id: string; name: string; email?: string | null } | null;
   qrCodeUrl?: string; // ImageKit URL for QR code image
   qrCodeFileId?: string; // ImageKit file ID for cleanup when regenerating
   imageUrl?: string; // ImageKit URL for product image
@@ -74,6 +74,8 @@ export interface Product {
     proportionalAmount?: number;
     orderTotal?: number;
     orderStatus: string;
+    /** REQ-0127 — terminal status date for recent-order cards */
+    statusAt?: string;
     placedBy?: {
       id: string;
       name: string | null;

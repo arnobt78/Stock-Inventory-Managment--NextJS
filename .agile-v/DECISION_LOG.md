@@ -328,3 +328,5 @@ Format: `TIMESTAMP | AGENT | DECISION | RATIONALE | REQ-ID`
 2026-07-15T15:01:00Z | red-team | REQ-0125 gates | lint ✓ test ✓ invalidate ✓ build ✓ | REQ-0125
 2026-07-15T16:40:00Z | build-agent | REQ-0126 UI sweep | 12 order/invoice UI fixes — shared helpers, table columns, dialog dates, payment checkout; no TanStack/SSR changes | REQ-0126
 2026-07-15T16:40:00Z | red-team | REQ-0126 gates | lint ✓ test 519 ✓ invalidate 208 ✓ build ✓ | REQ-0126
+2026-07-15T17:25:00Z | build-agent | REQ-0127 detail parity | PersonInlineRow + table/forecast/recent-order/warehouse stock UI; read-only SSR statusAt + supplier email + warehouse address/type | REQ-0127
+2026-07-15T17:25:00Z | red-team | REQ-0127 gates | lint ✓ test 522 ✓ invalidate 208 ✓ build ✓ | REQ-0127

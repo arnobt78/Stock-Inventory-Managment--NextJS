@@ -20,19 +20,19 @@ import {
   BarChart3,
   QrCode,
   Image as ImageIcon,
-  User,
   Edit,
   Copy,
   Trash2,
   Building2,
+  MapPin,
   Wallet,
   Hash,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
-  OrderStatusBadge,
   ProductStockStatusBadge,
   ActiveInactiveBadge,
+  WarehouseTypeBadge,
 } from "@/lib/ui/semantic-badges";
 import { Separator } from "@/components/ui/separator";
 import {
@@ -53,7 +53,6 @@ import {
   ClientDateTime,
   ClientRelativeTime,
   CopyableText,
-  AvatarInlineLink,
   AuditUserDetailRow,
   PageContentWrapper,
   DataSlotPulse,
@@ -64,14 +63,15 @@ import {
   DialogSubmitButton,
   SectionTitleRow,
   SectionCountBadge,
-  ListIndexBadge,
-  ProportionalPriceDisplay,
+  PersonInlineRow,
   CatalogInsightsSection,
   DetailInfoRowGroup,
   GlassCard,
   GlassCardBody,
   GLASS_CARD_VARIANT_CONFIG as variantConfig,
 } from "@/components/shared";
+import { CatalogDetailRecentOrdersList } from "@/components/shared/catalog-detail/CatalogDetailRecentOrdersList";
+import type { CatalogDetailRecentOrderItem } from "@/types/catalog-detail-lists";
 import { findProductForecast } from "@/lib/forecasting/entity-forecast";
 import { enrichProductInsightsWithWarehouseStock } from "@/lib/insights/product-insights-enrich";
 import { sumAllocatedQuantity } from "@/lib/insights/warehouse-stock-aggregate";
@@ -255,6 +255,27 @@ export default function ProductDetailPage({
     embedInAdmin
       ? `/admin/products?ownerId=${ownerId}`
       : `/products?ownerId=${ownerId}`;
+  const orderHref = (orderId: string) =>
+    embedInAdmin ? `/admin/orders/${orderId}` : `/orders/${orderId}`;
+
+  const catalogRecentOrders = useMemo((): CatalogDetailRecentOrderItem[] => {
+    if (!product?.recentOrders?.length || !product.id) return [];
+    return product.recentOrders.map((order) => ({
+      ...order,
+      productId: product.id,
+      productName: product.name ?? "",
+      productSku: product.sku ?? null,
+      productImageUrl: product.imageUrl ?? null,
+      owner: product.creator
+        ? {
+            id: product.creator.id,
+            name: product.creator.name,
+            email: product.creator.email,
+            image: product.creator.image ?? null,
+          }
+        : null,
+    }));
+  }, [product]);
 
   // Edit: open product form dialog with current product (same as ProductActions)
   const handleEditProduct = () => {
@@ -605,9 +626,14 @@ export default function ProductDetailPage({
                         label="Supplier:"
                         tone="orange"
                       >
-                        <AvatarInlineLink
+                        <PersonInlineRow
                           seed={product.supplier.id}
-                          label={product.supplier.name}
+                          name={product.supplier.name}
+                          email={
+                            "email" in product.supplier
+                              ? product.supplier.email
+                              : undefined
+                          }
                           href={
                             embedInAdmin
                               ? `/admin/suppliers/${product.supplier.id}`
@@ -637,16 +663,16 @@ export default function ProductDetailPage({
                         )}
                       </DetailInfoRow>
                     )}
+                    {!dataLoading && expirationDate && (
+                      <DetailInfoRow
+                        icon={Calendar}
+                        label="Expiration:"
+                        tone="amber"
+                      >
+                        <ClientDate date={expirationDate} />
+                      </DetailInfoRow>
+                    )}
                   </DetailInfoRowGroup>
-                  {!dataLoading && expirationDate && (
-                    <DetailInfoRow
-                      icon={Calendar}
-                      label="Expiration:"
-                      tone="amber"
-                    >
-                      <ClientDate date={expirationDate} />
-                    </DetailInfoRow>
-                  )}
                   {!dataLoading && product && (
                     <DetailInfoRowGroup>
                       <DetailInfoRow
@@ -858,29 +884,65 @@ export default function ProductDetailPage({
                       return (
                         <div
                           key={row.id}
-                          className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 p-3 rounded-xl border border-teal-200/30 dark:border-teal-400/10 bg-gradient-to-r from-teal-100/40 via-teal-50/20 to-transparent dark:from-teal-500/10 dark:via-teal-500/5 dark:to-transparent"
+                          className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3 rounded-xl border border-teal-200/30 dark:border-teal-400/10 bg-gradient-to-r from-teal-100/40 via-teal-50/20 to-transparent dark:from-teal-500/10 dark:via-teal-500/5 dark:to-transparent"
                         >
-                          <div className="flex flex-wrap items-center gap-2 min-w-0">
-                            {warehouseLinkAllowed ? (
-                              <Link
-                                href={whHref}
-                                className="font-medium text-sm text-sky-600 dark:text-sky-400 hover:text-sky-500"
-                              >
-                                {row.warehouse?.name ?? "Warehouse"}
-                              </Link>
-                            ) : (
-                              <span className="font-medium text-sm text-gray-700 dark:text-white">
-                                {row.warehouse?.name ?? "Warehouse"}
-                              </span>
-                            )}
-                            {/* REQ-0077 — inline warehouse active/inactive badge */}
-                            {row.warehouse?.status != null && (
-                              <ActiveInactiveBadge
-                                active={row.warehouse.status}
+                          <div className="flex items-start gap-3 min-w-0 flex-1">
+                            <div className="p-2 rounded-xl border border-teal-400/30 bg-teal-500/20 shrink-0">
+                              <Building2
+                                className="h-5 w-5 text-teal-600 dark:text-teal-400"
+                                aria-hidden
                               />
-                            )}
+                            </div>
+                            <div className="min-w-0 flex-1 space-y-0.5">
+                              <div className="flex flex-wrap items-center gap-2 min-w-0">
+                                {warehouseLinkAllowed ? (
+                                  <Link
+                                    href={whHref}
+                                    className="font-medium text-sm text-sky-600 dark:text-sky-400 hover:text-sky-500"
+                                  >
+                                    {row.warehouse?.name ?? "Warehouse"}
+                                  </Link>
+                                ) : (
+                                  <span className="font-medium text-sm text-gray-700 dark:text-white">
+                                    {row.warehouse?.name ?? "Warehouse"}
+                                  </span>
+                                )}
+                                {row.warehouse?.status != null && (
+                                  <ActiveInactiveBadge
+                                    active={row.warehouse.status}
+                                  />
+                                )}
+                                {row.warehouse?.type ? (
+                                  <WarehouseTypeBadge
+                                    type={row.warehouse.type}
+                                    size="detail"
+                                  />
+                                ) : null}
+                              </div>
+                              {row.warehouse?.address ? (
+                                <p
+                                  className={cn(
+                                    "text-xs flex items-start gap-1 min-w-0",
+                                    TYPO_BODY_MUTED,
+                                  )}
+                                >
+                                  <MapPin
+                                    className="h-3.5 w-3.5 shrink-0 mt-0.5"
+                                    aria-hidden
+                                  />
+                                  <span className="min-w-0 break-words">
+                                    {row.warehouse.address}
+                                  </span>
+                                </p>
+                              ) : null}
+                              {commitHint ? (
+                                <p className="text-xs text-amber-600/90 dark:text-amber-400/90">
+                                  {commitHint}
+                                </p>
+                              ) : null}
+                            </div>
                           </div>
-                          <span className="text-sm font-normal text-gray-700 dark:text-white shrink-0">
+                          <span className="text-sm font-normal text-gray-700 dark:text-white shrink-0 sm:text-right">
                             {avail}{" "}
                             <span className="text-gray-500 dark:text-gray-400">
                               available
@@ -891,11 +953,6 @@ export default function ProductDetailPage({
                               </span>
                             ) : null}
                           </span>
-                          {commitHint ? (
-                            <p className="text-xs text-amber-600/90 dark:text-amber-400/90 sm:text-right">
-                              {commitHint}
-                            </p>
-                          ) : null}
                         </div>
                       );
                     })}
@@ -926,122 +983,16 @@ export default function ProductDetailPage({
               <p className="text-xs text-gray-600 dark:text-white/60">
                 Latest orders containing this product
               </p>
-              {dataLoading ? (
-                <DataSlotPulse variant="text-sm" className="mt-4 h-16" />
-              ) : !product?.recentOrders?.length ? (
-                <p className={CARD_EMPTY_MESSAGE_CLASS}>
-                  No recent orders for this product yet.
-                </p>
-              ) : (
-                <div className="space-y-2 mt-4">
-                  {product.recentOrders.map((order, index) => {
-                    const orderHref = embedInAdmin
-                      ? `/admin/orders/${order.orderId}`
-                      : `/orders/${order.orderId}`;
-                    const placedBy = order.placedBy as
-                      | {
-                          id: string;
-                          name: string | null;
-                          email: string;
-                          image?: string | null;
-                        }
-                      | null
-                      | undefined;
-                    const buyerLabel =
-                      placedBy?.name?.trim() ||
-                      placedBy?.email ||
-                      "Unknown buyer";
-                    return (
-                      <div
-                        key={order.id}
-                        className="flex flex-col gap-2 p-4 rounded-xl border border-gray-300/20 dark:border-white/10 bg-white/30 dark:bg-white/5"
-                      >
-                        <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-2">
-                          <div className="flex-1 min-w-0 space-y-2">
-                            <div className="flex items-center gap-2 min-w-0">
-                              <ListIndexBadge index={index + 1} />
-                              <CopyableText
-                                value={order.orderNumber}
-                                className="min-w-0"
-                              >
-                                <Link
-                                  href={orderHref}
-                                  className="font-normal text-sm text-sky-600 dark:text-sky-400 hover:text-sky-500 dark:hover:text-sky-300 truncate"
-                                >
-                                  {order.orderNumber}
-                                </Link>
-                              </CopyableText>
-                            </div>
-                            <p className="text-sm text-gray-600 dark:text-white/60 flex items-center gap-1.5 flex-wrap">
-                              <Package className="h-3.5 w-3.5 shrink-0" />
-                              Qty: {order.quantity} × ${order.price.toFixed(2)}
-                              <span className="text-gray-400">•</span>
-                              <Calendar className="h-3.5 w-3.5 shrink-0" />
-                              <ClientDate date={order.orderDate} />
-                            </p>
-                            {(product?.creator || placedBy) && (
-                              <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-gray-600 dark:text-white/60">
-                                {product?.creator && (
-                                  <span className="inline-flex items-center gap-1.5 min-w-0">
-                                    <User className="h-3.5 w-3.5 shrink-0" />
-                                    Owner:{" "}
-                                    <AvatarInlineLink
-                                      seed={product.creator.id}
-                                      image={product.creator.image}
-                                      label={
-                                        product.creator.name ??
-                                        product.creator.email ??
-                                        "Owner"
-                                      }
-                                      href={ownerProductsHref(
-                                        product.creator.id,
-                                      )}
-                                      size={20}
-                                    />
-                                  </span>
-                                )}
-                                {placedBy && (
-                                  <span className="inline-flex items-center gap-1.5 min-w-0">
-                                    <User className="h-3.5 w-3.5 shrink-0" />
-                                    Buyer:{" "}
-                                    {isAdminRole ? (
-                                      <AvatarInlineLink
-                                        seed={placedBy.id}
-                                        image={placedBy.image}
-                                        label={buyerLabel}
-                                        href={`/admin/user-management/${placedBy.id}`}
-                                        size={20}
-                                      />
-                                    ) : (
-                                      <AvatarInlineLink
-                                        seed={placedBy.id}
-                                        image={placedBy.image}
-                                        label={buyerLabel}
-                                        size={20}
-                                      />
-                                    )}
-                                  </span>
-                                )}
-                              </div>
-                            )}
-                          </div>
-                          <div className="text-left sm:text-right shrink-0">
-                            <ProportionalPriceDisplay
-                              listAmount={order.subtotal}
-                              adjustedAmount={order.proportionalAmount}
-                              size="sm"
-                            />
-                            <OrderStatusBadge
-                              status={order.orderStatus ?? "pending"}
-                              className="mt-1"
-                            />
-                          </div>
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-              )}
+              <CatalogDetailRecentOrdersList
+                loading={dataLoading}
+                orders={catalogRecentOrders}
+                hideProductMeta
+                emptyMessage="No recent orders for this product yet."
+                orderHref={orderHref}
+                productHref={productHref}
+                ownerProductsHref={ownerProductsHref}
+                isAdminRole={isAdminRole}
+              />
             </GlassCardBody>
           </GlassCard>
 

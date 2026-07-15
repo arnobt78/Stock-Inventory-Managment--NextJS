@@ -130,6 +130,8 @@ export type {
   AuditUserDetail,
   AuditUserDetailRowProps,
 } from "./AuditUserDetailRow";
+export { PersonInlineRow } from "./PersonInlineRow";
+export type { PersonInlineRowProps } from "./PersonInlineRow";
 export {
   GlassCard,
   GlassCardBody,

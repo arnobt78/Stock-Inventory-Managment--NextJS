@@ -23,6 +23,8 @@ import {
   CATEGORY_LOW_STOCK_THRESHOLD,
 } from "@/lib/server/catalog-insights";
 import { enrichProductsWithCommittedQuantity } from "@/lib/products/enrich-product-committed-quantity";
+import { catalogDetailOrderSelect } from "@/lib/server/catalog-detail-order-select";
+import { resolveOrderStatusAt } from "@/lib/orders/order-status-display-date";
 
 export { CATEGORY_LOW_STOCK_THRESHOLD };
 export { computeCatalogInsights as computeCategoryInsights } from "@/lib/server/catalog-insights";
@@ -41,15 +43,7 @@ type ProductWithOrders = Awaited<
         orderItems: {
           include: {
             order: {
-              select: {
-                id: true;
-                orderNumber: true;
-                status: true;
-                subtotal: true;
-                total: true;
-                createdAt: true;
-                userId: true;
-              };
+              select: typeof catalogDetailOrderSelect;
             };
           };
         };
@@ -129,6 +123,17 @@ function transformCategoryDetail(
         orderId: order?.id || "",
         orderNumber: order?.orderNumber || "",
         orderStatus: order?.status || "",
+        statusAt: order
+          ? resolveOrderStatusAt({
+              status: order.status,
+              paymentStatus: order.paymentStatus,
+              paidAt: order.paidAt,
+              cancelledAt: order.cancelledAt,
+              deliveredAt: order.deliveredAt,
+              shippedAt: order.shippedAt,
+              updatedAt: order.updatedAt,
+            })
+          : undefined,
         productId: product.id,
         productName: product.name,
         productSku: product.sku,
@@ -270,17 +275,9 @@ export async function getCategoryDetailForPage(
     include: {
       orderItems: {
         include: {
-          order: {
-            select: {
-              id: true,
-              orderNumber: true,
-              status: true,
-              subtotal: true,
-              total: true,
-              createdAt: true,
-              userId: true,
+            order: {
+              select: catalogDetailOrderSelect,
             },
-          },
         },
       },
     },

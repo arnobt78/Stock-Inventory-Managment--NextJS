@@ -30,6 +30,8 @@ interface QRCodeHoverProps {
    * Size of QR code in pixels
    */
   size?: number;
+  /** REQ-0127 — icon-only trigger (e.g. product table stock column) */
+  iconOnly?: boolean;
 }
 
 export function QRCodeHover({
@@ -37,6 +39,7 @@ export function QRCodeHover({
   qrCodeUrl,
   title,
   size = 200,
+  iconOnly = false,
 }: QRCodeHoverProps) {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
@@ -51,22 +54,27 @@ export function QRCodeHover({
     return (
       <div className="flex items-center gap-1 text-blue-600">
         <QrCode className="h-4 w-4" />
-        {title}
+        {!iconOnly && title}
       </div>
     );
   }
 
   return (
     <>
-      {/* Text Link - Click to open dialog */}
       <button
         type="button"
-        className="text-sky-600 dark:text-sky-400 hover:text-sky-500 dark:hover:text-sky-300 cursor-pointer flex items-center gap-1 min-w-0 max-w-full transition-colors"
+        className={
+          iconOnly
+            ? "text-sky-600 dark:text-sky-400 hover:text-sky-500 dark:hover:text-sky-300 cursor-pointer inline-flex shrink-0 items-center justify-center transition-colors"
+            : "text-sky-600 dark:text-sky-400 hover:text-sky-500 dark:hover:text-sky-300 cursor-pointer flex items-center gap-1 min-w-0 max-w-full transition-colors"
+        }
         onClick={() => setIsDialogOpen(true)}
         aria-label={`View QR code for ${title}`}
       >
         <QrCode className="h-4 w-4 shrink-0" />
-        <span className="truncate max-w-[7rem] sm:max-w-[9rem]">{title}</span>
+        {!iconOnly && (
+          <span className="truncate max-w-[7rem] sm:max-w-[9rem]">{title}</span>
+        )}
       </button>
 
       {/* Dialog — same glassmorphic style as Product/Category dialogs */}

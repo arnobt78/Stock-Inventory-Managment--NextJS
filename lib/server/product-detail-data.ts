@@ -4,7 +4,6 @@
  * REQ-0024, REQ-0105 — committedQuantity display field (disjoint paths summed).
  */
 
-import { getProductById } from "@/prisma/product";
 import { getSupplierByUserId } from "@/prisma/supplier";
 import { getCache, setCache, cacheKeys } from "@/lib/cache";
 import { prisma } from "@/prisma/client";
@@ -14,20 +13,14 @@ import { logger } from "@/lib/logger";
 import { computeProportionalLineAmount } from "@/lib/orders/proportional-line-amount";
 import type { SessionForDetail } from "@/lib/server/order-detail-data";
 import { computeProductInsights } from "@/lib/server/product-insights";
+import { catalogDetailOrderSelect } from "@/lib/server/catalog-detail-order-select";
+import { resolveOrderStatusAt } from "@/lib/orders/order-status-display-date";
 
 const productInclude = {
   orderItems: {
     include: {
       order: {
-        select: {
-          id: true,
-          orderNumber: true,
-          status: true,
-          subtotal: true,
-          total: true,
-          createdAt: true,
-          userId: true,
-        },
+        select: catalogDetailOrderSelect,
       },
     },
     orderBy: { createdAt: "desc" as const },
@@ -57,6 +50,7 @@ function transformProductDetail(
     name: string;
     description: string | null;
     status: boolean;
+    email?: string | null;
   } | null,
   creatorUser: { id: string; email: string; name: string | null; image?: string | null } | null,
   updaterUser: { id: string; email: string; name: string | null; image?: string | null } | null,
@@ -121,6 +115,7 @@ function transformProductDetail(
           name: supplier.name,
           description: supplier.description,
           status: supplier.status,
+          email: supplier.email ?? null,
         }
       : null,
     userId: product.userId,
@@ -177,6 +172,15 @@ function transformProductDetail(
         orderId: item.order.id,
         orderNumber: item.order.orderNumber,
         orderStatus: item.order.status,
+        statusAt: resolveOrderStatusAt({
+          status: item.order.status,
+          paymentStatus: item.order.paymentStatus,
+          paidAt: item.order.paidAt,
+          cancelledAt: item.order.cancelledAt,
+          deliveredAt: item.order.deliveredAt,
+          shippedAt: item.order.shippedAt,
+          updatedAt: item.order.updatedAt,
+        }),
         quantity: item.quantity,
         price: item.price,
         subtotal: item.subtotal,
@@ -245,7 +249,10 @@ export async function getProductDetailForPage(
       include: productInclude,
     });
   } else {
-    product = await getProductById(id, userId);
+    product = await prisma.product.findFirst({
+      where: mergeProductListWhere({ id, userId }),
+      include: productInclude,
+    });
   }
 
   if (!product) return null;
@@ -266,7 +273,7 @@ export async function getProductDetailForPage(
     }),
     prisma.supplier.findUnique({
       where: { id: product.supplierId },
-      select: { id: true, name: true, description: true, status: true },
+      select: { id: true, name: true, description: true, status: true, userId: true },
     }),
     product.createdBy
       ? prisma.user.findUnique({
@@ -295,10 +302,19 @@ export async function getProductDetailForPage(
     ]),
   );
 
+  const supplierUser = supplier?.userId
+    ? await prisma.user.findUnique({
+        where: { id: supplier.userId },
+        select: { email: true },
+      })
+    : null;
+
   const transformedProduct = transformProductDetail(
     product,
     category,
-    supplier,
+    supplier
+      ? { ...supplier, email: supplierUser?.email ?? null }
+      : null,
     creatorUser,
     updaterUser,
     orderUserMap,

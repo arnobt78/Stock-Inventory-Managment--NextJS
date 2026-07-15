@@ -330,3 +330,4 @@
 | TC-0046 | REQ-0124 | Support/reviews/users list patch + soft-delete portal remove |
 | TC-0047 | REQ-0125 | Dashboard list stats SSR + split loading + invoice optimistic patch |
 | TC-0048 | REQ-0126 | Order/invoice UI sweep — table meta, dialog dates, payment checkout (UI-only) |
+| TC-0049 | REQ-0127 | PersonInlineRow + product table columns + urgent forecast table + recent-order statusAt SSR |

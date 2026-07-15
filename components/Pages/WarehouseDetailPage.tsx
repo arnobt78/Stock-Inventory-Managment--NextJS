@@ -479,11 +479,15 @@ export default function WarehouseDetailPage({
                     </CopyableText>
                   )}
                 </DetailInfoRow>
-                {warehouse?.address && (
-                  <DetailInfoRow icon={MapPin} label="Address:" tone="teal">
-                    {warehouse.address}
-                  </DetailInfoRow>
-                )}
+                <DetailInfoRow icon={MapPin} label="Address:" tone="teal">
+                  {warehouse?.address ? (
+                    <CopyableText value={warehouse.address}>
+                      {warehouse.address}
+                    </CopyableText>
+                  ) : (
+                    <span className="text-gray-500 dark:text-gray-400">—</span>
+                  )}
+                </DetailInfoRow>
                 {warehouse?.type && (
                   <DetailInfoRow icon={Tag} label="Type:" tone="blue">
                     <WarehouseTypeBadge
