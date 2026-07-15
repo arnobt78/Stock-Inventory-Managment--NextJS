@@ -2988,6 +2988,31 @@ Canonical REQ source. All artifacts link via `REQ-XXXX`. Status: `done` | `verif
 
 ---
 
+## REQ-0133 — Cache coherence hardening (post-CRUD revert fix)
+
+| Field | Value |
+|-------|-------|
+| **Priority** | P0 |
+| **Risk** | R2 |
+| **Status** | done |
+| **Cycle** | C2 |
+| **Parent** | REQ-0055 |
+
+**Intent:** Fix prod “fresh after CRUD → old data minutes later” via four-layer coherence: SSR sync guard, widened Redis invalidation, TanStack persistence trim, Redis stale re-warm block.
+
+**Acceptance criteria**
+
+- AC1: `resolveSsrSyncAction` skips list/entity overwrite when server not provably fresher
+- AC2: `PRODUCT_*` / `STOCK_*` / `CATEGORY_*` / `WAREHOUSE_*` Redis patterns include categories/suppliers/portals/forecasting
+- AC3: TanStack persist auth/user only; buster `v2.0.2`; `refetchOnWindowFocus: false`
+- AC4: `invalidateAfterCatalogChange` on catalog/stock hooks + back-nav
+- AC5: `setCache` blocks re-warm when invalidation after `fetchedAt`; all GET read-through sites pass `fetchedAt`
+- AC6: Gates pass — lint, test 544+, invalidate 213+, build
+
+**Artifacts:** `ssr-sync-policy.ts`, `cache-utils.ts`, `post-mutation.ts`, `invalidate-all.ts`, `provider.tsx`, `config.ts`, all cached API/server-data paths
+
+---
+
 ## REQ-0020 — Locale-aware admin format (hydration-safe)
 
 | Field        | Value |

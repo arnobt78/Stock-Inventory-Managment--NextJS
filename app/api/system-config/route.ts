@@ -64,6 +64,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Check cache
+    const cacheReadStartedAt = Date.now();
     const cached = await getCache<SystemConfig[]>(CACHE_KEY);
     if (cached) {
       return NextResponse.json({
@@ -80,7 +81,7 @@ export async function GET(request: NextRequest) {
     const result = configs.map(transform);
 
     // Cache for 5 minutes
-    await setCache(CACHE_KEY, result, 300);
+    await setCache(CACHE_KEY, result, 300, { fetchedAt: cacheReadStartedAt });
 
     return NextResponse.json({
       configs: result,

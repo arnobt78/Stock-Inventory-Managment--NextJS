@@ -19,6 +19,7 @@ import type {
 
 export async function getClientPortalForAdmin(): Promise<ClientPortalStats> {
   const cacheKey = cacheKeys.clientPortal.overview;
+  const cacheReadStartedAt = Date.now();
   const cached = await getCache<ClientPortalStats>(cacheKey);
   if (cached) return cached;
 
@@ -141,6 +142,6 @@ export async function getClientPortalForAdmin(): Promise<ClientPortalStats> {
     clients,
   };
 
-  await setCache(cacheKey, stats, 300);
+  await setCache(cacheKey, stats, 300, { fetchedAt: cacheReadStartedAt });
   return stats;
 }

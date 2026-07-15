@@ -97,6 +97,7 @@ describe("getInvoicesForSupplierId", () => {
         }),
       ]),
       300,
+      expect.objectContaining({ fetchedAt: expect.any(Number) }),
     );
     expect(result).toHaveLength(1);
     expect(result[0].invoiceNumber).toBe("INV-001");
@@ -114,6 +115,7 @@ describe("getInvoicesForSupplierId", () => {
       'invoices:list:{"supplierId":"supplier-empty"}',
       [],
       300,
+      expect.objectContaining({ fetchedAt: expect.any(Number) }),
     );
   });
 

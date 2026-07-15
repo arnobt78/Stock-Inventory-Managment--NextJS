@@ -25,6 +25,7 @@ export async function getSupplierPortalForAdmin(
   adminUserId: string,
 ): Promise<SupplierPortalStats> {
   const cacheKey = cacheKeys.supplierPortal.overview(adminUserId);
+  const cacheReadStartedAt = Date.now();
   const cached = await getCache<SupplierPortalStats>(cacheKey);
   if (cached) return cached;
 
@@ -196,6 +197,6 @@ export async function getSupplierPortalForAdmin(
     suppliers,
   };
 
-  await setCache(cacheKey, stats, 300);
+  await setCache(cacheKey, stats, 300, { fetchedAt: cacheReadStartedAt });
   return stats;
 }

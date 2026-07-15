@@ -38,6 +38,7 @@ export type SystemConfigForPage = {
 
 /** Fetch all system configs for admin settings page (Redis-cached). */
 export async function getSystemConfigForAdmin(): Promise<SystemConfigForPage> {
+  const cacheReadStartedAt = Date.now();
   const cached = await getCache<SystemConfig[]>(CACHE_KEY);
   if (cached) {
     return { configs: cached, categories: CATEGORY_LABELS };
@@ -45,7 +46,7 @@ export async function getSystemConfigForAdmin(): Promise<SystemConfigForPage> {
 
   await initializeDefaultConfigs();
   const configs = (await getAllSystemConfigs()).map(transform);
-  await setCache(CACHE_KEY, configs, 300);
+  await setCache(CACHE_KEY, configs, 300, { fetchedAt: cacheReadStartedAt });
 
   return { configs, categories: CATEGORY_LABELS };
 }

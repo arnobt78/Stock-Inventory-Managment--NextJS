@@ -80,14 +80,14 @@ export type ProductOptionRowProps = {
 };
 
 /** Readable meta on light popover surfaces (allocate/transfer product picker). */
-const PRODUCT_OPTION_META_POPOVER_CLASS =
-  "text-gray-600 dark:text-gray-400";
+const PRODUCT_OPTION_META_POPOVER_CLASS = "text-gray-600 dark:text-gray-400";
 
 function formatCatalogMeta(props: ProductOptionRowProps): string | null {
   const parts: string[] = [];
   if (props.categoryName) parts.push(props.categoryName);
   if (props.supplierName) parts.push(props.supplierName);
-  if (props.price !== undefined) parts.push(`$${Number(props.price).toFixed(2)}`);
+  if (props.price !== undefined)
+    parts.push(`$${Number(props.price).toFixed(2)}`);
   const stock =
     props.availableQuantity !== undefined
       ? props.availableQuantity
@@ -126,15 +126,13 @@ export function ProductOptionRow({
       title={name}
     >
       <ProductThumb name={name} imageUrl={imageUrl} size={size} />
-      <span className="flex min-w-0 flex-1 flex-col gap-0.5 text-left">
+      <span className="flex min-w-0 flex-1 flex-col  text-left">
         <span className="truncate">{name}</span>
         {meta ? (
           <span
             className={cn(
               "truncate text-xs",
-              metaOnDark
-                ? "text-white/85"
-                : PRODUCT_OPTION_META_POPOVER_CLASS,
+              metaOnDark ? "text-white/85" : PRODUCT_OPTION_META_POPOVER_CLASS,
             )}
           >
             {meta}

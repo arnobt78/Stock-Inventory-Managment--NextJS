@@ -21,7 +21,11 @@ import {
 import { ArrowUpDown } from "lucide-react";
 import { IoMdArrowDown, IoMdArrowUp } from "react-icons/io";
 import Link from "next/link";
-import { CopyableText, ClientDate, RecentOrderStatusColumn } from "@/components/shared";
+import {
+  CopyableText,
+  ClientDate,
+  RecentOrderStatusColumn,
+} from "@/components/shared";
 import OrderActions from "./OrderActions";
 
 const compactOrderMeta = (order: Order) => {
@@ -130,7 +134,7 @@ export const createOrderColumns = (
         options?.showProductOwner &&
         (order.productOwnerName || order.productOwnerEmail);
       return (
-        <div className="flex flex-col gap-0.5">
+        <div className="flex flex-col ">
           {/* CopyableText: click icon copies order # without triggering the row link */}
           <CopyableText value={order.orderNumber}>
             <Link

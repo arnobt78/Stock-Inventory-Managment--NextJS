@@ -67,9 +67,20 @@ export function invalidateAfterOrderGraphChange(
 }
 
 /**
- * Stock allocation changes product quantity shown on product detail/list.
+ * Stock-heavy entities: catalog + product detail invalidation.
  */
 export function invalidateAfterStockChange(queryClient: QueryClient): void {
+  invalidateAfterCatalogChange(queryClient);
+}
+
+/**
+ * Catalog CRUD (product/category/supplier/warehouse) — lists, detail, portals, dashboards.
+ * REQ-0133: detail keys included so embedded names/qty stay in sync after rename/qty change.
+ */
+export function invalidateAfterCatalogChange(queryClient: QueryClient): void {
   invalidateAllRelatedQueries(queryClient);
   queryClient.invalidateQueries({ queryKey: queryKeys.products.all });
+  queryClient.invalidateQueries({ queryKey: queryKeys.categories.all });
+  queryClient.invalidateQueries({ queryKey: queryKeys.suppliers.all });
+  queryClient.invalidateQueries({ queryKey: queryKeys.warehouses.all });
 }

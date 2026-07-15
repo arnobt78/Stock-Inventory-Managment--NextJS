@@ -7,7 +7,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { apiClient, getErrorMessage, isAxiosError } from "@/lib/api";
 import {
   queryKeys,
-  invalidateAllRelatedQueries,
+  invalidateAfterCatalogChange,
   invalidateAfterStockChange,
   cancelOrRemoveDetailQuery,
   withInitialData,
@@ -75,7 +75,7 @@ export function useCreateWarehouse() {
           prependIfMissing: true,
         });
       }
-      invalidateAllRelatedQueries(queryClient);
+      invalidateAfterCatalogChange(queryClient);
       toast({
         title: "Success",
         description: `Warehouse "${newWarehouse.name}" created successfully`,
@@ -113,7 +113,7 @@ export function useUpdateWarehouse() {
         );
         patchListCaches(queryClient, queryKeys.warehouses.all, updatedWarehouse);
       }
-      invalidateAllRelatedQueries(queryClient);
+      invalidateAfterCatalogChange(queryClient);
       toast({
         title: "Success",
         description: `Warehouse "${updatedWarehouse.name}" updated successfully`,
@@ -154,7 +154,6 @@ export function useDeleteWarehouse() {
         queryClient,
         queryKeys.warehouses.detail(deletedData.id),
       );
-      invalidateAllRelatedQueries(queryClient);
       invalidateAfterStockChange(queryClient);
       toast({
         title: "Success",

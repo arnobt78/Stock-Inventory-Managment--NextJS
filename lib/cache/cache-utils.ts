@@ -11,6 +11,51 @@ import { trackCacheHit, trackCacheMiss } from "@/lib/monitoring/system-metrics";
  * Cache key prefix for namespacing
  */
 const CACHE_PREFIX = "stock-inventory";
+const INVALIDATION_AT_PREFIX = "__invAt:";
+
+/**
+ * Domain segment from a cache key (first segment before `:`).
+ * e.g. `products:list:v2:...` → `products`
+ */
+export function cacheKeyDomain(key: string): string {
+  return key.split(":")[0] ?? key;
+}
+
+function invalidationAtKey(domain: string): string {
+  return `${INVALIDATION_AT_PREFIX}${domain}`;
+}
+
+/**
+ * Record invalidation time for a pattern domain (REQ-0133).
+ * Blocks stale GET re-warm via setCache fetchedAt guard.
+ */
+async function markDomainInvalidated(pattern: string): Promise<void> {
+  const redis = getRedis();
+  if (!redis) return;
+  const domain = pattern.replace(/\*$/, "").replace(/:$/, "").split(":")[0];
+  if (!domain) return;
+  try {
+    await redis.set(getCacheKey(invalidationAtKey(domain)), Date.now());
+  } catch (error) {
+    logger.error(`Failed to mark cache invalidation for ${domain}:`, error);
+  }
+}
+
+async function getDomainInvalidationAt(domain: string): Promise<number | null> {
+  const redis = getRedis();
+  if (!redis) return null;
+  try {
+    const value = await redis.get<number>(getCacheKey(invalidationAtKey(domain)));
+    return typeof value === "number" && Number.isFinite(value) ? value : null;
+  } catch {
+    return null;
+  }
+}
+
+export type SetCacheOptions = {
+  /** Timestamp when the read-through fetch started — blocks stale re-warm after CRUD. */
+  fetchedAt?: number;
+};
 
 /**
  * Generate cache key with prefix
@@ -72,10 +117,22 @@ export async function setCache<T>(
   key: string,
   value: T,
   ttlSeconds: number = 300,
+  options?: SetCacheOptions,
 ): Promise<boolean> {
   const redis = getRedis();
   if (!redis) {
     return false; // Graceful degradation: return false if Redis not available
+  }
+
+  if (options?.fetchedAt != null) {
+    const domain = cacheKeyDomain(key);
+    const invAt = await getDomainInvalidationAt(domain);
+    if (invAt != null && invAt > options.fetchedAt) {
+      logger.info(
+        `Skipped stale cache re-warm for ${key} (invalidated after read started)`,
+      );
+      return false;
+    }
   }
 
   try {
@@ -86,6 +143,24 @@ export async function setCache<T>(
     logger.error(`Failed to set cache for key ${key}:`, error);
     return false; // Graceful degradation: return false on error
   }
+}
+
+/**
+ * Read-through cache helper — records fetch start for stale re-warm guard (REQ-0133).
+ */
+export async function getOrSetCache<T>(
+  key: string,
+  ttlSeconds: number,
+  fetch: () => Promise<T>,
+): Promise<T> {
+  const fetchedAt = Date.now();
+  const cached = await getCache<T>(key);
+  if (cached !== null) {
+    return cached;
+  }
+  const value = await fetch();
+  await setCache(key, value, ttlSeconds, { fetchedAt });
+  return value;
 }
 
 /**
@@ -137,6 +212,7 @@ export async function deleteCacheByPattern(pattern: string): Promise<number> {
  * @returns Promise<number> - Number of keys invalidated
  */
 export async function invalidateCache(pattern: string): Promise<number> {
+  await markDomainInvalidated(pattern);
   return deleteCacheByPattern(pattern);
 }
 

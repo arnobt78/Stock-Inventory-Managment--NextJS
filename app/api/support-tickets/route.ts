@@ -113,6 +113,7 @@ export async function GET(request: NextRequest) {
       const cacheKey = cacheKeys.supportTickets.list({
         assignedToId: session.id,
       });
+      const cacheReadStartedAt = Date.now();
       const cached = await getCache<SupportTicket[]>(cacheKey);
       if (cached) return NextResponse.json(cached);
       const records = await getSupportTicketsByAssignedTo(session.id);
@@ -136,7 +137,7 @@ export async function GET(request: NextRequest) {
           replyCountMap.get(r.id) ?? 0,
         ),
       );
-      await setCache(cacheKey, transformed, 300);
+      await setCache(cacheKey, transformed, 300, { fetchedAt: cacheReadStartedAt });
       return NextResponse.json(transformed);
     }
 

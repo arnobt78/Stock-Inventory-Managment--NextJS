@@ -7,7 +7,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { apiClient, getErrorMessage } from "@/lib/api";
 import {
   queryKeys,
-  invalidateAllRelatedQueries,
+  invalidateAfterCatalogChange,
   cancelOrRemoveDetailQuery,
   withInitialData,
   patchDetailCache,
@@ -82,7 +82,7 @@ export function useCreateCategory() {
           prependIfMissing: true,
         });
       }
-      invalidateAllRelatedQueries(queryClient);
+      invalidateAfterCatalogChange(queryClient);
       toast({
         title: "Success",
         description: `Category "${newCategory.name}" created successfully`,
@@ -121,7 +121,7 @@ export function useUpdateCategory() {
         );
         patchListCaches(queryClient, queryKeys.categories.all, updatedCategory);
       }
-      invalidateAllRelatedQueries(queryClient);
+      invalidateAfterCatalogChange(queryClient);
       toast({
         title: "Success",
         description: `Category "${updatedCategory.name}" updated successfully`,
@@ -164,7 +164,7 @@ export function useDeleteCategory() {
         queryClient,
         queryKeys.categories.detail(deletedData.id),
       );
-      invalidateAllRelatedQueries(queryClient);
+      invalidateAfterCatalogChange(queryClient);
       toast({
         title: "Success",
         description: `Category "${deletedData.name}" deleted successfully`,

@@ -231,6 +231,7 @@ export async function getCategoryDetailForPage(
 
   const cacheScope = catalogDetailCacheScope(session, supplierEntity?.id);
   const cacheKey = cacheKeys.categories.detail(id, cacheScope);
+  const cacheReadStartedAt = Date.now();
   const cachedCategory = await getCache<CategoryDetailForPage>(cacheKey);
   if (categoryDetailCacheValid(cachedCategory)) {
     logger.info(`✅ Cache hit for category: ${cacheKey}`);
@@ -342,6 +343,6 @@ export async function getCategoryDetailForPage(
     products: enrichedProducts,
   };
 
-  await setCache(cacheKey, categoryForPage, 300);
+  await setCache(cacheKey, categoryForPage, 300, { fetchedAt: cacheReadStartedAt });
   return categoryForPage;
 }

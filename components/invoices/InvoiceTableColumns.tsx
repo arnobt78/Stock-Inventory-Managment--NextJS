@@ -8,7 +8,10 @@
 import React from "react";
 import { Column, ColumnDef } from "@tanstack/react-table";
 import { Invoice } from "@/types";
-import { InvoiceStatusBadge, AdminOrderSourceBadge } from "@/lib/ui/semantic-badges";
+import {
+  InvoiceStatusBadge,
+  AdminOrderSourceBadge,
+} from "@/lib/ui/semantic-badges";
 import { compactInvoiceMeta } from "@/lib/invoices/compact-invoice-meta";
 import {
   DropdownMenu,
@@ -16,14 +19,15 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import {
-  ArrowUpDown,
-} from "lucide-react";
+import { ArrowUpDown } from "lucide-react";
 import { IoMdArrowDown, IoMdArrowUp } from "react-icons/io";
 import Link from "next/link";
 import { CopyableText, ClientDate } from "@/components/shared";
 import InvoiceActions from "./InvoiceActions";
-import { dueDateSemanticKind, semanticDateClass } from "@/lib/ui/semantic-date-styles";
+import {
+  dueDateSemanticKind,
+  semanticDateClass,
+} from "@/lib/ui/semantic-date-styles";
 import { cn } from "@/lib/utils";
 
 /**
@@ -116,7 +120,7 @@ export const createInvoiceColumns = (
           options?.showIssuedBy &&
           (invoice.issuedByName || invoice.issuedByEmail);
         return (
-          <div className="flex flex-col gap-0.5">
+          <div className="flex flex-col ">
             <span className={cn("text-xs", semanticDateClass("created"))}>
               Created <ClientDate date={invoice.createdAt} semantic="created" />
             </span>
@@ -165,14 +169,10 @@ export const createInvoiceColumns = (
         const today = new Date();
         today.setHours(0, 0, 0, 0);
         dueDate.setHours(0, 0, 0, 0);
-        const isOverdue =
-          dueDate < today || row.original.status === "overdue";
+        const isOverdue = dueDate < today || row.original.status === "overdue";
 
         return (
-          <ClientDate
-            date={date}
-            semantic={dueDateSemanticKind(isOverdue)}
-          />
+          <ClientDate date={date} semantic={dueDateSemanticKind(isOverdue)} />
         );
       },
     },

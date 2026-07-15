@@ -55,12 +55,13 @@ export async function GET(request: NextRequest) {
     }
 
     const cacheKey = cacheKeys.userManagement.list({});
+    const cacheReadStartedAt = Date.now();
     const cached = await getCache<UserForAdmin[]>(cacheKey);
     if (cached) return NextResponse.json(cached);
 
     const records = await getAllUsers();
     const result = records.map(transform);
-    await setCache(cacheKey, result, 300);
+    await setCache(cacheKey, result, 300, { fetchedAt: cacheReadStartedAt });
     return NextResponse.json(result);
   } catch (error) {
     logger.error("Error fetching users:", error);

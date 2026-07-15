@@ -116,6 +116,7 @@ export async function getInvoicesForUser(
 ): Promise<InvoiceForPage[]> {
   const filters = {};
   const cacheKey = cacheKeys.invoices.list({ userId, scope: "issuer" });
+  const cacheReadStartedAt = Date.now();
   const cached = await getCache<InvoiceForPage[]>(cacheKey);
   if (cached) {
     return cached;
@@ -125,7 +126,7 @@ export async function getInvoicesForUser(
 
   const transformed = await transformInvoicesForList(invoices);
 
-  await setCache(cacheKey, transformed, 300);
+  await setCache(cacheKey, transformed, 300, { fetchedAt: cacheReadStartedAt });
   return transformed;
 }
 
@@ -137,6 +138,7 @@ export async function getStoreInvoicesForAdmin(
   userId: string,
 ): Promise<InvoiceForPage[]> {
   const cacheKey = cacheKeys.invoices.list({ userId, scope: "store" });
+  const cacheReadStartedAt = Date.now();
   const cached = await getCache<InvoiceForPage[]>(cacheKey);
   if (cached) return cached;
 
@@ -144,7 +146,7 @@ export async function getStoreInvoicesForAdmin(
   const invoices = await getInvoicesByOrderIds(storeOrderIds);
   const transformed = await transformInvoicesForList(invoices);
 
-  await setCache(cacheKey, transformed, 300);
+  await setCache(cacheKey, transformed, 300, { fetchedAt: cacheReadStartedAt });
   return transformed;
 }
 
@@ -161,6 +163,7 @@ export async function getInvoicesForSupplierId(
     supplierId,
     ...(Object.keys(cacheFilters).length > 0 ? cacheFilters : {}),
   });
+  const cacheReadStartedAt = Date.now();
   const cached = await getCache<InvoiceForPage[]>(cacheKey);
   if (cached) return cached;
 
@@ -173,7 +176,7 @@ export async function getInvoicesForSupplierId(
 
   const transformed = await transformInvoicesForList(invoices);
 
-  await setCache(cacheKey, transformed, 300);
+  await setCache(cacheKey, transformed, 300, { fetchedAt: cacheReadStartedAt });
   return transformed;
 }
 
@@ -188,6 +191,7 @@ export async function getInvoicesForClientId(
     byClient: true,
     userId: clientUserId,
   });
+  const cacheReadStartedAt = Date.now();
   const cached = await getCache<InvoiceForPage[]>(cacheKey);
   if (cached) return cached;
 
@@ -268,7 +272,7 @@ export async function getInvoicesForClientId(
     };
   });
 
-  await setCache(cacheKey, transformed, 300);
+  await setCache(cacheKey, transformed, 300, { fetchedAt: cacheReadStartedAt });
   return transformed;
 }
 
@@ -285,6 +289,7 @@ export async function getClientInvoicesForProductOwner(
     productOwnerId: productOwnerUserId,
     ...(Object.keys(cacheFilters).length > 0 ? cacheFilters : {}),
   });
+  const cacheReadStartedAt = Date.now();
   const cached = await getCache<InvoiceForPage[]>(cacheKey);
   if (cached) return cached;
 
@@ -345,6 +350,6 @@ export async function getClientInvoicesForProductOwner(
     orderUserId: orderUserIdMap.get(invoice.orderId) ?? null,
   }));
 
-  await setCache(cacheKey, transformed, 300);
+  await setCache(cacheKey, transformed, 300, { fetchedAt: cacheReadStartedAt });
   return transformed;
 }

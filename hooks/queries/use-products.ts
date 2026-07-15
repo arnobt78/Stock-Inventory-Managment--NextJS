@@ -6,7 +6,7 @@
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { apiClient, getErrorMessage, isAxiosError } from "@/lib/api";
-import { invalidateAllRelatedQueries, cancelOrRemoveDetailQuery, invalidateAfterStockChange, queryKeys, withInitialData, patchDetailCache, patchListCaches, patchProductInPortalCaches, removeFromListCaches, removeProductFromPortalCaches } from "@/lib/react-query";
+import { invalidateAfterCatalogChange, cancelOrRemoveDetailQuery, invalidateAfterStockChange, queryKeys, withInitialData, patchDetailCache, patchListCaches, patchProductInPortalCaches, removeFromListCaches, removeProductFromPortalCaches } from "@/lib/react-query";
 import { useToast } from "@/hooks/use-toast";
 import type {
   Product,
@@ -80,7 +80,7 @@ export function useCreateProduct() {
         });
         patchProductInPortalCaches(queryClient, newProduct);
       }
-      invalidateAllRelatedQueries(queryClient);
+      invalidateAfterCatalogChange(queryClient);
       const name = (newProduct as { name?: string })?.name ?? "Product";
       toast({
         title: "Success",
@@ -121,9 +121,10 @@ export function useUpdateProduct() {
         patchListCaches(queryClient, queryKeys.products.all, updatedProduct);
         patchProductInPortalCaches(queryClient, updatedProduct);
       }
-      invalidateAllRelatedQueries(queryClient);
       if (variables.quantity !== undefined) {
         invalidateAfterStockChange(queryClient);
+      } else {
+        invalidateAfterCatalogChange(queryClient);
       }
       const name = (updatedProduct as { name?: string })?.name ?? "Product";
       const stockReconcile = (
@@ -181,7 +182,7 @@ export function useDeleteProduct() {
       removeProductFromPortalCaches(queryClient, deletedData.id);
       // Skip removeQueries while detail page mounted — avoids GET 404 after soft-delete
       cancelOrRemoveDetailQuery(queryClient, detailKey);
-      invalidateAllRelatedQueries(queryClient);
+      invalidateAfterCatalogChange(queryClient);
       toast({
         title: "Success",
         description:

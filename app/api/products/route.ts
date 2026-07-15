@@ -90,6 +90,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Try to get from cache first
+    const cacheReadStartedAt = Date.now();
     const cachedProducts = await getCache<
       Array<{ committedQuantity?: number }>
     >(cacheKey);
@@ -177,7 +178,7 @@ export async function GET(request: NextRequest) {
     );
 
     // Cache the result for 5 minutes
-    await setCache(cacheKey, transformedProducts, 300);
+    await setCache(cacheKey, transformedProducts, 300, { fetchedAt: cacheReadStartedAt });
 
     return NextResponse.json(transformedProducts);
   } catch (error) {

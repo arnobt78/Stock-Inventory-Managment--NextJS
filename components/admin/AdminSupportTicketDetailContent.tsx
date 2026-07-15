@@ -7,7 +7,10 @@ import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useBackWithRefresh } from "@/hooks/use-back-with-refresh";
 import { GlassCard, DetailInfoRow } from "@/components/orders/detail";
-import { APP_SHELL_DETAIL_CLASS, DETAIL_PAGE_HEADER_SPACING_CLASS } from "@/lib/ui/shell-layout-styles";
+import {
+  APP_SHELL_DETAIL_CLASS,
+  DETAIL_PAGE_HEADER_SPACING_CLASS,
+} from "@/lib/ui/shell-layout-styles";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import {
@@ -423,7 +426,7 @@ export default function AdminSupportTicketDetailContent({
                     loading={dataLoading}
                   >
                     {!dataLoading && (
-                      <div className="flex flex-col gap-0.5">
+                      <div className="flex flex-col ">
                         <Link
                           href={`/admin/user-management/${t!.userId}`}
                           className="font-medium text-sky-600 dark:text-sky-400 hover:text-sky-500 dark:hover:text-sky-300 inline-flex items-center gap-1"
@@ -457,7 +460,10 @@ export default function AdminSupportTicketDetailContent({
                     loading={dataLoading}
                   >
                     {!dataLoading && (
-                      <ClientDateTime date={new Date(t!.createdAt)} semantic="created" />
+                      <ClientDateTime
+                        date={new Date(t!.createdAt)}
+                        semantic="created"
+                      />
                     )}
                   </DetailInfoRow>
                   {!dataLoading && t!.updatedAt && (
@@ -466,7 +472,10 @@ export default function AdminSupportTicketDetailContent({
                       label="Updated:"
                       tone="amber"
                     >
-                      <ClientDateTime date={new Date(t!.updatedAt)} semantic="updated" />
+                      <ClientDateTime
+                        date={new Date(t!.updatedAt)}
+                        semantic="updated"
+                      />
                     </DetailInfoRow>
                   )}
                 </div>

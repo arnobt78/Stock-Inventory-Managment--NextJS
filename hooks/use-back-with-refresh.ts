@@ -17,6 +17,7 @@ import {
   invalidateAllRelatedQueries,
   invalidateAfterOrderGraphChange,
   invalidateAfterStockChange,
+  invalidateAfterCatalogChange,
   queryKeys,
 } from "@/lib/react-query";
 import { consumeStripeCheckoutReturn } from "@/lib/payments/stripe-return";
@@ -51,6 +52,10 @@ function runInvalidations(
   // Stock-heavy entities: explicit stock graph invalidation + broad sweep
   if (entity === "warehouse" || entity === "product") {
     invalidateAfterStockChange(queryClient);
+    return;
+  }
+  if (entity === "category" || entity === "supplier") {
+    invalidateAfterCatalogChange(queryClient);
     return;
   }
   // Read-only admin history detail — narrow list refresh only

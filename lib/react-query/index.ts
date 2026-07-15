@@ -10,6 +10,7 @@ export {
   invalidateAllRelatedQueries,
   invalidateAfterOrderGraphChange,
   invalidateAfterStockChange,
+  invalidateAfterCatalogChange,
 } from "./invalidate-all";
 export { cancelOrRemoveDetailQuery } from "./cancel-or-remove-detail";
 export {

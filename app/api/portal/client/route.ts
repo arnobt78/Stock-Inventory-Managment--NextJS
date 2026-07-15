@@ -38,6 +38,7 @@ export async function GET(request: NextRequest) {
 
     // Check cache
     const cacheKey = `portal:client:${session.id}`;
+    const cacheReadStartedAt = Date.now();
     const cached = await getCache<ClientPortalDashboard>(cacheKey);
     if (cached) {
       return NextResponse.json(cached);
@@ -47,7 +48,7 @@ export async function GET(request: NextRequest) {
     const dashboard = await getClientDashboard(session.id, session.name);
 
     // Cache for 5 minutes
-    await setCache(cacheKey, dashboard, 300);
+    await setCache(cacheKey, dashboard, 300, { fetchedAt: cacheReadStartedAt });
 
     return NextResponse.json(dashboard);
   } catch (error) {

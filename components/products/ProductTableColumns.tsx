@@ -6,7 +6,12 @@ import { Product } from "@/types";
 import { Column, ColumnDef } from "@tanstack/react-table";
 //import { ReactNode } from "react";
 
-import { CopyableText, AvatarInlineLink, TABLE_CATALOG_LINK_CLASS, ClientDate } from "@/components/shared";
+import {
+  CopyableText,
+  AvatarInlineLink,
+  TABLE_CATALOG_LINK_CLASS,
+  ClientDate,
+} from "@/components/shared";
 import ProductsDropDown from "@/components/products/ProductActions";
 
 import {
@@ -109,7 +114,7 @@ export function createProductColumns(
                 </span>
               </div>
             )}
-            <div className="flex min-w-0 flex-col gap-0.5">
+            <div className="flex min-w-0 flex-col ">
               <Link
                 href={detailHref(detailBase, "products", product.id)}
                 prefetch
@@ -185,9 +190,7 @@ export function createProductColumns(
         const reserved = getDisplayCommittedQuantity(row.original);
         const available = quantity - reserved;
 
-        return (
-          <ProductStockFromQuantityBadge available={available} />
-        );
+        return <ProductStockFromQuantityBadge available={available} />;
       },
     },
     {
@@ -218,7 +221,7 @@ export function createProductColumns(
         }
 
         return (
-          <div className="flex flex-col gap-0.5 text-sm">
+          <div className="flex flex-col  text-sm">
             <span className="text-gray-700 dark:text-white">
               Created:{" "}
               {createdAt ? (

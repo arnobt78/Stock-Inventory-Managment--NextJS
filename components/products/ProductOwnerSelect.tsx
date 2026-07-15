@@ -69,7 +69,7 @@ function OwnerPickerRow({
           className="absolute inset-0 h-full w-full object-cover"
         />
       </span>
-      <span className="flex min-w-0 flex-1 flex-col justify-center gap-0.5 py-0.5">
+      <span className="flex min-w-0 flex-1 flex-col justify-center  py-0.5">
         <span className="truncate text-sm text-gray-700 dark:text-white">
           {owner.name}
         </span>
@@ -128,7 +128,11 @@ export function ProductOwnerSelect({
       </PopoverTrigger>
       <PopoverContent
         align="end"
-        className={cn("p-0 w-[min(100vw-2rem,320px)]", filterCommandPopoverClass("violet"), FILTER_COMMAND_INPUT_WRAPPER_CLASS)}
+        className={cn(
+          "p-0 w-[min(100vw-2rem,320px)]",
+          filterCommandPopoverClass("violet"),
+          FILTER_COMMAND_INPUT_WRAPPER_CLASS,
+        )}
       >
         <Command className="bg-transparent">
           <CommandInput

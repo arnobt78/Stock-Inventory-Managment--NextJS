@@ -20,6 +20,7 @@ export async function getHistoryForUser(
   userId: string,
 ): Promise<ImportHistoryForPage[]> {
   const cacheKey = cacheKeys.history.list({ userId });
+  const cacheReadStartedAt = Date.now();
   const cached = await getCache<ImportHistoryForPage[]>(cacheKey);
   if (cached) {
     return cached;
@@ -45,7 +46,7 @@ export async function getHistoryForUser(
     };
   });
 
-  await setCache(cacheKey, transformed, 300);
+  await setCache(cacheKey, transformed, 300, { fetchedAt: cacheReadStartedAt });
   return transformed;
 }
 

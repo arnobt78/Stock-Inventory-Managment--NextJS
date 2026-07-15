@@ -25,10 +25,11 @@ export async function getForecastingForUser(
   userId: string,
 ): Promise<ForecastingSummary> {
   const cacheKey = forecastingSummaryCacheKey(userId);
+  const cacheReadStartedAt = Date.now();
   const cached = await getCache<ForecastingSummary>(cacheKey);
   if (cached) return cached;
 
   const summary = await generateForecastingSummary(userId);
-  await setCache(cacheKey, summary, 900);
+  await setCache(cacheKey, summary, 900, { fetchedAt: cacheReadStartedAt });
   return summary;
 }

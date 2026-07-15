@@ -148,6 +148,7 @@ export async function getOrdersForUser(
   userId: string
 ): Promise<OrderForPage[]> {
   const cacheKey = cacheKeys.orders.list({ userId });
+  const cacheReadStartedAt = Date.now();
   const cached = await getCache<OrderForPage[]>(cacheKey);
   if (cached) {
     return cached;
@@ -211,7 +212,7 @@ export async function getOrdersForUser(
     );
   });
 
-  await setCache(cacheKey, transformed, 300);
+  await setCache(cacheKey, transformed, 300, { fetchedAt: cacheReadStartedAt });
   return transformed;
 }
 
@@ -223,6 +224,7 @@ export async function getOrdersForSupplierId(
   supplierId: string,
 ): Promise<OrderForPage[]> {
   const cacheKey = cacheKeys.orders.list({ supplierId });
+  const cacheReadStartedAt = Date.now();
   const cached = await getCache<OrderForPage[]>(cacheKey);
   if (cached) {
     return cached;
@@ -288,7 +290,7 @@ export async function getOrdersForSupplierId(
     );
   });
 
-  await setCache(cacheKey, transformed, 300);
+  await setCache(cacheKey, transformed, 300, { fetchedAt: cacheReadStartedAt });
   return transformed;
 }
 
@@ -300,6 +302,7 @@ export async function getClientOrdersForProductOwner(
   productOwnerUserId: string,
 ): Promise<OrderForPage[]> {
   const cacheKey = cacheKeys.orders.list({ productOwnerId: productOwnerUserId });
+  const cacheReadStartedAt = Date.now();
   const cached = await getCache<OrderForPage[]>(cacheKey);
   if (cached) {
     return cached;
@@ -364,7 +367,7 @@ export async function getClientOrdersForProductOwner(
     );
   });
 
-  await setCache(cacheKey, transformed, 300);
+  await setCache(cacheKey, transformed, 300, { fetchedAt: cacheReadStartedAt });
   return transformed;
 }
 
@@ -376,6 +379,7 @@ export async function getOrdersForClientId(
   clientId: string,
 ): Promise<OrderForPage[]> {
   const cacheKey = cacheKeys.orders.list({ userId: clientId, byClient: true });
+  const cacheReadStartedAt = Date.now();
   const cached = await getCache<OrderForPage[]>(cacheKey);
   if (cached) {
     return cached;
@@ -454,6 +458,6 @@ export async function getOrdersForClientId(
     );
   });
 
-  await setCache(cacheKey, transformed, 300);
+  await setCache(cacheKey, transformed, 300, { fetchedAt: cacheReadStartedAt });
   return transformed;
 }

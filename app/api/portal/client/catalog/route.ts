@@ -34,6 +34,7 @@ export async function GET(request: NextRequest) {
     }
 
     const cacheKey = `portal:client:catalog:v2:${session.id}`;
+    const cacheReadStartedAt = Date.now();
     const cached = await getCache<ClientCatalogOverview>(cacheKey);
     // REQ-0077 — skip legacy v1 payloads missing meta totals
     if (cached?.meta) {
@@ -41,7 +42,7 @@ export async function GET(request: NextRequest) {
     }
 
     const overview = await getClientCatalogOverview(session.id);
-    await setCache(cacheKey, overview, CACHE_TTL);
+    await setCache(cacheKey, overview, CACHE_TTL, { fetchedAt: cacheReadStartedAt });
     return NextResponse.json(overview);
   } catch (error) {
     logger.error("Error fetching client catalog:", error);

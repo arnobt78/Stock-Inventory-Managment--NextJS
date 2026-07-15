@@ -216,6 +216,7 @@ export async function getSupplierDetailForPage(
 
   const cacheScope = catalogDetailCacheScope(session, supplierEntity?.id);
   const cacheKey = cacheKeys.suppliers.detail(id, cacheScope);
+  const cacheReadStartedAt = Date.now();
   const cachedSupplier = await getCache<SupplierDetailForPage>(cacheKey);
   if (supplierDetailCacheValid(cachedSupplier)) {
     logger.info(`✅ Cache hit for supplier: ${cacheKey}`);
@@ -319,6 +320,6 @@ export async function getSupplierDetailForPage(
     products: enrichedProducts,
   };
 
-  await setCache(cacheKey, supplierForPage, 300);
+  await setCache(cacheKey, supplierForPage, 300, { fetchedAt: cacheReadStartedAt });
   return supplierForPage;
 }

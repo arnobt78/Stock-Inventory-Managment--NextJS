@@ -79,7 +79,7 @@ export default function ProductReviewDialog({
 
   const renderStars = (count: number) => {
     return (
-      <span className="flex items-center gap-0.5">
+      <span className="flex items-center ">
         {Array.from({ length: 5 }, (_, i) => (
           <Star
             key={i}
@@ -142,7 +142,10 @@ export default function ProductReviewDialog({
                     <SelectValue placeholder="Select product to review" />
                   </SelectTrigger>
                   <SelectContent
-                    className={cn(DIALOG_SELECT_CONTENT_CLASS, "z-[100] max-h-[200px]")}
+                    className={cn(
+                      DIALOG_SELECT_CONTENT_CLASS,
+                      "z-[100] max-h-[200px]",
+                    )}
                     position="popper"
                     sideOffset={5}
                     align="start"
@@ -254,7 +257,10 @@ export default function ProductReviewDialog({
               <Button
                 type="button"
                 variant="secondary"
-                className={cn("h-11 w-full sm:w-auto px-8 gap-2", GLASS_GHOST_BUTTON)}
+                className={cn(
+                  "h-11 w-full sm:w-auto px-8 gap-2",
+                  GLASS_GHOST_BUTTON,
+                )}
                 disabled={isPending}
               >
                 <X className="h-4 w-4 shrink-0" aria-hidden />

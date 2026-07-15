@@ -17,9 +17,25 @@ function getUpdatedAtMs(value: unknown): number | null {
   return Number.isFinite(ms) ? ms : null;
 }
 
+/** Max row updatedAt for list payloads (REQ-0133). */
+function maxUpdatedAtMs(value: unknown): number | null {
+  if (!Array.isArray(value)) {
+    return getUpdatedAtMs(value);
+  }
+  let max: number | null = null;
+  for (const row of value) {
+    const ms = getUpdatedAtMs(row);
+    if (ms != null && (max == null || ms > max)) {
+      max = ms;
+    }
+  }
+  return max;
+}
+
 /**
  * Decide whether SSR props should overwrite TanStack cache on mount.
  * router.back() can restore stale RSC props — never clobber fresher client cache.
+ * REQ-0133: default skip when server cannot prove fresher than cached (lists + entities).
  */
 export function resolveSsrSyncAction<T>(
   serverData: T,
@@ -36,10 +52,39 @@ export function resolveSsrSyncAction<T>(
   ) {
     return "skip";
   }
-  const serverAt = getUpdatedAtMs(serverData);
-  const cachedAt = getUpdatedAtMs(cached);
+
+  const serverAt = maxUpdatedAtMs(serverData);
+  const cachedAt = maxUpdatedAtMs(cached);
+
+  if (Array.isArray(cached) && Array.isArray(serverData)) {
+    if (serverAt != null && cachedAt != null) {
+      if (cachedAt >= serverAt) {
+        return "skip";
+      }
+      return "apply";
+    }
+    if (cached.length > 0 && serverData.length === cached.length) {
+      return "skip";
+    }
+    if (cached.length === 0 && serverData.length > 0) {
+      return "apply";
+    }
+    if (cached !== undefined) {
+      return "skip";
+    }
+    return "apply";
+  }
+
   if (serverAt != null && cachedAt != null && cachedAt >= serverAt) {
     return "skip";
   }
+  if (serverAt != null && cachedAt != null && serverAt > cachedAt) {
+    return "apply";
+  }
+
+  if (cached !== undefined) {
+    return "skip";
+  }
+
   return "apply";
 }

@@ -24,8 +24,8 @@ const defaultQueryOptions = {
     // Retry delay increases exponentially
     retryDelay: (attemptIndex: number) =>
       Math.min(1000 * 2 ** attemptIndex, 30000),
-    // Refetch on window focus so returning to the tab gets fresh data
-    refetchOnWindowFocus: true,
+    // REQ-0133: passive stale refetch on tab focus served stale Redis — CRUD uses invalidateQueries.
+    refetchOnWindowFocus: false,
     refetchOnReconnect: true,
     refetchOnMount: true,
   },

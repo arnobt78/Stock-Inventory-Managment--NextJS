@@ -60,6 +60,7 @@ export async function GET(request: NextRequest) {
         : cacheKeys.orders.list({ userId });
 
     // Check cache first
+    const cacheReadStartedAt = Date.now();
     const cachedOrders = await getCache<unknown[]>(cacheKey);
     if (cachedOrders) {
       return NextResponse.json(cachedOrders);
@@ -178,7 +179,7 @@ export async function GET(request: NextRequest) {
     });
 
     // Cache the result for 5 minutes
-    await setCache(cacheKey, transformedOrders, 300);
+    await setCache(cacheKey, transformedOrders, 300, { fetchedAt: cacheReadStartedAt });
 
     return NextResponse.json(transformedOrders);
   } catch (error) {

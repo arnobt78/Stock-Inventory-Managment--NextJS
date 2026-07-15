@@ -71,6 +71,7 @@ export type SupplierForHome = {
  */
 export async function getProductsForUser(userId: string): Promise<ProductForHome[]> {
   const cacheKey = cacheKeys.products.list({ userId });
+  const cacheReadStartedAt = Date.now();
   const cached = await getCache<ProductForHome[]>(cacheKey);
   if (
     cached &&
@@ -126,7 +127,7 @@ export async function getProductsForUser(userId: string): Promise<ProductForHome
     })),
   );
 
-  await setCache(cacheKey, transformed, 300);
+  await setCache(cacheKey, transformed, 300, { fetchedAt: cacheReadStartedAt });
   return transformed;
 }
 
@@ -139,6 +140,7 @@ export async function getProductsBySupplierId(
   supplierId: string,
 ): Promise<ProductForHome[]> {
   const cacheKey = cacheKeys.products.list({ supplierId });
+  const cacheReadStartedAt = Date.now();
   const cached = await getCache<ProductForHome[]>(cacheKey);
   if (
     cached &&
@@ -203,7 +205,7 @@ export async function getProductsBySupplierId(
     })),
   );
 
-  await setCache(cacheKey, transformed, 300);
+  await setCache(cacheKey, transformed, 300, { fetchedAt: cacheReadStartedAt });
   return transformed;
 }
 

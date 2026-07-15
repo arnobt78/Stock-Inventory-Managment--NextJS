@@ -570,6 +570,21 @@ Commands: lint, test, test:invalidate, build
 
 ---
 
+## REQ-0133 — Cache coherence hardening (2026-07-15)
+
+**Scope:** SSR sync skip guard; Redis pattern widen; TanStack persist auth/user only; `invalidateAfterCatalogChange`; `setCache` re-warm block on all cached GET paths.
+
+**Gates:** lint ✓ · test 544/544 ✓ · invalidate 213/213 ✓ · build ✓
+
+**Evidence summary**
+
+```
+Scope: built/verified | Traceability: REQ-0133 | Findings: PASS
+Commands: lint, test, test:invalidate, build
+```
+
+---
+
 ## REQ-0132 — Final date gap closure (2026-07-15)
 
 **Scope:** CSV/Excel export `formatStableDate` (6 filters); semantic `ClientDate*` (portals, activity log, reviews, support tickets); PDF + dev script DRY — display/export only.

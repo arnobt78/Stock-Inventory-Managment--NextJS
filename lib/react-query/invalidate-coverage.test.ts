@@ -170,7 +170,8 @@ function hasMutationInvalidation(fileName: string, content: string): boolean {
   return (
     content.includes("invalidateAllRelatedQueries") ||
     content.includes("invalidateAfterOrderGraphChange") ||
-    content.includes("invalidateAfterStockChange")
+    content.includes("invalidateAfterStockChange") ||
+    content.includes("invalidateAfterCatalogChange")
   );
 }
 
@@ -234,7 +235,10 @@ describe("mutation invalidation coverage (inline fetch CRUD components)", () => 
     it(`${rel}`, () => {
       if (COMPONENT_FETCH_CRUD_ALLOWLIST.has(rel)) {
         if (rel === "components/products/ProductImportDialog.tsx") {
-          expect(content.includes("invalidateAllRelatedQueries")).toBe(true);
+          expect(
+            content.includes("invalidateAllRelatedQueries") ||
+              content.includes("invalidateAfterCatalogChange"),
+          ).toBe(true);
         }
         return;
       }
@@ -386,7 +390,9 @@ describe("delete mutations cancel/remove detail before broad invalidation", () =
       expect(content).toContain("cancelOrRemoveDetailQuery");
       expect(
         content.includes("invalidateAllRelatedQueries") ||
-          content.includes("invalidateAfterOrderGraphChange"),
+          content.includes("invalidateAfterOrderGraphChange") ||
+          content.includes("invalidateAfterCatalogChange") ||
+          content.includes("invalidateAfterStockChange"),
       ).toBe(true);
     });
   }
@@ -422,6 +428,33 @@ describe("invalidateAfterOrderGraphChange", () => {
       const content = readRepoFile(rel);
       expect(content).toContain("invalidateAfterOrderGraphChange");
       expect(content).not.toMatch(/invalidateAllRelatedQueries\s*\(/);
+    });
+  }
+});
+
+describe("invalidateAfterCatalogChange (REQ-0133)", () => {
+  it("invalidates catalog detail keys embedded in product/category/supplier pages", () => {
+    const content = readRepoFile("lib/react-query/invalidate-all.ts");
+    expect(content).toContain("invalidateAfterCatalogChange");
+    expect(content).toContain("queryKeys.products.all");
+    expect(content).toContain("queryKeys.categories.all");
+    expect(content).toContain("queryKeys.suppliers.all");
+    expect(content).toContain("queryKeys.warehouses.all");
+  });
+
+  const catalogHooks = [
+    "use-products.ts",
+    "use-categories.ts",
+    "use-suppliers.ts",
+    "use-warehouses.ts",
+  ];
+  for (const file of catalogHooks) {
+    it(`${file} calls invalidateAfterCatalogChange or invalidateAfterStockChange`, () => {
+      const content = readRepoFile(join("hooks/queries", file));
+      expect(
+        content.includes("invalidateAfterCatalogChange") ||
+          content.includes("invalidateAfterStockChange"),
+      ).toBe(true);
     });
   }
 });

@@ -340,3 +340,5 @@ Format: `TIMESTAMP | AGENT | DECISION | RATIONALE | REQ-ID`
 2026-07-15T18:15:00Z | build-agent | REQ-0132 date gap closure | CSV formatStableDate in 6 Filters; ClientDate* semantic in 3 UI surfaces | REQ-0132
 2026-07-15T18:16:00Z | red-team | REQ-0132 gates | lint ✓ test 531 ✓ invalidate 208 ✓ build ✓ | REQ-0132
 2026-07-15T18:21:00Z | build-agent | REQ-0132 gap sweep | support ticket ClientDateTime; check-all-data + invoice PDF formatStableDate | REQ-0132
+2026-07-15T19:20:00Z | build-agent | REQ-0133 cache coherence | SSR sync guard; Redis patterns; persist trim; invalidateAfterCatalogChange; setCache re-warm guard | REQ-0133
+2026-07-15T19:22:00Z | red-team | REQ-0133 gates | lint ✓ test 544 ✓ invalidate 213 ✓ build ✓ | REQ-0133

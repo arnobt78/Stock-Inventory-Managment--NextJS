@@ -60,6 +60,7 @@ export async function GET(request: NextRequest) {
       userId,
       filters as Record<string, unknown>
     );
+    const cacheReadStartedAt = Date.now();
     const cachedNotifications = await getCache(cacheKey);
 
     if (cachedNotifications) {
@@ -85,7 +86,7 @@ export async function GET(request: NextRequest) {
     }));
 
     // Cache the result for 1 minute (notifications change frequently)
-    await setCache(cacheKey, transformedNotifications, 60);
+    await setCache(cacheKey, transformedNotifications, 60, { fetchedAt: cacheReadStartedAt });
 
     logger.info("Fetched notifications from DB and cached", { userId, filters });
 

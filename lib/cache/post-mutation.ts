@@ -105,6 +105,8 @@ const IMPORT_PATTERNS = [
 
 const PRODUCT_PATTERNS = [
   cacheKeys.products.pattern,
+  cacheKeys.categories.pattern,
+  cacheKeys.suppliers.pattern,
   cacheKeys.stockAllocation.pattern,
   cacheKeys.dashboard.pattern,
   cacheKeys.portal.pattern,
@@ -120,30 +122,43 @@ const CATEGORY_PATTERNS = [
   cacheKeys.products.pattern,
   cacheKeys.dashboard.pattern,
   cacheKeys.portal.pattern,
+  cacheKeys.clientPortal.pattern,
+  cacheKeys.supplierPortal.pattern,
+  "forecasting:*",
 ] as const;
 
 const SUPPLIER_PATTERNS = [
   cacheKeys.suppliers.pattern,
   cacheKeys.products.pattern,
+  cacheKeys.categories.pattern,
   cacheKeys.dashboard.pattern,
   cacheKeys.portal.pattern,
   cacheKeys.supplierPortal.pattern,
+  "forecasting:*",
 ] as const;
 
 const WAREHOUSE_PATTERNS = [
   cacheKeys.stockAllocation.pattern,
   cacheKeys.products.pattern,
+  cacheKeys.categories.pattern,
+  cacheKeys.suppliers.pattern,
   cacheKeys.dashboard.pattern,
   cacheKeys.portal.pattern,
   cacheKeys.clientPortal.pattern,
   cacheKeys.userManagement.pattern,
+  "forecasting:*",
 ] as const;
 
 const STOCK_ALLOCATION_PATTERNS = [
   cacheKeys.stockAllocation.pattern,
   cacheKeys.products.pattern,
+  cacheKeys.categories.pattern,
+  cacheKeys.suppliers.pattern,
   cacheKeys.dashboard.pattern,
   cacheKeys.portal.pattern,
+  cacheKeys.clientPortal.pattern,
+  cacheKeys.supplierPortal.pattern,
+  "forecasting:*",
 ] as const;
 
 /**

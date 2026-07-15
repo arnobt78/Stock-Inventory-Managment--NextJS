@@ -47,7 +47,43 @@ describe("resolveSsrSyncAction", () => {
     ).toBe("apply");
   });
 
-  it("applies by default when no updatedAt fields", () => {
-    expect(resolveSsrSyncAction({ id: "1" }, { id: "2" }, {})).toBe("apply");
+  it("skips same-length lists without updatedAt (REQ-0133 post-CRUD guard)", () => {
+    expect(
+      resolveSsrSyncAction(
+        [{ id: "1", name: "old" }],
+        [{ id: "1", name: "patched" }],
+        {},
+      ),
+    ).toBe("skip");
+  });
+
+  it("applies empty cache from SSR list seed", () => {
+    expect(
+      resolveSsrSyncAction([{ id: "1" }], [], {}),
+    ).toBe("apply");
+  });
+
+  it("skips entity objects without updatedAt when cache exists (REQ-0133)", () => {
+    expect(resolveSsrSyncAction({ id: "1" }, { id: "2" }, {})).toBe("skip");
+  });
+
+  it("applies entity when cache is empty", () => {
+    expect(resolveSsrSyncAction({ id: "1" }, undefined, {})).toBe("apply");
+  });
+
+  it("skips when list cached max updatedAt is newer than SSR", () => {
+    expect(
+      resolveSsrSyncAction(
+        [
+          { id: "1", updatedAt: "2026-01-01T00:00:00.000Z" },
+          { id: "2", updatedAt: "2026-01-02T00:00:00.000Z" },
+        ],
+        [
+          { id: "1", updatedAt: "2026-01-03T00:00:00.000Z" },
+          { id: "2", updatedAt: "2026-01-04T00:00:00.000Z" },
+        ],
+        {},
+      ),
+    ).toBe("skip");
   });
 });

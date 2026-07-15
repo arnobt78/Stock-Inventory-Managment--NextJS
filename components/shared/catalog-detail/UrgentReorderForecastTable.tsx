@@ -66,7 +66,7 @@ export function UrgentReorderForecastTable({
                         size="sm"
                         className="rounded-lg shrink-0"
                       />
-                      <div className="flex min-w-0 flex-col gap-0.5">
+                      <div className="flex min-w-0 flex-col ">
                         <Link
                           href={productHref(row.productId)}
                           prefetch

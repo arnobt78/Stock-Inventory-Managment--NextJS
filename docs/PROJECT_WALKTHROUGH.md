@@ -35,7 +35,7 @@ flowchart LR
 ```
 
 - **Reads:** query hooks → `lib/api` client → API routes → Prisma
-- **Writes:** mutations → API → Redis invalidation on server → client `invalidateAllRelatedQueries` on success
+- **Writes:** mutations → API → `await scheduleInvalidate*()` before 200 → client `invalidateAllRelatedQueries` / `invalidateAfterCatalogChange` / order-graph extensions
 - **Deletes:** `cancelOrRemoveDetailQuery` then broad invalidation (no refetch 404 while detail page mounted)
 - **Prefetch / persistence:** `lib/react-query/provider.tsx`, keys in `config.ts`
 
@@ -259,6 +259,7 @@ flowchart LR
 | REQ-0119 gap closure | Catalog/export popover parity; `OrderAddressFields`; Business Insights Warehouses tab + SSR warehouse summary | Gates: test 504 |
 | Detail parity + statusAt (REQ-0127–0129) | `PersonInlineRow`, `RecentOrderStatusColumn`, `order-status-display-date.ts`; invoice `paidAt` → `OrderForPage.statusAt`; portal/dashboard SSR | Gates: test 528 |
 | Semantic dates (REQ-0130–0132) | `semantic-date-styles.ts`; `ClientDate*` `semantic` prop; list tables + exports `formatStableDate`; ticket/PDF/script sweep | Gates: test 531 |
+| Cache coherence (REQ-0133) | SSR sync skip; Redis pattern widen; persist auth/user; `invalidateAfterCatalogChange`; `setCache` re-warm guard | Gates: test 544 |
 | Next | Gate 2 deploy + Sentry 24h; **manual QA from scratch** — `MANUAL_TEST_FIXTURES.md` §9 |
 | AI warehouse insights (REQ-0067) | `POST /api/ai/insights` enriches payload with `getWarehouseStockSummary` |
 | Per-warehouse order picking (REQ-0068) | `OrderItem.warehouseId`; `stock-allocation-order-sync.ts`; `OrderLineWarehouseSelect`; reserve/fulfill/cancel sync; invoice-paid gap; `f892b65` removed unused `deleteCache`/`getRateLimitStatus` |
@@ -279,9 +280,9 @@ flowchart LR
 |-------|--------|
 | `npm run lint` | pass |
 | `npm run build` | pass |
-| `npm run test` | 531 passed |
-| `npm run test:invalidate` | 208 passed |
-| Prod commit | `bb584a9` REQ-0128; REQ-0129–0132 local pending push |
+| `npm run test` | 544 passed |
+| `npm run test:invalidate` | 213 passed |
+| Prod commit | `ae3b7be` REQ-0129–0132; REQ-0133 local pending push |
 | Radix table Select | `useDeferredRadixSelect` + `PaginationSelector` (11 tables) |
 | Pagination clamp + page-size reset | `useClampPaginationIndex` + `PaginationSelector` pageIndex 0 |
 | Sentry | tunnel + translate scrub + `syncSentryUserFromAuth` |
@@ -299,8 +300,8 @@ flowchart LR
 - **New API write route:** add to `API_WRITE_ROUTE_INVALIDATION_SPEC` in invalidate-coverage test (or exempt list)
 - **Sentry:** `SENTRY_TUNNEL_PATH` in sync (`sentry-config.ts`, `next.config.ts`)
 - **Env:** update `.env.example` + `CLAUDE.md` + this file
-- **Dates:** UI → `ClientDate*` + `semantic` from `semantic-date-styles.ts`; CSV/PDF/server → `formatStableDate` via `@/lib/format`; no raw `date-fns format` / `toLocaleDateString` in components
-- **Order status date:** `resolveOrderStatusAtFromSource` + invoice `paidAt` on list SSR/API; `RecentOrderStatusColumn` for badges + hue
+- **Dates:** UI → `ClientDate*` + `semantic`; export/PDF → `formatStableDate`
+- **Cache coherence (REQ-0133):** SSR sync skip; Redis `__invAt` re-warm guard; catalog CRUD → `invalidateAfterCatalogChange`; persist auth/user only
 
 ## 10. Related docs
 

@@ -34,6 +34,7 @@ export async function GET(request: NextRequest) {
 
     // Check cache first (1 minute cache for unread count)
     const cacheKey = cacheKeys.notifications.unreadCount(userId);
+    const cacheReadStartedAt = Date.now();
     const cachedCount = await getCache<number>(cacheKey);
 
     if (cachedCount !== null) {
@@ -45,7 +46,7 @@ export async function GET(request: NextRequest) {
     const count = await getUnreadNotificationCount(userId);
 
     // Cache the result for 1 minute
-    await setCache(cacheKey, count, 60);
+    await setCache(cacheKey, count, 60, { fetchedAt: cacheReadStartedAt });
 
     logger.debug("Fetched unread notification count from DB", { userId, count });
 

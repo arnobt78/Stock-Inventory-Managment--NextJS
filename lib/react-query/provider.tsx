@@ -20,22 +20,20 @@ interface QueryProviderProps {
   children: ReactNode;
 }
 
+/** Query roots persisted to localStorage — volatile server data excluded (REQ-0133). */
+const PERSISTED_QUERY_ROOTS = new Set(["auth", "user"]);
+
 /**
  * QueryProvider component
  * Provides QueryClient to the entire application with persistence
  * Uses useState to ensure single instance per component tree
- * Persists query cache to localStorage for better UX
+ * Persists auth/user only — lists/detail/dashboard never rehydrate stale CRUD data
  */
 export function QueryProvider({ children }: QueryProviderProps) {
-  // Create QueryClient once and reuse it
-  // This ensures we don't lose cache on re-renders
   const [queryClient] = useState(() => createQueryClient());
-  
-  // Get persister for localStorage persistence
+
   const persister = getPersister();
 
-  // Use PersistQueryClientProvider if persister is available
-  // Falls back to regular QueryClientProvider if not available
   if (persister) {
     return (
       <PersistQueryClientProvider
@@ -43,16 +41,17 @@ export function QueryProvider({ children }: QueryProviderProps) {
         persistOptions={{
           persister,
           maxAge: 1000 * 60 * 60 * 24, // 24 hours
-          buster: "v2.0.1",
+          buster: "v2.0.2",
           dehydrateOptions: {
             shouldDehydrateQuery: (query) => {
-              return query.state.status === "success";
+              if (query.state.status !== "success") return false;
+              const root = String(query.queryKey[0] ?? "");
+              return PERSISTED_QUERY_ROOTS.has(root);
             },
           },
         }}
       >
         {children}
-        {/* Show devtools only in development */}
         {process.env.NODE_ENV === "development" && (
           <ReactQueryDevtools initialIsOpen={false} />
         )}
@@ -60,15 +59,12 @@ export function QueryProvider({ children }: QueryProviderProps) {
     );
   }
 
-  // Fallback to regular QueryClientProvider if persistence is unavailable
   return (
     <QueryClientProvider client={queryClient}>
       {children}
-      {/* Show devtools only in development */}
       {process.env.NODE_ENV === "development" && (
         <ReactQueryDevtools initialIsOpen={false} />
       )}
     </QueryClientProvider>
   );
 }
-

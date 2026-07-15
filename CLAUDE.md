@@ -856,6 +856,18 @@ Hub: `lib/ui/typography-scale.ts`. Hubs import tokens; ~45 inline files use equi
 
 **CSS/export-only** — no TanStack/SSR/invalidation registry changes.
 
+## REQ-0133 cache coherence (post-CRUD revert fix)
+
+| Piece | Location |
+|-------|----------|
+| SSR sync | `ssr-sync-policy.ts` — list max `updatedAt`; default skip when cache exists |
+| Redis patterns | `post-mutation.ts` — product/stock/category/warehouse include categories/suppliers/portals/forecasting |
+| Re-warm guard | `cache-utils.ts` — `__invAt:{domain}` + `setCache(..., { fetchedAt })` on all cached GET paths |
+| TanStack | `provider.tsx` persist auth/user only, buster `v2.0.2`; `config.ts` `refetchOnWindowFocus: false` |
+| Client invalidation | `invalidateAfterCatalogChange` — product/category/supplier/warehouse hooks + back-nav |
+
+**Invalidation:** catalog CRUD clears detail keys + Redis; order graph unchanged.
+
 ## Post-mutation cache (REQ-0052 + REQ-0055)
 
 | Piece | Location |

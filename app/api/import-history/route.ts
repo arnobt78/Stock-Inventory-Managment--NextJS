@@ -67,6 +67,7 @@ export async function GET(request: NextRequest) {
       ? Math.min(Math.max(1, parseInt(limitParam, 10)), 100)
       : 50;
     const useCache = !importType && limit === 50;
+    const cacheReadStartedAt = Date.now();
 
     if (useCache) {
       const cacheKey = cacheKeys.history.list({ userId });
@@ -85,7 +86,7 @@ export async function GET(request: NextRequest) {
 
     if (useCache) {
       const cacheKey = cacheKeys.history.list({ userId });
-      await setCache(cacheKey, transformed, 300);
+      await setCache(cacheKey, transformed, 300, { fetchedAt: cacheReadStartedAt });
     }
 
     return NextResponse.json(transformed);

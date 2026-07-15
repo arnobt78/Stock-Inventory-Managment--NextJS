@@ -65,6 +65,7 @@ export async function getSupportTicketsForAdmin(
   const cacheKey = cacheKeys.supportTickets.list({
     assignedToId: adminUserId,
   });
+  const cacheReadStartedAt = Date.now();
   const cached = await getCache<SupportTicket[]>(cacheKey);
   if (cached) return cached;
 
@@ -89,7 +90,7 @@ export async function getSupportTicketsForAdmin(
       replyCountMap.get(r.id) ?? 0,
     ),
   );
-  await setCache(cacheKey, transformed, 300);
+  await setCache(cacheKey, transformed, 300, { fetchedAt: cacheReadStartedAt });
   return transformed;
 }
 

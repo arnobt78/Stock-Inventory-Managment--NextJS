@@ -62,17 +62,19 @@ export async function GET(request: NextRequest) {
     if (summary) {
       // Return warehouse stock summary
       const cacheKey = cacheKeys.stockAllocation.summary(session.id);
+      const cacheReadStartedAt = Date.now();
       const cached = await getCache<WarehouseStockSummary[]>(cacheKey);
       if (cached) return NextResponse.json(cached);
 
       const result = await getWarehouseStockSummary(session.id);
-      await setCache(cacheKey, result, 300);
+      await setCache(cacheKey, result, 300, { fetchedAt: cacheReadStartedAt });
       return NextResponse.json(result);
     }
 
     // Get allocations - by product, warehouse, or all
     let allocations;
     let cacheKey: string;
+    let cacheReadStartedAt = Date.now();
 
     if (productId) {
       const product = await findAccessibleProduct(
@@ -85,6 +87,7 @@ export async function GET(request: NextRequest) {
       }
 
       cacheKey = cacheKeys.stockAllocation.byProduct(productId);
+      cacheReadStartedAt = Date.now();
       const cached = await getCache<StockAllocation[]>(cacheKey);
       if (cached) return NextResponse.json(cached);
 
@@ -102,6 +105,7 @@ export async function GET(request: NextRequest) {
       }
 
       cacheKey = cacheKeys.stockAllocation.byWarehouse(warehouseId);
+      cacheReadStartedAt = Date.now();
       const cached = await getCache<StockAllocation[]>(cacheKey);
       if (cached) return NextResponse.json(cached);
 
@@ -112,6 +116,7 @@ export async function GET(request: NextRequest) {
     } else {
       // Return all stock allocations
       cacheKey = cacheKeys.stockAllocation.list(session.id);
+      cacheReadStartedAt = Date.now();
       const cached = await getCache<StockAllocation[]>(cacheKey);
       if (cached) return NextResponse.json(cached);
 
@@ -150,7 +155,7 @@ export async function GET(request: NextRequest) {
       result = await enrichStockAllocationRows(result);
     }
 
-    await setCache(cacheKey, result, 300);
+    await setCache(cacheKey, result, 300, { fetchedAt: cacheReadStartedAt });
 
     return NextResponse.json(result);
   } catch (error) {

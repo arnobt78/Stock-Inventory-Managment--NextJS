@@ -215,6 +215,7 @@ export async function getProductDetailForPage(
   const isClient = session.role === "client";
 
   const cacheKey = cacheKeys.products.detail(id);
+  const cacheReadStartedAt = Date.now();
   const cachedProduct = await getCache<ProductDetailForPage>(cacheKey);
   if (productDetailCacheValid(cachedProduct)) {
     logger.info(`✅ Cache hit for product: ${cacheKey}`);
@@ -316,6 +317,6 @@ export async function getProductDetailForPage(
   const enrichedProduct =
     await enrichProductDetailWithCommittedQuantity(transformedProduct);
 
-  await setCache(cacheKey, enrichedProduct, 300);
+  await setCache(cacheKey, enrichedProduct, 300, { fetchedAt: cacheReadStartedAt });
   return enrichedProduct;
 }

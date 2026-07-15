@@ -27,7 +27,7 @@ import { Loader2, MessageSquare, Pencil, Star, Trash2 } from "lucide-react";
 
 function StarRating({ value }: { value: number }) {
   return (
-    <div className="flex gap-0.5">
+    <div className="flex ">
       {[1, 2, 3, 4, 5].map((v) => (
         <Star
           key={v}

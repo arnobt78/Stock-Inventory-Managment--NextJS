@@ -227,3 +227,19 @@ Fixture: **Beats** catalog **50**, **Main Warehouse** allocated **30**, **20 una
 | 3    | Client | After step 1, auto-assign qty **40**                                  | Blocked — catalog available **10**                                                  |
 
 Admin may optionally pick a warehouse; default remains auto-assign for all roles.
+
+---
+
+## 10. Cache coherence smoke (REQ-0133)
+
+After deploy with buster `v2.0.2`, verify post-CRUD data does **not** revert:
+
+| Step | Action | Expected |
+| ---- | ------ | -------- |
+| 1 | Edit product qty on `/products` | Table + detail show new qty immediately |
+| 2 | Open category detail with product grid | Grid qty matches product list |
+| 3 | Wait 6+ min, switch browser tab away/back | Values **unchanged** (no stale revert) |
+| 4 | Hard reload after CRUD | Fresh data from server (auth session may persist only) |
+| 5 | Back button from detail to list | List shows updated row (no SSR overwrite) |
+
+If revert persists: check Vercel logs for `Skipped stale cache re-warm` and confirm Redis env is set.

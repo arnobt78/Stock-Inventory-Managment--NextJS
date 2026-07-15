@@ -84,6 +84,7 @@ export async function GET(request: NextRequest) {
         ? { byClient: true, userId }
         : { userId, scope: listScope }),
     });
+    const cacheReadStartedAt = Date.now();
     const cachedInvoices = await getCache(cacheKey);
 
     if (cachedInvoices) {
@@ -194,7 +195,7 @@ export async function GET(request: NextRequest) {
     });
 
     // Cache the result for 5 minutes
-    await setCache(cacheKey, transformedInvoices, 300);
+    await setCache(cacheKey, transformedInvoices, 300, { fetchedAt: cacheReadStartedAt });
 
     return NextResponse.json(transformedInvoices);
   } catch (error) {

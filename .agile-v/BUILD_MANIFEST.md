@@ -336,3 +336,4 @@
 | TC-0052 | REQ-0130 | Order table statusAt + semantic date colors hub + date component sweep |
 | TC-0053 | REQ-0131 | List table semantic dates + catalog paymentStatus + order meta created |
 | TC-0054 | REQ-0132 | CSV/export formatStableDate + semantic dates + ticket/PDF/script sweep |
+| TC-0055 | REQ-0133 | Cache coherence — SSR sync, Redis patterns, persist trim, re-warm guard |

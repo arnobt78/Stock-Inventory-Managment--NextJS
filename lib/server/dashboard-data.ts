@@ -102,6 +102,7 @@ async function getStoreOrderIds(productOwnerUserId: string): Promise<string[]> {
 
 export async function getDashboardForAdmin(userId: string): Promise<DashboardStats> {
   const cacheKey = cacheKeys.dashboard.overview(userId);
+  const cacheReadStartedAt = Date.now();
   const cached = await getCache<DashboardStats>(cacheKey);
   if (cached) return cached;
 
@@ -668,6 +669,6 @@ export async function getDashboardForAdmin(userId: string): Promise<DashboardSta
     reviewStatusBreakdown,
     selfOthersBreakdown,
   };
-  await setCache(cacheKey, result, 300);
+  await setCache(cacheKey, result, 300, { fetchedAt: cacheReadStartedAt });
   return result;
 }

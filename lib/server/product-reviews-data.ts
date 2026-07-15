@@ -41,6 +41,7 @@ export async function getProductReviewsForAdmin(
   productOwnerId: string,
 ): Promise<ProductReview[]> {
   const cacheKey = cacheKeys.productReviews.list({ productOwnerId });
+  const cacheReadStartedAt = Date.now();
   const cached = await getCache<ProductReview[]>(cacheKey);
   const first = cached?.[0];
   const hasReviewerInfo =
@@ -59,6 +60,6 @@ export async function getProductReviewsForAdmin(
       : [];
   const userMap = new Map(users.map((u) => [u.id, { name: u.name, email: u.email }]));
   const transformed = records.map((r) => transform(r, userMap));
-  await setCache(cacheKey, transformed, 300);
+  await setCache(cacheKey, transformed, 300, { fetchedAt: cacheReadStartedAt });
   return transformed;
 }

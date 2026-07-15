@@ -19,7 +19,7 @@ import {
 import { useToast } from "@/hooks/use-toast";
 import { Upload, FileText, Loader2 } from "lucide-react";
 import { useQueryClient } from "@tanstack/react-query";
-import { invalidateAllRelatedQueries } from "@/lib/react-query";
+import { invalidateAfterCatalogChange } from "@/lib/react-query";
 import { GLASS_GHOST_BUTTON } from "@/components/shared";
 import { cn } from "@/lib/utils";
 
@@ -119,7 +119,7 @@ export function ProductImportDialog({
         errors: data.errors,
       });
 
-      invalidateAllRelatedQueries(queryClient);
+      invalidateAfterCatalogChange(queryClient);
 
       toast({
         title: "Import Successful!",

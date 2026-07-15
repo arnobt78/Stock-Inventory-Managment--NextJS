@@ -7,7 +7,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { apiClient, getErrorMessage } from "@/lib/api";
 import {
   queryKeys,
-  invalidateAllRelatedQueries,
+  invalidateAfterCatalogChange,
   cancelOrRemoveDetailQuery,
   withInitialData,
   patchDetailCache,
@@ -82,7 +82,7 @@ export function useCreateSupplier() {
           prependIfMissing: true,
         });
       }
-      invalidateAllRelatedQueries(queryClient);
+      invalidateAfterCatalogChange(queryClient);
       toast({
         title: "Success",
         description: `Supplier "${newSupplier.name}" created successfully`,
@@ -121,7 +121,7 @@ export function useUpdateSupplier() {
         );
         patchListCaches(queryClient, queryKeys.suppliers.all, updatedSupplier);
       }
-      invalidateAllRelatedQueries(queryClient);
+      invalidateAfterCatalogChange(queryClient);
       toast({
         title: "Success",
         description: `Supplier "${updatedSupplier.name}" updated successfully`,
@@ -164,7 +164,7 @@ export function useDeleteSupplier() {
         queryClient,
         queryKeys.suppliers.detail(deletedData.id),
       );
-      invalidateAllRelatedQueries(queryClient);
+      invalidateAfterCatalogChange(queryClient);
       toast({
         title: "Success",
         description: `Supplier "${deletedData.name}" deleted successfully`,

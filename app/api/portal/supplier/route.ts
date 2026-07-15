@@ -38,6 +38,7 @@ export async function GET(request: NextRequest) {
 
     // Check cache (key includes :v2 so updated "Completed = paid" logic gets fresh data after deploy)
     const cacheKey = `portal:supplier:v2:${session.id}`;
+    const cacheReadStartedAt = Date.now();
     const cached = await getCache<SupplierPortalDashboard>(cacheKey);
     if (cached) {
       return NextResponse.json(cached);
@@ -54,7 +55,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Cache for 5 minutes
-    await setCache(cacheKey, dashboard, 300);
+    await setCache(cacheKey, dashboard, 300, { fetchedAt: cacheReadStartedAt });
 
     return NextResponse.json(dashboard);
   } catch (error) {

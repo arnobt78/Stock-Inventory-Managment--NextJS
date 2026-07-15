@@ -88,6 +88,7 @@ export async function GET(request: NextRequest) {
 
     // Check cache first (forecasts are expensive to compute)
     const cacheKey = `${FORECASTING_CACHE_KEY_PREFIX}:${session.id}`;
+    const cacheReadStartedAt = Date.now();
     const cached = await getCache<ForecastingSummary>(cacheKey);
     if (cached) {
       return NextResponse.json(cached);
@@ -103,7 +104,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Cache for 15 minutes (forecasts don't change frequently)
-    await setCache(cacheKey, summary, 900);
+    await setCache(cacheKey, summary, 900, { fetchedAt: cacheReadStartedAt });
 
     return NextResponse.json(summary);
   } catch (error) {

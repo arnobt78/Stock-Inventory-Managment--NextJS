@@ -67,6 +67,7 @@ export async function GET(request: NextRequest) {
       ? { productOwnerId: session.id }
       : {};
     const cacheKey = cacheKeys.productReviews.list(cacheFilter);
+    const cacheReadStartedAt = Date.now();
     const cached = await getCache<ProductReview[]>(cacheKey);
     const first = cached?.[0];
     const hasReviewerInfo =
@@ -87,7 +88,7 @@ export async function GET(request: NextRequest) {
         : [];
     const userMap = new Map(users.map((u) => [u.id, { name: u.name, email: u.email }]));
     const transformed = records.map((r) => transform(r, userMap));
-    await setCache(cacheKey, transformed, 300);
+    await setCache(cacheKey, transformed, 300, { fetchedAt: cacheReadStartedAt });
     return NextResponse.json(transformed);
   } catch (error) {
     logger.error("Error fetching product reviews:", error);
