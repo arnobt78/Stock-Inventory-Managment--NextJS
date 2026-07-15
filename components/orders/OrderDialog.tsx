@@ -28,7 +28,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
   useForm,
@@ -65,7 +64,7 @@ import {
   updateOrderSchema,
   type UpdateOrderFormData,
 } from "@/lib/validations";
-import { FormField, FormNumberField } from "@/components/forms";
+import { FormField } from "@/components/forms";
 import type {
   Order,
   OrderStatus,

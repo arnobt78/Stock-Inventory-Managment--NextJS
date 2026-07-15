@@ -309,3 +309,6 @@ Format: `TIMESTAMP | AGENT | DECISION | RATIONALE | REQ-ID`
 2026-07-14T18:30:00Z | build-agent | REQ-0119 gap closure | catalog popover parity; OrderAddressFields; business insights warehouse tab + SSR | REQ-0119
 2026-07-14T18:30:00Z | red-team | REQ-0119 gates | lint ✓ test 504 ✓ invalidate 208 ✓ build ✓ | REQ-0119
 2026-07-14T18:33:00Z | release | REQ-0117–0119 push | SHA 46127b2 → origin/main | REQ-0117, REQ-0118, REQ-0119
+2026-07-15T09:35:00Z | orchestrator | Session bootstrap | Agile V activated; C2 REQ-0119 done; Gate 2 PENDING; Red Team re-run PASS (504 tests) | REQ-0008, REQ-0009
+2026-07-15T09:52:00Z | build-agent | REQ-0120 gap closure | SSR sync insights; AdminEmbedDataTable; back-nav + post-delete navigateTo; dead code cleanup | REQ-0120
+2026-07-15T09:52:00Z | red-team | REQ-0120 gates | lint ✓ test 504 ✓ invalidate 208 ✓ build ✓ | REQ-0120

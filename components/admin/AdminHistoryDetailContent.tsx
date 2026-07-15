@@ -1,8 +1,7 @@
 "use client";
 
 import React from "react";
-import { useParams, useRouter } from "next/navigation";
-import { useQueryClient } from "@tanstack/react-query";
+import { useParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import {
   ArrowLeft,
@@ -28,6 +27,7 @@ import {
 import { GlassCard, DetailInfoRow } from "@/components/orders/detail";
 import { APP_SHELL_DETAIL_CLASS, DETAIL_PAGE_HEADER_SPACING_CLASS } from "@/lib/ui/shell-layout-styles";
 import { cn } from "@/lib/utils";
+import { useBackWithRefresh } from "@/hooks/use-back-with-refresh";
 import { isDataSlotLoading, queryKeys, useSyncSsrQueryData } from "@/lib/react-query";
 import {
   ImportStatusBadge,
@@ -52,8 +52,7 @@ export default function AdminHistoryDetailContent({
   initialRecord,
 }: AdminHistoryDetailContentProps = {}) {
   const params = useParams();
-  const router = useRouter();
-  const queryClient = useQueryClient();
+  const { navigateTo } = useBackWithRefresh("history");
   const id = params?.id as string;
   const recordQuery = useHistoryItem(id, initialRecord);
   const record = recordQuery.data;
@@ -62,10 +61,9 @@ export default function AdminHistoryDetailContent({
 
   useSyncSsrQueryData(queryKeys.history.detail(id), initialRecord);
 
-  /** Narrow invalidation — refresh history list when returning (read-only detail). */
+  /** REQ-0120 — invalidate history list before nav (useBackWithRefresh). */
   const handleBack = () => {
-    queryClient.invalidateQueries({ queryKey: queryKeys.history.lists() });
-    router.push(backHref);
+    navigateTo(backHref);
   };
 
   const footerBackRow = (

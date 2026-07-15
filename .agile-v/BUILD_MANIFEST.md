@@ -272,6 +272,12 @@
 | ART-0264 | REQ-0119 | `catalog-filter-tokens.ts`, `popover-readability-styles.ts` | Catalog/export popover readability parity |
 | ART-0265 | REQ-0119 | `OrderAddressFields.tsx`, `dialog-edge-scroll.ts` | Order address sub-label tokens |
 | ART-0266 | REQ-0119 | `business-insights-warehouse-rollup.ts`, `BusinessInsightsWarehouseSection.tsx`, `app/business-insights/page.tsx` | Warehouse rollup tab + SSR |
+| ART-0267 | REQ-0120 | `BusinessInsightPage.tsx` | useSyncSsrQueryDataMany products/orders/warehouse |
+| ART-0268 | REQ-0120 | `AdminMyActivityContent.tsx` | AdminEmbedDataTable Recent Orders (REQ-0117 AC4) |
+| ART-0269 | REQ-0120 | `use-back-with-refresh.ts` | history entity + narrow list invalidation |
+| ART-0270 | REQ-0120 | `AdminHistoryDetailContent.tsx`, `SupportTicketDetailContent.tsx` | back nav via useBackWithRefresh |
+| ART-0271 | REQ-0120 | Product/Category/Supplier/Warehouse detail pages | post-delete navigateTo |
+| ART-0272 | REQ-0120 | `OrderLineWarehouseSelect.tsx`, `OrderDialog.tsx`, `LoginRoleSelect.tsx` | dead props/imports cleanup |
 
 ## Tests
 

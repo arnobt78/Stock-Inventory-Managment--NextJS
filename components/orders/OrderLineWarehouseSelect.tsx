@@ -14,8 +14,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { DeferredSelectGate, DialogFormLabel } from "@/components/shared";
 import {
+  DeferredSelectGate,
+  DialogFormLabel,
   DIALOG_FORM_FIELD_VIOLET,
   DIALOG_FORM_ERROR_TEXT,
   DIALOG_FORM_FEEDBACK_ROW,
@@ -33,10 +34,6 @@ export type OrderLineWarehouseSelectProps = {
   onChange: (warehouseId: string | undefined) => void;
   dialogOpen: boolean;
   disabled?: boolean;
-  /** Catalog committed available when auto-assign (from parent validator). */
-  catalogAvailable?: number;
-  /** True when product has warehouse allocation rows. */
-  hasAllocations?: boolean;
   /** REQ-0111 — manual-pick cap error from parent validator. */
   manualPickError?: string | null;
   /** REQ-0113 — required; parent injects from useOrderLineStockValidation. */

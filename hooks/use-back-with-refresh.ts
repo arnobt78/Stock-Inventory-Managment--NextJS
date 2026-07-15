@@ -17,6 +17,7 @@ import {
   invalidateAllRelatedQueries,
   invalidateAfterOrderGraphChange,
   invalidateAfterStockChange,
+  queryKeys,
 } from "@/lib/react-query";
 import { consumeStripeCheckoutReturn } from "@/lib/payments/stripe-return";
 
@@ -35,7 +36,8 @@ export type EntityType =
   | "warehouse"
   | "support-ticket"
   | "product-review"
-  | "user";
+  | "user"
+  | "history";
 
 function runInvalidations(
   queryClient: ReturnType<typeof import("@tanstack/react-query").useQueryClient>,
@@ -49,6 +51,11 @@ function runInvalidations(
   // Stock-heavy entities: explicit stock graph invalidation + broad sweep
   if (entity === "warehouse" || entity === "product") {
     invalidateAfterStockChange(queryClient);
+    return;
+  }
+  // Read-only admin history detail — narrow list refresh only
+  if (entity === "history") {
+    void queryClient.invalidateQueries({ queryKey: queryKeys.history.lists() });
     return;
   }
   // All other entities: full cross-domain invalidation covers lists + dashboards

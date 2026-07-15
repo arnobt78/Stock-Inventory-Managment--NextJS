@@ -91,7 +91,7 @@ export default function SupplierDetailPage({
 }: SupplierDetailPageProps = {}) {
   const params = useParams();
   const router = useRouter();
-  const { handleBack } = useBackWithRefresh("supplier");
+  const { handleBack, navigateTo } = useBackWithRefresh("supplier");
   const supplierId = params?.id as string;
   const { user, isCheckingAuth } = useAuth();
 
@@ -176,7 +176,7 @@ export default function SupplierDetailPage({
     deleteSupplierMutation.mutate(supplier?.id, {
       onSuccess: () => {
         setDeleteDialogOpen(false);
-        router.push("/");
+        navigateTo("/");
       },
       onError: () => {
         setDeleteDialogOpen(false);

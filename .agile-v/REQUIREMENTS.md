@@ -1043,24 +1043,6 @@ Canonical REQ source. All artifacts link via `REQ-XXXX`. Status: `done` | `verif
 
 ---
 
-## REQ-0051 — Glass consistency backlog (planned)
-
-| Field        | Value    |
-| ------------ | -------- |
-| **Priority** | P2       |
-| **Risk**     | R1       |
-| **Status**   | backlog  |
-| **Cycle**    | C2       |
-| **Parent**   | REQ-0050 |
-
-**Intent:** Finish inline glass gradient migrations for detail pages, FABs, ShippingManagement, WriteEditReview cancel; smoke Batch B dialog submits in light/dark.
-
-**Scope (CSS/UI only):** `OrderDetailPage`, `InvoiceDetailPage`, `CategoryDetailPage`, `WarehouseDetailPage`, `FloatingActionButtons`, `ShippingManagement`, `WriteEditReviewDialog` cancel → shared tokens; no TanStack/SSR/API.
-
-**Not in scope:** Auth Login/Register CTAs (user-verified at `73060a1`).
-
----
-
 ## REQ-0052 — CRUD post-mutation fast response (deferred cache + ImageKit)
 
 | Field        | Value |
@@ -1359,7 +1341,7 @@ Canonical REQ source. All artifacts link via `REQ-XXXX`. Status: `done` | `verif
 | **Status**   | done  |
 | **Cycle**    | C2    |
 
-**Intent:** Finish deferred glass CTA sweep on detail pages, FABs, ShippingManagement, WriteEditReview cancel.
+**Intent:** Finish deferred glass CTA sweep on detail pages, FABs, ShippingManagement, WriteEditReview cancel. Supersedes planned backlog entry; completed in REQ-0064 sweep.
 
 **Acceptance criteria**
 
@@ -2672,6 +2654,33 @@ Canonical REQ source. All artifacts link via `REQ-XXXX`. Status: `done` | `verif
 - AC5: Gates pass
 
 **Artifacts:** `popover-readability-styles.ts`, `catalog-filter-tokens.ts`, `OrderAddressFields.tsx`, `business-insights-warehouse-rollup.ts`, `BusinessInsightsWarehouseSection.tsx`, `BusinessInsightPage.tsx`, `app/business-insights/page.tsx`
+
+---
+
+## REQ-0120 — Nav invalidation + SSR sync gap closure
+
+| Field | Value |
+|-------|-------|
+| **Priority** | P1 |
+| **Risk** | R1 |
+| **Status** | done |
+| **Cycle** | C2 |
+| **Parent** | REQ-0117 AC4, REQ-0069, REQ-0057 |
+
+**Intent:** Close audit gaps for instant UI refresh on back nav, post-delete navigation, Business Insights SSR→TanStack sync, Admin My Activity embed table parity, and dead-code cleanup. No invalidation registry or API changes.
+
+**Acceptance criteria**
+
+- AC1: `BusinessInsightPage` — `useSyncSsrQueryDataMany` for products, orders, warehouse summary list keys
+- AC2: `AdminMyActivityContent` Recent Orders → `AdminEmbedDataTable` + column defs (REQ-0117 AC4)
+- AC3: `OrderLineWarehouseSelect` — remove unused `catalogAvailable` / `hasAllocations` props
+- AC4: Dead imports removed from `OrderDialog.tsx`, `LoginRoleSelect.tsx`
+- AC5: `useBackWithRefresh("history")` on `AdminHistoryDetailContent`; `support-ticket` on `SupportTicketDetailContent`
+- AC6: Post-delete `navigateTo` on product/category/supplier/warehouse detail pages
+- AC7: Duplicate REQ-0051 backlog entry removed from REQUIREMENTS.md
+- AC8: Gates pass
+
+**Artifacts:** `BusinessInsightPage.tsx`, `AdminMyActivityContent.tsx`, `OrderLineWarehouseSelect.tsx`, `OrderDialogCreateLineItem.tsx`, `OrderDialog.tsx`, `LoginRoleSelect.tsx`, `use-back-with-refresh.ts`, `AdminHistoryDetailContent.tsx`, `SupportTicketDetailContent.tsx`, `ProductDetailPage.tsx`, `CategoryDetailPage.tsx`, `SupplierDetailPage.tsx`, `WarehouseDetailPage.tsx`
 
 ---
 

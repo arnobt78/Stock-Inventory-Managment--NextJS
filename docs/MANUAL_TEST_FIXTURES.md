@@ -41,30 +41,30 @@ npx tsx scripts/lib/seed-demo-catalog.ts
 
 ### Category A — Headphone
 
-| Field       | Value                                               |
-| ----------- | --------------------------------------------------- |
-| Name        | `Headphone`                                         |
-| Status      | Active                                              |
-| Description | `Over-ear and on-ear headphones for demo browsing.` |
-| Notes       | `Primary category for audio SKUs.`                  |
+| Field       | Value                                              |
+| ----------- | -------------------------------------------------- |
+| Name        | `Headphone`                                        |
+| Status      | Active                                             |
+| Description | `Over-ear and on-ear headphones for demo browsing` |
+| Notes       | `Primary category for audio SKUs`                  |
 
 ### Category B — Accessories
 
-| Field       | Value                         |
-| ----------- | ----------------------------- |
-| Name        | `Accessories`                 |
-| Status      | Active                        |
-| Description | `Cables, cases, and add-ons.` |
-| Notes       | `Secondary demo category.`    |
+| Field       | Value                        |
+| ----------- | ---------------------------- |
+| Name        | `Accessories`                |
+| Status      | Active                       |
+| Description | `Cables, cases, and add-ons` |
+| Notes       | `Secondary demo category`    |
 
 ### Category C — TV (inactive test)
 
-| Field       | Value                                        |
-| ----------- | -------------------------------------------- |
-| Name        | `TV`                                         |
-| Status      | **Inactive**                                 |
-| Description | `TVs and other electronics.`                 |
-| Notes       | `Use to test inactive filter on list pages.` |
+| Field       | Value                                       |
+| ----------- | ------------------------------------------- |
+| Name        | `TV`                                        |
+| Status      | **Inactive**                                |
+| Description | `TVs and other electronics`                 |
+| Notes       | `Use to test inactive filter on list pages` |
 
 ---
 
@@ -220,10 +220,10 @@ If catalog edit blocks at **40 reserved** after a **20-unit** warehouse-pick ord
 
 Fixture: **Beats** catalog **50**, **Main Warehouse** allocated **30**, **20 unallocated**.
 
-| Step | Role | Action | Expected |
-| ---- | ---- | ------ | -------- |
-| 1 | Client | Create order — Beats qty **40**, warehouse **Auto-assign warehouses** | Order succeeds; list shows **10 available**, **40 reserved** (or committed display) |
-| 2 | Client | Retry qty **40** with manual **Main Warehouse** pick | Blocked — max **30** at warehouse |
-| 3 | Client | After step 1, auto-assign qty **40** | Blocked — catalog available **10** |
+| Step | Role   | Action                                                                | Expected                                                                            |
+| ---- | ------ | --------------------------------------------------------------------- | ----------------------------------------------------------------------------------- |
+| 1    | Client | Create order — Beats qty **40**, warehouse **Auto-assign warehouses** | Order succeeds; list shows **10 available**, **40 reserved** (or committed display) |
+| 2    | Client | Retry qty **40** with manual **Main Warehouse** pick                  | Blocked — max **30** at warehouse                                                   |
+| 3    | Client | After step 1, auto-assign qty **40**                                  | Blocked — catalog available **10**                                                  |
 
 Admin may optionally pick a warehouse; default remains auto-assign for all roles.

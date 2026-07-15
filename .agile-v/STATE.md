@@ -3,9 +3,9 @@
 | Field | Value |
 |-------|-------|
 | **Cycle** | C1 (closing) → **C2 open** |
-| **Phase** | C2 — REQ-0106 … REQ-0119 **done** |
-| **Last updated** | 2026-07-14 (REQ-0119) |
-| **Active REQ range** | REQ-0001 … REQ-0119 **done** |
+| **Phase** | C2 — REQ-0120 **done** |
+| **Last updated** | 2026-07-15 (REQ-0120) |
+| **Active REQ range** | REQ-0001 … REQ-0120 **done** |
 | **Prod deploy target** | `46127b2` (REQ-0117–0119) — pushed `origin/main` |
 | **Human Gate 1** | APPROVED (retroactive bootstrap) |
 | **Human Gate 2** | PENDING — Sentry 24h after prod deploy |
@@ -71,18 +71,22 @@ Catalog-commit warehouse hints + `committedQuantity` on allocation enrich; `comp
 
 Catalog/export popover readability via `catalogEntityPopoverContentClass`; `DIALOG_FORM_SUB_LABEL` + `OrderAddressFields`; Business Insights Warehouses tab + SSR `getWarehouseStockSummary` + rollup helper/test. Gates: lint ✓ test 504 ✓ invalidate 208 ✓ build ✓.
 
+## REQ-0120 — Nav invalidation + SSR sync gap closure (2026-07-15)
+
+Business Insights `useSyncSsrQueryDataMany` (products/orders/warehouse); Admin My Activity `AdminEmbedDataTable`; `useBackWithRefresh("history"|"support-ticket")`; post-delete `navigateTo` on catalog/warehouse detail; dead props/imports cleanup; duplicate REQ-0051 doc removed. Gates: lint ✓ test 504 ✓ invalidate 208 ✓ build ✓.
+
 ## Next session
 
 | Priority | Item | REQ |
 |----------|------|-----|
-| P0 | Confirm Vercel prod SHA; Sentry 24h Gate 2 | REQ-0009 |
-| P1 | Manual smoke — dialog UX + admin portal tables | REQ-0117 |
+| P0 | Human Gate 2 — confirm Vercel prod SHA; Sentry 24h review | REQ-0009 |
+| P1 | Manual smoke — Beats §9 + catalog CRUD back-nav after REQ-0120 | REQ-0103–0120 |
 
 ## Current focus
 
-1. **REQ-0106–0119** — done
-2. **Gate 2** — deploy confirm + Sentry 24h
-3. **Manual QA** — Beats auto-order walkthrough
+1. **REQ-0001–0120** — code-complete
+2. **Gate 2** — prod SHA confirm + Sentry 24h (blocks release sign-off)
+3. **Manual QA** — reset-demo-db + Beats §9 + back-nav after CRUD
 
 ## Session resume (every chat)
 

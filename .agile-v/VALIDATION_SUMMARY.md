@@ -1,9 +1,28 @@
 # Validation Summary — Cycle C1
 
-**Generated:** 2026-07-14  
+**Generated:** 2026-07-15  
 **eval_gate_status:** PENDING (Human Gate 2)  
-**Prod target SHA:** `8de1827` (REQ-0106–0113)  
-**Red Team:** lint ✓ test 488 ✓ invalidate 208 ✓ build ✓ (2026-07-14 REQ-0113)
+**Prod target SHA:** `46127b2` (REQ-0117–0119)  
+**Red Team:** lint ✓ test 504 ✓ invalidate 208 ✓ build ✓ (2026-07-15 REQ-0120)
+
+---
+
+## REQ-0120 nav invalidation + SSR sync evidence
+
+| Check | Result |
+|-------|--------|
+| Business Insights SSR sync | `useSyncSsrQueryDataMany` — products, orders, warehouse summary keys |
+| Admin My Activity table | `AdminEmbedDataTable` + column defs (REQ-0117 AC4 closure) |
+| Back nav | `useBackWithRefresh("history")`, `("support-ticket")` |
+| Post-delete nav | `navigateTo` on product/category/supplier/warehouse detail delete success |
+| Dead code | Removed unused warehouse select props; OrderDialog/LoginRoleSelect imports |
+| Docs | Duplicate REQ-0051 backlog entry removed |
+| Invalidation registry | unchanged — no new mutation paths |
+
+```
+Scope: built/verified | Traceability: REQ-0120 | Findings: PASS
+Commands: lint, test 504, test:invalidate 208, build
+```
 
 ---
 
@@ -453,9 +472,11 @@ Commands: lint, test, test:invalidate, build
 - [x] Deploy REQ-0020 (`21d7fc4`)
 - [x] Push REQ-0021 (`733681a`)
 - [x] Push REQ-0022–0029 (`3ebb4db`)
-- [ ] Confirm Vercel prod SHA = `3cc5c4b` (REQ-0105)
-- [ ] Sentry 24h: no OAuth state error, no ErrorBoundary removeChild on admin/suppliers nav
-- [ ] Manual: supplier product → category/supplier detail (REQ-0029)
+- [ ] Confirm Vercel prod SHA = `46127b2` (REQ-0117–0119)
+- [ ] Sentry 24h: no OAuth state error, no ErrorBoundary removeChild on admin/suppliers nav (REQ-0009)
+- [ ] Manual: supplier product → category/supplier detail read-only (REQ-0029)
+- [ ] Manual: dialog UX + admin portal embed tables (REQ-0117)
+- [ ] Manual: Beats order stock walkthrough after `reset-demo-db` (REQ-0103–0113; `MANUAL_TEST_FIXTURES.md` §9)
 
 **Approver:** _pending_  
 **Date:** _pending_

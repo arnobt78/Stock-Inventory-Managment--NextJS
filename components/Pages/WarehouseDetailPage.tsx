@@ -219,7 +219,7 @@ export default function WarehouseDetailPage({
     deleteWarehouseMutation.mutate(warehouse?.id, {
       onSuccess: () => {
         setDeleteDialogOpen(false);
-        router.push(warehousesListHref);
+        navigateTo(warehousesListHref);
       },
       onError: () => {
         setDeleteDialogOpen(false);

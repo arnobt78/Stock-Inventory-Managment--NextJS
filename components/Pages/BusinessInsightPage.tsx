@@ -69,7 +69,7 @@ import {
   StockQuantityLeftBadge,
 } from "@/lib/ui/semantic-badges";
 import { useProducts, useOrders, useWarehouseStockSummary } from "@/hooks/queries";
-import { isDataSlotLoading, queryKeys, useSyncSsrQueryData } from "@/lib/react-query";
+import { isDataSlotLoading, queryKeys, useSyncSsrQueryDataMany } from "@/lib/react-query";
 import { exportToExcel, exportToCSV } from "@/lib/export";
 import type { Product, Order } from "@/types";
 import type { ProductForHome } from "@/lib/server/home-data";
@@ -135,10 +135,15 @@ export default function BusinessInsightPage({
   );
   const dataLoading = productsLoading;
 
-  useSyncSsrQueryData(
-    queryKeys.stockAllocation.summary(),
-    initialWarehouseSummary,
-  );
+  // REQ-0120 — SSR snapshots for products/orders/warehouse summary (post-CRUD nav parity)
+  useSyncSsrQueryDataMany([
+    { queryKey: queryKeys.products.lists(), serverData: initialProducts },
+    { queryKey: queryKeys.orders.lists(), serverData: initialOrders },
+    {
+      queryKey: queryKeys.stockAllocation.summary(),
+      serverData: initialWarehouseSummary,
+    },
+  ]);
   const { user } = useAuth();
   const { toast } = useToast();
 

@@ -134,7 +134,7 @@ export default function ProductDetailPage({
 }: ProductDetailPageProps = {}) {
   const params = useParams();
   const router = useRouter();
-  const { handleBack } = useBackWithRefresh("product");
+  const { handleBack, navigateTo } = useBackWithRefresh("product");
   const productId = params?.id as string;
   const { user, isCheckingAuth } = useAuth();
 
@@ -295,7 +295,7 @@ export default function ProductDetailPage({
     deleteProductMutation.mutate(product?.id, {
       onSuccess: () => {
         setDeleteDialogOpen(false);
-        router.push("/");
+        navigateTo("/");
       },
       onError: () => {
         setDeleteDialogOpen(false);

@@ -99,7 +99,7 @@ export default function CategoryDetailPage({
 }: CategoryDetailPageProps = {}) {
   const params = useParams();
   const router = useRouter();
-  const { handleBack } = useBackWithRefresh("category");
+  const { handleBack, navigateTo } = useBackWithRefresh("category");
   const categoryId = params?.id as string;
   const { user, isCheckingAuth } = useAuth();
 
@@ -195,7 +195,7 @@ export default function CategoryDetailPage({
     deleteCategoryMutation.mutate(category.id, {
       onSuccess: () => {
         setDeleteDialogOpen(false);
-        router.push("/");
+        navigateTo("/");
       },
       onError: () => {
         setDeleteDialogOpen(false);

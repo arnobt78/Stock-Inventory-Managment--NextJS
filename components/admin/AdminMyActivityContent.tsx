@@ -2,14 +2,6 @@
 
 import React, { useMemo, useState } from "react";
 import Link from "next/link";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
 import { Input } from "@/components/ui/input";
 import {
   ShoppingCart,
@@ -42,7 +34,10 @@ import { FILTER_SEARCH_INPUT_SKY_CLASS } from "@/lib/ui/filter-toolbar-styles";
 import { ClientCurrency, ClientCompactDateTime } from "@/components/shared";
 import { formatStableCurrency } from "@/lib/format";
 import { StatisticsCard } from "@/components/home/StatisticsCard";
-import { TableBodyPulseRows } from "@/components/ui/table-data-skeleton";
+import {
+  AdminEmbedDataTable,
+  type AdminEmbedColumn,
+} from "@/components/admin/AdminEmbedDataTable";
 import { OrderStatusBadge, PaymentStatusBadge } from "@/lib/ui/semantic-badges";
 import type { UserForAdmin } from "@/types";
 import type {
@@ -98,7 +93,7 @@ export default function AdminMyActivityContent({
     { queryKey: queryKeys.userManagement.lists(), serverData: initialUsers },
   ]);
 
-  const orders = ordersQuery.data ?? initialOrders ?? [];
+  const orders = (ordersQuery.data ?? initialOrders ?? []) as OrderForPage[];
   const products = productsQuery.data ?? initialProducts ?? [];
   const suppliers = suppliersQuery.data ?? initialSuppliers ?? [];
   const warehouses = warehousesQuery.data ?? initialWarehouses ?? [];
@@ -262,6 +257,64 @@ export default function AdminMyActivityContent({
       : sorted;
     return filtered.slice(0, 5);
   }, [orders, searchTerm, authUser?.name, authUser?.email]);
+
+  /** REQ-0120 / REQ-0117 AC4 — portal embed table parity for Recent Orders */
+  const recentOrderColumns = useMemo<AdminEmbedColumn<OrderForPage>[]>(
+    () => [
+      {
+        id: "orderId",
+        header: "Order ID",
+        cellClassName: "font-mono text-xs text-gray-700 dark:text-gray-100",
+        render: (order) => `${order.id.slice(0, 8)}…`,
+      },
+      {
+        id: "status",
+        header: "Status",
+        render: (order) => <OrderStatusBadge status={order.status ?? ""} />,
+      },
+      {
+        id: "payment",
+        header: "Payment",
+        render: (order) => (
+          <PaymentStatusBadge status={order.paymentStatus ?? ""} />
+        ),
+      },
+      {
+        id: "amount",
+        header: "Amount",
+        cellClassName: "text-gray-700 dark:text-gray-200",
+        render: (order) => <ClientCurrency value={Number(order.total)} />,
+      },
+      {
+        id: "items",
+        header: "Items",
+        cellClassName: "text-gray-700 dark:text-gray-200",
+        render: (order) => order.items?.length ?? 0,
+      },
+      {
+        id: "date",
+        header: "Date",
+        cellClassName: "text-gray-600 dark:text-gray-400",
+        render: (order) => <ClientCompactDateTime date={order.createdAt} />,
+      },
+      {
+        id: "actions",
+        header: "Actions",
+        headerClassName: "text-right",
+        cellClassName: "text-right",
+        render: (order) => (
+          <Link
+            href={`/admin/orders/${order.id}`}
+            className="inline-flex items-center gap-1 text-sm text-sky-600 dark:text-sky-400 hover:text-sky-500 dark:hover:text-sky-300"
+          >
+            <Eye className="h-4 w-4" />
+            View
+          </Link>
+        ),
+      },
+    ],
+    [],
+  );
 
   return (
     <PageContentWrapper>
@@ -464,97 +517,14 @@ export default function AdminMyActivityContent({
               />
             </div>
           </div>
-          <Table>
-            <TableHeader>
-              <TableRow className="bg-white/40 dark:bg-white/10 border-gray-300/30 dark:border-white/10 hover:bg-transparent">
-                <TableHead className="text-gray-700 dark:text-gray-300">
-                  Order ID
-                </TableHead>
-                <TableHead className="text-gray-700 dark:text-gray-300">
-                  Status
-                </TableHead>
-                <TableHead className="text-gray-700 dark:text-gray-300">
-                  Payment
-                </TableHead>
-                <TableHead className="text-gray-700 dark:text-gray-300">
-                  Amount
-                </TableHead>
-                <TableHead className="text-gray-700 dark:text-gray-300">
-                  Items
-                </TableHead>
-                <TableHead className="text-gray-700 dark:text-gray-300">
-                  Date
-                </TableHead>
-                <TableHead className="text-right text-gray-700 dark:text-gray-300">
-                  Actions
-                </TableHead>
-              </TableRow>
-            </TableHeader>
-            {ordersTableLoading ? (
-              <TableBodyPulseRows columnCount={7} rows={5} striped={false} />
-            ) : (
-              <TableBody>
-                {recentOrders.length === 0 ? (
-                  <TableRow className="border-gray-300/30 dark:border-white/10 hover:bg-transparent">
-                    <TableCell
-                      colSpan={7}
-                      className="text-center text-gray-600 dark:text-gray-400 py-10"
-                    >
-                      <div className="flex flex-col items-center justify-center gap-2">
-                        <ShoppingCart
-                          className="h-8 w-8 opacity-50"
-                          aria-hidden
-                        />
-                        <span>No orders found</span>
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                ) : (
-                  recentOrders.map((order, index) => (
-                    <TableRow
-                      key={order.id}
-                      className={cn(
-                        "border-gray-300/30 dark:border-white/10",
-                        index % 2 === 0
-                          ? "bg-white/30 dark:bg-white/5"
-                          : "bg-white/20 dark:bg-white/10",
-                      )}
-                    >
-                      <TableCell className="font-mono text-xs text-gray-700 dark:text-gray-100">
-                        {order.id.slice(0, 8)}…
-                      </TableCell>
-                      <TableCell>
-                        <OrderStatusBadge status={order.status ?? ""} />
-                      </TableCell>
-                      <TableCell>
-                        <PaymentStatusBadge
-                          status={order.paymentStatus ?? ""}
-                        />
-                      </TableCell>
-                      <TableCell className="text-gray-700 dark:text-gray-200">
-                        <ClientCurrency value={Number(order.total)} />
-                      </TableCell>
-                      <TableCell className="text-gray-700 dark:text-gray-200">
-                        {order.items?.length ?? 0}
-                      </TableCell>
-                      <TableCell className="text-gray-600 dark:text-gray-400">
-                        <ClientCompactDateTime date={order.createdAt} />
-                      </TableCell>
-                      <TableCell className="text-right">
-                        <Link
-                          href={`/admin/orders/${order.id}`}
-                          className="inline-flex items-center gap-1 text-sm text-sky-600 dark:text-sky-400 hover:text-sky-500 dark:hover:text-sky-300"
-                        >
-                          <Eye className="h-4 w-4" />
-                          View
-                        </Link>
-                      </TableCell>
-                    </TableRow>
-                  ))
-                )}
-              </TableBody>
-            )}
-          </Table>
+          <AdminEmbedDataTable
+            columns={recentOrderColumns}
+            data={recentOrders}
+            loading={ordersTableLoading}
+            emptyMessage="No orders found"
+            emptyIcon={ShoppingCart}
+            getRowKey={(order) => order.id}
+          />
         </article>
       </div>
     </PageContentWrapper>

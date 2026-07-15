@@ -3,9 +3,9 @@
 import React, { useState } from "react";
 import { SafeAvatarImage } from "@/components/ui/safe-avatar-image";
 import { resolveAvatarSourcesFromSeed } from "@/lib/ui/user-avatar-sources";
-import Link from "next/link";
 import Navbar from "@/components/layouts/Navbar";
 import { PageContentWrapper } from "@/components/shared";
+import { useBackWithRefresh } from "@/hooks/use-back-with-refresh";
 import {
   useSupportTicket,
   useSupportTicketReplies,
@@ -50,6 +50,7 @@ export default function SupportTicketDetailContent({
   initialReplies,
 }: SupportTicketDetailContentProps) {
   const [replyBody, setReplyBody] = useState("");
+  const { navigateTo } = useBackWithRefresh("support-ticket");
   const { data: ticket = initialTicket } = useSupportTicket(initialTicket.id);
 
   useSyncSsrQueryDataMany([
@@ -84,18 +85,20 @@ export default function SupportTicketDetailContent({
       <PageContentWrapper>
         <div className="space-y-4 poppins">
           <div className="flex items-center gap-2">
-            <Link
-              href="/support-tickets"
+            <Button
+              type="button"
+              variant="ghost"
+              onClick={() => navigateTo("/support-tickets")}
               className={cn(
                 "inline-flex items-center gap-2 rounded-xl border border-sky-400/30 dark:border-sky-400/30",
                 "bg-white/60 dark:bg-white/5 backdrop-blur-md",
                 "hover:bg-white/80 dark:hover:bg-white/10",
-                "text-gray-700 dark:text-gray-300 text-sm font-medium px-2 py-2",
+                "text-gray-700 dark:text-gray-300 text-sm font-medium px-2 py-2 h-auto",
               )}
             >
               <ArrowLeft className="h-4 w-4" />
               Back to tickets
-            </Link>
+            </Button>
           </div>
 
           <article

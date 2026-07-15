@@ -10,7 +10,6 @@ import {
 } from "@/components/ui/select";
 import { AUTH_FORM_FIELD_SKY } from "@/components/auth/auth-glass-styles";
 import {
-  DIALOG_SELECT_CONTENT_CLASS,
   DIALOG_SELECT_ITEM_CLASS,
   filterCommandPopoverClass,
 } from "@/lib/ui/popover-readability-styles";

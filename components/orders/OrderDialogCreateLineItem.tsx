@@ -322,8 +322,6 @@ export function OrderDialogCreateLineItem({
               createSetValue(`items.${index}.warehouseId`, whId)
             }
             dialogOpen={dialogOpen}
-            catalogAvailable={validation?.maxQty}
-            hasAllocations={hasAllocations}
             manualPickError={manualPickError}
             allocationRows={allocationRows}
             allocationsLoading={allocationsLoading}
