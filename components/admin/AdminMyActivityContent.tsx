@@ -38,7 +38,8 @@ import {
   AdminEmbedDataTable,
   type AdminEmbedColumn,
 } from "@/components/admin/AdminEmbedDataTable";
-import { OrderStatusBadge, PaymentStatusBadge } from "@/lib/ui/semantic-badges";
+import { PaymentStatusBadge } from "@/lib/ui/semantic-badges";
+import { RecentOrderStatusColumn } from "@/components/shared/RecentOrderStatusColumn";
 import type { UserForAdmin } from "@/types";
 import type {
   ProductForHome,
@@ -270,7 +271,14 @@ export default function AdminMyActivityContent({
       {
         id: "status",
         header: "Status",
-        render: (order) => <OrderStatusBadge status={order.status ?? ""} />,
+        render: (order) => (
+          <RecentOrderStatusColumn
+            status={order.status ?? ""}
+            statusAt={order.statusAt}
+            paymentStatus={order.paymentStatus}
+            className="items-start py-0"
+          />
+        ),
       },
       {
         id: "payment",
@@ -295,7 +303,9 @@ export default function AdminMyActivityContent({
         id: "date",
         header: "Date",
         cellClassName: "text-gray-600 dark:text-gray-400",
-        render: (order) => <ClientCompactDateTime date={order.createdAt} />,
+        render: (order) => (
+          <ClientCompactDateTime date={order.createdAt} semantic="created" />
+        ),
       },
       {
         id: "actions",

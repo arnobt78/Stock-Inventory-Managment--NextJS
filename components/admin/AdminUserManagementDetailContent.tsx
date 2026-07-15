@@ -260,13 +260,13 @@ export default function AdminUserManagementDetailContent({
                 </DetailInfoRow>
                 <DetailInfoRow icon={Calendar} label="Joined:" tone="orange" loading={dataLoading}>
                   {!dataLoading && (
-                    <ClientDateTime date={new Date(u!.createdAt)} />
+                    <ClientDateTime date={new Date(u!.createdAt)} semantic="created" />
                   )}
                 </DetailInfoRow>
                 <DetailInfoRow icon={Calendar} label="Last Updated:" tone="amber" loading={dataLoading}>
                   {!dataLoading &&
                     (u!.updatedAt ? (
-                      <ClientDateTime date={new Date(u!.updatedAt)} />
+                      <ClientDateTime date={new Date(u!.updatedAt)} semantic="updated" />
                     ) : (
                       "—"
                     ))}

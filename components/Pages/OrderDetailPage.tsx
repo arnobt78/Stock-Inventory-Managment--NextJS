@@ -364,39 +364,39 @@ export default function OrderDetailPage({
                   </>
                 )}
                 <DetailInfoRow icon={Calendar} label="Created:" tone="orange" loading={dataLoading}>
-                  {!dataLoading && <ClientDateTime date={createdAt} />}
+                  {!dataLoading && <ClientDateTime date={createdAt} semantic="created" />}
                 </DetailInfoRow>
                 {(dataLoading || (order?.paymentStatus === "paid" && order?.paidAt)) && (
                   <DetailInfoRow icon={CircleDollarSign} label="Paid:" tone="emerald" loading={dataLoading}>
                     {!dataLoading && order?.paidAt && (
-                      <ClientDateTime date={new Date(order.paidAt)} />
+                      <ClientDateTime date={new Date(order.paidAt)} semantic="paid" />
                     )}
                   </DetailInfoRow>
                 )}
                 {(dataLoading || updatedAt) && (
                   <DetailInfoRow icon={Calendar} label="Updated:" tone="amber" loading={dataLoading}>
-                    {!dataLoading && updatedAt && <ClientDateTime date={updatedAt} />}
+                    {!dataLoading && updatedAt && <ClientDateTime date={updatedAt} semantic="updated" />}
                   </DetailInfoRow>
                 )}
                 {(dataLoading || shippedAt) && (
                   <DetailInfoRow icon={Truck} label="Shipped:" tone="sky" loading={dataLoading}>
-                    {!dataLoading && shippedAt && <ClientDateTime date={shippedAt} />}
+                    {!dataLoading && shippedAt && <ClientDateTime date={shippedAt} semantic="shipped" />}
                   </DetailInfoRow>
                 )}
                 {(dataLoading || deliveredAt) && (
                   <DetailInfoRow icon={Package} label="Delivered:" tone="emerald" loading={dataLoading}>
-                    {!dataLoading && deliveredAt && <ClientDateTime date={deliveredAt} />}
+                    {!dataLoading && deliveredAt && <ClientDateTime date={deliveredAt} semantic="delivered" />}
                   </DetailInfoRow>
                 )}
                 {(dataLoading || cancelledAt) && (
                   <DetailInfoRow icon={Ban} label="Cancelled:" tone="rose" loading={dataLoading}>
-                    {!dataLoading && cancelledAt && <ClientDateTime date={cancelledAt} />}
+                    {!dataLoading && cancelledAt && <ClientDateTime date={cancelledAt} semantic="cancelled" />}
                   </DetailInfoRow>
                 )}
                 {(dataLoading || estimatedDelivery) && (
                   <DetailInfoRow icon={Calendar} label="Estimated Delivery:" tone="violet" loading={dataLoading}>
                     {!dataLoading && estimatedDelivery && (
-                      <ClientDate date={estimatedDelivery} />
+                      <ClientDate date={estimatedDelivery} semantic="scheduled" />
                     )}
                   </DetailInfoRow>
                 )}

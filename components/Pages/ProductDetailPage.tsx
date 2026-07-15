@@ -433,7 +433,7 @@ export default function ProductDetailPage({
                   <CopyableText value={product!.sku}>
                     {product!.sku}
                   </CopyableText>{" "}
-                  • Created <ClientRelativeTime date={createdAt} />
+                  • Created <ClientRelativeTime date={createdAt} semantic="created" />
                 </>
               )
             }
@@ -650,7 +650,7 @@ export default function ProductDetailPage({
                       tone="teal"
                       loading={dataLoading}
                     >
-                      {!dataLoading && <ClientDateTime date={createdAt} />}
+                      {!dataLoading && <ClientDateTime date={createdAt} semantic="created" />}
                     </DetailInfoRow>
                     {(dataLoading || updatedAt) && (
                       <DetailInfoRow
@@ -660,7 +660,7 @@ export default function ProductDetailPage({
                         loading={dataLoading}
                       >
                         {!dataLoading && updatedAt && (
-                          <ClientDateTime date={updatedAt} />
+                          <ClientDateTime date={updatedAt} semantic="updated" />
                         )}
                       </DetailInfoRow>
                     )}
@@ -670,7 +670,7 @@ export default function ProductDetailPage({
                         label="Expiration:"
                         tone="amber"
                       >
-                        <ClientDate date={expirationDate} />
+                        <ClientDate date={expirationDate} semantic="expiration" />
                       </DetailInfoRow>
                     )}
                   </DetailInfoRowGroup>
@@ -703,7 +703,7 @@ export default function ProductDetailPage({
                   )}
                   {!dataLoading && product?.deletedAt && (
                     <DetailInfoRow icon={Package} label="Archived:" tone="rose">
-                      <ClientDateTime date={new Date(product.deletedAt)} />
+                      <ClientDateTime date={new Date(product.deletedAt)} semantic="cancelled" />
                     </DetailInfoRow>
                   )}
                   {!dataLoading && product?.creator && (

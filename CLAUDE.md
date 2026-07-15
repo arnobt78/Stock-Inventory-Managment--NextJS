@@ -811,6 +811,51 @@ Hub: `lib/ui/typography-scale.ts`. Hubs import tokens; ~45 inline files use equi
 
 **No TanStack/invalidation changes** — read-only SSR + UI DRY only.
 
+## REQ-0128 gap closure (REQ-0129)
+
+| Piece | Location |
+|-------|----------|
+| Invoice paidAt | `orderInvoicePaidAtSelect` + `resolveOrderStatusAtFromSource` — paid statusAt uses `invoice.paidAt` not `order.updatedAt` |
+| Order lists | `getInvoiceLinkMap` + `buildOrderForPageRow` — `OrderForPage.statusAt` on 4 SSR fetches + GET `/api/orders` |
+| Admin My Activity | `AdminMyActivityContent` — `RecentOrderStatusColumn` on recent orders table |
+| Invoice cache | `INVOICE_PATTERNS` adds `products`, `categories`, `suppliers`, `supplierPortal` — instant catalog statusAt after invoice pay |
+
+**TanStack registry unchanged** — Redis sync await (REQ-0055) + existing `invalidateAllRelatedQueries` on mutations.
+
+## Semantic date colors + order table statusAt (REQ-0130)
+
+| Piece | Location |
+|-------|----------|
+| Date tokens | `lib/ui/semantic-date-styles.ts` — `SemanticDateKind`, `semanticDateClass`, `statusAtSemanticKind` |
+| Date components | `ClientDateTime`, `ClientDate`, `ClientCompactDateTime`, `ClientRelativeTime` — optional `semantic` prop |
+| Order list | `OrderTableColumns` — `RecentOrderStatusColumn` + `Order.statusAt` |
+| Sweep | Detail pages, portals, tables, invoice facts, notifications — semantic hues per date kind |
+
+**CSS/UI only** — no TanStack/SSR/invalidation registry changes.
+
+## REQ-0131 gap closure
+
+| Piece | Location |
+|-------|----------|
+| List tables | Category/supplier/warehouse/history/user/review/ticket/invoice `*TableColumns` — `ClientDate*` + `semantic` |
+| Order meta | `OrderTableColumns` compact meta — `ClientDate semantic="created"` |
+| Catalog hue | `paymentStatus` on `CatalogDetailRecentOrderItem` + product/category/supplier detail SSR |
+
+**CSS/UI + read-only SSR field** — no TanStack invalidation registry changes.
+
+## REQ-0132 final date gap closure
+
+| Piece | Location |
+|-------|----------|
+| CSV export | 6 `*Filters.tsx` — `formatStableDate` via `@/lib/format` (product/category/supplier/warehouse/order/invoice) |
+| UI semantic | `AdminClientPortalContent` recent invoices; `ActivityLogSection` When column; `ProductReviewsSection` review footer |
+| Cleanup | Removed dead `date-fns format` imports from 3 UI files |
+| Support tickets | `SupportTicketDetailContent`, `AdminSupportTicketDetailContent` reply timestamps — `ClientDateTime semantic="created"` |
+| Dev script | `scripts/check-all-data.ts` — `formatStableDate` |
+| PDF | `lib/pdf/invoice-generator.ts` — `formatStableDate` (DRY with app stack) |
+
+**CSS/export-only** — no TanStack/SSR/invalidation registry changes.
+
 ## Post-mutation cache (REQ-0052 + REQ-0055)
 
 | Piece | Location |
@@ -975,13 +1020,12 @@ Gates: lint ✓ test **498** ✓ invalidate **208** ✓ build ✓. **No invalida
 
 **Invalidation unchanged** — `stockAllocation.all` already cleared on stock CRUD; `useSyncSsrQueryData` on summary key.
 
-## Hydration-safe dates
+## Hydration-safe dates (REQ-0020 + REQ-0130–0132)
 
-- `lib/format/` — stable (`format-stable`) + client (`client-locale`) barrel
-- `components/shared/ClientFormatDisplay.tsx` — `ClientCurrency`, `ClientCompactDateTime` (REQ-0020)
-- `components/shared/ClientDateDisplay.tsx` — `ClientRelativeTime`, `ClientDateTime`, `ClientDate`
-- `hooks/use-mounted.ts` — `useSyncExternalStore` client gate
-- Use on detail pages + `NotificationDropdown`; avoid `formatDistanceToNow` / `toLocaleDateString` in client components that SSR
+- Hub: `lib/date/format-stable.ts` → `@/lib/format`; hues: `lib/ui/semantic-date-styles.ts`
+- UI: `ClientDateTime` / `ClientDate` / `ClientCompactDateTime` / `ClientRelativeTime` — optional `semantic`
+- Export/PDF/scripts: `formatStableDate` only (6 `*Filters.tsx`, `invoice-generator.ts`, `check-all-data.ts`)
+- Order list status column: `RecentOrderStatusColumn` + `statusAt` (invoice `paidAt` when paid)
 
 ## Agent rules
 

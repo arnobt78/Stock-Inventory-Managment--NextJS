@@ -24,7 +24,7 @@ import {
 } from "@/lib/server/catalog-insights";
 import { enrichProductsWithCommittedQuantity } from "@/lib/products/enrich-product-committed-quantity";
 import { catalogDetailOrderSelect } from "@/lib/server/catalog-detail-order-select";
-import { resolveOrderStatusAt } from "@/lib/orders/order-status-display-date";
+import { resolveOrderStatusAtFromSource } from "@/lib/orders/order-status-display-date";
 
 export { CATEGORY_LOW_STOCK_THRESHOLD };
 export { computeCatalogInsights as computeCategoryInsights } from "@/lib/server/catalog-insights";
@@ -123,16 +123,8 @@ function transformCategoryDetail(
         orderId: order?.id || "",
         orderNumber: order?.orderNumber || "",
         orderStatus: order?.status || "",
-        statusAt: order
-          ? resolveOrderStatusAt({
-              status: order.status,
-              paymentStatus: order.paymentStatus,
-              cancelledAt: order.cancelledAt,
-              deliveredAt: order.deliveredAt,
-              shippedAt: order.shippedAt,
-              updatedAt: order.updatedAt,
-            })
-          : undefined,
+        paymentStatus: order?.paymentStatus ?? undefined,
+        statusAt: order ? resolveOrderStatusAtFromSource(order) : undefined,
         productId: product.id,
         productName: product.name,
         productSku: product.sku,

@@ -570,6 +570,50 @@ Commands: lint, test, test:invalidate, build
 
 ---
 
+## REQ-0132 — Final date gap closure (2026-07-15)
+
+**Scope:** CSV/Excel export `formatStableDate` (6 filters); semantic `ClientDate*` (portals, activity log, reviews, support tickets); PDF + dev script DRY — display/export only.
+
+**Gates:** lint ✓ · test 531/531 ✓ · invalidate 208/208 ✓ · build ✓
+
+**Evidence summary**
+
+```
+Scope: built/verified | Traceability: REQ-0132 | Findings: PASS
+Commands: lint, test, test:invalidate, build
+```
+
+---
+
+## REQ-0131 — REQ-0130 gap closure (2026-07-15)
+
+**Scope:** List table semantic dates + catalog `paymentStatus` — CSS/UI + read-only SSR field.
+
+**Gates:** lint ✓ · test 531/531 ✓ · invalidate 208/208 ✓ · build ✓
+
+---
+
+## REQ-0130 — semantic dates + order table statusAt (2026-07-15)
+
+**Scope:** CSS/UI only — semantic date hub + order table statusAt column.
+
+**Gates:** lint ✓ · test 531/531 ✓ · invalidate 208/208 ✓ · build ✓
+
+---
+
+**Scope:** Read-only SSR enrichment + invoice cache invalidation widen — TanStack invalidation registry unchanged.
+
+**Gates:** lint ✓ · test 528/528 ✓ · invalidate 208/208 ✓ · build ✓
+
+**Evidence summary**
+
+```
+Scope: built/verified | Traceability: REQ-0129 | Findings: PASS
+Commands: lint, test, test:invalidate, build
+```
+
+---
+
 ## REQ-0128 — REQ-0127 gap closure (2026-07-15)
 
 **Scope:** Read-only SSR enrichment + shared UI/DRY cleanup — no TanStack/invalidation changes.

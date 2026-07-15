@@ -14,6 +14,11 @@ import {
   formatClientCurrency,
 } from "@/lib/format/client-locale";
 import { useMounted } from "@/hooks/use-mounted";
+import {
+  semanticDateClass,
+  type SemanticDateKind,
+} from "@/lib/ui/semantic-date-styles";
+import { cn } from "@/lib/utils";
 
 type DateInput = Date | string | number;
 
@@ -36,12 +41,14 @@ export function ClientCurrency({ value, className }: ClientCurrencyProps) {
 export type ClientCompactDateTimeProps = {
   date: DateInput;
   className?: string;
+  semantic?: SemanticDateKind;
 };
 
 /** Compact datetime — UTC stable on SSR, visitor local TZ after mount. */
 export function ClientCompactDateTime({
   date,
   className,
+  semantic,
 }: ClientCompactDateTimeProps) {
   const mounted = useMounted();
   const label = useMemo(() => {
@@ -50,7 +57,10 @@ export function ClientCompactDateTime({
   }, [mounted, date]);
 
   return (
-    <span className={className} title={mounted ? "Local time" : undefined}>
+    <span
+      className={cn(semanticDateClass(semantic), className)}
+      title={mounted ? "Local time" : undefined}
+    >
       {label}
     </span>
   );

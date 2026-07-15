@@ -404,7 +404,7 @@ export default function AdminProductReviewDetailContent({
                     loading={dataLoading}
                   >
                     {!dataLoading && (
-                      <ClientDateTime date={new Date(r!.createdAt)} />
+                      <ClientDateTime date={new Date(r!.createdAt)} semantic="created" />
                     )}
                   </DetailInfoRow>
                   {!dataLoading && r!.updatedAt && (
@@ -413,7 +413,7 @@ export default function AdminProductReviewDetailContent({
                       label="Updated:"
                       tone="amber"
                     >
-                      <ClientDateTime date={new Date(r!.updatedAt)} />
+                      <ClientDateTime date={new Date(r!.updatedAt)} semantic="updated" />
                     </DetailInfoRow>
                   )}
                 </div>

@@ -13,9 +13,14 @@ import {
 } from "@/prisma/order";
 import { getInvoicesByOrderIds } from "@/prisma/invoice";
 import { prisma } from "@/prisma/client";
+import { resolveOrderStatusAtFromSource } from "@/lib/orders/order-status-display-date";
 
 /** Linked invoice ref per order row (REQ-0061 — invoice actions in order table) */
-export type InvoiceLinkForOrder = { id: string; invoiceNumber: string } | null;
+export type InvoiceLinkForOrder = {
+  id: string;
+  invoiceNumber: string;
+  paidAt: string | null;
+} | null;
 
 /**
  * Batch-resolve orderId → linked invoice {id, invoiceNumber} for list rows.
@@ -23,15 +28,62 @@ export type InvoiceLinkForOrder = { id: string; invoiceNumber: string } | null;
  */
 export async function getInvoiceLinkMap(
   orderIds: string[],
-): Promise<Map<string, { id: string; invoiceNumber: string }>> {
+): Promise<Map<string, { id: string; invoiceNumber: string; paidAt: string | null }>> {
   if (orderIds.length === 0) return new Map();
   const invoices = await getInvoicesByOrderIds(orderIds);
   return new Map(
     invoices.map((inv) => [
       inv.orderId,
-      { id: inv.id, invoiceNumber: inv.invoiceNumber },
+      {
+        id: inv.id,
+        invoiceNumber: inv.invoiceNumber,
+        paidAt: inv.paidAt?.toISOString() ?? null,
+      },
     ]),
   );
+}
+
+function orderStatusAtForListRow(
+  order: {
+    status: string;
+    paymentStatus: string;
+    shippedAt?: string | null;
+    deliveredAt?: string | null;
+    cancelledAt?: string | null;
+    updatedAt?: string | null;
+  },
+  invoiceLink: InvoiceLinkForOrder,
+): string | undefined {
+  return resolveOrderStatusAtFromSource(
+    {
+      status: order.status,
+      paymentStatus: order.paymentStatus,
+      shippedAt: order.shippedAt,
+      deliveredAt: order.deliveredAt,
+      cancelledAt: order.cancelledAt,
+      updatedAt: order.updatedAt,
+    },
+    invoiceLink,
+  );
+}
+
+function finalizeOrderForPage(
+  row: Omit<OrderForPage, "statusAt" | "invoiceForOrder">,
+  invoiceForOrder: InvoiceLinkForOrder,
+): OrderForPage {
+  const statusAt = orderStatusAtForListRow(row, invoiceForOrder);
+  return {
+    ...row,
+    invoiceForOrder,
+    ...(statusAt ? { statusAt } : {}),
+  };
+}
+
+export function buildOrderForPageRow(
+  row: Omit<OrderForPage, "statusAt" | "invoiceForOrder">,
+  invoiceForOrder: InvoiceLinkForOrder,
+): OrderForPage {
+  return finalizeOrderForPage(row, invoiceForOrder);
 }
 
 /** Order item shape (dates as ISO strings) */
@@ -84,6 +136,8 @@ export type OrderForPage = {
   productOwnerEmail?: string | null;
   /** Linked invoice when this order has one (REQ-0061 — situation-based invoice actions) */
   invoiceForOrder?: InvoiceLinkForOrder;
+  /** Terminal status timestamp for paid/shipped/delivered/cancelled rows (REQ-0129) */
+  statusAt?: string;
 };
 
 /**
@@ -112,45 +166,50 @@ export async function getOrdersForUser(
   ]);
   const placedByName = user?.name ?? user?.email ?? null;
 
-  const transformed: OrderForPage[] = orders.map((order) => ({
-    id: order.id,
-    orderNumber: order.orderNumber,
-    userId: order.userId,
-    clientId: order.clientId ?? null,
-    status: order.status,
-    paymentStatus: order.paymentStatus,
-    subtotal: order.subtotal,
-    tax: order.tax ?? null,
-    shipping: order.shipping ?? null,
-    discount: order.discount ?? null,
-    total: order.total,
-    shippingAddress: order.shippingAddress,
-    billingAddress: order.billingAddress,
-    notes: order.notes,
-    trackingNumber: order.trackingNumber,
-    trackingUrl: order.trackingUrl,
-    estimatedDelivery: order.estimatedDelivery?.toISOString() || null,
-    shippedAt: order.shippedAt?.toISOString() || null,
-    deliveredAt: order.deliveredAt?.toISOString() || null,
-    cancelledAt: order.cancelledAt?.toISOString() || null,
-    createdAt: order.createdAt.toISOString(),
-    updatedAt: order.updatedAt?.toISOString() || null,
-    createdBy: order.createdBy,
-    updatedBy: order.updatedBy,
-    items: order.items.map((item) => ({
-      id: item.id,
-      orderId: item.orderId,
-      productId: item.productId,
-      productName: item.productName,
-      sku: item.sku ?? null,
-      quantity: item.quantity,
-      price: item.price,
-      subtotal: item.subtotal,
-      createdAt: item.createdAt.toISOString(),
-    })),
-    placedByName,
-    invoiceForOrder: invoiceLinkMap.get(order.id) ?? null,
-  }));
+  const transformed: OrderForPage[] = orders.map((order) => {
+    const invoiceForOrder = invoiceLinkMap.get(order.id) ?? null;
+    return finalizeOrderForPage(
+      {
+        id: order.id,
+        orderNumber: order.orderNumber,
+        userId: order.userId,
+        clientId: order.clientId ?? null,
+        status: order.status,
+        paymentStatus: order.paymentStatus,
+        subtotal: order.subtotal,
+        tax: order.tax ?? null,
+        shipping: order.shipping ?? null,
+        discount: order.discount ?? null,
+        total: order.total,
+        shippingAddress: order.shippingAddress,
+        billingAddress: order.billingAddress,
+        notes: order.notes,
+        trackingNumber: order.trackingNumber,
+        trackingUrl: order.trackingUrl,
+        estimatedDelivery: order.estimatedDelivery?.toISOString() || null,
+        shippedAt: order.shippedAt?.toISOString() || null,
+        deliveredAt: order.deliveredAt?.toISOString() || null,
+        cancelledAt: order.cancelledAt?.toISOString() || null,
+        createdAt: order.createdAt.toISOString(),
+        updatedAt: order.updatedAt?.toISOString() || null,
+        createdBy: order.createdBy,
+        updatedBy: order.updatedBy,
+        items: order.items.map((item) => ({
+          id: item.id,
+          orderId: item.orderId,
+          productId: item.productId,
+          productName: item.productName,
+          sku: item.sku ?? null,
+          quantity: item.quantity,
+          price: item.price,
+          subtotal: item.subtotal,
+          createdAt: item.createdAt.toISOString(),
+        })),
+        placedByName,
+      },
+      invoiceForOrder,
+    );
+  });
 
   await setCache(cacheKey, transformed, 300);
   return transformed;
@@ -185,46 +244,48 @@ export async function getOrdersForSupplierId(
 
   const transformed: OrderForPage[] = orders.map((order) => {
     const u = userMap.get(order.userId);
-    return {
-      id: order.id,
-      orderNumber: order.orderNumber,
-      userId: order.userId,
-      clientId: order.clientId ?? null,
-      status: order.status,
-      paymentStatus: order.paymentStatus,
-      subtotal: order.subtotal,
-      tax: order.tax ?? null,
-      shipping: order.shipping ?? null,
-      discount: order.discount ?? null,
-      total: order.total,
-      shippingAddress: order.shippingAddress,
-      billingAddress: order.billingAddress,
-      notes: order.notes,
-      trackingNumber: order.trackingNumber,
-      trackingUrl: order.trackingUrl,
-      estimatedDelivery: order.estimatedDelivery?.toISOString() || null,
-      shippedAt: order.shippedAt?.toISOString() || null,
-      deliveredAt: order.deliveredAt?.toISOString() || null,
-      cancelledAt: order.cancelledAt?.toISOString() || null,
-      createdAt: order.createdAt.toISOString(),
-      updatedAt: order.updatedAt?.toISOString() ?? null,
-      createdBy: order.createdBy,
-      updatedBy: order.updatedBy,
-      items: order.items.map((item) => ({
-        id: item.id,
-        orderId: item.orderId,
-        productId: item.productId,
-        productName: item.productName,
-        sku: item.sku ?? null,
-        quantity: item.quantity,
-        price: item.price,
-        subtotal: item.subtotal,
-        createdAt: item.createdAt.toISOString(),
-      })),
-      placedByName: u?.name ?? u?.email ?? null,
-      placedByEmail: u?.email ?? null,
-      invoiceForOrder: invoiceLinkMap.get(order.id) ?? null,
-    };
+    return finalizeOrderForPage(
+      {
+        id: order.id,
+        orderNumber: order.orderNumber,
+        userId: order.userId,
+        clientId: order.clientId ?? null,
+        status: order.status,
+        paymentStatus: order.paymentStatus,
+        subtotal: order.subtotal,
+        tax: order.tax ?? null,
+        shipping: order.shipping ?? null,
+        discount: order.discount ?? null,
+        total: order.total,
+        shippingAddress: order.shippingAddress,
+        billingAddress: order.billingAddress,
+        notes: order.notes,
+        trackingNumber: order.trackingNumber,
+        trackingUrl: order.trackingUrl,
+        estimatedDelivery: order.estimatedDelivery?.toISOString() || null,
+        shippedAt: order.shippedAt?.toISOString() || null,
+        deliveredAt: order.deliveredAt?.toISOString() || null,
+        cancelledAt: order.cancelledAt?.toISOString() || null,
+        createdAt: order.createdAt.toISOString(),
+        updatedAt: order.updatedAt?.toISOString() ?? null,
+        createdBy: order.createdBy,
+        updatedBy: order.updatedBy,
+        items: order.items.map((item) => ({
+          id: item.id,
+          orderId: item.orderId,
+          productId: item.productId,
+          productName: item.productName,
+          sku: item.sku ?? null,
+          quantity: item.quantity,
+          price: item.price,
+          subtotal: item.subtotal,
+          createdAt: item.createdAt.toISOString(),
+        })),
+        placedByName: u?.name ?? u?.email ?? null,
+        placedByEmail: u?.email ?? null,
+      },
+      invoiceLinkMap.get(order.id) ?? null,
+    );
   });
 
   await setCache(cacheKey, transformed, 300);
@@ -260,45 +321,47 @@ export async function getClientOrdersForProductOwner(
   const transformed: OrderForPage[] = orders.map((order) => {
     const u = userMap.get(order.userId);
     const placedByName = u?.name ?? u?.email ?? null;
-    return {
-      id: order.id,
-      orderNumber: order.orderNumber,
-      userId: order.userId,
-      clientId: order.clientId ?? null,
-      status: order.status,
-      paymentStatus: order.paymentStatus,
-      subtotal: order.subtotal,
-      tax: order.tax ?? null,
-      shipping: order.shipping ?? null,
-      discount: order.discount ?? null,
-      total: order.total,
-      shippingAddress: order.shippingAddress,
-      billingAddress: order.billingAddress,
-      notes: order.notes,
-      trackingNumber: order.trackingNumber,
-      trackingUrl: order.trackingUrl,
-      estimatedDelivery: order.estimatedDelivery?.toISOString() || null,
-      shippedAt: order.shippedAt?.toISOString() || null,
-      deliveredAt: order.deliveredAt?.toISOString() || null,
-      cancelledAt: order.cancelledAt?.toISOString() || null,
-      createdAt: order.createdAt.toISOString(),
-      updatedAt: order.updatedAt?.toISOString() ?? null,
-      createdBy: order.createdBy,
-      updatedBy: order.updatedBy,
-      items: order.items.map((item) => ({
-        id: item.id,
-        orderId: item.orderId,
-        productId: item.productId,
-        productName: item.productName,
-        sku: item.sku ?? null,
-        quantity: item.quantity,
-        price: item.price,
-        subtotal: item.subtotal,
-        createdAt: item.createdAt.toISOString(),
-      })),
-      placedByName,
-      invoiceForOrder: invoiceLinkMap.get(order.id) ?? null,
-    };
+    return finalizeOrderForPage(
+      {
+        id: order.id,
+        orderNumber: order.orderNumber,
+        userId: order.userId,
+        clientId: order.clientId ?? null,
+        status: order.status,
+        paymentStatus: order.paymentStatus,
+        subtotal: order.subtotal,
+        tax: order.tax ?? null,
+        shipping: order.shipping ?? null,
+        discount: order.discount ?? null,
+        total: order.total,
+        shippingAddress: order.shippingAddress,
+        billingAddress: order.billingAddress,
+        notes: order.notes,
+        trackingNumber: order.trackingNumber,
+        trackingUrl: order.trackingUrl,
+        estimatedDelivery: order.estimatedDelivery?.toISOString() || null,
+        shippedAt: order.shippedAt?.toISOString() || null,
+        deliveredAt: order.deliveredAt?.toISOString() || null,
+        cancelledAt: order.cancelledAt?.toISOString() || null,
+        createdAt: order.createdAt.toISOString(),
+        updatedAt: order.updatedAt?.toISOString() ?? null,
+        createdBy: order.createdBy,
+        updatedBy: order.updatedBy,
+        items: order.items.map((item) => ({
+          id: item.id,
+          orderId: item.orderId,
+          productId: item.productId,
+          productName: item.productName,
+          sku: item.sku ?? null,
+          quantity: item.quantity,
+          price: item.price,
+          subtotal: item.subtotal,
+          createdAt: item.createdAt.toISOString(),
+        })),
+        placedByName,
+      },
+      invoiceLinkMap.get(order.id) ?? null,
+    );
   });
 
   await setCache(cacheKey, transformed, 300);
@@ -347,46 +410,48 @@ export async function getOrdersForClientId(
     const firstProductId = order.items[0]?.productId;
     const ownerId = firstProductId ? productOwnerIdMap.get(firstProductId) : undefined;
     const owner = ownerId ? ownerUserMap.get(ownerId) : undefined;
-    return {
-      id: order.id,
-      orderNumber: order.orderNumber,
-      userId: order.userId,
-      clientId: order.clientId ?? null,
-      status: order.status,
-      paymentStatus: order.paymentStatus,
-      subtotal: order.subtotal,
-      tax: order.tax ?? null,
-      shipping: order.shipping ?? null,
-      discount: order.discount ?? null,
-      total: order.total,
-      shippingAddress: order.shippingAddress,
-      billingAddress: order.billingAddress,
-      notes: order.notes,
-      trackingNumber: order.trackingNumber,
-      trackingUrl: order.trackingUrl,
-      estimatedDelivery: order.estimatedDelivery?.toISOString() || null,
-      shippedAt: order.shippedAt?.toISOString() || null,
-      deliveredAt: order.deliveredAt?.toISOString() || null,
-      cancelledAt: order.cancelledAt?.toISOString() || null,
-      createdAt: order.createdAt.toISOString(),
-      updatedAt: order.updatedAt?.toISOString() || null,
-      createdBy: order.createdBy,
-      updatedBy: order.updatedBy,
-      items: order.items.map((item) => ({
-        id: item.id,
-        orderId: item.orderId,
-        productId: item.productId,
-        productName: item.productName,
-        sku: item.sku ?? null,
-        quantity: item.quantity,
-        price: item.price,
-        subtotal: item.subtotal,
-        createdAt: item.createdAt.toISOString(),
-      })),
-      productOwnerName: owner?.name ?? owner?.email ?? null,
-      productOwnerEmail: owner?.email ?? null,
-      invoiceForOrder: invoiceLinkMap.get(order.id) ?? null,
-    };
+    return finalizeOrderForPage(
+      {
+        id: order.id,
+        orderNumber: order.orderNumber,
+        userId: order.userId,
+        clientId: order.clientId ?? null,
+        status: order.status,
+        paymentStatus: order.paymentStatus,
+        subtotal: order.subtotal,
+        tax: order.tax ?? null,
+        shipping: order.shipping ?? null,
+        discount: order.discount ?? null,
+        total: order.total,
+        shippingAddress: order.shippingAddress,
+        billingAddress: order.billingAddress,
+        notes: order.notes,
+        trackingNumber: order.trackingNumber,
+        trackingUrl: order.trackingUrl,
+        estimatedDelivery: order.estimatedDelivery?.toISOString() || null,
+        shippedAt: order.shippedAt?.toISOString() || null,
+        deliveredAt: order.deliveredAt?.toISOString() || null,
+        cancelledAt: order.cancelledAt?.toISOString() || null,
+        createdAt: order.createdAt.toISOString(),
+        updatedAt: order.updatedAt?.toISOString() || null,
+        createdBy: order.createdBy,
+        updatedBy: order.updatedBy,
+        items: order.items.map((item) => ({
+          id: item.id,
+          orderId: item.orderId,
+          productId: item.productId,
+          productName: item.productName,
+          sku: item.sku ?? null,
+          quantity: item.quantity,
+          price: item.price,
+          subtotal: item.subtotal,
+          createdAt: item.createdAt.toISOString(),
+        })),
+        productOwnerName: owner?.name ?? owner?.email ?? null,
+        productOwnerEmail: owner?.email ?? null,
+      },
+      invoiceLinkMap.get(order.id) ?? null,
+    );
   });
 
   await setCache(cacheKey, transformed, 300);

@@ -413,12 +413,13 @@ export default function SupplierPortalPage({
                           </CopyableText>
                           <span className={CARD_LIST_META_CLASS}>
                             {order.productCount} products ·{" "}
-                            <ClientCompactDateTime date={order.createdAt} />
+                            <ClientCompactDateTime date={order.createdAt} semantic="created" />
                           </span>
                         </div>
                         <RecentOrderStatusColumn
                           status={order.status}
                           statusAt={order.statusAt}
+                          paymentStatus={order.paymentStatus}
                           trailing={
                             <span className="text-xs font-normal text-gray-700 dark:text-white">
                               ${order.total.toFixed(2)}

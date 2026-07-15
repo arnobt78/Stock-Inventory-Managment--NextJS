@@ -42,7 +42,6 @@ import {
   DollarSign,
   ArrowRight,
 } from "lucide-react";
-import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 import type { ClientPortalClient, ClientPortalStats } from "@/types";
 import {
@@ -222,12 +221,13 @@ export default function AdminClientPortalContent({
                       </CopyableText>
                       <span className={CARD_LIST_META_CLASS}>
                         {o.clientName} ·{" "}
-                        <ClientCompactDateTime date={o.createdAt} />
+                        <ClientCompactDateTime date={o.createdAt} semantic="created" />
                       </span>
                     </div>
                     <RecentOrderStatusColumn
                       status={o.status}
                       statusAt={o.statusAt}
+                      paymentStatus={o.paymentStatus}
                       trailing={
                         <span className="text-xs font-normal text-gray-700 dark:text-white">
                           ${o.total.toLocaleString()}
@@ -309,7 +309,7 @@ export default function AdminClientPortalContent({
                       </CopyableText>
                       <span className={CARD_LIST_META_CLASS}>
                         {i.clientName} ·{" "}
-                        {format(new Date(i.createdAt), "MMM d, yyyy")}
+                        <ClientCompactDateTime date={i.createdAt} semantic="created" />
                       </span>
                     </div>
                     <div className="flex items-center gap-2 flex-shrink-0">

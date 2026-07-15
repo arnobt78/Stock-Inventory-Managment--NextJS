@@ -2894,6 +2894,100 @@ Canonical REQ source. All artifacts link via `REQ-XXXX`. Status: `done` | `verif
 
 ---
 
+## REQ-0129 — statusAt invoice paidAt + order list parity + invoice cache sweep
+
+| Field | Value |
+|-------|-------|
+| **Priority** | P2 |
+| **Risk** | R1 |
+| **Status** | done |
+| **Cycle** | C2 |
+| **Parent** | REQ-0128 |
+
+**Intent:** Close REQ-0128 audit gaps — paid `statusAt` uses invoice `paidAt` (Order has no `paidAt` field); `OrderForPage.statusAt` on all order list SSR/API paths; Admin My Activity recent orders show status date; invoice mutations invalidate catalog + supplier portal caches for instant statusAt refresh.
+
+**Acceptance criteria**
+
+- AC1: `resolveOrderStatusAtFromSource` + `orderInvoicePaidAtSelect`; catalog/portal/dashboard SSR pass nested invoice
+- AC2: `getInvoiceLinkMap` includes `paidAt`; `OrderForPage.statusAt` via `buildOrderForPageRow` (4 SSR fetches + GET `/api/orders`)
+- AC3: `AdminMyActivityContent` recent orders — `RecentOrderStatusColumn` with `statusAt`
+- AC4: `INVOICE_PATTERNS` adds `products`, `categories`, `suppliers`, `supplierPortal` (REQ-0055 sync await unchanged)
+- AC5: Gates pass — lint, test (528), invalidate (208), build
+
+**Artifacts:** `order-status-display-date.ts`, `catalog-detail-order-select.ts`, `orders-data.ts`, `post-mutation.ts`, `AdminMyActivityContent.tsx`
+
+---
+
+## REQ-0130 — semantic date colors + order table statusAt
+
+| Field | Value |
+|-------|-------|
+| **Priority** | P2 |
+| **Risk** | R1 |
+| **Status** | done |
+| **Cycle** | C2 |
+| **Parent** | REQ-0129 |
+
+**Intent:** Semantic date text colors (light+dark) via shared hub; `/orders` table status column uses `RecentOrderStatusColumn` + `statusAt`.
+
+**Acceptance criteria**
+
+- AC1: `lib/ui/semantic-date-styles.ts` + `semantic` prop on `ClientDate*` components
+- AC2: Detail/portals/tables/facts sweep for created/paid/due/cancelled/etc. hues
+- AC3: `OrderTableColumns` status → `RecentOrderStatusColumn`; `Order.statusAt` type
+- AC4: Gates pass — lint, test, invalidate, build
+
+**Artifacts:** `semantic-date-styles.ts`, `ClientDateDisplay.tsx`, `ClientFormatDisplay.tsx`, `OrderTableColumns.tsx`
+
+---
+
+## REQ-0131 — REQ-0130 gap closure (table dates + catalog paymentStatus)
+
+| Field | Value |
+|-------|-------|
+| **Priority** | P2 |
+| **Risk** | R1 |
+| **Status** | done |
+| **Cycle** | C2 |
+| **Parent** | REQ-0130 |
+
+**Intent:** Close audit gaps — semantic dates on all list table date columns; order # meta created date; catalog detail `paymentStatus` for statusAt hue.
+
+**Acceptance criteria**
+
+- AC1: Category/supplier/warehouse/history/user/review/ticket/invoice list tables use `ClientDate*` + `semantic`
+- AC2: `OrderTableColumns` compact meta uses `ClientDate semantic="created"`
+- AC3: `CatalogDetailRecentOrderItem.paymentStatus` SSR + `RecentOrderStatusColumn` wiring
+- AC4: Gates pass — lint, test, invalidate, build
+
+**Artifacts:** `*TableColumns.tsx`, `catalog-detail-lists.ts`, category/supplier/product detail SSR
+
+---
+
+## REQ-0132 — Final date gap closure (CSV export + UI semantic dates)
+
+| Field | Value |
+|-------|-------|
+| **Priority** | P2 |
+| **Risk** | R1 |
+| **Status** | done |
+| **Cycle** | C2 |
+| **Parent** | REQ-0131 |
+
+**Intent:** Close last semantic-date gaps — DRY CSV export dates via `formatStableDate`; wire three remaining UI surfaces to `ClientDate*` with `semantic` props.
+
+**Acceptance criteria**
+
+- AC1: Six `*Filters.tsx` CSV export mappers use `formatStableDate` (not `toLocaleDateString`)
+- AC2: `AdminClientPortalContent`, `ActivityLogSection`, `ProductReviewsSection` use `ClientDate*` + `semantic="created"`
+- AC3: Dead `date-fns` `format` imports removed from UI files
+- AC4: Support ticket detail replies + invoice PDF + dev script use `formatStableDate` / `ClientDateTime`
+- AC5: Gates pass — lint, test, invalidate, build
+
+**Artifacts:** `*Filters.tsx`, `AdminClientPortalContent.tsx`, `ActivityLogSection.tsx`, `ProductReviewsSection.tsx`, `SupportTicketDetailContent.tsx`, `AdminSupportTicketDetailContent.tsx`, `invoice-generator.ts`, `check-all-data.ts`
+
+---
+
 ## REQ-0020 — Locale-aware admin format (hydration-safe)
 
 | Field        | Value |

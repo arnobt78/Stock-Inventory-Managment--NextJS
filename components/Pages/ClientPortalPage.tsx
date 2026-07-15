@@ -785,12 +785,13 @@ export default function ClientPortalPage({
                           </CopyableText>
                           <span className={CARD_LIST_META_CLASS}>
                             {order.itemCount} items ·{" "}
-                            <ClientCompactDateTime date={order.createdAt} />
+                            <ClientCompactDateTime date={order.createdAt} semantic="created" />
                           </span>
                         </div>
                         <RecentOrderStatusColumn
                           status={order.status}
                           statusAt={order.statusAt}
+                          paymentStatus={order.paymentStatus}
                           trailing={
                             <span className="text-xs font-normal text-gray-700 dark:text-white">
                               ${order.total.toFixed(2)}
@@ -872,7 +873,12 @@ export default function ClientPortalPage({
                             {invoice.dueDate && (
                               <>
                                 {" · Due "}
-                                <ClientCompactDateTime date={invoice.dueDate} />
+                                <ClientCompactDateTime
+                                  date={invoice.dueDate}
+                                  semantic={
+                                    invoice.status === "overdue" ? "overdue" : "due"
+                                  }
+                                />
                               </>
                             )}
                           </span>

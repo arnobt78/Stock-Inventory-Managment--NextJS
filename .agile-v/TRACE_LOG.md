@@ -28,3 +28,4 @@ Format: `timestamp | agent | span | req_ids | note`
 2026-07-14T13:36:00Z | agile-v-core | REQ-0110-0113-ship | order stock workflow | lint/test 488/invalidate 208/build PASS; docs sync
 2026-07-15T09:35:00Z | agile-v-core | session-bootstrap | REQ-0008, REQ-0009 | C2 resume @ 46127b2; Gate 2 PENDING; Red Team lint/test 504/invalidate 208/build PASS
 2026-07-15T09:52:00Z | agile-v-core | REQ-0120-ship | AC1–AC8 | SSR sync + back-nav + AdminEmbedDataTable; lint/test 504/invalidate 208/build PASS
+2026-07-15T18:22:00Z | agile-v-core | REQ-0127-0132-ship | statusAt+semantic dates | lint/test 531/invalidate 208/build PASS

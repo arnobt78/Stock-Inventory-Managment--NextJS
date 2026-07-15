@@ -2,14 +2,13 @@
 
 import { FILTER_SEARCH_INPUT_SKY_CLASS } from "@/lib/ui/filter-toolbar-styles";
 import React, { useMemo, useState } from "react";
-import { DeferredSelectGate, SectionCardHeader } from "@/components/shared";
+import { DeferredSelectGate, SectionCardHeader, ClientDateTime } from "@/components/shared";
 import Link from "next/link";
 import {
   useAuditLogs,
   type ActivityLogPeriod,
 } from "@/hooks/queries/use-audit-logs";
 import { isDataSlotLoading } from "@/lib/react-query";
-import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 import type { AuditLog } from "@/types";
 import {
@@ -290,9 +289,11 @@ export default function ActivityLogSection({
         id: "when",
         header: "When",
         cell: ({ row }) => (
-          <span className="text-gray-600 dark:text-gray-400 whitespace-nowrap">
-            {format(new Date(row.original.createdAt), "MMM d, HH:mm")}
-          </span>
+          <ClientDateTime
+            date={row.original.createdAt}
+            semantic="created"
+            className="whitespace-nowrap"
+          />
         ),
       },
     ],

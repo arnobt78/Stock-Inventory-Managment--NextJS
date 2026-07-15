@@ -795,7 +795,7 @@ export default function InvoiceDialog({
                         status={selectedOrder.paymentStatus}
                         size="detail"
                       />
-                      <ClientCompactDateTime date={selectedOrder.createdAt} />
+                      <ClientCompactDateTime date={selectedOrder.createdAt} semantic="created" />
                       {(selectedOrder.placedByName ||
                         selectedOrder.placedByEmail) && (
                         <AvatarInlineLink

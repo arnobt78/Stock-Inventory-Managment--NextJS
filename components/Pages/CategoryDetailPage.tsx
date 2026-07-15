@@ -318,7 +318,7 @@ export default function CategoryDetailPage({
               )
             }
             description={
-              <ClientRelativeTime date={createdAt} prefix="Created " />
+              <ClientRelativeTime date={createdAt} prefix="Created " semantic="created" />
             }
           />
 
@@ -400,7 +400,7 @@ export default function CategoryDetailPage({
                     tone="teal"
                     loading={dataLoading}
                   >
-                    {!dataLoading && <ClientDateTime date={createdAt} />}
+                      {!dataLoading && <ClientDateTime date={createdAt} semantic="created" />}
                   </DetailInfoRow>
                   {(dataLoading || updatedAt) && (
                     <DetailInfoRow
@@ -410,7 +410,7 @@ export default function CategoryDetailPage({
                       loading={dataLoading}
                     >
                       {!dataLoading && updatedAt && (
-                        <ClientDateTime date={updatedAt} />
+                        <ClientDateTime date={updatedAt} semantic="updated" />
                       )}
                     </DetailInfoRow>
                   )}

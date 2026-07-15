@@ -16,10 +16,9 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { ArrowUpDown, Eye, Pencil, Trash2, MoreVertical } from "lucide-react";
 import { IoMdArrowDown, IoMdArrowUp } from "react-icons/io";
-import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 import { UserRoleBadge } from "@/lib/ui/semantic-badges";
-import { AvatarInlineLink } from "@/components/shared/AvatarInlineLink";
+import { AvatarInlineLink, ClientDate } from "@/components/shared";
 import type { UserForAdmin } from "@/types";
 
 type SortableHeaderProps = {
@@ -144,9 +143,7 @@ export function createUserManagementColumns(
       accessorKey: "createdAt",
       header: ({ column }) => <SortableHeader column={column} label="Joined" />,
       cell: ({ getValue }) => (
-        <span>
-          {format(new Date(getValue<string>()), "MMM dd, yyyy")}
-        </span>
+        <ClientDate date={getValue<string>()} semantic="created" />
       ),
     },
     {

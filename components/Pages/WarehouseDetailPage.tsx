@@ -306,7 +306,7 @@ export default function WarehouseDetailPage({
             }
             title={warehouse?.name}
             description={
-              <ClientRelativeTime date={createdAt} prefix="Created " />
+              <ClientRelativeTime date={createdAt} prefix="Created " semantic="created" />
             }
           />
 
@@ -505,11 +505,11 @@ export default function WarehouseDetailPage({
                 </DetailInfoRow>
                 <DetailInfoRowGroup>
                   <DetailInfoRow icon={Calendar} label="Created:" tone="orange">
-                    <ClientDateTime date={createdAt} />
+                    <ClientDateTime date={createdAt} semantic="created" />
                   </DetailInfoRow>
                   {updatedAt && (
                     <DetailInfoRow icon={Clock} label="Updated:" tone="violet">
-                      <ClientRelativeTime date={updatedAt} />
+                      <ClientRelativeTime date={updatedAt} semantic="updated" />
                     </DetailInfoRow>
                   )}
                 </DetailInfoRowGroup>

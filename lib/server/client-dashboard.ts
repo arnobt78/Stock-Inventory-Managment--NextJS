@@ -19,6 +19,7 @@ export async function getClientDashboard(
     where: { clientId: userId },
     include: {
       items: { select: { id: true } },
+      invoice: { select: { paidAt: true } },
     },
     orderBy: { createdAt: "desc" },
   });
@@ -119,6 +120,7 @@ export async function getClientDashboard(
       deliveredAt: o.deliveredAt,
       shippedAt: o.shippedAt,
       updatedAt: o.updatedAt,
+      invoice: o.invoice,
     }),
   );
 

@@ -17,6 +17,7 @@ import {
 } from "@/components/shared";
 import { PaginationType } from "@/components/shared/PaginationSelector";
 import type { CatalogStatusFilter } from "@/lib/ui/catalog-filter-tokens";
+import { formatStableDate } from "@/lib/format";
 
 type StatusFilter = CatalogStatusFilter;
 
@@ -95,10 +96,10 @@ export default function CategoryFilters({
         Description: category.description || "-",
         Notes: category.notes || "-",
         "Created At": category.createdAt
-          ? new Date(category.createdAt).toLocaleDateString()
+          ? formatStableDate(category.createdAt)
           : "-",
         "Updated At": category.updatedAt
-          ? new Date(category.updatedAt).toLocaleDateString()
+          ? formatStableDate(category.updatedAt)
           : "-",
       }));
 
@@ -155,10 +156,10 @@ export default function CategoryFilters({
         Description: category.description || "-",
         Notes: category.notes || "-",
         "Created At": category.createdAt
-          ? new Date(category.createdAt).toLocaleDateString()
+          ? formatStableDate(category.createdAt)
           : "-",
         "Updated At": category.updatedAt
-          ? new Date(category.updatedAt).toLocaleDateString()
+          ? formatStableDate(category.updatedAt)
           : "-",
       }));
 

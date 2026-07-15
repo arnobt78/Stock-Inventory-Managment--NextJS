@@ -360,11 +360,11 @@ export default function AdminOrderDetailContent({
                 </>
               )}
               <DetailInfoRow icon={Calendar} label="Created:" tone="orange" loading={dataLoading}>
-                {!dataLoading && <ClientDateTime date={createdAt} />}
+                {!dataLoading && <ClientDateTime date={createdAt} semantic="created" />}
               </DetailInfoRow>
               {!dataLoading && updatedAt && (
                 <DetailInfoRow icon={Calendar} label="Updated:" tone="amber">
-                  <ClientDateTime date={updatedAt} />
+                  <ClientDateTime date={updatedAt} semantic="updated" />
                 </DetailInfoRow>
               )}
               {!dataLoading && order?.creator && (

@@ -21,8 +21,8 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { ArrowUpDown, Eye } from "lucide-react";
 import { IoMdArrowDown, IoMdArrowUp } from "react-icons/io";
-import { format } from "date-fns";
 import Link from "next/link";
+import { ClientDateTime } from "@/components/shared";
 import { cn } from "@/lib/utils";
 import type { ImportHistoryForPage } from "@/types";
 
@@ -100,9 +100,7 @@ export function createHistoryColumns(
       accessorKey: "createdAt",
       header: ({ column }) => <SortableHeader column={column} label="Date" />,
       cell: ({ getValue }) => (
-        <span>
-          {format(new Date(getValue<string>()), "MMM dd, yyyy HH:mm")}
-        </span>
+        <ClientDateTime date={getValue<string>()} semantic="created" />
       ),
     },
     {

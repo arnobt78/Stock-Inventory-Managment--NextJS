@@ -17,9 +17,9 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { ArrowUpDown, Eye, Star } from "lucide-react";
 import { IoMdArrowDown, IoMdArrowUp } from "react-icons/io";
-import { format } from "date-fns";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
+import { ClientDateTime } from "@/components/shared";
 import type { ProductReview } from "@/types";
 
 /** Rating label and star color (softer, friendly look) */
@@ -226,17 +226,23 @@ export function createProductReviewColumns(
       header: ({ column }) => <SortableHeader column={column} label="Date" />,
       cell: ({ row }) => {
         const r = row.original;
-        const created = r.createdAt
-          ? format(new Date(r.createdAt), "MMM d, yyyy 'at' hh:mm a")
-          : "—";
-        const updated = r.updatedAt
-          ? format(new Date(r.updatedAt), "MMM d, yyyy 'at' hh:mm a")
-          : "—";
         return (
-          <div className="flex flex-col whitespace-nowrap">
-            <span className="text-muted-foreground">Created: {created}</span>
-            <span className="text-muted-foreground mt-0.5">
-              Updated: {updated}
+          <div className="flex flex-col whitespace-nowrap text-xs">
+            <span>
+              Created:{" "}
+              {r.createdAt ? (
+                <ClientDateTime date={r.createdAt} semantic="created" />
+              ) : (
+                "—"
+              )}
+            </span>
+            <span className="mt-0.5">
+              Updated:{" "}
+              {r.updatedAt ? (
+                <ClientDateTime date={r.updatedAt} semantic="updated" />
+              ) : (
+                "—"
+              )}
             </span>
           </div>
         );

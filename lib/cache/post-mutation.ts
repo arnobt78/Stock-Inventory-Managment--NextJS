@@ -41,14 +41,18 @@ const ORDER_GRAPH_PATTERNS = [
   "forecasting:*",
 ] as const;
 
-/** Invoice CRUD / send / reminders — financial + order invoice linkage. */
+/** Invoice CRUD / send / reminders — financial + order invoice linkage + catalog statusAt. */
 const INVOICE_PATTERNS = [
   cacheKeys.invoices.pattern,
   cacheKeys.orders.pattern,
+  cacheKeys.products.pattern,
+  cacheKeys.categories.pattern,
+  cacheKeys.suppliers.pattern,
   cacheKeys.dashboard.pattern,
   cacheKeys.notifications.pattern,
   cacheKeys.portal.pattern,
   cacheKeys.clientPortal.pattern,
+  cacheKeys.supplierPortal.pattern,
   "forecasting:*",
 ] as const;
 

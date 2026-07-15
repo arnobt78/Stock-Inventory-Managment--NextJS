@@ -87,6 +87,7 @@ export async function getSupplierDashboard(
       deliveredAt: Date | null;
       shippedAt: Date | null;
       updatedAt: Date | null;
+      invoice: { paidAt: Date | null } | null;
     }
   >();
 
@@ -107,6 +108,7 @@ export async function getSupplierDashboard(
         deliveredAt: order.deliveredAt,
         shippedAt: order.shippedAt,
         updatedAt: order.updatedAt,
+        invoice: order.invoice,
       });
     } else {
       const existing = ordersMap.get(order.id)!;
@@ -232,6 +234,7 @@ export async function getSupplierDashboard(
         deliveredAt: o.deliveredAt,
         shippedAt: o.shippedAt,
         updatedAt: o.updatedAt,
+        invoice: o.invoice,
       });
     });
 

@@ -344,7 +344,7 @@ export default function InvoiceDetailPage({
               dataLoading ? (
                 <DataSlotPulse variant="date" />
               ) : (
-                <ClientRelativeTime date={createdAt} prefix="Created " />
+                <ClientRelativeTime date={createdAt} prefix="Created " semantic="created" />
               )
             }
           />
@@ -464,7 +464,7 @@ export default function InvoiceDetailPage({
                   loading={dataLoading}
                 >
                   {!dataLoading && updatedAt && (
-                    <ClientDateTime date={updatedAt} />
+                    <ClientDateTime date={updatedAt} semantic="updated" />
                   )}
                 </DetailInfoRow>
               )}

@@ -26,6 +26,7 @@ export interface ClientPortalRecentOrder {
   id: string;
   orderNumber: string;
   status: string;
+  paymentStatus?: string;
   total: number;
   clientId: string;
   clientName: string;

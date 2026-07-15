@@ -68,7 +68,6 @@ import {
   queryKeys,
   useSyncSsrQueryDataMany,
 } from "@/lib/react-query";
-import { format } from "date-fns";
 import type {
   SupportTicket,
   SupportTicketStatus,
@@ -458,7 +457,7 @@ export default function AdminSupportTicketDetailContent({
                     loading={dataLoading}
                   >
                     {!dataLoading && (
-                      <ClientDateTime date={new Date(t!.createdAt)} />
+                      <ClientDateTime date={new Date(t!.createdAt)} semantic="created" />
                     )}
                   </DetailInfoRow>
                   {!dataLoading && t!.updatedAt && (
@@ -467,7 +466,7 @@ export default function AdminSupportTicketDetailContent({
                       label="Updated:"
                       tone="amber"
                     >
-                      <ClientDateTime date={new Date(t!.updatedAt)} />
+                      <ClientDateTime date={new Date(t!.updatedAt)} semantic="updated" />
                     </DetailInfoRow>
                   )}
                 </div>
@@ -561,12 +560,11 @@ export default function AdminSupportTicketDetailContent({
                             {r.userEmail}
                           </span>
                         )}
-                        <span className={cn("text-xs", TYPO_BODY_MUTED)}>
-                          {format(
-                            new Date(r.createdAt),
-                            "MMM d, yyyy 'at' h:mm a",
-                          )}
-                        </span>
+                        <ClientDateTime
+                          date={r.createdAt}
+                          semantic="created"
+                          className="text-xs"
+                        />
                       </div>
                     </li>
                   );

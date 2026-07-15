@@ -10,7 +10,6 @@ import { Column, ColumnDef } from "@tanstack/react-table";
 import { Order } from "@/types";
 import {
   AdminOrderSourceBadge,
-  OrderStatusBadge,
   PaymentStatusBadge,
 } from "@/lib/ui/semantic-badges";
 import {
@@ -21,15 +20,20 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { ArrowUpDown } from "lucide-react";
 import { IoMdArrowDown, IoMdArrowUp } from "react-icons/io";
-import { format } from "date-fns";
 import Link from "next/link";
-import { CopyableText } from "@/components/shared";
+import { CopyableText, ClientDate, RecentOrderStatusColumn } from "@/components/shared";
 import OrderActions from "./OrderActions";
 
 const compactOrderMeta = (order: Order) => {
   const items = order.items || [];
   const totalQty = items.reduce((sum, item) => sum + item.quantity, 0);
-  return `${items.length} item${items.length === 1 ? "" : "s"} · ${totalQty} unit${totalQty === 1 ? "" : "s"} · ${format(new Date(order.createdAt), "MMM dd, yyyy")}`;
+  return (
+    <>
+      {items.length} item{items.length === 1 ? "" : "s"} · {totalQty} unit
+      {totalQty === 1 ? "" : "s"} ·{" "}
+      <ClientDate date={order.createdAt} semantic="created" />
+    </>
+  );
 };
 
 /**
@@ -180,8 +184,15 @@ export const createOrderColumns = (
     accessorKey: "status",
     header: ({ column }) => <SortableHeader column={column} label="Status" />,
     cell: ({ row }) => {
-      const status = row.original.status;
-      return <OrderStatusBadge status={status} />;
+      const order = row.original;
+      return (
+        <RecentOrderStatusColumn
+          status={order.status ?? ""}
+          statusAt={order.statusAt}
+          paymentStatus={order.paymentStatus}
+          className="items-start py-0"
+        />
+      );
     },
   },
   {

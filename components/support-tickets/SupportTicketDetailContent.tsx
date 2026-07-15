@@ -4,7 +4,7 @@ import React, { useState } from "react";
 import { SafeAvatarImage } from "@/components/ui/safe-avatar-image";
 import { resolveAvatarSourcesFromSeed } from "@/lib/ui/user-avatar-sources";
 import Navbar from "@/components/layouts/Navbar";
-import { PageContentWrapper } from "@/components/shared";
+import { PageContentWrapper, ClientDateTime } from "@/components/shared";
 import { useBackWithRefresh } from "@/hooks/use-back-with-refresh";
 import {
   useSupportTicket,
@@ -20,7 +20,6 @@ import {
   User,
   Mail,
 } from "lucide-react";
-import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -131,12 +130,11 @@ export default function SupportTicketDetailContent({
                 <div className="flex flex-wrap items-center gap-2 mt-2">
                   <TicketStatusBadge status={ticket.status} size="detail" />
                   <TicketPriorityBadge status={ticket.priority} size="detail" />
-                  <span className="text-xs text-gray-500 dark:text-gray-500">
-                    {format(
-                      new Date(ticket.createdAt),
-                      "MMM d, yyyy 'at' h:mm a",
-                    )}
-                  </span>
+                  <ClientDateTime
+                    date={ticket.createdAt}
+                    semantic="created"
+                    className="text-xs"
+                  />
                 </div>
                 {(ticket.creatorName || ticket.creatorEmail) && (
                   <div className="flex flex-wrap items-center gap-x-4 gap-y-1 mt-3 text-sm text-gray-600 dark:text-gray-400">
@@ -245,12 +243,11 @@ export default function SupportTicketDetailContent({
                             {r.userEmail}
                           </span>
                         )}
-                        <span className="text-xs text-gray-500 dark:text-gray-500">
-                          {format(
-                            new Date(r.createdAt),
-                            "MMM d, yyyy 'at' h:mm a",
-                          )}
-                        </span>
+                        <ClientDateTime
+                          date={r.createdAt}
+                          semantic="created"
+                          className="text-xs"
+                        />
                       </div>
                     </li>
                   );

@@ -17,6 +17,7 @@ import {
 } from "@/components/shared";
 import { PaginationType } from "@/components/shared/PaginationSelector";
 import type { CatalogStatusFilter } from "@/lib/ui/catalog-filter-tokens";
+import { formatStableDate } from "@/lib/format";
 
 type StatusFilter = CatalogStatusFilter;
 
@@ -95,10 +96,10 @@ export default function SupplierFilters({
         Description: supplier.description || "-",
         Notes: supplier.notes || "-",
         "Created At": supplier.createdAt
-          ? new Date(supplier.createdAt).toLocaleDateString()
+          ? formatStableDate(supplier.createdAt)
           : "-",
         "Updated At": supplier.updatedAt
-          ? new Date(supplier.updatedAt).toLocaleDateString()
+          ? formatStableDate(supplier.updatedAt)
           : "-",
       }));
 
@@ -155,10 +156,10 @@ export default function SupplierFilters({
         Description: supplier.description || "-",
         Notes: supplier.notes || "-",
         "Created At": supplier.createdAt
-          ? new Date(supplier.createdAt).toLocaleDateString()
+          ? formatStableDate(supplier.createdAt)
           : "-",
         "Updated At": supplier.updatedAt
-          ? new Date(supplier.updatedAt).toLocaleDateString()
+          ? formatStableDate(supplier.updatedAt)
           : "-",
       }));
 

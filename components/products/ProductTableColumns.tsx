@@ -222,7 +222,7 @@ export function createProductColumns(
             <span className="text-gray-700 dark:text-white">
               Created:{" "}
               {createdAt ? (
-                <ClientDate date={createdAt} />
+                <ClientDate date={createdAt} semantic="created" />
               ) : (
                 <span className="text-muted-foreground">—</span>
               )}
@@ -230,7 +230,7 @@ export function createProductColumns(
             <span className={expireClass || "text-gray-700 dark:text-white"}>
               Expire:{" "}
               {expirationDate ? (
-                <ClientDate date={expirationDate} />
+                <ClientDate date={expirationDate} semantic="expiration" />
               ) : (
                 <span className="text-muted-foreground">—</span>
               )}

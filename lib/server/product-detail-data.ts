@@ -14,7 +14,7 @@ import { computeProportionalLineAmount } from "@/lib/orders/proportional-line-am
 import type { SessionForDetail } from "@/lib/server/order-detail-data";
 import { computeProductInsights } from "@/lib/server/product-insights";
 import { catalogDetailOrderSelect } from "@/lib/server/catalog-detail-order-select";
-import { resolveOrderStatusAt } from "@/lib/orders/order-status-display-date";
+import { resolveOrderStatusAtFromSource } from "@/lib/orders/order-status-display-date";
 
 const productInclude = {
   orderItems: {
@@ -172,14 +172,8 @@ function transformProductDetail(
         orderId: item.order.id,
         orderNumber: item.order.orderNumber,
         orderStatus: item.order.status,
-        statusAt: resolveOrderStatusAt({
-          status: item.order.status,
-          paymentStatus: item.order.paymentStatus,
-          cancelledAt: item.order.cancelledAt,
-          deliveredAt: item.order.deliveredAt,
-          shippedAt: item.order.shippedAt,
-          updatedAt: item.order.updatedAt,
-        }),
+        paymentStatus: item.order.paymentStatus ?? undefined,
+        statusAt: resolveOrderStatusAtFromSource(item.order),
         quantity: item.quantity,
         price: item.price,
         subtotal: item.subtotal,

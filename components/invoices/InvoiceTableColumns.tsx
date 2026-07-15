@@ -17,14 +17,14 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import {
-  FileText,
   ArrowUpDown,
 } from "lucide-react";
 import { IoMdArrowDown, IoMdArrowUp } from "react-icons/io";
-import { format } from "date-fns";
 import Link from "next/link";
-import { CopyableText } from "@/components/shared";
+import { CopyableText, ClientDate } from "@/components/shared";
 import InvoiceActions from "./InvoiceActions";
+import { dueDateSemanticKind, semanticDateClass } from "@/lib/ui/semantic-date-styles";
+import { cn } from "@/lib/utils";
 
 /**
  * Sortable Header Props
@@ -117,8 +117,8 @@ export const createInvoiceColumns = (
           (invoice.issuedByName || invoice.issuedByEmail);
         return (
           <div className="flex flex-col gap-0.5">
-            <span className="text-xs text-gray-500 dark:text-gray-400">
-              Created {format(new Date(invoice.createdAt), "MMM dd, yyyy")}
+            <span className={cn("text-xs", semanticDateClass("created"))}>
+              Created <ClientDate date={invoice.createdAt} semantic="created" />
             </span>
             {/* CopyableText: click icon copies invoice # without triggering the row link */}
             <CopyableText value={invoice.invoiceNumber}>
@@ -159,20 +159,20 @@ export const createInvoiceColumns = (
       header: ({ column }) => (
         <SortableHeader column={column} label="Due Date" />
       ),
-      cell: ({ getValue }) => {
+      cell: ({ getValue, row }) => {
         const date = getValue<Date>();
         const dueDate = new Date(date);
         const today = new Date();
         today.setHours(0, 0, 0, 0);
         dueDate.setHours(0, 0, 0, 0);
-        const isOverdue = dueDate < today;
+        const isOverdue =
+          dueDate < today || row.original.status === "overdue";
 
         return (
-          <span
-            className={isOverdue ? "text-red-600 dark:text-red-400" : undefined}
-          >
-            {format(new Date(date), "MMM dd, yyyy")}
-          </span>
+          <ClientDate
+            date={date}
+            semantic={dueDateSemanticKind(isOverdue)}
+          />
         );
       },
     },

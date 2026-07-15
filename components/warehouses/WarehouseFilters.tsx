@@ -18,6 +18,7 @@ import { useToast } from "@/hooks/use-toast";
 import Papa from "papaparse";
 import ExcelJS from "exceljs";
 import type { CatalogStatusFilter } from "@/lib/ui/catalog-filter-tokens";
+import { formatStableDate } from "@/lib/format";
 
 type StatusFilter = CatalogStatusFilter;
 
@@ -85,10 +86,10 @@ export default function WarehouseFilters({
         Address: warehouse.address || "-",
         Type: warehouse.type || "-",
         "Created At": warehouse.createdAt
-          ? new Date(warehouse.createdAt).toLocaleDateString()
+          ? formatStableDate(warehouse.createdAt)
           : "-",
         "Updated At": warehouse.updatedAt
-          ? new Date(warehouse.updatedAt).toLocaleDateString()
+          ? formatStableDate(warehouse.updatedAt)
           : "-",
       }));
 
@@ -140,10 +141,10 @@ export default function WarehouseFilters({
         Address: warehouse.address || "-",
         Type: warehouse.type || "-",
         "Created At": warehouse.createdAt
-          ? new Date(warehouse.createdAt).toLocaleDateString()
+          ? formatStableDate(warehouse.createdAt)
           : "-",
         "Updated At": warehouse.updatedAt
-          ? new Date(warehouse.updatedAt).toLocaleDateString()
+          ? formatStableDate(warehouse.updatedAt)
           : "-",
       }));
 

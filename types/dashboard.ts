@@ -34,6 +34,7 @@ export interface DashboardRecentOrder {
   orderNumber: string;
   total: number;
   status: string;
+  paymentStatus?: string;
   createdAt: string;
   /** REQ-0128 — terminal status date for recent-order cards */
   statusAt?: string;

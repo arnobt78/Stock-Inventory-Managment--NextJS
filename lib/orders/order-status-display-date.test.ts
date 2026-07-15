@@ -1,5 +1,9 @@
 import { describe, expect, it } from "vitest";
-import { resolveOrderStatusAt, withOrderStatusAt } from "./order-status-display-date";
+import {
+  resolveOrderStatusAt,
+  resolveOrderStatusAtFromSource,
+  withOrderStatusAt,
+} from "./order-status-display-date";
 
 describe("resolveOrderStatusAt", () => {
   it("returns updatedAt for paid paymentStatus when paidAt absent", () => {
@@ -9,6 +13,16 @@ describe("resolveOrderStatusAt", () => {
         updatedAt: "2026-07-15T12:00:00.000Z",
       }),
     ).toBe("2026-07-15T12:00:00.000Z");
+  });
+
+  it("prefers invoice paidAt over updatedAt for paid orders", () => {
+    expect(
+      resolveOrderStatusAtFromSource({
+        paymentStatus: "paid",
+        updatedAt: "2026-07-15T12:00:00.000Z",
+        invoice: { paidAt: "2026-07-10T08:30:00.000Z" },
+      }),
+    ).toBe("2026-07-10T08:30:00.000Z");
   });
 
   it("returns cancelledAt for cancelled orders", () => {
@@ -39,10 +53,19 @@ describe("resolveOrderStatusAt", () => {
     });
   });
 
-  it("withOrderStatusAt omits statusAt key when unresolved", () => {
-    expect(withOrderStatusAt({ id: "o2", status: "pending" })).toEqual({
-      id: "o2",
-      status: "pending",
+  it("withOrderStatusAt strips nested invoice from output", () => {
+    expect(
+      withOrderStatusAt({
+        id: "o3",
+        paymentStatus: "paid",
+        updatedAt: "2026-07-15T12:00:00.000Z",
+        invoice: { paidAt: "2026-07-10T08:30:00.000Z" },
+      }),
+    ).toEqual({
+      id: "o3",
+      paymentStatus: "paid",
+      updatedAt: "2026-07-15T12:00:00.000Z",
+      statusAt: "2026-07-10T08:30:00.000Z",
     });
   });
 });

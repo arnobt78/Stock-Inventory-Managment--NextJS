@@ -12,7 +12,7 @@ import {
   useReviewEligibility,
   useDeleteProductReview,
 } from "@/hooks/queries";
-import { format } from "date-fns";
+import { ClientCompactDateTime } from "@/components/shared";
 import { cn } from "@/lib/utils";
 import { queryKeys, useSyncSsrQueryDataMany } from "@/lib/react-query";
 import type { ProductReview, ReviewEligibilitySlot } from "@/types";
@@ -321,9 +321,10 @@ export default function ProductReviewsSection({
                       <span className="text-xs font-medium text-gray-500 dark:text-white/80 ">
                         {displayName}
                       </span>
-                      <span className="text-xs text-gray-500 dark:text-white/70">
-                        {format(new Date(review.createdAt), "MMM d, yyyy")}
-                      </span>
+                      <ClientCompactDateTime
+                        date={review.createdAt}
+                        semantic="created"
+                      />
                     </div>
                   </div>
                   {user && review.userId === user.id && (

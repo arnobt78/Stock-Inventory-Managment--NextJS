@@ -257,7 +257,8 @@ export function NotificationDropdown({
                       <div className="flex items-center gap-2 flex-wrap mt-1">
                         <ClientRelativeTime
                           date={notification.createdAt}
-                          className="text-xs text-gray-500 dark:text-gray-400"
+                          className="text-xs"
+                          semantic="created"
                         />
                         {!notification.read && <NotificationNewBadge />}
                       </div>

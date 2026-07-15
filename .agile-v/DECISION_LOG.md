@@ -332,3 +332,11 @@ Format: `TIMESTAMP | AGENT | DECISION | RATIONALE | REQ-ID`
 2026-07-15T17:25:00Z | red-team | REQ-0127 gates | lint ✓ test 522 ✓ invalidate 208 ✓ build ✓ | REQ-0127
 2026-07-15T17:32:00Z | build-agent | REQ-0128 gap closure | dead getProductById; portal statusAt SSR; RecentOrderStatusColumn; warehouse type icons | REQ-0128
 2026-07-15T17:32:00Z | red-team | REQ-0128 gates | lint ✓ test 527 ✓ invalidate 208 ✓ build ✓ | REQ-0128
+2026-07-15T17:50:00Z | build-agent | REQ-0129 statusAt paidAt | invoice.paidAt for paid statusAt; OrderForPage.statusAt on list SSR/API; INVOICE_PATTERNS catalog+supplierPortal | REQ-0129
+2026-07-15T17:50:00Z | red-team | REQ-0129 gates | lint ✓ test 528 ✓ invalidate 208 ✓ build ✓ | REQ-0129
+2026-07-15T18:00:00Z | build-agent | REQ-0130 semantic dates | hub + ClientDate* semantic prop + order table statusAt | REQ-0130
+2026-07-15T18:00:00Z | red-team | REQ-0130 gates | lint ✓ test 531 ✓ invalidate 208 ✓ build ✓ | REQ-0130
+2026-07-15T18:03:00Z | build-agent | REQ-0131 gap closure | list table semantic dates; catalog paymentStatus; order meta ClientDate | REQ-0131
+2026-07-15T18:15:00Z | build-agent | REQ-0132 date gap closure | CSV formatStableDate in 6 Filters; ClientDate* semantic in 3 UI surfaces | REQ-0132
+2026-07-15T18:16:00Z | red-team | REQ-0132 gates | lint ✓ test 531 ✓ invalidate 208 ✓ build ✓ | REQ-0132
+2026-07-15T18:21:00Z | build-agent | REQ-0132 gap sweep | support ticket ClientDateTime; check-all-data + invoice PDF formatStableDate | REQ-0132

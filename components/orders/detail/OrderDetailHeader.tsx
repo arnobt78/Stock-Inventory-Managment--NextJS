@@ -74,7 +74,7 @@ export function OrderDetailHeader({
         dataLoading ? (
           <DataSlotPulse variant="date" />
         ) : (
-          <ClientRelativeTime date={createdAt} prefix="Created " />
+          <ClientRelativeTime date={createdAt} prefix="Created " semantic="created" />
         )
       }
     />

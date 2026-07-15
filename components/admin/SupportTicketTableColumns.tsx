@@ -20,9 +20,9 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { ArrowUpDown, Eye } from "lucide-react";
 import { IoMdArrowDown, IoMdArrowUp } from "react-icons/io";
-import { format } from "date-fns";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
+import { ClientDateTime } from "@/components/shared";
 import type { SupportTicket } from "@/types";
 
 type SortableHeaderProps = {
@@ -176,17 +176,23 @@ export function createSupportTicketColumns(
       header: ({ column }) => <SortableHeader column={column} label="Date" />,
       cell: ({ row }) => {
         const t = row.original;
-        const created = t.createdAt
-          ? format(new Date(t.createdAt), "MMM d, yyyy 'at' hh:mm a")
-          : "—";
-        const updated = t.updatedAt
-          ? format(new Date(t.updatedAt), "MMM d, yyyy 'at' hh:mm a")
-          : "—";
         return (
-          <div className="flex flex-col whitespace-nowrap">
-            <span className="text-muted-foreground">Created: {created}</span>
-            <span className="text-muted-foreground mt-0.5">
-              Updated: {updated}
+          <div className="flex flex-col whitespace-nowrap text-xs">
+            <span>
+              Created:{" "}
+              {t.createdAt ? (
+                <ClientDateTime date={t.createdAt} semantic="created" />
+              ) : (
+                "—"
+              )}
+            </span>
+            <span className="mt-0.5">
+              Updated:{" "}
+              {t.updatedAt ? (
+                <ClientDateTime date={t.updatedAt} semantic="updated" />
+              ) : (
+                "—"
+              )}
             </span>
           </div>
         );

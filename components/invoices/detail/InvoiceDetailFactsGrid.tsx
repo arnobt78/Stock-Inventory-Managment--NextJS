@@ -100,19 +100,26 @@ export function InvoiceDetailFactsGrid({
         {isOverdue ? " (Overdue)" : ""}
       </FactChip>
       <FactChip icon={Calendar} label="Issued:" loading={dataLoading}>
-        {issuedAt ? <ClientDateTime date={issuedAt} /> : "—"}
+        {issuedAt ? <ClientDateTime date={issuedAt} semantic="created" /> : "—"}
       </FactChip>
       <FactChip icon={Calendar} label="Due Date:" loading={dataLoading}>
-        {dueDate ? <ClientDateTime date={dueDate} /> : "—"}
+        {dueDate ? (
+          <ClientDateTime
+            date={dueDate}
+            semantic={isOverdue ? "overdue" : "due"}
+          />
+        ) : (
+          "—"
+        )}
       </FactChip>
       <FactChip icon={Send} label="Sent:" loading={dataLoading}>
-        {sentAt ? <ClientDateTime date={sentAt} /> : "—"}
+        {sentAt ? <ClientDateTime date={sentAt} semantic="sent" /> : "—"}
       </FactChip>
       <FactChip icon={CheckCircle} label="Paid:" loading={dataLoading}>
-        {paidAt ? <ClientDateTime date={paidAt} /> : "—"}
+        {paidAt ? <ClientDateTime date={paidAt} semantic="paid" /> : "—"}
       </FactChip>
       <FactChip icon={XCircle} label="Cancelled:" loading={dataLoading}>
-        {cancelledAt ? <ClientDateTime date={cancelledAt} /> : "—"}
+        {cancelledAt ? <ClientDateTime date={cancelledAt} semantic="cancelled" /> : "—"}
       </FactChip>
     </div>
   );

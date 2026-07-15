@@ -17,6 +17,7 @@ import { DismissibleFilterChips, ExportMenuButton } from "@/components/shared";
 import type { FilterChipGroup } from "@/components/shared";
 import { useToast } from "@/hooks/use-toast";
 import { exportToExcel, exportToCSV } from "@/lib/export";
+import { formatStableDate } from "@/lib/format";
 import { InvoiceStatusDropDown } from "./InvoiceStatusFilter";
 import {
   InvoiceSourceDropDown,
@@ -88,7 +89,7 @@ export default function InvoiceFilters({
 
       const csvData = filteredInvoices.map((invoice) => ({
         "Invoice Number": invoice.invoiceNumber,
-        "Invoice Date": new Date(invoice.createdAt).toLocaleDateString(),
+        "Invoice Date": formatStableDate(invoice.createdAt),
         Status: invoice.status,
         Subtotal: invoice.subtotal.toFixed(2),
         Tax: invoice.tax ? invoice.tax.toFixed(2) : "0.00",
@@ -96,7 +97,7 @@ export default function InvoiceFilters({
         Total: invoice.total.toFixed(2),
         "Amount Paid": invoice.amountPaid.toFixed(2),
         "Amount Due": invoice.amountDue.toFixed(2),
-        "Due Date": new Date(invoice.dueDate).toLocaleDateString(),
+        "Due Date": formatStableDate(invoice.dueDate),
       }));
 
       const columns = [
@@ -145,7 +146,7 @@ export default function InvoiceFilters({
 
       const excelData = filteredInvoices.map((invoice) => ({
         "Invoice Number": invoice.invoiceNumber,
-        "Invoice Date": new Date(invoice.createdAt).toLocaleDateString(),
+        "Invoice Date": formatStableDate(invoice.createdAt),
         Status: invoice.status,
         Subtotal: invoice.subtotal.toFixed(2),
         Tax: invoice.tax ? invoice.tax.toFixed(2) : "0.00",
@@ -153,7 +154,7 @@ export default function InvoiceFilters({
         Total: invoice.total.toFixed(2),
         "Amount Paid": invoice.amountPaid.toFixed(2),
         "Amount Due": invoice.amountDue.toFixed(2),
-        "Due Date": new Date(invoice.dueDate).toLocaleDateString(),
+        "Due Date": formatStableDate(invoice.dueDate),
       }));
 
       await exportToExcel({

@@ -13,7 +13,7 @@ import {
   getOrdersContainingSupplierProducts,
 } from "@/prisma/order";
 import { getSupplierByUserId } from "@/prisma/supplier";
-import { getInvoiceLinkMap } from "@/lib/server/orders-data";
+import { getInvoiceLinkMap, buildOrderForPageRow } from "@/lib/server/orders-data";
 import { createOrderSchema } from "@/lib/validations";
 import { getCache, setCache, cacheKeys, invalidateOnOrderChange } from "@/lib/cache";
 import { withRateLimit, defaultRateLimits } from "@/lib/api/rate-limit";
@@ -122,49 +122,59 @@ export async function GET(request: NextRequest) {
       const placedByName = u?.name ?? u?.email ?? null;
       const placedByEmail = u?.email ?? null;
       const po = isClient ? orderProductOwnerMap.get(order.id) : undefined;
+      const invoiceForOrder = invoiceLinkMap.get(order.id) ?? null;
       return {
-      id: order.id,
-      orderNumber: order.orderNumber,
-      userId: order.userId,
-      clientId: order.clientId,
-      status: order.status,
-      paymentStatus: order.paymentStatus,
-      subtotal: order.subtotal,
-      tax: order.tax,
-      shipping: order.shipping,
-      discount: order.discount,
-      total: order.total,
-      shippingAddress: order.shippingAddress,
-      billingAddress: order.billingAddress,
-      notes: order.notes,
-      trackingNumber: order.trackingNumber,
-      trackingCarrier: order.trackingCarrier ?? null,
-      trackingUrl: order.trackingUrl,
-      labelUrl: order.labelUrl ?? null,
-      estimatedDelivery: order.estimatedDelivery?.toISOString() || null,
-      shippedAt: order.shippedAt?.toISOString() || null,
-      deliveredAt: order.deliveredAt?.toISOString() || null,
-      cancelledAt: order.cancelledAt?.toISOString() || null,
-      createdAt: order.createdAt.toISOString(),
-      updatedAt: order.updatedAt?.toISOString() || null,
-      createdBy: order.createdBy,
-      updatedBy: order.updatedBy,
-      items: order.items.map((item) => ({
-        id: item.id,
-        orderId: item.orderId,
-        productId: item.productId,
-        productName: item.productName,
-        sku: item.sku,
-        quantity: item.quantity,
-        price: item.price,
-        subtotal: item.subtotal,
-        createdAt: item.createdAt.toISOString(),
-      })),
-      placedByName,
-      placedByEmail,
-      invoiceForOrder: invoiceLinkMap.get(order.id) ?? null,
-      ...(po ? { productOwnerName: po.name ?? po.email, productOwnerEmail: po.email } : {}),
-    };
+        ...buildOrderForPageRow(
+          {
+            id: order.id,
+            orderNumber: order.orderNumber,
+            userId: order.userId,
+            clientId: order.clientId,
+            status: order.status,
+            paymentStatus: order.paymentStatus,
+            subtotal: order.subtotal,
+            tax: order.tax,
+            shipping: order.shipping,
+            discount: order.discount,
+            total: order.total,
+            shippingAddress: order.shippingAddress,
+            billingAddress: order.billingAddress,
+            notes: order.notes,
+            trackingNumber: order.trackingNumber,
+            trackingUrl: order.trackingUrl,
+            estimatedDelivery: order.estimatedDelivery?.toISOString() || null,
+            shippedAt: order.shippedAt?.toISOString() || null,
+            deliveredAt: order.deliveredAt?.toISOString() || null,
+            cancelledAt: order.cancelledAt?.toISOString() || null,
+            createdAt: order.createdAt.toISOString(),
+            updatedAt: order.updatedAt?.toISOString() || null,
+            createdBy: order.createdBy,
+            updatedBy: order.updatedBy,
+            items: order.items.map((item) => ({
+              id: item.id,
+              orderId: item.orderId,
+              productId: item.productId,
+              productName: item.productName,
+              sku: item.sku,
+              quantity: item.quantity,
+              price: item.price,
+              subtotal: item.subtotal,
+              createdAt: item.createdAt.toISOString(),
+            })),
+            placedByName,
+            placedByEmail,
+            ...(po
+              ? {
+                  productOwnerName: po.name ?? po.email,
+                  productOwnerEmail: po.email,
+                }
+              : {}),
+          },
+          invoiceForOrder,
+        ),
+        trackingCarrier: order.trackingCarrier ?? null,
+        labelUrl: order.labelUrl ?? null,
+      };
     });
 
     // Cache the result for 5 minutes

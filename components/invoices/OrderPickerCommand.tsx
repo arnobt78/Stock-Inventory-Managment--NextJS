@@ -166,7 +166,7 @@ export function OrderPickerCommand({
                             linkClassName="text-xs font-normal text-muted-foreground"
                           />
                         )}
-                        <ClientCompactDateTime date={order.createdAt} />
+                        <ClientCompactDateTime date={order.createdAt} semantic="created" />
                       </span>
                     </span>
                     {order.id === selectedOrderId && (

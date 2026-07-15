@@ -5,6 +5,7 @@
 
 import { jsPDF } from "jspdf";
 import autoTable from "jspdf-autotable";
+import { formatStableDate } from "@/lib/format";
 
 interface InvoiceItem {
   productName: string;
@@ -52,18 +53,6 @@ interface InvoicePDFData {
   companyAddress?: string;
   companyPhone?: string;
   companyEmail?: string;
-}
-
-/**
- * Format date for display
- */
-function formatDate(date: Date | string): string {
-  const d = typeof date === "string" ? new Date(date) : date;
-  return d.toLocaleDateString("en-US", {
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-  });
 }
 
 /**
@@ -174,10 +163,10 @@ export function generateInvoicePDF(data: InvoicePDFData): string {
   }
 
   doc.setTextColor(...darkColor);
-  doc.text(formatDate(data.issuedAt), 200, 62, { align: "right" });
-  doc.text(formatDate(data.dueDate), 200, 69, { align: "right" });
+  doc.text(formatStableDate(data.issuedAt), 200, 62, { align: "right" });
+  doc.text(formatStableDate(data.dueDate), 200, 69, { align: "right" });
   if (data.paidAt) {
-    doc.text(formatDate(data.paidAt), 200, 76, { align: "right" });
+    doc.text(formatStableDate(data.paidAt), 200, 76, { align: "right" });
   }
 
   // Items table
@@ -332,7 +321,7 @@ export function generateInvoicePDF(data: InvoicePDFData): string {
     { align: "center" },
   );
   doc.text(
-    `Generated on ${formatDate(new Date())}`,
+    `Generated on ${formatStableDate(new Date())}`,
     doc.internal.pageSize.width / 2,
     pageHeight - 15,
     { align: "center" },

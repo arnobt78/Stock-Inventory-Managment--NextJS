@@ -17,6 +17,7 @@ import { DismissibleFilterChips, ExportMenuButton } from "@/components/shared";
 import type { FilterChipGroup } from "@/components/shared";
 import { useToast } from "@/hooks/use-toast";
 import { exportToExcel, exportToCSV } from "@/lib/export";
+import { formatStableDate } from "@/lib/format";
 import { OrderStatusDropDown } from "./OrderStatusFilter";
 import { PaymentStatusDropDown } from "./PaymentStatusFilter";
 import {
@@ -114,7 +115,7 @@ export default function OrderFilters({
 
       const csvData = filteredOrders.map((order) => ({
         "Order Number": order.orderNumber,
-        "Order Date": new Date(order.createdAt).toLocaleDateString(),
+        "Order Date": formatStableDate(order.createdAt),
         Status: order.status,
         "Payment Status": order.paymentStatus,
         Subtotal: order.subtotal.toFixed(2),
@@ -171,7 +172,7 @@ export default function OrderFilters({
 
       const excelData = filteredOrders.map((order) => ({
         "Order Number": order.orderNumber,
-        "Order Date": new Date(order.createdAt).toLocaleDateString(),
+        "Order Date": formatStableDate(order.createdAt),
         Status: order.status,
         "Payment Status": order.paymentStatus,
         Subtotal: order.subtotal.toFixed(2),

@@ -301,12 +301,13 @@ export default function AdminSupplierPortalContent({
                       </CopyableText>
                       <span className={CARD_LIST_META_CLASS}>
                         {o.supplierName} ·{" "}
-                        <ClientCompactDateTime date={o.createdAt} />
+                        <ClientCompactDateTime date={o.createdAt} semantic="created" />
                       </span>
                     </div>
                     <RecentOrderStatusColumn
                       status={o.status}
                       statusAt={o.statusAt}
+                      paymentStatus={o.paymentStatus}
                       trailing={
                         <span className="text-xs font-normal text-gray-700 dark:text-white">
                           ${o.total.toLocaleString()}

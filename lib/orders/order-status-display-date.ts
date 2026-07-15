@@ -12,6 +12,35 @@ export type OrderStatusDateInput = {
   updatedAt?: Date | string | null;
 };
 
+export type OrderStatusAtSource = OrderStatusDateInput & {
+  invoice?: { paidAt?: Date | string | null } | null;
+};
+
+export type InvoicePaidAtLink = { paidAt?: string | null } | null | undefined;
+
+function resolvePaidAt(
+  source: OrderStatusAtSource,
+  invoiceLink?: InvoicePaidAtLink,
+): Date | string | null | undefined {
+  return source.paidAt ?? invoiceLink?.paidAt ?? source.invoice?.paidAt ?? null;
+}
+
+/** Resolve statusAt from order fields + optional invoice link or nested invoice.paidAt. */
+export function resolveOrderStatusAtFromSource(
+  source: OrderStatusAtSource,
+  invoiceLink?: InvoicePaidAtLink,
+): string | undefined {
+  return resolveOrderStatusAt({
+    status: source.status,
+    paymentStatus: source.paymentStatus,
+    cancelledAt: source.cancelledAt,
+    deliveredAt: source.deliveredAt,
+    shippedAt: source.shippedAt,
+    updatedAt: source.updatedAt,
+    paidAt: resolvePaidAt(source, invoiceLink),
+  });
+}
+
 function toIso(value: Date | string | null | undefined): string | undefined {
   if (!value) return undefined;
   const d = value instanceof Date ? value : new Date(value);
@@ -44,10 +73,12 @@ export function resolveOrderStatusAt(
   return undefined;
 }
 
-/** Attach computed statusAt ISO string for recent-order list rows. */
-export function withOrderStatusAt<T extends OrderStatusDateInput>(
+/** Attach computed statusAt ISO string for recent-order list rows. Strips nested invoice. */
+export function withOrderStatusAt<T extends OrderStatusAtSource>(
   row: T,
-): T & { statusAt?: string } {
-  const statusAt = resolveOrderStatusAt(row);
-  return statusAt ? { ...row, statusAt } : row;
+): Omit<T, "invoice"> & { statusAt?: string } {
+  const { invoice: _invoice, ...rest } = row;
+  const statusAt = resolveOrderStatusAtFromSource(row);
+  if (!statusAt) return rest as Omit<T, "invoice"> & { statusAt?: string };
+  return { ...rest, statusAt };
 }

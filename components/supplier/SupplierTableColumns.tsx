@@ -22,6 +22,7 @@ import {
   DIALOG_TABLE_TEXT,
   TABLE_CATALOG_LINK_CLASS,
 } from "@/components/shared/dialog-edge-scroll";
+import { ClientDate } from "@/components/shared";
 import type { TableColumnContext } from "@/components/category/CategoryTableColumns";
 
 const PAGE_BODY_TEXT = "text-gray-700 dark:text-white";
@@ -245,15 +246,7 @@ export const createSupplierColumns = (
           return <span className={bodyText}>Unknown Date</span>;
         }
 
-        return (
-          <span className={bodyText}>
-            {date.toLocaleDateString("en-US", {
-              year: "numeric",
-              month: "short",
-              day: "numeric",
-            })}
-          </span>
-        );
+        return <ClientDate date={date} semantic="created" />;
       },
       size: 15,
     },
@@ -280,15 +273,7 @@ export const createSupplierColumns = (
           return <span className={bodyText}>-</span>;
         }
 
-        return (
-          <span className={bodyText}>
-            {date.toLocaleDateString("en-US", {
-              year: "numeric",
-              month: "short",
-              day: "numeric",
-            })}
-          </span>
-        );
+        return <ClientDate date={date} semantic="updated" />;
       },
       size: 15,
     },

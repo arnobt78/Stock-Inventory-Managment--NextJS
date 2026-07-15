@@ -124,7 +124,7 @@ export function CatalogDetailRecentOrdersList({
                     </span>
                     <span className="text-gray-400">•</span>
                     <Calendar className="h-3.5 w-3.5 shrink-0" aria-hidden />
-                    <ClientDate date={order.orderDate} />
+                    <ClientDate date={order.orderDate} semantic="created" />
                   </p>
                 ) : (
                   <p className="text-sm text-gray-600 dark:text-white/60 flex items-center gap-1.5 flex-wrap min-w-0">
@@ -134,7 +134,7 @@ export function CatalogDetailRecentOrdersList({
                     </span>
                     <span className="text-gray-400">•</span>
                     <Calendar className="h-3.5 w-3.5 shrink-0" aria-hidden />
-                    <ClientDate date={order.orderDate} />
+                    <ClientDate date={order.orderDate} semantic="created" />
                   </p>
                 )}
                 {(order.owner || order.placedBy) && (
@@ -184,6 +184,7 @@ export function CatalogDetailRecentOrdersList({
               <RecentOrderStatusColumn
                 status={order.orderStatus ?? "pending"}
                 statusAt={order.statusAt}
+                paymentStatus={order.paymentStatus}
                 trailing={
                   <ProportionalPriceDisplay
                     listAmount={order.subtotal}

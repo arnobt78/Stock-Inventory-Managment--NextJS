@@ -121,6 +121,12 @@ export type {
   ClientCurrencyProps,
   ClientCompactDateTimeProps,
 } from "./ClientFormatDisplay";
+export {
+  semanticDateClass,
+  statusAtSemanticKind,
+  dueDateSemanticKind,
+} from "@/lib/ui/semantic-date-styles";
+export type { SemanticDateKind } from "@/lib/ui/semantic-date-styles";
 export { DataSlotPulse } from "./DataSlotPulse";
 export type { DataSlotPulseProps, DataSlotPulseVariant } from "./DataSlotPulse";
 export { SectionCardHeader } from "./SectionCardHeader";

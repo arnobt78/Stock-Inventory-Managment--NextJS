@@ -332,3 +332,7 @@
 | TC-0048 | REQ-0126 | Order/invoice UI sweep — table meta, dialog dates, payment checkout (UI-only) |
 | TC-0049 | REQ-0127 | PersonInlineRow + product table columns + urgent forecast table + recent-order statusAt SSR |
 | TC-0050 | REQ-0128 | RecentOrderStatusColumn + portal statusAt SSR + warehouse-type-styles |
+| TC-0051 | REQ-0129 | Invoice paidAt statusAt + OrderForPage.statusAt + INVOICE_PATTERNS catalog sweep |
+| TC-0052 | REQ-0130 | Order table statusAt + semantic date colors hub + date component sweep |
+| TC-0053 | REQ-0131 | List table semantic dates + catalog paymentStatus + order meta created |
+| TC-0054 | REQ-0132 | CSV/export formatStableDate + semantic dates + ticket/PDF/script sweep |

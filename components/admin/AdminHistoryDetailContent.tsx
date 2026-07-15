@@ -178,11 +178,11 @@ export default function AdminHistoryDetailContent({
                 {!dataLoading && <ImportStatusBadge status={r!.status} size="detail" />}
               </DetailInfoRow>
               <DetailInfoRow icon={Calendar} label="Date:" tone="orange" loading={dataLoading}>
-                {!dataLoading && <ClientDateTime date={new Date(r!.createdAt)} />}
+                {!dataLoading && <ClientDateTime date={new Date(r!.createdAt)} semantic="created" />}
               </DetailInfoRow>
               {!dataLoading && r!.completedAt && (
                 <DetailInfoRow icon={Calendar} label="Completed:" tone="amber">
-                  <ClientDateTime date={new Date(r!.completedAt)} />
+                  <ClientDateTime date={new Date(r!.completedAt)} semantic="completed" />
                 </DetailInfoRow>
               )}
             </div>

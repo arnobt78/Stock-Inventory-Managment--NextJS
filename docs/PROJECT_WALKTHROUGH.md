@@ -1,6 +1,6 @@
 # PROJECT_WALKTHROUGH.md
 
-Agent-oriented map of **stock-inventory** (Stockly). Last updated: 2026-07-14.
+Agent-oriented map of **stock-inventory** (Stockly). Last updated: 2026-07-15.
 
 ## 1. What this app is
 
@@ -257,6 +257,8 @@ flowchart LR
 | Dialog UX parity + admin embed tables (REQ-0117) | `DialogFormLabel` flex-safe; `DialogDateField`/`DialogHeaderBrand`; `AdminEmbedDataTable`; order totals empty state; VS-045 network audit | Gates: test 498 |
 | Readable popover full sweep (REQ-0118) | `popover-readability-styles.ts`; PaymentDialog header; all filter/pagination popovers; VS-046 prod network OK | Gates: test 498 |
 | REQ-0119 gap closure | Catalog/export popover parity; `OrderAddressFields`; Business Insights Warehouses tab + SSR warehouse summary | Gates: test 504 |
+| Detail parity + statusAt (REQ-0127–0129) | `PersonInlineRow`, `RecentOrderStatusColumn`, `order-status-display-date.ts`; invoice `paidAt` → `OrderForPage.statusAt`; portal/dashboard SSR | Gates: test 528 |
+| Semantic dates (REQ-0130–0132) | `semantic-date-styles.ts`; `ClientDate*` `semantic` prop; list tables + exports `formatStableDate`; ticket/PDF/script sweep | Gates: test 531 |
 | Next | Gate 2 deploy + Sentry 24h; **manual QA from scratch** — `MANUAL_TEST_FIXTURES.md` §9 |
 | AI warehouse insights (REQ-0067) | `POST /api/ai/insights` enriches payload with `getWarehouseStockSummary` |
 | Per-warehouse order picking (REQ-0068) | `OrderItem.warehouseId`; `stock-allocation-order-sync.ts`; `OrderLineWarehouseSelect`; reserve/fulfill/cancel sync; invoice-paid gap; `f892b65` removed unused `deleteCache`/`getRateLimitStatus` |
@@ -271,15 +273,15 @@ flowchart LR
 3. Sentry **stock-inventory** — 24h: compare cases 1–7 vs `docs/SENTRY_ERRORS.md`
 4. Log result in `.agile-v/REVALIDATION_LOG.md`; CAPA if regression
 
-## 8. Quality gates (audit 2026-07-14)
+## 8. Quality gates (audit 2026-07-15)
 
 | Check | Status |
 |-------|--------|
 | `npm run lint` | pass |
 | `npm run build` | pass |
-| `npm run test` | 488 passed |
+| `npm run test` | 531 passed |
 | `npm run test:invalidate` | 208 passed |
-| Prod commit | `8de1827` REQ-0106–0113 pushed `origin/main` |
+| Prod commit | `bb584a9` REQ-0128; REQ-0129–0132 local pending push |
 | Radix table Select | `useDeferredRadixSelect` + `PaginationSelector` (11 tables) |
 | Pagination clamp + page-size reset | `useClampPaginationIndex` + `PaginationSelector` pageIndex 0 |
 | Sentry | tunnel + translate scrub + `syncSentryUserFromAuth` |
@@ -297,6 +299,8 @@ flowchart LR
 - **New API write route:** add to `API_WRITE_ROUTE_INVALIDATION_SPEC` in invalidate-coverage test (or exempt list)
 - **Sentry:** `SENTRY_TUNNEL_PATH` in sync (`sentry-config.ts`, `next.config.ts`)
 - **Env:** update `.env.example` + `CLAUDE.md` + this file
+- **Dates:** UI → `ClientDate*` + `semantic` from `semantic-date-styles.ts`; CSV/PDF/server → `formatStableDate` via `@/lib/format`; no raw `date-fns format` / `toLocaleDateString` in components
+- **Order status date:** `resolveOrderStatusAtFromSource` + invoice `paidAt` on list SSR/API; `RecentOrderStatusColumn` for badges + hue
 
 ## 10. Related docs
 

@@ -74,6 +74,8 @@ export interface Product {
     proportionalAmount?: number;
     orderTotal?: number;
     orderStatus: string;
+    /** REQ-0131 — paid/refunded statusAt hue */
+    paymentStatus?: string;
     /** REQ-0127 — terminal status date for recent-order cards */
     statusAt?: string;
     placedBy?: {

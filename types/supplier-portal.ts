@@ -33,6 +33,7 @@ export interface SupplierPortalRecentOrder {
   id: string;
   orderNumber: string;
   status: string;
+  paymentStatus?: string;
   total: number;
   supplierId: string;
   supplierName: string;

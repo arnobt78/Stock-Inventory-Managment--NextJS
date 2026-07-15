@@ -495,6 +495,7 @@ export async function getDashboardForAdmin(userId: string): Promise<DashboardSta
           deliveredAt: o.deliveredAt,
           shippedAt: o.shippedAt,
           updatedAt: o.updatedAt,
+          invoice: o.invoice,
         }),
     ),
     tickets: recentTickets.map(

@@ -99,6 +99,7 @@ export async function getClientPortalForAdmin(): Promise<ClientPortalStats> {
         deliveredAt: o.deliveredAt,
         shippedAt: o.shippedAt,
         updatedAt: o.updatedAt,
+        invoice: o.invoice,
       }),
     );
 

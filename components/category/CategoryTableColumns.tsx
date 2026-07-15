@@ -19,6 +19,7 @@ import {
   DIALOG_TABLE_TEXT,
   TABLE_CATALOG_LINK_CLASS,
 } from "@/components/shared/dialog-edge-scroll";
+import { ClientDate } from "@/components/shared";
 
 export type TableColumnContext = "page" | "dialog";
 
@@ -187,15 +188,7 @@ export const createCategoryColumns = (
           return <span className={bodyText}>Unknown Date</span>;
         }
 
-        return (
-          <span className={bodyText}>
-            {date.toLocaleDateString("en-US", {
-              year: "numeric",
-              month: "short",
-              day: "numeric",
-            })}
-          </span>
-        );
+        return <ClientDate date={date} semantic="created" />;
       },
       size: 15,
     },
@@ -222,15 +215,7 @@ export const createCategoryColumns = (
           return <span className={bodyText}>-</span>;
         }
 
-        return (
-          <span className={bodyText}>
-            {date.toLocaleDateString("en-US", {
-              year: "numeric",
-              month: "short",
-              day: "numeric",
-            })}
-          </span>
-        );
+        return <ClientDate date={date} semantic="updated" />;
       },
       size: 15,
     },

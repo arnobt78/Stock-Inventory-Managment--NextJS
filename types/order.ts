@@ -121,6 +121,8 @@ export interface Order {
   placedByImage?: string | null;
   /** Linked invoice when order has an invoice (for admin detail link) */
   invoiceForOrder?: { id: string; invoiceNumber: string; paidAt?: string | null } | null;
+  /** REQ-0129 — terminal status timestamp for list rows */
+  statusAt?: string;
   /** REQ-0073 — payment timestamp from linked invoice (not order.updatedAt) */
   paidAt?: string | null;
   /** REQ-0096 — audit user snapshots for Created by / Updated by rows */

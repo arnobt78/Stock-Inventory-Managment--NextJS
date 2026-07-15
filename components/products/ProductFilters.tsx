@@ -21,6 +21,7 @@ import { ProductOwnerSelect } from "./ProductOwnerSelect";
 import { ProductStockStatusBadge } from "@/lib/ui/semantic-badges";
 import { FILTER_CHIP_COLLAPSED_CLASS } from "@/lib/ui/filter-chip-styles";
 import { cn } from "@/lib/utils";
+import { formatStableDate } from "@/lib/format";
 
 type FiltersAndActionsProps = {
   allProducts: Product[];
@@ -131,7 +132,7 @@ export default function FiltersAndActions({
         Status: product.status,
         Category: product.category || "Unknown",
         Supplier: product.supplier || "Unknown",
-        "Created Date": new Date(product.createdAt).toLocaleDateString(),
+        "Created Date": formatStableDate(product.createdAt),
       }));
 
       const csv = Papa.unparse(csvData);
@@ -185,7 +186,7 @@ export default function FiltersAndActions({
         Status: product.status,
         Category: product.category || "Unknown",
         Supplier: product.supplier || "Unknown",
-        "Created Date": new Date(product.createdAt).toLocaleDateString(),
+        "Created Date": formatStableDate(product.createdAt),
       }));
 
       // Create a new workbook and worksheet

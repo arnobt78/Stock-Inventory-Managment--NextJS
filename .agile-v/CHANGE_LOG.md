@@ -58,3 +58,4 @@
 | 2026-07-13 | committedQuantity parity — detail SSR, forecast, supplier dashboard | REQ-0104 |
 | 2026-07-14 | Order stock UX workflow — auto-assign, reactive validation, fetch DRY | REQ-0106–0113 |
 | 2026-07-14 | Stock UX + dialog/UI closure — proportional pricing, labels, typography | REQ-0114–0116 |
+| 2026-07-15 | Detail/table parity, statusAt paidAt, semantic dates, export DRY | REQ-0127–0132 |

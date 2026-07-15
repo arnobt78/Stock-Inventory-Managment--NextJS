@@ -1281,12 +1281,13 @@ export default function AdminAnalyticsContent({
                             </Link>
                           </CopyableText>
                           <p className={CARD_LIST_META_CLASS}>
-                            <ClientCompactDateTime date={o.createdAt} />
+                            <ClientCompactDateTime date={o.createdAt} semantic="created" />
                           </p>
                         </div>
                         <RecentOrderStatusColumn
                           status={o.status}
                           statusAt={o.statusAt}
+                          paymentStatus={o.paymentStatus}
                           trailing={
                             <span className="text-xs text-gray-700 dark:text-white">
                               {formatStableCurrency(o.total)}
@@ -1338,7 +1339,7 @@ export default function AdminAnalyticsContent({
                             {t.subject}
                           </Link>
                           <p className={CARD_LIST_META_CLASS}>
-                            <ClientCompactDateTime date={t.createdAt} />
+                            <ClientCompactDateTime date={t.createdAt} semantic="created" />
                           </p>
                         </div>
                         <TicketStatusBadge status={t.status} />
@@ -1387,7 +1388,7 @@ export default function AdminAnalyticsContent({
                             {r.productName} · {r.rating}★
                           </Link>
                           <p className={CARD_LIST_META_CLASS}>
-                            <ClientCompactDateTime date={r.createdAt} />
+                            <ClientCompactDateTime date={r.createdAt} semantic="created" />
                           </p>
                         </div>
                         <ReviewStatusBadge status={r.status} />
@@ -1436,7 +1437,7 @@ export default function AdminAnalyticsContent({
                             {im.importType} · {im.fileName}
                           </Link>
                           <p className={CARD_LIST_META_CLASS}>
-                            <ClientCompactDateTime date={im.createdAt} /> ·{" "}
+                            <ClientCompactDateTime date={im.createdAt} semantic="created" /> ·{" "}
                             {im.successRows} ok, {im.failedRows} failed
                           </p>
                         </div>

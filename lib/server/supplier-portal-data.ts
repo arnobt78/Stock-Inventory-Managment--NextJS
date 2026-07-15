@@ -156,6 +156,7 @@ export async function getSupplierPortalForAdmin(
         deliveredAt: o.deliveredAt,
         shippedAt: o.shippedAt,
         updatedAt: o.updatedAt,
+        invoice: o.invoice,
       });
     });
 

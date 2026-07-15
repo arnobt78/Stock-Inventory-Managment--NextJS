@@ -13,6 +13,11 @@ import {
   toDate,
 } from "@/lib/date/format-stable";
 import { useMounted } from "@/hooks/use-mounted";
+import {
+  semanticDateClass,
+  type SemanticDateKind,
+} from "@/lib/ui/semantic-date-styles";
+import { cn } from "@/lib/utils";
 
 type DateInput = Date | string | number;
 
@@ -21,12 +26,14 @@ export type ClientRelativeTimeProps = {
   className?: string;
   /** Optional prefix, e.g. "Created " */
   prefix?: string;
+  semantic?: SemanticDateKind;
 };
 
 export function ClientRelativeTime({
   date,
   className,
   prefix = "",
+  semantic,
 }: ClientRelativeTimeProps) {
   const d = useMemo(() => toDate(date), [date]);
   const stable = useMemo(() => formatStableDate(d), [d]);
@@ -42,7 +49,7 @@ export function ClientRelativeTime({
   }, [mounted, d]);
 
   return (
-    <span className={className}>
+    <span className={cn(semanticDateClass(semantic), className)}>
       {prefix}
       {label}
     </span>
@@ -52,25 +59,34 @@ export function ClientRelativeTime({
 export type ClientDateTimeProps = {
   date: DateInput;
   className?: string;
+  semantic?: SemanticDateKind;
 };
 
 /** Absolute date+time — same output on server and client (no hydration mismatch). */
-export function ClientDateTime({ date, className }: ClientDateTimeProps) {
+export function ClientDateTime({ date, className, semantic }: ClientDateTimeProps) {
   const text = useMemo(() => formatStableDateTime(date), [date]);
-  return <span className={className}>{text}</span>;
+  return (
+    <span className={cn(semanticDateClass(semantic), className)}>{text}</span>
+  );
 }
 
 export type ClientDateProps = {
   date: DateInput;
   className?: string;
   prefix?: string;
+  semantic?: SemanticDateKind;
 };
 
 /** Absolute date only — same output on server and client. */
-export function ClientDate({ date, className, prefix = "" }: ClientDateProps) {
+export function ClientDate({
+  date,
+  className,
+  prefix = "",
+  semantic,
+}: ClientDateProps) {
   const text = useMemo(() => formatStableDate(date), [date]);
   return (
-    <span className={className}>
+    <span className={cn(semanticDateClass(semantic), className)}>
       {prefix}
       {text}
     </span>

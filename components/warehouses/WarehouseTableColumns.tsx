@@ -13,6 +13,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { ArrowUpDown } from "lucide-react";
 import { IoMdArrowDown, IoMdArrowUp } from "react-icons/io";
+import { ClientDate } from "@/components/shared";
 
 type SortableHeaderProps = {
   column: Column<Warehouse, unknown>;
@@ -150,15 +151,7 @@ export const createWarehouseColumns = (
         typeof dateValue === "string" ? new Date(dateValue) : dateValue;
       if (!date || isNaN(date.getTime()))
         return <span className="text-gray-700 dark:text-white">-</span>;
-      return (
-        <span className="text-gray-700 dark:text-white">
-          {date.toLocaleDateString("en-US", {
-            year: "numeric",
-            month: "short",
-            day: "numeric",
-          })}
-        </span>
-      );
+      return <ClientDate date={date} semantic="created" />;
     },
     size: 15,
   },

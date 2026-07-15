@@ -10,6 +10,7 @@
  */
 
 import { PrismaClient } from "@prisma/client";
+import { formatStableDate } from "@/lib/format";
 
 const prisma = new PrismaClient();
 
@@ -43,7 +44,7 @@ async function checkAllData() {
       products.forEach((product, index) => {
         console.log(`   ${index + 1}. ${product.name} (SKU: ${product.sku}) - Qty: ${product.quantity}, Price: $${product.price}, Status: ${product.status}`);
         console.log(`      Category ID: ${product.categoryId || 'N/A'}, Supplier ID: ${product.supplierId || 'N/A'}`);
-        console.log(`      Created: ${product.createdAt.toLocaleDateString()}`);
+        console.log(`      Created: ${formatStableDate(product.createdAt)}`);
       });
     } else {
       console.log("   (No products found)");
@@ -77,9 +78,9 @@ async function checkAllData() {
         if (supplier.notes) {
           console.log(`      Notes: ${supplier.notes.substring(0, 50)}${supplier.notes.length > 50 ? '...' : ''}`);
         }
-        console.log(`      Created: ${supplier.createdAt.toLocaleDateString()}`);
+        console.log(`      Created: ${formatStableDate(supplier.createdAt)}`);
         if (supplier.updatedAt) {
-          console.log(`      Updated: ${supplier.updatedAt.toLocaleDateString()}`);
+          console.log(`      Updated: ${formatStableDate(supplier.updatedAt)}`);
         }
       });
     } else {
@@ -114,9 +115,9 @@ async function checkAllData() {
         if (category.notes) {
           console.log(`      Notes: ${category.notes.substring(0, 50)}${category.notes.length > 50 ? '...' : ''}`);
         }
-        console.log(`      Created: ${category.createdAt.toLocaleDateString()}`);
+        console.log(`      Created: ${formatStableDate(category.createdAt)}`);
         if (category.updatedAt) {
-          console.log(`      Updated: ${category.updatedAt.toLocaleDateString()}`);
+          console.log(`      Updated: ${formatStableDate(category.updatedAt)}`);
         }
       });
     } else {

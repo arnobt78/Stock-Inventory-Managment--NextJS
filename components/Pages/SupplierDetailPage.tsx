@@ -275,7 +275,7 @@ export default function SupplierDetailPage({
               )
             }
             description={
-              <ClientRelativeTime date={createdAt} prefix="Created " />
+              <ClientRelativeTime date={createdAt} prefix="Created " semantic="created" />
             }
           />
 
@@ -356,7 +356,7 @@ export default function SupplierDetailPage({
                       tone="teal"
                       loading={dataLoading}
                     >
-                      {!dataLoading && <ClientDateTime date={createdAt} />}
+                      {!dataLoading && <ClientDateTime date={createdAt} semantic="created" />}
                     </DetailInfoRow>
                     {(dataLoading || updatedAt) && (
                       <DetailInfoRow
@@ -366,7 +366,7 @@ export default function SupplierDetailPage({
                         loading={dataLoading}
                       >
                         {!dataLoading && updatedAt && (
-                          <ClientDateTime date={updatedAt} />
+                          <ClientDateTime date={updatedAt} semantic="updated" />
                         )}
                       </DetailInfoRow>
                     )}
