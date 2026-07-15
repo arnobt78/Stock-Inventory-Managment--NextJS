@@ -17,8 +17,8 @@ const defaultQueryOptions = {
     // stale and forces an immediate refetch for active queries, so UI always
     // reflects mutations regardless of staleTime.
     staleTime: 1000 * 60 * 5, // 5 minutes
-    // Cache time: unused data stays in cache for 10 minutes
-    gcTime: 1000 * 60 * 10, // 10 minutes (formerly cacheTime)
+    // REQ-0134: 30 min in-memory retention for idle nav (lists still not persisted — REQ-0133)
+    gcTime: 1000 * 60 * 30,
     // Retry failed requests 3 times
     retry: 3,
     // Retry delay increases exponentially

@@ -41,13 +41,18 @@ const ORDER_GRAPH_PATTERNS = [
   "forecasting:*",
 ] as const;
 
-/** Invoice CRUD / send / reminders — financial + order invoice linkage + catalog statusAt. */
+/**
+ * Invoice CRUD / send / reminders / mark-paid stock fulfill.
+ * REQ-0135: include stock-allocation — paid invoices call fulfillPendingOrderLines;
+ * omitting it left TanStack refill from stale Redis → UI revert.
+ */
 const INVOICE_PATTERNS = [
   cacheKeys.invoices.pattern,
   cacheKeys.orders.pattern,
   cacheKeys.products.pattern,
   cacheKeys.categories.pattern,
   cacheKeys.suppliers.pattern,
+  cacheKeys.stockAllocation.pattern,
   cacheKeys.dashboard.pattern,
   cacheKeys.notifications.pattern,
   cacheKeys.portal.pattern,
@@ -80,10 +85,14 @@ const USER_PATTERNS = [
 
 const NOTIFICATION_PATTERNS = [cacheKeys.notifications.pattern] as const;
 
+/** REQ-0135: align with USER — register/OAuth must clear admin portal overviews. */
 const AUTH_PATTERNS = [
   cacheKeys.userManagement.pattern,
   cacheKeys.sessions.pattern,
   cacheKeys.dashboard.pattern,
+  cacheKeys.portal.pattern,
+  cacheKeys.clientPortal.pattern,
+  cacheKeys.supplierPortal.pattern,
 ] as const;
 
 const EMAIL_PREFERENCE_PATTERNS = [cacheKeys.notifications.pattern] as const;
@@ -94,12 +103,16 @@ const SYSTEM_CONFIG_PATTERNS = [
   "forecasting:*",
 ] as const;
 
+/** REQ-0135: product import creates catalog qty — clear portals like PRODUCT_PATTERNS. */
 const IMPORT_PATTERNS = [
   cacheKeys.products.pattern,
   cacheKeys.history.pattern,
   cacheKeys.categories.pattern,
   cacheKeys.suppliers.pattern,
   cacheKeys.dashboard.pattern,
+  cacheKeys.portal.pattern,
+  cacheKeys.clientPortal.pattern,
+  cacheKeys.supplierPortal.pattern,
   "forecasting:*",
 ] as const;
 
@@ -117,9 +130,11 @@ const PRODUCT_PATTERNS = [
   "forecasting:*",
 ] as const;
 
+/** REQ-0135: +stockAllocation so enrich labels (categoryName) do not linger after rename. */
 const CATEGORY_PATTERNS = [
   cacheKeys.categories.pattern,
   cacheKeys.products.pattern,
+  cacheKeys.stockAllocation.pattern,
   cacheKeys.dashboard.pattern,
   cacheKeys.portal.pattern,
   cacheKeys.clientPortal.pattern,
@@ -127,16 +142,22 @@ const CATEGORY_PATTERNS = [
   "forecasting:*",
 ] as const;
 
+/**
+ * REQ-0135: +clientPortal (admin client overview) + stockAllocation (supplierName enrich).
+ */
 const SUPPLIER_PATTERNS = [
   cacheKeys.suppliers.pattern,
   cacheKeys.products.pattern,
   cacheKeys.categories.pattern,
+  cacheKeys.stockAllocation.pattern,
   cacheKeys.dashboard.pattern,
   cacheKeys.portal.pattern,
+  cacheKeys.clientPortal.pattern,
   cacheKeys.supplierPortal.pattern,
   "forecasting:*",
 ] as const;
 
+/** REQ-0135: +supplierPortal for admin supplier overview after warehouse CRUD. */
 const WAREHOUSE_PATTERNS = [
   cacheKeys.stockAllocation.pattern,
   cacheKeys.products.pattern,
@@ -145,6 +166,7 @@ const WAREHOUSE_PATTERNS = [
   cacheKeys.dashboard.pattern,
   cacheKeys.portal.pattern,
   cacheKeys.clientPortal.pattern,
+  cacheKeys.supplierPortal.pattern,
   cacheKeys.userManagement.pattern,
   "forecasting:*",
 ] as const;

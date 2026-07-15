@@ -337,3 +337,5 @@
 | TC-0053 | REQ-0131 | List table semantic dates + catalog paymentStatus + order meta created |
 | TC-0054 | REQ-0132 | CSV/export formatStableDate + semantic dates + ticket/PDF/script sweep |
 | TC-0055 | REQ-0133 | Cache coherence — SSR sync, Redis patterns, persist trim, re-warm guard |
+| TC-0056 | REQ-0134 | Session 1d JWT+cookie; auth focus refetch; QR second invalidate; gcTime 30m |
+| TC-0057 | REQ-0135 | Redis pattern asymmetries — invoice stock, portals, auth/import, category/supplier enrich |

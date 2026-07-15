@@ -4,7 +4,7 @@
  */
 
 import { NextRequest, NextResponse } from "next/server";
-import { generateToken } from "@/utils/auth";
+import { generateToken, sessionCookieOptions } from "@/utils/auth";
 import {
   getGoogleClientId,
   getGoogleClientSecret,
@@ -271,14 +271,12 @@ export async function GET(request: NextRequest) {
       // Create response and set cookies
       const response = NextResponse.redirect(redirectUrl);
 
-      // Set session cookie
-      response.cookies.set("session_id", token, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === "production",
-        sameSite: "lax",
-        maxAge: 60 * 60 * 24 * 7, // 7 days
-        path: "/",
-      });
+      // REQ-0134: cookie TTL matches JWT (both 1d via sessionCookieOptions)
+      response.cookies.set(
+        "session_id",
+        token,
+        sessionCookieOptions(process.env.NODE_ENV === "production"),
+      );
 
       // Clear OAuth cookies
       response.cookies.delete("oauth_state");

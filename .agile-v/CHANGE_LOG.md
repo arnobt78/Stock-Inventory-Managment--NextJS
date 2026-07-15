@@ -59,3 +59,5 @@
 | 2026-07-14 | Order stock UX workflow — auto-assign, reactive validation, fetch DRY | REQ-0106–0113 |
 | 2026-07-14 | Stock UX + dialog/UI closure — proportional pricing, labels, typography | REQ-0114–0116 |
 | 2026-07-15 | Detail/table parity, statusAt paidAt, semantic dates, cache coherence | REQ-0127–0133 |
+| 2026-07-15 | Session 1d JWT+cookie; auth focus; QR second invalidate; gcTime 30m | REQ-0134 |
+| 2026-07-15 | Redis pattern asymmetries — invoice stock, portals, auth/import | REQ-0135 |

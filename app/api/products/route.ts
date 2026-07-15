@@ -305,6 +305,8 @@ export async function POST(request: NextRequest) {
             qrCodeFileId: qrCodeData.fileId,
           },
         });
+        // REQ-0134: second wipe — first invalidation ran before QR existed in DB
+        await invalidateOnProductChange();
       })
       .catch((error) => {
         // Log error but don't fail the request
@@ -607,6 +609,8 @@ export async function PUT(request: NextRequest) {
               }
             }
           }
+          // REQ-0134: second wipe so detail/list cannot re-serve pre-QR Redis snapshot
+          await invalidateOnProductChange();
         })
         .catch((error) => {
           // Log error but don't fail the request

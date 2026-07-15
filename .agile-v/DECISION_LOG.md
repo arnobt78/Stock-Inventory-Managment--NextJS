@@ -342,3 +342,7 @@ Format: `TIMESTAMP | AGENT | DECISION | RATIONALE | REQ-ID`
 2026-07-15T18:21:00Z | build-agent | REQ-0132 gap sweep | support ticket ClientDateTime; check-all-data + invoice PDF formatStableDate | REQ-0132
 2026-07-15T19:20:00Z | build-agent | REQ-0133 cache coherence | SSR sync guard; Redis patterns; persist trim; invalidateAfterCatalogChange; setCache re-warm guard | REQ-0133
 2026-07-15T19:22:00Z | red-team | REQ-0133 gates | lint ✓ test 544 ✓ invalidate 213 ✓ build ✓ | REQ-0133
+2026-07-15T19:35:00Z | build-agent | REQ-0134 session+QR+idle | JWT/cookie 1d; useSession focus refetch; QR second invalidate; gcTime 30m | REQ-0134
+2026-07-15T19:36:00Z | red-team | REQ-0134 gates | lint ✓ test 544 ✓ invalidate 213 ✓ build ✓ | REQ-0134
+2026-07-15T20:00:00Z | build-agent | REQ-0135 Redis pattern close | INVOICE+stock; SUPPLIER/WAREHOUSE portals; CATEGORY/SUPPLIER stock; AUTH/IMPORT portals | REQ-0135
+2026-07-15T20:05:00Z | red-team | REQ-0134+0135 gates | lint/test/invalidate/build (see VALIDATION_SUMMARY) | REQ-0134,REQ-0135

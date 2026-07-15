@@ -260,6 +260,8 @@ flowchart LR
 | Detail parity + statusAt (REQ-0127–0129) | `PersonInlineRow`, `RecentOrderStatusColumn`, `order-status-display-date.ts`; invoice `paidAt` → `OrderForPage.statusAt`; portal/dashboard SSR | Gates: test 528 |
 | Semantic dates (REQ-0130–0132) | `semantic-date-styles.ts`; `ClientDate*` `semantic` prop; list tables + exports `formatStableDate`; ticket/PDF/script sweep | Gates: test 531 |
 | Cache coherence (REQ-0133) | SSR sync skip; Redis pattern widen; persist auth/user; `invalidateAfterCatalogChange`; `setCache` re-warm guard | Gates: test 544 |
+| Session + QR idle (REQ-0134) | JWT/cookie 1d; `useSession` focus refetch; product QR second Redis wipe; `gcTime` 30m | |
+| Redis pattern close (REQ-0135) | Invoice+stock; supplier/warehouse/auth/import portals; category/supplier stock enrich | |
 | Next | Gate 2 deploy + Sentry 24h; **manual QA from scratch** — `MANUAL_TEST_FIXTURES.md` §9 |
 | AI warehouse insights (REQ-0067) | `POST /api/ai/insights` enriches payload with `getWarehouseStockSummary` |
 | Per-warehouse order picking (REQ-0068) | `OrderItem.warehouseId`; `stock-allocation-order-sync.ts`; `OrderLineWarehouseSelect`; reserve/fulfill/cancel sync; invoice-paid gap; `f892b65` removed unused `deleteCache`/`getRateLimitStatus` |
@@ -282,7 +284,7 @@ flowchart LR
 | `npm run build` | pass |
 | `npm run test` | 544 passed |
 | `npm run test:invalidate` | 213 passed |
-| Prod commit | `ae3b7be` REQ-0129–0132; REQ-0133 local pending push |
+| Prod commit | `8a2b73e` REQ-0133; REQ-0134–0135 pending this push |
 | Radix table Select | `useDeferredRadixSelect` + `PaginationSelector` (11 tables) |
 | Pagination clamp + page-size reset | `useClampPaginationIndex` + `PaginationSelector` pageIndex 0 |
 | Sentry | tunnel + translate scrub + `syncSentryUserFromAuth` |
@@ -302,6 +304,8 @@ flowchart LR
 - **Env:** update `.env.example` + `CLAUDE.md` + this file
 - **Dates:** UI → `ClientDate*` + `semantic`; export/PDF → `formatStableDate`
 - **Cache coherence (REQ-0133):** SSR sync skip; Redis `__invAt` re-warm guard; catalog CRUD → `invalidateAfterCatalogChange`; persist auth/user only
+- **Session (REQ-0134):** `SESSION_JWT_EXPIRES` / cookie 1d; auth-only `refetchOnWindowFocus`; QR async → second product cache invalidate
+- **Redis patterns (REQ-0135):** invoice mark-paid clears stock-allocation; auth/import/supplier/warehouse portal parity
 
 ## 10. Related docs
 

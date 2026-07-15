@@ -3,9 +3,9 @@
 | Field | Value |
 |-------|-------|
 | **Cycle** | C1 (closing) → **C2 open** |
-| **Phase** | C2 — REQ-0121–0133 **done, ready to push** |
-| **Last updated** | 2026-07-15 (REQ-0133) |
-| **Active REQ range** | REQ-0001 … REQ-0133 **done** |
+| **Phase** | C2 — REQ-0121–0135 **done** |
+| **Last updated** | 2026-07-15 (REQ-0135) |
+| **Active REQ range** | REQ-0001 … REQ-0135 **done** |
 | **Prod deploy target** | `9d7ec21` (REQ-0120) — pushed `origin/main`; REQ-0121–0128 local only |
 | **Human Gate 1** | APPROVED (retroactive bootstrap) |
 | **Human Gate 2** | PENDING — Sentry 24h after prod deploy |

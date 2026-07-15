@@ -6,7 +6,7 @@
 
 import { NextRequest, NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
-import { generateToken } from "@/utils/auth";
+import { generateToken, sessionCookieOptions } from "@/utils/auth";
 import { loginSchema } from "@/lib/validations";
 import { createCorsHeaders, handleCorsPreflight } from "@/lib/api/cors";
 import { logger } from "@/lib/logger";
@@ -111,13 +111,8 @@ export async function POST(request: NextRequest) {
       { status: 200, headers: responseHeaders },
     );
 
-    response.cookies.set("session_id", token, {
-      httpOnly: true,
-      secure: isSecure,
-      sameSite: "lax",
-      maxAge: 60 * 60, // 1 hour (in seconds)
-      path: "/",
-    });
+    // REQ-0134: JWT + cookie both 1d via sessionCookieOptions (was 1h — idle logout)
+    response.cookies.set("session_id", token, sessionCookieOptions(isSecure));
 
     return response;
   } catch (error) {

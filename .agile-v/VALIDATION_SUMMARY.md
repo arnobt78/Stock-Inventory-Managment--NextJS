@@ -570,6 +570,36 @@ Commands: lint, test, test:invalidate, build
 
 ---
 
+## REQ-0135 — Redis invalidate pattern asymmetry (2026-07-15)
+
+**Scope:** `INVOICE_PATTERNS` +`stockAllocation`; supplier/warehouse/auth/import portal parity; category/supplier +stock for enrich labels. Shipped with REQ-0134.
+
+**Gates:** lint ✓ · test 544/544 ✓ · invalidate 213/213 ✓ · build ✓
+
+**Evidence summary**
+
+```
+Scope: built/verified | Traceability: REQ-0134,REQ-0135 | Findings: PASS
+Commands: lint, test, test:invalidate, build
+```
+
+---
+
+## REQ-0134 — Session TTL + QR re-invalidate + idle nav (2026-07-15)
+
+**Scope:** 1d JWT+cookie align; auth `refetchOnWindowFocus`; product QR second Redis wipe; `gcTime` 30m.
+
+**Gates:** lint ✓ · test 544/544 ✓ · invalidate 213/213 ✓ · build ✓
+
+**Evidence summary**
+
+```
+Scope: built/verified | Traceability: REQ-0134 | Findings: PASS
+Commands: lint, test, test:invalidate, build
+```
+
+---
+
 ## REQ-0133 — Cache coherence hardening (2026-07-15)
 
 **Scope:** SSR sync skip guard; Redis pattern widen; TanStack persist auth/user only; `invalidateAfterCatalogChange`; `setCache` re-warm block on all cached GET paths.

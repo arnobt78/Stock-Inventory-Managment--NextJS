@@ -3013,6 +3013,55 @@ Canonical REQ source. All artifacts link via `REQ-XXXX`. Status: `done` | `verif
 
 ---
 
+## REQ-0134 — Session TTL + auth focus + QR re-invalidate + idle nav
+
+| Field | Value |
+|-------|-------|
+| **Priority** | P1 |
+| **Risk** | R1 |
+| **Status** | done |
+| **Cycle** | C2 |
+| **Parent** | REQ-0133 |
+
+**Intent:** Close post-0133 prod gaps — idle logout (1h JWT), OAuth cookie/JWT mismatch, stale QR after async ImageKit write, slow nav after idle gcTime.
+
+**Acceptance criteria**
+
+- AC1: `SESSION_MAX_AGE_SECONDS` / `SESSION_JWT_EXPIRES` = 1d; password + OAuth use `sessionCookieOptions`
+- AC2: `useSession` `refetchOnWindowFocus: true`; global data queries stay `false`
+- AC3: TanStack `gcTime` 30 min (in-memory only; lists not persisted)
+- AC4: Product POST/PUT QR `.then` calls second `invalidateOnProductChange` after DB update
+- AC5: Gates pass — lint, test, invalidate, build
+
+**Artifacts:** `utils/auth.ts`, `app/api/auth/login/route.ts`, `app/api/auth/oauth/google/callback/route.ts`, `hooks/queries/use-auth.ts`, `lib/react-query/config.ts`, `app/api/products/route.ts`
+
+---
+
+## REQ-0135 — Redis invalidate pattern asymmetry closure
+
+| Field | Value |
+|-------|-------|
+| **Priority** | P0 |
+| **Risk** | R2 |
+| **Status** | done |
+| **Cycle** | C2 |
+| **Parent** | REQ-0133 |
+
+**Intent:** Close remaining Redis SCAN asymmetries that let TanStack refetch refill from stale keys after stock-fulfilling invoice pay and portal-adjacent catalog/auth writes.
+
+**Acceptance criteria**
+
+- AC1: `INVOICE_PATTERNS` includes `stockAllocation:*` (mark-paid `fulfillPendingOrderLines`)
+- AC2: `SUPPLIER_PATTERNS` includes `clientPortal:*` + `stockAllocation:*`
+- AC3: `WAREHOUSE_PATTERNS` includes `supplierPortal:*`
+- AC4: `CATEGORY_PATTERNS` includes `stockAllocation:*`
+- AC5: `AUTH_PATTERNS` / `IMPORT_PATTERNS` include portal + admin portal keys (parity with USER/PRODUCT)
+- AC6: Gates pass — lint, test, invalidate, build
+
+**Artifacts:** `lib/cache/post-mutation.ts`
+
+---
+
 ## REQ-0020 — Locale-aware admin format (hydration-safe)
 
 | Field        | Value |

@@ -868,6 +868,25 @@ Hub: `lib/ui/typography-scale.ts`. Hubs import tokens; ~45 inline files use equi
 
 **Invalidation:** catalog CRUD clears detail keys + Redis; order graph unchanged.
 
+## REQ-0134 session + QR + idle nav
+
+| Piece | Location |
+|-------|----------|
+| Session TTL | `utils/auth.ts` — `SESSION_MAX_AGE_SECONDS` / `SESSION_JWT_EXPIRES` = 1d; `sessionCookieOptions` on login + Google OAuth |
+| Auth focus | `useSession` `refetchOnWindowFocus: true` (lists stay false globally) |
+| Idle nav | `config.ts` `gcTime` 30m in-memory (lists still not persisted) |
+| QR re-inv | Product POST/PUT ImageKit `.then` → second `invalidateOnProductChange` after `qrCodeUrl` write |
+
+## REQ-0135 Redis pattern asymmetries
+
+| Piece | Location |
+|-------|----------|
+| Invoice paid stock | `INVOICE_PATTERNS` → `stockAllocation:*` (fulfill on mark-paid) |
+| Portals | `SUPPLIER` +`clientPortal`; `WAREHOUSE` +`supplierPortal`; `AUTH`/`IMPORT` portal parity |
+| Enrich labels | `CATEGORY`/`SUPPLIER` +`stockAllocation` (stale categoryName/supplierName) |
+
+**Hub:** `lib/cache/post-mutation.ts` only — no TanStack registry change.
+
 ## Post-mutation cache (REQ-0052 + REQ-0055)
 
 | Piece | Location |

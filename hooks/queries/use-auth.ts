@@ -20,9 +20,10 @@ export function useSession() {
       const response = await apiClient.auth.getSession();
       return response.data;
     },
-    // Session is considered fresh for 1 minute
+    // Always revalidate session; lists keep global refetchOnWindowFocus: false (REQ-0133)
     staleTime: 0,
-    // Retry on auth errors to handle token refresh
+    // REQ-0134: detect expired JWT on tab return without refetching all data queries
+    refetchOnWindowFocus: true,
     retry: (failureCount, error) => {
       if (isAuthError(error)) {
         return false; // Don't retry on auth errors
