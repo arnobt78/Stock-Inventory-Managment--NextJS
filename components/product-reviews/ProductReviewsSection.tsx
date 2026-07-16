@@ -318,12 +318,14 @@ export default function ProductReviewsSection({
                         height={32}
                         className="h-8 w-8 rounded-full object-cover border border-amber-200/90 dark:border-white/30 flex-shrink-0"
                       />
-                      <span className="text-xs font-medium text-gray-500 dark:text-white/80 ">
+                      <span className="text-xs sm:text-sm font-normal text-gray-600 dark:text-white/80 ">
                         {displayName}
                       </span>
+                      <span className="text-gray-400 ">•</span>
                       <ClientCompactDateTime
                         date={review.createdAt}
                         semantic="created"
+                        className="text-xs font-normal text-muted-foreground dark:text-white/80 "
                       />
                     </div>
                   </div>

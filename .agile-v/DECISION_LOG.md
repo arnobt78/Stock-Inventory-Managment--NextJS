@@ -350,3 +350,12 @@ Format: `TIMESTAMP | AGENT | DECISION | RATIONALE | REQ-ID`
 2026-07-15T20:05:00Z | product | QA order | UI blockers first, then MANUAL_TEST_FIXTURES §10 cache (do not mix) | REQ-0135
 2026-07-15T20:20:00Z | product | EOD park | Keep Redis+SSR; no SPA rewrite; tomorrow short QA only A1/A2/B1; resume `tomorrow-QA` | REQ-0135
 2026-07-15T20:20:00Z | product | codebook lesson | Infinity stale optional later; do not dump Redis for Gate 2 | REQ-0133
+2026-07-16T11:40:00Z | product-owner | Session resume | Agile V active; resume `tomorrow-QA`; open REQ-0136 UI mismatch → §10 A1/A2/B1; HEAD `9a51387` clean | REQ-0136
+2026-07-16T11:40:00Z | product-owner | Halt pending symptoms | UI mismatches mentioned but not listed — need route + expected vs actual before Orchestrate | REQ-0136
+2026-07-16T11:45:00Z | build-agent | REQ-0137 explore seed | Expanded DEMO_CATALOG_SEED + seed-demo-catalog; --with-catalog on reset; ran seed on local DB | REQ-0137
+2026-07-16T11:45:00Z | product-owner | QA path | Human explores seeded pages → report UI fixes under REQ-0136 before cache smoke | REQ-0136,REQ-0137
+2026-07-16T12:45:00Z | build-agent | REQ-0138 product UI | Table QR/stock/dates; detail 3-col; warehouse summary; created→muted; capitalize reorder | REQ-0138
+2026-07-16T12:45:00Z | product-owner | created semantic | Sky reserved for links; created dates muted gray globally | REQ-0138,REQ-0130
+2026-07-16T13:28:00Z | build-agent | REQ-0139 product UI gaps | QR sky border; Created/Expire labels; stretch stats+icons; Catalog Allocation companion; ForecastUrgencyBadge; TYPO tokens | REQ-0139
+2026-07-16T14:05:00Z | build-agent | REQ-0140 seed coherence | Beats product.reserved=0 (warehouse-pick only); Sony post-fulfill 99/49; sold=delivered|paid; insights qty−committed | REQ-0140
+2026-07-16T14:05:00Z | red-team | REQ-0140 not live reservation bug | Live create/cancel/pay already disjoint; double 40 was seed-only | REQ-0140,REQ-0103

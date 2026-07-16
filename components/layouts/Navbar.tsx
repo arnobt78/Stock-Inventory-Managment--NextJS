@@ -59,7 +59,11 @@ import { navbarNavLinkClass } from "@/lib/navigation/nav-link-styles";
 
 /** Profile menu entries — paths shared with RouteWarmPrefetch (REQ-0094). */
 const PROFILE_MENU_LINKS = [
-  { path: PROFILE_MENU_PATHS[0], label: "Support Tickets", Icon: MessageSquare },
+  {
+    path: PROFILE_MENU_PATHS[0],
+    label: "Support Tickets",
+    Icon: MessageSquare,
+  },
   {
     path: PROFILE_MENU_PATHS[1],
     label: "Email Preferences",
@@ -348,7 +352,11 @@ export default function Navbar({ children }: NavbarProps) {
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator className="bg-gray-200 dark:bg-gray-700" />
                 {PROFILE_MENU_LINKS.map(({ path, label, Icon }) => (
-                  <DropdownMenuItem key={path} asChild className={DROPDOWN_NAV_ITEM_CLASS}>
+                  <DropdownMenuItem
+                    key={path}
+                    asChild
+                    className={DROPDOWN_NAV_ITEM_CLASS}
+                  >
                     <Link href={path} prefetch onClick={closeMobileMenu}>
                       <Icon className="mr-2 h-4 w-4" />
                       <span>{label}</span>

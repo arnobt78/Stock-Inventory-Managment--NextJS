@@ -195,6 +195,8 @@ export { ListIndexBadge } from "./ListIndexBadge";
 export type { ListIndexBadgeProps } from "./ListIndexBadge";
 export { CatalogInsightsSection } from "./CatalogInsightsSection";
 export type { CatalogInsightsSectionProps } from "./CatalogInsightsSection";
+export { CatalogAllocationSummaryText } from "./CatalogAllocationSummaryText";
+export type { CatalogAllocationSummaryTextProps } from "./CatalogAllocationSummaryText";
 export { WarehouseInsightsSection } from "./WarehouseInsightsSection";
 export type { WarehouseInsightsSectionProps } from "./WarehouseInsightsSection";
 export { CatalogDetailProductGrid } from "./catalog-detail/CatalogDetailProductGrid";

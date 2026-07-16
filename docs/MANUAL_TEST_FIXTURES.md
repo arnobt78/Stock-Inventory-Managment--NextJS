@@ -212,13 +212,15 @@ Example split for **Demo Wireless Headphone** (catalog qty `100`):
 
 ---
 
-## 9. Troubleshooting (REQ-0103 / REQ-0106)
+## 9. Troubleshooting (REQ-0103 / REQ-0106 / REQ-0140)
 
-If catalog edit blocks at **40 reserved** after a **20-unit** warehouse-pick order, the DB may have stale double-reservation from before REQ-0103. Run `npm run reset-demo-db`, recreate fixtures, and retest — the floor should be **20**, not 40.
+**Explore seed (REQ-0140):** After `npm run script:reset-demo-db -- --with-catalog`, Beats (SK56) is catalog **50**, Main alloc **30** with **20 reserved** (ORD-DEMO-002 warehouse pick), `product.reservedQuantity` **0**. UI committed = **20**, available = **30**. If you still see **40 reserved**, you are on a pre-REQ-0140 seed or a manually double-booked DB — re-seed with the flag above (not accounts-only reset).
+
+Live warehouse-pick orders must never increment both `product.reservedQuantity` and `allocation.reservedQuantity` for the same line (REQ-0103).
 
 ### Beats auto-assign order (REQ-0106)
 
-Fixture: **Beats** catalog **50**, **Main Warehouse** allocated **30**, **20 unallocated**.
+Fixture: **Beats** catalog **50**, **Main Warehouse** allocated **30**, **20 unallocated** (after explore seed: Main already holds **20** reserved for ORD-DEMO-002 — cancel/pay that order first, or use a fresh product, before this table).
 
 | Step | Role   | Action                                                                | Expected                                                                            |
 | ---- | ------ | --------------------------------------------------------------------- | ----------------------------------------------------------------------------------- |

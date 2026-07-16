@@ -1,9 +1,11 @@
 /**
  * REQ-0084 — shared catalog insights from loaded products + order items (no extra DB).
  * Used by category and supplier detail SSR; product uses product-insights.ts.
+ * REQ-0140 — sold trend lines only for delivered/paid; stock buckets use qty − committed.
  */
 
 import { CATALOG_LOW_STOCK_THRESHOLD } from "@/lib/insights/constants";
+import { isOrderCountedAsSold } from "@/lib/orders/order-sales-eligibility";
 import type { CatalogEntityInsights, CatalogSalesTrendPoint } from "@/types/catalog-insights";
 
 export { CATALOG_LOW_STOCK_THRESHOLD };
@@ -13,6 +15,9 @@ export const CATEGORY_LOW_STOCK_THRESHOLD = CATALOG_LOW_STOCK_THRESHOLD;
 
 export type CatalogInsightProduct = {
   quantity: number | bigint;
+  /** Prefer committedQuantity (product + allocation reserved); else reservedQuantity. */
+  committedQuantity?: number | null;
+  reservedQuantity?: number | null;
   orderItems?: Array<{
     quantity: number;
     subtotal: number;
@@ -20,6 +25,8 @@ export type CatalogInsightProduct = {
       createdAt?: Date;
       subtotal?: number | null;
       total: number;
+      status?: string | null;
+      paymentStatus?: string | null;
     } | null;
   }> | null;
 };
@@ -68,10 +75,17 @@ export function computeCatalogInsights(
 
   products.forEach((product) => {
     const qty = Number(product.quantity);
-    if (qty <= 0) {
+    const committed = Math.max(
+      0,
+      Number(
+        product.committedQuantity ?? product.reservedQuantity ?? 0,
+      ),
+    );
+    const availableQty = Math.max(0, qty - committed);
+    if (availableQty <= 0) {
       outOfStockCount += 1;
       out += 1;
-    } else if (qty <= CATALOG_LOW_STOCK_THRESHOLD) {
+    } else if (availableQty <= CATALOG_LOW_STOCK_THRESHOLD) {
       lowStockCount += 1;
       low += 1;
     } else {
@@ -81,6 +95,7 @@ export function computeCatalogInsights(
     product.orderItems?.forEach((item) => {
       const order = item.order;
       if (!order?.createdAt) return;
+      if (!isOrderCountedAsSold(order.status, order.paymentStatus)) return;
       const orderSubtotal = order.subtotal ?? 0;
       const share =
         orderSubtotal > 0

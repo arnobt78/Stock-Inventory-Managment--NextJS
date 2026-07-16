@@ -8,6 +8,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { QRCodeComponent } from "@/components/ui/qr-code";
+import { cn } from "@/lib/utils";
 import { QrCode } from "lucide-react";
 import { useEffect, useState } from "react";
 
@@ -50,11 +51,19 @@ export function QRCodeHover({
   }, []);
 
   // Don't render anything until mounted to prevent hydration mismatch
+  // REQ-0139 — light sky border matching QR icon hue
+  const iconOnlyBoxClass =
+    "inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-lg border border-sky-400/25 bg-sky-50/80 dark:border-sky-400/30 dark:bg-sky-950/30";
+
   if (!isMounted) {
-    return (
+    return iconOnly ? (
+      <div className={iconOnlyBoxClass} aria-hidden>
+        <QrCode className="h-5 w-5 text-sky-600 dark:text-sky-400" />
+      </div>
+    ) : (
       <div className="flex items-center gap-1 text-blue-600">
         <QrCode className="h-4 w-4" />
-        {!iconOnly && title}
+        {title}
       </div>
     );
   }
@@ -63,15 +72,16 @@ export function QRCodeHover({
     <>
       <button
         type="button"
-        className={
+        className={cn(
+          "text-sky-600 dark:text-sky-400 hover:text-sky-500 dark:hover:text-sky-300 cursor-pointer transition-colors",
           iconOnly
-            ? "text-sky-600 dark:text-sky-400 hover:text-sky-500 dark:hover:text-sky-300 cursor-pointer inline-flex shrink-0 items-center justify-center transition-colors"
-            : "text-sky-600 dark:text-sky-400 hover:text-sky-500 dark:hover:text-sky-300 cursor-pointer flex items-center gap-1 min-w-0 max-w-full transition-colors"
-        }
+            ? iconOnlyBoxClass
+            : "flex items-center gap-1 min-w-0 max-w-full",
+        )}
         onClick={() => setIsDialogOpen(true)}
         aria-label={`View QR code for ${title}`}
       >
-        <QrCode className="h-4 w-4 shrink-0" />
+        <QrCode className={cn("shrink-0", iconOnly ? "h-5 w-5" : "h-4 w-4")} />
         {!iconOnly && (
           <span className="truncate max-w-[7rem] sm:max-w-[9rem]">{title}</span>
         )}

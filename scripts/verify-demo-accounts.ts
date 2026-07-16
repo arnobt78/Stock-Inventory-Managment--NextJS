@@ -63,13 +63,37 @@ async function main() {
       })
     : null;
 
-  const [productCount, orderCount, categoryCount, warehouseCount] =
-    await Promise.all([
-      prisma.product.count(),
-      prisma.order.count(),
-      prisma.category.count(),
-      prisma.warehouse.count(),
-    ]);
+  const [
+    productCount,
+    orderCount,
+    categoryCount,
+    warehouseCount,
+    invoiceCount,
+    allocationCount,
+    transferCount,
+    ticketCount,
+    reviewCount,
+    notificationCount,
+    importCount,
+    systemConfigCount,
+    auditCount,
+    supplierCountEntities,
+  ] = await Promise.all([
+    prisma.product.count(),
+    prisma.order.count(),
+    prisma.category.count(),
+    prisma.warehouse.count(),
+    prisma.invoice.count(),
+    prisma.stockAllocation.count(),
+    prisma.stockTransfer.count(),
+    prisma.supportTicket.count(),
+    prisma.productReview.count(),
+    prisma.notification.count(),
+    prisma.importHistory.count(),
+    prisma.systemConfig.count(),
+    prisma.auditLog.count(),
+    prisma.supplier.count(),
+  ]);
 
   console.log("\n---");
   console.log(`   Demo users: ${users.length}/3`);
@@ -87,11 +111,23 @@ async function main() {
     );
   }
 
-  console.log("\n   Catalog counts (0 expected after accounts-only reset):");
+  console.log(
+    "\n   Catalog counts (0 after accounts-only; populated after --with-catalog / seed-demo-catalog):",
+  );
+  console.log(`      suppliers: ${supplierCountEntities}`);
   console.log(`      categories: ${categoryCount}`);
   console.log(`      warehouses: ${warehouseCount}`);
   console.log(`      products: ${productCount}`);
+  console.log(`      allocations: ${allocationCount}`);
+  console.log(`      transfers: ${transferCount}`);
   console.log(`      orders: ${orderCount}`);
+  console.log(`      invoices: ${invoiceCount}`);
+  console.log(`      tickets: ${ticketCount}`);
+  console.log(`      reviews: ${reviewCount}`);
+  console.log(`      notifications: ${notificationCount}`);
+  console.log(`      imports: ${importCount}`);
+  console.log(`      systemConfig: ${systemConfigCount}`);
+  console.log(`      audits: ${auditCount}`);
 
   if (users.length >= 3 && adminCount >= 1 && clientCount >= 1 && supplierCount >= 1) {
     console.log("\n   ✓ Three roles present — login via role dropdown.\n");

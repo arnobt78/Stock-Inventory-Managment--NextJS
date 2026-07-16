@@ -341,3 +341,12 @@
 | TC-0057 | REQ-0135 | Redis pattern asymmetries — invoice stock, portals, auth/import, category/supplier enrich |
 | TC-0058 | REQ-0135 | post-mutation.test.ts pattern membership (+5); products unused import removed |
 | TC-0059 | Gate-2 | Manual: redeploy `177cac2` → UI blockers → §10 A1/A2/B1 (tomorrow) |
+| TC-0060 | REQ-0136 | Manual: UI mismatch fixes → §10 A1/A2/B1; record in VALIDATION_SUMMARY |
+| ART-0137 | REQ-0137 | `demo-seed-data.ts`, `seed-demo-catalog.ts`, reset `--with-catalog` | explore seed |
+| TC-0061 | REQ-0137 | `npm run script:seed-demo-catalog` + verify counts |
+| ART-0138 | REQ-0138 | Product table/detail UI tokens + layout | stock QR, 3-col media, warehouse summary |
+| TC-0062 | REQ-0138 | Manual: product list Stock/dates + detail 3-col + warehouse subtitle |
+| ART-0139 | REQ-0139 | Product UI gap closure | QR border, Expire labels, stretch, companion card |
+| TC-0063 | REQ-0139 | Manual: table QR/dates + detail stretch + Catalog Allocation companion |
+| ART-0140 | REQ-0140 | Seed stock + sold/insights | demo-seed-data, order-sales-eligibility, insights qty−committed |
+| TC-0064 | REQ-0140 | Re-seed `--with-catalog`; Beats 30 avail / 20 reserved; sold 0 pending |

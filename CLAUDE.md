@@ -698,21 +698,18 @@ Hub: `lib/ui/typography-scale.ts`. Hubs import tokens; ~45 inline files use equi
 
 **No invalidation changes** — removes duplicate parent `DataSlotPulse` wrappers.
 
-## Demo seed (REQ-0088 / REQ-0091 / REQ-0092)
+## Demo seed (REQ-0088–0092 / REQ-0137 / REQ-0140)
 
 | Piece | Location |
 |-------|----------|
-| Users | `lib/auth/demo-seed-users.ts` — email, username, role, robohash `image` |
-| Fixtures | `lib/auth/demo-seed-data.ts` — emailPreferences, Test Supplier description/notes; `DEMO_CATALOG_SEED` opt-in only |
-| Accounts seed | `scripts/lib/seed-demo-accounts.ts` — `seedDemoAccountsOnly` (reset) + `upsertDemoUserProfile` / `ensureTestSupplierEntity` (legacy) |
-| Reset | `scripts/reset-demo-db.ts` — wipe + 3 users + Test Supplier entity only (empty catalog) |
-| Opt-in catalog | `scripts/lib/seed-demo-catalog.ts` — manual / future; not run by default reset |
-| Verify | `scripts/verify-demo-accounts.ts` — profile completeness + catalog counts (0 expected) |
-| Legacy | `create-demo-accounts.ts` — incremental create/backfill; no catalog seed |
+| Fixtures | `lib/auth/demo-seed-data.ts` — accounts + `DEMO_CATALOG_SEED` |
+| Reset | `scripts/reset-demo-db.ts` — accounts-only; `--with-catalog` explore |
+| Explore | `npm run script:seed-demo-catalog` — 1–2 rows/entity |
+| Verify | `scripts/verify-demo-accounts.ts` |
 
-**Entity name:** global supplier entity `"Test Supplier"` (`isGlobalDemo` keyed on test@supplier.com userId). Legacy `"Demo Supplier"` backfilled by `create-demo-accounts.ts` (REQ-0091).
+**REQ-0140 stock:** Beats SK56 — catalog 50, `product.reserved=0`, Main 30@20 reserved → UI **30 avail / 20 committed**. Sony BT23 — 99 / Main 49 (post-fulfill). Sold stats = delivered\|paid (`order-sales-eligibility.ts`). Insights buckets = `qty−committed`.
 
-**No TanStack/invalidation changes** — seed scripts only.
+**No TanStack/invalidation changes** — seed + SSR read helpers only.
 
 ## Catalog audit user links (REQ-0089)
 
@@ -784,6 +781,17 @@ Hub: `lib/ui/typography-scale.ts`. Hubs import tokens; ~45 inline files use equi
 | Payment checkout | `PaymentDialog` — subtotal, fee icons, `ProductThumb` line items |
 
 **No TanStack/SSR/invalidation changes** — CSS/UI/layout only.
+
+## Product table + detail UI (REQ-0138 / REQ-0139)
+
+| Piece | Location |
+|-------|----------|
+| Table Stock | QR `h-12 w-12` sky border; `productStockAvailableTextClass`; Created/Expire `text-xs` |
+| Detail media | 3-col stretch Status/Stock/Price \| Image \| QR; `CatalogAllocationSummaryText` |
+| Companion | Catalog Allocation card beside warehouse pie; `ForecastUrgencyBadge` reorder |
+| Titles | `TYPO_CARD_TITLE` / `TYPO_SUBTITLE` Sales + Insights |
+
+**No TanStack/invalidation changes** — CSS/UI helpers only.
 
 ## Detail & table UI parity (REQ-0127)
 

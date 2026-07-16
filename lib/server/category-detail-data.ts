@@ -11,6 +11,7 @@ import { prisma } from "@/prisma/client";
 import { mergeProductListWhere } from "@/lib/products/product-query";
 import { logger } from "@/lib/logger";
 import { computeProportionalLineAmount } from "@/lib/orders/proportional-line-amount";
+import { isOrderRecordCountedAsSold } from "@/lib/orders/order-sales-eligibility";
 import type { SessionForDetail } from "@/lib/server/order-detail-data";
 import {
   catalogDetailCacheScope,
@@ -69,11 +70,12 @@ function transformCategoryDetail(
     { orderNumber: string; status: string; total: number; createdAt: Date }
   >();
 
+  // REQ-0140 — sold stats = delivered or paid only
   products.forEach((product) => {
     product.orderItems?.forEach((item) => {
-      totalQuantitySold += item.quantity;
       const order = item.order;
-      if (!order) return;
+      if (!order || !isOrderRecordCountedAsSold(order)) return;
+      totalQuantitySold += item.quantity;
       const orderSubtotal = order.subtotal ?? 0;
       const share =
         orderSubtotal > 0
@@ -96,8 +98,13 @@ function transformCategoryDetail(
     0,
   );
 
+  // Stock buckets refined after enrich with committedQuantity (REQ-0140)
   const categoryInsights = computeCatalogInsights(
-    products,
+    products.map((p) => ({
+      quantity: p.quantity,
+      reservedQuantity: Number(p.reservedQuantity ?? 0),
+      orderItems: p.orderItems,
+    })),
     totalRevenue,
     orderMap.size,
     totalQuantitySold,
@@ -338,8 +345,26 @@ export async function getCategoryDetailForPage(
   const enrichedProducts = await enrichProductsWithCommittedQuantity(
     transformedCategory.products,
   );
+
+  // REQ-0140 — insights stock buckets use qty − committed (alloc + product reserved)
+  const committedById = new Map(
+    enrichedProducts.map((p) => [p.id, p.committedQuantity]),
+  );
+  const categoryInsights = computeCatalogInsights(
+    products.map((p) => ({
+      quantity: p.quantity,
+      reservedQuantity: Number(p.reservedQuantity ?? 0),
+      committedQuantity: committedById.get(p.id) ?? 0,
+      orderItems: p.orderItems,
+    })),
+    transformedCategory.statistics.totalRevenue,
+    transformedCategory.statistics.uniqueOrders,
+    transformedCategory.statistics.totalQuantitySold,
+  );
+
   const categoryForPage: CategoryDetailForPage = {
     ...transformedCategory,
+    categoryInsights,
     products: enrichedProducts,
   };
 

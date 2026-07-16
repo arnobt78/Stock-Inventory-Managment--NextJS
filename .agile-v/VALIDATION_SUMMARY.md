@@ -1,9 +1,28 @@
 # Validation Summary — Cycle C1
 
-**Generated:** 2026-07-15  
+**Generated:** 2026-07-16  
 **eval_gate_status:** PENDING (Human Gate 2)  
 **Prod target SHA:** `9d7ec21` (REQ-0120)  
-**Red Team:** lint ✓ test 519 ✓ invalidate 208 ✓ build ✓ (2026-07-15 REQ-0125)
+**Red Team:** lint ✓ test 556 ✓ invalidate 213 ✓ build ✓ (2026-07-16 REQ-0140)
+
+---
+
+## REQ-0140 seed stock coherence evidence
+
+| Check | Result |
+|-------|--------|
+| Beats seed | `product.reservedQuantity=0`; Main alloc reserved 20 |
+| Sony seed | catalog 99; Main alloc 49 (post ORD-DEMO-001 fulfill) |
+| Sold filter | `isOrderCountedAsSold` — delivered or paid |
+| Insights stock | `qty − committed` in product/catalog insights |
+| Manual fixtures | §9 REQ-0140 floor documented |
+| Re-seed spot-check | Beats committed **20**, avail **30**; Sony qty **99** / Main **49** |
+| Gates | lint ✓ test 556 ✓ invalidate 213 ✓ build ✓ |
+
+```
+Scope: built/verified | Traceability: REQ-0140 | Findings: PASS
+Commands: lint, test, invalidate, build, reset-demo-db --with-catalog
+```
 
 ---
 
@@ -586,6 +605,73 @@ Commands: lint, test, test:invalidate, build
 | 5 | Stop / optionally one-CRUD each domain | Record PASS/FAIL here |
 
 **Defer:** Infinity staleTime, full B2–D, every role×route. Record results under this section after QA.
+
+---
+
+## REQ-0136 — Session 2026-07-16 (UI → cache smoke)
+
+**Status:** in_progress — product UI blockers closed (REQ-0138); cache smoke next
+
+| Order | Task | Result |
+|------|------|--------|
+| 0 | Explore seed (REQ-0137) | PASS — local DB seeded |
+| 1 | UI mismatches (product list/detail) | PASS — REQ-0138 |
+| 2 | §10 A1 | _pending_ |
+| 3 | §10 A2 | _pending_ |
+| 4 | §10 B1 | _pending_ |
+
+```
+Scope: product UI fixed | Traceability: REQ-0138,REQ-0136 | Findings: PASS UI; FLAG cache TBD
+```
+
+---
+
+## REQ-0138 — Product table + detail UI parity (2026-07-16)
+
+**Scope:** Stock QR box parity, colored available qty, Created/Exp. text-xs + sort, muted created dates, detail 3-col media, warehouse summary always colored, spacing/icon tiles.
+
+**Gates:** lint ✓ · test 551/551 ✓ · invalidate 213/213 ✓ · build ✓
+
+```
+Scope: built/verified | Traceability: REQ-0138 | Findings: PASS
+Commands: lint, test, test:invalidate, build
+```
+
+---
+
+## REQ-0139 — Product UI gap closure (2026-07-16)
+
+**Scope:** QR sky border + reserved=SKU mute; Created/Expire full labels; Status/Stock/Price icons + column stretch; ForecastUrgencyBadge; Catalog Allocation companion; TYPO_CARD_TITLE/SUBTITLE.
+
+**Gates:** lint ✓ · test 551/551 ✓ · invalidate 213/213 ✓ · build ✓
+
+```
+Scope: built/verified | Traceability: REQ-0139 | Findings: PASS
+Commands: lint, test, test:invalidate, build
+```
+
+---
+
+## REQ-0137 — Full explore demo seed (2026-07-16)
+
+**Scope:** Opt-in catalog seed with 1–2 connected rows per user-facing entity + stub models.
+
+| Entity | Count |
+|--------|-------|
+| Users / Test Supplier | 3 / 1 |
+| Local Parts Co supplier | 1 |
+| Categories / Warehouses / Products | 2 / 2 / 2 |
+| Allocations / Transfers | 3 / 1 |
+| Orders / Invoices | 2 / 2 |
+| Tickets / Reviews / Notifications | 2 / 2 / 3 |
+| Imports / SystemConfig / Audits | 2 / 2 / 2 |
+| Stubs | 6 models × 1 |
+
+**Commands:** `script:seed-demo-catalog` ✓ · `verify-demo-accounts` ✓
+
+```
+Scope: built/seeded | Traceability: REQ-0137 | Findings: PASS
+```
 
 ---
 

@@ -17,3 +17,5 @@ export {
   formatClientCompactDateTime,
   formatClientNumber,
 } from "./client-locale";
+
+export { capitalizeFirst } from "./capitalize";

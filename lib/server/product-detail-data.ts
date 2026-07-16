@@ -11,6 +11,7 @@ import { mergeProductListWhere } from "@/lib/products/product-query";
 import { enrichProductDetailWithCommittedQuantity } from "@/lib/products/enrich-product-committed-quantity";
 import { logger } from "@/lib/logger";
 import { computeProportionalLineAmount } from "@/lib/orders/proportional-line-amount";
+import { isOrderRecordCountedAsSold } from "@/lib/orders/order-sales-eligibility";
 import type { SessionForDetail } from "@/lib/server/order-detail-data";
 import { computeProductInsights } from "@/lib/server/product-insights";
 import { catalogDetailOrderSelect } from "@/lib/server/catalog-detail-order-select";
@@ -60,11 +61,15 @@ function transformProductDetail(
   >,
 ) {
   const orderItems = product.orderItems || [];
-  const totalQuantitySold = orderItems.reduce(
+  // REQ-0140 — sold stats = delivered or paid only (not pending reservations)
+  const soldItems = orderItems.filter((item) =>
+    isOrderRecordCountedAsSold(item.order),
+  );
+  const totalQuantitySold = soldItems.reduce(
     (sum, item) => sum + item.quantity,
     0,
   );
-  const totalRevenue = orderItems.reduce((sum, item) => {
+  const totalRevenue = soldItems.reduce((sum, item) => {
     const order = item.order as { subtotal?: number; total: number };
     const orderSubtotal = order.subtotal ?? 0;
     const share =
@@ -73,22 +78,29 @@ function transformProductDetail(
         : item.subtotal;
     return sum + share;
   }, 0);
-  const uniqueOrders = new Set(orderItems.map((item) => item.orderId)).size;
+  const uniqueOrders = new Set(soldItems.map((item) => item.orderId)).size;
 
+  const insightOrderItems = orderItems.map((item) => ({
+    quantity: item.quantity,
+    subtotal: item.subtotal,
+    orderId: item.orderId,
+    order: item.order
+      ? {
+          createdAt: item.order.createdAt,
+          subtotal: item.order.subtotal,
+          total: item.order.total,
+          status: item.order.status,
+          paymentStatus: item.order.paymentStatus,
+        }
+      : null,
+  }));
+
+  // Stock buckets refined after enrich with committedQuantity (REQ-0140)
   const productInsights = computeProductInsights(
     Number(product.quantity),
-    orderItems.map((item) => ({
-      quantity: item.quantity,
-      subtotal: item.subtotal,
-      orderId: item.orderId,
-      order: item.order
-        ? {
-            createdAt: item.order.createdAt,
-            subtotal: item.order.subtotal,
-            total: item.order.total,
-          }
-        : null,
-    })),
+    insightOrderItems,
+    null,
+    Number(product.reservedQuantity ?? 0),
   );
 
   return {
@@ -317,6 +329,29 @@ export async function getProductDetailForPage(
   const enrichedProduct =
     await enrichProductDetailWithCommittedQuantity(transformedProduct);
 
-  await setCache(cacheKey, enrichedProduct, 300, { fetchedAt: cacheReadStartedAt });
-  return enrichedProduct;
+  // REQ-0140 — reclassify insights stock using full committed (product + alloc reserved)
+  const productInsights = computeProductInsights(
+    enrichedProduct.quantity,
+    (product.orderItems ?? []).map((item) => ({
+      quantity: item.quantity,
+      subtotal: item.subtotal,
+      orderId: item.orderId,
+      order: item.order
+        ? {
+            createdAt: item.order.createdAt,
+            subtotal: item.order.subtotal,
+            total: item.order.total,
+            status: item.order.status,
+            paymentStatus: item.order.paymentStatus,
+          }
+        : null,
+    })),
+    null,
+    enrichedProduct.committedQuantity,
+  );
+
+  const productForPage = { ...enrichedProduct, productInsights };
+
+  await setCache(cacheKey, productForPage, 300, { fetchedAt: cacheReadStartedAt });
+  return productForPage;
 }

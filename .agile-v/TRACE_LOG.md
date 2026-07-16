@@ -29,3 +29,13 @@ Format: `timestamp | agent | span | req_ids | note`
 2026-07-15T09:35:00Z | agile-v-core | session-bootstrap | REQ-0008, REQ-0009 | C2 resume @ 46127b2; Gate 2 PENDING; Red Team lint/test 504/invalidate 208/build PASS
 2026-07-15T09:52:00Z | agile-v-core | REQ-0120-ship | AC1–AC8 | SSR sync + back-nav + AdminEmbedDataTable; lint/test 504/invalidate 208/build PASS
 2026-07-15T18:22:00Z | agile-v-core | REQ-0127-0132-ship | statusAt+semantic dates | lint/test 531/invalidate 208/build PASS
+
+2026-07-16T11:40:00Z | agile-v-core | session-resume | REQ-0136 | tomorrow-QA activated; UI mismatch Specify; HEAD 9a51387
+
+2026-07-16T11:45:00Z | agile-v-core | REQ-0137-ship | AC1–AC6 | seed-demo-catalog + verify PASS
+
+2026-07-16T12:45:00Z | agile-v-core | REQ-0138-ship | AC1–AC8 | product table+detail UI
+
+2026-07-16T13:28:00Z | agile-v-core | REQ-0139-ship | AC1–AC7 | lint/test 551/invalidate 213/build PASS
+
+2026-07-16T14:10:00Z | agile-v-core | REQ-0140-ship | AC1–AC6 | lint/test 556/invalidate 213/build PASS; Beats 30/20

@@ -262,7 +262,10 @@ flowchart LR
 | Cache coherence (REQ-0133) | SSR sync skip; Redis pattern widen; persist auth/user; `invalidateAfterCatalogChange`; `setCache` re-warm guard | Gates: test 544 |
 | Session + QR idle (REQ-0134) | JWT/cookie 1d; `useSession` focus refetch; product QR second Redis wipe; `gcTime` 30m | |
 | Redis pattern close (REQ-0135) | Invoice+stock; portals; enrich; `post-mutation.test.ts` membership; manual §10 | |
-| Next | Gate 2 deploy + Sentry 24h; **manual QA from scratch** — `MANUAL_TEST_FIXTURES.md` §9 |
+| Explore seed (REQ-0137) | `DEMO_CATALOG_SEED`; `--with-catalog`; 1–2 rows/entity | |
+| Product UI (REQ-0138–0139) | Table QR/dates; detail 3-col; Catalog Allocation companion; urgency badges | |
+| Seed stock + sold (REQ-0140) | Beats `product.reserved=0`; sold=delivered\|paid; insights `qty−committed` | Gates: test 556 |
+| Next | Gate 2 — REQ-0136 UI + §10 A1/A2/B1; Sentry 24h | |
 | AI warehouse insights (REQ-0067) | `POST /api/ai/insights` enriches payload with `getWarehouseStockSummary` |
 | Per-warehouse order picking (REQ-0068) | `OrderItem.warehouseId`; `stock-allocation-order-sync.ts`; `OrderLineWarehouseSelect`; reserve/fulfill/cancel sync; invoice-paid gap; `f892b65` removed unused `deleteCache`/`getRateLimitStatus` |
 | Demo reset | `npm run script:reset-demo-db` — accounts-only (3 users + Test Supplier); opt-in catalog via `seed-demo-catalog` |
@@ -276,15 +279,15 @@ flowchart LR
 3. Sentry **stock-inventory** — 24h: compare cases 1–7 vs `docs/SENTRY_ERRORS.md`
 4. Log result in `.agile-v/REVALIDATION_LOG.md`; CAPA if regression
 
-## 8. Quality gates (audit 2026-07-15)
+## 8. Quality gates (audit 2026-07-16)
 
 | Check | Status |
 |-------|--------|
 | `npm run lint` | pass |
 | `npm run build` | pass |
-| `npm run test` | 544 passed |
+| `npm run test` | 556 passed |
 | `npm run test:invalidate` | 213 passed |
-| Prod commit | `47d203b` REQ-0134–0135 (on `8a2b73e` REQ-0133) |
+| Local | REQ-0137–0140 on `main` (re-seed `--with-catalog` after pull) |
 | Radix table Select | `useDeferredRadixSelect` + `PaginationSelector` (11 tables) |
 | Pagination clamp + page-size reset | `useClampPaginationIndex` + `PaginationSelector` pageIndex 0 |
 | Sentry | tunnel + translate scrub + `syncSentryUserFromAuth` |
@@ -306,6 +309,7 @@ flowchart LR
 - **Cache coherence (REQ-0133):** SSR sync skip; Redis `__invAt` re-warm guard; catalog CRUD → `invalidateAfterCatalogChange`; persist auth/user only
 - **Session (REQ-0134):** `SESSION_JWT_EXPIRES` / cookie 1d; auth-only `refetchOnWindowFocus`; QR async → second product cache invalidate
 - **Redis patterns (REQ-0135):** invoice mark-paid clears stock-allocation; auth/import/supplier/warehouse portal parity
+- **Explore seed (REQ-0140):** warehouse-pick pending → `product.reserved=0`; sold stats via `isOrderCountedAsSold`; insights use `qty−committed`
 
 ## 10. Related docs
 

@@ -12,6 +12,7 @@ import { prisma } from "@/prisma/client";
 import { mergeProductListWhere } from "@/lib/products/product-query";
 import { logger } from "@/lib/logger";
 import { computeProportionalLineAmount } from "@/lib/orders/proportional-line-amount";
+import { isOrderRecordCountedAsSold } from "@/lib/orders/order-sales-eligibility";
 import type { SessionForDetail } from "@/lib/server/order-detail-data";
 import {
   catalogDetailCacheScope,
@@ -57,22 +58,24 @@ function transformSupplierDetail(
     { orderNumber: string; status: string; total: number; createdAt: Date }
   >();
 
+  // REQ-0140 — sold stats = delivered or paid only
   products.forEach((product) => {
     product.orderItems?.forEach((item) => {
+      const order = item.order;
+      if (!order || !isOrderRecordCountedAsSold(order)) return;
       totalQuantitySold += item.quantity;
-      const order = item.order as { subtotal?: number; total: number };
       const orderSubtotal = order.subtotal ?? 0;
       const share =
         orderSubtotal > 0
           ? (item.subtotal / orderSubtotal) * order.total
           : item.subtotal;
       totalRevenue += share;
-      if (item.order && !orderMap.has(item.order.id)) {
-        orderMap.set(item.order.id, {
-          orderNumber: item.order.orderNumber,
-          status: item.order.status,
-          total: item.order.total,
-          createdAt: item.order.createdAt,
+      if (!orderMap.has(order.id)) {
+        orderMap.set(order.id, {
+          orderNumber: order.orderNumber,
+          status: order.status,
+          total: order.total,
+          createdAt: order.createdAt,
         });
       }
     });
@@ -83,8 +86,13 @@ function transformSupplierDetail(
     0,
   );
 
+  // Stock buckets refined after enrich with committedQuantity (REQ-0140)
   const supplierInsights = computeCatalogInsights(
-    products,
+    products.map((p) => ({
+      quantity: p.quantity,
+      reservedQuantity: Number(p.reservedQuantity ?? 0),
+      orderItems: p.orderItems,
+    })),
     totalRevenue,
     orderMap.size,
     totalQuantitySold,
@@ -315,8 +323,26 @@ export async function getSupplierDetailForPage(
   const enrichedProducts = await enrichProductsWithCommittedQuantity(
     transformedSupplier.products,
   );
+
+  // REQ-0140 — insights stock buckets use qty − committed (alloc + product reserved)
+  const committedById = new Map(
+    enrichedProducts.map((p) => [p.id, p.committedQuantity]),
+  );
+  const supplierInsights = computeCatalogInsights(
+    products.map((p) => ({
+      quantity: p.quantity,
+      reservedQuantity: Number(p.reservedQuantity ?? 0),
+      committedQuantity: committedById.get(p.id) ?? 0,
+      orderItems: p.orderItems,
+    })),
+    transformedSupplier.statistics.totalRevenue,
+    transformedSupplier.statistics.uniqueOrders,
+    transformedSupplier.statistics.totalQuantitySold,
+  );
+
   const supplierForPage: SupplierDetailForPage = {
     ...transformedSupplier,
+    supplierInsights,
     products: enrichedProducts,
   };
 

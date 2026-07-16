@@ -29,4 +29,32 @@ describe("computeCatalogInsights", () => {
     expect(insights.stockBreakdown.available).toBe(1);
     expect(insights.avgOrderValue).toBe(100);
   });
+
+  it("REQ-0140 — stock buckets use qty − committed; trend skips pending", () => {
+    const products = [
+      {
+        quantity: 50,
+        committedQuantity: 40,
+        orderItems: [
+          {
+            quantity: 20,
+            subtotal: 100,
+            order: {
+              createdAt: new Date("2026-07-15"),
+              subtotal: 100,
+              total: 100,
+              status: "pending",
+              paymentStatus: "unpaid",
+            },
+          },
+        ],
+      },
+    ] as Parameters<typeof computeCatalogInsights>[0];
+
+    const insights = computeCatalogInsights(products, 0, 0, 0);
+    // available = 50 − 40 = 10 → low stock
+    expect(insights.lowStockCount).toBe(1);
+    expect(insights.stockBreakdown.low).toBe(1);
+    expect(insights.salesTrend).toEqual([]);
+  });
 });

@@ -165,13 +165,42 @@ const ADMIN_ORDER_SOURCE: Record<string, BadgeTone> = {
   client: { className: GLASS_BADGE_CLASS.sky, icon: ShoppingBag },
 };
 
-/** Forecast reorder urgency */
+/**
+ * Forecast reorder urgency — includes demand-forecast keys (urgent/soon/normal/overstocked)
+ * and legacy low/medium/high/critical aliases.
+ */
 const FORECAST_URGENCY: Record<string, BadgeTone> = {
+  urgent: { className: GLASS_BADGE_CLASS.red, icon: AlertTriangle },
+  soon: { className: GLASS_BADGE_CLASS.orange, icon: AlertCircle },
+  normal: { className: GLASS_BADGE_CLASS.emerald, icon: CheckCircle },
+  overstocked: { className: GLASS_BADGE_CLASS.violet, icon: Package },
   low: { className: GLASS_BADGE_CLASS.amber, icon: Clock },
   medium: { className: GLASS_BADGE_CLASS.amber, icon: AlertCircle },
   high: { className: GLASS_BADGE_CLASS.orange, icon: AlertTriangle },
   critical: { className: GLASS_BADGE_CLASS.red, icon: AlertTriangle },
 };
+
+/**
+ * REQ-0139 — plain text color for reorder recommendation (Urgent / Normal / …).
+ */
+export function reorderRecommendationTextClass(
+  recommendation: string | null | undefined,
+): string {
+  const key = normalizeKey(recommendation ?? "");
+  if (key === "urgent" || key === "critical") {
+    return "text-red-600 dark:text-red-400";
+  }
+  if (key === "soon" || key === "high") {
+    return "text-orange-600 dark:text-orange-400";
+  }
+  if (key === "overstocked") {
+    return "text-violet-600 dark:text-violet-400";
+  }
+  if (key === "normal" || key === "low" || key === "medium") {
+    return "text-emerald-600 dark:text-emerald-400";
+  }
+  return "text-gray-700 dark:text-white";
+}
 
 /** Inventory health summary */
 const INVENTORY_HEALTH: Record<string, BadgeTone> = {
@@ -501,6 +530,16 @@ export function productStockLabelFromAvailable(available: number): string {
   if (available > 20) return "Available";
   if (available > 0) return "Stock Low";
   return "Stock Out";
+}
+
+/**
+ * REQ-0138 — text color for available qty (same thresholds as productStockLabelFromAvailable).
+ * Available >20 emerald · Stock Low >0 orange · Stock Out red.
+ */
+export function productStockAvailableTextClass(available: number): string {
+  if (available > 20) return "text-emerald-600 dark:text-emerald-400";
+  if (available > 0) return "text-orange-600 dark:text-orange-400";
+  return "text-red-600 dark:text-red-400";
 }
 
 export function ProductStockFromQuantityBadge({

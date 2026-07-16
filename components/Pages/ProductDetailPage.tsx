@@ -27,12 +27,15 @@ import {
   MapPin,
   Wallet,
   Hash,
+  Activity,
+  Layers,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   ProductStockStatusBadge,
   ActiveInactiveBadge,
   WarehouseTypeBadge,
+  productStockAvailableTextClass,
 } from "@/lib/ui/semantic-badges";
 import { Separator } from "@/components/ui/separator";
 import {
@@ -65,6 +68,7 @@ import {
   SectionCountBadge,
   PersonInlineRow,
   CatalogInsightsSection,
+  CatalogAllocationSummaryText,
   DetailInfoRowGroup,
   GlassCard,
   GlassCardBody,
@@ -75,10 +79,7 @@ import type { CatalogDetailRecentOrderItem } from "@/types/catalog-detail-lists"
 import { findProductForecast } from "@/lib/forecasting/entity-forecast";
 import { enrichProductInsightsWithWarehouseStock } from "@/lib/insights/product-insights-enrich";
 import { sumAllocatedQuantity } from "@/lib/insights/warehouse-stock-aggregate";
-import {
-  formatCatalogAllocationDetailSummary,
-  formatCatalogCommitWarehouseHint,
-} from "@/lib/stock-allocation/catalog-allocation-copy";
+import { formatCatalogCommitWarehouseHint } from "@/lib/stock-allocation/catalog-allocation-copy";
 import {
   computeCommittedQuantity,
   getDisplayCommittedQuantity,
@@ -105,8 +106,15 @@ import type {
 } from "@/types";
 import type { ReviewEligibilityResult } from "@/lib/server/product-reviews-detail-data";
 import { cn } from "@/lib/utils";
-import { TYPO_BODY_MUTED } from "@/lib/ui/typography-scale";
-import { APP_SHELL_DETAIL_CLASS, DETAIL_PAGE_HEADER_SPACING_CLASS } from "@/lib/ui/shell-layout-styles";
+import {
+  TYPO_BODY_MUTED,
+  TYPO_CARD_TITLE,
+  TYPO_SUBTITLE,
+} from "@/lib/ui/typography-scale";
+import {
+  APP_SHELL_DETAIL_CLASS,
+  DETAIL_PAGE_HEADER_SPACING_CLASS,
+} from "@/lib/ui/shell-layout-styles";
 import { getWarehouseTypeIcon } from "@/lib/ui/warehouse-type-styles";
 import { CARD_EMPTY_MESSAGE_CLASS } from "@/lib/ui/card-empty-styles";
 import { SafeImage } from "@/components/ui/safe-image";
@@ -241,15 +249,15 @@ export default function ProductDetailPage({
     if (catalogQuantity == null) return undefined;
     return Math.max(0, catalogQuantity - displayCommitted);
   }, [catalogQuantity, displayCommitted]);
-  const allocationDetailSummary = useMemo(() => {
+  /** REQ-0138 — structured summary for colored CatalogAllocationSummaryText */
+  const allocationSummaryParts = useMemo(() => {
     if (catalogQuantity == null) return null;
-    const unallocated = Math.max(0, catalogQuantity - allocatedTotal);
-    return formatCatalogAllocationDetailSummary(
-      catalogQuantity,
+    return {
+      catalogQty: catalogQuantity,
       allocatedTotal,
-      unallocated,
-      displayCommitted,
-    );
+      unallocated: Math.max(0, catalogQuantity - allocatedTotal),
+      reservedCommitment: displayCommitted,
+    };
   }, [catalogQuantity, allocatedTotal, displayCommitted]);
   const recentOrderCount = product?.recentOrders?.length ?? 0;
   const ownerProductsHref = (ownerId: string) =>
@@ -388,7 +396,9 @@ export default function ProductDetailPage({
             {insights.warehouseStock.unallocated} unallocated
           </SectionCountBadge>
         ) : null}
-        <SectionCountBadge hue="sky">{catalogQuantity} catalog</SectionCountBadge>
+        <SectionCountBadge hue="sky">
+          {catalogQuantity} catalog
+        </SectionCountBadge>
       </>
     ) : undefined;
 
@@ -433,37 +443,104 @@ export default function ProductDetailPage({
                   <CopyableText value={product!.sku}>
                     {product!.sku}
                   </CopyableText>{" "}
-                  • Created <ClientRelativeTime date={createdAt} semantic="created" />
+                  • Created{" "}
+                  <ClientRelativeTime date={createdAt} semantic="created" />
                 </>
               )
             }
           />
 
-          {/* Product Image and QR Code */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-2 sm:gap-4">
-            {/* Product Image */}
-            <GlassCard variant="sky">
-              <GlassCardBody>
+          {/* REQ-0139 — Status/Stock/Price stretch to image/QR column height */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-2 sm:gap-4 items-stretch">
+            <div className="flex flex-col gap-2 min-w-0 h-full">
+              <GlassCard variant="emerald" className="flex-1 flex flex-col">
+                <GlassCardBody className="flex-1 flex flex-col justify-center">
+                  <p className="text-xs uppercase tracking-[0.2em] text-gray-600 dark:text-white/60 mb-3 flex items-center gap-2">
+                    <Activity
+                      className="h-4 w-4 text-emerald-600 dark:text-emerald-400 shrink-0"
+                      aria-hidden
+                    />
+                    Status
+                  </p>
+                  {/* self-start — flex-col parent would otherwise stretch inline-flex badge to w-full */}
+                  <ProductStockStatusBadge
+                    status={product?.status ?? "available"}
+                    label={product?.status || "N/A"}
+                    size="detail"
+                    className="self-start text-sm w-fit"
+                  />
+
+                </GlassCardBody>
+              </GlassCard>
+
+              <GlassCard variant="amber" className="flex-1 flex flex-col">
+                <GlassCardBody className="flex-1 flex flex-col justify-center">
+                  <p className="text-xs uppercase tracking-[0.2em] text-gray-600 dark:text-white/60 mb-3 flex items-center gap-2">
+                    <Layers
+                      className="h-4 w-4 text-amber-600 dark:text-amber-400 shrink-0"
+                      aria-hidden
+                    />
+                    Stock
+                  </p>
+                  <p
+                    className={cn(
+                      "text-sm sm:text-base font-medium",
+                      productStockAvailableTextClass(
+                        (product?.quantity ?? 0) - displayCommitted,
+                      ),
+                    )}
+                  >
+                    {(product?.quantity ?? 0) - displayCommitted}
+                    <span className="text-sm font-normal text-muted-foreground ml-1">
+                      available
+                    </span>
+                  </p>
+                  {displayCommitted > 0 && (
+                    <p className="text-sm text-muted-foreground mt-1">
+                      <span>{displayCommitted} reserved</span>
+                      <span className="mx-1">·</span>
+                      {product?.quantity} total
+                    </p>
+                  )}
+                </GlassCardBody>
+              </GlassCard>
+
+              <GlassCard variant="blue" className="flex-1 flex flex-col">
+                <GlassCardBody className="flex-1 flex flex-col justify-center">
+                  <p className="text-xs uppercase tracking-[0.2em] text-gray-600 dark:text-white/60 mb-3 flex items-center gap-2">
+                    <DollarSign
+                      className="h-4 w-4 text-blue-600 dark:text-blue-400 shrink-0"
+                      aria-hidden
+                    />
+                    Price
+                  </p>
+                  <p className="text-sm sm:text-base font-medium text-gray-700 dark:text-white">
+                    ${product?.price.toFixed(2)}
+                  </p>
+                </GlassCardBody>
+              </GlassCard>
+            </div>
+
+            <GlassCard variant="sky" className="h-full flex flex-col">
+              <GlassCardBody className="flex-1 flex flex-col">
                 <div className="flex items-center gap-2 mb-4">
                   <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-sky-300/30 bg-sky-100/50 dark:border-white/15 dark:bg-white/10">
                     <ImageIcon className="h-4 w-4 text-gray-700 dark:text-white" />
                   </div>
-                  <h3 className="text-sm sm:text-base font-medium text-gray-700 dark:text-white">
-                    Product Image
-                  </h3>
+                  <h3 className={TYPO_CARD_TITLE}>Product Image</h3>
                 </div>
                 {product?.imageUrl ? (
-                  <div className="relative w-full h-64 rounded-xl overflow-hidden bg-white/50 dark:bg-white/5 border border-gray-300/20 dark:border-white/10">
+                  <div className="relative w-full flex-1 min-h-64 rounded-xl overflow-hidden bg-white/50 dark:bg-white/5 border border-gray-300/20 dark:border-white/10">
                     <SafeImage
                       src={product?.imageUrl}
                       alt={product?.name}
                       fill
                       className="object-contain"
-                      sizes="(max-width: 768px) 100vw, 50vw"
+                      sizes="(max-width: 1024px) 100vw, 33vw"
                     />
                   </div>
                 ) : (
-                  <div className="w-full h-64 rounded-xl bg-white/30 dark:bg-white/5 border border-gray-300/20 dark:border-white/10 flex items-center justify-center">
+                  <div className="w-full flex-1 min-h-64 rounded-xl bg-white/30 dark:bg-white/5 border border-gray-300/20 dark:border-white/10 flex items-center justify-center">
                     <p className="text-gray-500 dark:text-white/50">
                       No image available
                     </p>
@@ -472,82 +549,31 @@ export default function ProductDetailPage({
               </GlassCardBody>
             </GlassCard>
 
-            {/* QR Code / Barcode */}
-            <GlassCard variant="violet">
-              <GlassCardBody>
+            <GlassCard variant="violet" className="h-full flex flex-col">
+              <GlassCardBody className="flex-1 flex flex-col">
                 <div className="flex items-center gap-2 mb-4">
                   <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-violet-300/30 bg-violet-100/50 dark:border-white/15 dark:bg-white/10">
                     <QrCode className="h-4 w-4 text-gray-700 dark:text-white" />
                   </div>
-                  <h3 className="text-sm sm:text-base font-medium text-gray-700 dark:text-white">
-                    QR Code / Barcode
-                  </h3>
+                  <h3 className={TYPO_CARD_TITLE}>QR Code / Barcode</h3>
                 </div>
                 {product?.qrCodeUrl ? (
-                  <div className="relative w-full h-64 rounded-xl overflow-hidden bg-white border border-gray-300/20 dark:border-white/10">
+                  <div className="relative w-full flex-1 min-h-64 rounded-xl overflow-hidden bg-white border border-gray-300/20 dark:border-white/10">
                     <SafeImage
                       src={product?.qrCodeUrl}
                       alt={`QR Code for ${product?.sku}`}
                       fill
                       className="object-contain p-4"
-                      sizes="(max-width: 768px) 100vw, 50vw"
+                      sizes="(max-width: 1024px) 100vw, 33vw"
                     />
                   </div>
                 ) : (
-                  <div className="w-full h-64 rounded-xl bg-white/30 dark:bg-white/5 border border-gray-300/20 dark:border-white/10 flex items-center justify-center">
+                  <div className="w-full flex-1 min-h-64 rounded-xl bg-white/30 dark:bg-white/5 border border-gray-300/20 dark:border-white/10 flex items-center justify-center">
                     <p className="text-gray-500 dark:text-white/50">
                       No QR code available
                     </p>
                   </div>
                 )}
-              </GlassCardBody>
-            </GlassCard>
-          </div>
-
-          {/* Product Status Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
-            <GlassCard variant="emerald">
-              <GlassCardBody>
-                <p className="text-xs uppercase tracking-[0.2em] text-gray-600 dark:text-white/60 mb-3">
-                  Status
-                </p>
-                <ProductStockStatusBadge
-                  status={product?.status ?? "available"}
-                  label={product?.status || "N/A"}
-                  size="detail"
-                  className="text-sm"
-                />
-              </GlassCardBody>
-            </GlassCard>
-
-            <GlassCard variant="amber">
-              <GlassCardBody>
-                <p className="text-xs uppercase tracking-[0.2em] text-gray-600 dark:text-white/60 mb-3">
-                  Stock
-                </p>
-                <p className="text-sm sm:text-base font-medium text-gray-700 dark:text-white">
-                  {(product?.quantity ?? 0) - displayCommitted}
-                  <span className="text-sm font-normal text-gray-600 dark:text-white/60 ml-1">
-                    available
-                  </span>
-                </p>
-                {displayCommitted > 0 && (
-                  <p className="text-sm text-gray-600 dark:text-white/60 mt-1">
-                    {displayCommitted} reserved · {product?.quantity}{" "}
-                    total
-                  </p>
-                )}
-              </GlassCardBody>
-            </GlassCard>
-
-            <GlassCard variant="blue">
-              <GlassCardBody>
-                <p className="text-xs uppercase tracking-[0.2em] text-gray-600 dark:text-white/60 mb-3">
-                  Price
-                </p>
-                <p className="text-sm sm:text-base font-medium text-gray-700 dark:text-white">
-                  ${product?.price.toFixed(2)}
-                </p>
               </GlassCardBody>
             </GlassCard>
           </div>
@@ -589,20 +615,6 @@ export default function ProductDetailPage({
                       </CopyableText>
                     )}
                   </DetailInfoRow>
-                  {!dataLoading && product && (
-                    <DetailInfoRow
-                      icon={Package}
-                      label="Status:"
-                      tone="emerald"
-                    >
-                      <ProductStockStatusBadge
-                        status={product.status ?? "available"}
-                        label={product.status || "N/A"}
-                        size="detail"
-                        className="text-sm"
-                      />
-                    </DetailInfoRow>
-                  )}
                   {!dataLoading &&
                     product?.category &&
                     typeof product.category === "object" && (
@@ -650,7 +662,9 @@ export default function ProductDetailPage({
                       tone="teal"
                       loading={dataLoading}
                     >
-                      {!dataLoading && <ClientDateTime date={createdAt} semantic="created" />}
+                      {!dataLoading && (
+                        <ClientDateTime date={createdAt} semantic="created" />
+                      )}
                     </DetailInfoRow>
                     {(dataLoading || updatedAt) && (
                       <DetailInfoRow
@@ -670,7 +684,10 @@ export default function ProductDetailPage({
                         label="Expiration:"
                         tone="amber"
                       >
-                        <ClientDate date={expirationDate} semantic="expiration" />
+                        <ClientDate
+                          date={expirationDate}
+                          semantic="expiration"
+                        />
                       </DetailInfoRow>
                     )}
                   </DetailInfoRowGroup>
@@ -680,6 +697,7 @@ export default function ProductDetailPage({
                         icon={Package}
                         label="Stock qty:"
                         tone="blue"
+                        valueClassName="text-gray-700 dark:text-gray-300"
                       >
                         {product.quantity ?? 0}
                       </DetailInfoRow>
@@ -688,6 +706,7 @@ export default function ProductDetailPage({
                           icon={Package}
                           label="Reserved:"
                           tone="violet"
+                          valueClassName="text-amber-600 dark:text-amber-400"
                         >
                           {displayCommitted}
                         </DetailInfoRow>
@@ -696,6 +715,9 @@ export default function ProductDetailPage({
                         icon={Package}
                         label="Available:"
                         tone="emerald"
+                        valueClassName={productStockAvailableTextClass(
+                          (product.quantity ?? 0) - displayCommitted,
+                        )}
                       >
                         {(product.quantity ?? 0) - displayCommitted}
                       </DetailInfoRow>
@@ -703,7 +725,10 @@ export default function ProductDetailPage({
                   )}
                   {!dataLoading && product?.deletedAt && (
                     <DetailInfoRow icon={Package} label="Archived:" tone="rose">
-                      <ClientDateTime date={new Date(product.deletedAt)} semantic="cancelled" />
+                      <ClientDateTime
+                        date={new Date(product.deletedAt)}
+                        semantic="cancelled"
+                      />
                     </DetailInfoRow>
                   )}
                   {!dataLoading && product?.creator && (
@@ -737,10 +762,8 @@ export default function ProductDetailPage({
                     <BarChart3 className="h-4 w-4 text-gray-700 dark:text-white" />
                   </div>
                   <div>
-                    <h3 className="text-sm sm:text-base font-medium text-gray-700 dark:text-white">
-                      Sales Statistics
-                    </h3>
-                    <p className="text-xs text-gray-600 dark:text-white/60">
+                    <h3 className={TYPO_CARD_TITLE}>Sales Statistics</h3>
+                    <p className={TYPO_SUBTITLE}>
                       Summary of sales and inventory data
                     </p>
                   </div>
@@ -804,12 +827,12 @@ export default function ProductDetailPage({
               forecastLoading={forecastLoading}
               title="Product Insights"
               subtitle="Sales velocity and stock signals for this SKU"
-              salesChartTitle="Sales trend (6 months)"
+              salesChartTitle="Sales Trend (6 months)"
               salesChartDescription="Revenue from this product's order lines"
               stockChartTitle={
                 insights.warehouseStock
-                  ? "Warehouse allocated stock"
-                  : "Stock status"
+                  ? "Warehouse Allocated Stock"
+                  : "Stock Status"
               }
               stockChartDescription={
                 insights.warehouseStock
@@ -820,13 +843,16 @@ export default function ProductDetailPage({
               salesChartData={salesChartData}
               stockChartData={stockChartData}
               stockPieColors={
-                insights.warehouseStock
-                  ? WAREHOUSE_STOCK_PIE_COLORS
-                  : undefined
+                insights.warehouseStock ? WAREHOUSE_STOCK_PIE_COLORS : undefined
               }
               productForecast={productForecast}
               productHref={productHref}
+              catalogQuantity={catalogQuantity}
+              catalogAllocationSummary={
+                allocationSummaryParts ?? undefined
+              }
             />
+
           )}
 
           {showWarehouseStockCard && (
@@ -836,6 +862,7 @@ export default function ProductDetailPage({
                   as="h3"
                   icon={Building2}
                   iconClassName="text-teal-600 dark:text-teal-400"
+                  iconTile
                   title="Warehouse Stock"
                   trailing={
                     !warehouseStockLoading && product != null ? (
@@ -858,16 +885,26 @@ export default function ProductDetailPage({
                       </>
                     ) : undefined
                   }
+                  subtitle={
+                    <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-1 sm:gap-3 w-full">
+                      <span className="shrink-0">
+                        Allocated per warehouse; unallocated qty stays on
+                        catalog total
+                      </span>
+                      {allocationSummaryParts ? (
+                        <CatalogAllocationSummaryText
+                          catalogQty={allocationSummaryParts.catalogQty}
+                          allocatedTotal={allocationSummaryParts.allocatedTotal}
+                          unallocated={allocationSummaryParts.unallocated}
+                          reservedCommitment={
+                            allocationSummaryParts.reservedCommitment
+                          }
+                          className="sm:text-right sm:justify-end"
+                        />
+                      ) : null}
+                    </div>
+                  }
                 />
-                {allocationDetailSummary && warehouseAllocations.length <= 1 ? (
-                  <p className="text-xs text-gray-600 dark:text-white/60">
-                    {allocationDetailSummary}
-                  </p>
-                ) : (
-                  <p className="text-xs text-gray-600 dark:text-white/60">
-                    Allocated per warehouse; unallocated qty stays on catalog total
-                  </p>
-                )}
                 {warehouseStockLoading ? (
                   <DataSlotPulse variant="text-sm" className="mt-4 h-16" />
                 ) : warehouseAllocations.length > 0 ? (
@@ -895,7 +932,7 @@ export default function ProductDetailPage({
                                 aria-hidden
                               />
                             </div>
-                            <div className="min-w-0 flex-1 space-y-0.5">
+                            <div className="min-w-0 flex-1 space-y-1.5">
                               <div className="flex flex-wrap items-center gap-2 min-w-0">
                                 {warehouseLinkAllowed ? (
                                   <Link
@@ -944,17 +981,24 @@ export default function ProductDetailPage({
                               ) : null}
                             </div>
                           </div>
-                          <span className="text-sm font-normal text-gray-700 dark:text-white shrink-0 sm:text-right">
-                            {avail}{" "}
-                            <span className="text-gray-500 dark:text-gray-400">
-                              available
+                          <div className="flex flex-col items-start sm:items-end gap-0.5 shrink-0">
+                            <span
+                              className={cn(
+                                "text-sm font-medium",
+                                productStockAvailableTextClass(avail),
+                              )}
+                            >
+                              {avail}{" "}
+                              <span className="font-normal text-gray-500 dark:text-gray-400">
+                                available
+                              </span>
                             </span>
                             {row.reservedQuantity > 0 ? (
-                              <span className="text-xs text-amber-600 dark:text-amber-400 ml-2">
-                                ({row.reservedQuantity} reserved)
+                              <span className="text-xs text-amber-600 dark:text-amber-400">
+                                {row.reservedQuantity} reserved
                               </span>
                             ) : null}
-                          </span>
+                          </div>
                         </div>
                       );
                     })}
@@ -975,16 +1019,15 @@ export default function ProductDetailPage({
                 as="h3"
                 icon={ShoppingCart}
                 iconClassName="text-rose-600 dark:text-rose-400"
+                iconTile
                 title="Recent Orders"
                 count={
                   !dataLoading && recentOrderCount > 0
                     ? recentOrderCount
                     : undefined
                 }
+                subtitle="Latest orders containing this product"
               />
-              <p className="text-xs text-gray-600 dark:text-white/60">
-                Latest orders containing this product
-              </p>
               <CatalogDetailRecentOrdersList
                 loading={dataLoading}
                 orders={catalogRecentOrders}

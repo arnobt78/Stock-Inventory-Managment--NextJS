@@ -2,119 +2,43 @@
 
 | Field | Value |
 |-------|-------|
-| **Cycle** | C1 (closing) → **C2 open** |
-| **Phase** | C2 code done → **manual Gate-2 QA** |
-| **Last updated** | 2026-07-15 EOD |
-| **Active REQ range** | REQ-0001 … REQ-0135 **code done** |
-| **Prod SHA** | `177cac2` on `origin/main` — **redeploy Vercel before QA** |
+| **Cycle** | C2 (C1 Gate 2 still PENDING) |
+| **Phase** | Stage 3–5 — **REQ-0136 in progress** (UI mismatch → cache smoke) |
+| **Last updated** | 2026-07-16 |
+| **Active REQ** | **REQ-0136** (UI mismatch + §10 A1/A2/B1) |
+| **Done range** | REQ-0001 … REQ-0135 + REQ-0137–**0140** |
+| **Prod SHA** | `177cac2`+ on `origin/main` — **redeploy Vercel before QA** |
 | **Human Gate 1** | APPROVED (retroactive bootstrap) |
-| **Human Gate 2** | PENDING — short QA (§10) + Sentry 24h |
-| **Resume token** | `tomorrow-QA` — see **Where we left / Tomorrow** below |
+| **Human Gate 2** | PENDING — short QA (REQ-0136) + Sentry 24h |
+| **Resume token** | `tomorrow-QA` → active as **REQ-0136** |
 
-## Where we left (2026-07-15 EOD)
+## Session resume (2026-07-16)
 
-- **Shipped:** REQ-0133 cache coherence · REQ-0134 session 1d + QR + gcTime · REQ-0135 Redis pattern asymmetries + membership tests
-- **Architecture stance:** keep Next SSR + Redis + TanStack; codebook-style SPA rewrite **out of scope**; optional `staleTime: Infinity` only if §10 still feels chatty
-- **Not done today:** prod deploy verification · manual cache smoke · UI bug fix pass
-- **Docs:** `docs/MANUAL_TEST_FIXTURES.md` §10 (A→B→C→D); do **not** aim for full entity×role matrix
+**REQ-0140 done:** seed Beats reserved=0 (no double-book); sold stats delivered|paid; insights qty−committed. Re-seed local DB with `--with-catalog` after pull.
 
-## Tomorrow (2026-07-16) — short QA only
+**Pipeline stage:** Human UI explore → Specify mismatches under REQ-0136 → Orchestrate fixes → §10 A1/A2/B1.
 
-1. Redeploy Vercel from `177cac2` (or later) → **logout / login once** (1d cookie)
-2. **UI blockers first** (~30–60 min) — layout/click/nav that hides wrong data; fix as found
-3. **Cache smoke only** — §10 **A1, A2, B1** (+ Back). Pass = stay fresh ~5 min after CRUD
-4. If A1/A2/B1 PASS → treat cache as good; fix remaining UI opportunistically (product/order/invoice/stock allocate one-each)
-5. Skip deep B2–D / full role matrix until core three pass; stop when exhausted — resume same token next session
-6. After QA stable → Sentry 24h for Gate 2 sign-off
+### Order of work (do not reorder)
 
-**Pass rule:** A1/A2/B1 no revert → cache goal met. Do not mix UI polish into cache pass/fail.
+1. **Human:** browse each page with seeded data; report UI mismatches
+2. **UI blockers** — fix under REQ-0136
+3. **Cache smoke** — §10 **A1, A2, B1** only
+4. Gate 2 — Sentry 24h after smoke PASS
 
-## REQ-0105 — product detail committedQuantity SSR (2026-07-13)
+**Pass rule:** A1/A2/B1 no revert → cache goal met. Do **not** mix UI polish into cache pass/fail.
 
-Product detail SSR/API + Redis cache guard expose `committedQuantity`; `CLAUDE.md` tracked in git. AC6: `ProductDetailPage` primary path `getDisplayCommittedQuantity(product)`; warehouse `computeCommittedQuantity` fallback. Commit `3cc5c4b` pushed `origin/main`. Gates: lint ✓ test 464 ✓ invalidate 208 ✓ build ✓ (re-verified 2026-07-14).
-
-## REQ-0104 — committedQuantity parity (2026-07-13)
-
-Category/supplier detail SSR + forecast/supplier-dashboard avail use `committedQuantity` / `getDisplayCommittedQuantity`. Cache guard on detail Redis. Gates: lint ✓ test 461 ✓ invalidate 208 ✓ build ✓.
-
-## REQ-0103 done (2026-07-13)
-
-Disjoint order reservation — warehouse pick reserves allocation only; `committedQuantity` on list APIs; catalog floor 20 not 40. Gates: lint ✓ test 460 ✓ invalidate 208 ✓ build ✓.
-
-## REQ-0102 done (2026-07-13)
-
-Catalog reconcile + allocation validation + warehouse delete guards + archived rows + unified `enrichStockAllocationRows` (API + SSR) + `formatCatalogAllocationSummary` + dialog fetch gates. Commit `554af8e`. Gates: lint ✓ test 449 ✓ invalidate 208 ✓ build ✓.
-
-## REQ-0106–0109 — stock UX gaps (2026-07-14)
-
-Order auto-assign + catalog cap (0106); product detail allocation summary (0107); live dialog validation (0108); feedback layout tokens (0109). Gates: lint ✓ test 479 ✓ invalidate 208 ✓ build ✓.
-
-## REQ-0110 — stock UX gap closure (2026-07-14)
-
-committedQuantity order cap fallback + prefetch; warehouse name errors; `getAllocationQtyBounds` DRY; reserve auto-assign test; ProductForm edge-scroll shell; Allocate feedback wrapper. Gates: lint ✓ test 484 ✓ invalidate 208 ✓ build ✓.
-
-## REQ-0111 — order stock workflow consistency (2026-07-14)
-
-Reactive `useOrderLineStockValidation` hook; `OrderDialogCreateLineItem`; `manualPickError` DRY; `ensureStockAllocationsAndValidate` on submit; server `Max {n} at {name}` parity. Gates: lint ✓ test 486 ✓ invalidate 208 ✓ build ✓.
-
-## REQ-0112 — order line fetch DRY (2026-07-14)
-
-Single useStockByProduct per line; injected allocationRows; lineStockErrors keyed by field.id. Gates: lint ✓ test 488 ✓ invalidate 208 ✓ build ✓.
-
-## REQ-0113 — warehouse select fetch removal (2026-07-14)
-
-OrderLineWarehouseSelect props-only; OrderFormData merged; .types.ts deleted. Gates: lint ✓ test 488 ✓ invalidate 208 ✓ build ✓.
-
-## REQ-0114 — Stock UX clarity + dialog/detail UI parity (2026-07-14)
-
-Catalog-commit warehouse hints + `committedQuantity` on allocation enrich; `computeWarehouseInsights` DRY on warehouse detail; proportional order line amounts; `DialogFormLabel` + dialog sweep; `DetailInfoRow` font-normal + `DetailInfoRowGroup`; `TABLE_CATALOG_LINK_CLASS`. Gates: lint ✓ test 492 ✓ invalidate 208 ✓ build ✓.
-
-## REQ-0115 — REQ-0114 dialog gap closure (2026-07-14)
-
-`mapWarehouseStockSummary` + test; Invoice/Order/SupportTicket/Payment dialog label+footer parity; ImageField + Category/Supplier label sweep. Gates: lint ✓ test 494 ✓ invalidate 208 ✓ build ✓.
-
-## REQ-0116 — Dialog parity + proportional price DRY + detail typography (2026-07-14)
-
-`ProportionalPriceDisplay` + test; supplier create / order notes / payment cancel / warehouse status dialog labels; order-create proportional preview; `DETAIL_DATA_VALUE_CLASS` + detail stat tone tokens. Gates: lint ✓ test 498 ✓ invalidate 208 ✓ build ✓.
-
-## REQ-0117 — Dialog UX parity + admin embed tables + network audit (2026-07-14)
-
-`DialogFormLabel` flex-safe + `DIALOG_SELECT_*` tokens; `DialogDateField` + `DialogHeaderBrand`; order-create totals empty state; `AdminEmbedDataTable`; admin portal table parity; VS-045 network audit (defer prefetch cuts to REQ-0118). Gates: lint ✓ test 498 ✓ invalidate 208 ✓ build ✓.
-
-## REQ-0118 — Readable popover full sweep + REQ-0117 gap closure (2026-07-14)
-
-`lib/ui/popover-readability-styles.ts` hub; PaymentDialog `DialogHeaderBrand`; warehouse/order line pickers; 15 filter Command popovers + pagination + `FilterCommandCheckboxItem`; dead import cleanup; README revert; VS-046 prod network confirm. Gates: lint ✓ test 498 ✓ invalidate 208 ✓ build ✓.
-
-## REQ-0119 — Catalog popover parity + order address labels + warehouse rollup (2026-07-14)
-
-Catalog/export popover readability via `catalogEntityPopoverContentClass`; `DIALOG_FORM_SUB_LABEL` + `OrderAddressFields`; Business Insights Warehouses tab + SSR `getWarehouseStockSummary` + rollup helper/test. Gates: lint ✓ test 504 ✓ invalidate 208 ✓ build ✓.
-
-## REQ-0120 — Nav invalidation + SSR sync gap closure (2026-07-15)
-
-Business Insights `useSyncSsrQueryDataMany` (products/orders/warehouse); Admin My Activity `AdminEmbedDataTable`; `useBackWithRefresh("history"|"support-ticket")`; post-delete `navigateTo` on catalog/warehouse detail; dead props/imports cleanup; duplicate REQ-0051 doc removed. Gates: lint ✓ test 504 ✓ invalidate 208 ✓ build ✓.
-
-## REQ-0121 — UI/data-sync bug sweep (2026-07-15)
-
-13-item manual-QA bug list closed: FAB dialog-close (product FAB `onOpenChange`), date placeholder contrast (`color-scheme:dark`), supplier dropdown readability (`text-popover-foreground`), warehouse-select rounding, popover-content `rounded-md` sweep (`filterCommandPopoverClass`/`paginationPopoverContentClass`), order-line subtotal (drop fee-adjusted display), order fee tier (free shipping < $100 subtotal so total ≤ subtotal), rich invoice order picker + selected-order summary, order/invoice table secondary meta lines, product-dialog reconcile-hint grid fix, warehouse allocation copy (capitalized/colored, dedupe stale catalog string off the stock row into the qty card), product-detail warehouse-section + inventory-value layout. P0 (stale product qty across pages) investigated via live browser repro at HEAD `efb2e88` — no repro found (REQ-0120 already fixed it); one related latent bug fixed (`WarehouseDetailPage.tsx` stale-fallback ternary on empty-array live data). Gates: lint ✓ test 504 ✓ invalidate 208 ✓ build ✓. **Not yet committed/pushed.**
-
-## Next session
-
-| Priority | Item | REQ |
-|----------|------|-----|
-| P0 | Commit + push REQ-0121 (awaiting user go-ahead) | REQ-0121 |
-| P1 | Human Gate 2 — confirm Vercel prod SHA; Sentry 24h review | REQ-0009 |
-| P2 | Manual smoke — Beats §9 + catalog CRUD back-nav after REQ-0120/0121 | REQ-0103–0121 |
+**Re-seed:** `npm run script:reset-demo-db -- --with-catalog` or accounts-only then `npm run script:seed-demo-catalog`
 
 ## Current focus
 
-1. **Tomorrow QA** — UI blockers → §10 A1/A2/B1 → stop (see above)
-2. **Gate 2** — after smoke PASS: prod confirm + Sentry 24h
-3. Optional later: `staleTime: Infinity` polish (not required for Gate 2)
+1. Collect / fix remaining UI mismatches (REQ-0136 AC1–AC2)
+2. §10 A1/A2/B1 (REQ-0136 AC3–AC5)
+3. Gate 2 — after smoke PASS: prod confirm + Sentry 24h (REQ-0009)
 
 ## Session resume (every chat)
 
-1. Read `.agile-v/STATE.md` (resume token + Tomorrow checklist)
-2. Load skill: `.agile-v/skills/SKILLS_INDEX.md` (01 core → task skill)
+1. Read `.agile-v/STATE.md` (resume token + checklist)
+2. Load skill: `.agile-v/skills/SKILLS_INDEX.md` (01 core → 17 build-js → 19 red-team)
 3. Map work to REQ-XXXX; halt if missing traceability
 4. Red Team: lint, test, test:invalidate, build before Gate 2 claim
 5. Write-through DECISION_LOG, BUILD_MANIFEST, VALIDATION_SUMMARY on material changes

@@ -5,18 +5,19 @@
   "agile_v_version": "1.4",
   "current_cycle": "C2",
   "c2_backlog_open": true,
-  "current_phase": "REQ-0120-done",
+  "current_phase": "REQ-0140-done-cache-qa-next",
   "infinity_loop_stage": "verify",
   "human_gate_2": "PENDING",
-  "resume_token": "Gate-2-deploy",
-  "prod_target_sha": "46127b2",
+  "resume_token": "tomorrow-QA",
+  "active_req": "REQ-0136",
+  "prod_target_sha": "177cac2",
   "risk_default": "R2",
   "requirements_file": ".agile-v/REQUIREMENTS.md",
   "skills_upstream": "https://github.com/Agile-V/agile_v_skills",
   "architecture": {
     "ssr": "force-dynamic in app/layout.tsx; server logic in page.tsx",
     "client": "components/ for hooks, TanStack Query, Radix UI",
-    "cache": "Upstash Redis optional; TanStack invalidateAllRelatedQueries on CRUD",
+    "cache": "Upstash Redis optional; TanStack invalidateAllRelatedQueries + patch on CRUD (REQ-0122+); Redis await before API 200 (REQ-0055)",
     "ai": "lib/ai/create-chat-completion.ts (OpenRouter → Groq)",
     "nav_prefetch": "Navbar Link prefetch + RouteWarmPrefetch getWarmPathsForRole (REQ-0094)"
   }

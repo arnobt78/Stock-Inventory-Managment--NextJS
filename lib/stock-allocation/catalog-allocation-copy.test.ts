@@ -8,19 +8,19 @@ import {
 describe("catalog-allocation-copy", () => {
   it("formatCatalogAllocationSummary", () => {
     expect(formatCatalogAllocationSummary(50, 30, 20)).toBe(
-      "Catalog 50 · allocated 30 · unallocated 20",
+      "Catalog 50 · Allocated 30 · Unallocated 20",
     );
   });
 
   it("formatCatalogAllocationDetailSummary with reserved", () => {
     expect(formatCatalogAllocationDetailSummary(25, 20, 5, 20)).toBe(
-      "Catalog 25 · allocated 20 · unallocated 5 · 20 reserved",
+      "Catalog 25 · Allocated 20 · Unallocated 5 · 20 Reserved",
     );
   });
 
   it("formatCatalogAllocationDetailSummary omits reserved when zero", () => {
     expect(formatCatalogAllocationDetailSummary(50, 30, 20, 0)).toBe(
-      "Catalog 50 · allocated 30 · unallocated 20",
+      "Catalog 50 · Allocated 30 · Unallocated 20",
     );
   });
 

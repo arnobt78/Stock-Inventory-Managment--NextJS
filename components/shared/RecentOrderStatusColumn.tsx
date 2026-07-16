@@ -2,6 +2,7 @@
 
 /**
  * REQ-0128 — shared recent-order right column: price/trailing + status badge + terminal statusAt.
+ * REQ-0138 — clearer vertical gap between price, status, and statusAt.
  */
 
 import type { ReactNode } from "react";
@@ -32,7 +33,7 @@ export function RecentOrderStatusColumn({
   return (
     <div
       className={cn(
-        "flex flex-col items-start sm:items-end gap-1 shrink-0 overflow-visible py-1",
+        "flex flex-col items-start sm:items-end gap-1.5 shrink-0 overflow-visible py-1",
         className,
       )}
     >
@@ -49,6 +50,7 @@ export function RecentOrderStatusColumn({
           <ClientCompactDateTime
             date={statusAt}
             semantic={statusAtSemanticKind(status, paymentStatus)}
+            className="text-xs"
           />
         </span>
       ) : null}

@@ -19,6 +19,7 @@
     "script:check-all-data": "tsx scripts/check-all-data.ts",
     "script:delete-all-data": "tsx scripts/delete-all-data.ts",
     "script:reset-demo-db": "tsx scripts/reset-demo-db.ts",
+    "script:seed-demo-catalog": "tsx scripts/seed-demo-catalog.ts",
     "script:delete-all-suppliers": "tsx scripts/delete-all-suppliers.ts",
     "script:delete-all-categories": "tsx scripts/delete-all-categories.ts",
     "script:delete-user": "tsx scripts/delete-user.ts"

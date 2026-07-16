@@ -11,6 +11,7 @@ import {
   BarChart3,
   Clock,
   DollarSign,
+  Package,
   PackageX,
   PieChart as PieChartIcon,
   Sparkles,
@@ -26,11 +27,17 @@ import {
 } from "@/lib/ui/chart-point-label";
 import { CATALOG_STOCK_PIE_COLORS } from "@/lib/ui/catalog-insights-chart-data";
 import { DetailInfoRow } from "@/components/orders/detail";
-import { GlassCard, SectionTitleRow } from "@/components/shared";
+import { GlassCard, GlassCardBody } from "@/components/shared";
 import { UrgentReorderForecastTable } from "@/components/shared/catalog-detail/UrgentReorderForecastTable";
+import { CatalogAllocationSummaryText } from "@/components/shared/CatalogAllocationSummaryText";
 import type { CatalogEntityInsights } from "@/types/catalog-insights";
 import type { CategoryForecastUrgentRow } from "@/types/category";
 import type { ProductDemandForecast } from "@/types";
+import {
+  ForecastUrgencyBadge,
+  productStockAvailableTextClass,
+} from "@/lib/ui/semantic-badges";
+import { TYPO_CARD_TITLE, TYPO_SUBTITLE } from "@/lib/ui/typography-scale";
 import {
   Bar,
   BarChart,
@@ -69,6 +76,23 @@ export type CatalogInsightsSectionProps = {
   productHref?: (productId: string) => string;
   /** When false, hides urgent table even if productHref is set (product detail uses KPI rows only). */
   showUrgentForecastTable?: boolean;
+  /**
+   * REQ-0139 — fills the empty cell beside the stock pie (2-col grid).
+   * When omitted and warehouseStock exists, renders a Catalog Allocation snapshot.
+   */
+  stockChartCompanion?: ReactNode;
+  /** Catalog qty for default companion snapshot (product detail). */
+  catalogQuantity?: number;
+  /**
+   * When set, Catalog Allocation summary uses the same figures as Warehouse Stock
+   * (catalog commit reserved), not warehouse-row reserved alone.
+   */
+  catalogAllocationSummary?: {
+    catalogQty: number;
+    allocatedTotal: number;
+    unallocated: number;
+    reservedCommitment?: number;
+  };
   className?: string;
 };
 
@@ -93,6 +117,9 @@ export function CatalogInsightsSection({
   urgentRows,
   productHref,
   showUrgentForecastTable = false,
+  stockChartCompanion,
+  catalogQuantity,
+  catalogAllocationSummary,
   className,
 }: CatalogInsightsSectionProps) {
   const showUrgentTable =
@@ -100,6 +127,80 @@ export function CatalogInsightsSection({
     productHref &&
     showUrgentForecastTable &&
     (forecastLoading || (urgentRows && urgentRows.length > 0));
+
+  const warehouseStock = insights.warehouseStock;
+  const summaryParts =
+    catalogAllocationSummary ??
+    (catalogQuantity != null && warehouseStock != null
+      ? {
+          catalogQty: catalogQuantity,
+          allocatedTotal:
+            warehouseStock.available + (warehouseStock.reserved ?? 0),
+          unallocated: warehouseStock.unallocated ?? 0,
+          reservedCommitment: warehouseStock.reserved ?? 0,
+        }
+      : null);
+  const defaultCompanion =
+    stockChartCompanion == null &&
+    warehouseStock != null &&
+    summaryParts != null ? (
+      <GlassCard variant="teal" className="h-full flex flex-col">
+        <GlassCardBody className="flex-1 flex flex-col">
+          <div className="flex items-center gap-2 mb-2">
+            <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-teal-300/30 bg-teal-100/50 dark:border-white/15 dark:bg-white/10">
+              <Package className="h-4 w-4 text-gray-700 dark:text-white" />
+            </div>
+            <div>
+              <h3 className={TYPO_CARD_TITLE}>Catalog Allocation</h3>
+              <p className={TYPO_SUBTITLE}>
+                Catalog vs warehouse breakdown for this SKU
+              </p>
+            </div>
+          </div>
+          <div className="mt-4 space-y-3">
+            <CatalogAllocationSummaryText
+              catalogQty={summaryParts.catalogQty}
+              allocatedTotal={summaryParts.allocatedTotal}
+              unallocated={summaryParts.unallocated}
+              reservedCommitment={summaryParts.reservedCommitment}
+            />
+            <div className="space-y-2">
+              <DetailInfoRow
+                icon={Package}
+                label="In warehouses:"
+                tone="teal"
+                loading={dataLoading}
+                valueClassName={productStockAvailableTextClass(
+                  warehouseStock.available,
+                )}
+              >
+                {!dataLoading && warehouseStock.available}
+              </DetailInfoRow>
+              <DetailInfoRow
+                icon={AlertCircle}
+                label="Reserved:"
+                tone="amber"
+                loading={dataLoading}
+                valueClassName="text-amber-600 dark:text-amber-400"
+              >
+                {!dataLoading && (warehouseStock.reserved ?? 0)}
+              </DetailInfoRow>
+              <DetailInfoRow
+                icon={PackageX}
+                label="Unallocated:"
+                tone="sky"
+                loading={dataLoading}
+                valueClassName="text-emerald-600 dark:text-emerald-400"
+              >
+                {!dataLoading && (warehouseStock.unallocated ?? 0)}
+              </DetailInfoRow>
+            </div>
+          </div>
+        </GlassCardBody>
+      </GlassCard>
+    ) : (
+      stockChartCompanion
+    );
 
   return (
     <div
@@ -114,12 +215,8 @@ export function CatalogInsightsSection({
               <TrendingUp className="h-4 w-4 text-gray-700 dark:text-white" />
             </div>
             <div>
-              <h3 className="text-sm sm:text-base font-medium text-gray-700 dark:text-white">
-                {title}
-              </h3>
-              <p className="text-xs text-gray-600 dark:text-white/60">
-                {subtitle}
-              </p>
+              <h3 className={TYPO_CARD_TITLE}>{title}</h3>
+              <p className={TYPO_SUBTITLE}>{subtitle}</p>
             </div>
           </div>
           <div className="space-y-2 mt-4">
@@ -185,7 +282,13 @@ export function CatalogInsightsSection({
                   tone="amber"
                   loading={forecastLoading}
                 >
-                  {!forecastLoading && productForecast.reorderRecommendation}
+                  {/* REQ-0139 — semantic urgency badge (Urgent / Normal / …) */}
+                  {!forecastLoading && (
+                    <ForecastUrgencyBadge
+                      urgency={productForecast.reorderRecommendation}
+                      size="detail"
+                    />
+                  )}
                 </DetailInfoRow>
               </>
             )}
@@ -264,6 +367,7 @@ export function CatalogInsightsSection({
         description={stockChartDescription}
         icon={PieChartIcon}
         variant="amber"
+        className={defaultCompanion ? undefined : "lg:col-span-2"}
       >
         {stockChartTrailing ? (
           <div className="flex flex-wrap items-center gap-2 mb-3 -mt-1">
@@ -297,6 +401,9 @@ export function CatalogInsightsSection({
           </ResponsiveChartContainer>
         </DeferredChartSection>
       </ChartCard>
+
+      {/* REQ-0139 — fill empty cell beside warehouse pie */}
+      {defaultCompanion}
 
       {showUrgentTable && productHref && (
         <UrgentReorderForecastTable

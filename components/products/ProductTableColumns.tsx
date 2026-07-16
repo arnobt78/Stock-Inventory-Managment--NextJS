@@ -21,10 +21,13 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { QRCodeHover } from "@/components/ui/qr-code-hover";
-import { ProductStockFromQuantityBadge } from "@/lib/ui/semantic-badges";
+import {
+  ProductStockFromQuantityBadge,
+  productStockAvailableTextClass,
+} from "@/lib/ui/semantic-badges";
 import { getDisplayCommittedQuantity } from "@/lib/products/enrich-product-committed-quantity";
 import { cn } from "@/lib/utils";
-import { AlertTriangle, ArrowUpDown } from "lucide-react";
+import { ArrowUpDown } from "lucide-react";
 import { IoMdArrowDown, IoMdArrowUp } from "react-icons/io";
 
 /** Base path for detail links (e.g. "" or "/admin") so product/category/supplier links stay in admin when on admin page. */
@@ -141,11 +144,10 @@ export function createProductColumns(
         const quantity = row.original.quantity;
         const reserved = getDisplayCommittedQuantity(row.original);
         const available = quantity - reserved;
-        const isLowStock = available > 0 && available < 10;
-        const isOutOfStock = available <= 0;
 
         return (
-          <div className="flex items-start gap-2">
+          // REQ-0138 — QR box + qty vertically centered (match product thumb size)
+          <div className="flex items-center gap-2">
             <QRCodeHover
               data={JSON.stringify({
                 id: row.original.id,
@@ -162,21 +164,18 @@ export function createProductColumns(
               size={200}
               iconOnly
             />
-            <div className="flex flex-col">
-              <div className="flex items-center gap-2">
-                <span>{available}</span>
-                {isLowStock && (
-                  <AlertTriangle className="h-4 w-4 text-orange-500" />
-                )}
-                {isOutOfStock && (
-                  <AlertTriangle className="h-4 w-4 text-red-500" />
-                )}
-              </div>
-              {reserved > 0 && (
-                <span className="text-muted-foreground">
+            <div className="flex flex-col justify-center gap-0.5 min-w-0">
+              <span
+                className={`text-xs font-medium ${productStockAvailableTextClass(available)}`}
+              >
+                {available}
+              </span>
+              {reserved > 0 ? (
+                // REQ-0139 — same muted tone as SKU under product name
+                <span className="text-xs text-muted-foreground">
                   {reserved} reserved
                 </span>
-              )}
+              ) : null}
             </div>
           </div>
         );
@@ -199,14 +198,18 @@ export function createProductColumns(
       cell: ({ getValue }) => `$${getValue<number>().toFixed(2)}`,
     },
     {
+      // REQ-0139 — sort by createdAt; Created / Expire labels (full words, text-xs)
+      accessorKey: "createdAt",
       id: "dates",
-      header: "Created / Expire",
+      header: ({ column }) => (
+        <SortableHeader column={column} label="Created / Expire" />
+      ),
       cell: ({ row }) => {
         const product = row.original;
         const createdAt = product.createdAt;
         const expirationDate = product.expirationDate;
 
-        let expireClass = "";
+        let expireClass = "text-muted-foreground";
         if (expirationDate) {
           const expDate = new Date(expirationDate);
           const today = new Date();
@@ -221,21 +224,29 @@ export function createProductColumns(
         }
 
         return (
-          <div className="flex flex-col  text-sm">
-            <span className="text-gray-700 dark:text-white">
+          <div className="flex flex-col gap-0.5 text-xs text-muted-foreground">
+            <span className="text-xs">
               Created:{" "}
               {createdAt ? (
-                <ClientDate date={createdAt} semantic="created" />
+                <ClientDate
+                  date={createdAt}
+                  semantic="created"
+                  className="text-xs"
+                />
               ) : (
-                <span className="text-muted-foreground">—</span>
+                <span>—</span>
               )}
             </span>
-            <span className={expireClass || "text-gray-700 dark:text-white"}>
+            <span className={cn("text-xs", expireClass)}>
               Expire:{" "}
               {expirationDate ? (
-                <ClientDate date={expirationDate} semantic="expiration" />
+                <ClientDate
+                  date={expirationDate}
+                  semantic="expiration"
+                  className="text-xs"
+                />
               ) : (
-                <span className="text-muted-foreground">—</span>
+                <span>—</span>
               )}
             </span>
           </div>

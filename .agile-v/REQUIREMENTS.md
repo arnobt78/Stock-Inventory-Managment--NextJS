@@ -3062,6 +3062,135 @@ Canonical REQ source. All artifacts link via `REQ-XXXX`. Status: `done` | `verif
 
 ---
 
+## REQ-0140 — Seed stock coherence + sold/insights stats
+
+| Field | Value |
+|-------|-------|
+| **Priority** | P0 |
+| **Risk** | R1 |
+| **Status** | done |
+| **Cycle** | C2 |
+| **Parent** | REQ-0137, REQ-0103, REQ-0136 |
+
+**Intent:** Fix explore-seed double-reservation on Beats (warehouse-pick ORD-DEMO-002 must not also set `product.reservedQuantity`). Align Sony post-fulfill qty. Sold stats / demand velocity count delivered or paid only. Insights stock buckets use `qty − committed`.
+
+**Acceptance criteria**
+
+- AC1: Beats seed `product.reservedQuantity = 0`; Main alloc `reservedQuantity = 20`; UI committed **20**, available **30**
+- AC2: Sony seed post-fulfill snapshot — catalog **99**, Main alloc **49**
+- AC3: `isOrderCountedAsSold` — delivered or paid; wired into product/category/supplier detail sold + `computeProductInsights` / `computeCatalogInsights` trends
+- AC4: Insights low/available/out classify from `max(0, qty − committed)`
+- AC5: `MANUAL_TEST_FIXTURES.md` §9 documents REQ-0140 seed floor
+- AC6: Gates — lint, test, invalidate, build; re-seed spot-check Beats 30/20
+
+**Artifacts:** `lib/auth/demo-seed-data.ts`, `lib/orders/order-sales-eligibility.ts`, `lib/server/{product,catalog}-insights.ts`, `lib/server/{product,category,supplier}-detail-data.ts`, `docs/MANUAL_TEST_FIXTURES.md`
+
+---
+
+## REQ-0139 — Product UI gap closure (table + detail polish)
+
+| Field | Value |
+|-------|-------|
+| **Priority** | P0 |
+| **Risk** | R1 |
+| **Status** | done |
+| **Cycle** | C2 |
+| **Parent** | REQ-0138 |
+
+**Intent:** Close post-REQ-0138 screenshot gaps — QR border hue, Created/Expire labels, Status/Stock/Price icons + column stretch, reorder urgency colors, Catalog Allocation companion beside warehouse pie, TYPO_CARD_TITLE/TYPO_SUBTITLE on Sales Statistics + Product Insights.
+
+**Acceptance criteria**
+
+- AC1: Table QR box border light sky (icon hue); reserved text `text-muted-foreground` (SKU parity)
+- AC2: Header `Created / Expire`; cell labels `Created:` / `Expire:` both `text-xs`
+- AC3: Detail Status/Stock/Price cards have icons; left column `flex-1` stretch matches Image/QR height
+- AC4: Reorder status uses `ForecastUrgencyBadge` with urgent/soon/normal/overstocked tones
+- AC5: Catalog Allocation companion card fills empty cell beside warehouse pie (or stock chart `lg:col-span-2` when no companion)
+- AC6: Sales Statistics + Product Insights use `TYPO_CARD_TITLE` / `TYPO_SUBTITLE`
+- AC7: Gates pass — lint, test, invalidate, build
+
+**Artifacts:** `qr-code-hover.tsx`, `ProductTableColumns.tsx`, `ProductDetailPage.tsx`, `CatalogInsightsSection.tsx`, `semantic-badges.tsx`
+
+---
+
+## REQ-0138 — Product table + detail UI parity
+
+| Field | Value |
+|-------|-------|
+| **Priority** | P0 |
+| **Risk** | R1 |
+| **Status** | done |
+| **Cycle** | C2 |
+| **Parent** | REQ-0136, REQ-0127, REQ-0130 |
+
+**Intent:** Close product list Stock/Created cells and product detail media/info/warehouse/orders/reviews UI mismatches. Shared tokens/helpers; no TanStack/Redis/invalidation changes.
+
+**Acceptance criteria**
+
+- AC1: Table Stock QR trigger `h-12 w-12` (thumb parity); qty/reserved vertically centered; available qty colored via `productStockAvailableTextClass`
+- AC2: Created/Exp. column `text-xs` muted; sortable by `createdAt`; short `Exp.` label
+- AC3: Global `semantic="created"` → muted gray (sky reserved for links)
+- AC4: Detail 3-col: Status/Stock/Price stack \| Image \| QR; Status removed from Product Information
+- AC5: Info Stock qty / Reserved / Available colored; reorder status capitalized
+- AC6: Warehouse subtitle always shows help + `CatalogAllocationSummaryText` (justify-between); reserved on new line; row spacing + icon tile
+- AC7: Recent Orders / Reviews header icon tile + subtitle; review date `text-xs`
+- AC8: Gates pass — lint, test, invalidate, build
+
+**Artifacts:** `semantic-badges.tsx`, `semantic-date-styles.ts`, `section-title-row.tsx`, `CatalogAllocationSummaryText.tsx`, `qr-code-hover.tsx`, `ProductTableColumns.tsx`, `ProductDetailPage.tsx`, `CatalogInsightsSection.tsx`, `RecentOrderStatusColumn.tsx`, `ProductReviewsSection.tsx`, `lib/format/capitalize.ts`
+
+---
+
+## REQ-0137 — Full explore demo seed (1–2 rows per entity)
+
+| Field | Value |
+|-------|-------|
+| **Priority** | P0 |
+| **Risk** | R1 |
+| **Status** | done |
+| **Cycle** | C2 |
+| **Parent** | REQ-0088, REQ-0092, REQ-0136 |
+
+**Intent:** Opt-in seed so every user-facing schema entity has 1–2 connected rows for Gate-2 UI explore after accounts-only reset. Default reset stays accounts-only.
+
+**Acceptance criteria**
+
+- AC1: `DEMO_CATALOG_SEED` covers categories, warehouses, products (Beats+Sony), allocations, orders+invoices (paid + pending/reserved), transfers, tickets+replies, reviews, notifications, import history, system config, audit logs, local editable supplier
+- AC2: Stub models (Department, Permission, Session, StockAlert, UserAction, VerificationToken) get ≥1 row
+- AC3: `npm run script:seed-demo-catalog` seeds onto existing demo accounts (refuses if products exist)
+- AC4: `npm run script:reset-demo-db -- --with-catalog` wipe + accounts + explore seed
+- AC5: Stock math coherent for Beats: catalog 50 · Main 30 (20 reserved) · `product.reservedQuantity` 0 · ORD-DEMO-002 qty 20 pending (REQ-0140)
+- AC6: `verify-demo-accounts.ts` prints expanded entity counts
+
+**Artifacts:** `lib/auth/demo-seed-data.ts`, `scripts/lib/seed-demo-catalog.ts`, `scripts/seed-demo-catalog.ts`, `scripts/reset-demo-db.ts`, `package.json`
+
+---
+
+## REQ-0136 — Gate-2 UI mismatch pass + cache smoke (A1/A2/B1)
+
+| Field | Value |
+|-------|-------|
+| **Priority** | P0 |
+| **Risk** | R2 |
+| **Status** | in_progress |
+| **Cycle** | C2 |
+| **Parent** | REQ-0133–0135 (cache), REQ-0121 (UI sweep), Gate-2 |
+
+**Intent:** Resume token `tomorrow-QA`. Fix user-reported UI mismatches that block trustworthy eyes, then run short cache coherence smoke (`docs/MANUAL_TEST_FIXTURES.md` §10 A1, A2, B1 only). Do **not** mix UI polish into cache pass/fail. Full role×route matrix deferred.
+
+**Acceptance criteria**
+
+- AC1: Each reported UI mismatch logged with route + expected vs actual; fixed with shared tokens/components (no one-off CSS drift)
+- AC2: Lists/dialogs/detail chrome usable for admin + client (+ supplier if touched) without broken layout/click/nav that hides wrong data
+- AC3: §10 **A1** — product name/qty edit stays fresh on list + detail + category/supplier grids at 0s and ~5 min tab away/back
+- AC4: §10 **A2** — detail → Back to list shows updated row (no SSR clobber)
+- AC5: §10 **B1** — mark invoice paid → product/warehouse stock + allocations stay fresh ~5 min
+- AC6: Results recorded in `VALIDATION_SUMMARY.md`; gates (lint/test/invalidate/build) pass for any code fixes
+- AC7: Out of scope unless AC3–5 FAIL — Infinity `staleTime`, full B2–D, every role×route CRUD
+
+**Artifacts:** TBD per mismatch; `docs/MANUAL_TEST_FIXTURES.md` §10; `.agile-v/VALIDATION_SUMMARY.md`
+
+---
+
 ## REQ-0020 — Locale-aware admin format (hydration-safe)
 
 | Field        | Value |

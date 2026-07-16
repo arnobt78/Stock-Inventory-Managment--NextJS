@@ -2,19 +2,18 @@
  * Reset Demo Database
  *
  * Wipes all MongoDB data, clears Redis server cache (when configured), and
- * recreates demo accounts only from lib/auth/demo-seed-data.ts:
+ * recreates demo accounts from lib/auth/demo-seed-data.ts:
  *   test@admin.com    / 12345678 / admin
  *   test@client.com   / 12345678 / client
  *   test@supplier.com / 12345678 / supplier (+ linked "Test Supplier" entity)
  *
- * No catalog, products, orders, or invoices — add those manually per real workflow.
+ * Default (REQ-0092): accounts only — empty catalog.
+ * Explore seed (REQ-0137): pass --with-catalog for 1–2 rows per entity.
  *
- * Usage (project root, same DATABASE_URL as the app):
+ * Usage:
  *   npm run script:reset-demo-db
- *   npx tsx scripts/reset-demo-db.ts
- *
- * Optional: pass --skip-redis to skip Upstash cache wipe when Redis env is set.
- * Optional catalog: npx tsx scripts/lib/seed-demo-catalog.ts (manual / future opt-in).
+ *   npm run script:reset-demo-db -- --with-catalog
+ *   npm run script:reset-demo-db -- --skip-redis
  */
 
 import { PrismaClient } from "@prisma/client";
@@ -22,6 +21,7 @@ import bcrypt from "bcryptjs";
 import { DEMO_PASSWORD } from "@/lib/auth/demo-seed-users";
 import { deleteAllDbData } from "./lib/delete-all-db-data";
 import { seedDemoAccountsOnly } from "./lib/seed-demo-accounts";
+import { seedDemoCatalog } from "./lib/seed-demo-catalog";
 
 const prisma = new PrismaClient();
 
@@ -53,9 +53,15 @@ async function clearRedisIfConfigured(skipRedis: boolean): Promise<void> {
 
 async function main() {
   const skipRedis = process.argv.includes("--skip-redis");
+  const withCatalog = process.argv.includes("--with-catalog");
 
   console.log("\n🔄 Reset demo database\n");
   console.log("   ⚠  This deletes ALL data in DATABASE_URL.\n");
+  if (withCatalog) {
+    console.log("   Mode: accounts + explore catalog (REQ-0137)\n");
+  } else {
+    console.log("   Mode: accounts only (add --with-catalog for explore data)\n");
+  }
 
   console.log("1️⃣  Deleting all MongoDB documents...\n");
   const counts = await deleteAllDbData(prisma);
@@ -67,15 +73,38 @@ async function main() {
   console.log("2️⃣  Clearing Redis cache...\n");
   await clearRedisIfConfigured(skipRedis);
 
-  console.log("3️⃣  Creating demo accounts (users + Test Supplier entity only)...\n");
+  console.log("3️⃣  Creating demo accounts (users + Test Supplier entity)...\n");
   const hashedPassword = await bcrypt.hash(DEMO_PASSWORD, BCRYPT_ROUNDS);
-  await seedDemoAccountsOnly(prisma, hashedPassword);
+  const ids = await seedDemoAccountsOnly(prisma, hashedPassword);
+
+  if (withCatalog) {
+    console.log("\n4️⃣  Seeding explore catalog (1–2 rows per entity)...\n");
+    const catalog = await seedDemoCatalog(prisma, ids);
+    console.log(`   ✅ categories ${catalog.categoryIds.length}`);
+    console.log(`   ✅ warehouses ${catalog.warehouseIds.length}`);
+    console.log(`   ✅ products ${catalog.productIds.length}`);
+    console.log(`   ✅ orders ${catalog.orderIds.length}`);
+    console.log(`   ✅ invoices ${catalog.invoiceIds.length}`);
+    console.log(`   ✅ tickets ${catalog.ticketIds.length}`);
+    console.log(`   ✅ reviews ${catalog.reviewIds.length}`);
+    console.log(`   ✅ notifications ${catalog.notificationIds.length}`);
+    console.log(`   ✅ transfers ${catalog.transferIds.length}`);
+    console.log(`   ✅ imports ${catalog.importIds.length}`);
+    console.log(`   ✅ systemConfig ${catalog.systemConfigIds.length}`);
+    console.log(`   ✅ audits ${catalog.auditIds.length}`);
+  }
 
   console.log("\n✅ Done. Log in via the role dropdown:");
   console.log(`   Admin:    test@admin.com    / ${DEMO_PASSWORD}`);
   console.log(`   Client:   test@client.com   / ${DEMO_PASSWORD}`);
   console.log(`   Supplier: test@supplier.com / ${DEMO_PASSWORD}`);
-  console.log("\n   Catalog is empty — create categories/products/orders in the UI.\n");
+  if (withCatalog) {
+    console.log("\n   Explore catalog seeded — browse each page for UI QA.\n");
+  } else {
+    console.log(
+      "\n   Catalog empty — run with --with-catalog or: npm run script:seed-demo-catalog\n",
+    );
+  }
 }
 
 main()

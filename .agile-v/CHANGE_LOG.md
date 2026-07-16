@@ -63,3 +63,8 @@
 | 2026-07-15 | Redis pattern asymmetries — invoice stock, portals, auth/import | REQ-0135 |
 | 2026-07-15 | Audit: pattern tests + §10 checklist; unused import | REQ-0135 |
 | 2026-07-15 | EOD: resume `tomorrow-QA` — UI then §10 A1/A2/B1; SHA `177cac2` | Gate-2 |
+| 2026-07-16 | Session resume — REQ-0136 UI mismatch + cache smoke A1/A2/B1 | REQ-0136 |
+| 2026-07-16 | REQ-0137 explore seed — 1–2 rows/entity; --with-catalog | REQ-0137 |
+| 2026-07-16 | REQ-0138 product table + detail UI parity | REQ-0138 |
+| 2026-07-16 | REQ-0139 product UI gap closure | REQ-0139 |
+| 2026-07-16 | REQ-0140 seed stock coherence + sold/insights stats | REQ-0140 |
