@@ -3,7 +3,24 @@
 **Generated:** 2026-07-16  
 **eval_gate_status:** PENDING (Human Gate 2)  
 **Prod target SHA:** `9d7ec21` (REQ-0120)  
-**Red Team:** lint ✓ test 559 ✓ invalidate 213 ✓ build ✓ (2026-07-16 REQ-0142)
+**Red Team:** lint ✓ test 559 ✓ invalidate 213 ✓ build ✓ (2026-07-16 REQ-0143)
+
+---
+
+## REQ-0143 detail meta polish evidence
+
+| Check | Result |
+|-------|--------|
+| Product grid | Owner · Supplier |
+| Recent orders | SKU · Category · Qty; Owner · Buyer; INV when linked |
+| SSR | category + invoiceForOrder via getInvoiceLinkMap |
+| Invalidation | unchanged |
+| Gates | lint ✓ test 559 ✓ invalidate 213 ✓ build ✓ |
+
+```
+Scope: built/verified | Traceability: REQ-0143 | Findings: PASS
+Commands: lint, test, invalidate, build
+```
 
 ---
 

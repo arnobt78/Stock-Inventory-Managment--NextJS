@@ -144,7 +144,7 @@ export function CatalogDetailProductGrid({
               </div>
             </div>
             {(product.owner || product.supplier) && (
-              <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-gray-600 dark:text-white/60">
+              <div className="flex flex-wrap items-center gap-1.5 text-xs text-gray-600 dark:text-white/60">
                 {product.owner && (
                   <span className="inline-flex items-center gap-1.5 min-w-0">
                     <User className="h-3.5 w-3.5 shrink-0" aria-hidden />
@@ -160,6 +160,12 @@ export function CatalogDetailProductGrid({
                     />
                   </span>
                 )}
+                {/* REQ-0143 — middle-dot between Owner and Supplier */}
+                {product.owner && product.supplier ? (
+                  <span className="text-gray-400" aria-hidden>
+                    ·
+                  </span>
+                ) : null}
                 {product.supplier && (
                   <span className="inline-flex items-center gap-1.5 min-w-0">
                     <Truck className="h-3.5 w-3.5 shrink-0" aria-hidden />

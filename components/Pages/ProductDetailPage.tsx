@@ -267,23 +267,48 @@ export default function ProductDetailPage({
   const orderHref = (orderId: string) =>
     embedInAdmin ? `/admin/orders/${orderId}` : `/orders/${orderId}`;
 
+  const categoryHref = (id: string) =>
+    embedInAdmin ? `/admin/categories/${id}` : `/categories/${id}`;
+
+  const invoiceHref = (invoiceId: string) =>
+    embedInAdmin ? `/admin/invoices/${invoiceId}` : `/invoices/${invoiceId}`;
+
   const catalogRecentOrders = useMemo((): CatalogDetailRecentOrderItem[] => {
     if (!product?.recentOrders?.length || !product.id) return [];
-    return product.recentOrders.map((order) => ({
-      ...order,
-      productId: product.id,
-      productName: product.name ?? "",
-      productSku: product.sku ?? null,
-      productImageUrl: product.imageUrl ?? null,
-      owner: product.creator
+    const productCategory =
+      product.category && typeof product.category === "object"
         ? {
-            id: product.creator.id,
-            name: product.creator.name,
-            email: product.creator.email,
-            image: product.creator.image ?? null,
+            id: (product.category as { id: string }).id,
+            name: (product.category as { name: string }).name,
           }
-        : null,
-    }));
+        : null;
+    return product.recentOrders.map((order) => {
+      const row = order as CatalogDetailRecentOrderItem & {
+        owner?: CatalogDetailRecentOrderItem["owner"];
+        category?: CatalogDetailRecentOrderItem["category"];
+        invoiceForOrder?: CatalogDetailRecentOrderItem["invoiceForOrder"];
+      };
+      return {
+        ...row,
+        productId: product.id,
+        productName: product.name ?? "",
+        productSku: product.sku ?? null,
+        productImageUrl: product.imageUrl ?? null,
+        // REQ-0143 — prefer SSR owner/category/invoice; fall back for older cache
+        owner:
+          row.owner ??
+          (product.creator
+            ? {
+                id: product.creator.id,
+                name: product.creator.name,
+                email: product.creator.email,
+                image: product.creator.image ?? null,
+              }
+            : null),
+        category: row.category ?? productCategory,
+        invoiceForOrder: row.invoiceForOrder ?? null,
+      };
+    });
   }, [product]);
 
   // Edit: open product form dialog with current product (same as ProductActions)
@@ -1036,6 +1061,8 @@ export default function ProductDetailPage({
                 orderHref={orderHref}
                 productHref={productHref}
                 ownerProductsHref={ownerProductsHref}
+                categoryHref={categoryHref}
+                invoiceHref={invoiceHref}
                 isAdminRole={isAdminRole}
               />
             </GlassCardBody>

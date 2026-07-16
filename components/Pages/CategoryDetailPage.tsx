@@ -172,6 +172,9 @@ export default function CategoryDetailPage({
   const orderHref = (orderId: string) =>
     embedInAdmin ? `/admin/orders/${orderId}` : `/orders/${orderId}`;
 
+  const invoiceHref = (invoiceId: string) =>
+    embedInAdmin ? `/admin/invoices/${invoiceId}` : `/invoices/${invoiceId}`;
+
   // Edit: open category dialog with current category (same as CategoryActions via onEdit)
   const handleEditCategory = () => {
     if (!category) return;
@@ -605,6 +608,8 @@ export default function CategoryDetailPage({
                 orderHref={orderHref}
                 productHref={productHref}
                 ownerProductsHref={ownerProductsHref}
+                categoryHref={categoryHref}
+                invoiceHref={invoiceHref}
                 isAdminRole={isAdminRole}
               />
             </GlassCardBody>

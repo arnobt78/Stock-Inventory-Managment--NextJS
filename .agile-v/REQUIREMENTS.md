@@ -3062,6 +3062,31 @@ Canonical REQ source. All artifacts link via `REQ-XXXX`. Status: `done` | `verif
 
 ---
 
+## REQ-0143 — Detail product/order meta polish
+
+| Field | Value |
+|-------|-------|
+| **Priority** | P0 |
+| **Risk** | R1 |
+| **Status** | done |
+| **Cycle** | C2 |
+| **Parent** | REQ-0141, REQ-0086, REQ-0127 |
+
+**Intent:** Catalog detail cards — Owner · Supplier / Owner · Buyer separators; recent-orders category sky link between SKU and Qty; invoice indicator beside order # when linked. Shared list UI + SSR enrich via `getInvoiceLinkMap`.
+
+**Acceptance criteria**
+
+- AC1: Product grid party row — `Owner … · Supplier …`
+- AC2: Recent orders party row — `Owner … · Buyer …`
+- AC3: Recent orders product line — SKU · Category (sky) · Qty · Date; product detail hideProductMeta shows Category · Qty · Date
+- AC4: Invoice when linked — top line after order # with FileText + sky CopyableText/Link (`text-xs`)
+- AC5: SSR — category + `invoiceForOrder` on cat/sup/product recentOrders
+- AC6: Gates — lint, test, invalidate, build; invalidation unchanged
+
+**Artifacts:** `CatalogDetailProductGrid.tsx`, `CatalogDetailRecentOrdersList.tsx`, `catalog-detail-lists.ts`, `{category,supplier,product}-detail-data.ts`, detail pages
+
+---
+
 ## REQ-0142 — Category/supplier list polish + nest-button fix
 
 | Field | Value |

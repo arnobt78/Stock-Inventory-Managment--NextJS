@@ -6,13 +6,15 @@
 | **Phase** | Stage 3–5 — **REQ-0136 in progress** (UI mismatch → cache smoke) |
 | **Last updated** | 2026-07-16 |
 | **Active REQ** | **REQ-0136** (UI mismatch + §10 A1/A2/B1) |
-| **Done range** | REQ-0001 … REQ-0135 + REQ-0137–**0142** |
-| **Prod SHA** | `b358ae5` (REQ-0141–0142) — push then redeploy Vercel before QA |
+| **Done range** | REQ-0001 … REQ-0135 + REQ-0137–**0143** |
+| **Prod SHA** | `b358ae5` (REQ-0141–0142) — REQ-0143 local pending push |
 | **Human Gate 1** | APPROVED (retroactive bootstrap) |
 | **Human Gate 2** | PENDING — short QA (REQ-0136) + Sentry 24h |
 | **Resume token** | `tomorrow-QA` → active as **REQ-0136** |
 
 ## Session resume (2026-07-16)
+
+**REQ-0143 done:** detail Owner·Supplier/Buyer dots; recent-orders category + invoice indicator.
 
 **REQ-0142 done:** supplier nest-button fix; Supplier & Email layout; Products HelpTooltip; userId-scoped counts; detail iconTile.
 

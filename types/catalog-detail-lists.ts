@@ -47,4 +47,8 @@ export type CatalogDetailRecentOrderItem = {
   statusAt?: string;
   owner?: CatalogDetailPartySnapshot | null;
   placedBy?: CatalogDetailPartySnapshot | null;
+  /** REQ-0143 — category link between SKU and Qty */
+  category?: { id: string; name: string } | null;
+  /** REQ-0143 — linked invoice indicator beside order number */
+  invoiceForOrder?: { id: string; invoiceNumber: string } | null;
 };

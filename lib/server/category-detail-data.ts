@@ -26,6 +26,7 @@ import {
 import { enrichProductsWithCommittedQuantity } from "@/lib/products/enrich-product-committed-quantity";
 import { catalogDetailOrderSelect } from "@/lib/server/catalog-detail-order-select";
 import { resolveOrderStatusAtFromSource } from "@/lib/orders/order-status-display-date";
+import { getInvoiceLinkMap } from "@/lib/server/orders-data";
 
 export { CATEGORY_LOW_STOCK_THRESHOLD };
 export { computeCatalogInsights as computeCategoryInsights } from "@/lib/server/catalog-insights";
@@ -148,6 +149,8 @@ function transformCategoryDetail(
         supplier: supplierRow
           ? { id: supplierRow.id, name: supplierRow.name }
           : null,
+        // REQ-0143 — category for recent-order meta line
+        category: { id: category.id, name: category.name },
       };
     });
   });
@@ -364,10 +367,25 @@ export async function getCategoryDetailForPage(
     transformedCategory.statistics.totalQuantitySold,
   );
 
+  // REQ-0143 — batch invoice links for recent-order indicators
+  const invoiceMap = await getInvoiceLinkMap(
+    transformedCategory.recentOrders.map((o) => o.orderId).filter(Boolean),
+  );
+  const recentOrders = transformedCategory.recentOrders.map((o) => {
+    const inv = invoiceMap.get(o.orderId);
+    return {
+      ...o,
+      invoiceForOrder: inv
+        ? { id: inv.id, invoiceNumber: inv.invoiceNumber }
+        : null,
+    };
+  });
+
   const categoryForPage: CategoryDetailForPage = {
     ...transformedCategory,
     categoryInsights,
     products: enrichedProducts,
+    recentOrders,
   };
 
   await setCache(cacheKey, categoryForPage, 300, { fetchedAt: cacheReadStartedAt });

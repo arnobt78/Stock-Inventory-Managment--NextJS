@@ -793,15 +793,15 @@ Hub: `lib/ui/typography-scale.ts`. Hubs import tokens; ~45 inline files use equi
 
 **No TanStack/invalidation changes** — CSS/UI helpers only.
 
-## Category / supplier UI (REQ-0141 / REQ-0142)
+## Category / supplier UI (REQ-0141 / REQ-0142 / REQ-0143)
 
 | Piece | Location |
 |-------|----------|
 | List enrich | `catalog-list-enrich.ts` + `catalog-product-share.ts`; counts scoped to viewer `userId` |
 | Tables | Products `{count} · {%}` + HelpTooltip; Supplier & Email (avatar \| name \| email) |
 | Nest fix | Name navigate control sibling of CopyableText (no button-in-button) |
-| Detail | Status badge by Created; stock companion; Products/Orders `iconTile` |
-| Product grid | Name · SKU; category link; supplier SSR category map |
+| Detail | Status badge; stock companion; Products/Orders `iconTile` |
+| Product/order cards | Owner · Supplier/Buyer; recent Orders Category sky + invoice indicator |
 
 **No TanStack/invalidation registry changes** — list enrich + CSS/UI + read-only SSR.
 

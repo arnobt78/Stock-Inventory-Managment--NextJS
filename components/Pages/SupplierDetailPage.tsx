@@ -249,6 +249,8 @@ export default function SupplierDetailPage({
     embedInAdmin ? `/admin/categories/${id}` : `/categories/${id}`;
   const orderHref = (orderId: string) =>
     embedInAdmin ? `/admin/orders/${orderId}` : `/orders/${orderId}`;
+  const invoiceHref = (invoiceId: string) =>
+    embedInAdmin ? `/admin/invoices/${invoiceId}` : `/invoices/${invoiceId}`;
 
   return (
     <PageWrapper>
@@ -567,6 +569,8 @@ export default function SupplierDetailPage({
                 orderHref={orderHref}
                 productHref={productHref}
                 ownerProductsHref={ownerProductsHref}
+                categoryHref={categoryHref}
+                invoiceHref={invoiceHref}
                 isAdminRole={isAdminRole}
               />
             </GlassCardBody>

@@ -16,6 +16,7 @@ import type { SessionForDetail } from "@/lib/server/order-detail-data";
 import { computeProductInsights } from "@/lib/server/product-insights";
 import { catalogDetailOrderSelect } from "@/lib/server/catalog-detail-order-select";
 import { resolveOrderStatusAtFromSource } from "@/lib/orders/order-status-display-date";
+import { getInvoiceLinkMap } from "@/lib/server/orders-data";
 
 const productInclude = {
   orderItems: {
@@ -59,6 +60,12 @@ function transformProductDetail(
     string,
     { id: string; name: string | null; email: string; image?: string | null }
   >,
+  ownerUser: {
+    id: string;
+    name: string | null;
+    email: string;
+    image?: string | null;
+  } | null,
 ) {
   const orderItems = product.orderItems || [];
   // REQ-0140 — sold stats = delivered or paid only (not pending reservations)
@@ -192,6 +199,18 @@ function transformProductDetail(
         proportionalAmount,
         orderTotal: order.total,
         orderDate: item.order.createdAt.toISOString(),
+        // REQ-0143 — category + owner for recent-order meta parity
+        category: category
+          ? { id: category.id, name: category.name }
+          : null,
+        owner: ownerUser
+          ? {
+              id: ownerUser.id,
+              name: ownerUser.name,
+              email: ownerUser.email,
+              image: ownerUser.image ?? null,
+            }
+          : null,
         placedBy: placedBy
           ? {
               id: placedBy.id,
@@ -200,6 +219,10 @@ function transformProductDetail(
               image: placedBy.image ?? null,
             }
           : null,
+        productId: product.id,
+        productName: product.name,
+        productSku: product.sku,
+        productImageUrl: product.imageUrl || null,
       };
     }),
   };
@@ -271,7 +294,7 @@ export async function getProductDetailForPage(
     ),
   ] as string[];
 
-  const [category, supplier, creatorUser, updaterUser, orderUsers] =
+  const [category, supplier, creatorUser, updaterUser, orderUsers, ownerUser] =
     await Promise.all([
     prisma.category.findUnique({
       where: { id: product.categoryId },
@@ -299,6 +322,10 @@ export async function getProductDetailForPage(
           select: { id: true, email: true, name: true, image: true },
         })
       : Promise.resolve([]),
+    prisma.user.findUnique({
+      where: { id: product.userId },
+      select: { id: true, email: true, name: true, image: true },
+    }),
   ]);
 
   const orderUserMap = new Map(
@@ -324,10 +351,25 @@ export async function getProductDetailForPage(
     creatorUser,
     updaterUser,
     orderUserMap,
+    ownerUser,
   );
 
   const enrichedProduct =
     await enrichProductDetailWithCommittedQuantity(transformedProduct);
+
+  // REQ-0143 — batch invoice links for recent-order indicators
+  const invoiceMap = await getInvoiceLinkMap(
+    enrichedProduct.recentOrders.map((o) => o.orderId).filter(Boolean),
+  );
+  enrichedProduct.recentOrders = enrichedProduct.recentOrders.map((o) => {
+    const inv = invoiceMap.get(o.orderId);
+    return {
+      ...o,
+      invoiceForOrder: inv
+        ? { id: inv.id, invoiceNumber: inv.invoiceNumber }
+        : null,
+    };
+  });
 
   // REQ-0140 — reclassify insights stock using full committed (product + alloc reserved)
   const productInsights = computeProductInsights(

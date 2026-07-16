@@ -354,3 +354,5 @@
 | TC-0065 | REQ-0141 | Unit enrich + gates lint/test/invalidate/build |
 | ART-0142 | REQ-0142 | Cat/sup polish | SupplierNameEmailCell nest fix; HelpTooltip; userId count scope |
 | TC-0066 | REQ-0142 | enrich userId assert + gates |
+| ART-0143 | REQ-0143 | Detail meta polish | CatalogDetail lists · separators; category + invoice SSR |
+| TC-0067 | REQ-0143 | product-detail recentOrders + gates |

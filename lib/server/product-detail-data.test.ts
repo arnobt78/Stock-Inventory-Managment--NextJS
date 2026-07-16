@@ -36,6 +36,10 @@ vi.mock("@/prisma/client", () => ({
   },
 }));
 
+vi.mock("@/lib/server/orders-data", () => ({
+  getInvoiceLinkMap: vi.fn().mockResolvedValue(new Map()),
+}));
+
 import { prisma } from "@/prisma/client";
 import { getProductDetailForPage } from "./product-detail-data";
 

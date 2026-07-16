@@ -364,3 +364,5 @@ Format: `TIMESTAMP | AGENT | DECISION | RATIONALE | REQ-ID`
 2026-07-16T15:45:00Z | red-team | REQ-0141 automated gates | lint ✓ test 559 ✓ invalidate 213 ✓ build ✓ | REQ-0141
 2026-07-16T16:00:00Z | build-agent | REQ-0142 nest-button + share UX | Name/email siblings; HelpTooltip; productCount scoped to viewer userId | REQ-0142
 2026-07-16T16:02:00Z | red-team | REQ-0142 automated gates | lint ✓ test 559 ✓ invalidate 213 ✓ build ✓ | REQ-0142
+2026-07-16T16:30:00Z | build-agent | REQ-0143 detail meta polish | Party · separators; category sky link; invoice via getInvoiceLinkMap on recentOrders | REQ-0143
+2026-07-16T16:32:00Z | red-team | REQ-0143 automated gates | lint ✓ test 559 ✓ invalidate 213 ✓ build ✓ | REQ-0143
