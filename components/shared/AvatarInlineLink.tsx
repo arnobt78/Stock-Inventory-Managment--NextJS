@@ -7,8 +7,8 @@ import { AVATAR_RING_CLASS } from "@/lib/ui/avatar-ring-styles";
 import { cn } from "@/lib/utils";
 
 export type AvatarInlineLinkProps = {
-  /** Display name beside avatar */
-  label: string;
+  /** Display name beside avatar; omit for avatar-only (REQ-0142 supplier table) */
+  label?: string;
   /** Robohash / avatar seed (user id or supplier id) */
   seed: string;
   /** Optional Google profile image */
@@ -31,7 +31,8 @@ export function AvatarInlineLink({
   linkClassName,
 }: AvatarInlineLinkProps) {
   const avatar = resolveAvatarSourcesFromSeed(seed, image ?? null);
-  const nameEl = href ? (
+  const showLabel = label != null && label !== "";
+  const nameEl = !showLabel ? null : href ? (
     <Link
       href={href}
       className={cn(

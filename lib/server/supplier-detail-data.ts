@@ -48,6 +48,7 @@ function transformSupplierDetail(
   ownerMap: Map<string, CatalogPartyUserRow>,
   orderUserMap: Map<string, CatalogPartyUserRow>,
   isDemoSupplier: boolean,
+  categoryMap: Map<string, { id: string; name: string }>,
 ) {
   const supplierSnapshot = { id: supplier.id, name: supplier.name };
   const totalProducts = products.length;
@@ -177,6 +178,8 @@ function transformSupplierDetail(
       imageUrl: product.imageUrl || null,
       owner: toParty(ownerMap.get(product.userId)),
       supplier: supplierSnapshot,
+      // REQ-0141 — category for product grid link
+      category: categoryMap.get(product.categoryId) ?? null,
     })),
     recentOrders,
     isGlobalDemo: isDemoSupplier,
@@ -270,6 +273,7 @@ export async function getSupplierDetailForPage(
   });
 
   const ownerIds = [...new Set(products.map((p) => p.userId))];
+  const categoryIds = [...new Set(products.map((p) => p.categoryId))];
   const orderUserIds = [
     ...new Set(
       products.flatMap((p) =>
@@ -280,35 +284,45 @@ export async function getSupplierDetailForPage(
     ),
   ];
 
-  const [creatorUser, updaterUser, owners, orderUsers] = await Promise.all([
-    supplier.createdBy
-      ? prisma.user.findUnique({
-          where: { id: supplier.createdBy },
-          select: { id: true, email: true, name: true, image: true },
-        })
-      : null,
-    supplier.updatedBy
-      ? prisma.user.findUnique({
-          where: { id: supplier.updatedBy },
-          select: { id: true, email: true, name: true, image: true },
-        })
-      : null,
-    ownerIds.length
-      ? prisma.user.findMany({
-          where: { id: { in: ownerIds } },
-          select: { id: true, email: true, name: true, image: true },
-        })
-      : [],
-    orderUserIds.length
-      ? prisma.user.findMany({
-          where: { id: { in: orderUserIds } },
-          select: { id: true, email: true, name: true, image: true },
-        })
-      : [],
-  ]);
+  const [creatorUser, updaterUser, owners, orderUsers, categories] =
+    await Promise.all([
+      supplier.createdBy
+        ? prisma.user.findUnique({
+            where: { id: supplier.createdBy },
+            select: { id: true, email: true, name: true, image: true },
+          })
+        : null,
+      supplier.updatedBy
+        ? prisma.user.findUnique({
+            where: { id: supplier.updatedBy },
+            select: { id: true, email: true, name: true, image: true },
+          })
+        : null,
+      ownerIds.length
+        ? prisma.user.findMany({
+            where: { id: { in: ownerIds } },
+            select: { id: true, email: true, name: true, image: true },
+          })
+        : [],
+      orderUserIds.length
+        ? prisma.user.findMany({
+            where: { id: { in: orderUserIds } },
+            select: { id: true, email: true, name: true, image: true },
+          })
+        : [],
+      categoryIds.length
+        ? prisma.category.findMany({
+            where: { id: { in: categoryIds } },
+            select: { id: true, name: true },
+          })
+        : [],
+    ]);
 
   const ownerMap = new Map(owners.map((u) => [u.id, u]));
   const orderUserMap = new Map(orderUsers.map((u) => [u.id, u]));
+  const categoryMap = new Map(
+    categories.map((c) => [c.id, { id: c.id, name: c.name }]),
+  );
 
   const transformedSupplier = transformSupplierDetail(
     supplier,
@@ -318,6 +332,7 @@ export async function getSupplierDetailForPage(
     ownerMap,
     orderUserMap,
     isDemoSupplier,
+    categoryMap,
   );
 
   const enrichedProducts = await enrichProductsWithCommittedQuantity(

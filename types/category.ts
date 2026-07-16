@@ -54,6 +54,10 @@ export interface Category {
   updatedAt?: Date | string | null;
   createdBy: string; // User ID who created the category
   updatedBy?: string | null; // User ID who last updated the category
+  /** REQ-0141 — active products under this category (list + SSR). */
+  productCount?: number;
+  /** REQ-0141 — role-visible catalog size for Products % column. */
+  catalogProductTotal?: number;
   /** Extended by API for detail page */
   creator?: CategoryPartySnapshot | null;
   updater?: CategoryPartySnapshot | null;

@@ -3062,6 +3062,56 @@ Canonical REQ source. All artifacts link via `REQ-XXXX`. Status: `done` | `verif
 
 ---
 
+## REQ-0142 — Category/supplier list polish + nest-button fix
+
+| Field | Value |
+|-------|-------|
+| **Priority** | P0 |
+| **Risk** | R1 |
+| **Status** | done |
+| **Cycle** | C2 |
+| **Parent** | REQ-0141, REQ-0136 |
+
+**Intent:** Close REQ-0141 gaps — fix nested `<button>` in supplier dialog name cell; product-like Supplier & Email layout; Products HelpTooltip for count·%; scope productCount by viewer userId; detail Products/Recent Orders iconTile.
+
+**Acceptance criteria**
+
+- AC1: Supplier name cell — avatar \| name control \| email sibling; no CopyableText inside navigate button/Link
+- AC2: Header label **Supplier & Email**; FAB dialog opens without nested-button console error
+- AC3: Products header HelpTooltip (cat + sup) with shared `CATALOG_PRODUCT_SHARE_TOOLTIP`
+- AC4: `productCount` groupBy scoped to viewer `userId` (matches `catalogProductTotal`)
+- AC5: Detail Products + Recent Orders `SectionTitleRow` with `iconTile` + subtitle
+- AC6: Gates — lint, test, invalidate, build; invalidation unchanged
+
+**Artifacts:** `SupplierTableColumns.tsx`, `CategoryTableColumns.tsx`, `catalog-list-enrich.ts`, `catalog-product-share.ts`, `AvatarInlineLink.tsx`, `{Category,Supplier}DetailPage.tsx`
+
+---
+
+## REQ-0141 — Category / supplier list + detail UI
+
+| Field | Value |
+|-------|-------|
+| **Priority** | P0 |
+| **Risk** | R1 |
+| **Status** | done |
+| **Cycle** | C2 |
+| **Parent** | REQ-0136, REQ-0084, REQ-0086, REQ-0138 |
+
+**Intent:** Category/supplier list + detail UI parity — drop Notes column; product count + % of role-visible catalog; supplier email under name; remove top Status strip; product grid Name·SKU + category link; stock pie companion from existing stats (no new invalidation).
+
+**Acceptance criteria**
+
+- AC1: List tables — no Notes; Products `{count} · {%}` of catalog; supplier email under name when linked
+- AC2: List SSR/API enrich `productCount` (+ supplier `email`); CSV/Excel Notes → Products
+- AC3: Detail — no full-width Status card; `ActiveInactiveBadge` beside Created; Information/Statistics typography tokens
+- AC4: Product grid — SKU beside name; category link on meta row; supplier SSR category enrich
+- AC5: Stock pie + `CatalogSnapshotCompanion` side-by-side on `lg+` (not `lg:col-span-2`)
+- AC6: Gates — lint, test, invalidate, build; invalidation registry unchanged
+
+**Artifacts:** `lib/server/catalog-list-enrich.ts`, `lib/catalog/catalog-product-share.ts`, `CategoryTableColumns.tsx`, `SupplierTableColumns.tsx`, `CatalogDetailProductGrid.tsx`, `CatalogSnapshotCompanion.tsx`, `{Category,Supplier}DetailPage.tsx`, `{category,supplier}-detail-data.ts`
+
+---
+
 ## REQ-0140 — Seed stock coherence + sold/insights stats
 
 | Field | Value |

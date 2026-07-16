@@ -94,7 +94,8 @@ export default function SupplierFilters({
         Name: supplier.name,
         Status: supplier.status ? "Active" : "Inactive",
         Description: supplier.description || "-",
-        Notes: supplier.notes || "-",
+        Products: supplier.productCount ?? 0,
+        Email: supplier.email || "-",
         "Created At": supplier.createdAt
           ? formatStableDate(supplier.createdAt)
           : "-",
@@ -154,7 +155,8 @@ export default function SupplierFilters({
         Name: supplier.name,
         Status: supplier.status ? "Active" : "Inactive",
         Description: supplier.description || "-",
-        Notes: supplier.notes || "-",
+        Products: supplier.productCount ?? 0,
+        Email: supplier.email || "-",
         "Created At": supplier.createdAt
           ? formatStableDate(supplier.createdAt)
           : "-",
@@ -172,7 +174,8 @@ export default function SupplierFilters({
         { header: "Name", key: "Name", width: 25 },
         { header: "Status", key: "Status", width: 12 },
         { header: "Description", key: "Description", width: 30 },
-        { header: "Notes", key: "Notes", width: 30 },
+        { header: "Products", key: "Products", width: 12 },
+        { header: "Email", key: "Email", width: 28 },
         { header: "Created At", key: "Created At", width: 12 },
         { header: "Updated At", key: "Updated At", width: 12 },
       ];

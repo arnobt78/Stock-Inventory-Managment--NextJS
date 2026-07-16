@@ -49,6 +49,9 @@ export type CategoryForHome = {
   updatedAt: string | null;
   createdBy: string;
   updatedBy?: string | null;
+  /** REQ-0141 */
+  productCount?: number;
+  catalogProductTotal?: number;
 };
 
 /** Supplier shape returned by suppliers API GET (dates as ISO strings) */
@@ -63,6 +66,10 @@ export type SupplierForHome = {
   updatedAt: string | null;
   createdBy: string;
   updatedBy?: string | null;
+  /** REQ-0141 */
+  email?: string | null;
+  productCount?: number;
+  catalogProductTotal?: number;
 };
 
 /**
@@ -214,10 +221,12 @@ export async function getProductsBySupplierId(
  * Same query as GET /api/categories; returns serializable objects (dates as ISO strings).
  */
 export async function getCategoriesForUser(userId: string): Promise<CategoryForHome[]> {
+  const { enrichCategoriesWithProductCounts, countActiveCatalogProductsForUser } =
+    await import("@/lib/server/catalog-list-enrich");
   const categories = await prisma.category.findMany({
     where: { userId },
   });
-  return categories.map((c) => ({
+  const base = categories.map((c) => ({
     id: c.id,
     name: c.name,
     userId: c.userId,
@@ -229,6 +238,11 @@ export async function getCategoriesForUser(userId: string): Promise<CategoryForH
     createdBy: c.createdBy,
     updatedBy: c.updatedBy ?? null,
   }));
+  const [enriched, catalogProductTotal] = await Promise.all([
+    enrichCategoriesWithProductCounts(base, userId),
+    countActiveCatalogProductsForUser(userId),
+  ]);
+  return enriched.map((c) => ({ ...c, catalogProductTotal }));
 }
 
 /**
@@ -239,11 +253,14 @@ export async function getCategoriesForUser(userId: string): Promise<CategoryForH
  */
 export async function getSuppliersForUser(userId: string): Promise<(SupplierForHome & { isGlobalDemo?: boolean })[]> {
   const { getSuppliersForAdminIncludingDemo, getDemoSupplierUserId } = await import("@/prisma/supplier");
-  const [suppliers, demoUserId] = await Promise.all([
+  const { enrichSuppliersWithListFields, countActiveCatalogProductsForUser } =
+    await import("@/lib/server/catalog-list-enrich");
+  const [suppliers, demoUserId, catalogProductTotal] = await Promise.all([
     getSuppliersForAdminIncludingDemo(userId),
     getDemoSupplierUserId(),
+    countActiveCatalogProductsForUser(userId),
   ]);
-  return suppliers.map((s) => ({
+  const base = suppliers.map((s) => ({
     id: s.id,
     name: s.name,
     userId: s.userId,
@@ -256,4 +273,7 @@ export async function getSuppliersForUser(userId: string): Promise<(SupplierForH
     updatedBy: s.updatedBy ?? null,
     isGlobalDemo: demoUserId != null && s.userId === demoUserId,
   }));
+  // REQ-0142 — productCount scoped to list viewer catalog (userId)
+  const enriched = await enrichSuppliersWithListFields(base, userId);
+  return enriched.map((s) => ({ ...s, catalogProductTotal }));
 }

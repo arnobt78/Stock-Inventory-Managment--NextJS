@@ -24,9 +24,7 @@ import {
   Wallet,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import {
-  ActiveInactiveBadge,
-} from "@/lib/ui/semantic-badges";
+import { ActiveInactiveBadge } from "@/lib/ui/semantic-badges";
 import {
   useSupplier,
   useCreateSupplier,
@@ -44,13 +42,13 @@ import {
   PageContentWrapper,
   DataSlotPulse,
   PageSectionHeader,
-  GLASS_GHOST_BUTTON,
   glassDetailBackButtonClass,
   glassDetailFooterButtonClass,
   DETAIL_HEADER_BACK_ICON_CLASS,
   DialogSubmitButton,
   AuditUserDetailRow,
   CatalogInsightsSection,
+  CatalogSnapshotCompanion,
   DetailInfoRowGroup,
   CatalogDetailProductGrid,
   CatalogDetailRecentOrdersList,
@@ -75,8 +73,15 @@ import {
   useSyncSsrQueryData,
 } from "@/lib/react-query";
 import { cn } from "@/lib/utils";
-import { TYPO_BODY_MUTED } from "@/lib/ui/typography-scale";
-import { APP_SHELL_DETAIL_CLASS, DETAIL_PAGE_HEADER_SPACING_CLASS } from "@/lib/ui/shell-layout-styles";
+import {
+  TYPO_BODY_MUTED,
+  TYPO_CARD_TITLE,
+  TYPO_SUBTITLE,
+} from "@/lib/ui/typography-scale";
+import {
+  APP_SHELL_DETAIL_CLASS,
+  DETAIL_PAGE_HEADER_SPACING_CLASS,
+} from "@/lib/ui/shell-layout-styles";
 
 export type SupplierDetailPageProps = {
   embedInAdmin?: boolean;
@@ -240,6 +245,8 @@ export default function SupplierDetailPage({
     embedInAdmin
       ? `/admin/suppliers/${supplierId}`
       : `/suppliers/${supplierId}`;
+  const categoryHref = (id: string) =>
+    embedInAdmin ? `/admin/categories/${id}` : `/categories/${id}`;
   const orderHref = (orderId: string) =>
     embedInAdmin ? `/admin/orders/${orderId}` : `/orders/${orderId}`;
 
@@ -275,22 +282,23 @@ export default function SupplierDetailPage({
               )
             }
             description={
-              <ClientRelativeTime date={createdAt} prefix="Created " semantic="created" />
+              <ClientRelativeTime
+                date={createdAt}
+                prefix="Created "
+                semantic="created"
+              />
+            }
+            trailing={
+              dataLoading ? (
+                <DataSlotPulse variant="badge" className="self-center" />
+              ) : supplier != null ? (
+                <ActiveInactiveBadge
+                  active={Boolean(supplier.status)}
+                  className="self-center text-sm shrink-0"
+                />
+              ) : undefined
             }
           />
-
-          {/* Supplier Status Card */}
-          <GlassCard variant="emerald">
-            <GlassCardBody>
-              <p className="text-xs uppercase tracking-[0.2em] text-gray-600 dark:text-white/60 mb-3">
-                Status
-              </p>
-              <ActiveInactiveBadge
-                active={Boolean(supplier?.status)}
-                className="text-sm"
-              />
-            </GlassCardBody>
-          </GlassCard>
 
           {/* Supplier Information and Statistics */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-2 sm:gap-4">
@@ -302,10 +310,8 @@ export default function SupplierDetailPage({
                     <Truck className="h-4 w-4 text-gray-700 dark:text-white" />
                   </div>
                   <div>
-                    <h3 className="text-sm sm:text-base font-medium text-gray-700 dark:text-white">
-                      Supplier Information
-                    </h3>
-                    <p className="text-xs text-gray-600 dark:text-white/60">
+                    <h3 className={TYPO_CARD_TITLE}>Supplier Information</h3>
+                    <p className={TYPO_SUBTITLE}>
                       Supplier metadata and audit fields
                     </p>
                   </div>
@@ -340,7 +346,11 @@ export default function SupplierDetailPage({
                     </DetailInfoRow>
                   )}
                   {!dataLoading && supplier?.description && (
-                    <DetailInfoRow icon={FileText} label="Description:" tone="amber">
+                    <DetailInfoRow
+                      icon={FileText}
+                      label="Description:"
+                      tone="amber"
+                    >
                       {supplier.description}
                     </DetailInfoRow>
                   )}
@@ -356,7 +366,9 @@ export default function SupplierDetailPage({
                       tone="teal"
                       loading={dataLoading}
                     >
-                      {!dataLoading && <ClientDateTime date={createdAt} semantic="created" />}
+                      {!dataLoading && (
+                        <ClientDateTime date={createdAt} semantic="created" />
+                      )}
                     </DetailInfoRow>
                     {(dataLoading || updatedAt) && (
                       <DetailInfoRow
@@ -405,10 +417,8 @@ export default function SupplierDetailPage({
                     <BarChart3 className="h-4 w-4 text-gray-700 dark:text-white" />
                   </div>
                   <div>
-                    <h3 className="text-sm sm:text-base font-medium text-gray-700 dark:text-white">
-                      Statistics
-                    </h3>
-                    <p className="text-xs text-gray-600 dark:text-white/60">
+                    <h3 className={TYPO_CARD_TITLE}>Statistics</h3>
+                    <p className={TYPO_SUBTITLE}>
                       Summary of products and sales data
                     </p>
                   </div>
@@ -480,7 +490,7 @@ export default function SupplierDetailPage({
               forecastLoading={forecastLoading}
               title="Supplier Insights"
               subtitle="Derived demand and inventory signals"
-              salesChartTitle="Sales trend (6 months)"
+              salesChartTitle="Sales Trend (6 months)"
               salesChartDescription="Revenue from supplier order lines"
               salesChartData={salesChartData}
               stockChartData={stockChartData}
@@ -493,6 +503,16 @@ export default function SupplierDetailPage({
                 (forecastLoading ||
                   (supplierForecast?.topUrgent.length ?? 0) > 0)
               }
+              stockChartCompanion={
+                <CatalogSnapshotCompanion
+                  stats={stats}
+                  stockSignals={{
+                    lowStockCount: insights.lowStockCount,
+                    outOfStockCount: insights.outOfStockCount,
+                  }}
+                  dataLoading={dataLoading}
+                />
+              }
             />
           )}
 
@@ -503,7 +523,9 @@ export default function SupplierDetailPage({
                 as="h3"
                 icon={Truck}
                 iconClassName="text-sky-600 dark:text-sky-400"
+                iconTile
                 title="Products from this Supplier"
+                subtitle="Catalog products linked to this supplier"
                 count={
                   !dataLoading && products.length > 0
                     ? products.length
@@ -517,6 +539,7 @@ export default function SupplierDetailPage({
                 productHref={productHref}
                 ownerProductsHref={ownerProductsHref}
                 supplierHref={supplierHref}
+                categoryHref={categoryHref}
               />
             </GlassCardBody>
           </GlassCard>
@@ -528,7 +551,9 @@ export default function SupplierDetailPage({
                 as="h3"
                 icon={ShoppingCart}
                 iconClassName="text-violet-600 dark:text-violet-400"
+                iconTile
                 title="Recent Orders"
+                subtitle="Latest orders for products from this supplier"
                 count={
                   !dataLoading && recentOrders.length > 0
                     ? recentOrders.length

@@ -265,6 +265,7 @@ flowchart LR
 | Explore seed (REQ-0137) | `DEMO_CATALOG_SEED`; `--with-catalog`; 1–2 rows/entity | |
 | Product UI (REQ-0138–0139) | Table QR/dates; detail 3-col; Catalog Allocation companion; urgency badges | |
 | Seed stock + sold (REQ-0140) | Beats `product.reserved=0`; sold=delivered\|paid; insights `qty−committed` | Gates: test 556 |
+| Cat/sup UI (REQ-0141–0142) | productCount+% + HelpTooltip; Supplier & Email nest fix; userId count scope | |
 | Next | Gate 2 — REQ-0136 UI + §10 A1/A2/B1; Sentry 24h | |
 | AI warehouse insights (REQ-0067) | `POST /api/ai/insights` enriches payload with `getWarehouseStockSummary` |
 | Per-warehouse order picking (REQ-0068) | `OrderItem.warehouseId`; `stock-allocation-order-sync.ts`; `OrderLineWarehouseSelect`; reserve/fulfill/cancel sync; invoice-paid gap; `f892b65` removed unused `deleteCache`/`getRateLimitStatus` |

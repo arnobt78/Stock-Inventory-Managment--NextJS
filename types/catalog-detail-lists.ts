@@ -22,6 +22,8 @@ export type CatalogDetailProductItem = {
   status?: string;
   owner?: CatalogDetailPartySnapshot | null;
   supplier?: { id: string; name: string } | null;
+  /** REQ-0141 — category link on product grid (supplier detail + category parity). */
+  category?: { id: string; name: string } | null;
 };
 
 export type CatalogDetailRecentOrderItem = {

@@ -22,8 +22,13 @@ import {
   DIALOG_TABLE_TEXT,
   TABLE_CATALOG_LINK_CLASS,
 } from "@/components/shared/dialog-edge-scroll";
-import { ClientDate } from "@/components/shared";
+import { ClientDate, CopyableText, HelpTooltip } from "@/components/shared";
 import type { TableColumnContext } from "@/components/category/CategoryTableColumns";
+import {
+  CATALOG_PRODUCT_SHARE_TOOLTIP,
+  catalogProductSharePercent,
+} from "@/lib/catalog/catalog-product-share";
+import { cn } from "@/lib/utils";
 
 const PAGE_BODY_TEXT = "text-gray-700 dark:text-white";
 const PAGE_HEADER_TEXT = "text-gray-700 dark:text-white";
@@ -101,21 +106,29 @@ const truncateText = (
   return `${text.substring(0, maxLength)}...`;
 };
 
-function NameLinkWithClose({
+/**
+ * REQ-0142 — product-like stack: avatar | name control | email sibling.
+ * Name alone navigates (button closes dialog); CopyableText never nests inside button.
+ */
+function SupplierNameEmailCell({
   href,
   name,
   userId,
+  email,
   onBeforeNavigate,
   linkClass,
 }: {
   href: string;
   name: string;
   userId: string;
-  onBeforeNavigate: () => void;
+  email?: string | null;
+  onBeforeNavigate?: () => void;
   linkClass: string;
 }) {
   const router = useRouter();
-  return (
+  const emailTrimmed = email?.trim() || null;
+
+  const nameControl = onBeforeNavigate ? (
     <button
       type="button"
       onClick={() => {
@@ -123,19 +136,41 @@ function NameLinkWithClose({
         clearBodyScrollLock();
         setTimeout(() => router.push(href), 150);
       }}
-      className={`${linkClass} text-left`}
+      className={cn(linkClass, "truncate text-left max-w-full")}
+      title={name}
     >
-      <AvatarInlineLink
-        label={name}
-        seed={userId}
-        size={28}
-        linkClassName={TABLE_CATALOG_LINK_CLASS}
-      />
+      {name}
     </button>
+  ) : (
+    <Link
+      href={href}
+      className={cn(linkClass, "truncate max-w-full")}
+      title={name}
+    >
+      {name}
+    </Link>
+  );
+
+  return (
+    <div className="flex items-center gap-2 min-w-0 max-w-[220px]">
+      <AvatarInlineLink seed={userId} size={28} className="shrink-0" />
+      <div className="flex min-w-0 flex-col">
+        {nameControl}
+        {emailTrimmed ? (
+          <CopyableText
+            value={emailTrimmed}
+            className="truncate text-xs font-normal text-muted-foreground"
+          >
+            {emailTrimmed}
+          </CopyableText>
+        ) : null}
+      </div>
+    </div>
   );
 }
 
-const DIALOG_HIDDEN_COLUMNS = new Set(["description", "notes"]);
+// REQ-0141 — page list drops notes; dialog hides description/products
+const DIALOG_HIDDEN_COLUMNS = new Set(["description", "productCount"]);
 
 export const createSupplierColumns = (
   onEdit: (supplier: Supplier) => void,
@@ -151,37 +186,25 @@ export const createSupplierColumns = (
       accessorKey: "name",
       cell: ({ row }) => {
         const supplier = row.original;
-        const href = `/suppliers/${supplier.id}`;
-        if (onBeforeNavigate) {
-          return (
-            <NameLinkWithClose
-              href={href}
-              name={supplier.name}
-              userId={supplier.userId ?? supplier.id}
-              onBeforeNavigate={onBeforeNavigate}
-              linkClass={linkClass}
-            />
-          );
-        }
         return (
-          <Link href={href} className={linkClass}>
-            <AvatarInlineLink
-              label={supplier.name}
-              seed={supplier.userId ?? supplier.id}
-              size={28}
-              linkClassName={TABLE_CATALOG_LINK_CLASS}
-            />
-          </Link>
+          <SupplierNameEmailCell
+            href={`/suppliers/${supplier.id}`}
+            name={supplier.name}
+            userId={supplier.userId ?? supplier.id}
+            email={supplier.email}
+            onBeforeNavigate={onBeforeNavigate}
+            linkClass={linkClass}
+          />
         );
       },
       header: ({ column }) => (
         <SortableHeader
           column={column}
-          label="Supplier"
+          label="Supplier & Email"
           textClass={headerText}
         />
       ),
-      size: 15,
+      size: 18,
     },
     {
       accessorKey: "status",
@@ -193,6 +216,42 @@ export const createSupplierColumns = (
         return <ActiveInactiveBadge active={status} />;
       },
       size: 10,
+    },
+    {
+      accessorKey: "productCount",
+      // REQ-0142 — HelpTooltip sibling of sort trigger (no nested interactive)
+      header: ({ column }) => (
+        <div className="flex items-center gap-1">
+          <SortableHeader
+            column={column}
+            label="Products"
+            textClass={headerText}
+          />
+          <HelpTooltip
+            content={CATALOG_PRODUCT_SHARE_TOOLTIP}
+            side="top"
+            ariaLabel="Products column help"
+            className="shrink-0"
+          />
+        </div>
+      ),
+      cell: ({ row }) => {
+        const count = row.original.productCount ?? 0;
+        const total = row.original.catalogProductTotal ?? 0;
+        const pct = catalogProductSharePercent(count, total);
+        return (
+          <span className={bodyText}>
+            {count}
+            {total > 0 ? (
+              <span className="text-muted-foreground text-xs font-normal">
+                {" "}
+                · {pct}%
+              </span>
+            ) : null}
+          </span>
+        );
+      },
+      size: 12,
     },
     {
       accessorKey: "description",
@@ -208,21 +267,6 @@ export const createSupplierColumns = (
         return (
           <span className={bodyText} title={description || undefined}>
             {truncateText(description, 50)}
-          </span>
-        );
-      },
-      size: 20,
-    },
-    {
-      accessorKey: "notes",
-      header: ({ column }) => (
-        <SortableHeader column={column} label="Notes" textClass={headerText} />
-      ),
-      cell: ({ row }) => {
-        const notes = row.original.notes;
-        return (
-          <span className={bodyText} title={notes || undefined}>
-            {truncateText(notes, 50)}
           </span>
         );
       },

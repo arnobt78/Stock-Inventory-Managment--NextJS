@@ -28,11 +28,23 @@ export async function GET(request: NextRequest) {
 
     const userId = session.id;
 
+    const {
+      enrichCategoriesWithProductCounts,
+      countActiveCatalogProductsForUser,
+    } = await import("@/lib/server/catalog-list-enrich");
+
     const categories = await prisma.category.findMany({
       where: { userId },
     });
+    const [enriched, catalogProductTotal] = await Promise.all([
+      enrichCategoriesWithProductCounts(categories, userId),
+      countActiveCatalogProductsForUser(userId),
+    ]);
 
-    return NextResponse.json(categories);
+    // REQ-0141 — productCount + catalogProductTotal for list Products column
+    return NextResponse.json(
+      enriched.map((c) => ({ ...c, catalogProductTotal })),
+    );
   } catch (error) {
     logger.error("Error fetching categories:", error);
     return NextResponse.json(

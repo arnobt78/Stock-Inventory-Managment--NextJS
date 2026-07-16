@@ -33,19 +33,31 @@ export async function GET(request: NextRequest) {
     const userId = session.id;
     const isClient = session.role === "client";
 
+    const {
+      enrichSuppliersWithListFields,
+      countActiveCatalogProductsForUser,
+    } = await import("@/lib/server/catalog-list-enrich");
+
     const suppliers = isClient
       ? await prisma.supplier.findMany({ where: { userId } })
       : await getSuppliersForAdminIncludingDemo(userId);
 
-    const demoUserId = await getDemoSupplierUserId();
+    const [demoUserId, catalogProductTotal] = await Promise.all([
+      getDemoSupplierUserId(),
+      countActiveCatalogProductsForUser(userId),
+    ]);
     const withFlags = suppliers.map((s) => ({
       ...s,
       createdAt: s.createdAt.toISOString(),
       updatedAt: s.updatedAt?.toISOString() ?? null,
       isGlobalDemo: demoUserId != null && s.userId === demoUserId,
     }));
+    // REQ-0141/0142 — productCount (viewer-scoped) + linked email for list columns
+    const enriched = await enrichSuppliersWithListFields(withFlags, userId);
 
-    return NextResponse.json(withFlags);
+    return NextResponse.json(
+      enriched.map((s) => ({ ...s, catalogProductTotal })),
+    );
   } catch (error) {
     logger.error("Error fetching suppliers:", error);
     return NextResponse.json(

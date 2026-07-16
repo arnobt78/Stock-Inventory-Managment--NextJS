@@ -47,6 +47,7 @@ import {
   DETAIL_HEADER_BACK_ICON_CLASS,
   AuditUserDetailRow,
   CatalogInsightsSection,
+  CatalogSnapshotCompanion,
   DetailInfoRowGroup,
   CatalogDetailProductGrid,
   CatalogDetailRecentOrdersList,
@@ -62,20 +63,10 @@ import {
 } from "@/lib/ui/catalog-insights-chart-data";
 import type { ForecastingSummary } from "@/types";
 import { DetailInfoRow } from "@/components/orders/detail";
-import {
-  ActiveInactiveBadge,
-} from "@/lib/ui/semantic-badges";
+import { ActiveInactiveBadge } from "@/lib/ui/semantic-badges";
 import CategoryDialog from "@/components/category/CategoryDialog";
 import { AlertDialogWrapper } from "@/components/dialogs";
 import type { Category } from "@/types";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
 import {
   isDataSlotLoading,
   isDataSlotUnsettled,
@@ -83,8 +74,15 @@ import {
   useSyncSsrQueryData,
 } from "@/lib/react-query";
 import { cn } from "@/lib/utils";
-import { TYPO_BODY_MUTED } from "@/lib/ui/typography-scale";
-import { APP_SHELL_DETAIL_CLASS, DETAIL_PAGE_HEADER_SPACING_CLASS } from "@/lib/ui/shell-layout-styles";
+import {
+  TYPO_BODY_MUTED,
+  TYPO_CARD_TITLE,
+  TYPO_SUBTITLE,
+} from "@/lib/ui/typography-scale";
+import {
+  APP_SHELL_DETAIL_CLASS,
+  DETAIL_PAGE_HEADER_SPACING_CLASS,
+} from "@/lib/ui/shell-layout-styles";
 
 export type CategoryDetailPageProps = {
   embedInAdmin?: boolean;
@@ -168,6 +166,9 @@ export default function CategoryDetailPage({
       ? `/admin/suppliers/${supplierId}`
       : `/suppliers/${supplierId}`;
 
+  const categoryHref = (id: string) =>
+    embedInAdmin ? `/admin/categories/${id}` : `/categories/${id}`;
+
   const orderHref = (orderId: string) =>
     embedInAdmin ? `/admin/orders/${orderId}` : `/orders/${orderId}`;
 
@@ -216,21 +217,21 @@ export default function CategoryDetailPage({
         <div className="flex flex-col items-center justify-center min-h-[60vh] gap-2">
           <GlassCard variant="rose" className="max-w-md text-center">
             <GlassCardBody>
-            <h2 className="text-sm sm:text-base font-medium text-gray-700 dark:text-white mb-2">
-              Category Not Found
-            </h2>
-            <p className="text-gray-600 dark:text-gray-400 mb-4">
-              {categoryQuery.error instanceof Error
-                ? categoryQuery.error.message
-                : "Failed to load category details"}
-            </p>
-            <Button
-              onClick={() => router.push("/")}
-              className="rounded-xl border border-gray-300/30 bg-white/50 dark:bg-white/5 dark:border-white/10 hover:bg-gray-100/50 dark:hover:bg-white/10 text-gray-700 dark:text-white"
-            >
-              <ArrowLeft className="h-4 w-4 mr-2" />
-              Back to Home
-            </Button>
+              <h2 className="text-sm sm:text-base font-medium text-gray-700 dark:text-white mb-2">
+                Category Not Found
+              </h2>
+              <p className="text-gray-600 dark:text-gray-400 mb-4">
+                {categoryQuery.error instanceof Error
+                  ? categoryQuery.error.message
+                  : "Failed to load category details"}
+              </p>
+              <Button
+                onClick={() => router.push("/")}
+                className="rounded-xl border border-gray-300/30 bg-white/50 dark:bg-white/5 dark:border-white/10 hover:bg-gray-100/50 dark:hover:bg-white/10 text-gray-700 dark:text-white"
+              >
+                <ArrowLeft className="h-4 w-4 mr-2" />
+                Back to Home
+              </Button>
             </GlassCardBody>
           </GlassCard>
         </div>
@@ -318,26 +319,23 @@ export default function CategoryDetailPage({
               )
             }
             description={
-              <ClientRelativeTime date={createdAt} prefix="Created " semantic="created" />
+              <ClientRelativeTime
+                date={createdAt}
+                prefix="Created "
+                semantic="created"
+              />
+            }
+            trailing={
+              dataLoading ? (
+                <DataSlotPulse variant="badge" className="self-center" />
+              ) : category != null ? (
+                <ActiveInactiveBadge
+                  active={Boolean(category.status)}
+                  className="self-center text-sm shrink-0"
+                />
+              ) : undefined
             }
           />
-
-          {/* Category Status Card — same style as supplier detail page */}
-          <GlassCard variant="emerald">
-            <GlassCardBody>
-              <p className="text-xs uppercase tracking-[0.2em] text-gray-600 dark:text-white/60 mb-3">
-                Status
-              </p>
-              {dataLoading ? (
-                <DataSlotPulse variant="badge" />
-              ) : (
-                <ActiveInactiveBadge
-                  active={Boolean(category?.status)}
-                  className="text-sm"
-                />
-              )}
-            </GlassCardBody>
-          </GlassCard>
 
           {/* Category Information and Statistics */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-2 sm:gap-4">
@@ -349,95 +347,103 @@ export default function CategoryDetailPage({
                     <Tag className="h-4 w-4 text-gray-700 dark:text-white" />
                   </div>
                   <div>
-                    <h3 className="text-sm sm:text-base font-medium text-gray-700 dark:text-white">
-                      Category Information
-                    </h3>
-                    <p className="text-xs text-gray-600 dark:text-white/60">
+                    <h3 className={TYPO_CARD_TITLE}>Category Information</h3>
+                    <p className={TYPO_SUBTITLE}>
                       Category metadata and audit fields
                     </p>
                   </div>
                 </div>
 
-              <div className="space-y-2">
-                {!dataLoading && category && (
-                  <DetailInfoRow icon={Hash} label="Category ID:" tone="violet">
-                    <CopyableText value={category.id}>
-                      <span className="font-mono text-xs">{category.id}</span>
-                    </CopyableText>
-                  </DetailInfoRow>
-                )}
-                <DetailInfoRow
-                  icon={Tag}
-                  label="Name:"
-                  tone="orange"
-                  loading={dataLoading}
-                >
-                  {!dataLoading && category?.name && (
-                    <CopyableText value={category.name}>
-                      {category.name}
-                    </CopyableText>
-                  )}
-                </DetailInfoRow>
-                {!dataLoading && category && (
-                  <DetailInfoRow icon={Tag} label="Status:" tone="emerald">
-                    <ActiveInactiveBadge active={Boolean(category.status)} />
-                  </DetailInfoRow>
-                )}
-                {!dataLoading && category?.description && (
-                  <DetailInfoRow icon={FileText} label="Description:" tone="amber">
-                    {category.description}
-                  </DetailInfoRow>
-                )}
-                {!dataLoading && category?.notes && (
-                  <DetailInfoRow icon={StickyNote} label="Notes:" tone="teal">
-                    {category.notes}
-                  </DetailInfoRow>
-                )}
-                <DetailInfoRowGroup>
-                  <DetailInfoRow
-                    icon={Calendar}
-                    label="Created:"
-                    tone="teal"
-                    loading={dataLoading}
-                  >
-                      {!dataLoading && <ClientDateTime date={createdAt} semantic="created" />}
-                  </DetailInfoRow>
-                  {(dataLoading || updatedAt) && (
+                <div className="space-y-2">
+                  {!dataLoading && category && (
                     <DetailInfoRow
-                      icon={Calendar}
-                      label="Updated:"
-                      tone="sky"
-                      loading={dataLoading}
+                      icon={Hash}
+                      label="Category ID:"
+                      tone="violet"
                     >
-                      {!dataLoading && updatedAt && (
-                        <ClientDateTime date={updatedAt} semantic="updated" />
-                      )}
+                      <CopyableText value={category.id}>
+                        <span className="font-mono text-xs">{category.id}</span>
+                      </CopyableText>
                     </DetailInfoRow>
                   )}
-                </DetailInfoRowGroup>
-                {!dataLoading && category?.creator && (
-                  <AuditUserDetailRow
-                    label="Created by:"
-                    tone="violet"
-                    user={category.creator}
-                    href={resolveAuditUserManagementHref(
-                      category.creator.id,
-                      isAdminRole,
+                  <DetailInfoRow
+                    icon={Tag}
+                    label="Name:"
+                    tone="orange"
+                    loading={dataLoading}
+                  >
+                    {!dataLoading && category?.name && (
+                      <CopyableText value={category.name}>
+                        {category.name}
+                      </CopyableText>
                     )}
-                  />
-                )}
-                {!dataLoading && category?.updater && (
-                  <AuditUserDetailRow
-                    label="Updated by:"
-                    tone="blue"
-                    user={category.updater}
-                    href={resolveAuditUserManagementHref(
-                      category.updater.id,
-                      isAdminRole,
+                  </DetailInfoRow>
+                  {!dataLoading && category && (
+                    <DetailInfoRow icon={Tag} label="Status:" tone="emerald">
+                      <ActiveInactiveBadge active={Boolean(category.status)} />
+                    </DetailInfoRow>
+                  )}
+                  {!dataLoading && category?.description && (
+                    <DetailInfoRow
+                      icon={FileText}
+                      label="Description:"
+                      tone="amber"
+                    >
+                      {category.description}
+                    </DetailInfoRow>
+                  )}
+                  {!dataLoading && category?.notes && (
+                    <DetailInfoRow icon={StickyNote} label="Notes:" tone="teal">
+                      {category.notes}
+                    </DetailInfoRow>
+                  )}
+                  <DetailInfoRowGroup>
+                    <DetailInfoRow
+                      icon={Calendar}
+                      label="Created:"
+                      tone="teal"
+                      loading={dataLoading}
+                    >
+                      {!dataLoading && (
+                        <ClientDateTime date={createdAt} semantic="created" />
+                      )}
+                    </DetailInfoRow>
+                    {(dataLoading || updatedAt) && (
+                      <DetailInfoRow
+                        icon={Calendar}
+                        label="Updated:"
+                        tone="sky"
+                        loading={dataLoading}
+                      >
+                        {!dataLoading && updatedAt && (
+                          <ClientDateTime date={updatedAt} semantic="updated" />
+                        )}
+                      </DetailInfoRow>
                     )}
-                  />
-                )}
-              </div>
+                  </DetailInfoRowGroup>
+                  {!dataLoading && category?.creator && (
+                    <AuditUserDetailRow
+                      label="Created by:"
+                      tone="violet"
+                      user={category.creator}
+                      href={resolveAuditUserManagementHref(
+                        category.creator.id,
+                        isAdminRole,
+                      )}
+                    />
+                  )}
+                  {!dataLoading && category?.updater && (
+                    <AuditUserDetailRow
+                      label="Updated by:"
+                      tone="blue"
+                      user={category.updater}
+                      href={resolveAuditUserManagementHref(
+                        category.updater.id,
+                        isAdminRole,
+                      )}
+                    />
+                  )}
+                </div>
               </GlassCardBody>
             </GlassCard>
             <GlassCard variant="teal">
@@ -447,10 +453,8 @@ export default function CategoryDetailPage({
                     <BarChart3 className="h-4 w-4 text-gray-700 dark:text-white" />
                   </div>
                   <div>
-                    <h3 className="text-sm sm:text-base font-medium text-gray-700 dark:text-white">
-                      Statistics
-                    </h3>
-                    <p className="text-xs text-gray-600 dark:text-white/60">
+                    <h3 className={TYPO_CARD_TITLE}>Statistics</h3>
+                    <p className={TYPO_SUBTITLE}>
                       Summary of products and sales data
                     </p>
                   </div>
@@ -524,7 +528,7 @@ export default function CategoryDetailPage({
               forecastLoading={forecastLoading}
               title="Category Insights"
               subtitle="Derived demand and inventory signals"
-              salesChartTitle="Sales trend (6 months)"
+              salesChartTitle="Sales Trend (6 months)"
               salesChartDescription="Revenue from category order lines"
               salesChartData={salesChartData}
               stockChartData={stockChartData}
@@ -537,6 +541,16 @@ export default function CategoryDetailPage({
                 (forecastLoading ||
                   (categoryForecast?.topUrgent.length ?? 0) > 0)
               }
+              stockChartCompanion={
+                <CatalogSnapshotCompanion
+                  stats={stats}
+                  stockSignals={{
+                    lowStockCount: insights.lowStockCount,
+                    outOfStockCount: insights.outOfStockCount,
+                  }}
+                  dataLoading={dataLoading}
+                />
+              }
             />
           )}
 
@@ -547,7 +561,9 @@ export default function CategoryDetailPage({
                 as="h3"
                 icon={Package}
                 iconClassName="text-sky-600 dark:text-sky-400"
+                iconTile
                 title="Products in this Category"
+                subtitle="Catalog products assigned to this category"
                 count={
                   !dataLoading && products.length > 0
                     ? products.length
@@ -561,6 +577,7 @@ export default function CategoryDetailPage({
                 productHref={productHref}
                 ownerProductsHref={ownerProductsHref}
                 supplierHref={supplierHref}
+                categoryHref={categoryHref}
               />
             </GlassCardBody>
           </GlassCard>
@@ -572,7 +589,9 @@ export default function CategoryDetailPage({
                 as="h3"
                 icon={ShoppingCart}
                 iconClassName="text-violet-600 dark:text-violet-400"
+                iconTile
                 title="Recent Orders"
+                subtitle="Latest orders for products in this category"
                 count={
                   !dataLoading && recentOrders.length > 0
                     ? recentOrders.length

@@ -359,3 +359,8 @@ Format: `TIMESTAMP | AGENT | DECISION | RATIONALE | REQ-ID`
 2026-07-16T13:28:00Z | build-agent | REQ-0139 product UI gaps | QR sky border; Created/Expire labels; stretch stats+icons; Catalog Allocation companion; ForecastUrgencyBadge; TYPO tokens | REQ-0139
 2026-07-16T14:05:00Z | build-agent | REQ-0140 seed coherence | Beats product.reserved=0 (warehouse-pick only); Sony post-fulfill 99/49; sold=delivered|paid; insights qty−committed | REQ-0140
 2026-07-16T14:05:00Z | red-team | REQ-0140 not live reservation bug | Live create/cancel/pay already disjoint; double 40 was seed-only | REQ-0140,REQ-0103
+2026-07-16T15:40:00Z | build-agent | REQ-0141 cat/sup UI | List productCount+% + supplier email; drop Notes; Status badge by Created; grid Name·SKU + category; CatalogSnapshotCompanion | REQ-0141
+2026-07-16T15:40:00Z | build-agent | List % = role-visible catalog share | No warehouse/order aggregates on list; companion from existing statistics/insights | REQ-0141
+2026-07-16T15:45:00Z | red-team | REQ-0141 automated gates | lint ✓ test 559 ✓ invalidate 213 ✓ build ✓ | REQ-0141
+2026-07-16T16:00:00Z | build-agent | REQ-0142 nest-button + share UX | Name/email siblings; HelpTooltip; productCount scoped to viewer userId | REQ-0142
+2026-07-16T16:02:00Z | red-team | REQ-0142 automated gates | lint ✓ test 559 ✓ invalidate 213 ✓ build ✓ | REQ-0142

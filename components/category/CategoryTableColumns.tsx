@@ -19,7 +19,11 @@ import {
   DIALOG_TABLE_TEXT,
   TABLE_CATALOG_LINK_CLASS,
 } from "@/components/shared/dialog-edge-scroll";
-import { ClientDate } from "@/components/shared";
+import { ClientDate, HelpTooltip } from "@/components/shared";
+import {
+  CATALOG_PRODUCT_SHARE_TOOLTIP,
+  catalogProductSharePercent,
+} from "@/lib/catalog/catalog-product-share";
 
 export type TableColumnContext = "page" | "dialog";
 
@@ -95,7 +99,8 @@ const truncateText = (
   return `${text.substring(0, maxLength)}...`;
 };
 
-const DIALOG_HIDDEN_COLUMNS = new Set(["description", "notes"]);
+// REQ-0141 — page list drops notes; dialog still hides description+notes
+const DIALOG_HIDDEN_COLUMNS = new Set(["description", "productCount"]);
 
 export const createCategoryColumns = (
   onEdit: (category: Category) => void,
@@ -111,7 +116,11 @@ export const createCategoryColumns = (
       cell: ({ row }) => {
         const category = row.original;
         return (
-          <Link href={`/categories/${category.id}`} className={linkClass}>
+          <Link
+            href={`/categories/${category.id}`}
+            className={`${linkClass} block max-w-[12rem] truncate`}
+            title={category.name}
+          >
             {category.name}
           </Link>
         );
@@ -137,6 +146,42 @@ export const createCategoryColumns = (
       size: 10,
     },
     {
+      accessorKey: "productCount",
+      // REQ-0142 — HelpTooltip sibling of sort trigger (no nested interactive)
+      header: ({ column }) => (
+        <div className="flex items-center gap-1">
+          <SortableHeader
+            column={column}
+            label="Products"
+            textClass={headerText}
+          />
+          <HelpTooltip
+            content={CATALOG_PRODUCT_SHARE_TOOLTIP}
+            side="top"
+            ariaLabel="Products column help"
+            className="shrink-0"
+          />
+        </div>
+      ),
+      cell: ({ row }) => {
+        const count = row.original.productCount ?? 0;
+        const total = row.original.catalogProductTotal ?? 0;
+        const pct = catalogProductSharePercent(count, total);
+        return (
+          <span className={bodyText}>
+            {count}
+            {total > 0 ? (
+              <span className="text-muted-foreground text-xs font-normal">
+                {" "}
+                · {pct}%
+              </span>
+            ) : null}
+          </span>
+        );
+      },
+      size: 12,
+    },
+    {
       accessorKey: "description",
       header: ({ column }) => (
         <SortableHeader
@@ -150,21 +195,6 @@ export const createCategoryColumns = (
         return (
           <span className={bodyText} title={description || undefined}>
             {truncateText(description, 50)}
-          </span>
-        );
-      },
-      size: 20,
-    },
-    {
-      accessorKey: "notes",
-      header: ({ column }) => (
-        <SortableHeader column={column} label="Notes" textClass={headerText} />
-      ),
-      cell: ({ row }) => {
-        const notes = row.original.notes;
-        return (
-          <span className={bodyText} title={notes || undefined}>
-            {truncateText(notes, 50)}
           </span>
         );
       },

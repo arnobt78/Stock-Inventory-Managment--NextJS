@@ -350,3 +350,7 @@
 | TC-0063 | REQ-0139 | Manual: table QR/dates + detail stretch + Catalog Allocation companion |
 | ART-0140 | REQ-0140 | Seed stock + sold/insights | demo-seed-data, order-sales-eligibility, insights qty−committed |
 | TC-0064 | REQ-0140 | Re-seed `--with-catalog`; Beats 30 avail / 20 reserved; sold 0 pending |
+| ART-0141 | REQ-0141 | Cat/sup list+detail UI | catalog-list-enrich, CatalogSnapshotCompanion, product grid SKU/category |
+| TC-0065 | REQ-0141 | Unit enrich + gates lint/test/invalidate/build |
+| ART-0142 | REQ-0142 | Cat/sup polish | SupplierNameEmailCell nest fix; HelpTooltip; userId count scope |
+| TC-0066 | REQ-0142 | enrich userId assert + gates |

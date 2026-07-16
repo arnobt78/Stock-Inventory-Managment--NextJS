@@ -6,13 +6,17 @@
 | **Phase** | Stage 3–5 — **REQ-0136 in progress** (UI mismatch → cache smoke) |
 | **Last updated** | 2026-07-16 |
 | **Active REQ** | **REQ-0136** (UI mismatch + §10 A1/A2/B1) |
-| **Done range** | REQ-0001 … REQ-0135 + REQ-0137–**0140** |
-| **Prod SHA** | `538d098` on `origin/main` (REQ-0137–0140) — **redeploy Vercel before QA** |
+| **Done range** | REQ-0001 … REQ-0135 + REQ-0137–**0142** |
+| **Prod SHA** | `538d098` on `origin/main` (REQ-0137–0140) — REQ-0141/0142 local pending push |
 | **Human Gate 1** | APPROVED (retroactive bootstrap) |
 | **Human Gate 2** | PENDING — short QA (REQ-0136) + Sentry 24h |
 | **Resume token** | `tomorrow-QA` → active as **REQ-0136** |
 
 ## Session resume (2026-07-16)
+
+**REQ-0142 done:** supplier nest-button fix; Supplier & Email layout; Products HelpTooltip; userId-scoped counts; detail iconTile.
+
+**REQ-0141 done:** category/supplier list product counts + email; detail Status strip removed; product grid SKU/category; stock pie companion.
 
 **REQ-0140 done:** seed Beats reserved=0 (no double-book); sold stats delivered|paid; insights qty−committed. Re-seed local DB with `--with-catalog` after pull.
 

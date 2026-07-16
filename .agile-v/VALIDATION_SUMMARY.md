@@ -3,7 +3,44 @@
 **Generated:** 2026-07-16  
 **eval_gate_status:** PENDING (Human Gate 2)  
 **Prod target SHA:** `9d7ec21` (REQ-0120)  
-**Red Team:** lint ✓ test 556 ✓ invalidate 213 ✓ build ✓ (2026-07-16 REQ-0140)
+**Red Team:** lint ✓ test 559 ✓ invalidate 213 ✓ build ✓ (2026-07-16 REQ-0142)
+
+---
+
+## REQ-0142 cat/sup polish evidence
+
+| Check | Result |
+|-------|--------|
+| Nest button | Name control + email CopyableText siblings |
+| Supplier & Email | product-like avatar \| name \| email stack |
+| Products tooltip | `HelpTooltip` + `CATALOG_PRODUCT_SHARE_TOOLTIP` |
+| Count scope | groupBy `userId` = viewer |
+| Detail headers | iconTile + subtitle Products/Recent Orders |
+| Gates | lint ✓ test 559 ✓ invalidate 213 ✓ build ✓ |
+
+```
+Scope: built/verified | Traceability: REQ-0142 | Findings: PASS
+Commands: lint, test, invalidate, build
+```
+
+---
+
+## REQ-0141 category/supplier UI evidence
+
+| Check | Result |
+|-------|--------|
+| List enrich | `productCount` + supplier `email`; home + GET lists |
+| Tables/export | Notes removed; Products count · %; CSV Products |
+| Detail Status | Badge by Created; no top STATUS strip |
+| Product grid | Name · SKU; category link; SSR category on supplier products |
+| Stock companion | `CatalogSnapshotCompanion` → no pie `lg:col-span-2` |
+| Invalidation | unchanged |
+| Gates | lint ✓ test 559 ✓ invalidate 213 ✓ build ✓ |
+
+```
+Scope: built/verified | Traceability: REQ-0141 | Findings: PASS
+Commands: lint, test, invalidate, build
+```
 
 ---
 

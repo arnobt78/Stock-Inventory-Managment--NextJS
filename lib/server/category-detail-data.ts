@@ -198,6 +198,8 @@ function transformCategoryDetail(
         supplier: supplierRow
           ? { id: supplierRow.id, name: supplierRow.name }
           : null,
+        // REQ-0141 — grid category link (this detail's category)
+        category: { id: category.id, name: category.name },
       };
     }),
     recentOrders,

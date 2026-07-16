@@ -94,7 +94,7 @@ export default function CategoryFilters({
         Name: category.name,
         Status: category.status ? "Active" : "Inactive",
         Description: category.description || "-",
-        Notes: category.notes || "-",
+        Products: category.productCount ?? 0,
         "Created At": category.createdAt
           ? formatStableDate(category.createdAt)
           : "-",
@@ -154,7 +154,7 @@ export default function CategoryFilters({
         Name: category.name,
         Status: category.status ? "Active" : "Inactive",
         Description: category.description || "-",
-        Notes: category.notes || "-",
+        Products: category.productCount ?? 0,
         "Created At": category.createdAt
           ? formatStableDate(category.createdAt)
           : "-",
@@ -172,7 +172,7 @@ export default function CategoryFilters({
         { header: "Name", key: "Name", width: 25 },
         { header: "Status", key: "Status", width: 12 },
         { header: "Description", key: "Description", width: 30 },
-        { header: "Notes", key: "Notes", width: 30 },
+        { header: "Products", key: "Products", width: 12 },
         { header: "Created At", key: "Created At", width: 12 },
         { header: "Updated At", key: "Updated At", width: 12 },
       ];

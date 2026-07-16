@@ -103,9 +103,9 @@ export function CatalogInsightsSection({
   forecastLoading = false,
   title = "Insights",
   subtitle = "Derived demand and inventory signals",
-  salesChartTitle = "Sales trend (6 months)",
+  salesChartTitle = "Sales Trend (6 months)",
   salesChartDescription = "Revenue from order lines",
-  stockChartTitle = "Stock breakdown",
+  stockChartTitle = "Stock Breakdown",
   stockChartDescription = "Available vs low vs out of stock",
   stockChartTrailing,
   salesChartData,
@@ -210,110 +210,108 @@ export function CatalogInsightsSection({
       )}
     >
       <GlassCard padding="body" variant="emerald">
-          <div className="flex items-center gap-2 mb-2">
-            <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-emerald-300/30 bg-emerald-100/50 dark:border-white/15 dark:bg-white/10">
-              <TrendingUp className="h-4 w-4 text-gray-700 dark:text-white" />
-            </div>
-            <div>
-              <h3 className={TYPO_CARD_TITLE}>{title}</h3>
-              <p className={TYPO_SUBTITLE}>{subtitle}</p>
-            </div>
+        <div className="flex items-center gap-2 mb-2">
+          <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-emerald-300/30 bg-emerald-100/50 dark:border-white/15 dark:bg-white/10">
+            <TrendingUp className="h-4 w-4 text-gray-700 dark:text-white" />
           </div>
-          <div className="space-y-2 mt-4">
-            <DetailInfoRow
-              icon={AlertTriangle}
-              label="Low stock products:"
-              tone="amber"
-              loading={dataLoading}
-            >
-              {!dataLoading && insights.lowStockCount}
-            </DetailInfoRow>
-            <DetailInfoRow
-              icon={PackageX}
-              label="Out of stock:"
-              tone="rose"
-              loading={dataLoading}
-            >
-              {!dataLoading && insights.outOfStockCount}
-            </DetailInfoRow>
-            <DetailInfoRow
-              icon={DollarSign}
-              label="Avg order value:"
-              tone="emerald"
-              loading={dataLoading}
-            >
-              {!dataLoading && (
-                <span className="text-emerald-600 dark:text-emerald-400">
-                  ${insights.avgOrderValue.toFixed(2)}
-                </span>
-              )}
-            </DetailInfoRow>
-            <DetailInfoRow
-              icon={TrendingUp}
-              label="Demand velocity (units/day):"
-              tone="violet"
-              loading={dataLoading}
-            >
-              {!dataLoading && insights.demandVelocity.toFixed(2)}
-            </DetailInfoRow>
-            {isAdminRole && productForecast && (
-              <>
-                <DetailInfoRow
-                  icon={Clock}
-                  label="Days until stockout:"
-                  tone="rose"
-                  loading={forecastLoading}
-                >
-                  {!forecastLoading &&
-                    (productForecast.daysUntilStockout ?? "∞")}
-                </DetailInfoRow>
-                <DetailInfoRow
-                  icon={Sparkles}
-                  label="Predicted daily sales:"
-                  tone="sky"
-                  loading={forecastLoading}
-                >
-                  {!forecastLoading &&
-                    productForecast.predictedDailySales.toFixed(1)}
-                </DetailInfoRow>
-                <DetailInfoRow
-                  icon={AlertCircle}
-                  label="Reorder status:"
-                  tone="amber"
-                  loading={forecastLoading}
-                >
-                  {/* REQ-0139 — semantic urgency badge (Urgent / Normal / …) */}
-                  {!forecastLoading && (
-                    <ForecastUrgencyBadge
-                      urgency={productForecast.reorderRecommendation}
-                      size="detail"
-                    />
-                  )}
-                </DetailInfoRow>
-              </>
-            )}
-            {isAdminRole && !productForecast && (
-              <>
-                <DetailInfoRow
-                  icon={AlertCircle}
-                  label="Urgent reorder:"
-                  tone="rose"
-                  loading={forecastLoading}
-                >
-                  {!forecastLoading && urgentReorderCount}
-                </DetailInfoRow>
-                <DetailInfoRow
-                  icon={Sparkles}
-                  label="Predicted daily demand:"
-                  tone="sky"
-                  loading={forecastLoading}
-                >
-                  {!forecastLoading &&
-                    predictedDailyDemand?.toFixed(1)}
-                </DetailInfoRow>
-              </>
-            )}
+          <div>
+            <h3 className={TYPO_CARD_TITLE}>{title}</h3>
+            <p className={TYPO_SUBTITLE}>{subtitle}</p>
           </div>
+        </div>
+        <div className="space-y-2 mt-4">
+          <DetailInfoRow
+            icon={AlertTriangle}
+            label="Low stock products:"
+            tone="amber"
+            loading={dataLoading}
+          >
+            {!dataLoading && insights.lowStockCount}
+          </DetailInfoRow>
+          <DetailInfoRow
+            icon={PackageX}
+            label="Out of stock:"
+            tone="rose"
+            loading={dataLoading}
+          >
+            {!dataLoading && insights.outOfStockCount}
+          </DetailInfoRow>
+          <DetailInfoRow
+            icon={DollarSign}
+            label="Avg order value:"
+            tone="emerald"
+            loading={dataLoading}
+          >
+            {!dataLoading && (
+              <span className="text-emerald-600 dark:text-emerald-400">
+                ${insights.avgOrderValue.toFixed(2)}
+              </span>
+            )}
+          </DetailInfoRow>
+          <DetailInfoRow
+            icon={TrendingUp}
+            label="Demand velocity (units/day):"
+            tone="violet"
+            loading={dataLoading}
+          >
+            {!dataLoading && insights.demandVelocity.toFixed(2)}
+          </DetailInfoRow>
+          {isAdminRole && productForecast && (
+            <>
+              <DetailInfoRow
+                icon={Clock}
+                label="Days until stockout:"
+                tone="rose"
+                loading={forecastLoading}
+              >
+                {!forecastLoading && (productForecast.daysUntilStockout ?? "∞")}
+              </DetailInfoRow>
+              <DetailInfoRow
+                icon={Sparkles}
+                label="Predicted daily sales:"
+                tone="sky"
+                loading={forecastLoading}
+              >
+                {!forecastLoading &&
+                  productForecast.predictedDailySales.toFixed(1)}
+              </DetailInfoRow>
+              <DetailInfoRow
+                icon={AlertCircle}
+                label="Reorder status:"
+                tone="amber"
+                loading={forecastLoading}
+              >
+                {/* REQ-0139 — semantic urgency badge (Urgent / Normal / …) */}
+                {!forecastLoading && (
+                  <ForecastUrgencyBadge
+                    urgency={productForecast.reorderRecommendation}
+                    size="detail"
+                  />
+                )}
+              </DetailInfoRow>
+            </>
+          )}
+          {isAdminRole && !productForecast && (
+            <>
+              <DetailInfoRow
+                icon={AlertCircle}
+                label="Urgent reorder:"
+                tone="rose"
+                loading={forecastLoading}
+              >
+                {!forecastLoading && urgentReorderCount}
+              </DetailInfoRow>
+              <DetailInfoRow
+                icon={Sparkles}
+                label="Predicted daily demand:"
+                tone="sky"
+                loading={forecastLoading}
+              >
+                {!forecastLoading && predictedDailyDemand?.toFixed(1)}
+              </DetailInfoRow>
+            </>
+          )}
+        </div>
       </GlassCard>
 
       <ChartCard
@@ -342,7 +340,10 @@ export function CatalogInsightsSection({
                 tick={{ fontSize: 11 }}
                 className="text-muted-foreground"
               />
-              <YAxis tick={{ fontSize: 11 }} className="text-muted-foreground" />
+              <YAxis
+                tick={{ fontSize: 11 }}
+                className="text-muted-foreground"
+              />
               <Tooltip
                 contentStyle={{
                   backgroundColor: "hsl(var(--card))",
