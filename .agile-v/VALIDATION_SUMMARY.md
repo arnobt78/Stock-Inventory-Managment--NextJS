@@ -1,9 +1,26 @@
 # Validation Summary — Cycle C1
 
-**Generated:** 2026-07-16  
+**Generated:** 2026-07-16 EOD  
 **eval_gate_status:** PENDING (Human Gate 2)  
-**Prod target SHA:** `c62d364` (REQ-0145 gap)  
-**Red Team:** lint ✓ test 571 ✓ invalidate 213 ✓ build ✓ (2026-07-16 REQ-0145 gap)
+**Prod target SHA:** `c62d364` / docs `fe5cbdc`  
+**Red Team:** lint ✓ test 571 ✓ invalidate 213 ✓ build ✓ (REQ-0145 gap)  
+**Resume:** tomorrow → REQ-0136 UI explore → §10 A1/A2/B1 (see STATE.md)
+
+---
+
+## EOD park 2026-07-16
+
+| Area | Status |
+|------|--------|
+| REQ-0137–0145 | done + pushed `origin/main` |
+| UI explore (REQ-0136) | in progress — continue tomorrow |
+| §10 cache A1/A2/B1 | **not started** — after UI/calc OK |
+| Gate 2 Sentry 24h | blocked on smoke |
+
+```
+Scope: parked | Traceability: REQ-0136, REQ-0144–0145 | Findings: PASS (shipped); PENDING (human QA)
+Commands: lint, test, invalidate, build (571 / 213)
+```
 
 ---
 

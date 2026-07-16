@@ -3,52 +3,56 @@
 | Field | Value |
 |-------|-------|
 | **Cycle** | C2 (C1 Gate 2 still PENDING) |
-| **Phase** | Stage 3–5 — **REQ-0136 in progress** (UI mismatch → cache smoke) |
-| **Last updated** | 2026-07-16 |
+| **Phase** | Stage 3–5 — **REQ-0136** (human UI explore → cache smoke) |
+| **Last updated** | 2026-07-16 EOD |
 | **Active REQ** | **REQ-0136** (UI mismatch + §10 A1/A2/B1) |
 | **Done range** | REQ-0001 … REQ-0135 + REQ-0137–**0145** |
-| **Prod SHA** | `c62d364` (REQ-0145 gap) — redeploy Vercel before QA |
+| **Prod SHA** | `c62d364` feat / `fe5cbdc` docs — on `origin/main` |
 | **Human Gate 1** | APPROVED (retroactive bootstrap) |
-| **Human Gate 2** | PENDING — short QA (REQ-0136) + Sentry 24h |
-| **Resume token** | `tomorrow-QA` → active as **REQ-0136** |
+| **Human Gate 2** | PENDING — finish UI explore → §10 → Sentry 24h |
+| **Resume token** | `tomorrow-UI-then-cache` → **REQ-0136** |
 
-## Session resume (2026-07-16)
+---
 
-**REQ-0145 done:** Status/Payment/Invoice semantic events; product sky links; Invoice 2-line nowrap; `orders:list:v3`.
+## Start here tomorrow (2026-07-17)
 
-**REQ-0144 done:** products Stock header hydration; ThemeProvider script noise filter; forecasting `gpt-4o-mini`.
+1. **Pull** `main` @ `fe5cbdc` (or later). Redeploy Vercel if prod ≠ this SHA.
+2. **Continue human UI explore** (REQ-0136) — browse seeded pages; note mismatches.
+3. **Do not start §10 A1/A2/B1** until UI explore + expected calculations feel OK.
+4. Then: cache smoke only (§10 A1/A2/B1) → Gate 2 Sentry 24h.
 
-**REQ-0143 done:** detail Owner·Supplier/Buyer dots; recent-orders category + invoice indicator.
+**Re-seed if needed:** `npm run script:reset-demo-db -- --with-catalog`
 
-**REQ-0142 done:** supplier nest-button fix; Supplier & Email layout; Products HelpTooltip; userId-scoped counts; detail iconTile.
+---
 
-**REQ-0141 done:** category/supplier list product counts + email; detail Status strip removed; product grid SKU/category; stock pie companion.
+## Done today (2026-07-16) — shipped
 
-**REQ-0140 done:** seed Beats reserved=0 (no double-book); sold stats delivered|paid; insights qty−committed. Re-seed local DB with `--with-catalog` after pull.
+| REQ | Summary | SHA |
+|-----|---------|-----|
+| 0141–0143 | Cat/sup list+detail UI; nest-button; Owner·Buyer; category+invoice on recent orders | `9919eb0` |
+| 0144 | Products hydration (`QR & Stock` plain `&`); ThemeProvider script filter; forecasting `gpt-4o-mini` | in `3c3a441` |
+| 0145 | Orders: Status start-align; Invoice # col; product sky links; semantic paid/cancelled/refunded/due events; `orders:list:v3` | `c62d364` |
 
-**Pipeline stage:** Human UI explore → Specify mismatches under REQ-0136 → Orchestrate fixes → §10 A1/A2/B1.
+**Gates (latest):** lint ✓ · test **571** ✓ · invalidate **213** ✓ · build ✓
 
-### Order of work (do not reorder)
+**Invalidation:** unchanged this wave — order graph / catalog patterns already cover list refresh after CRUD.
 
-1. **Human:** browse each page with seeded data; report UI mismatches
-2. **UI blockers** — fix under REQ-0136
-3. **Cache smoke** — §10 **A1, A2, B1** only
-4. Gate 2 — Sentry 24h after smoke PASS
+---
 
-**Pass rule:** A1/A2/B1 no revert → cache goal met. Do **not** mix UI polish into cache pass/fail.
+## Still open (do not reorder)
 
-**Re-seed:** `npm run script:reset-demo-db -- --with-catalog` or accounts-only then `npm run script:seed-demo-catalog`
+1. **Human UI + calc check** (REQ-0136 AC1–AC2) — remaining pages beyond orders/catalog polish
+2. **Cache smoke** — `docs/MANUAL_TEST_FIXTURES.md` §10 **A1, A2, B1** only (no UI polish mixed in)
+3. **Gate 2** — Sentry 24h after smoke PASS (REQ-0009)
 
-## Current focus
+**Pass rule:** A1/A2/B1 no stale revert → cache goal met.
 
-1. Collect / fix remaining UI mismatches (REQ-0136 AC1–AC2)
-2. §10 A1/A2/B1 (REQ-0136 AC3–AC5)
-3. Gate 2 — after smoke PASS: prod confirm + Sentry 24h (REQ-0009)
+---
 
 ## Session resume (every chat)
 
-1. Read `.agile-v/STATE.md` (resume token + checklist)
-2. Load skill: `.agile-v/skills/SKILLS_INDEX.md` (01 core → 17 build-js → 19 red-team)
-3. Map work to REQ-XXXX; halt if missing traceability
-4. Red Team: lint, test, test:invalidate, build before Gate 2 claim
-5. Write-through DECISION_LOG, BUILD_MANIFEST, VALIDATION_SUMMARY on material changes
+1. Read this file (resume token + tomorrow checklist)
+2. Skills: `.agile-v/skills/SKILLS_INDEX.md` (01 → 17 → 19)
+3. Map work to REQ-XXXX
+4. Red Team before Gate 2 claim
+5. Write-through DECISION / BUILD / VALIDATION on material changes
