@@ -2,7 +2,7 @@
 
 **Generated:** 2026-07-16  
 **eval_gate_status:** PENDING (Human Gate 2)  
-**Prod target SHA:** pending (REQ-0145)  
+**Prod target SHA:** `3c3a441` (REQ-0144–0145)  
 **Red Team:** lint ✓ test 565 ✓ invalidate 213 ✓ build ✓ (2026-07-16 REQ-0145)
 
 ---
