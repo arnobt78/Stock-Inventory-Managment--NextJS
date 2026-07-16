@@ -7,7 +7,7 @@
 | **Last updated** | 2026-07-16 |
 | **Active REQ** | **REQ-0136** (UI mismatch + §10 A1/A2/B1) |
 | **Done range** | REQ-0001 … REQ-0135 + REQ-0137–**0145** |
-| **Prod SHA** | pending push (REQ-0145 gap) — redeploy Vercel before QA |
+| **Prod SHA** | `c62d364` (REQ-0145 gap) — redeploy Vercel before QA |
 | **Human Gate 1** | APPROVED (retroactive bootstrap) |
 | **Human Gate 2** | PENDING — short QA (REQ-0136) + Sentry 24h |
 | **Resume token** | `tomorrow-QA` → active as **REQ-0136** |

@@ -374,3 +374,4 @@ Format: `TIMESTAMP | AGENT | DECISION | RATIONALE | REQ-ID`
 2026-07-16T17:18:00Z | release | Prod SHA 3c3a441 pushed origin/main | REQ-0144 + REQ-0145; redeploy Vercel | REQ-0145
 2026-07-16T17:25:00Z | build-agent | REQ-0145 gap — SemanticEventDate | Product links; invoice nowrap; paid/cancelled/refunded events; orders:list:v3 | REQ-0145
 2026-07-16T17:26:00Z | red-team | REQ-0145 gap gates | lint ✓ test 571 ✓ invalidate 213 ✓ build ✓ | REQ-0145
+2026-07-16T17:27:00Z | release | Prod SHA c62d364 pushed origin/main | REQ-0145 gap; redeploy Vercel | REQ-0145
