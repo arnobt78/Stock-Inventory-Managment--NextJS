@@ -4,6 +4,7 @@
  */
 
 export type OrderListMetaItem = {
+  productId?: string | null;
   productName?: string | null;
   quantity: number;
 };
@@ -13,6 +14,11 @@ export type FormatOrderProductPreviewOptions = {
   maxNames?: number;
   /** Max chars per name before ellipsis (default 28) */
   maxLen?: number;
+};
+
+export type OrderProductPreviewLink = {
+  productId: string;
+  label: string;
 };
 
 /** Truncate a single product name for table preview. */
@@ -27,7 +33,30 @@ export function truncateOrderProductName(
 }
 
 /**
- * Compact product name line for order list rows.
+ * Clickable product preview entries for order list rows (REQ-0145 gap).
+ * Skips items without productId/name; returns +extra count for overflow.
+ */
+export function getOrderProductPreviewLinks(
+  items: OrderListMetaItem[] | null | undefined,
+  options: FormatOrderProductPreviewOptions = {},
+): { links: OrderProductPreviewLink[]; extraCount: number } {
+  const maxNames = options.maxNames ?? 2;
+  const maxLen = options.maxLen ?? 28;
+  const withId = (items ?? []).filter(
+    (i) =>
+      typeof i.productId === "string" &&
+      i.productId.length > 0 &&
+      (i.productName ?? "").trim().length > 0,
+  );
+  const links = withId.slice(0, maxNames).map((i) => ({
+    productId: i.productId as string,
+    label: truncateOrderProductName((i.productName ?? "").trim(), maxLen),
+  }));
+  return { links, extraCount: Math.max(0, withId.length - links.length) };
+}
+
+/**
+ * Compact product name line for order list rows (string-only; prefer getOrderProductPreviewLinks for UI).
  * e.g. "Beats Studio3 · Sony WH…" or "Beats Studio3 +1"
  */
 export function formatOrderProductPreview(

@@ -27,6 +27,10 @@ export type InvoiceLinkFields = {
   dueDate?: string;
   amountDue?: number;
   status?: string;
+  /** REQ-0145 — terminal event dates for Invoice # / Payment cells */
+  sentAt?: string | null;
+  cancelledAt?: string | null;
+  updatedAt?: string | null;
 };
 
 export type InvoiceLinkForOrder = InvoiceLinkFields | null;
@@ -51,6 +55,9 @@ export async function getInvoiceLinkMap(
         dueDate: inv.dueDate.toISOString(),
         amountDue: inv.amountDue,
         status: inv.status,
+        sentAt: inv.sentAt?.toISOString() ?? null,
+        cancelledAt: inv.cancelledAt?.toISOString() ?? null,
+        updatedAt: inv.updatedAt?.toISOString() ?? null,
       },
     ]),
   );

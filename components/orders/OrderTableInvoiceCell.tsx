@@ -2,18 +2,16 @@
 
 /**
  * REQ-0145 — Order table Invoice # column cell.
- * Line 1: invoice # (copy + link) · created date
- * Line 2: amount due · due date · status badge
+ * Line 1: # · created (muted)
+ * Line 2: amount · secondary event (due / paid / cancelled / refunded / sent) · status badge
  */
 
 import Link from "next/link";
 import { Calendar, CircleDollarSign } from "lucide-react";
 import { CopyableText, ClientDate } from "@/components/shared";
+import { SemanticEventDate } from "@/components/shared/SemanticEventDate";
 import { InvoiceStatusBadge } from "@/lib/ui/semantic-badges";
-import {
-  dueDateSemanticKind,
-  semanticDateClass,
-} from "@/lib/ui/semantic-date-styles";
+import { resolveInvoiceSecondaryEvent } from "@/lib/orders/invoice-event-date";
 import { cn } from "@/lib/utils";
 import type { Order } from "@/types";
 
@@ -25,18 +23,6 @@ export type OrderTableInvoiceCellProps = {
   invoiceHrefBase: string;
 };
 
-function isDueOverdue(
-  dueDate: string | undefined,
-  status: string | undefined,
-): boolean {
-  if (!dueDate) return status === "overdue";
-  const due = new Date(dueDate);
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-  due.setHours(0, 0, 0, 0);
-  return due < today || status === "overdue";
-}
-
 export function OrderTableInvoiceCell({
   invoice,
   invoiceHrefBase,
@@ -47,28 +33,28 @@ export function OrderTableInvoiceCell({
 
   const href = `${invoiceHrefBase}/${invoice.id}`;
   const amountDue = invoice.amountDue ?? 0;
-  const overdue = isDueOverdue(invoice.dueDate, invoice.status);
+  const secondary = resolveInvoiceSecondaryEvent(invoice);
 
   return (
-    <div className="flex flex-col gap-0.5 min-w-0 max-w-[220px]">
-      <div className="flex items-center gap-1.5 flex-wrap min-w-0">
+    <div className="flex flex-col gap-0.5 min-w-0">
+      <div className="flex items-center gap-1.5 flex-nowrap min-w-0">
         <CopyableText value={invoice.invoiceNumber}>
           <Link
             href={href}
             prefetch
-            className="font-normal text-sky-600 dark:text-sky-400 hover:text-sky-500 dark:hover:text-sky-300 truncate"
+            className="font-normal text-sky-600 dark:text-sky-400 hover:text-sky-500 dark:hover:text-sky-300 shrink-0"
           >
             {invoice.invoiceNumber}
           </Link>
         </CopyableText>
         {invoice.createdAt ? (
           <>
-            <span className={META_MUTED} aria-hidden>
+            <span className={cn(META_MUTED, "shrink-0")} aria-hidden>
               ·
             </span>
             <span
               className={cn(
-                "inline-flex items-center gap-1",
+                "inline-flex items-center gap-1 shrink-0",
                 META_MUTED,
               )}
             >
@@ -78,10 +64,10 @@ export function OrderTableInvoiceCell({
           </>
         ) : null}
       </div>
-      <div className="flex items-center gap-1.5 flex-wrap min-w-0">
+      <div className="flex items-center gap-1.5 flex-nowrap min-w-0">
         <span
           className={cn(
-            "inline-flex items-center gap-1 text-xs font-normal",
+            "inline-flex items-center gap-1 text-xs font-normal shrink-0",
             amountDue > 0
               ? "text-red-600 dark:text-red-400"
               : "text-green-600 dark:text-green-400",
@@ -90,32 +76,26 @@ export function OrderTableInvoiceCell({
           <CircleDollarSign className="h-3 w-3 shrink-0" aria-hidden />$
           {amountDue.toFixed(2)}
         </span>
-        {invoice.dueDate ? (
+        {secondary ? (
           <>
-            <span className={META_MUTED} aria-hidden>
+            <span className={cn(META_MUTED, "shrink-0")} aria-hidden>
               ·
             </span>
-            <span
-              className={cn(
-                "inline-flex items-center gap-1 text-xs",
-                semanticDateClass(dueDateSemanticKind(overdue)),
-              )}
-            >
-              <Calendar className="h-3 w-3 shrink-0" aria-hidden />
-              <ClientDate
-                date={invoice.dueDate}
-                semantic={dueDateSemanticKind(overdue)}
-                className="text-xs"
-              />
-            </span>
+            <SemanticEventDate
+              date={secondary.date}
+              kind={secondary.kind}
+              mode="date"
+            />
           </>
         ) : null}
         {invoice.status ? (
           <>
-            <span className={META_MUTED} aria-hidden>
+            <span className={cn(META_MUTED, "shrink-0")} aria-hidden>
               ·
             </span>
-            <InvoiceStatusBadge status={invoice.status} size="compact" />
+            <span className="shrink-0">
+              <InvoiceStatusBadge status={invoice.status} size="compact" />
+            </span>
           </>
         ) : null}
       </div>

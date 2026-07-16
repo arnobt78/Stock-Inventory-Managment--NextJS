@@ -786,10 +786,11 @@ Hub: `lib/ui/typography-scale.ts`. Hubs import tokens; ~45 inline files use equi
 
 | Piece | Location |
 |-------|----------|
-| Status align | `RecentOrderStatusColumn` `align="start"` — order table; portals keep end on sm+ |
-| Order # meta | Package/Boxes/Calendar icons; muted created date; `formatOrderProductPreview` |
-| Invoice # col | `OrderTableInvoiceCell` before Actions — # · created; amountDue · due · badge |
-| SSR link | `InvoiceLinkFields` via `getInvoiceLinkMap`; Redis `orders:list:v2:` |
+| Status align | `RecentOrderStatusColumn` `align="start"` + `SemanticEventDate` icons |
+| Order # meta | Package/Boxes/Calendar icons; product row sky links via `getOrderProductPreviewLinks` |
+| Payment | Badge + paid/refunded `SemanticEventDate` when timestamp exists |
+| Invoice # col | amount · due/paid/cancelled/refunded event · badge; Redis `orders:list:v3:` |
+| SSR link | `InvoiceLinkFields` (+ sentAt/cancelledAt); `resolveInvoiceSecondaryEvent` |
 
 **Invalidation unchanged** — order graph already clears orders/invoices; list enrich only.
 

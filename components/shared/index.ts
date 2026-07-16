@@ -140,6 +140,8 @@ export { PersonInlineRow } from "./PersonInlineRow";
 export type { PersonInlineRowProps } from "./PersonInlineRow";
 export { RecentOrderStatusColumn } from "./RecentOrderStatusColumn";
 export type { RecentOrderStatusColumnProps } from "./RecentOrderStatusColumn";
+export { SemanticEventDate } from "./SemanticEventDate";
+export type { SemanticEventDateProps } from "./SemanticEventDate";
 export {
   GlassCard,
   GlassCardBody,

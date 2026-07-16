@@ -358,5 +358,5 @@
 | TC-0067 | REQ-0143 | product-detail recentOrders + gates |
 | ART-0144 | REQ-0144 | Products hydration + theme | ProductTableColumns labels; ThemeProvider script filter; forecasting gpt-4o-mini |
 | TC-0068 | REQ-0144 | Manual new-tab `/products` no hydrate; gates lint/test/invalidate/build |
-| ART-0145 | REQ-0145 | Order table Invoice # | OrderTableInvoiceCell; order-list-meta; InvoiceLinkFields; orders:list:v2 |
-| TC-0069 | REQ-0145 | Manual `/orders` Status start + Invoice #; gates lint/test/invalidate/build |
+| ART-0145 | REQ-0145 | Order table Invoice # | SemanticEventDate; invoice-event-date; product links; orders:list:v3 |
+| TC-0069 | REQ-0145 | Manual `/orders` Status/Payment/Invoice events; gates lint/test/invalidate/build |

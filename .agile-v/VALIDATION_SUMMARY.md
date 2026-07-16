@@ -2,8 +2,8 @@
 
 **Generated:** 2026-07-16  
 **eval_gate_status:** PENDING (Human Gate 2)  
-**Prod target SHA:** `3c3a441` (REQ-0144–0145)  
-**Red Team:** lint ✓ test 565 ✓ invalidate 213 ✓ build ✓ (2026-07-16 REQ-0145)
+**Prod target SHA:** pending (REQ-0145 gap)  
+**Red Team:** lint ✓ test 571 ✓ invalidate 213 ✓ build ✓ (2026-07-16 REQ-0145 gap)
 
 ---
 
@@ -11,12 +11,12 @@
 
 | Check | Result |
 |-------|--------|
-| Status | `align="start"` + compact badge + text-xs statusAt |
-| Order # | Package/Boxes/Calendar meta; product preview truncate |
-| Invoice # | OrderTableInvoiceCell before Actions |
-| SSR | getInvoiceLinkMap widened; orders:list:v2 |
+| Status/Payment | `SemanticEventDate` icons + semantic hues |
+| Order # | clickable product links + meta icons |
+| Invoice # | 2-line nowrap; paid/cancelled/refunded/due event |
+| SSR | InvoiceLinkFields + sentAt/cancelledAt; orders:list:v3 |
 | Invalidation | unchanged |
-| Gates | lint ✓ test 565 ✓ invalidate 213 ✓ build ✓ |
+| Gates | lint ✓ test 571 ✓ invalidate 213 ✓ build ✓ |
 
 ```
 Scope: built/verified | Traceability: REQ-0145 | Findings: PASS

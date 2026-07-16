@@ -27,12 +27,14 @@ import {
   ClientDate,
   RecentOrderStatusColumn,
 } from "@/components/shared";
+import { SemanticEventDate } from "@/components/shared/SemanticEventDate";
 import OrderActions from "./OrderActions";
 import { OrderTableInvoiceCell } from "./OrderTableInvoiceCell";
 import {
-  formatOrderProductPreview,
   getOrderItemUnitCounts,
+  getOrderProductPreviewLinks,
 } from "@/lib/orders/order-list-meta";
+import { statusAtSemanticKind } from "@/lib/ui/semantic-date-styles";
 import { cn } from "@/lib/utils";
 
 const META_MUTED = "text-xs text-gray-500 dark:text-gray-400";
@@ -144,9 +146,10 @@ export const createOrderColumns = (
   detailHrefBase?: string,
   options?: CreateOrderColumnsOptions,
 ): ColumnDef<Order>[] => {
-  const invoiceHrefBase = detailHrefBase?.startsWith("/admin")
-    ? "/admin/invoices"
-    : "/invoices";
+  const isAdminBase = detailHrefBase?.startsWith("/admin") === true;
+  const invoiceHrefBase = isAdminBase ? "/admin/invoices" : "/invoices";
+  const productHref = (productId: string) =>
+    isAdminBase ? `/admin/products/${productId}` : `/products/${productId}`;
 
   return [
     {
@@ -165,9 +168,11 @@ export const createOrderColumns = (
         const showProductOwner =
           options?.showProductOwner &&
           (order.productOwnerName || order.productOwnerEmail);
-        const productPreview = formatOrderProductPreview(order.items);
+        const { links: productLinks, extraCount } = getOrderProductPreviewLinks(
+          order.items,
+        );
         return (
-          <div className="flex flex-col gap-0.5 min-w-0 max-w-[260px]">
+          <div className="flex flex-col gap-0.5 min-w-0 max-w-[280px]">
             {/* CopyableText: click icon copies order # without triggering the row link */}
             <CopyableText value={order.orderNumber}>
               <Link
@@ -200,11 +205,37 @@ export const createOrderColumns = (
                   : ""}
               </span>
             )}
-            {/* REQ-0145 — truncated product names for at-a-glance identity */}
-            {productPreview ? (
-              <span className={cn("truncate", META_MUTED)} title={productPreview}>
-                {productPreview}
-              </span>
+            {/* REQ-0145 — product row with icon; sky links to product detail */}
+            {productLinks.length > 0 ? (
+              <div className="flex items-center gap-1.5 flex-wrap min-w-0">
+                <Package
+                  className="h-3 w-3 shrink-0 text-gray-500 dark:text-gray-400"
+                  aria-hidden
+                />
+                {productLinks.map((p, i) => (
+                  <span
+                    key={p.productId}
+                    className="inline-flex items-center gap-1 min-w-0"
+                  >
+                    {i > 0 ? (
+                      <span className={META_MUTED} aria-hidden>
+                        ·
+                      </span>
+                    ) : null}
+                    <Link
+                      href={productHref(p.productId)}
+                      prefetch
+                      className="truncate text-xs font-normal text-sky-600 dark:text-sky-400 hover:text-sky-500 dark:hover:text-sky-300"
+                      title={p.label}
+                    >
+                      {p.label}
+                    </Link>
+                  </span>
+                ))}
+                {extraCount > 0 ? (
+                  <span className={META_MUTED}>+{extraCount}</span>
+                ) : null}
+              </div>
             ) : null}
             <OrderCompactMeta order={order} />
           </div>
@@ -241,8 +272,35 @@ export const createOrderColumns = (
         <SortableHeader column={column} label="Payment" />
       ),
       cell: ({ row }) => {
-        const paymentStatus = row.original.paymentStatus;
-        return <PaymentStatusBadge status={paymentStatus} />;
+        const order = row.original;
+        const paymentStatus = order.paymentStatus;
+        const ps = (paymentStatus ?? "").toLowerCase();
+        // paidAt from linked invoice (list enrich) or order.paidAt / statusAt fallback
+        const paidAt =
+          order.invoiceForOrder?.paidAt ?? order.paidAt ?? order.statusAt;
+        const showPaymentEvent =
+          (ps === "paid" || ps === "refunded" || ps === "partial") &&
+          Boolean(paidAt);
+        const eventKind =
+          ps === "refunded"
+            ? ("refunded" as const)
+            : statusAtSemanticKind(order.status, paymentStatus);
+        return (
+          <div className="flex flex-col items-start gap-1">
+            <PaymentStatusBadge status={paymentStatus} size="compact" />
+            {showPaymentEvent && paidAt ? (
+              <SemanticEventDate
+                date={paidAt}
+                kind={
+                  eventKind === "refunded" || eventKind === "paid"
+                    ? eventKind
+                    : "paid"
+                }
+                mode="datetime"
+              />
+            ) : null}
+          </div>
+        );
       },
     },
     {

@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   formatOrderProductPreview,
   getOrderItemUnitCounts,
+  getOrderProductPreviewLinks,
   truncateOrderProductName,
 } from "./order-list-meta";
 
@@ -57,5 +58,38 @@ describe("getOrderItemUnitCounts", () => {
         { productName: "B", quantity: 20 },
       ]),
     ).toEqual({ itemCount: 2, unitCount: 21 });
+  });
+});
+
+describe("getOrderProductPreviewLinks", () => {
+  it("returns linkable products with +extra", () => {
+    expect(
+      getOrderProductPreviewLinks(
+        [
+          { productId: "1", productName: "Beats", quantity: 1 },
+          { productId: "2", productName: "Sony", quantity: 1 },
+          { productId: "3", productName: "Extra", quantity: 1 },
+        ],
+        { maxNames: 2 },
+      ),
+    ).toEqual({
+      links: [
+        { productId: "1", label: "Beats" },
+        { productId: "2", label: "Sony" },
+      ],
+      extraCount: 1,
+    });
+  });
+
+  it("skips items without productId", () => {
+    expect(
+      getOrderProductPreviewLinks([
+        { productName: "NoId", quantity: 1 },
+        { productId: "1", productName: "Ok", quantity: 1 },
+      ]),
+    ).toEqual({
+      links: [{ productId: "1", label: "Ok" }],
+      extraCount: 0,
+    });
   });
 });

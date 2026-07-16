@@ -19,12 +19,12 @@ Canonical REQ source. All artifacts link via `REQ-XXXX`. Status: `done` | `verif
 **Acceptance criteria**
 
 - AC1: `RecentOrderStatusColumn` `align="start"` on order table — badge + date left-aligned at all breakpoints; Calendar `h-3 w-3` + `text-xs`
-- AC2: Order # meta — Package/Boxes/Calendar icons; muted date matches items/units; product preview truncated (`formatOrderProductPreview`)
-- AC3: Invoice # column before Actions — number + copy + created; amount due · due · `InvoiceStatusBadge`; `—` when none
-- AC4: `getInvoiceLinkMap` includes createdAt/dueDate/amountDue/status; Redis `orders:list:v2:`
+- AC2: Order # meta — Package/Boxes/Calendar icons; clickable product links (`getOrderProductPreviewLinks`)
+- AC3: Invoice # — 2-line nowrap; secondary event paid/cancelled/refunded/due/sent via `resolveInvoiceSecondaryEvent`
+- AC4: Status/Payment use `SemanticEventDate`; `getInvoiceLinkMap` + sentAt/cancelledAt; Redis `orders:list:v3:`
 - AC5: Gates — lint, test, invalidate, build; TanStack invalidation unchanged
 
-**Artifacts:** `OrderTableColumns.tsx`, `OrderTableInvoiceCell.tsx`, `order-list-meta.ts`, `RecentOrderStatusColumn.tsx`, `orders-data.ts`, `cache-utils.ts`
+**Artifacts:** `OrderTableColumns.tsx`, `OrderTableInvoiceCell.tsx`, `SemanticEventDate.tsx`, `invoice-event-date.ts`, `order-list-meta.ts`, `orders-data.ts`
 
 ---
 

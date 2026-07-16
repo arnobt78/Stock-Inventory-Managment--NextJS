@@ -286,10 +286,10 @@ export const cacheKeys = {
   orders: {
     all: "orders:all",
     lists: () => "orders:lists",
-    // v2 — REQ-0145 widened invoiceForOrder (amountDue/dueDate/status/createdAt)
+    // v3 — REQ-0145 invoice event dates (sentAt/cancelledAt/updatedAt)
     list: (filters?: Record<string, unknown>) => {
       const filterStr = filters ? JSON.stringify(filters) : "default";
-      return `orders:list:v2:${filterStr}`;
+      return `orders:list:v3:${filterStr}`;
     },
     detail: (id: string) => `orders:detail:${id}`,
     pattern: "orders:*",

@@ -7,14 +7,14 @@
 | **Last updated** | 2026-07-16 |
 | **Active REQ** | **REQ-0136** (UI mismatch + §10 A1/A2/B1) |
 | **Done range** | REQ-0001 … REQ-0135 + REQ-0137–**0145** |
-| **Prod SHA** | `3c3a441` (REQ-0144–0145) — redeploy Vercel before QA |
+| **Prod SHA** | pending push (REQ-0145 gap) — redeploy Vercel before QA |
 | **Human Gate 1** | APPROVED (retroactive bootstrap) |
 | **Human Gate 2** | PENDING — short QA (REQ-0136) + Sentry 24h |
 | **Resume token** | `tomorrow-QA` → active as **REQ-0136** |
 
 ## Session resume (2026-07-16)
 
-**REQ-0145 done:** order Status start-align; Order # icons + product preview; Invoice # column; `orders:list:v2`.
+**REQ-0145 done:** Status/Payment/Invoice semantic events; product sky links; Invoice 2-line nowrap; `orders:list:v3`.
 
 **REQ-0144 done:** products Stock header hydration; ThemeProvider script noise filter; forecasting `gpt-4o-mini`.
 

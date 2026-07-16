@@ -128,6 +128,9 @@ export interface Order {
     dueDate?: string;
     amountDue?: number;
     status?: string;
+    sentAt?: string | null;
+    cancelledAt?: string | null;
+    updatedAt?: string | null;
   } | null;
   /** REQ-0129 — terminal status timestamp for list rows */
   statusAt?: string;
