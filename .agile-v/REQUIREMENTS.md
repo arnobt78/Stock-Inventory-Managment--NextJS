@@ -4,6 +4,54 @@ Canonical REQ source. All artifacts link via `REQ-XXXX`. Status: `done` | `verif
 
 ---
 
+## REQ-0145 — Orders table Status, Order # meta, Invoice # column
+
+| Field | Value |
+|-------|-------|
+| **Priority** | P0 |
+| **Risk** | R1 |
+| **Status** | done |
+| **Cycle** | C2 |
+| **Parent** | REQ-0136, REQ-0061, REQ-0129 |
+
+**Intent:** Order list UX — Status start-aligned with text-xs statusAt; Order # meta icons + truncated product names; Invoice # column (before Actions) with created/amount due/due date/status from widened `invoiceForOrder`.
+
+**Acceptance criteria**
+
+- AC1: `RecentOrderStatusColumn` `align="start"` on order table — badge + date left-aligned at all breakpoints; Calendar `h-3 w-3` + `text-xs`
+- AC2: Order # meta — Package/Boxes/Calendar icons; muted date matches items/units; product preview truncated (`formatOrderProductPreview`)
+- AC3: Invoice # column before Actions — number + copy + created; amount due · due · `InvoiceStatusBadge`; `—` when none
+- AC4: `getInvoiceLinkMap` includes createdAt/dueDate/amountDue/status; Redis `orders:list:v2:`
+- AC5: Gates — lint, test, invalidate, build; TanStack invalidation unchanged
+
+**Artifacts:** `OrderTableColumns.tsx`, `OrderTableInvoiceCell.tsx`, `order-list-meta.ts`, `RecentOrderStatusColumn.tsx`, `orders-data.ts`, `cache-utils.ts`
+
+---
+
+## REQ-0144 — Products hydration + ThemeProvider script noise
+
+| Field | Value |
+|-------|-------|
+| **Priority** | P0 |
+| **Risk** | R1 |
+| **Status** | done |
+| **Cycle** | C2 |
+| **Parent** | REQ-0136, REQ-0004, REQ-0019 |
+
+**Intent:** Fix `/products` hydration mismatch on Stock sort header (SSR `QR & Stock` vs client `Stock` from HTML-entity string props) and silence next-themes React 19 script-tag console noise; use a valid OpenRouter model for forecasting AI.
+
+**Acceptance criteria**
+
+- AC1: `ProductTableColumns` SortableHeader labels use plain strings (`Product & SKU`, `QR & Stock`) — no `&amp;` in props
+- AC2: New-tab / hard reload `/products` — no hydration mismatch on QR & Stock header
+- AC3: `ThemeProvider` filters React 19 "Encountered a script tag" false positive in development only
+- AC4: Forecasting AI uses `openai/gpt-4o-mini` (valid OpenRouter id)
+- AC5: Gates — lint, test, invalidate, build; no TanStack/invalidation changes
+
+**Artifacts:** `ProductTableColumns.tsx`, `ThemeProvider.tsx`, `app/api/forecasting/route.ts`, `lib/ai/groq.ts`
+
+---
+
 ## REQ-0001 — Radix Select `removeChild` mitigation
 
 | Field        | Value  |

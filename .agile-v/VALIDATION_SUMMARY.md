@@ -2,8 +2,44 @@
 
 **Generated:** 2026-07-16  
 **eval_gate_status:** PENDING (Human Gate 2)  
-**Prod target SHA:** `9d7ec21` (REQ-0120)  
-**Red Team:** lint ✓ test 559 ✓ invalidate 213 ✓ build ✓ (2026-07-16 REQ-0143)
+**Prod target SHA:** pending (REQ-0145)  
+**Red Team:** lint ✓ test 565 ✓ invalidate 213 ✓ build ✓ (2026-07-16 REQ-0145)
+
+---
+
+## REQ-0145 orders table Invoice # evidence
+
+| Check | Result |
+|-------|--------|
+| Status | `align="start"` + compact badge + text-xs statusAt |
+| Order # | Package/Boxes/Calendar meta; product preview truncate |
+| Invoice # | OrderTableInvoiceCell before Actions |
+| SSR | getInvoiceLinkMap widened; orders:list:v2 |
+| Invalidation | unchanged |
+| Gates | lint ✓ test 565 ✓ invalidate 213 ✓ build ✓ |
+
+```
+Scope: built/verified | Traceability: REQ-0145 | Findings: PASS
+Commands: lint, test, invalidate, build
+```
+
+---
+
+## REQ-0144 products hydration + theme evidence
+
+| Check | Result |
+|-------|--------|
+| Stock header | `label="QR & Stock"` (plain `&`; no `&amp;` props) |
+| Product header | `label="Product & SKU"` |
+| ThemeProvider | Dev-only filter for next-themes script false positive |
+| Forecasting model | `openai/gpt-4o-mini` |
+| Invalidation | unchanged |
+| Gates | lint ✓ test 559 ✓ invalidate 213 ✓ build ✓ |
+
+```
+Scope: built/verified | Traceability: REQ-0144 | Findings: PASS
+Commands: lint, test, invalidate, build
+```
 
 ---
 

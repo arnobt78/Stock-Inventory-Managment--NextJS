@@ -49,11 +49,11 @@ ${urgentProducts ? `- Urgent reorder needed: ${urgentProducts}` : ""}
 Provide brief, professional insights focusing on immediate actions.`;
 
   try {
-    // model is OpenRouter-only; Groq fallback uses GROQ_MODEL_CHAIN in lib/ai/groq.ts
+    // Valid OpenRouter id (gpt-2.5-turbo is not); Groq fallback uses GROQ_MODEL_CHAIN (REQ-0144)
     const response = await createChatCompletion(
       [{ role: "user", content: prompt }],
       {
-        model: "openai/gpt-2.5-turbo",
+        model: "openai/gpt-4o-mini",
         max_tokens: LLM_INSIGHTS_MAX_TOKENS,
       },
     );

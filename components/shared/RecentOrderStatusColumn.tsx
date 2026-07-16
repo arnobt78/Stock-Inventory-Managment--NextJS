@@ -3,6 +3,7 @@
 /**
  * REQ-0128 — shared recent-order right column: price/trailing + status badge + terminal statusAt.
  * REQ-0138 — clearer vertical gap between price, status, and statusAt.
+ * REQ-0145 — `align` prop so order table can force start on all breakpoints (sm:items-end otherwise wins).
  */
 
 import type { ReactNode } from "react";
@@ -21,6 +22,8 @@ export type RecentOrderStatusColumnProps = {
   paymentStatus?: string;
   trailing?: ReactNode;
   className?: string;
+  /** Portal/catalog cards default end on sm+; order table uses start (REQ-0145) */
+  align?: "start" | "end";
 };
 
 export function RecentOrderStatusColumn({
@@ -29,16 +32,20 @@ export function RecentOrderStatusColumn({
   paymentStatus,
   trailing,
   className,
+  align = "end",
 }: RecentOrderStatusColumnProps) {
   return (
     <div
       className={cn(
-        "flex flex-col items-start sm:items-end gap-1.5 shrink-0 overflow-visible py-1",
+        "flex flex-col gap-1.5 shrink-0 overflow-visible py-1",
+        align === "start"
+          ? "items-start sm:items-start"
+          : "items-start sm:items-end",
         className,
       )}
     >
       {trailing}
-      <OrderStatusBadge status={status ?? "pending"} />
+      <OrderStatusBadge status={status ?? "pending"} size="compact" />
       {statusAt ? (
         <span
           className={cn(
@@ -46,7 +53,7 @@ export function RecentOrderStatusColumn({
             semanticDateClass(statusAtSemanticKind(status, paymentStatus)),
           )}
         >
-          <Calendar className="h-3.5 w-3.5 shrink-0" aria-hidden />
+          <Calendar className="h-3 w-3 shrink-0" aria-hidden />
           <ClientCompactDateTime
             date={statusAt}
             semantic={statusAtSemanticKind(status, paymentStatus)}

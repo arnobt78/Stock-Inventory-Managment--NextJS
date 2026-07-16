@@ -782,6 +782,17 @@ Hub: `lib/ui/typography-scale.ts`. Hubs import tokens; ~45 inline files use equi
 
 **No TanStack/SSR/invalidation changes** — CSS/UI/layout only.
 
+## Orders table Invoice # (REQ-0145)
+
+| Piece | Location |
+|-------|----------|
+| Status align | `RecentOrderStatusColumn` `align="start"` — order table; portals keep end on sm+ |
+| Order # meta | Package/Boxes/Calendar icons; muted created date; `formatOrderProductPreview` |
+| Invoice # col | `OrderTableInvoiceCell` before Actions — # · created; amountDue · due · badge |
+| SSR link | `InvoiceLinkFields` via `getInvoiceLinkMap`; Redis `orders:list:v2:` |
+
+**Invalidation unchanged** — order graph already clears orders/invoices; list enrich only.
+
 ## Product table + detail UI (REQ-0138 / REQ-0139)
 
 | Piece | Location |
@@ -804,6 +815,16 @@ Hub: `lib/ui/typography-scale.ts`. Hubs import tokens; ~45 inline files use equi
 | Product/order cards | Owner · Supplier/Buyer; recent Orders Category sky + invoice indicator |
 
 **No TanStack/invalidation registry changes** — list enrich + CSS/UI + read-only SSR.
+
+## Products hydration + theme (REQ-0144)
+
+| Piece | Location |
+|-------|----------|
+| Table headers | `ProductTableColumns` — `Product & SKU` / `QR & Stock` (never `&amp;` in string props) |
+| ThemeProvider | Dev-only `console.error` filter for next-themes React 19 script false positive |
+| Forecasting AI | `app/api/forecasting/route.ts` → `openai/gpt-4o-mini` |
+
+**No TanStack/invalidation changes** — labels + provider noise + model id only.
 
 ## Detail & table UI parity (REQ-0127)
 

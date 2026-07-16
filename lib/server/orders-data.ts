@@ -15,20 +15,29 @@ import { getInvoicesByOrderIds } from "@/prisma/invoice";
 import { prisma } from "@/prisma/client";
 import { resolveOrderStatusAtFromSource } from "@/lib/orders/order-status-display-date";
 
-/** Linked invoice ref per order row (REQ-0061 — invoice actions in order table) */
-export type InvoiceLinkForOrder = {
+/**
+ * Linked invoice ref per order row (REQ-0061 actions; REQ-0145 list Invoice # column).
+ * List map always fills createdAt/dueDate/amountDue/status; detail may omit extras.
+ */
+export type InvoiceLinkFields = {
   id: string;
   invoiceNumber: string;
   paidAt: string | null;
-} | null;
+  createdAt?: string;
+  dueDate?: string;
+  amountDue?: number;
+  status?: string;
+};
+
+export type InvoiceLinkForOrder = InvoiceLinkFields | null;
 
 /**
- * Batch-resolve orderId → linked invoice {id, invoiceNumber} for list rows.
+ * Batch-resolve orderId → linked invoice for list/detail enrich.
  * One query for the whole page (uses existing getInvoicesByOrderIds helper).
  */
 export async function getInvoiceLinkMap(
   orderIds: string[],
-): Promise<Map<string, { id: string; invoiceNumber: string; paidAt: string | null }>> {
+): Promise<Map<string, InvoiceLinkFields>> {
   if (orderIds.length === 0) return new Map();
   const invoices = await getInvoicesByOrderIds(orderIds);
   return new Map(
@@ -38,6 +47,10 @@ export async function getInvoiceLinkMap(
         id: inv.id,
         invoiceNumber: inv.invoiceNumber,
         paidAt: inv.paidAt?.toISOString() ?? null,
+        createdAt: inv.createdAt.toISOString(),
+        dueDate: inv.dueDate.toISOString(),
+        amountDue: inv.amountDue,
+        status: inv.status,
       },
     ]),
   );

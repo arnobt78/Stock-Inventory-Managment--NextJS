@@ -495,7 +495,7 @@ export default function AdminOrderDetailContent({
                 <Truck className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
               </div>
               <h3 className="text-sm sm:text-base font-medium text-gray-700 dark:text-white">
-                Shipping &amp; Tracking
+                Shipping & Tracking
               </h3>
             </div>
             {order!.trackingNumber ? (

@@ -51,7 +51,15 @@ export type OrderDetailEnrichment = {
     email: string;
     image?: string | null;
   }[];
-  invoiceForOrder: { id: string; invoiceNumber: string; paidAt?: string | null } | null;
+  invoiceForOrder: {
+    id: string;
+    invoiceNumber: string;
+    paidAt?: string | null;
+    createdAt?: string;
+    dueDate?: string;
+    amountDue?: number;
+    status?: string;
+  } | null;
   /** REQ-0096 — audit user snapshots from createdBy / updatedBy */
   creator?: Order["creator"];
   updater?: Order["updater"];

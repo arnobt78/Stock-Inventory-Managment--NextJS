@@ -366,3 +366,8 @@ Format: `TIMESTAMP | AGENT | DECISION | RATIONALE | REQ-ID`
 2026-07-16T16:02:00Z | red-team | REQ-0142 automated gates | lint ✓ test 559 ✓ invalidate 213 ✓ build ✓ | REQ-0142
 2026-07-16T16:30:00Z | build-agent | REQ-0143 detail meta polish | Party · separators; category sky link; invoice via getInvoiceLinkMap on recentOrders | REQ-0143
 2026-07-16T16:32:00Z | red-team | REQ-0143 automated gates | lint ✓ test 559 ✓ invalidate 213 ✓ build ✓ | REQ-0143
+2026-07-16T16:50:00Z | build-agent | REQ-0144 hydration + theme noise | Plain Stock/Product labels (no &amp; props); ThemeProvider filters React 19 script warn; forecasting gpt-4o-mini | REQ-0144
+2026-07-16T16:52:00Z | red-team | REQ-0144 automated gates | lint ✓ test 559 ✓ invalidate 213 ✓ build ✓ | REQ-0144
+2026-07-16T16:55:00Z | build-agent | Keep display "QR & Stock" | Plain ampersand string — entity was the bug, not the label text | REQ-0144
+2026-07-16T17:10:00Z | build-agent | REQ-0145 order table Invoice # | Widen invoiceForOrder via getInvoiceLinkMap; align=start Status; product preview helper; orders:list:v2 | REQ-0145
+2026-07-16T17:12:00Z | red-team | REQ-0145 automated gates | lint ✓ test 565 ✓ invalidate 213 ✓ build ✓ | REQ-0145

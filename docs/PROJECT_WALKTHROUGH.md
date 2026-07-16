@@ -266,6 +266,8 @@ flowchart LR
 | Product UI (REQ-0138–0139) | Table QR/dates; detail 3-col; Catalog Allocation companion; urgency badges | |
 | Seed stock + sold (REQ-0140) | Beats `product.reserved=0`; sold=delivered\|paid; insights `qty−committed` | Gates: test 556 |
 | Cat/sup UI (REQ-0141–0143) | productCount+% + HelpTooltip; detail · separators; category + invoice on recent orders | |
+| Hydration + theme (REQ-0144) | Plain `&` table labels; ThemeProvider script filter; forecasting `gpt-4o-mini` | |
+| Orders table (REQ-0145) | Status `align=start`; Order # icons + product preview; Invoice # col; `orders:list:v2` | Gates: test 565 |
 | Next | Gate 2 — REQ-0136 UI + §10 A1/A2/B1; Sentry 24h | |
 | AI warehouse insights (REQ-0067) | `POST /api/ai/insights` enriches payload with `getWarehouseStockSummary` |
 | Per-warehouse order picking (REQ-0068) | `OrderItem.warehouseId`; `stock-allocation-order-sync.ts`; `OrderLineWarehouseSelect`; reserve/fulfill/cancel sync; invoice-paid gap; `f892b65` removed unused `deleteCache`/`getRateLimitStatus` |
@@ -286,9 +288,9 @@ flowchart LR
 |-------|--------|
 | `npm run lint` | pass |
 | `npm run build` | pass |
-| `npm run test` | 556 passed |
+| `npm run test` | 565 passed |
 | `npm run test:invalidate` | 213 passed |
-| Local | REQ-0137–0140 on `main` (re-seed `--with-catalog` after pull) |
+| Local | REQ-0144–0145 on `main` (orders list v2 cache) |
 | Radix table Select | `useDeferredRadixSelect` + `PaginationSelector` (11 tables) |
 | Pagination clamp + page-size reset | `useClampPaginationIndex` + `PaginationSelector` pageIndex 0 |
 | Sentry | tunnel + translate scrub + `syncSentryUserFromAuth` |

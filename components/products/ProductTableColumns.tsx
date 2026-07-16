@@ -93,6 +93,7 @@ export function createProductColumns(
     {
       id: "product",
       accessorKey: "name",
+      // Plain "&" — never HTML entities in string props (SSR/client decode can diverge; REQ-0144)
       header: ({ column }) => (
         <SortableHeader column={column} label="Product & SKU" />
       ),
@@ -111,7 +112,7 @@ export function createProductColumns(
                 unoptimized={imageUrl.includes("ik.imagekit.io")}
               />
             ) : (
-              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-gray-200 dark:bg-gray-700">
+              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-gray-100 dark:bg-gray-800 border border-gray-200 dark:border-gray-700">
                 <span className="text-[10px] text-gray-500 dark:text-gray-400">
                   No Img
                 </span>
@@ -139,7 +140,10 @@ export function createProductColumns(
     },
     {
       accessorKey: "quantity",
-      header: ({ column }) => <SortableHeader column={column} label="Stock" />,
+      // Plain "&" in string props — never `&amp;` (SSR/client decode diverge; REQ-0144)
+      header: ({ column }) => (
+        <SortableHeader column={column} label="QR & Stock" />
+      ),
       cell: ({ row }) => {
         const quantity = row.original.quantity;
         const reserved = getDisplayCommittedQuantity(row.original);

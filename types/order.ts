@@ -119,8 +119,16 @@ export interface Order {
   /** REQ-0074 — party avatar SSR */
   placedByUserId?: string | null;
   placedByImage?: string | null;
-  /** Linked invoice when order has an invoice (for admin detail link) */
-  invoiceForOrder?: { id: string; invoiceNumber: string; paidAt?: string | null } | null;
+  /** Linked invoice when order has an invoice (REQ-0061 actions; REQ-0145 list Invoice #) */
+  invoiceForOrder?: {
+    id: string;
+    invoiceNumber: string;
+    paidAt?: string | null;
+    createdAt?: string;
+    dueDate?: string;
+    amountDue?: number;
+    status?: string;
+  } | null;
   /** REQ-0129 — terminal status timestamp for list rows */
   statusAt?: string;
   /** REQ-0073 — payment timestamp from linked invoice (not order.updatedAt) */

@@ -119,7 +119,7 @@ export function PartiesRolesCard({
           <HeaderIcon className="h-5 w-5 text-teal-600 dark:text-teal-400" />
         </div>
         <h3 className="text-sm sm:text-base font-medium text-gray-700 dark:text-white">
-          Parties &amp; roles
+          Parties & roles
         </h3>
       </div>
       <div className="flex flex-col gap-2 text-sm">

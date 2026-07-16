@@ -1522,7 +1522,7 @@ export default function AdminAnalyticsContent({
         {/* Demand Forecasting — sibling of AI insights; parent gap-6 owns section spacing */}
         <ChartCard
           variant="emerald"
-          title="Demand Forecasting &amp; Predictions"
+          title="Demand Forecasting & Predictions"
           icon={TrendingUp}
           description="Store-wide"
         >

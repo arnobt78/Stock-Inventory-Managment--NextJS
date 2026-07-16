@@ -1,6 +1,7 @@
 /**
  * Order Table Columns
  * Column definitions for the orders table using TanStack Table
+ * REQ-0145 — Order # meta icons + product preview; Status start-align; Invoice # column
  */
 
 "use client";
@@ -18,7 +19,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { ArrowUpDown } from "lucide-react";
+import { ArrowUpDown, Boxes, Calendar, Package } from "lucide-react";
 import { IoMdArrowDown, IoMdArrowUp } from "react-icons/io";
 import Link from "next/link";
 import {
@@ -27,18 +28,42 @@ import {
   RecentOrderStatusColumn,
 } from "@/components/shared";
 import OrderActions from "./OrderActions";
+import { OrderTableInvoiceCell } from "./OrderTableInvoiceCell";
+import {
+  formatOrderProductPreview,
+  getOrderItemUnitCounts,
+} from "@/lib/orders/order-list-meta";
+import { cn } from "@/lib/utils";
 
-const compactOrderMeta = (order: Order) => {
-  const items = order.items || [];
-  const totalQty = items.reduce((sum, item) => sum + item.quantity, 0);
+const META_MUTED = "text-xs text-gray-500 dark:text-gray-400";
+
+/** REQ-0145 — items / units / created with icons; date matches muted meta color */
+function OrderCompactMeta({ order }: { order: Order }) {
+  const { itemCount, unitCount } = getOrderItemUnitCounts(order.items);
   return (
-    <>
-      {items.length} item{items.length === 1 ? "" : "s"} · {totalQty} unit
-      {totalQty === 1 ? "" : "s"} ·{" "}
-      <ClientDate date={order.createdAt} semantic="created" />
-    </>
+    <span
+      className={cn(
+        "inline-flex items-center gap-1.5 flex-wrap",
+        META_MUTED,
+      )}
+    >
+      <span className="inline-flex items-center gap-1">
+        <Package className="h-3 w-3 shrink-0" aria-hidden />
+        {itemCount} item{itemCount === 1 ? "" : "s"}
+      </span>
+      <span aria-hidden>·</span>
+      <span className="inline-flex items-center gap-1">
+        <Boxes className="h-3 w-3 shrink-0" aria-hidden />
+        {unitCount} unit{unitCount === 1 ? "" : "s"}
+      </span>
+      <span aria-hidden>·</span>
+      <span className="inline-flex items-center gap-1">
+        <Calendar className="h-3 w-3 shrink-0" aria-hidden />
+        <ClientDate date={order.createdAt} className="text-xs" />
+      </span>
+    </span>
   );
-};
+}
 
 /**
  * Sortable Header Props
@@ -118,107 +143,134 @@ export const createOrderColumns = (
   onEdit: (order: Order) => void,
   detailHrefBase?: string,
   options?: CreateOrderColumnsOptions,
-): ColumnDef<Order>[] => [
-  {
-    accessorKey: "orderNumber",
-    header: ({ column }) => <SortableHeader column={column} label="Order #" />,
-    cell: ({ row }) => {
-      const order = row.original as OrderWithSource;
-      const href = detailHrefBase
-        ? `${detailHrefBase}/${order.id}`
-        : `/orders/${order.id}`;
-      const showBadge = options?.showSourceBadge && order._source != null;
-      const showPlacedBy =
-        options?.showPlacedBy && (order.placedByName || order.placedByEmail);
-      const showProductOwner =
-        options?.showProductOwner &&
-        (order.productOwnerName || order.productOwnerEmail);
-      return (
-        <div className="flex flex-col ">
-          {/* CopyableText: click icon copies order # without triggering the row link */}
-          <CopyableText value={order.orderNumber}>
-            <Link
-              href={href}
-              prefetch
-              className="font-normal text-sky-600 dark:text-sky-400 hover:text-sky-500 dark:hover:text-sky-300"
-            >
-              {order.orderNumber}
-            </Link>
-          </CopyableText>
-          {showBadge && (
-            <div className="flex items-center gap-1 flex-wrap">
-              {order._displayName != null && order._displayName !== "" && (
-                <span className="text-xs text-gray-500 dark:text-gray-400">
-                  {order._displayName}
-                </span>
-              )}
-              <AdminOrderSourceBadge source={order._source} />
-            </div>
-          )}
-          {showPlacedBy && (
-            <span className="text-xs text-gray-500 dark:text-gray-400">
-              {order.placedByName}
-              {order.placedByEmail ? ` (${order.placedByEmail})` : ""}
-            </span>
-          )}
-          {showProductOwner && (
-            <span className="text-xs text-gray-500 dark:text-gray-400">
-              {order.productOwnerName}
-              {order.productOwnerEmail ? ` (${order.productOwnerEmail})` : ""}
-            </span>
-          )}
-          <div className="flex items-center gap-1.5 flex-wrap">
-            <span className="text-xs text-gray-500 dark:text-gray-400">
-              {compactOrderMeta(order)}
-            </span>
+): ColumnDef<Order>[] => {
+  const invoiceHrefBase = detailHrefBase?.startsWith("/admin")
+    ? "/admin/invoices"
+    : "/invoices";
+
+  return [
+    {
+      accessorKey: "orderNumber",
+      header: ({ column }) => (
+        <SortableHeader column={column} label="Order #" />
+      ),
+      cell: ({ row }) => {
+        const order = row.original as OrderWithSource;
+        const href = detailHrefBase
+          ? `${detailHrefBase}/${order.id}`
+          : `/orders/${order.id}`;
+        const showBadge = options?.showSourceBadge && order._source != null;
+        const showPlacedBy =
+          options?.showPlacedBy && (order.placedByName || order.placedByEmail);
+        const showProductOwner =
+          options?.showProductOwner &&
+          (order.productOwnerName || order.productOwnerEmail);
+        const productPreview = formatOrderProductPreview(order.items);
+        return (
+          <div className="flex flex-col gap-0.5 min-w-0 max-w-[260px]">
+            {/* CopyableText: click icon copies order # without triggering the row link */}
+            <CopyableText value={order.orderNumber}>
+              <Link
+                href={href}
+                prefetch
+                className="font-normal text-sky-600 dark:text-sky-400 hover:text-sky-500 dark:hover:text-sky-300"
+              >
+                {order.orderNumber}
+              </Link>
+            </CopyableText>
+            {showBadge && (
+              <div className="flex items-center gap-1 flex-wrap">
+                {order._displayName != null && order._displayName !== "" && (
+                  <span className={META_MUTED}>{order._displayName}</span>
+                )}
+                <AdminOrderSourceBadge source={order._source} />
+              </div>
+            )}
+            {showPlacedBy && (
+              <span className={META_MUTED}>
+                {order.placedByName}
+                {order.placedByEmail ? ` (${order.placedByEmail})` : ""}
+              </span>
+            )}
+            {showProductOwner && (
+              <span className={META_MUTED}>
+                {order.productOwnerName}
+                {order.productOwnerEmail
+                  ? ` (${order.productOwnerEmail})`
+                  : ""}
+              </span>
+            )}
+            {/* REQ-0145 — truncated product names for at-a-glance identity */}
+            {productPreview ? (
+              <span className={cn("truncate", META_MUTED)} title={productPreview}>
+                {productPreview}
+              </span>
+            ) : null}
+            <OrderCompactMeta order={order} />
           </div>
-        </div>
-      );
+        );
+      },
     },
-  },
-  {
-    accessorKey: "total",
-    header: ({ column }) => <SortableHeader column={column} label="Total" />,
-    cell: ({ getValue }) => {
-      const total = getValue<number>();
-      return <span>${total.toFixed(2)}</span>;
+    {
+      accessorKey: "total",
+      header: ({ column }) => <SortableHeader column={column} label="Total" />,
+      cell: ({ getValue }) => {
+        const total = getValue<number>();
+        return <span>${total.toFixed(2)}</span>;
+      },
     },
-  },
-  {
-    accessorKey: "status",
-    header: ({ column }) => <SortableHeader column={column} label="Status" />,
-    cell: ({ row }) => {
-      const order = row.original;
-      return (
-        <RecentOrderStatusColumn
-          status={order.status ?? ""}
-          statusAt={order.statusAt}
-          paymentStatus={order.paymentStatus}
-          className="items-start py-0"
+    {
+      accessorKey: "status",
+      header: ({ column }) => <SortableHeader column={column} label="Status" />,
+      cell: ({ row }) => {
+        const order = row.original;
+        return (
+          <RecentOrderStatusColumn
+            status={order.status ?? ""}
+            statusAt={order.statusAt}
+            paymentStatus={order.paymentStatus}
+            align="start"
+            className="py-0"
+          />
+        );
+      },
+    },
+    {
+      accessorKey: "paymentStatus",
+      header: ({ column }) => (
+        <SortableHeader column={column} label="Payment" />
+      ),
+      cell: ({ row }) => {
+        const paymentStatus = row.original.paymentStatus;
+        return <PaymentStatusBadge status={paymentStatus} />;
+      },
+    },
+    {
+      id: "invoice",
+      accessorFn: (row) => row.invoiceForOrder?.invoiceNumber ?? "",
+      header: ({ column }) => (
+        <SortableHeader column={column} label="Invoice #" />
+      ),
+      cell: ({ row }) => (
+        <OrderTableInvoiceCell
+          invoice={row.original.invoiceForOrder}
+          invoiceHrefBase={invoiceHrefBase}
         />
-      );
+      ),
     },
-  },
-  {
-    accessorKey: "paymentStatus",
-    header: ({ column }) => <SortableHeader column={column} label="Payment" />,
-    cell: ({ row }) => {
-      const paymentStatus = row.original.paymentStatus;
-      return <PaymentStatusBadge status={paymentStatus} />;
+    {
+      id: "actions",
+      header: "Actions",
+      cell: ({ row }) => {
+        return (
+          <OrderActions
+            order={row.original}
+            onEdit={onEdit}
+            detailHrefBase={detailHrefBase}
+            onCreateInvoice={options?.onCreateInvoice}
+          />
+        );
+      },
     },
-  },
-  {
-    id: "actions",
-    header: "Actions",
-    cell: ({ row }) => {
-      return (
-        <OrderActions
-          order={row.original}
-          onEdit={onEdit}
-          detailHrefBase={detailHrefBase}
-          onCreateInvoice={options?.onCreateInvoice}
-        />
-      );
-    },
-  },
-];
+  ];
+};
