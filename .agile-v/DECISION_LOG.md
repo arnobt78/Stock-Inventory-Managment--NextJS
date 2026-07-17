@@ -376,3 +376,4 @@ Format: `TIMESTAMP | AGENT | DECISION | RATIONALE | REQ-ID`
 2026-07-16T17:26:00Z | red-team | REQ-0145 gap gates | lint ✓ test 571 ✓ invalidate 213 ✓ build ✓ | REQ-0145
 2026-07-16T17:27:00Z | release | Prod SHA c62d364 pushed origin/main | REQ-0145 gap; redeploy Vercel | REQ-0145
 2026-07-16T17:30:00Z | product-owner | EOD park — resume tomorrow-UI-then-cache | Shipped 0141–0145; next human UI/calc then §10 A1/A2/B1 only | REQ-0136
+2026-07-17T11:30:00Z | agile-v-core | Session activate — Infinity Loop | .agile-v intact; resume REQ-0136 UI explore before §10; skills 01+02+17+19 | REQ-0136,REQ-0008

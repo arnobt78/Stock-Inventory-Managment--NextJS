@@ -2,8 +2,8 @@
 
 **Project:** Stockly Inventory (Next.js 16, React 19, Prisma/MongoDB)  
 **Cycle:** C2 active (C1 Gate 2 PENDING)  
-**Active:** REQ-0136 — UI mismatch → §10 A1/A2/B1 (`resume_token: tomorrow-QA`)  
-**Standard:** Agile V 1.4 | Infinity Loop
+**Active:** REQ-0136 — UI explore → §10 A1/A2/B1 (`resume_token: tomorrow-UI-then-cache`)  
+**Park SHA:** `40a7198` / feat `c62d364` · **Standard:** Agile V 1.4 | Infinity Loop
 
 ---
 

@@ -3298,7 +3298,7 @@ Canonical REQ source. All artifacts link via `REQ-XXXX`. Status: `done` | `verif
 | **Cycle** | C2 |
 | **Parent** | REQ-0133–0135 (cache), REQ-0121 (UI sweep), Gate-2 |
 
-**Intent:** Resume token `tomorrow-QA`. Fix user-reported UI mismatches that block trustworthy eyes, then run short cache coherence smoke (`docs/MANUAL_TEST_FIXTURES.md` §10 A1, A2, B1 only). Do **not** mix UI polish into cache pass/fail. Full role×route matrix deferred.
+**Intent:** Resume token `tomorrow-UI-then-cache` (2026-07-17). Fix user-reported UI mismatches that block trustworthy eyes, then run short cache coherence smoke (`docs/MANUAL_TEST_FIXTURES.md` §10 A1, A2, B1 only). Do **not** mix UI polish into cache pass/fail. Full role×route matrix deferred. Shipped park: REQ-0141–0145.
 
 **Acceptance criteria**
 

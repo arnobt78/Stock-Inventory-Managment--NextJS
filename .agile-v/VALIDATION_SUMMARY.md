@@ -1,10 +1,10 @@
 # Validation Summary — Cycle C1
 
-**Generated:** 2026-07-16 EOD  
+**Generated:** 2026-07-17 session activate  
 **eval_gate_status:** PENDING (Human Gate 2)  
-**Prod target SHA:** `c62d364` / docs `fe5cbdc`  
+**Prod target SHA:** `c62d364` / park `40a7198`  
 **Red Team:** lint ✓ test 571 ✓ invalidate 213 ✓ build ✓ (REQ-0145 gap)  
-**Resume:** tomorrow → REQ-0136 UI explore → §10 A1/A2/B1 (see STATE.md)
+**Resume:** **REQ-0136** UI explore → §10 A1/A2/B1 (see STATE.md)
 
 ---
 
