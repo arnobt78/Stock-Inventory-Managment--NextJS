@@ -67,8 +67,17 @@ export interface Invoice {
   invoiceProductOwners?: { userId: string; name: string | null; email: string; image?: string | null }[];
   /** REQ-0063 — linked order number for Related Order row + copy */
   linkedOrderNumber?: string | null;
+  /** REQ-0150 — linked order createdAt for Invoice table Order # meta */
+  linkedOrderCreatedAt?: string | Date | null;
   /** REQ-0063 — line items from linked order (thumbnails on invoice detail) */
   linkedOrderItems?: OrderItem[];
+  /** REQ-0151 — linked order status/payment for Invoice Order # badges */
+  linkedOrderStatus?: string | null;
+  linkedOrderPaymentStatus?: string | null;
+  linkedOrderStatusAt?: string | null;
+  linkedOrderPaidAt?: string | null;
+  /** REQ-0150 — terminal/relevant status timestamp for Status column */
+  statusAt?: string;
   /** REQ-0096 — DB audit fields (distinct from invoiceCreatedBy issuer resolution) */
   creator?: {
     id: string;

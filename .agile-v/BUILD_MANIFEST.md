@@ -368,3 +368,11 @@
 | TC-0072 | REQ-0148 | Gates lint/test/invalidate/build |
 | ART-0149 | REQ-0149 | Line price typography + Owner/Buyer | ProportionalPriceDisplay final/strike tokens; catalog AvatarInlineLink text-xs |
 | TC-0073 | REQ-0149 | Gates lint/test/invalidate/build |
+| ART-0150 | REQ-0150 | Invoice table density + Edit fix | OrderTableInvoiceCell; Order # enrich; statusAt; Cancel type=button; solid Select |
+| TC-0074 | REQ-0150 | resolveInvoiceStatusAt tests; gates lint/test/invalidate/build |
+| ART-0151 | REQ-0151 | Edit submit + Order # badges + due Clock | updateInvoiceSchema date-only; InvoiceDialog toast; linkedOrder status/payment; Clock icons |
+| TC-0075 | REQ-0151 | invoice.test.ts date-only; gates lint/test/invalidate/build |
+| ART-0152 | REQ-0152 | Partial pay sync + Pay toggle | order-payment-from-amounts; checkout amount; webhook incremental; PaymentDialog; PaymentMoneyBreakdown; orders:list:v4 |
+| TC-0076 | REQ-0152 | order-payment-from-amounts + payment-api tests; gates lint/test/invalidate/build |
+| ART-0153 | REQ-0153 | Instant linked-order patch | patchLinkedOrderFromInvoiceMoney; use-invoices wire; optimistic amountDue |
+| TC-0077 | REQ-0153 | patch-mutation-cache linked-order tests; gates lint/test/invalidate/build |

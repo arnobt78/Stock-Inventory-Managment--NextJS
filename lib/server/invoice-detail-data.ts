@@ -133,6 +133,8 @@ async function enrichInvoice(
         ? { subtotal: order.subtotal, total: order.total }
         : undefined),
     ),
+    linkedOrderStatus: order?.status ?? null,
+    linkedOrderPaymentStatus: order?.paymentStatus ?? null,
     creator: toParty(
       invoice.createdBy ? userMap.get(invoice.createdBy) ?? null : null,
     ),

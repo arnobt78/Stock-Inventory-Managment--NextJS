@@ -666,7 +666,17 @@ export default function OrderDetailPage({
                         type="order"
                         id={order.id}
                         referenceNumber={order.orderNumber}
-                        amount={order.total}
+                        amount={
+                          order.invoiceForOrder?.amountDue != null
+                            ? Number(order.invoiceForOrder.amountDue)
+                            : order.total
+                        }
+                        amountPaid={
+                          order.invoiceForOrder?.amountPaid != null
+                            ? Number(order.invoiceForOrder.amountPaid)
+                            : undefined
+                        }
+                        documentTotal={order.total}
                         subtotal={order.subtotal}
                         items={order.items.map((item) => ({
                           name: item.productName,
@@ -684,7 +694,11 @@ export default function OrderDetailPage({
                             className={glassDetailFooterButtonClass("emerald")}
                           >
                             <CreditCard className="h-4 w-4 shrink-0" />
-                            Pay ${order.total.toFixed(2)}
+                            Pay $
+                            {(order.invoiceForOrder?.amountDue != null
+                              ? Number(order.invoiceForOrder.amountDue)
+                              : order.total
+                            ).toFixed(2)}
                           </Button>
                         }
                       />

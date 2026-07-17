@@ -12,6 +12,10 @@ import { createAuditLog } from "@/prisma/audit-log";
 import { withRateLimit, defaultRateLimits } from "@/lib/api/rate-limit";
 import { prisma } from "@/prisma/client";
 import { fetchOrderUserIdMap } from "@/lib/invoices/enrich-order-user-ids";
+import {
+  attachInvoiceListOrderPreview,
+  fetchInvoiceListOrderPreviewMap,
+} from "@/lib/invoices/enrich-invoice-list-orders";
 import { getStoreOrderIds } from "@/lib/invoices/store-order-ids";
 import { getInvoicesForSupplierId } from "@/lib/server/invoices-data";
 import { getSupplierByUserId } from "@/prisma/supplier";
@@ -156,11 +160,16 @@ export async function GET(request: NextRequest) {
       );
     }
 
+    // REQ-0150 — linked order preview + statusAt for dense Invoice table
+    const orderPreviewMap = await fetchInvoiceListOrderPreviewMap(
+      invoices.map((inv) => inv.orderId),
+    );
+
     // Transform invoices for response (convert Dates to ISO strings)
     const transformedInvoices = invoices.map((invoice) => {
       const issuer = isClient ? issuerMap.get(invoice.id) : undefined;
       const clientInfo = !isClient && invoice.clientId ? clientMap.get(invoice.clientId) : undefined;
-      return {
+      const base = {
         id: invoice.id,
         invoiceNumber: invoice.invoiceNumber,
         orderId: invoice.orderId,
@@ -192,6 +201,7 @@ export async function GET(request: NextRequest) {
           ? { orderUserId: orderUserIdMap.get(invoice.orderId) ?? null }
           : {}),
       };
+      return attachInvoiceListOrderPreview(base, orderPreviewMap);
     });
 
     // Cache the result for 5 minutes

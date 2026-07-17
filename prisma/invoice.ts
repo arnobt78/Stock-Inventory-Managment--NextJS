@@ -7,6 +7,7 @@ import { prisma } from "@/prisma/client";
 import type { Prisma } from "@prisma/client";
 import type { CreateInvoiceInput, UpdateInvoiceInput, InvoiceFilters } from "@/types/invoice";
 import { logger } from "@/lib/logger";
+import { applyIncrementalInvoicePayment } from "@/lib/payments/order-payment-from-amounts";
 
 /** Shared Prisma where clauses for invoice list filters (issuer, client, store-by-orderIds). */
 function applyInvoiceFiltersToWhere(
@@ -177,17 +178,15 @@ export async function createInvoice(
 }
 
 /**
- * Ensure an invoice exists for a paid order (enterprise: auto-generate on payment).
- * If an invoice already exists for the order, mark it as paid.
- * If not, create a new invoice with status "paid" for accounting/records.
+ * REQ-0152 — Apply a Stripe charge to the order's invoice (create if missing).
+ * Incremental: prior amountPaid + chargeAmount; full settle → paid, else sent + due left.
  *
- * @param orderId - Order ID that was just paid
- * @param amountPaid - Amount received (e.g. from Stripe, in dollars)
- * @returns The invoice (existing updated or newly created)
+ * @param orderId - Order that received a Stripe payment
+ * @param chargeAmount - Amount charged this session (dollars)
  */
-export async function ensureInvoiceForPaidOrder(
+export async function applyStripeChargeToOrderInvoice(
   orderId: string,
-  amountPaid: number,
+  chargeAmount: number,
 ): Promise<Prisma.InvoiceGetPayload<Record<string, never>>> {
   const order = await prisma.order.findUnique({
     where: { id: orderId },
@@ -202,7 +201,6 @@ export async function ensureInvoiceForPaidOrder(
     throw new Error(`Order with ID ${orderId} not found`);
   }
 
-  // Resolve the product owner (issuer) from order items; fall back to order.userId
   const productOwnerIds = [
     ...new Set(
       order.items
@@ -218,25 +216,41 @@ export async function ensureInvoiceForPaidOrder(
 
   const now = new Date();
   const total = order.total;
+  const charge = chargeAmount > 0 ? chargeAmount : total;
 
   if (existingInvoice) {
+    const next = applyIncrementalInvoicePayment({
+      priorAmountPaid: existingInvoice.amountPaid,
+      total: existingInvoice.total,
+      chargeAmount: charge,
+      priorStatus: existingInvoice.status,
+    });
     const updated = await prisma.invoice.update({
       where: { id: existingInvoice.id },
       data: {
-        status: "paid",
-        amountPaid: amountPaid > 0 ? amountPaid : total,
-        amountDue: 0,
-        paidAt: now,
+        status: next.status,
+        amountPaid: next.amountPaid,
+        amountDue: next.amountDue,
+        paidAt: next.fullyPaid ? now : null,
         updatedAt: now,
         updatedBy: issuerId,
       },
     });
-    logger.info("Invoice marked as paid (order payment)", {
+    logger.info("Invoice updated from Stripe order charge", {
       invoiceId: updated.id,
       orderId,
+      amountPaid: next.amountPaid,
+      amountDue: next.amountDue,
     });
     return updated;
   }
+
+  const next = applyIncrementalInvoicePayment({
+    priorAmountPaid: 0,
+    total,
+    chargeAmount: charge,
+    priorStatus: "sent",
+  });
 
   const invoiceNumber = await generateInvoiceNumber();
   const subtotal = order.subtotal;
@@ -253,21 +267,23 @@ export async function ensureInvoiceForPaidOrder(
       orderId,
       userId: issuerId,
       clientId: order.clientId,
-      status: "paid",
+      status: next.status,
       subtotal,
       tax: tax > 0 ? tax : null,
       shipping: shipping > 0 ? shipping : null,
       discount: discount > 0 ? discount : null,
       total,
-      amountPaid: amountPaid > 0 ? amountPaid : total,
-      amountDue: 0,
+      amountPaid: next.amountPaid,
+      amountDue: next.amountDue,
       dueDate: now,
       issuedAt: now,
       sentAt: now,
-      paidAt: now,
+      paidAt: next.fullyPaid ? now : null,
       cancelledAt: null,
       paymentLink: null,
-      notes: "Auto-generated when order was paid via Stripe.",
+      notes: next.fullyPaid
+        ? "Auto-generated when order was paid via Stripe."
+        : "Auto-generated from Stripe partial payment on order.",
       billingAddress,
       createdBy: issuerId,
       updatedBy: null,
@@ -276,13 +292,25 @@ export async function ensureInvoiceForPaidOrder(
     },
   });
 
-  logger.info("Invoice auto-created for paid order", {
+  logger.info("Invoice auto-created for Stripe order charge", {
     invoiceId: invoice.id,
     invoiceNumber: invoice.invoiceNumber,
     orderId,
+    amountPaid: next.amountPaid,
   });
 
   return invoice;
+}
+
+/**
+ * @deprecated Prefer applyStripeChargeToOrderInvoice (REQ-0152 incremental).
+ * Kept as alias for existing webhook/import call sites.
+ */
+export async function ensureInvoiceForPaidOrder(
+  orderId: string,
+  amountPaid: number,
+): Promise<Prisma.InvoiceGetPayload<Record<string, never>>> {
+  return applyStripeChargeToOrderInvoice(orderId, amountPaid);
 }
 
 /**
@@ -469,10 +497,16 @@ export async function updateInvoice(
     const amountDue = total - data.amountPaid;
     updateData.amountDue = Math.max(0, amountDue);
 
-    // Auto-update status to "paid" if amount paid equals total
+    // REQ-0152 — auto paid when fully settled; downgrade paid → sent if amount lowered
     if (data.amountPaid >= total && existingInvoice.status !== "paid") {
       updateData.status = "paid";
       updateData.paidAt = new Date();
+    } else if (
+      data.amountPaid < total &&
+      existingInvoice.status === "paid"
+    ) {
+      updateData.status = "sent";
+      updateData.paidAt = null;
     }
   }
 

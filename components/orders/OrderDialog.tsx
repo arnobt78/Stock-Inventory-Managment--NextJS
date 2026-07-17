@@ -969,7 +969,9 @@ export default function OrderDialog({
               </div>
 
               <DialogFooter className="mt-9 mb-4 flex flex-col sm:flex-row items-center gap-2">
+                {/* REQ-0150 — type=button so Cancel does not submit/unmount the form */}
                 <Button
+                  type="button"
                   onClick={handleCancelEdit}
                   variant="secondary"
                   className={cn("w-full sm:w-auto px-11 gap-2", GLASS_GHOST_BUTTON)}

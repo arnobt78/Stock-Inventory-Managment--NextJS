@@ -412,16 +412,47 @@ export default function AdminOrderDetailContent({
                         label="Invoice:"
                         tone="violet"
                       >
-                        <CopyableText
-                          value={order.invoiceForOrder.invoiceNumber}
-                        >
-                          <Link
-                            href={`/admin/invoices/${order.invoiceForOrder.id}`}
-                            className="text-sky-600 dark:text-sky-400 hover:text-sky-500 font-normal"
+                        <span className="inline-flex flex-wrap items-center gap-x-2 gap-y-0.5 min-w-0">
+                          <CopyableText
+                            value={order.invoiceForOrder.invoiceNumber}
                           >
-                            {order.invoiceForOrder.invoiceNumber}
-                          </Link>
-                        </CopyableText>
+                            <Link
+                              href={`/admin/invoices/${order.invoiceForOrder.id}`}
+                              className="text-sky-600 dark:text-sky-400 hover:text-sky-500 font-normal"
+                            >
+                              {order.invoiceForOrder.invoiceNumber}
+                            </Link>
+                          </CopyableText>
+                          {order.invoiceForOrder.amountDue != null && (
+                            <span className="text-xs text-gray-600 dark:text-gray-300 font-normal">
+                              · $
+                              {Number(order.invoiceForOrder.amountDue).toFixed(
+                                2,
+                              )}{" "}
+                              due
+                            </span>
+                          )}
+                        </span>
+                      </DetailInfoRow>
+                    )}
+                    {order.paymentStatus === "partial" && (
+                      <DetailInfoRow
+                        icon={CreditCard}
+                        label="Payment:"
+                        tone="amber"
+                      >
+                        Partial payment — total ${order.total.toFixed(2)}
+                        {order.invoiceForOrder && (
+                          <>
+                            {" · "}
+                            <Link
+                              href={`/admin/invoices/${order.invoiceForOrder.id}`}
+                              className="text-sky-600 dark:text-sky-400 hover:underline"
+                            >
+                              View invoice for payment breakdown
+                            </Link>
+                          </>
+                        )}
                       </DetailInfoRow>
                     )}
                   </>

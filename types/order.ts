@@ -127,6 +127,9 @@ export interface Order {
     createdAt?: string;
     dueDate?: string;
     amountDue?: number;
+    /** REQ-0152 */
+    amountPaid?: number;
+    total?: number;
     status?: string;
     sentAt?: string | null;
     cancelledAt?: string | null;

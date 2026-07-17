@@ -15,6 +15,8 @@ export type CheckoutType = "order" | "invoice";
 export interface CreateCheckoutInput {
   type: CheckoutType;
   id: string; // Order ID or Invoice ID
+  /** REQ-0152 — dollars to charge; omit = full remaining due */
+  amount?: number;
   successUrl?: string;
   cancelUrl?: string;
 }

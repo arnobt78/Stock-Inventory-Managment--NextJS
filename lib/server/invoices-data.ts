@@ -11,9 +11,14 @@ import {
   getOrdersContainingSupplierProducts,
 } from "@/prisma/order";
 import { fetchOrderUserIdMap } from "@/lib/invoices/enrich-order-user-ids";
+import {
+  attachInvoiceListOrderPreview,
+  fetchInvoiceListOrderPreviewMap,
+} from "@/lib/invoices/enrich-invoice-list-orders";
 import { getStoreOrderIds } from "@/lib/invoices/store-order-ids";
 import { prisma } from "@/prisma/client";
 import type { InvoiceFilters } from "@/types/invoice";
+import type { OrderItem } from "@/types";
 
 /** Invoice shape returned by invoices API GET (dates as ISO strings) */
 export type InvoiceForPage = {
@@ -54,6 +59,15 @@ export type InvoiceForPage = {
   issuedByEmail?: string | null;
   /** User who placed the linked order (for admin self/client source tagging) */
   orderUserId?: string | null;
+  /** REQ-0150 / REQ-0151 — linked order preview for dense table */
+  linkedOrderNumber?: string | null;
+  linkedOrderCreatedAt?: string | null;
+  linkedOrderItems?: OrderItem[];
+  linkedOrderStatus?: string | null;
+  linkedOrderPaymentStatus?: string | null;
+  linkedOrderStatusAt?: string | null;
+  linkedOrderPaidAt?: string | null;
+  statusAt?: string;
 };
 
 async function transformInvoicesForList(
@@ -72,9 +86,13 @@ async function transformInvoicesForList(
     : [];
   const clientMap = new Map(clients.map((c) => [c.id, { name: c.name, email: c.email }]));
 
+  const orderPreviewMap = await fetchInvoiceListOrderPreviewMap(
+    invoices.map((inv) => inv.orderId),
+  );
+
   return invoices.map((invoice) => {
     const clientInfo = invoice.clientId ? clientMap.get(invoice.clientId) : undefined;
-    return {
+    const base = {
       id: invoice.id,
       invoiceNumber: invoice.invoiceNumber,
       orderId: invoice.orderId,
@@ -104,6 +122,7 @@ async function transformInvoicesForList(
       clientEmail: clientInfo?.email ?? null,
       orderUserId: orderUserIdMap.get(invoice.orderId) ?? null,
     };
+    return attachInvoiceListOrderPreview(base, orderPreviewMap);
   });
 }
 
@@ -234,13 +253,17 @@ export async function getInvoicesForClientId(
       : [];
   const userMap = new Map(users.map((u) => [u.id, u]));
 
+  const orderPreviewMap = await fetchInvoiceListOrderPreviewMap(
+    invoices.map((inv) => inv.orderId),
+  );
+
   const transformed: InvoiceForPage[] = invoices.map((invoice) => {
     // Priority: product owner from order items > createdBy > userId
     const productOwnerId = orderProductOwnerMap.get(invoice.orderId);
     const issuerId = productOwnerId ?? invoice.createdBy ?? invoice.userId;
     const issuer = userMap.get(issuerId);
     const order = orders.find((o) => o.id === invoice.orderId);
-    return {
+    const base = {
       id: invoice.id,
       invoiceNumber: invoice.invoiceNumber,
       orderId: invoice.orderId,
@@ -270,6 +293,7 @@ export async function getInvoicesForClientId(
       issuedByEmail: issuer?.email ?? null,
       orderUserId: order?.userId ?? null,
     };
+    return attachInvoiceListOrderPreview(base, orderPreviewMap);
   });
 
   await setCache(cacheKey, transformed, 300, { fetchedAt: cacheReadStartedAt });
@@ -320,35 +344,42 @@ export async function getClientInvoicesForProductOwner(
     orderUserIdMap.set(order.id, order.userId);
   }
 
-  const transformed: InvoiceForPage[] = invoices.map((invoice) => ({
-    id: invoice.id,
-    invoiceNumber: invoice.invoiceNumber,
-    orderId: invoice.orderId,
-    userId: invoice.userId,
-    clientId: invoice.clientId ?? null,
-    status: invoice.status,
-    subtotal: invoice.subtotal,
-    tax: invoice.tax ?? null,
-    shipping: invoice.shipping ?? null,
-    discount: invoice.discount ?? null,
-    total: invoice.total,
-    amountPaid: invoice.amountPaid,
-    amountDue: invoice.amountDue,
-    dueDate: invoice.dueDate.toISOString(),
-    issuedAt: invoice.issuedAt.toISOString(),
-    sentAt: invoice.sentAt?.toISOString() || null,
-    paidAt: invoice.paidAt?.toISOString() || null,
-    cancelledAt: invoice.cancelledAt?.toISOString() || null,
-    paymentLink: invoice.paymentLink,
-    notes: invoice.notes,
-    billingAddress: invoice.billingAddress,
-    createdAt: invoice.createdAt.toISOString(),
-    updatedAt: invoice.updatedAt?.toISOString() || null,
-    createdBy: invoice.createdBy,
-    updatedBy: invoice.updatedBy,
-    customerDisplay: orderCustomerDisplay.get(invoice.orderId) ?? null,
-    orderUserId: orderUserIdMap.get(invoice.orderId) ?? null,
-  }));
+  const orderPreviewMap = await fetchInvoiceListOrderPreviewMap(
+    invoices.map((inv) => inv.orderId),
+  );
+
+  const transformed: InvoiceForPage[] = invoices.map((invoice) => {
+    const base = {
+      id: invoice.id,
+      invoiceNumber: invoice.invoiceNumber,
+      orderId: invoice.orderId,
+      userId: invoice.userId,
+      clientId: invoice.clientId ?? null,
+      status: invoice.status,
+      subtotal: invoice.subtotal,
+      tax: invoice.tax ?? null,
+      shipping: invoice.shipping ?? null,
+      discount: invoice.discount ?? null,
+      total: invoice.total,
+      amountPaid: invoice.amountPaid,
+      amountDue: invoice.amountDue,
+      dueDate: invoice.dueDate.toISOString(),
+      issuedAt: invoice.issuedAt.toISOString(),
+      sentAt: invoice.sentAt?.toISOString() || null,
+      paidAt: invoice.paidAt?.toISOString() || null,
+      cancelledAt: invoice.cancelledAt?.toISOString() || null,
+      paymentLink: invoice.paymentLink,
+      notes: invoice.notes,
+      billingAddress: invoice.billingAddress,
+      createdAt: invoice.createdAt.toISOString(),
+      updatedAt: invoice.updatedAt?.toISOString() || null,
+      createdBy: invoice.createdBy,
+      updatedBy: invoice.updatedBy,
+      customerDisplay: orderCustomerDisplay.get(invoice.orderId) ?? null,
+      orderUserId: orderUserIdMap.get(invoice.orderId) ?? null,
+    };
+    return attachInvoiceListOrderPreview(base, orderPreviewMap);
+  });
 
   await setCache(cacheKey, transformed, 300, { fetchedAt: cacheReadStartedAt });
   return transformed;

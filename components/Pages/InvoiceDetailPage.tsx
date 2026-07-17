@@ -638,8 +638,17 @@ export default function InvoiceDetailPage({
                     showReviews={invoice!.status === "paid"}
                     order={{
                       id: invoice!.orderId,
-                      paymentStatus:
-                        invoice!.status === "paid" ? "paid" : "unpaid",
+                      // REQ-0152 — prefer linked order payment (partial), else derive from money
+                      paymentStatus: (invoice!.linkedOrderPaymentStatus ??
+                        (invoice!.status === "paid"
+                          ? "paid"
+                          : invoice!.amountPaid > 0
+                            ? "partial"
+                            : "unpaid")) as
+                        | "paid"
+                        | "unpaid"
+                        | "partial"
+                        | "refunded",
                     }}
                     emptyMessage="No items on linked order"
                   />
@@ -780,6 +789,8 @@ export default function InvoiceDetailPage({
                   id={invoice.id}
                   referenceNumber={invoice.invoiceNumber}
                   amount={invoice.amountDue}
+                  amountPaid={invoice.amountPaid}
+                  documentTotal={invoice.total}
                   subtotal={invoice.subtotal}
                   items={(invoice.linkedOrderItems ?? []).map((item) => ({
                     name: item.productName,

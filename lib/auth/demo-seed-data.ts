@@ -80,6 +80,8 @@ export type DemoCatalogOrderSeed = {
   notes: string;
   trackingNumber?: string;
   trackingCarrier?: string;
+  /** REQ-0152 — partial pay fixture; omit = 0 or full when invoiceStatus paid */
+  amountPaid?: number;
 };
 
 export type DemoCatalogTransferSeed = {
@@ -256,11 +258,13 @@ export const DEMO_CATALOG_SEED = {
       tax: 0,
       shipping: 0,
       discount: 0,
-      status: "pending",
-      paymentStatus: "unpaid",
+      // REQ-0152/0153 — confirmed + partial ($100 of $3980) for Payment badge + Total breakdown QA
+      status: "confirmed",
+      paymentStatus: "partial",
       invoiceStatus: "sent",
+      amountPaid: 100,
       orderDate: "2026-07-15T10:00:00.000Z",
-      notes: "Active reserved order — use for pay/stock/allocate QA.",
+      notes: "Partial-paid reserved order — Pay remaining / stock allocate QA.",
     },
   ] satisfies DemoCatalogOrderSeed[],
   transfers: [

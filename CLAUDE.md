@@ -776,7 +776,7 @@ Hub: `lib/ui/typography-scale.ts`. Hubs import tokens; ~45 inline files use equi
 |-------|----------|
 | Warehouse avail | `formatWarehouseAvailLabel` → `OrderLineWarehouseSelect` trigger + items |
 | Date fields | `DialogDateField` + `DIALOG_DATE_CALENDAR_ICON_CLASS` — OrderDialog edit, InvoiceDialog edit |
-| Table meta | `compactInvoiceMeta` — invoice list; order table drops duplicate status/Items/Date |
+| Table meta | Invoice list (REQ-0150): `OrderTableInvoiceCell` + Order # enrich (`invoices:list:v2:`) |
 | Detail layout | `InvoiceDetailFactsGrid`; parties + summary `lg:grid-cols-2`; sky header back |
 | Payment checkout | `PaymentDialog` — subtotal, fee icons, `ProductThumb` line items |
 
@@ -793,6 +793,39 @@ Hub: `lib/ui/typography-scale.ts`. Hubs import tokens; ~45 inline files use equi
 | SSR link | `InvoiceLinkFields` (+ sentAt/cancelledAt); `resolveInvoiceSecondaryEvent` |
 
 **Invalidation unchanged** — order graph already clears orders/invoices; list enrich only.
+
+## Invoice table density (REQ-0150 / REQ-0151)
+
+| Piece | Location |
+|-------|----------|
+| Columns | `InvoiceTableColumns` — Invoice # · Order # (status/payment badges) · Status+statusAt · Total |
+| List enrich | `enrich-invoice-list-orders.ts` + `resolveInvoiceStatusAt`; Redis `invoices:list:v2:` |
+| Edit submit | Cancel `type="button"`; Zod date-only timestamps; onInvalid toast (REQ-0151) |
+| Due icon | `SemanticEventDate` due/overdue → Clock |
+| Invalidation | unchanged — `invalidateAfterOrderGraphChange` |
+
+## Partial payment sync (REQ-0152)
+
+| Piece | Location |
+|-------|----------|
+| Derive/sync | `lib/payments/order-payment-from-amounts.ts` — unpaid/partial/paid from amountPaid vs total |
+| Invoice PUT | `app/api/invoices/[id]/route.ts` → `syncOrderPaymentStatusFromInvoice` |
+| Stripe | checkout optional `amount` + admin canCheckout; webhook incremental; no unpaid clobber |
+| Pay UI | `PaymentDialog` — full (default) / partial toggle + `validateCheckoutChargeAmount` |
+| Lists | `PaymentMoneyBreakdown` on Invoice Total; Order Total when `amountPaid>0`; `orders:list:v4:` |
+| Detail | admin order due + partial row; invoice line items use `linkedOrderPaymentStatus` |
+
+**Invalidation unchanged** — order-graph invalidate already clears orders/invoices after money writes.
+
+## Instant linked-order patch (REQ-0153)
+
+| Piece | Location |
+|-------|----------|
+| Helper | `patchLinkedOrderFromInvoiceMoney` — order `paymentStatus` + `invoiceForOrder`; invoice `linkedOrderPaymentStatus` |
+| Hooks | `useUpdateInvoice` onMutate/onSuccess/onError; create + send |
+| Optimistic | `mergeOptimisticInvoiceUpdate` recomputes `amountDue` |
+
+**Still patch → invalidate** — no registry change; closes client lag before refetch.
 
 ## Order detail density (REQ-0146 / REQ-0147 / REQ-0148 / REQ-0149)
 

@@ -527,7 +527,17 @@ export default function InvoiceDialog({
         {/* Edit Invoice Form (shown when editing) */}
         {editingInvoice ? (
           <FormProvider {...editFormMethods}>
-            <form onSubmit={editFormMethods.handleSubmit(handleUpdateInvoice)}>
+            <form
+              onSubmit={editFormMethods.handleSubmit(handleUpdateInvoice, () => {
+                // REQ-0151 — DialogDateField errors were silent; surface validation fail
+                toast({
+                  title: "Check invoice fields",
+                  description:
+                    "Fix invalid dates or fields before updating the invoice.",
+                  variant: "destructive",
+                });
+              })}
+            >
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mt-4">
                 {/* Invoice Status — REQ-0126 DialogFormLabel + badge select items */}
                 <div className="flex flex-col gap-2">
@@ -567,12 +577,14 @@ export default function InvoiceDialog({
                           )}
                         >
                           <SelectValue placeholder="Select Status">
+                            {/* REQ-0150 — solid white-on-hue when selected */}
                             <InvoiceStatusBadge
                               status={
                                 (editWatch("status") ||
                                   editingInvoice.status) as InvoiceStatus
                               }
                               size="detail"
+                              contrast="solid"
                             />
                           </SelectValue>
                         </SelectTrigger>
@@ -582,42 +594,30 @@ export default function InvoiceDialog({
                           sideOffset={5}
                           align="start"
                         >
-                          <SelectItem
-                            value="draft"
-                            className={DIALOG_SELECT_ITEM_CLASS}
-                          >
-                            <InvoiceStatusBadge status="draft" size="detail" />
-                          </SelectItem>
-                          <SelectItem
-                            value="sent"
-                            className={DIALOG_SELECT_ITEM_CLASS}
-                          >
-                            <InvoiceStatusBadge status="sent" size="detail" />
-                          </SelectItem>
-                          <SelectItem
-                            value="paid"
-                            className={DIALOG_SELECT_ITEM_CLASS}
-                          >
-                            <InvoiceStatusBadge status="paid" size="detail" />
-                          </SelectItem>
-                          <SelectItem
-                            value="overdue"
-                            className={DIALOG_SELECT_ITEM_CLASS}
-                          >
-                            <InvoiceStatusBadge
-                              status="overdue"
-                              size="detail"
-                            />
-                          </SelectItem>
-                          <SelectItem
-                            value="cancelled"
-                            className={DIALOG_SELECT_ITEM_CLASS}
-                          >
-                            <InvoiceStatusBadge
-                              status="cancelled"
-                              size="detail"
-                            />
-                          </SelectItem>
+                          {(
+                            [
+                              "draft",
+                              "sent",
+                              "paid",
+                              "overdue",
+                              "cancelled",
+                            ] as const
+                          ).map((value) => (
+                            <SelectItem
+                              key={value}
+                              value={value}
+                              className={DIALOG_SELECT_ITEM_CLASS}
+                            >
+                              {/* Opaque + isolate — resists SelectItem focus text inherit */}
+                              <span className="pointer-events-none inline-flex">
+                                <InvoiceStatusBadge
+                                  status={value}
+                                  size="detail"
+                                  contrast="opaque"
+                                />
+                              </span>
+                            </SelectItem>
+                          ))}
                         </SelectContent>
                       </Select>
                     )}
@@ -774,7 +774,9 @@ export default function InvoiceDialog({
               </div>
 
               <DialogFooter className="mt-9 mb-4 flex flex-col sm:flex-row items-center gap-2">
+                {/* REQ-0150 — type=button so Cancel does not submit/unmount the form */}
                 <Button
+                  type="button"
                   onClick={handleCancelEdit}
                   variant="secondary"
                   className={cn(

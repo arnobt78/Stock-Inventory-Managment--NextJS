@@ -269,6 +269,9 @@ flowchart LR
 | Hydration + theme (REQ-0144) | Plain `&` table labels; ThemeProvider script filter; forecasting `gpt-4o-mini` | |
 | Orders table (REQ-0145) | Status/Payment/Invoice `SemanticEventDate`; product links; Invoice 2-line; `orders:list:v3` | Gates: test 571 |
 | Order detail (REQ-0146–0149) | Density/layout; CarrierGlassBadge; Total+line prices `sm:text-base` / strike `xs–sm`; light header Back + ghost; invoice meta ·; ListIndexBadge dark inverse; `trackingCarrier` write | UI/CSS + carrier field; invalidation unchanged |
+| Invoice table (REQ-0150–0151) | Dense columns; linkedOrder status/payment badges; Zod date-only update; due Clock; `invoices:list:v2:` | Invalidation unchanged |
+| Partial pay (REQ-0152) | Order unpaid/partial/paid from invoice money; Stripe amount + webhook incremental; PaymentDialog toggle; `PaymentMoneyBreakdown`; `orders:list:v4` | Server sync + UI |
+| Instant order patch (REQ-0153) | `patchLinkedOrderFromInvoiceMoney` on invoice create/update/send | Patch → invalidate |
 | Next | Gate 2 — REQ-0136 UI + §10 A1/A2/B1; Sentry 24h | |
 | AI warehouse insights (REQ-0067) | `POST /api/ai/insights` enriches payload with `getWarehouseStockSummary` |
 | Per-warehouse order picking (REQ-0068) | `OrderItem.warehouseId`; `stock-allocation-order-sync.ts`; `OrderLineWarehouseSelect`; reserve/fulfill/cancel sync; invoice-paid gap; `f892b65` removed unused `deleteCache`/`getRateLimitStatus` |
@@ -289,7 +292,7 @@ flowchart LR
 |-------|--------|
 | `npm run lint` | pass |
 | `npm run build` | pass |
-| `npm run test` | 573 passed |
+| `npm run test` | 595 passed |
 | `npm run test:invalidate` | 213 passed |
 | Local | REQ-0146–0149 order detail polish (prior 0144–0145) |
 | Radix table Select | `useDeferredRadixSelect` + `PaginationSelector` (11 tables) |

@@ -26,6 +26,7 @@ import {
   CopyableText,
   ClientDate,
   RecentOrderStatusColumn,
+  PaymentMoneyBreakdown,
 } from "@/components/shared";
 import { SemanticEventDate } from "@/components/shared/SemanticEventDate";
 import OrderActions from "./OrderActions";
@@ -240,9 +241,24 @@ export const createOrderColumns = (
     {
       accessorKey: "total",
       header: ({ column }) => <SortableHeader column={column} label="Total" />,
-      cell: ({ getValue }) => {
-        const total = getValue<number>();
-        return <span>${total.toFixed(2)}</span>;
+      cell: ({ row }) => {
+        const order = row.original;
+        const inv = order.invoiceForOrder;
+        const paid = inv?.amountPaid ?? 0;
+        // REQ-0152 — compact paid/due under total when any amount has been paid
+        if (inv && paid > 0) {
+          return (
+            <PaymentMoneyBreakdown
+              total={order.total}
+              amountPaid={paid}
+              amountDue={inv.amountDue}
+              variant="table"
+            />
+          );
+        }
+        return (
+          <span className="tabular-nums">${order.total.toFixed(2)}</span>
+        );
       },
     },
     {

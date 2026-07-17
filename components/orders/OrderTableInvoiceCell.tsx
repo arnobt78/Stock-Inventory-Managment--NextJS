@@ -2,6 +2,7 @@
 
 /**
  * REQ-0145 — Order table Invoice # column cell.
+ * REQ-0150 — also used by Invoice table Invoice # (same density).
  * Line 1: # · created (muted)
  * Line 2: amount · secondary event (due / paid / cancelled / refunded / sent) · status badge
  */
@@ -11,14 +12,24 @@ import { Calendar, CircleDollarSign } from "lucide-react";
 import { CopyableText, ClientDate } from "@/components/shared";
 import { SemanticEventDate } from "@/components/shared/SemanticEventDate";
 import { InvoiceStatusBadge } from "@/lib/ui/semantic-badges";
-import { resolveInvoiceSecondaryEvent } from "@/lib/orders/invoice-event-date";
+import {
+  resolveInvoiceSecondaryEvent,
+  type InvoiceEventSource,
+} from "@/lib/orders/invoice-event-date";
 import { cn } from "@/lib/utils";
-import type { Order } from "@/types";
 
 const META_MUTED = "text-xs text-gray-500 dark:text-gray-300";
 
+/** Minimal invoice shape for dense list cells (order.invoiceForOrder or Invoice list row). */
+export type InvoiceTableCellInvoice = InvoiceEventSource & {
+  id: string;
+  invoiceNumber: string;
+  amountDue?: number | null;
+  createdAt?: string | null;
+};
+
 export type OrderTableInvoiceCellProps = {
-  invoice: NonNullable<Order["invoiceForOrder"]> | null | undefined;
+  invoice: InvoiceTableCellInvoice | null | undefined;
   /** Same rule as OrderActions: /admin/invoices vs /invoices */
   invoiceHrefBase: string;
 };

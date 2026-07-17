@@ -48,6 +48,36 @@ export const OPAQUE_BADGE_CLASS: Record<GlassBadgeHue, string> = {
   sky: "border-sky-200/90 bg-sky-100 text-sky-800 shadow-[0_2px_8px_rgba(14,165,233,0.12)] dark:border-sky-500/30 dark:bg-sky-950/50 dark:text-sky-300",
 };
 
+/**
+ * REQ-0150 — solid filled pill for Select triggers (white icon + label on hue).
+ * Use with SemanticBadge contrast="solid".
+ */
+export const SOLID_BADGE_CLASS: Record<GlassBadgeHue, string> = {
+  yellow:
+    "border-yellow-500/50 bg-yellow-500 !text-white shadow-[0_4px_14px_rgba(234,179,8,0.35)]",
+  blue: "border-blue-500/50 bg-blue-500 !text-white shadow-[0_4px_14px_rgba(59,130,246,0.35)]",
+  purple:
+    "border-purple-500/50 bg-purple-500 !text-white shadow-[0_4px_14px_rgba(168,85,247,0.35)]",
+  indigo:
+    "border-indigo-500/50 bg-indigo-500 !text-white shadow-[0_4px_14px_rgba(99,102,241,0.35)]",
+  emerald:
+    "border-emerald-500/50 bg-emerald-500 !text-white shadow-[0_4px_14px_rgba(16,185,129,0.35)]",
+  red: "border-red-500/50 bg-red-500 !text-white shadow-[0_4px_14px_rgba(239,68,68,0.35)]",
+  amber:
+    "border-amber-500/50 bg-amber-500 !text-white shadow-[0_4px_14px_rgba(245,158,11,0.35)]",
+  violet:
+    "border-violet-500/50 bg-violet-500 !text-white shadow-[0_4px_14px_rgba(139,92,246,0.35)]",
+  orange:
+    "border-orange-500/50 bg-orange-500 !text-white shadow-[0_4px_14px_rgba(249,115,22,0.35)]",
+  gray: "border-gray-500/50 bg-gray-500 !text-white shadow-[0_4px_14px_rgba(107,114,128,0.3)]",
+  rose: "border-rose-500/50 bg-rose-500 !text-white shadow-[0_4px_14px_rgba(244,63,94,0.35)]",
+  teal: "border-teal-500/50 bg-teal-500 !text-white shadow-[0_4px_14px_rgba(20,184,166,0.35)]",
+  cyan: "border-cyan-500/50 bg-cyan-500 !text-white shadow-[0_4px_14px_rgba(6,182,212,0.35)]",
+  slate:
+    "border-slate-500/50 bg-slate-500 !text-white shadow-[0_4px_14px_rgba(100,116,139,0.3)]",
+  sky: "border-sky-500/50 bg-sky-500 !text-white shadow-[0_4px_14px_rgba(14,165,233,0.35)]",
+};
+
 /** Calendar glass gradient — readable in light + dark (Tailwind v3 safe). */
 export const GLASS_BADGE_CLASS: Record<GlassBadgeHue, string> = {
   yellow:

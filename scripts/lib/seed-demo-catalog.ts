@@ -248,6 +248,11 @@ export async function seedDemoCatalog(
     const dueDate = new Date(orderDate);
     dueDate.setDate(dueDate.getDate() + 30);
     const invoicePaid = spec.invoiceStatus === "paid";
+    // REQ-0152 — support partial amountPaid on explore seed
+    const amountPaid = invoicePaid
+      ? total
+      : Math.min(total, Math.max(0, spec.amountPaid ?? 0));
+    const amountDue = Math.max(0, total - amountPaid);
 
     const invoice = await prisma.invoice.create({
       data: {
@@ -261,8 +266,8 @@ export async function seedDemoCatalog(
         shipping: spec.shipping > 0 ? spec.shipping : null,
         discount: spec.discount > 0 ? spec.discount : null,
         total,
-        amountPaid: invoicePaid ? total : 0,
-        amountDue: invoicePaid ? 0 : total,
+        amountPaid,
+        amountDue,
         dueDate,
         issuedAt: orderDate,
         sentAt: orderDate,

@@ -1,11 +1,11 @@
 "use client";
 
 /**
- * Payment Dialog Component
- * Modal dialog for Stripe payment with test credentials display
+ * Payment Dialog — Stripe checkout entry (REQ-0152).
+ * Default: pay full remaining (readonly). Toggle: pay partially (editable + Zod hint).
  */
 
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import {
   Dialog,
   DialogClose,
@@ -14,7 +14,10 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
+import { Switch } from "@/components/ui/switch";
 import { useCreateCheckout } from "@/hooks/queries";
 import {
   CreditCard,
@@ -35,14 +38,21 @@ import {
   DialogSubmitButton,
   GLASS_GHOST_BUTTON,
 } from "@/components/shared";
+import { DIALOG_FORM_FIELD_SKY } from "@/components/shared/dialog-form-field";
 import { ProductThumb } from "@/components/products/ProductOptionRow";
 import { InvoiceSummaryRow } from "@/components/invoices/detail/InvoiceSummaryCard";
+import { validateCheckoutChargeAmount } from "@/lib/validations/payment";
 
 interface PaymentDialogProps {
   type: CheckoutType;
   id: string;
   referenceNumber: string;
+  /** Remaining amount due (chargeable balance). */
   amount: number;
+  /** Already paid toward total (optional summary). */
+  amountPaid?: number | null;
+  /** Document total before payments (optional summary). */
+  documentTotal?: number | null;
   /** Line subtotal before tax/shipping/discount (REQ-0126) */
   subtotal?: number | null;
   items?: Array<{
@@ -51,11 +61,8 @@ interface PaymentDialogProps {
     price: number;
     imageUrl?: string | null;
   }>;
-  /** Optional: show above Total when present */
   tax?: number | null;
-  /** Optional: show above Total when present */
   shipping?: number | null;
-  /** Optional: show above Total when present (displayed as discount) */
   discount?: number | null;
   disabled?: boolean;
   trigger?: React.ReactNode;
@@ -66,6 +73,8 @@ export default function PaymentDialog({
   id,
   referenceNumber,
   amount,
+  amountPaid = 0,
+  documentTotal,
   subtotal,
   items,
   tax,
@@ -74,17 +83,59 @@ export default function PaymentDialog({
   disabled,
   trigger,
 }: PaymentDialogProps) {
+  const remainingDue = Math.max(0, amount);
   const [open, setOpen] = useState(false);
+  /** false = pay full (default); true = partial */
+  const [payPartial, setPayPartial] = useState(false);
+  const [partialInput, setPartialInput] = useState(() =>
+    Math.max(0, amount).toFixed(2),
+  );
   const checkoutMutation = useCreateCheckout();
 
+  const handleOpenChange = (next: boolean) => {
+    setOpen(next);
+    // Reset to pay-full when opening (avoid setState-in-effect lint)
+    if (next) {
+      setPayPartial(false);
+      setPartialInput(remainingDue.toFixed(2));
+    }
+  };
+
+  const chargeAmount = useMemo(() => {
+    if (!payPartial) return remainingDue;
+    const parsed = Number.parseFloat(partialInput);
+    return Number.isFinite(parsed) ? parsed : NaN;
+  }, [payPartial, partialInput, remainingDue]);
+
+  const amountError = useMemo(() => {
+    if (!payPartial) return null;
+    if (partialInput.trim() === "") return "Enter a payment amount";
+    return validateCheckoutChargeAmount(chargeAmount, remainingDue);
+  }, [payPartial, partialInput, chargeAmount, remainingDue]);
+
+  const canSubmit =
+    !disabled &&
+    remainingDue > 0 &&
+    !amountError &&
+    Number.isFinite(chargeAmount) &&
+    chargeAmount > 0;
+
   const handlePayment = () => {
-    checkoutMutation.mutate({ type, id });
+    if (!canSubmit) return;
+    checkoutMutation.mutate({
+      type,
+      id,
+      amount: Number(chargeAmount.toFixed(2)),
+    });
   };
 
   const isLoading = checkoutMutation.isPending;
   const displaySubtotal =
     subtotal ??
-    (items?.reduce((sum, item) => sum + item.price, 0) || amount);
+    (items?.reduce((sum, item) => sum + item.price, 0) || remainingDue);
+  const displayTotal =
+    documentTotal != null && documentTotal > 0 ? documentTotal : remainingDue;
+  const paidSoFar = amountPaid != null && amountPaid > 0 ? amountPaid : 0;
 
   const hasFeeRows =
     (tax != null && tax > 0) ||
@@ -92,12 +143,12 @@ export default function PaymentDialog({
     (discount != null && discount > 0);
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogTrigger asChild>
         {trigger || (
           <Button disabled={disabled}>
             <CreditCard className="mr-2 h-4 w-4" />
-            Pay ${amount.toFixed(2)}
+            Pay ${remainingDue.toFixed(2)}
           </Button>
         )}
       </DialogTrigger>
@@ -112,7 +163,6 @@ export default function PaymentDialog({
 
         <div className="flex flex-col gap-2 sm:gap-4 overflow-y-auto min-h-0 flex-1 w-full">
           <div className="pr-4 sm:pr-8 flex flex-col gap-2 sm:gap-4">
-            {/* Order/Invoice Summary */}
             <div className="rounded-lg border border-sky-400/30 dark:border-white/20 bg-white/10 dark:bg-white/5 backdrop-blur-md p-4 space-y-2 flex-shrink-0 shadow-[0_10px_30px_rgba(2,132,199,0.15)] dark:shadow-[0_10px_30px_rgba(2,132,199,0.1)]">
               <div className="flex items-center justify-between">
                 <span className="text-sm font-medium text-white">
@@ -199,6 +249,15 @@ export default function PaymentDialog({
                     variant="glass"
                   />
                 )}
+                {paidSoFar > 0 && (
+                  <InvoiceSummaryRow
+                    icon={CircleDollarSign}
+                    label="Already paid:"
+                    value={`$${paidSoFar.toFixed(2)}`}
+                    valueClassName="text-emerald-400"
+                    variant="glass"
+                  />
+                )}
               </div>
 
               {hasFeeRows && <Separator className="my-2 bg-sky-400/20" />}
@@ -206,18 +265,90 @@ export default function PaymentDialog({
               <div className="flex items-center justify-between pt-1 text-sm sm:text-lg font-medium">
                 <span className="text-white inline-flex items-center gap-1.5">
                   <CircleDollarSign className="h-4 w-4 shrink-0" />
-                  Total
+                  {paidSoFar > 0 ? "Amount due" : "Total"}
                 </span>
-                <span className="text-white">${amount.toFixed(2)}</span>
+                <span className="text-white">
+                  ${remainingDue.toFixed(2)}
+                  {paidSoFar > 0 && displayTotal > 0 ? (
+                    <span className="ml-1 text-xs font-normal text-white/70">
+                      / ${displayTotal.toFixed(2)}
+                    </span>
+                  ) : null}
+                </span>
               </div>
             </div>
 
-            {/* Test Credentials */}
+            {/* REQ-0152 — full vs partial charge */}
+            <div className="rounded-lg border border-sky-400/30 dark:border-white/20 bg-white/10 dark:bg-white/5 backdrop-blur-md p-4 space-y-3 flex-shrink-0">
+              <div className="flex items-center justify-between gap-3">
+                <div className="min-w-0">
+                  <Label
+                    htmlFor="pay-partial-toggle"
+                    className="text-sm font-medium text-white"
+                  >
+                    Pay partially
+                  </Label>
+                  <p className="text-xs text-white/70 mt-0.5">
+                    Off = pay full remaining (${remainingDue.toFixed(2)})
+                  </p>
+                </div>
+                <Switch
+                  id="pay-partial-toggle"
+                  checked={payPartial}
+                  onCheckedChange={(checked) => {
+                    setPayPartial(checked);
+                    if (checked) {
+                      setPartialInput("");
+                    } else {
+                      setPartialInput(remainingDue.toFixed(2));
+                    }
+                  }}
+                  disabled={disabled || remainingDue <= 0}
+                />
+              </div>
+              <div className="space-y-1.5">
+                <Label
+                  htmlFor="checkout-amount"
+                  className="text-xs text-white/80"
+                >
+                  Amount to charge
+                </Label>
+                <Input
+                  id="checkout-amount"
+                  type="number"
+                  inputMode="decimal"
+                  min={0.01}
+                  max={remainingDue}
+                  step="0.01"
+                  readOnly={!payPartial}
+                  value={
+                    payPartial ? partialInput : remainingDue.toFixed(2)
+                  }
+                  onChange={(e) => setPartialInput(e.target.value)}
+                  className={cn(
+                    DIALOG_FORM_FIELD_SKY,
+                    !payPartial && "opacity-80 cursor-not-allowed",
+                  )}
+                  aria-invalid={!!amountError}
+                />
+                {amountError ? (
+                  <p className="text-xs text-rose-300" role="alert">
+                    {amountError}
+                  </p>
+                ) : (
+                  <p className="text-xs text-white/60">
+                    {payPartial
+                      ? `Enter any amount up to $${remainingDue.toFixed(2)}`
+                      : "Full remaining balance will be charged"}
+                  </p>
+                )}
+              </div>
+            </div>
+
             <div className="flex-shrink-0">
               <TestCredentialsCard />
             </div>
 
-            {/* Pay / Cancel */}
             <div className="flex flex-col gap-2 flex-shrink-0">
               <p className="text-xs text-center text-white/80">
                 No card entry here — you&apos;ll enter payment details on
@@ -229,7 +360,10 @@ export default function PaymentDialog({
                     type="button"
                     variant="secondary"
                     disabled={isLoading}
-                    className={cn("w-full sm:w-auto px-11 gap-2", GLASS_GHOST_BUTTON)}
+                    className={cn(
+                      "w-full sm:w-auto px-11 gap-2",
+                      GLASS_GHOST_BUTTON,
+                    )}
                   >
                     <X className="h-4 w-4 shrink-0" aria-hidden />
                     Cancel
@@ -239,8 +373,13 @@ export default function PaymentDialog({
                   type="button"
                   onClick={handlePayment}
                   isPending={isLoading}
+                  disabled={!canSubmit}
                   pendingLabel="Redirecting to payment…"
-                  label="Secure checkout with Link"
+                  label={
+                    Number.isFinite(chargeAmount) && chargeAmount > 0
+                      ? `Pay $${chargeAmount.toFixed(2)}`
+                      : "Secure checkout with Link"
+                  }
                   icon={CreditCard}
                   hue="sky"
                   className="px-11"

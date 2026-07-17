@@ -1,6 +1,7 @@
 /**
  * Stripe Webhook Handler
  * POST /api/payments/webhook — handle Stripe webhook events
+ * REQ-0152 — incremental amountPaid; sync order unpaid|partial|paid; fulfill only on full pay.
  */
 
 import { NextRequest, NextResponse } from "next/server";
@@ -12,13 +13,14 @@ import {
   Stripe,
 } from "@/lib/stripe";
 import { prisma } from "@/prisma/client";
-import { ensureInvoiceForPaidOrder } from "@/prisma/invoice";
-import { fulfillPendingOrderLines } from "@/lib/products/order-stock-reservation";
+import { applyStripeChargeToOrderInvoice } from "@/prisma/invoice";
+import {
+  applyIncrementalInvoicePayment,
+  syncOrderPaymentStatusFromInvoice,
+} from "@/lib/payments/order-payment-from-amounts";
 
 import { invalidateOnOrderChange } from "@/lib/cache";
-/**
- * Disable body parsing for webhook verification
- */
+
 export const runtime = "nodejs";
 
 /**
@@ -38,7 +40,6 @@ export async function POST(request: NextRequest) {
     const stripe = getStripe();
     const webhookSecret = getWebhookSecret();
 
-    // Get raw body for signature verification
     const body = await request.text();
     const signature = request.headers.get("stripe-signature");
 
@@ -47,7 +48,6 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Missing signature" }, { status: 400 });
     }
 
-    // Verify webhook signature
     let event: Stripe.Event;
     try {
       event = stripe.webhooks.constructEvent(body, signature, webhookSecret);
@@ -58,7 +58,6 @@ export async function POST(request: NextRequest) {
 
     logger.info(`Received Stripe webhook: ${event.type}`);
 
-    // Handle specific event types
     switch (event.type) {
       case "checkout.session.completed": {
         const session = event.data.object as Stripe.Checkout.Session;
@@ -105,7 +104,7 @@ export async function POST(request: NextRequest) {
 }
 
 /**
- * Handle successful checkout completion
+ * Handle successful checkout completion (full or partial charge).
  */
 async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
   const metadata = session.metadata;
@@ -114,70 +113,64 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
     return;
   }
 
-  const { type, referenceId, orderId, invoiceId, userId } = metadata;
-  const amountTotal = session.amount_total ? session.amount_total / 100 : 0;
+  const { type, referenceId, orderId, invoiceId } = metadata;
+  const sessionAmount = session.amount_total ? session.amount_total / 100 : 0;
+  const metaCharge = metadata.chargeAmount
+    ? Number.parseFloat(metadata.chargeAmount)
+    : NaN;
+  const chargeAmount =
+    Number.isFinite(metaCharge) && metaCharge > 0 ? metaCharge : sessionAmount;
 
   logger.info(
-    `Checkout completed for ${type} ${referenceId || orderId || invoiceId}`,
+    `Checkout completed for ${type} ${referenceId || orderId || invoiceId} charge=$${chargeAmount}`,
   );
 
   if (type === "order" && (orderId || referenceId)) {
     const orderIdToUpdate = orderId || referenceId;
+    const paymentIntentId =
+      typeof session.payment_intent === "string"
+        ? session.payment_intent
+        : session.payment_intent?.id;
 
-    // Update order payment status and confirm order
-    const order = await prisma.order.findUnique({
-      where: { id: orderIdToUpdate },
-      include: { items: true },
-    });
+    try {
+      const invoice = await applyStripeChargeToOrderInvoice(
+        orderIdToUpdate!,
+        chargeAmount,
+      );
 
-    if (order && order.paymentStatus !== "paid") {
-      const paymentIntentId =
-        typeof session.payment_intent === "string"
-          ? session.payment_intent
-          : session.payment_intent?.id;
-      // Update order status to confirmed and payment to paid
-      await prisma.order.update({
-        where: { id: orderIdToUpdate },
-        data: {
-          paymentStatus: "paid",
-          status: order.status === "pending" ? "confirmed" : order.status,
-          stripePaymentIntentId: paymentIntentId ?? undefined,
-          updatedAt: new Date(),
-        },
+      if (paymentIntentId) {
+        await prisma.order.update({
+          where: { id: orderIdToUpdate },
+          data: {
+            stripePaymentIntentId: paymentIntentId,
+            updatedAt: new Date(),
+          },
+        });
+        await prisma.invoice.update({
+          where: { id: invoice.id },
+          data: {
+            stripePaymentIntentId: paymentIntentId,
+            updatedAt: new Date(),
+          },
+        });
+      }
+
+      await syncOrderPaymentStatusFromInvoice(orderIdToUpdate, {
+        amountPaid: invoice.amountPaid,
+        total: invoice.total,
+        invoiceStatus: invoice.status,
       });
 
-      // REQ-0103 — disjoint fulfill on paid pending order
-      if (order.status === "pending") {
-        try {
-          await fulfillPendingOrderLines(
-            order.items.map((item) => ({
-              productId: item.productId,
-              quantity: item.quantity,
-              warehouseId: item.warehouseId,
-            })),
-          );
-        } catch (allocErr) {
-          logger.warn("Failed to fulfill stock for paid order", {
-            orderId: orderIdToUpdate,
-            error: allocErr,
-          });
-        }
-      }
-
-      // Enterprise: auto-create or mark invoice for this order (every paid order has an invoice for records)
-      try {
-        await ensureInvoiceForPaidOrder(orderIdToUpdate!, amountTotal);
-      } catch (invErr) {
-        logger.error("Failed to ensure invoice for paid order", {
-          orderId: orderIdToUpdate,
-          error: invErr,
-        });
-        // Don't fail the webhook; order is already marked paid
-      }
-
-      // Global invalidation: order payment affects product/category/supplier detail Recent Orders
-    await invalidateOnOrderChange();
-      logger.info(`Order ${orderIdToUpdate} marked as paid and confirmed`);
+      await invalidateOnOrderChange();
+      logger.info(
+        `Order ${orderIdToUpdate} payment synced (${invoice.status}, paid=${invoice.amountPaid}, due=${invoice.amountDue})`,
+      );
+    } catch (err) {
+      logger.error("Failed to apply Stripe charge to order invoice", {
+        orderId: orderIdToUpdate,
+        error: err,
+      });
+      throw err;
     }
   } else if (type === "invoice" && (invoiceId || referenceId)) {
     const invoiceIdToUpdate = invoiceId || referenceId;
@@ -186,81 +179,47 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
       typeof session.payment_intent === "string"
         ? session.payment_intent
         : session.payment_intent?.id;
-    // Update invoice status to paid
-    await prisma.invoice.update({
+
+    const prior = await prisma.invoice.findUnique({
+      where: { id: invoiceIdToUpdate },
+    });
+    if (!prior) {
+      logger.error(`Invoice ${invoiceIdToUpdate} not found for webhook`);
+      return;
+    }
+
+    const next = applyIncrementalInvoicePayment({
+      priorAmountPaid: prior.amountPaid,
+      total: prior.total,
+      chargeAmount,
+      priorStatus: prior.status,
+    });
+
+    const updated = await prisma.invoice.update({
       where: { id: invoiceIdToUpdate },
       data: {
-        status: "paid",
-        amountPaid: amountTotal,
-        amountDue: 0,
-        paidAt: new Date(),
+        status: next.status,
+        amountPaid: next.amountPaid,
+        amountDue: next.amountDue,
+        paidAt: next.fullyPaid ? new Date() : null,
         stripePaymentIntentId: paymentIntentId ?? undefined,
         updatedAt: new Date(),
       },
     });
 
-    // Also update the related order: mark paid AND confirm (same as order checkout flow)
-    const invoice = await prisma.invoice.findUnique({
-      where: { id: invoiceIdToUpdate },
-      select: { orderId: true },
+    await syncOrderPaymentStatusFromInvoice(updated.orderId, {
+      amountPaid: updated.amountPaid,
+      total: updated.total,
+      invoiceStatus: updated.status,
     });
 
-    if (invoice?.orderId) {
-      const order = await prisma.order.findUnique({
-        where: { id: invoice.orderId },
-        include: { items: true },
-      });
-
-      if (order && order.paymentStatus !== "paid") {
-        await prisma.order.update({
-          where: { id: invoice.orderId },
-          data: {
-            paymentStatus: "paid",
-            status: order.status === "pending" ? "confirmed" : order.status,
-            updatedAt: new Date(),
-          },
-        });
-
-        // REQ-0103 — disjoint fulfill on invoice-paid pending order
-        if (order.status === "pending") {
-          try {
-            await fulfillPendingOrderLines(
-              order.items.map((item) => ({
-                productId: item.productId,
-                quantity: item.quantity,
-                warehouseId: item.warehouseId,
-              })),
-            );
-          } catch (allocErr) {
-            logger.warn(
-              "Failed to fulfill stock for invoice-paid order",
-              {
-                orderId: invoice.orderId,
-                error: allocErr,
-              },
-            );
-          }
-        }
-      } else if (order && order.paymentStatus === "paid" && order.status === "pending") {
-        await prisma.order.update({
-          where: { id: invoice.orderId },
-          data: {
-            status: "confirmed",
-            updatedAt: new Date(),
-          },
-        });
-      }
-    }
-
-    // Global invalidation: invoice payment updates order, affects all related caches
     await invalidateOnOrderChange();
-    logger.info(`Invoice ${invoiceIdToUpdate} marked as paid`);
+    logger.info(
+      `Invoice ${invoiceIdToUpdate} payment synced (${updated.status}, paid=${updated.amountPaid}, due=${updated.amountDue})`,
+    );
   }
 }
 
-/**
- * Handle expired checkout session
- */
 async function handleCheckoutExpired(session: Stripe.Checkout.Session) {
   const metadata = session.metadata;
   if (!metadata) return;
@@ -270,14 +229,10 @@ async function handleCheckoutExpired(session: Stripe.Checkout.Session) {
   logger.info(
     `Checkout expired for ${type} ${referenceId || orderId || invoiceId}`,
   );
-
-  // Optionally reset payment status or send notification
-  // For now, just log it
 }
 
 /**
  * Handle charge refund (e.g. when refunded from Stripe Dashboard)
- * Syncs order/invoice status to "refunded" or "cancelled"
  */
 async function handleChargeRefunded(charge: Stripe.Charge) {
   const paymentIntentId =
@@ -294,7 +249,6 @@ async function handleChargeRefunded(charge: Stripe.Charge) {
     `Charge refunded: ${charge.id}, PaymentIntent: ${paymentIntentId}`,
   );
 
-  // Find order with this PaymentIntent and mark refunded
   const order = await prisma.order.findFirst({
     where: { stripePaymentIntentId: paymentIntentId },
     include: { items: true, invoice: true },
@@ -309,14 +263,12 @@ async function handleChargeRefunded(charge: Stripe.Charge) {
         updatedAt: new Date(),
       },
     });
-    // Restore stock for paid order items
     for (const item of order.items) {
       await prisma.product.update({
         where: { id: item.productId },
         data: { quantity: { increment: item.quantity } },
       });
     }
-    // Cancel linked invoice if any
     if (order.invoice && order.invoice.status !== "cancelled") {
       await prisma.invoice.update({
         where: { id: order.invoice.id },
@@ -331,7 +283,6 @@ async function handleChargeRefunded(charge: Stripe.Charge) {
     logger.info(`Order ${order.id} marked refunded from charge.refunded`);
   }
 
-  // Find invoice with this PaymentIntent (invoice checkout flow) and cancel it
   const invoiceRecord = await prisma.invoice.findFirst({
     where: { stripePaymentIntentId: paymentIntentId },
     include: { order: { include: { items: true } } },
@@ -346,7 +297,6 @@ async function handleChargeRefunded(charge: Stripe.Charge) {
         updatedAt: new Date(),
       },
     });
-    // Update linked order if any (invoice checkout flow)
     if (invoiceRecord.order && invoiceRecord.order.paymentStatus !== "refunded") {
       await prisma.order.update({
         where: { id: invoiceRecord.order.id },
@@ -357,7 +307,6 @@ async function handleChargeRefunded(charge: Stripe.Charge) {
           updatedAt: new Date(),
         },
       });
-      // Restore stock
       for (const item of invoiceRecord.order.items) {
         await prisma.product.update({
           where: { id: item.productId },
@@ -365,7 +314,9 @@ async function handleChargeRefunded(charge: Stripe.Charge) {
         });
       }
     }
-    logger.info(`Invoice ${invoiceRecord.id} marked cancelled from charge.refunded`);
+    logger.info(
+      `Invoice ${invoiceRecord.id} marked cancelled from charge.refunded`,
+    );
   }
 
   if (order || invoiceRecord) {

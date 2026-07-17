@@ -289,7 +289,7 @@ export const cacheKeys = {
     // v3 — REQ-0145 invoice event dates (sentAt/cancelledAt/updatedAt)
     list: (filters?: Record<string, unknown>) => {
       const filterStr = filters ? JSON.stringify(filters) : "default";
-      return `orders:list:v3:${filterStr}`;
+      return `orders:list:v4:${filterStr}`;
     },
     detail: (id: string) => `orders:detail:${id}`,
     pattern: "orders:*",
@@ -314,9 +314,10 @@ export const cacheKeys = {
    */
   invoices: {
     all: "invoices:all",
+    /** REQ-0150 — v2 includes linkedOrder* + statusAt on list rows */
     list: (filters?: Record<string, unknown>) => {
       const filterStr = filters ? JSON.stringify(filters) : "default";
-      return `invoices:list:${filterStr}`;
+      return `invoices:list:v2:${filterStr}`;
     },
     detail: (id: string) => `invoices:detail:${id}`,
     byOrder: (orderId: string) => `invoices:order:${orderId}`,

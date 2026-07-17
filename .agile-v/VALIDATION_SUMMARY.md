@@ -1,10 +1,83 @@
 # Validation Summary — Cycle C1
 
-**Generated:** 2026-07-17 pre-commit audit REQ-0146–0149  
+**Generated:** 2026-07-17 REQ-0153  
 **eval_gate_status:** PENDING (Human Gate 2)  
-**Prod target SHA:** `61c1e79` (REQ-0146–0149)  
-**Red Team:** PASS — lint/test573/invalidate213/build; no invalidate registry drift  
+**Prod target SHA:** pending (REQ-0153)  
+**Red Team:** (gates this session)  
 **Resume:** **REQ-0136** UI explore → §10 A1/A2/B1 (see STATE.md)
+
+---
+
+## REQ-0153 instant linked-order patch evidence
+
+| Check | Result |
+|-------|--------|
+| Helper | `patchLinkedOrderFromInvoiceMoney` — order lists/detail + invoice badge |
+| Hooks | useUpdateInvoice mutate/success/error; create + send |
+| Optimistic due | mergeOptimisticInvoiceUpdate recomputes amountDue |
+| Invalidation | unchanged — patch then `invalidateAfterOrderGraphChange` |
+| Gates | lint ✓ test **595** ✓ invalidate **213** ✓ build ✓ |
+
+```
+Scope: built/verified | Traceability: REQ-0153 | Findings: PASS
+Commands: lint, test, invalidate, build
+```
+
+---
+
+## REQ-0152 partial pay sync + Invoice Total + Pay toggle evidence
+
+| Check | Result |
+|-------|--------|
+| Order sync | unpaid/partial/paid from invoice amountPaid vs total on PUT + Stripe |
+| Checkout | optional amount; admin canCheckout; no unpaid clobber |
+| Webhook | incremental amountPaid; fulfill only on full pay |
+| PaymentDialog | full/partial toggle + Zod live errors |
+| UI | PaymentMoneyBreakdown Invoice Total; Order Total when paid>0; admin detail parity |
+| Cache | `orders:list:v4:` (amountPaid on invoiceForOrder) |
+| Invalidation | unchanged (`invalidateAfterOrderGraphChange` / invoice Redis) |
+| Gates | lint ✓ test **593** ✓ invalidate **213** ✓ build ✓ |
+
+```
+Scope: built/verified | Traceability: REQ-0152 | Findings: PASS
+Commands: lint, test, invalidate, build
+```
+
+---
+
+## REQ-0151 edit submit + Order # badges + due Clock evidence
+
+| Check | Result |
+|-------|--------|
+| Zod dates | sentAt/paidAt/cancelledAt accept YYYY-MM-DD |
+| Invalid toast | InvoiceDialog onInvalid |
+| Order # badges | linkedOrder status/payment + SemanticEventDate |
+| Due icon | Clock for due/overdue |
+| Invalidation | unchanged |
+| Gates | lint ✓ test **580** ✓ invalidate **213** ✓ build ✓ |
+
+```
+Scope: built/verified | Traceability: REQ-0151 | Findings: PASS
+Commands: lint, test, invalidate, build
+```
+
+---
+
+## REQ-0150 invoice table density + Edit Invoice evidence
+
+| Check | Result |
+|-------|--------|
+| Edit submit | Cancel `type="button"` |
+| Status Select | solid trigger / opaque items |
+| List enrich | linkedOrder* + statusAt; `invoices:list:v2:` |
+| Columns | Invoice # · Order # · Status · Total · Actions |
+| Invalidation | unchanged |
+| Gates | lint ✓ test **578** ✓ invalidate **213** ✓ build ✓ |
+
+```
+Scope: built/verified | Traceability: REQ-0150 | Findings: PASS
+Commands: lint, test, invalidate, build
+```
 
 ---
 

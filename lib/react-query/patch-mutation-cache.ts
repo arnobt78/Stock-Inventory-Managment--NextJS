@@ -1,9 +1,34 @@
 /**
  * REQ-0122/0123 — Patch TanStack cache on mutation success before invalidate.
  * Order: patchDetailCache / patchListCaches → invalidate* (network refetch confirms server).
+ * REQ-0153 — patchLinkedOrderFromInvoiceMoney syncs order paymentStatus instantly on invoice money CRUD.
  */
 import type { QueryClient, QueryKey } from "@tanstack/react-query";
 import { queryKeys } from "./config";
+import { deriveOrderPaymentStatus } from "@/lib/payments/order-payment-from-amounts";
+
+/** Minimal invoice shape for linked-order payment patch (REQ-0153). */
+export type InvoiceMoneyPatchSource = {
+  id: string;
+  orderId?: string | null;
+  amountPaid?: number | null;
+  amountDue?: number | null;
+  total?: number | null;
+  status?: string | null;
+  invoiceNumber?: string | null;
+  paidAt?: string | Date | null;
+  dueDate?: string | Date | null;
+  sentAt?: string | Date | null;
+  cancelledAt?: string | Date | null;
+  createdAt?: string | Date | null;
+  updatedAt?: string | Date | null;
+};
+
+function toIsoOrNull(value: string | Date | null | undefined): string | null {
+  if (value == null) return null;
+  if (value instanceof Date) return value.toISOString();
+  return String(value);
+}
 
 /** Write a single entity into its detail query key (instant detail-page numbers). */
 export function patchDetailCache<T>(
@@ -82,6 +107,100 @@ export function patchOrderGraphListCaches<T extends Identifiable>(
   patchListCaches(queryClient, queryKeys.clientOrders.all, entity, options);
   patchListCaches(queryClient, queryKeys.invoices.all, entity, options);
   patchListCaches(queryClient, queryKeys.clientInvoices.all, entity, options);
+}
+
+/**
+ * REQ-0153 — Instantly patch linked order + invoice list badge from invoice money.
+ * Call after patching the invoice row itself (onMutate / onSuccess / onError rollback).
+ * Skips cancelled invoices; does not invent refunded order status.
+ */
+export function patchLinkedOrderFromInvoiceMoney(
+  queryClient: QueryClient,
+  invoice: InvoiceMoneyPatchSource,
+): void {
+  const orderId = invoice.orderId;
+  if (!orderId) return;
+  if (invoice.status === "cancelled") return;
+
+  const amountPaid = Number(invoice.amountPaid ?? 0);
+  const total = Number(invoice.total ?? 0);
+  const amountDue =
+    invoice.amountDue != null
+      ? Math.max(0, Number(invoice.amountDue))
+      : Math.max(0, total - amountPaid);
+  const paymentStatus = deriveOrderPaymentStatus(amountPaid, total);
+
+  const invoiceForOrder = {
+    id: invoice.id,
+    invoiceNumber: invoice.invoiceNumber ?? "",
+    paidAt: toIsoOrNull(invoice.paidAt),
+    createdAt: toIsoOrNull(invoice.createdAt) ?? undefined,
+    dueDate: toIsoOrNull(invoice.dueDate) ?? undefined,
+    amountDue,
+    amountPaid,
+    total,
+    status: invoice.status ?? undefined,
+    sentAt: toIsoOrNull(invoice.sentAt),
+    cancelledAt: toIsoOrNull(invoice.cancelledAt),
+    updatedAt: toIsoOrNull(invoice.updatedAt),
+  };
+
+  type OrderPatchRow = {
+    id: string;
+    paymentStatus: string;
+    invoiceForOrder: typeof invoiceForOrder;
+  };
+
+  const orderPatch: OrderPatchRow = {
+    id: orderId,
+    paymentStatus,
+    invoiceForOrder,
+  };
+
+  // Order lists + detail (admin + client-scoped)
+  patchListCaches(queryClient, queryKeys.orders.all, orderPatch);
+  patchListCaches(queryClient, queryKeys.clientOrders.all, orderPatch);
+
+  patchDetailCacheMerge<{
+    id: string;
+    paymentStatus?: string;
+    invoiceForOrder?: typeof invoiceForOrder;
+  }>(queryClient, queryKeys.orders.detail(orderId), (old) =>
+    old
+      ? {
+          ...old,
+          paymentStatus,
+          invoiceForOrder,
+        }
+      : undefined,
+  );
+  patchDetailCacheMerge<{
+    id: string;
+    paymentStatus?: string;
+    invoiceForOrder?: typeof invoiceForOrder;
+  }>(queryClient, queryKeys.clientOrders.detail(orderId), (old) =>
+    old
+      ? {
+          ...old,
+          paymentStatus,
+          invoiceForOrder,
+        }
+      : undefined,
+  );
+
+  // Invoice list Order # Payment badge (linkedOrderPaymentStatus)
+  const invoiceBadgePatch = {
+    id: invoice.id,
+    linkedOrderPaymentStatus: paymentStatus,
+  };
+  patchListCaches(queryClient, queryKeys.invoices.all, invoiceBadgePatch);
+  patchListCaches(queryClient, queryKeys.clientInvoices.all, invoiceBadgePatch);
+  patchDetailCacheMerge<{
+    id: string;
+    linkedOrderPaymentStatus?: string | null;
+  }>(queryClient, queryKeys.invoices.detail(invoice.id), (old) =>
+    old ? { ...old, linkedOrderPaymentStatus: paymentStatus } : undefined,
+  );
 }
 
 /**

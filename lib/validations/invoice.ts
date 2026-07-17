@@ -32,9 +32,15 @@ export const updateInvoiceSchema = z.object({
   total: z.number().min(0, "Total cannot be negative").optional(),
   amountDue: z.number().min(0, "Amount due cannot be negative").optional(),
   dueDate: z.string().datetime().optional().or(z.string().date()).or(z.literal("")),
-  sentAt: z.string().datetime().optional().or(z.literal("")),
-  paidAt: z.string().datetime().optional().or(z.literal("")),
-  cancelledAt: z.string().datetime().optional().or(z.literal("")),
+  // REQ-0151 — DialogDateField writes YYYY-MM-DD; accept date-only like dueDate
+  sentAt: z.string().datetime().optional().or(z.string().date()).or(z.literal("")),
+  paidAt: z.string().datetime().optional().or(z.string().date()).or(z.literal("")),
+  cancelledAt: z
+    .string()
+    .datetime()
+    .optional()
+    .or(z.string().date())
+    .or(z.literal("")),
   paymentLink: z.string().url("Invalid payment link URL").optional().or(z.literal("")),
   notes: z.string().optional(),
 });

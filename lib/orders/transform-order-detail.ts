@@ -58,6 +58,9 @@ export type OrderDetailEnrichment = {
     createdAt?: string;
     dueDate?: string;
     amountDue?: number;
+    /** REQ-0152 */
+    amountPaid?: number;
+    total?: number;
     status?: string;
   } | null;
   /** REQ-0096 — audit user snapshots from createdBy / updatedBy */

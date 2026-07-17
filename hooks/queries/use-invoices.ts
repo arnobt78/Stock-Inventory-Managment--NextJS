@@ -13,6 +13,7 @@ import {
   patchDetailCache,
   patchDetailCacheMerge,
   patchOrderGraphListCaches,
+  patchLinkedOrderFromInvoiceMoney,
   removeFromListCaches,
 } from "@/lib/react-query";
 import { useToast } from "@/hooks/use-toast";
@@ -24,7 +25,10 @@ import type {
 } from "@/types";
 import type { InvoiceForPage } from "@/lib/server/invoices-data";
 
-/** Optimistic invoice merge — coerces date fields from UpdateInvoiceInput strings. REQ-0125 */
+/**
+ * Optimistic invoice merge — coerces date fields from UpdateInvoiceInput strings.
+ * REQ-0125 / REQ-0153 — recompute amountDue when amountPaid or total changes.
+ */
 function mergeOptimisticInvoiceUpdate(
   old: Invoice | undefined,
   partial: UpdateInvoiceInput,
@@ -32,7 +36,8 @@ function mergeOptimisticInvoiceUpdate(
 ): Invoice | undefined {
   const base = old ?? fallback;
   if (!base) return undefined;
-  return {
+
+  const next: Invoice = {
     ...base,
     ...partial,
     dueDate: partial.dueDate ? new Date(partial.dueDate) : base.dueDate,
@@ -42,6 +47,24 @@ function mergeOptimisticInvoiceUpdate(
       ? new Date(partial.cancelledAt)
       : base.cancelledAt,
   };
+
+  // REQ-0153 — keep Total / Due / order patch coherent before server responds
+  const moneyTouched =
+    partial.amountPaid !== undefined ||
+    partial.total !== undefined ||
+    partial.tax !== undefined ||
+    partial.shipping !== undefined ||
+    partial.discount !== undefined ||
+    partial.amountDue !== undefined;
+  if (moneyTouched) {
+    const amountPaid = Number(next.amountPaid ?? 0);
+    const total = Number(next.total ?? 0);
+    if (partial.amountDue === undefined) {
+      next.amountDue = Math.max(0, total - amountPaid);
+    }
+  }
+
+  return next;
 }
 
 /**
@@ -122,6 +145,8 @@ export function useCreateInvoice() {
     onSuccess: (data: Invoice) => {
       patchDetailCache(queryClient, queryKeys.invoices.detail(data.id), data);
       patchOrderGraphListCaches(queryClient, data, { prependIfMissing: true });
+      // REQ-0153 — link invoiceForOrder + paymentStatus on order caches
+      patchLinkedOrderFromInvoiceMoney(queryClient, data);
 
       invalidateAfterOrderGraphChange(queryClient);
 
@@ -181,6 +206,8 @@ export function useUpdateInvoice() {
       if (optimistic) {
         patchDetailCacheMerge(queryClient, detailKey, () => optimistic);
         patchOrderGraphListCaches(queryClient, optimistic);
+        // REQ-0153 — optimistic order Payment badge + invoiceForOrder money
+        patchLinkedOrderFromInvoiceMoney(queryClient, optimistic);
       }
 
       return { previousInvoice };
@@ -193,6 +220,11 @@ export function useUpdateInvoice() {
           context.previousInvoice,
         );
         patchOrderGraphListCaches(queryClient, context.previousInvoice);
+        // REQ-0153 — rollback linked order payment patch
+        patchLinkedOrderFromInvoiceMoney(
+          queryClient,
+          context.previousInvoice,
+        );
       }
       toast({
         title: "Invoice Update Failed",
@@ -208,6 +240,8 @@ export function useUpdateInvoice() {
     onSuccess: (data) => {
       patchDetailCache(queryClient, queryKeys.invoices.detail(data.id), data);
       patchOrderGraphListCaches(queryClient, data);
+      // REQ-0153 — confirm linked order from server invoice money
+      patchLinkedOrderFromInvoiceMoney(queryClient, data);
       toast({
         title: "Invoice Updated!",
         description: `Invoice #${data.invoiceNumber} has been successfully updated.`,
@@ -276,6 +310,8 @@ export function useSendInvoice() {
         data.invoice,
       );
       patchOrderGraphListCaches(queryClient, data.invoice);
+      // REQ-0153 — keep order invoiceForOrder / payment badge in sync after send
+      patchLinkedOrderFromInvoiceMoney(queryClient, data.invoice);
 
       invalidateAfterOrderGraphChange(queryClient);
 

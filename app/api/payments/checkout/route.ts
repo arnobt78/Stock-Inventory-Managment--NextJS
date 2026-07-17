@@ -1,6 +1,7 @@
 /**
  * Stripe Checkout API Route
  * POST /api/payments/checkout — create a Stripe Checkout session
+ * REQ-0152 — optional amount (partial pay); admin can checkout; no unpaid clobber.
  */
 
 import { NextRequest, NextResponse } from "next/server";
@@ -9,7 +10,10 @@ import { logger } from "@/lib/logger";
 import { getStripe, isStripeConfigured } from "@/lib/stripe";
 import { prisma } from "@/prisma/client";
 import { withRateLimit, defaultRateLimits } from "@/lib/api/rate-limit";
-import { createCheckoutBodySchema } from "@/lib/validations/payment";
+import {
+  createCheckoutBodySchema,
+  validateCheckoutChargeAmount,
+} from "@/lib/validations/payment";
 import { scheduleInvalidateOrderGraphCaches } from "@/lib/cache";
 import type { CheckoutSessionResponse } from "@/types";
 
@@ -52,7 +56,8 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const { type, id, successUrl, cancelUrl } = validationResult.data;
+    const { type, id, amount: requestedAmount, successUrl, cancelUrl } =
+      validationResult.data;
 
     const stripe = getStripe();
     const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
@@ -71,29 +76,31 @@ export async function POST(request: NextRequest) {
       userId: session.id,
     };
     let customerEmail: string | undefined;
+    let remainingDue = 0;
+    let chargeAmount = 0;
 
     if (type === "order") {
-      // Fetch order by id first, then enforce who can checkout (creator or client only)
       const order = await prisma.order.findUnique({
         where: { id },
-        include: { items: true },
+        include: { items: true, invoice: true },
       });
 
       if (!order) {
         return NextResponse.json({ error: "Order not found" }, { status: 404 });
       }
 
+      const isAdmin = session.role === "admin";
       const isClient = session.role === "client";
       const isCreator = order.userId === session.id;
       const isOrderClient = order.clientId === session.id;
       const canCheckout =
-        isCreator || (isClient && isOrderClient);
+        isAdmin || isCreator || (isClient && isOrderClient);
 
       if (!canCheckout) {
         return NextResponse.json(
           {
             error:
-              "Only the order creator or the assigned client can complete payment for this order.",
+              "Only an admin, the order creator, or the assigned client can complete payment for this order.",
           },
           { status: 403 },
         );
@@ -106,73 +113,52 @@ export async function POST(request: NextRequest) {
         );
       }
 
-      // Stripe requires unit_amount to be a non-negative integer, so we cannot send a negative "Discount" line.
-      // When there is a discount, use a single line item with the order total; otherwise itemize.
-      if (order.discount && order.discount > 0) {
-        const totalCents = Math.round(order.total * 100);
-        if (totalCents < 0) {
-          return NextResponse.json(
-            { error: "Order total cannot be negative" },
-            { status: 400 },
-          );
-        }
-        const parts: string[] = [];
-        if (order.subtotal) parts.push(`Subtotal $${order.subtotal.toFixed(2)}`);
-        if (order.tax && order.tax > 0) parts.push(`Tax $${order.tax.toFixed(2)}`);
-        if (order.shipping && order.shipping > 0)
-          parts.push(`Shipping $${order.shipping.toFixed(2)}`);
-        parts.push(`Discount -$${order.discount.toFixed(2)}`);
-        lineItems = [
-          {
-            price_data: {
-              currency: "usd",
-              product_data: {
-                name: `Order ${order.orderNumber}`,
-                description: parts.join(" · ") + ` → Total $${order.total.toFixed(2)}`,
-              },
-              unit_amount: totalCents,
-            },
-            quantity: 1,
-          },
-        ];
-      } else {
-        lineItems = order.items.map((item) => ({
+      // Remaining = linked invoice amountDue, else full order total
+      remainingDue =
+        order.invoice != null
+          ? Math.max(0, order.invoice.amountDue)
+          : Math.max(0, order.total);
+
+      if (remainingDue <= 0) {
+        return NextResponse.json(
+          { error: "Nothing left to pay on this order" },
+          { status: 400 },
+        );
+      }
+
+      chargeAmount =
+        requestedAmount !== undefined ? requestedAmount : remainingDue;
+      const amountError = validateCheckoutChargeAmount(
+        chargeAmount,
+        remainingDue,
+      );
+      if (amountError) {
+        return NextResponse.json({ error: amountError }, { status: 400 });
+      }
+
+      const chargeCents = Math.round(chargeAmount * 100);
+      const isPartial = Math.round(chargeAmount * 100) < Math.round(remainingDue * 100);
+      lineItems = [
+        {
           price_data: {
             currency: "usd",
             product_data: {
-              name: item.productName,
-              description: item.sku ? `SKU: ${item.sku}` : undefined,
+              name: `Order ${order.orderNumber}`,
+              description: isPartial
+                ? `Partial payment $${chargeAmount.toFixed(2)} of $${order.total.toFixed(2)}`
+                : `Payment for order ${order.orderNumber}`,
             },
-            unit_amount: Math.round(item.price * 100),
+            unit_amount: chargeCents,
           },
-          quantity: item.quantity,
-        }));
-        if (order.tax && order.tax > 0) {
-          lineItems.push({
-            price_data: {
-              currency: "usd",
-              product_data: { name: "Tax" },
-              unit_amount: Math.round(order.tax * 100),
-            },
-            quantity: 1,
-          });
-        }
-        if (order.shipping && order.shipping > 0) {
-          lineItems.push({
-            price_data: {
-              currency: "usd",
-              product_data: { name: "Shipping" },
-              unit_amount: Math.round(order.shipping * 100),
-            },
-            quantity: 1,
-          });
-        }
-      }
+          quantity: 1,
+        },
+      ];
 
       metadata.orderNumber = order.orderNumber;
       metadata.orderId = order.id;
+      metadata.chargeAmount = chargeAmount.toFixed(2);
+      metadata.isPartial = isPartial ? "true" : "false";
 
-      // Get client email if available
       if (order.clientId) {
         const client = await prisma.user.findUnique({
           where: { id: order.clientId },
@@ -181,12 +167,8 @@ export async function POST(request: NextRequest) {
         customerEmail = client?.email;
       }
     } else if (type === "invoice") {
-      // Fetch invoice by id, then enforce who can pay (creator or client only)
       const invoice = await prisma.invoice.findUnique({
         where: { id },
-        include: {
-          order: { include: { items: true } },
-        },
       });
 
       if (!invoice) {
@@ -196,17 +178,18 @@ export async function POST(request: NextRequest) {
         );
       }
 
+      const isAdmin = session.role === "admin";
       const isClient = session.role === "client";
       const isCreator = invoice.userId === session.id;
       const isInvoiceClient = invoice.clientId === session.id;
       const canCheckout =
-        isCreator || (isClient && isInvoiceClient);
+        isAdmin || isCreator || (isClient && isInvoiceClient);
 
       if (!canCheckout) {
         return NextResponse.json(
           {
             error:
-              "Only the invoice creator or the assigned client can complete payment for this invoice.",
+              "Only an admin, the invoice creator, or the assigned client can complete payment for this invoice.",
           },
           { status: 403 },
         );
@@ -219,16 +202,45 @@ export async function POST(request: NextRequest) {
         );
       }
 
-      // Use invoice amount due
+      if (invoice.status === "cancelled") {
+        return NextResponse.json(
+          { error: "Cancelled invoices cannot be paid" },
+          { status: 400 },
+        );
+      }
+
+      remainingDue = Math.max(0, invoice.amountDue);
+      if (remainingDue <= 0) {
+        return NextResponse.json(
+          { error: "Nothing left to pay on this invoice" },
+          { status: 400 },
+        );
+      }
+
+      chargeAmount =
+        requestedAmount !== undefined ? requestedAmount : remainingDue;
+      const amountError = validateCheckoutChargeAmount(
+        chargeAmount,
+        remainingDue,
+      );
+      if (amountError) {
+        return NextResponse.json({ error: amountError }, { status: 400 });
+      }
+
+      const chargeCents = Math.round(chargeAmount * 100);
+      const isPartial =
+        Math.round(chargeAmount * 100) < Math.round(remainingDue * 100);
       lineItems = [
         {
           price_data: {
             currency: "usd",
             product_data: {
               name: `Invoice ${invoice.invoiceNumber}`,
-              description: `Payment for invoice ${invoice.invoiceNumber}`,
+              description: isPartial
+                ? `Partial payment $${chargeAmount.toFixed(2)} (due $${remainingDue.toFixed(2)})`
+                : `Payment for invoice ${invoice.invoiceNumber}`,
             },
-            unit_amount: Math.round(invoice.amountDue * 100),
+            unit_amount: chargeCents,
           },
           quantity: 1,
         },
@@ -236,8 +248,9 @@ export async function POST(request: NextRequest) {
 
       metadata.invoiceNumber = invoice.invoiceNumber;
       metadata.invoiceId = invoice.id;
+      metadata.chargeAmount = chargeAmount.toFixed(2);
+      metadata.isPartial = isPartial ? "true" : "false";
 
-      // Get client email if available
       if (invoice.clientId) {
         const client = await prisma.user.findUnique({
           where: { id: invoice.clientId },
@@ -252,7 +265,6 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Create Stripe Checkout session
     const checkoutSession = await stripe.checkout.sessions.create({
       mode: "payment",
       payment_method_types: ["card"],
@@ -265,16 +277,8 @@ export async function POST(request: NextRequest) {
       cancel_url: cancelUrl || `${baseUrl}/${type}s/${id}?payment=cancelled`,
     });
 
-    // Update order/invoice with payment link
-    if (type === "order" && checkoutSession.url) {
-      await prisma.order.update({
-        where: { id },
-        data: {
-          paymentStatus: "unpaid",
-          updatedAt: new Date(),
-        },
-      });
-    } else if (type === "invoice" && checkoutSession.url) {
+    // REQ-0152 — store payment link only; never clobber order paymentStatus to unpaid
+    if (type === "invoice" && checkoutSession.url) {
       await prisma.invoice.update({
         where: { id },
         data: {

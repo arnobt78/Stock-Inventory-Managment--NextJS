@@ -26,6 +26,9 @@ export type InvoiceLinkFields = {
   createdAt?: string;
   dueDate?: string;
   amountDue?: number;
+  /** REQ-0152 — for Order Total paid/due breakdown + Pay dialog */
+  amountPaid?: number;
+  total?: number;
   status?: string;
   /** REQ-0145 — terminal event dates for Invoice # / Payment cells */
   sentAt?: string | null;
@@ -54,6 +57,8 @@ export async function getInvoiceLinkMap(
         createdAt: inv.createdAt.toISOString(),
         dueDate: inv.dueDate.toISOString(),
         amountDue: inv.amountDue,
+        amountPaid: inv.amountPaid,
+        total: inv.total,
         status: inv.status,
         sentAt: inv.sentAt?.toISOString() ?? null,
         cancelledAt: inv.cancelledAt?.toISOString() ?? null,

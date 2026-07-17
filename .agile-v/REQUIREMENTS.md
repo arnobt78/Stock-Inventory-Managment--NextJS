@@ -4,6 +4,103 @@ Canonical REQ source. All artifacts link via `REQ-XXXX`. Status: `done` | `verif
 
 ---
 
+## REQ-0153 — Instant linked-order patch on invoice money CRUD
+
+| Field | Value |
+|-------|-------|
+| **Priority** | P0 |
+| **Risk** | R1 |
+| **Status** | done |
+| **Cycle** | C2 |
+| **Parent** | REQ-0152 |
+
+**Intent:** Close client-cache lag after invoice money mutate — instantly patch linked order `paymentStatus` + `invoiceForOrder` and invoice `linkedOrderPaymentStatus` before invalidate refetch.
+
+**Acceptance criteria**
+
+- AC1: `patchLinkedOrderFromInvoiceMoney` in patch-mutation-cache + unit tests
+- AC2: Wired in useUpdateInvoice (onMutate/onSuccess/onError), useCreateInvoice, useSendInvoice
+- AC3: Optimistic merge recomputes `amountDue` when money fields change
+- AC4: Invalidation registry unchanged (still `invalidateAfterOrderGraphChange` after patch)
+- AC5: Gates — lint, test, invalidate, build
+
+**Artifacts:** `lib/react-query/patch-mutation-cache.ts`, `hooks/queries/use-invoices.ts`
+
+---
+
+## REQ-0152 — Partial payment sync + Invoice Total + Pay toggle
+
+| Field | Value |
+|-------|-------|
+| **Priority** | P0 |
+| **Risk** | R2 |
+| **Status** | done |
+| **Cycle** | C2 |
+| **Parent** | REQ-0151, REQ-0136 |
+
+**Intent:** Auto-sync order `paymentStatus` (unpaid/partial/paid) from invoice money on edit + Stripe; Invoice Total paid/due breakdown; PaymentDialog full/partial toggle with Zod + checkout amount; admin can checkout; no unpaid clobber.
+
+**Acceptance criteria**
+
+- AC1: `deriveOrderPaymentStatus` + `syncOrderPaymentStatusFromInvoice` on invoice PUT; unit tests
+- AC2: Stripe checkout optional `amount`; webhook incremental `amountPaid`; admin `canCheckout`
+- AC3: PaymentDialog pay-full default / partial editable + live validation
+- AC4: `PaymentMoneyBreakdown` on Invoice Total; Order Total when paid>0; `invoiceForOrder.amountPaid`
+- AC5: Admin order detail due + partial parity; invoice line items use linked order payment
+- AC6: Gates — lint, test, invalidate, build; invalidation registry unchanged (`invalidateAfterOrderGraphChange`)
+
+**Artifacts:** `lib/payments/order-payment-from-amounts.ts`, `app/api/payments/checkout/route.ts`, `app/api/payments/webhook/route.ts`, `PaymentDialog.tsx`, `PaymentMoneyBreakdown.tsx`, `InvoiceTableColumns.tsx`, `OrderTableColumns.tsx`
+
+---
+
+## REQ-0151 — Edit Invoice submit + Order # badges + due Clock
+
+| Field | Value |
+|-------|-------|
+| **Priority** | P0 |
+| **Risk** | R1 |
+| **Status** | done |
+| **Cycle** | C2 |
+| **Parent** | REQ-0150, REQ-0136 |
+
+**Intent:** Fix silent Edit Invoice Zod fail on date-only timestamps; toast on invalid; Invoice Order # shows order status/payment badges + dates; due/overdue SemanticEventDate uses Clock.
+
+**Acceptance criteria**
+
+- AC1: `updateInvoiceSchema` accepts `YYYY-MM-DD` for sentAt/paidAt/cancelledAt (+ unit test)
+- AC2: Edit form `onInvalid` destructive toast
+- AC3: List enrich `linkedOrderStatus` / `paymentStatus` / `statusAt` / `paidAt`; Invoice Order # inline badges
+- AC4: `SemanticEventDate` due/overdue → Clock icon
+- AC5: Gates — lint, test, invalidate, build; invalidation unchanged
+
+**Artifacts:** `lib/validations/invoice.ts`, `InvoiceDialog.tsx`, `enrich-invoice-list-orders.ts`, `InvoiceTableColumns.tsx`, `SemanticEventDate.tsx`
+
+---
+
+## REQ-0150 — Invoice table density + Edit Invoice fixes
+
+| Field | Value |
+|-------|-------|
+| **Priority** | P0 |
+| **Risk** | R1 |
+| **Status** | done |
+| **Cycle** | C2 |
+| **Parent** | REQ-0136, REQ-0145 |
+
+**Intent:** Dense Invoice table (admin/user/client/supplier) matching Order table; fix Edit Cancel submit cancel; readable status Select; list enrich linked order + statusAt.
+
+**Acceptance criteria**
+
+- AC1: Edit Cancel `type="button"` (InvoiceDialog + OrderDialog) — no "form not connected"
+- AC2: Status Select — solid white-on-hue trigger; opaque badges in items
+- AC3: List SSR/API enrich `linkedOrderNumber` / items / `linkedOrderCreatedAt` / `statusAt`; Redis `invoices:list:v2:`
+- AC4: Columns — Invoice # (`OrderTableInvoiceCell`) · Order # · Status+statusAt · Total · Actions; drop standalone Due/Amount Due
+- AC5: Gates — lint, test, invalidate, build; invalidation unchanged
+
+**Artifacts:** `InvoiceDialog.tsx`, `InvoiceTableColumns.tsx`, `enrich-invoice-list-orders.ts`, `invoice-status-display-date.ts`, `invoices-data.ts`, `cache-utils.ts`
+
+---
+
 ## REQ-0149 — Line price typography + Owner/Buyer label size
 
 | Field | Value |

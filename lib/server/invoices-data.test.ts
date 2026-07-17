@@ -6,7 +6,7 @@ vi.mock("@/lib/cache", () => ({
   cacheKeys: {
     invoices: {
       list: (filters: Record<string, unknown>) =>
-        `invoices:list:${JSON.stringify(filters)}`,
+        `invoices:list:v2:${JSON.stringify(filters)}`,
     },
   },
 }));
@@ -26,6 +26,7 @@ vi.mock("@/lib/invoices/enrich-order-user-ids", () => ({
 vi.mock("@/prisma/client", () => ({
   prisma: {
     user: { findMany: vi.fn() },
+    order: { findMany: vi.fn() },
   },
 }));
 
@@ -73,6 +74,33 @@ describe("getInvoicesForSupplierId", () => {
     vi.mocked(prisma.user.findMany).mockResolvedValue([
       { id: "client-1", name: "Client One", email: "client@example.com" },
     ] as never);
+    vi.mocked(prisma.order.findMany).mockResolvedValue([
+      {
+        id: "ord-1",
+        orderNumber: "ORD-001",
+        createdAt: new Date("2026-05-01"),
+        status: "confirmed",
+        paymentStatus: "unpaid",
+        cancelledAt: null,
+        deliveredAt: null,
+        shippedAt: null,
+        updatedAt: null,
+        invoice: { paidAt: null },
+        items: [
+          {
+            id: "oi-1",
+            orderId: "ord-1",
+            productId: "p-1",
+            productName: "Beats",
+            quantity: 2,
+            price: 50,
+            subtotal: 100,
+            createdAt: new Date("2026-05-01"),
+            sku: "SK1",
+          },
+        ],
+      },
+    ] as never);
   });
 
   it("returns invoices for supplier orders and caches with supplierId key (REQ-0076)", async () => {
@@ -88,12 +116,15 @@ describe("getInvoicesForSupplierId", () => {
     );
     expect(getInvoicesByOrderIds).toHaveBeenCalledWith(["ord-1"], {});
     expect(setCache).toHaveBeenCalledWith(
-      'invoices:list:{"supplierId":"supplier-entity-1"}',
+      'invoices:list:v2:{"supplierId":"supplier-entity-1"}',
       expect.arrayContaining([
         expect.objectContaining({
           id: "inv-1",
           invoiceNumber: "INV-001",
           orderId: "ord-1",
+          linkedOrderNumber: "ORD-001",
+          linkedOrderStatus: "confirmed",
+          linkedOrderPaymentStatus: "unpaid",
         }),
       ]),
       300,
@@ -102,6 +133,8 @@ describe("getInvoicesForSupplierId", () => {
     expect(result).toHaveLength(1);
     expect(result[0].invoiceNumber).toBe("INV-001");
     expect(result[0].clientName).toBe("Client One");
+    expect(result[0].linkedOrderNumber).toBe("ORD-001");
+    expect(result[0].linkedOrderStatus).toBe("confirmed");
   });
 
   it("returns empty array when supplier has no orders", async () => {
@@ -112,7 +145,7 @@ describe("getInvoicesForSupplierId", () => {
     expect(getInvoicesByOrderIds).not.toHaveBeenCalled();
     expect(result).toEqual([]);
     expect(setCache).toHaveBeenCalledWith(
-      'invoices:list:{"supplierId":"supplier-empty"}',
+      'invoices:list:v2:{"supplierId":"supplier-empty"}',
       [],
       300,
       expect.objectContaining({ fetchedAt: expect.any(Number) }),

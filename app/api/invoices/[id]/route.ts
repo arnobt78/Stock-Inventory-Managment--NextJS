@@ -20,7 +20,7 @@ import { createAuditLog } from "@/prisma/audit-log";
 import type { UpdateInvoiceInput } from "@/types";
 import { getInvoiceDetailForPage } from "@/lib/server/invoice-detail-data";
 import { scheduleInvalidateInvoiceCaches } from "@/lib/cache";
-import { fulfillPendingOrderLines } from "@/lib/products/order-stock-reservation";
+import { syncOrderPaymentStatusFromInvoice } from "@/lib/payments/order-payment-from-amounts";
 
 /**
  * GET /api/invoices/:id
@@ -140,43 +140,13 @@ export async function PUT(
     // Update invoice
     const invoice = await updateInvoice(id, updateData, ownerUserId);
 
-    // When invoice is marked as paid, also confirm the associated order + deduct stock
-    if (invoice.status === "paid" && invoice.orderId) {
-      const linkedOrder = await prisma.order.findUnique({
-        where: { id: invoice.orderId },
-        include: { items: true },
+    // REQ-0152 — sync order unpaid|partial|paid from invoice money (incl. stock fulfill on full pay)
+    if (invoice.orderId) {
+      await syncOrderPaymentStatusFromInvoice(invoice.orderId, {
+        amountPaid: invoice.amountPaid,
+        total: invoice.total,
+        invoiceStatus: invoice.status,
       });
-      if (linkedOrder && linkedOrder.paymentStatus !== "paid") {
-        await prisma.order.update({
-          where: { id: invoice.orderId },
-          data: {
-            paymentStatus: "paid",
-            status: linkedOrder.status === "pending" ? "confirmed" : linkedOrder.status,
-            updatedAt: new Date(),
-          },
-        });
-        if (linkedOrder.status === "pending") {
-          try {
-            await fulfillPendingOrderLines(
-              linkedOrder.items.map((item) => ({
-                productId: item.productId,
-                quantity: item.quantity,
-                warehouseId: item.warehouseId,
-              })),
-            );
-          } catch (allocErr) {
-            logger.warn(
-              "Failed to fulfill stock for invoice-paid order",
-              { orderId: invoice.orderId, error: allocErr },
-            );
-          }
-        }
-      } else if (linkedOrder && linkedOrder.paymentStatus === "paid" && linkedOrder.status === "pending") {
-        await prisma.order.update({
-          where: { id: invoice.orderId },
-          data: { status: "confirmed", updatedAt: new Date() },
-        });
-      }
     }
 
     createAuditLog({

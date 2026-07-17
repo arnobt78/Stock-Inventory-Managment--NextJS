@@ -197,6 +197,8 @@ export { SectionCountBadge } from "./SectionCountBadge";
 export type { SectionCountBadgeProps } from "./SectionCountBadge";
 export { ListIndexBadge } from "./ListIndexBadge";
 export type { ListIndexBadgeProps } from "./ListIndexBadge";
+export { PaymentMoneyBreakdown } from "./PaymentMoneyBreakdown";
+export type { PaymentMoneyBreakdownProps } from "./PaymentMoneyBreakdown";
 export { CatalogInsightsSection } from "./CatalogInsightsSection";
 export type { CatalogInsightsSectionProps } from "./CatalogInsightsSection";
 export { CatalogSnapshotCompanion } from "./CatalogSnapshotCompanion";

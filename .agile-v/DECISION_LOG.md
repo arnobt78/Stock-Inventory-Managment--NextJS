@@ -388,3 +388,11 @@ Format: `TIMESTAMP | AGENT | DECISION | RATIONALE | REQ-ID`
 2026-07-17T14:58:00Z | red-team | REQ-0149 gates | lint ✓ test 573 ✓ invalidate 213 ✓ build ✓ | REQ-0149
 2026-07-17T15:10:00Z | red-team | Pre-commit audit REQ-0146–0149 | UI/CSS+trackingCarrier only; no RQ/Redis/invalidate delta; ListIndexBadge dark text-gray-700; gates PASS | REQ-0146,REQ-0147,REQ-0148,REQ-0149
 2026-07-17T15:12:00Z | release | Prod SHA 61c1e79 pushed origin/main | REQ-0146–0149 order detail polish | REQ-0146,REQ-0147,REQ-0148,REQ-0149
+2026-07-17T15:35:00Z | build-agent | REQ-0150 invoice table + edit fixes | Cancel type=button; solid/opaque status Select; list:v2 enrich; dense columns | REQ-0150
+2026-07-17T15:40:00Z | red-team | REQ-0150 gates | lint ✓ test 578 ✓ invalidate 213 ✓ build ✓ | REQ-0150
+2026-07-17T16:20:00Z | build-agent | REQ-0151 edit submit + Order # badges | Zod date-only timestamps; onInvalid toast; linked order status/payment; due Clock | REQ-0151
+2026-07-17T16:25:00Z | red-team | REQ-0151 gates | lint ✓ test 580 ✓ invalidate 213 ✓ build ✓ | REQ-0151
+2026-07-17T17:00:00Z | build-agent | REQ-0152 partial pay sync + Pay toggle | derive/sync order payment from invoice money; Stripe amount+incremental webhook; PaymentMoneyBreakdown; admin checkout | REQ-0152
+2026-07-17T17:10:00Z | red-team | REQ-0152 gates | lint ✓ test 593 ✓ invalidate 213 ✓ build ✓ | REQ-0152
+2026-07-17T17:20:00Z | build-agent | REQ-0153 instant linked-order patch | patchLinkedOrderFromInvoiceMoney on invoice money CRUD; optimistic amountDue | REQ-0153
+2026-07-17T17:25:00Z | red-team | REQ-0153 gates | lint ✓ test 595 ✓ invalidate 213 ✓ build ✓ | REQ-0153

@@ -38,6 +38,8 @@ import {
 import {
   GLASS_BADGE_CLASS,
   OPAQUE_BADGE_CLASS,
+  SOLID_BADGE_CLASS,
+  type GlassBadgeHue,
 } from "@/lib/ui/glass-badge-styles";
 import {
   getWarehouseTypeTone,
@@ -121,6 +123,15 @@ const INVOICE_STATUS: Record<string, BadgeTone> = {
   paid: { className: GLASS_BADGE_CLASS.emerald, icon: CheckCircle },
   overdue: { className: GLASS_BADGE_CLASS.rose, icon: AlertCircle },
   cancelled: { className: GLASS_BADGE_CLASS.orange, icon: XCircle },
+};
+
+/** Hue keys for solid/opaque contrast variants (REQ-0150 Select trigger/items). */
+const INVOICE_STATUS_HUE: Record<string, GlassBadgeHue> = {
+  draft: "slate",
+  sent: "sky",
+  paid: "emerald",
+  overdue: "rose",
+  cancelled: "orange",
 };
 
 const USER_ROLE: Record<string, BadgeTone> = {
@@ -222,6 +233,8 @@ function resolveTone(
   return map[normalizeKey(status)] ?? DEFAULT_TONE;
 }
 
+export type SemanticBadgeContrast = "glass" | "opaque" | "solid";
+
 export type SemanticBadgeProps = {
   status: string;
   className?: string;
@@ -229,6 +242,11 @@ export type SemanticBadgeProps = {
   label?: string;
   /** `compact` = tables/portal rows; `detail` = entity detail cards */
   size?: "compact" | "detail";
+  /**
+   * REQ-0150 — Select trigger uses `solid` (white on hue);
+   * dropdown items use `opaque` (readable, resists SelectItem focus inherit).
+   */
+  contrast?: SemanticBadgeContrast;
 };
 
 /** Fixed height so Self/Client match Status/Payment and Active matches warehouse type. */
@@ -482,8 +500,16 @@ export function InvoiceStatusBadge({
   className,
   label,
   size,
+  contrast = "glass",
 }: SemanticBadgeProps) {
-  const tone = resolveTone(INVOICE_STATUS, status);
+  const base = resolveTone(INVOICE_STATUS, status);
+  const hue = INVOICE_STATUS_HUE[normalizeKey(status)] ?? "slate";
+  const tone: BadgeTone =
+    contrast === "solid"
+      ? { icon: base.icon, className: SOLID_BADGE_CLASS[hue] }
+      : contrast === "opaque"
+        ? { icon: base.icon, className: OPAQUE_BADGE_CLASS[hue] }
+        : base;
   return (
     <SemanticBadgeBase
       tone={tone}

@@ -26,12 +26,14 @@ export {
   patchDetailCacheMerge,
   patchListCaches,
   patchOrderGraphListCaches,
+  patchLinkedOrderFromInvoiceMoney,
   patchProductInPortalCaches,
   removeProductFromPortalCaches,
   removeFromListCaches,
   patchStockAllocationInCaches,
   removeStockAllocationFromCaches,
 } from "./patch-mutation-cache";
+export type { InvoiceMoneyPatchSource } from "./patch-mutation-cache";
 export { withInitialData } from "./initial-data-options";
 export {
   useSyncSsrQueryData,
