@@ -120,7 +120,7 @@ export default function RegisterPage() {
           <h2 className="text-sm sm:text-base font-medium text-gray-700 dark:text-white text-center">
             Create Account
           </h2>
-          <p className="text-xs sm:text-sm text-gray-600 dark:text-white/70 text-center">
+          <p className="text-xs sm:text-sm text-gray-600 dark:text-white/80 text-center">
             Sign up to get started with your inventory dashboard
           </p>
         </AuthAnimatedBlock>
@@ -201,7 +201,10 @@ export default function RegisterPage() {
           <AuthAnimatedBlock delayMs={formRowDelay(5)}>
             <Button
               type="submit"
-              className={cn(GLASS_BUTTON_ICON_HOVER, AUTH_SUBMIT_BUTTON_EMERALD)}
+              className={cn(
+                GLASS_BUTTON_ICON_HOVER,
+                AUTH_SUBMIT_BUTTON_EMERALD,
+              )}
               disabled={isLoading}
             >
               {isLoading ? (
@@ -221,7 +224,7 @@ export default function RegisterPage() {
             <span className="w-full border-t border-emerald-400/20 dark:border-white/10" />
           </div>
           <div className="relative flex justify-center text-xs uppercase">
-            <span className="bg-transparent px-2 text-gray-600 dark:text-white/60">
+            <span className="bg-transparent px-2 text-gray-600 dark:text-white/80">
               Or continue with
             </span>
           </div>
@@ -265,7 +268,7 @@ export default function RegisterPage() {
           delayMs={formRowDelay(8)}
           className="text-center text-sm"
         >
-          <p className="text-gray-600 dark:text-white/70">
+          <p className="text-gray-600 dark:text-white/80">
             Already have an account?{" "}
             <Link
               href="/login"

@@ -40,24 +40,29 @@ import {
   ClientDate,
   ClientDateTime,
   PageContentWrapper,
-  DataSlotPulse,
-  GLASS_GHOST_BUTTON,
   glassDetailBackButtonClass,
   glassDetailFooterButtonClass,
   CopyableText,
   DialogSubmitButton,
   AuditUserDetailRow,
+  DetailInfoRowGroup,
+  SectionCardHeader,
 } from "@/components/shared";
 import { OrderStatusBadge, PaymentStatusBadge } from "@/lib/ui/semantic-badges";
 import type { Order } from "@/types";
 import type { OrderReviewContext } from "@/lib/server/order-review-context-data";
 import { cn } from "@/lib/utils";
 import { APP_SHELL_DETAIL_CLASS } from "@/lib/ui/shell-layout-styles";
+import { TYPO_CARD_TITLE } from "@/lib/ui/typography-scale";
 import OrderDialog from "@/components/orders/OrderDialog";
 import InvoiceDialog from "@/components/invoices/InvoiceDialog";
 import { AlertDialogWrapper } from "@/components/dialogs";
 import { PaymentDialog } from "@/components/payments";
-import { OrderTrackingInfo, ShippingManagement } from "@/components/shipping";
+import {
+  CarrierGlassBadge,
+  OrderTrackingInfo,
+  ShippingManagement,
+} from "@/components/shipping";
 import {
   Tooltip,
   TooltipContent,
@@ -73,7 +78,6 @@ import {
   OrderShippingAddressCard,
   OrderStatusBadges,
   OrderSummaryCard,
-  variantConfig,
 } from "@/components/orders/detail";
 
 export type OrderDetailPageProps = {
@@ -191,7 +195,7 @@ export default function OrderDetailPage({
             <h2 className="text-sm sm:text-base font-medium text-gray-700 dark:text-white mb-2">
               Order Not Found
             </h2>
-            <p className="text-gray-600 dark:text-gray-400 mb-4">
+            <p className="text-gray-600 dark:text-gray-300 mb-4">
               {error instanceof Error
                 ? error.message
                 : "Failed to load order details"}
@@ -217,7 +221,7 @@ export default function OrderDetailPage({
             <h2 className="text-sm sm:text-base font-medium text-gray-700 dark:text-white mb-2">
               Order Not Found
             </h2>
-            <p className="text-gray-600 dark:text-gray-400 mb-4">
+            <p className="text-gray-600 dark:text-gray-300 mb-4">
               The order you are looking for does not exist or was removed.
             </p>
             <Button
@@ -262,90 +266,146 @@ export default function OrderDetailPage({
             dataLoading={dataLoading}
           />
 
-          <div
-            className={cn(
-              "grid gap-2",
-              hasShipping
-                ? "grid-cols-1 lg:grid-cols-3"
-                : "grid-cols-1 md:grid-cols-2",
-            )}
-          >
-            <div className={cn(hasShipping && "lg:col-span-2")}>
+          {/* REQ-0146 — equal-height status stack + tracking when shipped */}
+          {hasShipping && order ? (
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-2 items-stretch">
               <OrderStatusBadges
-                status={order?.status}
-                paymentStatus={order?.paymentStatus}
+                status={order.status}
+                paymentStatus={order.paymentStatus}
                 dataLoading={dataLoading}
+                layout="stack"
+                className="h-full"
               />
+              <OrderTrackingInfo order={order} className="h-full" />
             </div>
-            {hasShipping && order && (
-              <div className="lg:col-span-1 min-w-0">
-                <OrderTrackingInfo order={order} />
-              </div>
-            )}
+          ) : (
+            <OrderStatusBadges
+              status={order?.status}
+              paymentStatus={order?.paymentStatus}
+              dataLoading={dataLoading}
+              layout="grid"
+            />
+          )}
+
+          {/* REQ-0147 — Items | Summary equal-height row */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-2 sm:gap-4 items-stretch">
+            <OrderItemsCard
+              order={order}
+              dataLoading={dataLoading}
+              linkMode={
+                user?.role === "admin"
+                  ? "admin"
+                  : user?.role === "client" || user?.role === "supplier"
+                    ? "portal"
+                    : "none"
+              }
+              warehouseLinkMode={
+                user?.role === "admin"
+                  ? "admin"
+                  : user?.role === "user"
+                    ? "owner"
+                    : "none"
+              }
+              initialReviewContext={initialReviewContext}
+            />
+            <OrderSummaryCard order={order} dataLoading={dataLoading} />
           </div>
 
-          <OrderItemsCard
-            order={order}
-            dataLoading={dataLoading}
-            linkMode={
-              user?.role === "admin"
-                ? "admin"
-                : user?.role === "client" || user?.role === "supplier"
-                  ? "portal"
-                  : "none"
-            }
-            warehouseLinkMode={
-              user?.role === "admin"
-                ? "admin"
-                : user?.role === "user"
-                  ? "owner"
-                  : "none"
-            }
-            initialReviewContext={initialReviewContext}
-          />
-
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-2 sm:gap-4">
+          {/* REQ-0147 — Info | Parties + addresses stack (content-height, no empty stretch) */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-2 sm:gap-4 items-start">
             <GlassCard variant="orange">
-              <div className="flex items-center gap-2 mb-4">
-                <div
-                  className={cn(
-                    "p-2 rounded-xl border",
-                    variantConfig.orange.iconBg,
-                    "dark:border-orange-400/30 dark:bg-orange-500/20",
-                  )}
-                >
-                  <FileText className="h-5 w-5 text-orange-600 dark:text-orange-400" />
-                </div>
-                <h3 className="text-sm sm:text-base font-medium text-gray-700 dark:text-white">
-                  Order Information
-                </h3>
-              </div>
+              <SectionCardHeader
+                title="Order Information"
+                icon={FileText}
+                tone="orange"
+                className="mb-4"
+                titleClassName={cn(
+                  TYPO_CARD_TITLE,
+                  "text-gray-700 dark:text-white",
+                )}
+              />
 
               <div className="space-y-2">
                 {!dataLoading && order && (
                   <>
-                    <DetailInfoRow icon={FileText} label="Order #:" tone="orange">
+                    <DetailInfoRow
+                      icon={FileText}
+                      label="Order #:"
+                      tone="orange"
+                    >
                       <CopyableText value={order.orderNumber}>
                         {order.orderNumber}
                       </CopyableText>
                     </DetailInfoRow>
                     <DetailInfoRow icon={Hash} label="Order ID:" tone="violet">
-                      <span className="font-mono text-xs">{order.id}</span>
+                      <CopyableText value={order.id}>
+                        <span className="font-mono text-xs">{order.id}</span>
+                      </CopyableText>
                     </DetailInfoRow>
-                    <DetailInfoRow icon={Package} label="Order Status:" tone="sky">
+                    <DetailInfoRow
+                      icon={Package}
+                      label="Order Status:"
+                      tone="sky"
+                    >
                       <OrderStatusBadge status={order.status} />
                     </DetailInfoRow>
-                    <DetailInfoRow icon={CreditCard} label="Payment Status:" tone="emerald">
+                    <DetailInfoRow
+                      icon={CreditCard}
+                      label="Payment Status:"
+                      tone="emerald"
+                    >
                       <PaymentStatusBadge status={order.paymentStatus} />
                     </DetailInfoRow>
+                    {/* REQ-0147 — invoice snapshot in Order Information */}
+                    {order.invoiceForOrder && (
+                      <DetailInfoRow
+                        icon={FileText}
+                        label="Invoice:"
+                        tone="violet"
+                      >
+                        <span className="inline-flex flex-wrap items-center gap-x-2 gap-y-0.5 min-w-0">
+                          <CopyableText
+                            value={order.invoiceForOrder.invoiceNumber}
+                          >
+                            <Link
+                              href={
+                                isAdminRole
+                                  ? `/admin/invoices/${order.invoiceForOrder.id}`
+                                  : `/invoices/${order.invoiceForOrder.id}`
+                              }
+                              className="text-sky-600 dark:text-sky-400 hover:text-sky-500 dark:hover:text-sky-300 font-normal"
+                            >
+                              {order.invoiceForOrder.invoiceNumber}
+                            </Link>
+                          </CopyableText>
+                          {order.invoiceForOrder.amountDue != null && (
+                            <span className="text-xs text-gray-600 dark:text-gray-300 font-normal">
+                              · $
+                              {Number(order.invoiceForOrder.amountDue).toFixed(
+                                2,
+                              )}{" "}
+                              due
+                            </span>
+                          )}
+                        </span>
+                      </DetailInfoRow>
+                    )}
                     {order.paymentStatus === "partial" && (
-                      <DetailInfoRow icon={CreditCard} label="Payment:" tone="amber">
+                      <DetailInfoRow
+                        icon={CreditCard}
+                        label="Payment:"
+                        tone="amber"
+                      >
                         Partial payment — total ${order.total.toFixed(2)}
                         {order.invoiceForOrder && (
                           <>
                             {" · "}
                             <Link
-                              href={`/invoices/${order.invoiceForOrder.id}`}
+                              href={
+                                isAdminRole
+                                  ? `/admin/invoices/${order.invoiceForOrder.id}`
+                                  : `/invoices/${order.invoiceForOrder.id}`
+                              }
                               className="text-sky-600 dark:text-sky-400 hover:underline"
                             >
                               View invoice for payment breakdown
@@ -355,65 +415,132 @@ export default function OrderDetailPage({
                       </DetailInfoRow>
                     )}
                     {order.stripePaymentIntentId && (
-                      <DetailInfoRow icon={CreditCard} label="Stripe:" tone="blue">
-                        <span className="font-mono text-xs break-all">
-                          {order.stripePaymentIntentId}
-                        </span>
+                      <DetailInfoRow
+                        icon={CreditCard}
+                        label="Stripe:"
+                        tone="blue"
+                      >
+                        <CopyableText value={order.stripePaymentIntentId}>
+                          <span className="font-mono text-xs break-all">
+                            {order.stripePaymentIntentId}
+                          </span>
+                        </CopyableText>
                       </DetailInfoRow>
                     )}
                   </>
                 )}
-                <DetailInfoRow icon={Calendar} label="Created:" tone="orange" loading={dataLoading}>
-                  {!dataLoading && <ClientDateTime date={createdAt} semantic="created" />}
-                </DetailInfoRow>
-                {(dataLoading || (order?.paymentStatus === "paid" && order?.paidAt)) && (
-                  <DetailInfoRow icon={CircleDollarSign} label="Paid:" tone="emerald" loading={dataLoading}>
+                <DetailInfoRowGroup>
+                  <DetailInfoRow
+                    icon={Calendar}
+                    label="Created:"
+                    tone="orange"
+                    loading={dataLoading}
+                  >
+                    {!dataLoading && (
+                      <ClientDateTime date={createdAt} semantic="created" />
+                    )}
+                  </DetailInfoRow>
+                  {(dataLoading || updatedAt) && (
+                    <DetailInfoRow
+                      icon={Calendar}
+                      label="Updated:"
+                      tone="amber"
+                      loading={dataLoading}
+                    >
+                      {!dataLoading && updatedAt && (
+                        <ClientDateTime date={updatedAt} semantic="updated" />
+                      )}
+                    </DetailInfoRow>
+                  )}
+                </DetailInfoRowGroup>
+                {(dataLoading ||
+                  (order?.paymentStatus === "paid" && order?.paidAt)) && (
+                  <DetailInfoRow
+                    icon={CircleDollarSign}
+                    label="Paid:"
+                    tone="emerald"
+                    loading={dataLoading}
+                  >
                     {!dataLoading && order?.paidAt && (
-                      <ClientDateTime date={new Date(order.paidAt)} semantic="paid" />
+                      <ClientDateTime
+                        date={new Date(order.paidAt)}
+                        semantic="paid"
+                      />
                     )}
                   </DetailInfoRow>
                 )}
-                {(dataLoading || updatedAt) && (
-                  <DetailInfoRow icon={Calendar} label="Updated:" tone="amber" loading={dataLoading}>
-                    {!dataLoading && updatedAt && <ClientDateTime date={updatedAt} semantic="updated" />}
-                  </DetailInfoRow>
-                )}
                 {(dataLoading || shippedAt) && (
-                  <DetailInfoRow icon={Truck} label="Shipped:" tone="sky" loading={dataLoading}>
-                    {!dataLoading && shippedAt && <ClientDateTime date={shippedAt} semantic="shipped" />}
+                  <DetailInfoRow
+                    icon={Truck}
+                    label="Shipped:"
+                    tone="sky"
+                    loading={dataLoading}
+                  >
+                    {!dataLoading && shippedAt && (
+                      <ClientDateTime date={shippedAt} semantic="shipped" />
+                    )}
                   </DetailInfoRow>
                 )}
                 {(dataLoading || deliveredAt) && (
-                  <DetailInfoRow icon={Package} label="Delivered:" tone="emerald" loading={dataLoading}>
-                    {!dataLoading && deliveredAt && <ClientDateTime date={deliveredAt} semantic="delivered" />}
+                  <DetailInfoRow
+                    icon={Package}
+                    label="Delivered:"
+                    tone="emerald"
+                    loading={dataLoading}
+                  >
+                    {!dataLoading && deliveredAt && (
+                      <ClientDateTime date={deliveredAt} semantic="delivered" />
+                    )}
                   </DetailInfoRow>
                 )}
                 {(dataLoading || cancelledAt) && (
-                  <DetailInfoRow icon={Ban} label="Cancelled:" tone="rose" loading={dataLoading}>
-                    {!dataLoading && cancelledAt && <ClientDateTime date={cancelledAt} semantic="cancelled" />}
+                  <DetailInfoRow
+                    icon={Ban}
+                    label="Cancelled:"
+                    tone="rose"
+                    loading={dataLoading}
+                  >
+                    {!dataLoading && cancelledAt && (
+                      <ClientDateTime date={cancelledAt} semantic="cancelled" />
+                    )}
                   </DetailInfoRow>
                 )}
                 {(dataLoading || estimatedDelivery) && (
-                  <DetailInfoRow icon={Calendar} label="Estimated Delivery:" tone="violet" loading={dataLoading}>
+                  <DetailInfoRow
+                    icon={Calendar}
+                    label="Estimated Delivery:"
+                    tone="violet"
+                    loading={dataLoading}
+                  >
                     {!dataLoading && estimatedDelivery && (
-                      <ClientDate date={estimatedDelivery} semantic="scheduled" />
+                      <ClientDate
+                        date={estimatedDelivery}
+                        semantic="scheduled"
+                      />
                     )}
                   </DetailInfoRow>
                 )}
                 {!dataLoading && order?.trackingNumber && (
                   <DetailInfoRow icon={Truck} label="Tracking:" tone="blue">
-                    {order.trackingUrl ? (
-                      <a
-                        href={order.trackingUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-sky-600 dark:text-sky-400 hover:text-sky-500 dark:hover:text-sky-300"
-                      >
-                        {order.trackingNumber}
-                      </a>
-                    ) : (
-                      order.trackingNumber
-                    )}
+                    <span className="inline-flex flex-wrap items-center gap-2 min-w-0">
+                      <CarrierGlassBadge carrier={order.trackingCarrier} />
+                      <CopyableText value={order.trackingNumber}>
+                        {order.trackingUrl ? (
+                          <a
+                            href={order.trackingUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-sky-600 dark:text-sky-400 hover:text-sky-500 dark:hover:text-sky-300 font-normal"
+                          >
+                            {order.trackingNumber}
+                          </a>
+                        ) : (
+                          <span className="font-mono text-sm font-normal">
+                            {order.trackingNumber}
+                          </span>
+                        )}
+                      </CopyableText>
+                    </span>
                   </DetailInfoRow>
                 )}
                 {!dataLoading && order?.creator && (
@@ -446,43 +573,38 @@ export default function OrderDetailPage({
               </div>
             </GlassCard>
 
-            <OrderPartiesCard order={order} dataLoading={dataLoading} />
-
-            <div className="space-y-4">
+            <div className="flex flex-col gap-2 sm:gap-4 min-w-0">
+              <OrderPartiesCard
+                order={order}
+                dataLoading={dataLoading}
+                isAdminRole={isAdminRole}
+              />
               <OrderShippingAddressCard
                 order={order}
                 dataLoading={dataLoading}
               />
-
-              {!dataLoading && order?.billingAddress && (
+              {(dataLoading || order?.billingAddress) && (
                 <GlassCard variant="blue">
-                  <div className="flex items-center gap-2 mb-3">
-                    <div
-                      className={cn(
-                        "p-2 rounded-xl border",
-                        variantConfig.blue.iconBg,
-                        "dark:border-blue-400/30 dark:bg-blue-500/20",
-                      )}
-                    >
-                      <CreditCard className="h-5 w-5 text-blue-600 dark:text-blue-400" />
-                    </div>
-                    <h3 className="text-sm sm:text-base font-medium text-gray-700 dark:text-white">
-                      Billing Address
-                    </h3>
-                  </div>
+                  <SectionCardHeader
+                    title="Billing Address"
+                    icon={CreditCard}
+                    tone="blue"
+                    className="mb-3"
+                    titleClassName={cn(
+                      TYPO_CARD_TITLE,
+                      "text-gray-700 dark:text-white",
+                    )}
+                  />
                   <p className="text-sm text-gray-700 dark:text-white p-2 rounded-xl bg-gradient-to-r from-blue-100/40 via-blue-50/20 to-transparent dark:from-blue-500/10 dark:via-blue-500/5 dark:to-transparent border border-blue-200/30 dark:border-blue-400/10">
-                    {formatAddress(order!.billingAddress)}
+                    {dataLoading ? null : formatAddress(order!.billingAddress)}
                   </p>
                 </GlassCard>
               )}
-
-              <OrderSummaryCard order={order} dataLoading={dataLoading} />
             </div>
           </div>
 
           <div className="flex flex-col sm:flex-row flex-wrap gap-2">
             <Button
-              variant="ghost"
               onClick={handleBack}
               className={glassDetailBackButtonClass("w-full sm:w-auto gap-2")}
             >

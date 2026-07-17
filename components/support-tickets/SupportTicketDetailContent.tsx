@@ -11,7 +11,11 @@ import {
   useSupportTicketReplies,
   useCreateSupportTicketReply,
 } from "@/hooks/queries";
-import { isDataSlotLoading, queryKeys, useSyncSsrQueryDataMany } from "@/lib/react-query";
+import {
+  isDataSlotLoading,
+  queryKeys,
+  useSyncSsrQueryDataMany,
+} from "@/lib/react-query";
 import {
   MessageSquare,
   ArrowLeft,
@@ -58,7 +62,10 @@ export default function SupportTicketDetailContent({
       serverData: initialTicket,
     },
     {
-      queryKey: [...queryKeys.supportTickets.detail(initialTicket.id), "replies"],
+      queryKey: [
+        ...queryKeys.supportTickets.detail(initialTicket.id),
+        "replies",
+      ],
       serverData: initialReplies,
     },
   ]);
@@ -137,7 +144,7 @@ export default function SupportTicketDetailContent({
                   />
                 </div>
                 {(ticket.creatorName || ticket.creatorEmail) && (
-                  <div className="flex flex-wrap items-center gap-x-4 gap-y-1 mt-3 text-sm text-gray-600 dark:text-gray-400">
+                  <div className="flex flex-wrap items-center gap-x-4 gap-y-1 mt-3 text-sm text-gray-600 dark:text-gray-300">
                     <span className="font-medium text-gray-700 dark:text-gray-300">
                       Creator:
                     </span>
@@ -156,7 +163,7 @@ export default function SupportTicketDetailContent({
                   </div>
                 )}
                 {(ticket.assignedToName || ticket.assignedToEmail) && (
-                  <div className="flex flex-wrap items-center gap-x-4 gap-y-1 mt-2 text-sm text-gray-600 dark:text-gray-400">
+                  <div className="flex flex-wrap items-center gap-x-4 gap-y-1 mt-2 text-sm text-gray-600 dark:text-gray-300">
                     <span className="font-medium text-gray-700 dark:text-gray-300">
                       Sent to:
                     </span>
@@ -201,7 +208,7 @@ export default function SupportTicketDetailContent({
                 <div className="h-16 rounded-xl bg-gray-200/50 dark:bg-white/10 animate-pulse" />
               </div>
             ) : replies.length === 0 ? (
-              <p className="text-sm text-gray-500 dark:text-gray-500 py-4">
+              <p className="text-sm text-gray-500 dark:text-gray-300 py-4">
                 No replies yet. Add a reply below.
               </p>
             ) : (
@@ -239,7 +246,7 @@ export default function SupportTicketDetailContent({
                           {displayName}
                         </span>
                         {r.userEmail && (
-                          <span className="text-xs text-gray-500 dark:text-gray-400">
+                          <span className="text-xs text-gray-500 dark:text-gray-300">
                             {r.userEmail}
                           </span>
                         )}

@@ -1,5 +1,10 @@
 "use client";
 
+/**
+ * REQ-0148 — header Back matches ProductDetailPage: variant="ghost" + DETAIL_HEADER_BACK_ICON_CLASS.
+ * Default Button variant paints bg-primary (red) over the light glass token.
+ */
+
 import React from "react";
 import Link from "next/link";
 import { ArrowLeft, ShoppingCart } from "lucide-react";
@@ -61,9 +66,11 @@ export function OrderDetailHeader({
         <>
           Order{" "}
           {dataLoading ? (
-            <DataSlotPulse variant="text-lg" className="inline-block w-32 align-middle" />
+            <DataSlotPulse
+              variant="text-lg"
+              className="inline-block w-32 align-middle"
+            />
           ) : orderNumber ? (
-            // Copy icon next to the order number in the detail page title
             <CopyableText value={orderNumber} className="align-middle">
               {orderNumber}
             </CopyableText>
@@ -74,7 +81,11 @@ export function OrderDetailHeader({
         dataLoading ? (
           <DataSlotPulse variant="date" />
         ) : (
-          <ClientRelativeTime date={createdAt} prefix="Created " semantic="created" />
+          <ClientRelativeTime
+            date={createdAt}
+            prefix="Created "
+            semantic="created"
+          />
         )
       }
     />

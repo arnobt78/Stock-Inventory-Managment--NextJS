@@ -80,7 +80,9 @@ export function SuppliersDropDown({
 
   function handleToggle(value: string) {
     setSelectedSuppliers((prev) =>
-      prev.includes(value) ? prev.filter((id) => id !== value) : [...prev, value],
+      prev.includes(value)
+        ? prev.filter((id) => id !== value)
+        : [...prev, value],
     );
   }
 
@@ -101,7 +103,11 @@ export function SuppliersDropDown({
           </Button>
         </PopoverTrigger>
         <PopoverContent
-          className={cn("p-0 w-56 poppins", filterCommandPopoverClass("emerald"), FILTER_COMMAND_INPUT_WRAPPER_CLASS)}
+          className={cn(
+            "p-0 w-56 poppins",
+            filterCommandPopoverClass("emerald"),
+            FILTER_COMMAND_INPUT_WRAPPER_CLASS,
+          )}
           side="bottom"
           align="end"
         >
@@ -111,7 +117,7 @@ export function SuppliersDropDown({
               className="bg-transparent border-0 focus:ring-0 focus:outline-none text-gray-700 dark:text-white/80 placeholder:text-gray-500 dark:placeholder:text-white/40"
             />
             <CommandList>
-              <CommandEmpty className="text-gray-600 dark:text-white/60 text-sm text-center p-5">
+              <CommandEmpty className="text-gray-600 dark:text-white/80 text-sm text-center p-5">
                 No supplier found.
               </CommandEmpty>
               <CommandGroup>
@@ -128,9 +134,7 @@ export function SuppliersDropDown({
                     <div className="flex items-center gap-2 min-w-0 px-2 text-sm">
                       <SupplierFilterAvatar
                         id={supplier.id}
-                        image={
-                          "image" in supplier ? supplier.image : undefined
-                        }
+                        image={"image" in supplier ? supplier.image : undefined}
                         size={20}
                       />
                       <span className="truncate">{supplier.name}</span>

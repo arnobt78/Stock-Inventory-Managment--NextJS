@@ -6,7 +6,15 @@
 import { getDisplayCommittedQuantity } from "@/lib/products/enrich-product-committed-quantity";
 
 import Link from "next/link";
-import { Clock, DollarSign, Hash, Package, Tag, Truck, User } from "lucide-react";
+import {
+  Clock,
+  DollarSign,
+  Hash,
+  Package,
+  Tag,
+  Truck,
+  User,
+} from "lucide-react";
 import {
   AvatarInlineLink,
   CopyableText,
@@ -95,7 +103,7 @@ export function CatalogDetailProductGrid({
               />
               <div className="flex min-w-0 flex-1 flex-col gap-1">
                 {/* Line 1: Name · SKU */}
-                <div className="flex flex-wrap items-center gap-x-1.5 gap-y-0.5 min-w-0 text-xs text-gray-600 dark:text-white/60">
+                <div className="flex flex-wrap items-center gap-x-1.5 gap-y-0.5 min-w-0 text-xs text-gray-600 dark:text-white/80">
                   <Link
                     href={productHref(product.id)}
                     className="text-sm font-normal text-sky-600 dark:text-sky-400 hover:text-sky-500 truncate max-w-full"
@@ -115,7 +123,7 @@ export function CatalogDetailProductGrid({
                   ) : null}
                 </div>
                 {/* Line 2: Category · Stock · reserved · price */}
-                <p className="text-xs text-gray-600 dark:text-white/60 flex items-center gap-1.5 flex-wrap min-w-0">
+                <p className="text-xs text-gray-600 dark:text-white/80 flex items-center gap-1.5 flex-wrap min-w-0">
                   {categoryNode}
                   {categoryNode != null ? (
                     <span className="text-gray-400" aria-hidden>
@@ -123,7 +131,9 @@ export function CatalogDetailProductGrid({
                     </span>
                   ) : null}
                   <Package className="h-3.5 w-3.5 shrink-0" aria-hidden />
-                  <span className="shrink-0">Stock: {product.quantity ?? 0}</span>
+                  <span className="shrink-0">
+                    Stock: {product.quantity ?? 0}
+                  </span>
                   {getDisplayCommittedQuantity(product) > 0 ? (
                     <>
                       <span className="text-gray-400" aria-hidden>
@@ -144,7 +154,7 @@ export function CatalogDetailProductGrid({
               </div>
             </div>
             {(product.owner || product.supplier) && (
-              <div className="flex flex-wrap items-center gap-1.5 text-xs text-gray-600 dark:text-white/60">
+              <div className="flex flex-wrap items-center gap-1.5 text-xs text-gray-600 dark:text-white/80">
                 {product.owner && (
                   <span className="inline-flex items-center gap-1.5 min-w-0">
                     <User className="h-3.5 w-3.5 shrink-0" aria-hidden />
@@ -157,6 +167,7 @@ export function CatalogDetailProductGrid({
                       }
                       href={ownerProductsHref(product.owner.id)}
                       size={20}
+                      linkClassName="text-xs"
                     />
                   </span>
                 )}
@@ -175,6 +186,7 @@ export function CatalogDetailProductGrid({
                       label={product.supplier.name}
                       href={supplierHref(product.supplier.id)}
                       size={20}
+                      linkClassName="text-xs"
                     />
                   </span>
                 )}

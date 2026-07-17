@@ -101,7 +101,7 @@ function getNotificationColor(type: NotificationType): string {
     case "import_failed":
       return "text-red-600 dark:text-red-400";
     default:
-      return "text-gray-600 dark:text-gray-400";
+      return "text-gray-600 dark:text-gray-300";
   }
 }
 
@@ -144,7 +144,7 @@ export function NotificationDropdown({
           <h3 className="text-sm sm:text-base font-medium text-gray-700 dark:text-white">
             Notifications
           </h3>
-          <p className="text-xs text-gray-500 dark:text-gray-400 flex flex-wrap items-center gap-1.5">
+          <p className="text-xs text-gray-500 dark:text-gray-300 flex flex-wrap items-center gap-1.5">
             <SectionCountBadge>{notifications.length}</SectionCountBadge>
             <span>total</span>
             {hasUnread && (
@@ -179,7 +179,7 @@ export function NotificationDropdown({
       {/* Notifications List */}
       <div className="max-h-[400px] overflow-y-auto">
         {isLoading ? (
-          <div className="p-4 text-center text-gray-500 dark:text-gray-400">
+          <div className="p-4 text-center text-gray-500 dark:text-gray-300">
             <Loader2 className="h-5 w-5 animate-spin mx-auto mb-2" />
             <p className="text-sm">Loading notifications...</p>
           </div>
@@ -188,7 +188,7 @@ export function NotificationDropdown({
             <p className="text-sm">Failed to load notifications</p>
           </div>
         ) : notifications.length === 0 ? (
-          <div className="p-4 sm:p-6 text-center text-gray-500 dark:text-gray-400">
+          <div className="p-4 sm:p-6 text-center text-gray-500 dark:text-gray-300">
             <Bell className="h-8 w-8 mx-auto mb-2 opacity-50" />
             <p className="text-sm">No notifications</p>
           </div>
@@ -235,7 +235,7 @@ export function NotificationDropdown({
                           >
                             {notification.title}
                           </p>
-                          <p className="text-xs text-gray-600 dark:text-gray-400 line-clamp-2">
+                          <p className="text-xs text-gray-600 dark:text-gray-300 line-clamp-2">
                             {notification.message}
                           </p>
                         </Link>
@@ -249,7 +249,7 @@ export function NotificationDropdown({
                           >
                             {notification.title}
                           </p>
-                          <p className="text-xs text-gray-600 dark:text-gray-400 line-clamp-2">
+                          <p className="text-xs text-gray-600 dark:text-gray-300 line-clamp-2">
                             {notification.message}
                           </p>
                         </>
@@ -304,7 +304,7 @@ export function NotificationDropdown({
             variant="ghost"
             size="sm"
             onClick={onClose}
-            className="w-full justify-center gap-2 rounded-none h-10 text-sm text-gray-600 dark:text-gray-400 hover:text-gray-700 dark:hover:text-white hover:bg-rose-50/50 dark:hover:bg-white/5"
+            className="w-full justify-center gap-2 rounded-none h-10 text-sm text-gray-600 dark:text-gray-300 hover:text-gray-700 dark:hover:text-white hover:bg-rose-50/50 dark:hover:bg-white/5"
           >
             <X className="h-4 w-4 shrink-0" aria-hidden />
             Close

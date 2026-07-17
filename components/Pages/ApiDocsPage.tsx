@@ -1108,73 +1108,73 @@ export default function ApiDocsPage() {
             <>
               {/* Base URL */}
               <GlassCard variant="blue">
-                  <GlassCardBody>
-                    <SectionCardHeader
-                      icon={Code2}
-                      tone="blue"
-                      title="Base URL"
-                      className="mb-3"
-                    />
-                    <code className="block bg-white/50 dark:bg-white/5 border border-gray-300/30 dark:border-white/10 px-2 py-2 rounded-xl text-sm font-mono text-gray-700 dark:text-white/90 break-all">
-                      {baseUrl}
+                <GlassCardBody>
+                  <SectionCardHeader
+                    icon={Code2}
+                    tone="blue"
+                    title="Base URL"
+                    className="mb-3"
+                  />
+                  <code className="block bg-white/50 dark:bg-white/5 border border-gray-300/30 dark:border-white/10 px-2 py-2 rounded-xl text-sm font-mono text-gray-700 dark:text-white/80 break-all">
+                    {baseUrl}
+                  </code>
+                </GlassCardBody>
+              </GlassCard>
+
+              {/* Authentication */}
+              <GlassCard variant="violet">
+                <GlassCardBody>
+                  <SectionCardHeader
+                    icon={Key}
+                    tone="violet"
+                    title="Auth"
+                    className="mb-3"
+                  />
+                  <p className="text-sm text-gray-600 dark:text-white/80">
+                    Session cookie (HTTP-only). Send{" "}
+                    <code className="text-xs bg-violet-500/10 px-1 py-0.5 rounded">
+                      credentials: &quot;include&quot;
                     </code>
-                  </GlassCardBody>
-                </GlassCard>
+                  </p>
+                </GlassCardBody>
+              </GlassCard>
 
-                {/* Authentication */}
-                <GlassCard variant="violet">
-                  <GlassCardBody>
-                    <SectionCardHeader
-                      icon={Key}
-                      tone="violet"
-                      title="Auth"
-                      className="mb-3"
-                    />
-                    <p className="text-sm text-gray-600 dark:text-white/70">
-                      Session cookie (HTTP-only). Send{" "}
-                      <code className="text-xs bg-violet-500/10 px-1 py-0.5 rounded">
-                        credentials: &quot;include&quot;
-                      </code>
-                    </p>
-                  </GlassCardBody>
-                </GlassCard>
+              {/* Rate Limiting */}
+              <GlassCard variant="amber">
+                <GlassCardBody>
+                  <SectionCardHeader
+                    icon={Zap}
+                    tone="amber"
+                    title="Rate Limit"
+                    className="mb-3"
+                  />
+                  <p className="text-sm text-gray-600 dark:text-white/80">
+                    100 req/min (standard), 10 req/min (import), 5 req/min
+                    (auth)
+                  </p>
+                </GlassCardBody>
+              </GlassCard>
 
-                {/* Rate Limiting */}
-                <GlassCard variant="amber">
-                  <GlassCardBody>
-                    <SectionCardHeader
-                      icon={Zap}
-                      tone="amber"
-                      title="Rate Limit"
-                      className="mb-3"
-                    />
-                    <p className="text-sm text-gray-600 dark:text-white/70">
-                      100 req/min (standard), 10 req/min (import), 5 req/min
-                      (auth)
-                    </p>
-                  </GlassCardBody>
-                </GlassCard>
-
-                {/* OpenAPI */}
-                <GlassCard variant="teal">
-                  <GlassCardBody>
-                    <SectionCardHeader
-                      icon={FileJson}
-                      tone="teal"
-                      title="OpenAPI 3.0"
-                      className="mb-3"
-                    />
-                    <a
-                      href={`${baseUrl}/api/openapi`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center gap-1 text-sm font-medium text-sky-600 dark:text-sky-400 hover:text-sky-500 dark:hover:text-sky-300"
-                    >
-                      Download spec
-                      <ExternalLink className="h-3 w-3" />
-                    </a>
-                  </GlassCardBody>
-                </GlassCard>
+              {/* OpenAPI */}
+              <GlassCard variant="teal">
+                <GlassCardBody>
+                  <SectionCardHeader
+                    icon={FileJson}
+                    tone="teal"
+                    title="OpenAPI 3.0"
+                    className="mb-3"
+                  />
+                  <a
+                    href={`${baseUrl}/api/openapi`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1 text-sm font-medium text-sky-600 dark:text-sky-400 hover:text-sky-500 dark:hover:text-sky-300"
+                  >
+                    Download spec
+                    <ExternalLink className="h-3 w-3" />
+                  </a>
+                </GlassCardBody>
+              </GlassCard>
             </>
           </div>
 
@@ -1236,11 +1236,11 @@ export default function ApiDocsPage() {
                               >
                                 {endpoint.method}
                               </Badge>
-                              <code className="bg-gray-100/50 dark:bg-white/5 border border-gray-300/30 dark:border-white/10 px-2 py-1 rounded-lg text-sm font-mono text-gray-700 dark:text-white/90">
+                              <code className="bg-gray-100/50 dark:bg-white/5 border border-gray-300/30 dark:border-white/10 px-2 py-1 rounded-lg text-sm font-mono text-gray-700 dark:text-white/80">
                                 {endpoint.path}
                               </code>
                             </div>
-                            <p className="text-sm text-gray-600 dark:text-white/70">
+                            <p className="text-sm text-gray-600 dark:text-white/80">
                               {endpoint.description}
                             </p>
 
@@ -1256,10 +1256,10 @@ export default function ApiDocsPage() {
                                         key={paramIndex}
                                         className="flex flex-wrap items-center gap-2 text-sm"
                                       >
-                                        <code className="bg-gray-100/50 dark:bg-white/5 border border-gray-300/20 dark:border-white/10 px-2 py-0.5 rounded-lg text-xs font-mono text-gray-700 dark:text-white/90">
+                                        <code className="bg-gray-100/50 dark:bg-white/5 border border-gray-300/20 dark:border-white/10 px-2 py-0.5 rounded-lg text-xs font-mono text-gray-700 dark:text-white/80">
                                           {param.name}
                                         </code>
-                                        <span className="text-gray-500 dark:text-white/50">
+                                        <span className="text-gray-500 dark:text-white/80">
                                           ({param.type})
                                         </span>
                                         {param.required && (
@@ -1270,7 +1270,7 @@ export default function ApiDocsPage() {
                                             Required
                                           </Badge>
                                         )}
-                                        <span className="text-gray-500 dark:text-white/60">
+                                        <span className="text-gray-500 dark:text-white/80">
                                           - {param.description}
                                         </span>
                                       </div>
@@ -1289,11 +1289,11 @@ export default function ApiDocsPage() {
                                   <Badge className="bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 border border-emerald-400/30">
                                     Success
                                   </Badge>
-                                  <span className="text-sm text-gray-600 dark:text-white/70">
+                                  <span className="text-sm text-gray-600 dark:text-white/80">
                                     Status: {endpoint.response.success.status}
                                   </span>
                                 </div>
-                                <code className="block bg-gray-100/50 dark:bg-white/5 border border-gray-300/20 dark:border-white/10 px-2 py-1 rounded-lg text-xs font-mono text-gray-700 dark:text-white/90">
+                                <code className="block bg-gray-100/50 dark:bg-white/5 border border-gray-300/20 dark:border-white/10 px-2 py-1 rounded-lg text-xs font-mono text-gray-700 dark:text-white/80">
                                   {endpoint.response.success.data}
                                 </code>
 
@@ -1301,11 +1301,11 @@ export default function ApiDocsPage() {
                                   <Badge className="bg-rose-500/20 text-rose-700 dark:text-rose-300 border border-rose-400/30">
                                     Error
                                   </Badge>
-                                  <span className="text-sm text-gray-600 dark:text-white/70">
+                                  <span className="text-sm text-gray-600 dark:text-white/80">
                                     Status: {endpoint.response.error.status}
                                   </span>
                                 </div>
-                                <code className="block bg-gray-100/50 dark:bg-white/5 border border-gray-300/20 dark:border-white/10 px-2 py-1 rounded-lg text-xs font-mono text-gray-700 dark:text-white/90">
+                                <code className="block bg-gray-100/50 dark:bg-white/5 border border-gray-300/20 dark:border-white/10 px-2 py-1 rounded-lg text-xs font-mono text-gray-700 dark:text-white/80">
                                   {endpoint.response.error.data}
                                 </code>
                               </div>
@@ -1388,13 +1388,13 @@ export default function ApiDocsPage() {
                                 key={fieldIndex}
                                 className="flex flex-wrap items-center gap-2 text-sm"
                               >
-                                <code className="bg-white/50 dark:bg-white/5 border border-gray-300/20 dark:border-white/10 px-2 py-0.5 rounded-lg text-xs font-mono text-gray-700 dark:text-white/90">
+                                <code className="bg-white/50 dark:bg-white/5 border border-gray-300/20 dark:border-white/10 px-2 py-0.5 rounded-lg text-xs font-mono text-gray-700 dark:text-white/80">
                                   {field.name}
                                 </code>
-                                <span className="text-gray-500 dark:text-white/50">
+                                <span className="text-gray-500 dark:text-white/80">
                                   ({field.type})
                                 </span>
-                                <span className="text-gray-500 dark:text-white/60">
+                                <span className="text-gray-500 dark:text-white/80">
                                   - {field.description}
                                 </span>
                               </div>

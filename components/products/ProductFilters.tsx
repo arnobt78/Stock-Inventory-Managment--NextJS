@@ -30,11 +30,20 @@ type FiltersAndActionsProps = {
   /** When provided, pass to CategoryDropDown (e.g. client browse mode) */
   categoriesOverride?: Array<{ id: string; name: string }>;
   /** When provided, pass to SuppliersDropDown (e.g. client browse mode) */
-  suppliersOverride?: Array<{ id: string; name: string; image?: string | null }>;
+  suppliersOverride?: Array<{
+    id: string;
+    name: string;
+    image?: string | null;
+  }>;
   /** When true, hide Import (e.g. client browse mode) */
   hideImport?: boolean;
   /** When provided (e.g. client browse), show Product Owner dropdown in filter row */
-  productOwnerOptions?: Array<{ id: string; name: string; email: string; image?: string | null }>;
+  productOwnerOptions?: Array<{
+    id: string;
+    name: string;
+    email: string;
+    image?: string | null;
+  }>;
   /** REQ-0071 — total store owners vs owners with catalog products */
   storeOwnerCounts?: { total: number; withProducts: number };
   selectedOwnerId?: string;
@@ -251,7 +260,12 @@ export default function FiltersAndActions({
     setSelectedCategory([]);
     setSelectedSuppliers([]);
     setPagination((prev) => ({ ...prev, pageIndex: 0 }));
-  }, [setSelectedStatuses, setSelectedCategory, setSelectedSuppliers, setPagination]);
+  }, [
+    setSelectedStatuses,
+    setSelectedCategory,
+    setSelectedSuppliers,
+    setPagination,
+  ]);
 
   const filterChipGroups = useMemo((): FilterChipGroup[] => {
     const categoryNameById = new Map(allCategories.map((c) => [c.id, c.name]));
@@ -347,7 +361,7 @@ export default function FiltersAndActions({
         {/* Center - Search */}
         <div className="relative flex-1 min-w-[120px] sm:min-w-[200px] sm:max-w-md w-full order-1 sm:order-2 sm:flex sm:justify-center">
           <div className="relative w-full sm:max-w-md">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-600 dark:text-white/60 z-10" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-600 dark:text-white/80 z-10" />
             <Input
               placeholder="Search by Name or SKU..."
               value={searchTerm}
@@ -361,7 +375,7 @@ export default function FiltersAndActions({
                 onClick={() => setSearchTerm("")}
                 className="absolute right-1 top-1/2 transform -translate-y-1/2 h-8 w-8 p-0 text-white/60 hover:text-white hover:bg-white/10 backdrop-blur-md"
               >
-                <IoClose className="h-4 w-4 text-gray-700 dark:text-white/60" />
+                <IoClose className="h-4 w-4 text-gray-700 dark:text-white/80" />
               </Button>
             )}
           </div>

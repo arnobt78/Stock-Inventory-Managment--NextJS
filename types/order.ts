@@ -181,6 +181,8 @@ export interface UpdateOrderInput {
   shippingAddress?: ShippingAddress;
   billingAddress?: BillingAddress;
   trackingNumber?: string;
+  /** REQ-0146 — carrier for manual / Shippo tracking */
+  trackingCarrier?: string;
   trackingUrl?: string;
   estimatedDelivery?: Date;
   shippedAt?: Date;

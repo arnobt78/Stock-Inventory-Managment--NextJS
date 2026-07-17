@@ -794,6 +794,22 @@ Hub: `lib/ui/typography-scale.ts`. Hubs import tokens; ~45 inline files use equi
 
 **Invalidation unchanged** — order graph already clears orders/invoices; list enrich only.
 
+## Order detail density (REQ-0146 / REQ-0147 / REQ-0148 / REQ-0149)
+
+| Piece | Location |
+|-------|----------|
+| Status + tracking | `OrderStatusBadges layout="stack"` + `OrderTrackingInfo`; `CarrierGlassBadge` (no shadcn Badge) |
+| Body | Items\|Summary 2-col; Info\|(Parties+Ship+Bill); invoice row in Order Information |
+| Line items / Parties | name `text-sm`; meta `text-xs` + · separators; invoice chip when linked; admin party sky `href` |
+| Summary Total | Order/Invoice Summary `text-sm sm:text-base` (REQ-0148) |
+| Line prices | `ProportionalPriceDisplay` final `text-sm sm:text-base`; strike `text-xs sm:text-sm` (REQ-0149) |
+| Catalog parties | Owner/Buyer/Supplier names `linkClassName="text-xs"` with labels (REQ-0149) |
+| Strike rule | `shouldShowAdjustedPrice` only when list > adjusted |
+| Admin carrier | `trackingCarrier` on update schema + prisma + manual tracking mutate |
+| Header Back | light gray `DETAIL_HEADER_BACK_ICON_CLASS` + `variant="ghost"` (default Button = red) |
+
+**Invalidation unchanged** — UI/CSS + trackingCarrier write field only.
+
 ## Product table + detail UI (REQ-0138 / REQ-0139)
 
 | Piece | Location |

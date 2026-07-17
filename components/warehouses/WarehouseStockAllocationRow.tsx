@@ -17,7 +17,7 @@ import type { StockAllocation } from "@/types";
 import { formatCatalogCommitWarehouseHint } from "@/lib/stock-allocation/catalog-allocation-copy";
 import { cn } from "@/lib/utils";
 
-const META_ROW_CLASS = "text-xs text-gray-600 dark:text-gray-400";
+const META_ROW_CLASS = "text-xs text-gray-600 dark:text-gray-300";
 
 export type WarehouseStockAllocationRowProps = {
   allocation: StockAllocation;
@@ -42,8 +42,10 @@ function MetaLink({
   children: React.ReactNode;
 }) {
   return (
-    <span className={cn("inline-flex min-w-0 items-center gap-1", META_ROW_CLASS)}>
-      <Icon className="h-3 w-3 shrink-0 text-gray-500 dark:text-gray-400" />
+    <span
+      className={cn("inline-flex min-w-0 items-center gap-1", META_ROW_CLASS)}
+    >
+      <Icon className="h-3 w-3 shrink-0 text-gray-500 dark:text-gray-300" />
       {label}{" "}
       <Link href={href} className={cn(TABLE_CATALOG_LINK_CLASS, "truncate")}>
         {children}
@@ -89,7 +91,7 @@ export function WarehouseStockAllocationRow({
               href={productHref}
               className={cn(
                 TABLE_CATALOG_LINK_CLASS,
-                isArchived && "text-gray-500 dark:text-gray-400",
+                isArchived && "text-gray-500 dark:text-gray-300",
               )}
             >
               {name}
@@ -123,7 +125,9 @@ export function WarehouseStockAllocationRow({
                 {product.categoryName}
               </MetaLink>
             ) : product?.categoryName ? (
-              <span className={cn("inline-flex items-center gap-1", META_ROW_CLASS)}>
+              <span
+                className={cn("inline-flex items-center gap-1", META_ROW_CLASS)}
+              >
                 <Tag className="h-3 w-3 shrink-0" />
                 {product.categoryName}
               </span>
@@ -135,7 +139,7 @@ export function WarehouseStockAllocationRow({
                   META_ROW_CLASS,
                 )}
               >
-                <Truck className="h-3 w-3 shrink-0 text-gray-500 dark:text-gray-400" />
+                <Truck className="h-3 w-3 shrink-0 text-gray-500 dark:text-gray-300" />
                 <span className="shrink-0">Supplier:</span>
                 <AvatarInlineLink
                   label={product.supplierName}
@@ -146,7 +150,9 @@ export function WarehouseStockAllocationRow({
                 />
               </span>
             ) : product?.supplierName ? (
-              <span className={cn("inline-flex items-center gap-1", META_ROW_CLASS)}>
+              <span
+                className={cn("inline-flex items-center gap-1", META_ROW_CLASS)}
+              >
                 <Truck className="h-3 w-3 shrink-0" />
                 {product.supplierName}
               </span>
@@ -159,13 +165,13 @@ export function WarehouseStockAllocationRow({
         <div className="text-right">
           <p className="text-sm font-medium text-gray-700 dark:text-white">
             {allocation.quantity}{" "}
-            <span className="font-normal text-gray-500 dark:text-gray-400">
+            <span className="font-normal text-gray-500 dark:text-gray-300">
               total
             </span>
           </p>
           <p className="text-sm font-medium text-emerald-600 dark:text-emerald-400">
             {available}{" "}
-            <span className="font-normal text-gray-500 dark:text-gray-400">
+            <span className="font-normal text-gray-500 dark:text-gray-300">
               available
             </span>
           </p>
@@ -181,18 +187,18 @@ export function WarehouseStockAllocationRow({
               <span className="text-slate-600 dark:text-slate-300">
                 {product.quantity} Catalog
               </span>
-              <span className="text-gray-400 dark:text-white/30">·</span>
+              <span className="text-gray-400 dark:text-white/80">·</span>
               <span className="text-sky-600 dark:text-sky-400">
                 {product.allocatedTotal} Allocated
               </span>
-              <span className="text-gray-400 dark:text-white/30">·</span>
+              <span className="text-gray-400 dark:text-white/80">·</span>
               <span className="text-emerald-600 dark:text-emerald-400">
                 {product.unallocated} Unallocated
               </span>
               {product.committedQuantity != null &&
               product.committedQuantity > 0 ? (
                 <>
-                  <span className="text-gray-400 dark:text-white/30">·</span>
+                  <span className="text-gray-400 dark:text-white/80">·</span>
                   <span className="text-amber-600 dark:text-amber-400">
                     {product.committedQuantity} Reserved
                   </span>

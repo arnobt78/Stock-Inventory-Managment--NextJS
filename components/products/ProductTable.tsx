@@ -227,7 +227,7 @@ export const ProductTable = React.memo(function ProductTable({
           >
             <GrFormPrevious />
           </Button>
-          <span className="text-sm text-gray-500 dark:text-gray-400 whitespace-nowrap">
+          <span className="text-sm text-gray-500 dark:text-gray-300 whitespace-nowrap">
             Page {pagination.pageIndex + 1} of {table.getPageCount()}
           </span>
           <Button

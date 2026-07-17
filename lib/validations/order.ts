@@ -85,6 +85,10 @@ export const updateOrderSchema = z.object({
   shippingAddress: shippingAddressSchema.optional(),
   billingAddress: billingAddressSchema.optional(),
   trackingNumber: z.string().optional(),
+  /** REQ-0146 — admin manual tracking persists carrier */
+  trackingCarrier: z
+    .enum(["usps", "ups", "fedex", "dhl", "other"])
+    .optional(),
   trackingUrl: z
     .string()
     .url("Invalid tracking URL")

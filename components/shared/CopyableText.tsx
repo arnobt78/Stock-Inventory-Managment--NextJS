@@ -70,7 +70,7 @@ export function CopyableText({
         aria-label={ariaLabel ?? `Copy ${value}`}
         className={cn(
           "shrink-0 rounded p-0.5 transition-colors",
-          "text-gray-400 hover:text-gray-700 dark:text-gray-500 dark:hover:text-gray-200",
+          "text-gray-400 hover:text-gray-700 dark:text-gray-300 dark:hover:text-gray-200",
           "hover:bg-gray-200/50 dark:hover:bg-white/10",
           iconClassName,
         )}

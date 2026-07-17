@@ -74,7 +74,7 @@ export function UrgentReorderForecastTable({
                         >
                           {row.productName}
                         </Link>
-                        <span className="font-mono text-xs text-gray-500 dark:text-gray-400 truncate">
+                        <span className="font-mono text-xs text-gray-500 dark:text-gray-300 truncate">
                           {row.sku}
                         </span>
                       </div>

@@ -83,7 +83,7 @@ export function SectionTitleRow({
           {trailingNode}
         </div>
         {subtitle != null ? (
-          <div className="text-xs font-normal text-gray-600 dark:text-white/60 w-full">
+          <div className="text-xs sm:text-sm font-normal text-gray-600 dark:text-white/80 w-full">
             {subtitle}
           </div>
         ) : null}

@@ -204,7 +204,7 @@ export default function SupplierDetailPage({
             <h2 className="text-sm sm:text-base font-medium text-gray-700 dark:text-white mb-2">
               Supplier Not Found
             </h2>
-            <p className="text-gray-600 dark:text-gray-400 mb-4">
+            <p className="text-gray-600 dark:text-gray-300 mb-4">
               {supplierQuery.error instanceof Error
                 ? supplierQuery.error.message
                 : "Failed to load supplier details"}

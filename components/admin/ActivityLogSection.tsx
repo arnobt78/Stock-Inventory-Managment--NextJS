@@ -2,7 +2,11 @@
 
 import { FILTER_SEARCH_INPUT_SKY_CLASS } from "@/lib/ui/filter-toolbar-styles";
 import React, { useMemo, useState } from "react";
-import { DeferredSelectGate, SectionCardHeader, ClientDateTime } from "@/components/shared";
+import {
+  DeferredSelectGate,
+  SectionCardHeader,
+  ClientDateTime,
+} from "@/components/shared";
 import Link from "next/link";
 import {
   useAuditLogs,
@@ -269,7 +273,7 @@ export default function ActivityLogSection({
               {log.entityType} {log.entityId?.slice(-6)}
             </Link>
           ) : (
-            <span className="text-gray-600 dark:text-gray-400">
+            <span className="text-gray-600 dark:text-gray-300">
               {log.entityType}
               {log.entityId ? ` ${log.entityId.slice(-6)}` : ""}
             </span>
@@ -334,76 +338,75 @@ export default function ActivityLogSection({
         className="mb-4"
       />
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-          <div className="relative flex-1 sm:max-w-md">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-600 dark:text-white/60 z-10" />
-            <Input
-              placeholder="Search by user, action, entity..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className={FILTER_SEARCH_INPUT_SKY_CLASS}
-            />
-            {searchTerm && (
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => setSearchTerm("")}
-                className="absolute right-1 top-1/2 -translate-y-1/2 h-8 w-8 p-0 text-gray-700 dark:text-white/60 hover:text-gray-700 dark:hover:text-white hover:bg-white/10"
-              >
-                <IoClose className="h-4 w-4" />
-              </Button>
-            )}
-          </div>
-          <DeferredSelectGate
-            enabled={!dataLoading}
-            placeholder={
-              <div
+        <div className="relative flex-1 sm:max-w-md">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-600 dark:text-white/80 z-10" />
+          <Input
+            placeholder="Search by user, action, entity..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className={FILTER_SEARCH_INPUT_SKY_CLASS}
+          />
+          {searchTerm && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setSearchTerm("")}
+              className="absolute right-1 top-1/2 -translate-y-1/2 h-8 w-8 p-0 text-gray-700 dark:text-white/80 hover:text-gray-700 dark:hover:text-white hover:bg-white/10"
+            >
+              <IoClose className="h-4 w-4" />
+            </Button>
+          )}
+        </div>
+        <DeferredSelectGate
+          enabled={!dataLoading}
+          placeholder={
+            <div
+              className={cn(
+                "w-full sm:w-[180px] h-10 rounded-[28px] border border-sky-400/30 dark:border-sky-400/30",
+                "bg-gradient-to-r from-sky-500/25 via-sky-500/15 to-sky-500/10 dark:from-sky-500/25 dark:via-sky-500/15 dark:to-sky-500/10",
+                "text-gray-700 dark:text-white shadow-[0_10px_30px_rgba(2,132,199,0.2)] backdrop-blur-md",
+                "flex items-center px-2 text-sm",
+              )}
+              aria-hidden
+            >
+              {PERIODS.find((p) => p.value === period)?.label ?? "Last 7 days"}
+            </div>
+          }
+        >
+          {({ selectRemountKey }) => (
+            <Select
+              key={selectRemountKey}
+              value={period}
+              onValueChange={(v) => setPeriod(v as ActivityLogPeriod)}
+            >
+              <SelectTrigger
                 className={cn(
                   "w-full sm:w-[180px] h-10 rounded-[28px] border border-sky-400/30 dark:border-sky-400/30",
                   "bg-gradient-to-r from-sky-500/25 via-sky-500/15 to-sky-500/10 dark:from-sky-500/25 dark:via-sky-500/15 dark:to-sky-500/10",
                   "text-gray-700 dark:text-white shadow-[0_10px_30px_rgba(2,132,199,0.2)] backdrop-blur-md",
-                  "flex items-center px-2 text-sm",
+                  "transition duration-200 hover:border-sky-300/40 hover:from-sky-500/35 hover:via-sky-500/25 hover:to-sky-500/15",
+                  "dark:hover:border-sky-300/40 dark:hover:from-sky-500/35 dark:hover:via-sky-500/25 dark:hover:to-sky-500/15",
                 )}
-                aria-hidden
               >
-                {PERIODS.find((p) => p.value === period)?.label ??
-                  "Last 7 days"}
-              </div>
-            }
-          >
-            {({ selectRemountKey }) => (
-              <Select
-                key={selectRemountKey}
-                value={period}
-                onValueChange={(v) => setPeriod(v as ActivityLogPeriod)}
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent
+                className="rounded-xl border-sky-400/20 bg-white/95 dark:bg-popover/95 shadow-[0_10px_30px_rgba(2,132,199,0.15)]"
+                position="popper"
               >
-                <SelectTrigger
-                  className={cn(
-                    "w-full sm:w-[180px] h-10 rounded-[28px] border border-sky-400/30 dark:border-sky-400/30",
-                    "bg-gradient-to-r from-sky-500/25 via-sky-500/15 to-sky-500/10 dark:from-sky-500/25 dark:via-sky-500/15 dark:to-sky-500/10",
-                    "text-gray-700 dark:text-white shadow-[0_10px_30px_rgba(2,132,199,0.2)] backdrop-blur-md",
-                    "transition duration-200 hover:border-sky-300/40 hover:from-sky-500/35 hover:via-sky-500/25 hover:to-sky-500/15",
-                    "dark:hover:border-sky-300/40 dark:hover:from-sky-500/35 dark:hover:via-sky-500/25 dark:hover:to-sky-500/15",
-                  )}
-                >
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent
-                  className="rounded-xl border-sky-400/20 bg-white/95 dark:bg-popover/95 shadow-[0_10px_30px_rgba(2,132,199,0.15)]"
-                  position="popper"
-                >
-                  {PERIODS.map((p) => (
-                    <SelectItem
-                      key={p.value}
-                      value={p.value}
-                      className="cursor-pointer"
-                    >
-                      {p.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            )}
-          </DeferredSelectGate>
+                {PERIODS.map((p) => (
+                  <SelectItem
+                    key={p.value}
+                    value={p.value}
+                    className="cursor-pointer"
+                  >
+                    {p.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          )}
+        </DeferredSelectGate>
       </div>
       {dataLoading && logs.length === 0 ? (
         <div className="overflow-x-auto rounded-xl border border-violet-200/30 dark:border-white/10">
@@ -431,7 +434,7 @@ export default function ActivityLogSection({
           </Table>
         </div>
       ) : logs.length === 0 ? (
-        <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-500 py-6 text-center">
+        <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-300 py-6 text-center">
           {searchTerm.trim()
             ? "No matching activity."
             : "No activity in this period."}

@@ -135,23 +135,26 @@ export const createInvoiceColumns = (
               </Link>
             </CopyableText>
             {showBadge && (
-              <div className="flex items-center gap-1 flex-wrap">
+              <div className="flex items-center gap-1.5 flex-wrap overflow-visible">
                 {invoice._displayName != null &&
                   invoice._displayName !== "" && (
-                    <span className="text-xs text-gray-500 dark:text-gray-400">
+                    <span className="text-xs text-gray-500 dark:text-gray-300">
                       {invoice._displayName}
                     </span>
                   )}
-                <AdminOrderSourceBadge source={invoice._source} />
+                <AdminOrderSourceBadge
+                  source={invoice._source}
+                  size="compact"
+                />
               </div>
             )}
             {showIssuedBy && (
-              <span className="text-xs text-gray-500 dark:text-gray-400">
+              <span className="text-xs text-gray-500 dark:text-gray-300">
                 {invoice.issuedByName}
                 {invoice.issuedByEmail ? ` (${invoice.issuedByEmail})` : ""}
               </span>
             )}
-            <span className="text-xs text-gray-500 dark:text-gray-400">
+            <span className="text-xs text-gray-500 dark:text-gray-300">
               {compactInvoiceMeta(invoice)}
             </span>
           </div>

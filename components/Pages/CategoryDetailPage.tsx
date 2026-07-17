@@ -223,7 +223,7 @@ export default function CategoryDetailPage({
               <h2 className="text-sm sm:text-base font-medium text-gray-700 dark:text-white mb-2">
                 Category Not Found
               </h2>
-              <p className="text-gray-600 dark:text-gray-400 mb-4">
+              <p className="text-gray-600 dark:text-gray-300 mb-4">
                 {categoryQuery.error instanceof Error
                   ? categoryQuery.error.message
                   : "Failed to load category details"}
@@ -252,7 +252,7 @@ export default function CategoryDetailPage({
               <h2 className="text-sm sm:text-base font-medium text-gray-700 dark:text-white mb-2">
                 Category Not Found
               </h2>
-              <p className="text-gray-600 dark:text-gray-400 mb-4">
+              <p className="text-gray-600 dark:text-gray-300 mb-4">
                 The category you are looking for does not exist or was removed.
               </p>
               <Button

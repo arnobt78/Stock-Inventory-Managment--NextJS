@@ -203,7 +203,7 @@ export default function AdminSupportTicketDetailContent({
             Back to Support Tickets
           </Button>
           <GlassCard variant="rose">
-            <p className="py-8 text-center text-gray-600 dark:text-white/70">
+            <p className="py-8 text-center text-gray-600 dark:text-white/80">
               {error instanceof Error ? error.message : "Ticket not found"}
             </p>
           </GlassCard>
@@ -225,7 +225,7 @@ export default function AdminSupportTicketDetailContent({
             Back to Support Tickets
           </Button>
           <GlassCard variant="rose">
-            <p className="py-8 text-center text-gray-600 dark:text-white/70">
+            <p className="py-8 text-center text-gray-600 dark:text-white/80">
               The ticket you are looking for does not exist or was removed.
             </p>
           </GlassCard>

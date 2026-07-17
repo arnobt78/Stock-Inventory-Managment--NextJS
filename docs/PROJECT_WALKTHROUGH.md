@@ -268,6 +268,7 @@ flowchart LR
 | Cat/sup UI (REQ-0141–0143) | productCount+% + HelpTooltip; detail · separators; category + invoice on recent orders | |
 | Hydration + theme (REQ-0144) | Plain `&` table labels; ThemeProvider script filter; forecasting `gpt-4o-mini` | |
 | Orders table (REQ-0145) | Status/Payment/Invoice `SemanticEventDate`; product links; Invoice 2-line; `orders:list:v3` | Gates: test 571 |
+| Order detail (REQ-0146–0149) | Density/layout; CarrierGlassBadge; Total+line prices `sm:text-base` / strike `xs–sm`; light header Back + ghost; invoice meta ·; ListIndexBadge dark inverse; `trackingCarrier` write | UI/CSS + carrier field; invalidation unchanged |
 | Next | Gate 2 — REQ-0136 UI + §10 A1/A2/B1; Sentry 24h | |
 | AI warehouse insights (REQ-0067) | `POST /api/ai/insights` enriches payload with `getWarehouseStockSummary` |
 | Per-warehouse order picking (REQ-0068) | `OrderItem.warehouseId`; `stock-allocation-order-sync.ts`; `OrderLineWarehouseSelect`; reserve/fulfill/cancel sync; invoice-paid gap; `f892b65` removed unused `deleteCache`/`getRateLimitStatus` |
@@ -282,15 +283,15 @@ flowchart LR
 3. Sentry **stock-inventory** — 24h: compare cases 1–7 vs `docs/SENTRY_ERRORS.md`
 4. Log result in `.agile-v/REVALIDATION_LOG.md`; CAPA if regression
 
-## 8. Quality gates (audit 2026-07-16)
+## 8. Quality gates (audit 2026-07-17)
 
 | Check | Status |
 |-------|--------|
 | `npm run lint` | pass |
 | `npm run build` | pass |
-| `npm run test` | 571 passed |
+| `npm run test` | 573 passed |
 | `npm run test:invalidate` | 213 passed |
-| Local | REQ-0144–0145 on `main` (orders list v3 cache) |
+| Local | REQ-0146–0149 order detail polish (prior 0144–0145) |
 | Radix table Select | `useDeferredRadixSelect` + `PaginationSelector` (11 tables) |
 | Pagination clamp + page-size reset | `useClampPaginationIndex` + `PaginationSelector` pageIndex 0 |
 | Sentry | tunnel + translate scrub + `syncSentryUserFromAuth` |

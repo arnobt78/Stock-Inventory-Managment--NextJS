@@ -207,7 +207,7 @@ export default function EmailPreferencesPage({
                   >
                     <div className="flex items-start gap-2 flex-1 min-w-0">
                       <div className="mt-0.5 shrink-0">
-                        <Icon className="h-5 w-5 text-gray-600 dark:text-gray-400" />
+                        <Icon className="h-5 w-5 text-gray-600 dark:text-gray-300" />
                       </div>
                       <div className="flex-1 min-w-0">
                         <Label
@@ -216,7 +216,7 @@ export default function EmailPreferencesPage({
                         >
                           {item.label}
                         </Label>
-                        <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 mt-0.5">
+                        <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-300 mt-0.5">
                           {item.description}
                         </p>
                       </div>
@@ -273,7 +273,7 @@ export default function EmailPreferencesPage({
               title="About Email Preferences"
               className="mb-3"
             />
-            <div className="space-y-2 text-xs sm:text-sm text-gray-600 dark:text-gray-400">
+            <div className="space-y-2 text-xs sm:text-sm text-gray-600 dark:text-gray-300">
               <p>
                 • All preferences are saved automatically when you toggle them.
               </p>

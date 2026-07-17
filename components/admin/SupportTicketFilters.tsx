@@ -7,7 +7,10 @@
 
 import { FILTER_SEARCH_INPUT_SKY_CLASS } from "@/lib/ui/filter-toolbar-styles";
 import React, { useCallback, useMemo } from "react";
-import { DeferredSelectGate, DismissibleFilterChips } from "@/components/shared";
+import {
+  DeferredSelectGate,
+  DismissibleFilterChips,
+} from "@/components/shared";
 import type { FilterChipGroup } from "@/components/shared";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -121,7 +124,7 @@ export default function SupportTicketFilters({
     <div className="flex flex-col gap-2 w-full">
       <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
         <div className="relative flex-1 sm:max-w-md">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-600 dark:text-white/60 z-10" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-600 dark:text-white/80 z-10" />
           <Input
             placeholder="Search by subject or description..."
             value={searchTerm}
@@ -135,7 +138,7 @@ export default function SupportTicketFilters({
               onClick={() => setSearchTerm("")}
               className="absolute right-1 top-1/2 -translate-y-1/2 h-8 w-8 p-0 text-white/60 hover:text-white hover:bg-white/10 backdrop-blur-md"
             >
-              <IoClose className="h-4 w-4 text-gray-700 dark:text-white/60" />
+              <IoClose className="h-4 w-4 text-gray-700 dark:text-white/80" />
             </Button>
           )}
         </div>

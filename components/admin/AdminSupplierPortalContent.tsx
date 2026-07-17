@@ -3,9 +3,7 @@
 import React, { useMemo } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import {
-  ProductStockStatusBadge,
-} from "@/lib/ui/semantic-badges";
+import { ProductStockStatusBadge } from "@/lib/ui/semantic-badges";
 import {
   CARD_LIST_DIVIDE_CLASS,
   CARD_LIST_ROW_CLASS,
@@ -87,7 +85,8 @@ export default function AdminSupplierPortalContent({
         id: "email",
         header: "Email",
         headerClassName: "hidden sm:table-cell",
-        cellClassName: "hidden sm:table-cell text-gray-600 dark:text-gray-400 truncate max-w-[200px]",
+        cellClassName:
+          "hidden sm:table-cell text-gray-600 dark:text-gray-300 truncate max-w-[200px]",
         render: (s) => s.email,
       },
       {
@@ -188,7 +187,7 @@ export default function AdminSupplierPortalContent({
                 <h3 className="text-sm sm:text-base font-medium text-gray-700 dark:text-white">
                   Recent Supplier Products
                 </h3>
-                <p className="text-xs text-gray-600 dark:text-gray-400">
+                <p className="text-xs text-gray-600 dark:text-gray-300">
                   Last 10 products from suppliers
                 </p>
               </div>
@@ -203,7 +202,9 @@ export default function AdminSupplierPortalContent({
                 ))}
               </ul>
             ) : (stats?.recentProducts?.length ?? 0) === 0 ? (
-              <p className={CARD_EMPTY_MESSAGE_CLASS}>No supplier products yet.</p>
+              <p className={CARD_EMPTY_MESSAGE_CLASS}>
+                No supplier products yet.
+              </p>
             ) : (
               <ul className={CARD_LIST_DIVIDE_CLASS}>
                 {(stats?.recentProducts ?? []).map((p) => (
@@ -266,7 +267,7 @@ export default function AdminSupplierPortalContent({
                 <h3 className="text-sm sm:text-base font-medium text-gray-700 dark:text-white">
                   Recent Supplier Orders
                 </h3>
-                <p className="text-xs text-gray-600 dark:text-gray-400">
+                <p className="text-xs text-gray-600 dark:text-gray-300">
                   Last 10 orders containing supplier products
                 </p>
               </div>
@@ -281,7 +282,9 @@ export default function AdminSupplierPortalContent({
                 ))}
               </ul>
             ) : (stats?.recentOrders?.length ?? 0) === 0 ? (
-              <p className={CARD_EMPTY_MESSAGE_CLASS}>No supplier orders yet.</p>
+              <p className={CARD_EMPTY_MESSAGE_CLASS}>
+                No supplier orders yet.
+              </p>
             ) : (
               <ul className={CARD_LIST_DIVIDE_CLASS}>
                 {(stats?.recentOrders ?? []).map((o) => (
@@ -301,7 +304,10 @@ export default function AdminSupplierPortalContent({
                       </CopyableText>
                       <span className={CARD_LIST_META_CLASS}>
                         {o.supplierName} ·{" "}
-                        <ClientCompactDateTime date={o.createdAt} semantic="created" />
+                        <ClientCompactDateTime
+                          date={o.createdAt}
+                          semantic="created"
+                        />
                       </span>
                     </div>
                     <RecentOrderStatusColumn
@@ -355,7 +361,7 @@ export default function AdminSupplierPortalContent({
               <h3 className="text-sm sm:text-base font-medium text-gray-700 dark:text-white">
                 Suppliers
               </h3>
-              <p className="text-xs text-gray-600 dark:text-gray-400">
+              <p className="text-xs text-gray-600 dark:text-gray-300">
                 Supplier entities and their product/order summary
               </p>
             </div>

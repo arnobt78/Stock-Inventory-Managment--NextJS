@@ -360,3 +360,11 @@
 | TC-0068 | REQ-0144 | Manual new-tab `/products` no hydrate; gates lint/test/invalidate/build |
 | ART-0145 | REQ-0145 | Order table Invoice # | SemanticEventDate; invoice-event-date; product links; orders:list:v3 |
 | TC-0069 | REQ-0145 | Manual `/orders` Status/Payment/Invoice events; gates lint/test/invalidate/build |
+| ART-0146 | REQ-0146 | Order detail density | Status/tracking equal-height; ProportionalPriceDisplay; OrderRelatedEntitiesCards; trackingCarrier |
+| TC-0070 | REQ-0146 | shouldShowAdjustedPrice upcharge; gates lint/test/invalidate/build |
+| ART-0147 | REQ-0147 | Order detail gap closure | CarrierGlassBadge; layout densify; invoice Info row; Parties hrefs; slate header Back |
+| TC-0071 | REQ-0147 | Gates lint/test/invalidate/build |
+| ART-0148 | REQ-0148 | Summary Total + line meta + light Back | Order/Invoice Total base; ProductLineItemsList · + invoice chip; light header Back token |
+| TC-0072 | REQ-0148 | Gates lint/test/invalidate/build |
+| ART-0149 | REQ-0149 | Line price typography + Owner/Buyer | ProportionalPriceDisplay final/strike tokens; catalog AvatarInlineLink text-xs |
+| TC-0073 | REQ-0149 | Gates lint/test/invalidate/build |

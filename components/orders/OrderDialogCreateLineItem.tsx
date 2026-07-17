@@ -119,28 +119,22 @@ export function OrderDialogCreateLineItem({
 
   const { validation, hasAllocations, allocationRows, allocationsLoading } =
     useOrderLineStockValidation({
-    productId,
-    product: selectedProduct,
-    warehouseId,
-    quantity,
-    enabled: dialogOpen && !!productId,
-  });
+      productId,
+      product: selectedProduct,
+      warehouseId,
+      quantity,
+      enabled: dialogOpen && !!productId,
+    });
 
   const stockError =
-    validation &&
-    quantity > 0 &&
-    !validation.ok &&
-    validation.mode !== "manual"
+    validation && quantity > 0 && !validation.ok && validation.mode !== "manual"
       ? validation.message
       : null;
 
   const manualPickError =
-    validation?.mode === "manual" && !validation.ok
-      ? validation.message
-      : null;
+    validation?.mode === "manual" && !validation.ok ? validation.message : null;
 
-  const isManualPick =
-    warehouseId != null && String(warehouseId).trim() !== "";
+  const isManualPick = warehouseId != null && String(warehouseId).trim() !== "";
 
   const showAutoAssignHint =
     selectedProduct &&
@@ -224,7 +218,7 @@ export function OrderDialogCreateLineItem({
                     {availableProducts.length === 0 &&
                     isClientCreatingOrder &&
                     productOwner ? (
-                      <div className="px-2 text-sm text-muted-foreground dark:text-white/60 text-center">
+                      <div className="px-2 text-sm text-muted-foreground dark:text-white/80 text-center">
                         {productOwner.name} hasn&apos;t added any products yet
                       </div>
                     ) : (

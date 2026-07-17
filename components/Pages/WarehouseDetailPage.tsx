@@ -61,7 +61,10 @@ import {
   GLASS_CARD_VARIANT_CONFIG as variantConfig,
 } from "@/components/shared";
 import { buildCategoryForecastRollup } from "@/lib/forecasting/category-forecast-rollup";
-import { computeWarehouseInsights, mapWarehouseStockSummary } from "@/lib/insights/warehouse-insights-compute";
+import {
+  computeWarehouseInsights,
+  mapWarehouseStockSummary,
+} from "@/lib/insights/warehouse-insights-compute";
 import { DetailInfoRow } from "@/components/orders/detail";
 import WarehouseDialog from "@/components/warehouses/WarehouseDialog";
 import AllocateStockDialog from "@/components/warehouses/AllocateStockDialog";
@@ -80,7 +83,10 @@ import {
   useSyncSsrQueryData,
 } from "@/lib/react-query";
 import { cn } from "@/lib/utils";
-import { APP_SHELL_DETAIL_CLASS, DETAIL_PAGE_HEADER_SPACING_CLASS } from "@/lib/ui/shell-layout-styles";
+import {
+  APP_SHELL_DETAIL_CLASS,
+  DETAIL_PAGE_HEADER_SPACING_CLASS,
+} from "@/lib/ui/shell-layout-styles";
 import { detailStatValueToneClass } from "@/lib/ui/typography-scale";
 
 export type WarehouseDetailPageProps = {
@@ -113,7 +119,10 @@ export default function WarehouseDetailPage({
   const dataLoading = isDataSlotLoading(warehouseQuery, initialWarehouse);
   const stockQuery = useStockByWarehouse(warehouseId, initialStockAllocations);
   const stockAllocations = stockQuery.data;
-  const isLoadingStock = isDataSlotUnsettled(stockQuery, initialStockAllocations);
+  const isLoadingStock = isDataSlotUnsettled(
+    stockQuery,
+    initialStockAllocations,
+  );
   const deleteWarehouseMutation = useDeleteWarehouse();
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [editingWarehouse, setEditingWarehouse] =
@@ -197,7 +206,9 @@ export default function WarehouseDetailPage({
       : null;
 
   const canManageStock =
-    user?.role === "admin" || user?.role === "supplier" || Boolean(embedInAdmin);
+    user?.role === "admin" ||
+    user?.role === "supplier" ||
+    Boolean(embedInAdmin);
 
   const handleConfirmDeleteAllocation = () => {
     if (!deleteAllocationTarget) return;
@@ -208,9 +219,9 @@ export default function WarehouseDetailPage({
         warehouseId: deleteAllocationTarget.warehouseId,
       },
       {
-      onSuccess: () => setDeleteAllocationTarget(null),
-      onError: () => setDeleteAllocationTarget(null),
-    },
+        onSuccess: () => setDeleteAllocationTarget(null),
+        onError: () => setDeleteAllocationTarget(null),
+      },
     );
   };
 
@@ -245,21 +256,21 @@ export default function WarehouseDetailPage({
         <div className="flex flex-col items-center justify-center min-h-[60vh] gap-2">
           <GlassCard variant="rose" className="max-w-md text-center">
             <GlassCardBody>
-            <h2 className="text-sm sm:text-base font-medium text-gray-700 dark:text-white mb-2">
-              Warehouse Not Found
-            </h2>
-            <p className="text-gray-600 dark:text-gray-400 mb-4">
-              {warehouseQuery.error instanceof Error
-                ? warehouseQuery.error.message
-                : "Failed to load warehouse details"}
-            </p>
-            <Button
-              onClick={() => navigateTo(warehousesListHref)}
-              className="rounded-xl border border-gray-300/30 bg-white/50 dark:bg-white/5 dark:border-white/10 hover:bg-gray-100/50 dark:hover:bg-white/10 text-gray-700 dark:text-white"
-            >
-              <ArrowLeft className="h-4 w-4 mr-2" />
-              Back to Warehouses
-            </Button>
+              <h2 className="text-sm sm:text-base font-medium text-gray-700 dark:text-white mb-2">
+                Warehouse Not Found
+              </h2>
+              <p className="text-gray-600 dark:text-gray-300 mb-4">
+                {warehouseQuery.error instanceof Error
+                  ? warehouseQuery.error.message
+                  : "Failed to load warehouse details"}
+              </p>
+              <Button
+                onClick={() => navigateTo(warehousesListHref)}
+                className="rounded-xl border border-gray-300/30 bg-white/50 dark:bg-white/5 dark:border-white/10 hover:bg-gray-100/50 dark:hover:bg-white/10 text-gray-700 dark:text-white"
+              >
+                <ArrowLeft className="h-4 w-4 mr-2" />
+                Back to Warehouses
+              </Button>
             </GlassCardBody>
           </GlassCard>
         </div>
@@ -306,20 +317,24 @@ export default function WarehouseDetailPage({
             }
             title={warehouse?.name}
             description={
-              <ClientRelativeTime date={createdAt} prefix="Created " semantic="created" />
+              <ClientRelativeTime
+                date={createdAt}
+                prefix="Created "
+                semantic="created"
+              />
             }
           />
 
           {/* Status Card */}
           <GlassCard variant={warehouse?.status ? "emerald" : "rose"}>
             <GlassCardBody>
-            <p className="text-xs uppercase tracking-[0.25em] text-gray-600 dark:text-white/60 mb-3">
-              Warehouse Status
-            </p>
-            <ActiveInactiveBadge
-              active={Boolean(warehouse?.status)}
-              className="text-sm"
-            />
+              <p className="text-xs uppercase tracking-[0.25em] text-gray-600 dark:text-white/80 mb-3">
+                Warehouse Status
+              </p>
+              <ActiveInactiveBadge
+                active={Boolean(warehouse?.status)}
+                size="detail"
+              />
             </GlassCardBody>
           </GlassCard>
 
@@ -345,7 +360,7 @@ export default function WarehouseDetailPage({
                   >
                     {stockSummary.totalProducts}
                   </p>
-                  <p className="text-xs text-gray-600 dark:text-gray-400">
+                  <p className="text-xs text-gray-600 dark:text-gray-300">
                     Products
                   </p>
                 </GlassCardBody>
@@ -369,7 +384,7 @@ export default function WarehouseDetailPage({
                   >
                     {stockSummary.totalQuantity}
                   </p>
-                  <p className="text-xs text-gray-600 dark:text-gray-400">
+                  <p className="text-xs text-gray-600 dark:text-gray-300">
                     Total Stock
                   </p>
                 </GlassCardBody>
@@ -393,7 +408,7 @@ export default function WarehouseDetailPage({
                   >
                     {stockSummary.availableQuantity}
                   </p>
-                  <p className="text-xs text-gray-600 dark:text-gray-400">
+                  <p className="text-xs text-gray-600 dark:text-gray-300">
                     Available
                   </p>
                 </GlassCardBody>
@@ -417,7 +432,7 @@ export default function WarehouseDetailPage({
                   >
                     {stockSummary.reservedQuantity}
                   </p>
-                  <p className="text-xs text-gray-600 dark:text-gray-400">
+                  <p className="text-xs text-gray-600 dark:text-gray-300">
                     Reserved
                   </p>
                 </GlassCardBody>
@@ -445,215 +460,238 @@ export default function WarehouseDetailPage({
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-2 sm:gap-4">
             <GlassCard variant="cyan">
               <GlassCardBody>
-              <div className="flex items-center gap-2 mb-4">
-                <div
-                  className={cn(
-                    "p-2 rounded-xl border",
-                    variantConfig.cyan.iconBg,
-                    "dark:border-cyan-400/30 dark:bg-cyan-500/20",
-                  )}
-                >
-                  <Building2 className="h-5 w-5 text-cyan-600 dark:text-cyan-400" />
-                </div>
-                <h3 className="text-sm sm:text-base font-medium text-gray-700 dark:text-white">
-                  Warehouse Information
-                </h3>
-              </div>
-
-              <div className="space-y-2">
-                {warehouse && (
-                  <DetailInfoRow
-                    icon={Hash}
-                    label="Warehouse ID:"
-                    tone="violet"
+                <div className="flex items-center gap-2 mb-4">
+                  <div
+                    className={cn(
+                      "p-2 rounded-xl border",
+                      variantConfig.cyan.iconBg,
+                      "dark:border-cyan-400/30 dark:bg-cyan-500/20",
+                    )}
                   >
-                    <CopyableText value={warehouse.id}>
-                      <span className="font-mono text-xs">{warehouse.id}</span>
-                    </CopyableText>
-                  </DetailInfoRow>
-                )}
-                <DetailInfoRow icon={Warehouse} label="Name:" tone="teal">
-                  {warehouse?.name && (
-                    <CopyableText value={warehouse.name}>
-                      {warehouse.name}
-                    </CopyableText>
-                  )}
-                </DetailInfoRow>
-                <DetailInfoRow icon={MapPin} label="Address:" tone="teal">
-                  {warehouse?.address ? (
-                    <CopyableText value={warehouse.address}>
-                      {warehouse.address}
-                    </CopyableText>
-                  ) : (
-                    <span className="text-gray-500 dark:text-gray-400">—</span>
-                  )}
-                </DetailInfoRow>
-                {warehouse?.type && (
-                  <DetailInfoRow icon={Tag} label="Type:" tone="blue">
-                    <WarehouseTypeBadge
-                      type={warehouse.type}
-                      className="text-sm"
-                    />
-                  </DetailInfoRow>
-                )}
-                <DetailInfoRow
-                  icon={CheckCircle2}
-                  label="Status:"
-                  tone="emerald"
-                >
-                  <ActiveInactiveBadge active={Boolean(warehouse?.status)} />
-                </DetailInfoRow>
-                <DetailInfoRowGroup>
-                  <DetailInfoRow icon={Calendar} label="Created:" tone="orange">
-                    <ClientDateTime date={createdAt} semantic="created" />
-                  </DetailInfoRow>
-                  {updatedAt && (
-                    <DetailInfoRow icon={Clock} label="Updated:" tone="violet">
-                      <ClientRelativeTime date={updatedAt} semantic="updated" />
+                    <Building2 className="h-5 w-5 text-cyan-600 dark:text-cyan-400" />
+                  </div>
+                  <h3 className="text-sm sm:text-base font-medium text-gray-700 dark:text-white">
+                    Warehouse Information
+                  </h3>
+                </div>
+
+                <div className="space-y-2">
+                  {warehouse && (
+                    <DetailInfoRow
+                      icon={Hash}
+                      label="Warehouse ID:"
+                      tone="violet"
+                    >
+                      <CopyableText value={warehouse.id}>
+                        <span className="font-mono text-xs">
+                          {warehouse.id}
+                        </span>
+                      </CopyableText>
                     </DetailInfoRow>
                   )}
-                </DetailInfoRowGroup>
-                {stockSummary && (
-                  <DetailInfoRow icon={Boxes} label="Allocations:" tone="sky">
-                    <span className="inline-flex flex-wrap items-center gap-x-1.5">
-                      <span className="text-slate-600 dark:text-slate-300">
-                        {stockSummary.totalProducts} Products
-                      </span>
-                      <span className="text-gray-400 dark:text-white/30">·</span>
-                      <span className="text-sky-600 dark:text-sky-400">
-                        {stockSummary.totalQuantity} Total
-                      </span>
-                      <span className="text-gray-400 dark:text-white/30">·</span>
-                      <span className="text-emerald-600 dark:text-emerald-400">
-                        {stockSummary.availableQuantity} Available
-                      </span>
-                      <span className="text-gray-400 dark:text-white/30">·</span>
-                      <span className="text-amber-600 dark:text-amber-400">
-                        {stockSummary.reservedQuantity} Reserved
-                      </span>
-                    </span>
+                  <DetailInfoRow icon={Warehouse} label="Name:" tone="teal">
+                    {warehouse?.name && (
+                      <CopyableText value={warehouse.name}>
+                        {warehouse.name}
+                      </CopyableText>
+                    )}
                   </DetailInfoRow>
-                )}
-                {warehouse?.creator && (
-                  <AuditUserDetailRow
-                    label="Created by:"
-                    tone="violet"
-                    user={warehouse.creator}
-                    href={resolveAuditUserManagementHref(
-                      warehouse.creator.id,
-                      isAdminRole,
+                  <DetailInfoRow icon={MapPin} label="Address:" tone="teal">
+                    {warehouse?.address ? (
+                      <CopyableText value={warehouse.address}>
+                        {warehouse.address}
+                      </CopyableText>
+                    ) : (
+                      <span className="text-gray-500 dark:text-gray-300">
+                        —
+                      </span>
                     )}
-                  />
-                )}
-                {warehouse?.updater && (
-                  <AuditUserDetailRow
-                    label="Updated by:"
-                    tone="blue"
-                    user={warehouse.updater}
-                    href={resolveAuditUserManagementHref(
-                      warehouse.updater.id,
-                      isAdminRole,
+                  </DetailInfoRow>
+                  {warehouse?.type && (
+                    <DetailInfoRow icon={Tag} label="Type:" tone="blue">
+                      <WarehouseTypeBadge type={warehouse.type} size="detail" />
+                    </DetailInfoRow>
+                  )}
+                  <DetailInfoRow
+                    icon={CheckCircle2}
+                    label="Status:"
+                    tone="emerald"
+                  >
+                    <ActiveInactiveBadge
+                      active={Boolean(warehouse?.status)}
+                      size="detail"
+                    />
+                  </DetailInfoRow>
+                  <DetailInfoRowGroup>
+                    <DetailInfoRow
+                      icon={Calendar}
+                      label="Created:"
+                      tone="orange"
+                    >
+                      <ClientDateTime date={createdAt} semantic="created" />
+                    </DetailInfoRow>
+                    {updatedAt && (
+                      <DetailInfoRow
+                        icon={Clock}
+                        label="Updated:"
+                        tone="violet"
+                      >
+                        <ClientRelativeTime
+                          date={updatedAt}
+                          semantic="updated"
+                        />
+                      </DetailInfoRow>
                     )}
-                  />
-                )}
-              </div>
+                  </DetailInfoRowGroup>
+                  {stockSummary && (
+                    <DetailInfoRow icon={Boxes} label="Allocations:" tone="sky">
+                      <span className="inline-flex flex-wrap items-center gap-x-1.5">
+                        <span className="text-slate-600 dark:text-slate-300">
+                          {stockSummary.totalProducts} Products
+                        </span>
+                        <span className="text-gray-400 dark:text-white/80">
+                          ·
+                        </span>
+                        <span className="text-sky-600 dark:text-sky-400">
+                          {stockSummary.totalQuantity} Total
+                        </span>
+                        <span className="text-gray-400 dark:text-white/80">
+                          ·
+                        </span>
+                        <span className="text-emerald-600 dark:text-emerald-400">
+                          {stockSummary.availableQuantity} Available
+                        </span>
+                        <span className="text-gray-400 dark:text-white/80">
+                          ·
+                        </span>
+                        <span className="text-amber-600 dark:text-amber-400">
+                          {stockSummary.reservedQuantity} Reserved
+                        </span>
+                      </span>
+                    </DetailInfoRow>
+                  )}
+                  {warehouse?.creator && (
+                    <AuditUserDetailRow
+                      label="Created by:"
+                      tone="violet"
+                      user={warehouse.creator}
+                      href={resolveAuditUserManagementHref(
+                        warehouse.creator.id,
+                        isAdminRole,
+                      )}
+                    />
+                  )}
+                  {warehouse?.updater && (
+                    <AuditUserDetailRow
+                      label="Updated by:"
+                      tone="blue"
+                      user={warehouse.updater}
+                      href={resolveAuditUserManagementHref(
+                        warehouse.updater.id,
+                        isAdminRole,
+                      )}
+                    />
+                  )}
+                </div>
               </GlassCardBody>
             </GlassCard>
 
             {/* Stock by warehouse */}
             <GlassCard variant="violet">
               <GlassCardBody>
-              <div className="flex items-center gap-2 mb-2">
-                <div
-                  className={cn(
-                    "p-2 rounded-xl border",
-                    variantConfig.violet.iconBg,
-                    "dark:border-violet-400/30 dark:bg-violet-500/20",
-                  )}
-                >
-                  <Package className="h-5 w-5 text-violet-600 dark:text-violet-400" />
-                </div>
-                <div className="min-w-0 flex-1">
-                  <div className="flex flex-wrap items-center gap-2">
-                    <h3 className="text-sm sm:text-base font-medium text-gray-700 dark:text-white">
-                      Stock in Warehouse
-                    </h3>
-                    {!isLoadingStock &&
-                    stockAllocations &&
-                    stockAllocations.length > 0 ? (
-                      <SectionCountBadge>
-                        {stockAllocations.length} products
-                      </SectionCountBadge>
-                    ) : null}
+                <div className="flex items-center gap-2 mb-2">
+                  <div
+                    className={cn(
+                      "p-2 rounded-xl border",
+                      variantConfig.violet.iconBg,
+                      "dark:border-violet-400/30 dark:bg-violet-500/20",
+                    )}
+                  >
+                    <Package className="h-5 w-5 text-violet-600 dark:text-violet-400" />
                   </div>
-                  <p className="text-xs text-gray-600 dark:text-gray-400">
-                    Products allocated to this warehouse
-                  </p>
-                </div>
-              </div>
-
-              <div className="mt-4">
-                {isLoadingStock ? (
-                  <div className="space-y-2">
-                    {[1, 2, 3].map((i) => (
-                      <div
-                        key={i}
-                        className="h-12 bg-white/50 dark:bg-white/10 animate-pulse rounded-xl"
-                      />
-                    ))}
-                  </div>
-                ) : stockAllocations && stockAllocations.length > 0 ? (
-                  <div className="space-y-2">
-                    {stockAllocations.map((allocation) => {
-                      const isArchived = allocation.product?.isArchived === true;
-                      return (
-                      <WarehouseStockAllocationRow
-                        key={allocation.id}
-                        allocation={allocation}
-                        productHref={productHref(allocation.productId)}
-                        categoryHref={categoryHref(
-                          allocation.product?.categoryId,
-                        )}
-                        supplierHref={supplierHref(
-                          allocation.product?.supplierId,
-                        )}
-                        disableActions={!canManageStock || isArchived}
-                        onEdit={
-                          canManageStock && !isArchived
-                            ? () => {
-                                setEditAllocation(allocation);
-                                setAllocateOpen(true);
-                              }
-                            : undefined
-                        }
-                        onDelete={
-                          canManageStock && !isArchived
-                            ? () => setDeleteAllocationTarget(allocation)
-                            : undefined
-                        }
-                      />
-                    );})}
-                  </div>
-                ) : (
-                  <div className="text-center py-8 rounded-xl bg-white/30 dark:bg-white/5 border border-violet-200/30 dark:border-violet-400/10">
-                    <div
-                      className={cn(
-                        "p-2 rounded-xl border w-fit mx-auto mb-3",
-                        variantConfig.violet.iconBg,
-                        "dark:border-violet-400/30 dark:bg-violet-500/20",
-                      )}
-                    >
-                      <Package className="h-8 w-8 text-violet-500/50 dark:text-violet-400/50" />
+                  <div className="min-w-0 flex-1">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <h3 className="text-sm sm:text-base font-medium text-gray-700 dark:text-white">
+                        Stock in Warehouse
+                      </h3>
+                      {!isLoadingStock &&
+                      stockAllocations &&
+                      stockAllocations.length > 0 ? (
+                        <SectionCountBadge>
+                          {stockAllocations.length} products
+                        </SectionCountBadge>
+                      ) : null}
                     </div>
-                    <p className="text-sm text-gray-600 dark:text-gray-400">
-                      No stock allocated to this warehouse yet
-                    </p>
-                    <p className="text-xs text-gray-500 dark:text-gray-500 mt-1">
-                      Use the stock allocation feature to assign products
+                    <p className="text-xs text-gray-600 dark:text-gray-300">
+                      Products allocated to this warehouse
                     </p>
                   </div>
-                )}
-              </div>
+                </div>
+
+                <div className="mt-4">
+                  {isLoadingStock ? (
+                    <div className="space-y-2">
+                      {[1, 2, 3].map((i) => (
+                        <div
+                          key={i}
+                          className="h-12 bg-white/50 dark:bg-white/10 animate-pulse rounded-xl"
+                        />
+                      ))}
+                    </div>
+                  ) : stockAllocations && stockAllocations.length > 0 ? (
+                    <div className="space-y-2">
+                      {stockAllocations.map((allocation) => {
+                        const isArchived =
+                          allocation.product?.isArchived === true;
+                        return (
+                          <WarehouseStockAllocationRow
+                            key={allocation.id}
+                            allocation={allocation}
+                            productHref={productHref(allocation.productId)}
+                            categoryHref={categoryHref(
+                              allocation.product?.categoryId,
+                            )}
+                            supplierHref={supplierHref(
+                              allocation.product?.supplierId,
+                            )}
+                            disableActions={!canManageStock || isArchived}
+                            onEdit={
+                              canManageStock && !isArchived
+                                ? () => {
+                                    setEditAllocation(allocation);
+                                    setAllocateOpen(true);
+                                  }
+                                : undefined
+                            }
+                            onDelete={
+                              canManageStock && !isArchived
+                                ? () => setDeleteAllocationTarget(allocation)
+                                : undefined
+                            }
+                          />
+                        );
+                      })}
+                    </div>
+                  ) : (
+                    <div className="text-center py-8 rounded-xl bg-white/30 dark:bg-white/5 border border-violet-200/30 dark:border-violet-400/10">
+                      <div
+                        className={cn(
+                          "p-2 rounded-xl border w-fit mx-auto mb-3",
+                          variantConfig.violet.iconBg,
+                          "dark:border-violet-400/30 dark:bg-violet-500/20",
+                        )}
+                      >
+                        <Package className="h-8 w-8 text-violet-500/50 dark:text-violet-400/50" />
+                      </div>
+                      <p className="text-sm text-gray-600 dark:text-gray-300">
+                        No stock allocated to this warehouse yet
+                      </p>
+                      <p className="text-xs text-gray-500 dark:text-gray-300 mt-1">
+                        Use the stock allocation feature to assign products
+                      </p>
+                    </div>
+                  )}
+                </div>
               </GlassCardBody>
             </GlassCard>
           </div>

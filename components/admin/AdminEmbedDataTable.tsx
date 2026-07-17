@@ -83,14 +83,11 @@ export function AdminEmbedDataTable<T>({
                 <TableRow className="border-gray-300/30 dark:border-white/10 hover:bg-transparent">
                   <TableCell
                     colSpan={columns.length}
-                    className="py-10 text-center text-gray-600 dark:text-gray-400"
+                    className="py-10 text-center text-gray-600 dark:text-gray-300"
                   >
                     <div className="flex flex-col items-center justify-center gap-2">
                       {EmptyIcon ? (
-                        <EmptyIcon
-                          className="h-8 w-8 opacity-50"
-                          aria-hidden
-                        />
+                        <EmptyIcon className="h-8 w-8 opacity-50" aria-hidden />
                       ) : null}
                       <span>{emptyMessage}</span>
                     </div>
@@ -108,10 +105,7 @@ export function AdminEmbedDataTable<T>({
                     )}
                   >
                     {columns.map((col) => (
-                      <TableCell
-                        key={col.id}
-                        className={col.cellClassName}
-                      >
+                      <TableCell key={col.id} className={col.cellClassName}>
                         {col.render(row)}
                       </TableCell>
                     ))}

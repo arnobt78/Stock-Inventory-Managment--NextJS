@@ -35,6 +35,8 @@ export type { ProductLineItemsListProps } from "./ProductLineItemsList";
 export {
   ProportionalPriceDisplay,
   shouldShowAdjustedPrice,
+  PROPORTIONAL_PRICE_FINAL_CLASS,
+  PROPORTIONAL_PRICE_STRIKE_CLASS,
 } from "./ProportionalPriceDisplay";
 export type { ProportionalPriceDisplayProps } from "./ProportionalPriceDisplay";
 export {

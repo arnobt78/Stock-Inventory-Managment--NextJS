@@ -59,7 +59,7 @@ export function LoginRoleSelect({
             "h-4 w-4 shrink-0",
             selectedMeta
               ? roleIconClassByHue[selectedMeta.hue]
-              : "text-gray-500 dark:text-white/50",
+              : "text-gray-500 dark:text-white/80",
           )}
         />
         <span className="flex-1 truncate text-left">

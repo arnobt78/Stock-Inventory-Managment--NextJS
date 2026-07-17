@@ -37,17 +37,14 @@ import {
 import { statusAtSemanticKind } from "@/lib/ui/semantic-date-styles";
 import { cn } from "@/lib/utils";
 
-const META_MUTED = "text-xs text-gray-500 dark:text-gray-400";
+const META_MUTED = "text-xs text-gray-500 dark:text-gray-300";
 
 /** REQ-0145 — items / units / created with icons; date matches muted meta color */
 function OrderCompactMeta({ order }: { order: Order }) {
   const { itemCount, unitCount } = getOrderItemUnitCounts(order.items);
   return (
     <span
-      className={cn(
-        "inline-flex items-center gap-1.5 flex-wrap",
-        META_MUTED,
-      )}
+      className={cn("inline-flex items-center gap-1.5 flex-wrap", META_MUTED)}
     >
       <span className="inline-flex items-center gap-1">
         <Package className="h-3 w-3 shrink-0" aria-hidden />
@@ -184,11 +181,11 @@ export const createOrderColumns = (
               </Link>
             </CopyableText>
             {showBadge && (
-              <div className="flex items-center gap-1 flex-wrap">
+              <div className="flex items-center gap-1.5 flex-wrap overflow-visible">
                 {order._displayName != null && order._displayName !== "" && (
                   <span className={META_MUTED}>{order._displayName}</span>
                 )}
-                <AdminOrderSourceBadge source={order._source} />
+                <AdminOrderSourceBadge source={order._source} size="compact" />
               </div>
             )}
             {showPlacedBy && (
@@ -200,16 +197,14 @@ export const createOrderColumns = (
             {showProductOwner && (
               <span className={META_MUTED}>
                 {order.productOwnerName}
-                {order.productOwnerEmail
-                  ? ` (${order.productOwnerEmail})`
-                  : ""}
+                {order.productOwnerEmail ? ` (${order.productOwnerEmail})` : ""}
               </span>
             )}
             {/* REQ-0145 — product row with icon; sky links to product detail */}
             {productLinks.length > 0 ? (
               <div className="flex items-center gap-1.5 flex-wrap min-w-0">
                 <Package
-                  className="h-3 w-3 shrink-0 text-gray-500 dark:text-gray-400"
+                  className="h-3 w-3 shrink-0 text-gray-500 dark:text-gray-300"
                   aria-hidden
                 />
                 {productLinks.map((p, i) => (

@@ -39,7 +39,10 @@ export function ActiveInactiveFilterChips({
         className={FILTER_CHIP_DISMISS_BTN_CLASS}
       >
         <ActiveInactiveBadge active={isActive} size="compact" />
-        <X className="h-3 w-3 shrink-0 text-gray-600 dark:text-white/70" aria-hidden />
+        <X
+          className="h-3 w-3 shrink-0 text-gray-600 dark:text-white/80"
+          aria-hidden
+        />
       </button>
       <Button
         type="button"

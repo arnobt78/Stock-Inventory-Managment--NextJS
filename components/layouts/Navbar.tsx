@@ -345,7 +345,7 @@ export default function Navbar({ children }: NavbarProps) {
                         {user.name}
                       </p>
                     )}
-                    <p className="text-xs text-gray-600 dark:text-gray-400">
+                    <p className="text-xs text-gray-600 dark:text-gray-300">
                       {user?.email}
                     </p>
                   </div>

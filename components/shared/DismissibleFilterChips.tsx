@@ -48,7 +48,9 @@ export function DismissibleFilterChips({
 
         return (
           <div key={group.label} className="flex flex-wrap items-center gap-2">
-            <span className={FILTER_CHIP_GROUP_LABEL_CLASS}>{group.label}:</span>
+            <span className={FILTER_CHIP_GROUP_LABEL_CLASS}>
+              {group.label}:
+            </span>
             <button
               type="button"
               onClick={group.onClear}
@@ -66,7 +68,10 @@ export function DismissibleFilterChips({
                   ))
                 )}
               </span>
-              <X className="h-3 w-3 shrink-0 text-gray-600 dark:text-white/70" aria-hidden />
+              <X
+                className="h-3 w-3 shrink-0 text-gray-600 dark:text-white/80"
+                aria-hidden
+              />
             </button>
           </div>
         );

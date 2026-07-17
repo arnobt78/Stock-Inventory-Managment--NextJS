@@ -56,10 +56,7 @@ export const InvoiceTable = React.memo(function InvoiceTable({
 
   const filteredData = useMemo(() => {
     if (selectedStatuses.length === 0) return data;
-    return data.filter(
-      (invoice) =>
-        selectedStatuses.includes(invoice.status),
-    );
+    return data.filter((invoice) => selectedStatuses.includes(invoice.status));
   }, [data, selectedStatuses]);
 
   useClampPaginationIndex(filteredData.length, pagination, setPagination);
@@ -175,7 +172,7 @@ export const InvoiceTable = React.memo(function InvoiceTable({
           >
             <GrFormPrevious />
           </Button>
-          <span className="text-sm text-gray-500 dark:text-gray-400 whitespace-nowrap">
+          <span className="text-sm text-gray-500 dark:text-gray-300 whitespace-nowrap">
             Page {pagination.pageIndex + 1} of {table.getPageCount()}
           </span>
           <Button

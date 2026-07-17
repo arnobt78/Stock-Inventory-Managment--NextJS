@@ -54,7 +54,7 @@ export default function PaginationSelector({
 
   const labelClass =
     layout === "inline"
-      ? "text-sm text-gray-500 dark:text-gray-400 whitespace-nowrap"
+      ? "text-sm text-gray-500 dark:text-gray-300 whitespace-nowrap"
       : "text-gray-700 dark:text-white/80 text-sm";
 
   const control = !showSelect ? (

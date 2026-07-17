@@ -20,4 +20,11 @@ describe("warehouse-type-styles", () => {
   it("normalizes type keys for tone lookup", () => {
     expect(getWarehouseTypeTone("Distribution").icon).toBe(Truck);
   });
+
+  it("uses glass glow surfaces (not opaque flat chips)", () => {
+    const main = getWarehouseTypeTone("main").className;
+    expect(main).toContain("bg-gradient-to-r");
+    expect(main).toContain("shadow-[");
+    expect(main).not.toContain("bg-blue-100");
+  });
 });

@@ -6,7 +6,7 @@
  */
 
 /** Empty / placeholder cell */
-export const TABLE_CELL_MUTED = "text-gray-500 dark:text-gray-400";
+export const TABLE_CELL_MUTED = "text-gray-500 dark:text-gray-300";
 
 /** Primary column links (name/title) — size inherits TableCell text-xs */
 export const TABLE_LINK_PRIMARY =

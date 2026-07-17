@@ -39,7 +39,7 @@ export function AuthInfoListItem({
           <h3 className="text-sm font-medium leading-snug text-gray-700 dark:text-white">
             {title}
           </h3>
-          <p className="text-sm leading-snug text-gray-600 dark:text-white/70">
+          <p className="text-sm leading-snug text-gray-600 dark:text-white/80">
             {description}
           </p>
         </div>

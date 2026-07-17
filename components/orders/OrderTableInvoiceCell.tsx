@@ -15,7 +15,7 @@ import { resolveInvoiceSecondaryEvent } from "@/lib/orders/invoice-event-date";
 import { cn } from "@/lib/utils";
 import type { Order } from "@/types";
 
-const META_MUTED = "text-xs text-gray-500 dark:text-gray-400";
+const META_MUTED = "text-xs text-gray-500 dark:text-gray-300";
 
 export type OrderTableInvoiceCellProps = {
   invoice: NonNullable<Order["invoiceForOrder"]> | null | undefined;

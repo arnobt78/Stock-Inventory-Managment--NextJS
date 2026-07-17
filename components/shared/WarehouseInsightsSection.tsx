@@ -84,53 +84,53 @@ export function WarehouseInsightsSection({
       )}
     >
       <GlassCard padding="body" variant="violet">
-          <div className="flex items-center gap-2 mb-2">
-            <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-violet-300/30 bg-violet-100/50 dark:border-white/15 dark:bg-white/10">
-              <Boxes className="h-4 w-4 text-gray-700 dark:text-white" />
-            </div>
-            <div>
-              <h3 className="text-sm sm:text-base font-medium text-gray-700 dark:text-white">
-                Warehouse Insights
-              </h3>
-              <p className="text-xs text-gray-600 dark:text-white/60">
-                Stock allocation signals for this warehouse
-              </p>
-            </div>
+        <div className="flex items-center gap-2 mb-2">
+          <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-violet-300/30 bg-violet-100/50 dark:border-white/15 dark:bg-white/10">
+            <Boxes className="h-4 w-4 text-gray-700 dark:text-white" />
           </div>
-          <div className="space-y-2 mt-4">
-            <DetailInfoRow
-              icon={Package}
-              label="SKUs in warehouse:"
-              tone="sky"
-              loading={dataLoading}
-            >
-              {!dataLoading && insights.totalSkus}
-            </DetailInfoRow>
-            <DetailInfoRow
-              icon={TrendingUp}
-              label="Total units:"
-              tone="violet"
-              loading={dataLoading}
-            >
-              {!dataLoading && insights.totalUnits}
-            </DetailInfoRow>
-            <DetailInfoRow
-              icon={Boxes}
-              label="Available units:"
-              tone="emerald"
-              loading={dataLoading}
-            >
-              {!dataLoading && insights.availableUnits}
-            </DetailInfoRow>
-            <DetailInfoRow
-              icon={AlertTriangle}
-              label="Low-stock SKUs:"
-              tone="amber"
-              loading={dataLoading}
-            >
-              {!dataLoading && insights.lowStockSkuCount}
-            </DetailInfoRow>
+          <div>
+            <h3 className="text-sm sm:text-base font-medium text-gray-700 dark:text-white">
+              Warehouse Insights
+            </h3>
+            <p className="text-xs text-gray-600 dark:text-white/80">
+              Stock allocation signals for this warehouse
+            </p>
           </div>
+        </div>
+        <div className="space-y-2 mt-4">
+          <DetailInfoRow
+            icon={Package}
+            label="SKUs in warehouse:"
+            tone="sky"
+            loading={dataLoading}
+          >
+            {!dataLoading && insights.totalSkus}
+          </DetailInfoRow>
+          <DetailInfoRow
+            icon={TrendingUp}
+            label="Total units:"
+            tone="violet"
+            loading={dataLoading}
+          >
+            {!dataLoading && insights.totalUnits}
+          </DetailInfoRow>
+          <DetailInfoRow
+            icon={Boxes}
+            label="Available units:"
+            tone="emerald"
+            loading={dataLoading}
+          >
+            {!dataLoading && insights.availableUnits}
+          </DetailInfoRow>
+          <DetailInfoRow
+            icon={AlertTriangle}
+            label="Low-stock SKUs:"
+            tone="amber"
+            loading={dataLoading}
+          >
+            {!dataLoading && insights.lowStockSkuCount}
+          </DetailInfoRow>
+        </div>
       </GlassCard>
 
       <ChartCard
@@ -199,7 +199,10 @@ export function WarehouseInsightsSection({
                   tick={{ fontSize: 11 }}
                   className="text-muted-foreground"
                 />
-                <YAxis tick={{ fontSize: 11 }} className="text-muted-foreground" />
+                <YAxis
+                  tick={{ fontSize: 11 }}
+                  className="text-muted-foreground"
+                />
                 <Tooltip
                   contentStyle={{
                     backgroundColor: "hsl(var(--card))",

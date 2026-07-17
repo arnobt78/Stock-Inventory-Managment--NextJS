@@ -61,7 +61,10 @@ import type { ProductReview, ProductReviewStatus } from "@/types";
 import { cn } from "@/lib/utils";
 import { ReviewStatusBadge } from "@/lib/ui/semantic-badges";
 import { GlassCard, DetailInfoRow } from "@/components/orders/detail";
-import { APP_SHELL_DETAIL_CLASS, DETAIL_PAGE_HEADER_SPACING_CLASS } from "@/lib/ui/shell-layout-styles";
+import {
+  APP_SHELL_DETAIL_CLASS,
+  DETAIL_PAGE_HEADER_SPACING_CLASS,
+} from "@/lib/ui/shell-layout-styles";
 
 const STATUS_OPTIONS: { value: ProductReviewStatus; label: string }[] = [
   { value: "pending", label: "Pending" },
@@ -149,7 +152,7 @@ export default function AdminProductReviewDetailContent({
             Back to Product Reviews
           </Button>
           <GlassCard variant="rose">
-            <p className="py-8 text-center text-gray-600 dark:text-white/70">
+            <p className="py-8 text-center text-gray-600 dark:text-white/80">
               {error instanceof Error ? error.message : "Review not found"}
             </p>
           </GlassCard>
@@ -171,7 +174,7 @@ export default function AdminProductReviewDetailContent({
             Back to Product Reviews
           </Button>
           <GlassCard variant="rose">
-            <p className="py-8 text-center text-gray-600 dark:text-white/70">
+            <p className="py-8 text-center text-gray-600 dark:text-white/80">
               The review you are looking for does not exist or was removed.
             </p>
           </GlassCard>
@@ -404,7 +407,10 @@ export default function AdminProductReviewDetailContent({
                     loading={dataLoading}
                   >
                     {!dataLoading && (
-                      <ClientDateTime date={new Date(r!.createdAt)} semantic="created" />
+                      <ClientDateTime
+                        date={new Date(r!.createdAt)}
+                        semantic="created"
+                      />
                     )}
                   </DetailInfoRow>
                   {!dataLoading && r!.updatedAt && (
@@ -413,7 +419,10 @@ export default function AdminProductReviewDetailContent({
                       label="Updated:"
                       tone="amber"
                     >
-                      <ClientDateTime date={new Date(r!.updatedAt)} semantic="updated" />
+                      <ClientDateTime
+                        date={new Date(r!.updatedAt)}
+                        semantic="updated"
+                      />
                     </DetailInfoRow>
                   )}
                 </div>

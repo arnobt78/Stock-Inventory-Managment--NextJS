@@ -50,7 +50,9 @@ export function CategoryDropDown({
 
   function handleToggle(value: string) {
     setSelectedCategory((prev) =>
-      prev.includes(value) ? prev.filter((id) => id !== value) : [...prev, value],
+      prev.includes(value)
+        ? prev.filter((id) => id !== value)
+        : [...prev, value],
     );
   }
 
@@ -71,7 +73,11 @@ export function CategoryDropDown({
           </Button>
         </PopoverTrigger>
         <PopoverContent
-          className={cn("p-0 w-56 poppins", filterCommandPopoverClass("sky"), FILTER_COMMAND_INPUT_WRAPPER_CLASS)}
+          className={cn(
+            "p-0 w-56 poppins",
+            filterCommandPopoverClass("sky"),
+            FILTER_COMMAND_INPUT_WRAPPER_CLASS,
+          )}
           side="bottom"
           align="end"
         >
@@ -81,7 +87,7 @@ export function CategoryDropDown({
               className="bg-transparent border-0 focus:ring-0 focus:outline-none text-gray-700 dark:text-white/80 placeholder:text-gray-500 dark:placeholder:text-white/40"
             />
             <CommandList>
-              <CommandEmpty className="text-gray-600 dark:text-white/60 text-sm text-center p-5">
+              <CommandEmpty className="text-gray-600 dark:text-white/80 text-sm text-center p-5">
                 No category found.
               </CommandEmpty>
               <CommandGroup>

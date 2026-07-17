@@ -45,8 +45,8 @@ function FactChip({
 }) {
   return (
     <div className="inline-flex items-center gap-1.5 min-w-0 text-sm">
-      <Icon className="h-3.5 w-3.5 shrink-0 text-gray-500 dark:text-gray-400" />
-      <span className="text-gray-600 dark:text-gray-400 shrink-0">{label}</span>
+      <Icon className="h-3.5 w-3.5 shrink-0 text-gray-500 dark:text-gray-300" />
+      <span className="text-gray-600 dark:text-gray-300 shrink-0">{label}</span>
       <span
         className={cn(
           "font-normal text-gray-700 dark:text-white truncate",
@@ -119,7 +119,11 @@ export function InvoiceDetailFactsGrid({
         {paidAt ? <ClientDateTime date={paidAt} semantic="paid" /> : "—"}
       </FactChip>
       <FactChip icon={XCircle} label="Cancelled:" loading={dataLoading}>
-        {cancelledAt ? <ClientDateTime date={cancelledAt} semantic="cancelled" /> : "—"}
+        {cancelledAt ? (
+          <ClientDateTime date={cancelledAt} semantic="cancelled" />
+        ) : (
+          "—"
+        )}
       </FactChip>
     </div>
   );

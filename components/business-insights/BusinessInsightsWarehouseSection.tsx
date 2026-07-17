@@ -18,7 +18,12 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
-import { DollarSign, Package, PieChart as PieChartIcon, Warehouse } from "lucide-react";
+import {
+  DollarSign,
+  Package,
+  PieChart as PieChartIcon,
+  Warehouse,
+} from "lucide-react";
 import { AnalyticsCard } from "@/components/ui/analytics-card";
 import { ChartCard } from "@/components/ui/chart-card";
 import { DeferredChartSection } from "@/components/ui/deferred-chart-section";
@@ -67,7 +72,7 @@ export function BusinessInsightsWarehouseSection({
   return (
     <div className="flex flex-col gap-6 text-xs sm:text-sm">
       <SectionTitleRow title="Warehouse stock rollup" icon={Warehouse} />
-      <p className="text-xs text-gray-600 dark:text-white/60 -mt-4">
+      <p className="text-xs text-gray-600 dark:text-white/80 -mt-4">
         Allocated inventory across locations
       </p>
 
@@ -111,11 +116,7 @@ export function BusinessInsightsWarehouseSection({
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-2">
-        <ChartCard
-          title="Quantity by warehouse"
-          icon={Warehouse}
-          variant="sky"
-        >
+        <ChartCard title="Quantity by warehouse" icon={Warehouse} variant="sky">
           <DeferredChartSection
             loading={loading}
             hasData={quantityChartData.length > 0}
@@ -209,8 +210,8 @@ export function BusinessInsightsWarehouseSection({
               {rows.length === 0 ? (
                 <TableRow>
                   <TableCell colSpan={5} className={CARD_EMPTY_MESSAGE_CLASS}>
-                    No warehouse allocations yet. Allocate stock from a warehouse
-                    detail page.
+                    No warehouse allocations yet. Allocate stock from a
+                    warehouse detail page.
                   </TableCell>
                 </TableRow>
               ) : (

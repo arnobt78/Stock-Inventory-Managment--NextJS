@@ -85,7 +85,8 @@ export default function AdminClientPortalContent({
         id: "email",
         header: "Email",
         headerClassName: "hidden sm:table-cell",
-        cellClassName: "hidden sm:table-cell text-gray-600 dark:text-gray-400 truncate max-w-[160px]",
+        cellClassName:
+          "hidden sm:table-cell text-gray-600 dark:text-gray-300 truncate max-w-[160px]",
         render: (c) => c.email,
       },
       {
@@ -186,7 +187,7 @@ export default function AdminClientPortalContent({
                 <h3 className="text-sm sm:text-base font-medium text-gray-700 dark:text-white">
                   Recent Client Orders
                 </h3>
-                <p className="text-xs text-gray-600 dark:text-gray-400">
+                <p className="text-xs text-gray-600 dark:text-gray-300">
                   Last 10 orders placed by client users
                 </p>
               </div>
@@ -221,7 +222,10 @@ export default function AdminClientPortalContent({
                       </CopyableText>
                       <span className={CARD_LIST_META_CLASS}>
                         {o.clientName} ·{" "}
-                        <ClientCompactDateTime date={o.createdAt} semantic="created" />
+                        <ClientCompactDateTime
+                          date={o.createdAt}
+                          semantic="created"
+                        />
                       </span>
                     </div>
                     <RecentOrderStatusColumn
@@ -274,7 +278,7 @@ export default function AdminClientPortalContent({
                 <h3 className="text-sm sm:text-base font-medium text-gray-700 dark:text-white">
                   Recent Client Invoices
                 </h3>
-                <p className="text-xs text-gray-600 dark:text-gray-400">
+                <p className="text-xs text-gray-600 dark:text-gray-300">
                   Last 10 invoices for client users
                 </p>
               </div>
@@ -289,7 +293,9 @@ export default function AdminClientPortalContent({
                 ))}
               </ul>
             ) : (stats?.recentInvoices?.length ?? 0) === 0 ? (
-              <p className={CARD_EMPTY_MESSAGE_CLASS}>No client invoices yet.</p>
+              <p className={CARD_EMPTY_MESSAGE_CLASS}>
+                No client invoices yet.
+              </p>
             ) : (
               <ul className={CARD_LIST_DIVIDE_CLASS}>
                 {(stats?.recentInvoices ?? []).map((i) => (
@@ -309,7 +315,10 @@ export default function AdminClientPortalContent({
                       </CopyableText>
                       <span className={CARD_LIST_META_CLASS}>
                         {i.clientName} ·{" "}
-                        <ClientCompactDateTime date={i.createdAt} semantic="created" />
+                        <ClientCompactDateTime
+                          date={i.createdAt}
+                          semantic="created"
+                        />
                       </span>
                     </div>
                     <div className="flex items-center gap-2 flex-shrink-0">
@@ -359,7 +368,7 @@ export default function AdminClientPortalContent({
               <h3 className="text-sm sm:text-base font-medium text-gray-700 dark:text-white">
                 Clients
               </h3>
-              <p className="text-xs text-gray-600 dark:text-gray-400">
+              <p className="text-xs text-gray-600 dark:text-gray-300">
                 Users with role &ldquo;client&rdquo; and their activity summary
               </p>
             </div>

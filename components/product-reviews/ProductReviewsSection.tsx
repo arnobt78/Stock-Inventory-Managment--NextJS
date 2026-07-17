@@ -35,7 +35,7 @@ function StarRating({ value }: { value: number }) {
             "h-4 w-4",
             value >= v
               ? "text-amber-500 fill-amber-500"
-              : "text-gray-300 dark:text-gray-600",
+              : "text-gray-300 dark:text-gray-300",
           )}
         />
       ))}
@@ -184,7 +184,7 @@ export default function ProductReviewsSection({
                 variant="ghost"
                 size="sm"
                 onClick={() => handleEdit(r)}
-                className="h-8 rounded-lg text-gray-600 dark:text-gray-400"
+                className="h-8 rounded-lg text-gray-600 dark:text-gray-300"
               >
                 <Pencil className="h-3.5 w-3.5 mr-1" />
                 Edit

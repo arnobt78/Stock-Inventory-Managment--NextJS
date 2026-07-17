@@ -8,7 +8,7 @@ export const FILTER_CHIP_ROW_CLASS =
   "flex flex-wrap items-center gap-2 poppins";
 
 export const FILTER_CHIP_GROUP_LABEL_CLASS =
-  "text-xs text-gray-600 dark:text-white/70";
+  "text-xs text-gray-600 dark:text-white/80";
 
 export const FILTER_CHIP_DISMISS_BTN_CLASS = cn(
   "inline-flex items-center gap-1 rounded-full pr-1.5 transition-colors",
@@ -22,4 +22,4 @@ export const FILTER_CHIP_RESET_BTN_CLASS = cn(
 );
 
 export const FILTER_CHIP_COLLAPSED_CLASS =
-  "inline-flex items-center rounded-full border border-white/20 bg-white/10 px-2 py-0.5 text-xs text-gray-700 dark:text-white/90 backdrop-blur-md";
+  "inline-flex items-center rounded-full border border-white/20 bg-white/10 px-2 py-0.5 text-xs text-gray-700 dark:text-white/80 backdrop-blur-md";

@@ -103,7 +103,10 @@ export function CatalogDetailRecentOrdersList({
               <span className="text-gray-400" aria-hidden>
                 ·
               </span>
-              <FileText className="h-3.5 w-3.5 shrink-0 text-gray-500" aria-hidden />
+              <FileText
+                className="h-3.5 w-3.5 shrink-0 text-gray-500"
+                aria-hidden
+              />
               <CopyableText
                 value={invoice.invoiceNumber}
                 className="min-w-0 text-xs"
@@ -122,7 +125,10 @@ export function CatalogDetailRecentOrdersList({
               <span className="text-gray-400" aria-hidden>
                 ·
               </span>
-              <FileText className="h-3.5 w-3.5 shrink-0 text-gray-500" aria-hidden />
+              <FileText
+                className="h-3.5 w-3.5 shrink-0 text-gray-500"
+                aria-hidden
+              />
               <CopyableText
                 value={invoice.invoiceNumber}
                 className="min-w-0 text-xs"
@@ -156,7 +162,7 @@ export function CatalogDetailRecentOrdersList({
                   {invoiceNode}
                 </div>
                 {!hideProductMeta ? (
-                  <p className="text-sm text-gray-600 dark:text-white/60 flex items-center gap-1.5 flex-wrap min-w-0">
+                  <p className="text-xs font-normal text-gray-600 dark:text-white/80 flex items-center gap-1.5 flex-wrap min-w-0">
                     <ProductThumb
                       name={order.productName}
                       imageUrl={order.productImageUrl}
@@ -166,7 +172,7 @@ export function CatalogDetailRecentOrdersList({
                     <Link
                       href={productHref(order.productId)}
                       prefetch
-                      className="font-normal text-sm text-sky-600 dark:text-sky-400 hover:text-sky-500 truncate"
+                      className="font-normal text-xs text-sky-600 dark:text-sky-400 hover:text-sky-500 truncate"
                     >
                       {order.productName}
                     </Link>
@@ -197,7 +203,11 @@ export function CatalogDetailRecentOrdersList({
                     </span>
                     <Package className="h-3.5 w-3.5 shrink-0" aria-hidden />
                     <span>
-                      Qty: {order.quantity} × ${order.price.toFixed(2)}
+                      Qty:{" "}
+                      <span className="text-gray-700 dark:text-gray-300">
+                        {order.quantity}
+                      </span>{" "}
+                      × ${order.price.toFixed(2)}
                     </span>
                     <span className="text-gray-400" aria-hidden>
                       ·
@@ -206,7 +216,7 @@ export function CatalogDetailRecentOrdersList({
                     <ClientDate date={order.orderDate} semantic="created" />
                   </p>
                 ) : (
-                  <p className="text-sm text-gray-600 dark:text-white/60 flex items-center gap-1.5 flex-wrap min-w-0">
+                  <p className="text-xs font-normal text-gray-600 dark:text-gray-300 flex items-center gap-1.5 flex-wrap min-w-0">
                     {categoryNode != null ? (
                       <>
                         {categoryNode}
@@ -217,7 +227,11 @@ export function CatalogDetailRecentOrdersList({
                     ) : null}
                     <Package className="h-3.5 w-3.5 shrink-0" aria-hidden />
                     <span>
-                      Qty: {order.quantity} × ${order.price.toFixed(2)}
+                      Qty:{" "}
+                      <span className="text-gray-700 dark:text-gray-300">
+                        {order.quantity}
+                      </span>{" "}
+                      × ${order.price.toFixed(2)}
                     </span>
                     <span className="text-gray-400" aria-hidden>
                       ·
@@ -227,21 +241,20 @@ export function CatalogDetailRecentOrdersList({
                   </p>
                 )}
                 {(order.owner || order.placedBy) && (
-                  <div className="flex flex-wrap items-center gap-1.5 text-xs text-gray-600 dark:text-white/60">
+                  <div className="flex flex-wrap items-center gap-1.5 text-xs font-normal text-gray-600 dark:text-gray-300">
                     {order.owner && (
-                      <span className="inline-flex items-center gap-1.5 min-w-0">
+                      <span className="inline-flex items-center gap-1.5 min-w-0 font-normal">
                         <User className="h-3.5 w-3.5 shrink-0" aria-hidden />
                         Owner:{" "}
                         <AvatarInlineLink
                           seed={order.owner.id}
                           image={order.owner.image}
                           label={
-                            order.owner.name ??
-                            order.owner.email ??
-                            "Owner"
+                            order.owner.name ?? order.owner.email ?? "Owner"
                           }
                           href={ownerProductsHref(order.owner.id)}
                           size={20}
+                          linkClassName="text-xs"
                         />
                       </span>
                     )}
@@ -251,7 +264,7 @@ export function CatalogDetailRecentOrdersList({
                       </span>
                     ) : null}
                     {order.placedBy && (
-                      <span className="inline-flex items-center gap-1.5 min-w-0">
+                      <span className="inline-flex items-center gap-1.5 min-w-0 font-normal">
                         <User className="h-3.5 w-3.5 shrink-0" aria-hidden />
                         Buyer:{" "}
                         {isAdminRole ? (
@@ -261,6 +274,7 @@ export function CatalogDetailRecentOrdersList({
                             label={buyerLabel}
                             href={buyerAdminHref(order.placedBy.id)}
                             size={20}
+                            linkClassName="text-xs"
                           />
                         ) : (
                           <AvatarInlineLink
@@ -268,6 +282,7 @@ export function CatalogDetailRecentOrdersList({
                             image={order.placedBy.image}
                             label={buyerLabel}
                             size={20}
+                            linkClassName="text-xs"
                           />
                         )}
                       </span>

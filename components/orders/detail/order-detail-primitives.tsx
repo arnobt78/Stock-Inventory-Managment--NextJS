@@ -134,7 +134,7 @@ export function DetailInfoRow({
       )}
     >
       <Icon className={cn("h-4 w-4 shrink-0", styles.icon)} />
-      <span className="text-gray-600 dark:text-gray-400">{label}</span>
+      <span className="text-gray-600 dark:text-gray-300">{label}</span>
       <span
         className={cn(
           "font-normal text-gray-700 dark:text-white inline-flex items-center min-w-0",

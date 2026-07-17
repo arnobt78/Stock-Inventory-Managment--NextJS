@@ -57,7 +57,7 @@ export function ProductThumb({
       )}
       aria-hidden
     >
-      <Package className="h-4 w-4 text-gray-500 dark:text-gray-400" />
+      <Package className="h-4 w-4 text-gray-500 dark:text-gray-300" />
     </span>
   );
 }
@@ -80,7 +80,7 @@ export type ProductOptionRowProps = {
 };
 
 /** Readable meta on light popover surfaces (allocate/transfer product picker). */
-const PRODUCT_OPTION_META_POPOVER_CLASS = "text-gray-600 dark:text-gray-400";
+const PRODUCT_OPTION_META_POPOVER_CLASS = "text-gray-600 dark:text-gray-300";
 
 function formatCatalogMeta(props: ProductOptionRowProps): string | null {
   const parts: string[] = [];

@@ -377,3 +377,13 @@ Format: `TIMESTAMP | AGENT | DECISION | RATIONALE | REQ-ID`
 2026-07-16T17:27:00Z | release | Prod SHA c62d364 pushed origin/main | REQ-0145 gap; redeploy Vercel | REQ-0145
 2026-07-16T17:30:00Z | product-owner | EOD park — resume tomorrow-UI-then-cache | Shipped 0141–0145; next human UI/calc then §10 A1/A2/B1 only | REQ-0136
 2026-07-17T11:30:00Z | agile-v-core | Session activate — Infinity Loop | .agile-v intact; resume REQ-0136 UI explore before §10; skills 01+02+17+19 | REQ-0136,REQ-0008
+2026-07-17T12:45:00Z | build-agent | REQ-0146 order detail density + strike fix | Equal-height tracking; glass UPS; strike only list>adj; trackingCarrier persist; related cards | REQ-0146
+2026-07-17T12:50:00Z | red-team | REQ-0146 gates | lint ✓ test 572 ✓ invalidate 213 ✓ build ✓ | REQ-0146
+2026-07-17T13:30:00Z | build-agent | REQ-0147 order detail gap closure | CarrierGlassBadge; Items|Summary; Parties+addresses stack; slate header Back; remove related cards | REQ-0147
+2026-07-17T13:35:00Z | red-team | REQ-0147 gates | lint ✓ test 573 ✓ invalidate 213 ✓ build ✓ | REQ-0147
+2026-07-17T14:40:00Z | build-agent | REQ-0148 summary total + line meta + light Back | Total text-sm sm:text-base; ProductLineItemsList · + invoice chip; light DETAIL_HEADER_BACK_ICON_CLASS | REQ-0148
+2026-07-17T14:45:00Z | red-team | REQ-0148 gates | lint ✓ test 573 ✓ invalidate 213 ✓ build ✓ | REQ-0148
+2026-07-17T14:50:00Z | build-agent | REQ-0148 Order Back parity | OrderDetailHeader variant=ghost + DETAIL_HEADER_BACK_ICON_CLASS (was default primary red) | REQ-0148
+2026-07-17T14:55:00Z | build-agent | REQ-0149 line price + Owner/Buyer size | ProportionalPriceDisplay final base/strike xs; catalog AvatarInlineLink text-xs | REQ-0149
+2026-07-17T14:58:00Z | red-team | REQ-0149 gates | lint ✓ test 573 ✓ invalidate 213 ✓ build ✓ | REQ-0149
+2026-07-17T15:10:00Z | red-team | Pre-commit audit REQ-0146–0149 | UI/CSS+trackingCarrier only; no RQ/Redis/invalidate delta; ListIndexBadge dark text-gray-700; gates PASS | REQ-0146,REQ-0147,REQ-0148,REQ-0149

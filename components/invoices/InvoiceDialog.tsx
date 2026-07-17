@@ -60,7 +60,11 @@ import {
 } from "@/components/shared";
 import { AvatarInlineLink } from "@/components/shared/AvatarInlineLink";
 import { ClientCompactDateTime } from "@/components/shared/ClientFormatDisplay";
-import { OrderStatusBadge, PaymentStatusBadge, InvoiceStatusBadge } from "@/lib/ui/semantic-badges";
+import {
+  OrderStatusBadge,
+  PaymentStatusBadge,
+  InvoiceStatusBadge,
+} from "@/lib/ui/semantic-badges";
 import { ProductThumb } from "@/components/products/ProductOptionRow";
 import { cn } from "@/lib/utils";
 import { OrderPickerCommand } from "./OrderPickerCommand";
@@ -557,7 +561,10 @@ export default function InvoiceDialog({
                       >
                         <SelectTrigger
                           id="invoice-status"
-                          className={cn("h-11 w-full", DIALOG_FORM_FIELD_INDIGO)}
+                          className={cn(
+                            "h-11 w-full",
+                            DIALOG_FORM_FIELD_INDIGO,
+                          )}
                         >
                           <SelectValue placeholder="Select Status">
                             <InvoiceStatusBadge
@@ -575,20 +582,41 @@ export default function InvoiceDialog({
                           sideOffset={5}
                           align="start"
                         >
-                          <SelectItem value="draft" className={DIALOG_SELECT_ITEM_CLASS}>
+                          <SelectItem
+                            value="draft"
+                            className={DIALOG_SELECT_ITEM_CLASS}
+                          >
                             <InvoiceStatusBadge status="draft" size="detail" />
                           </SelectItem>
-                          <SelectItem value="sent" className={DIALOG_SELECT_ITEM_CLASS}>
+                          <SelectItem
+                            value="sent"
+                            className={DIALOG_SELECT_ITEM_CLASS}
+                          >
                             <InvoiceStatusBadge status="sent" size="detail" />
                           </SelectItem>
-                          <SelectItem value="paid" className={DIALOG_SELECT_ITEM_CLASS}>
+                          <SelectItem
+                            value="paid"
+                            className={DIALOG_SELECT_ITEM_CLASS}
+                          >
                             <InvoiceStatusBadge status="paid" size="detail" />
                           </SelectItem>
-                          <SelectItem value="overdue" className={DIALOG_SELECT_ITEM_CLASS}>
-                            <InvoiceStatusBadge status="overdue" size="detail" />
+                          <SelectItem
+                            value="overdue"
+                            className={DIALOG_SELECT_ITEM_CLASS}
+                          >
+                            <InvoiceStatusBadge
+                              status="overdue"
+                              size="detail"
+                            />
                           </SelectItem>
-                          <SelectItem value="cancelled" className={DIALOG_SELECT_ITEM_CLASS}>
-                            <InvoiceStatusBadge status="cancelled" size="detail" />
+                          <SelectItem
+                            value="cancelled"
+                            className={DIALOG_SELECT_ITEM_CLASS}
+                          >
+                            <InvoiceStatusBadge
+                              status="cancelled"
+                              size="detail"
+                            />
                           </SelectItem>
                         </SelectContent>
                       </Select>
@@ -749,7 +777,10 @@ export default function InvoiceDialog({
                 <Button
                   onClick={handleCancelEdit}
                   variant="secondary"
-                  className={cn("w-full sm:w-auto px-11 gap-2", GLASS_GHOST_BUTTON)}
+                  className={cn(
+                    "w-full sm:w-auto px-11 gap-2",
+                    GLASS_GHOST_BUTTON,
+                  )}
                 >
                   <X className="h-4 w-4 shrink-0" aria-hidden />
                   Cancel
@@ -772,7 +803,11 @@ export default function InvoiceDialog({
             <div className="space-y-4 mt-4">
               {/* Order Selection */}
               <div className="space-y-2">
-                <DialogFormLabel htmlFor="order-select" icon={ShoppingCart} required>
+                <DialogFormLabel
+                  htmlFor="order-select"
+                  icon={ShoppingCart}
+                  required
+                >
                   Select Order
                 </DialogFormLabel>
                 {/* REQ-0060: searchable order picker (type-to-filter) replaces plain Select */}
@@ -795,7 +830,10 @@ export default function InvoiceDialog({
                         status={selectedOrder.paymentStatus}
                         size="detail"
                       />
-                      <ClientCompactDateTime date={selectedOrder.createdAt} semantic="created" />
+                      <ClientCompactDateTime
+                        date={selectedOrder.createdAt}
+                        semantic="created"
+                      />
                       {(selectedOrder.placedByName ||
                         selectedOrder.placedByEmail) && (
                         <AvatarInlineLink
@@ -805,8 +843,7 @@ export default function InvoiceDialog({
                             ""
                           }
                           seed={
-                            selectedOrder.placedByUserId ??
-                            selectedOrder.userId
+                            selectedOrder.placedByUserId ?? selectedOrder.userId
                           }
                           image={selectedOrder.placedByImage}
                           size={16}
@@ -823,7 +860,7 @@ export default function InvoiceDialog({
                         {selectedOrder.items.map((item) => (
                           <li
                             key={item.id}
-                            className="flex items-center gap-2 text-xs text-gray-600 dark:text-gray-400 min-w-0"
+                            className="flex items-center gap-2 text-xs text-gray-600 dark:text-gray-300 min-w-0"
                           >
                             <ProductThumb
                               name={item.productName}
@@ -916,7 +953,10 @@ export default function InvoiceDialog({
                 type="button"
                 onClick={handleCancel}
                 variant="secondary"
-                className={cn("w-full sm:w-auto px-11 gap-2", GLASS_GHOST_BUTTON)}
+                className={cn(
+                  "w-full sm:w-auto px-11 gap-2",
+                  GLASS_GHOST_BUTTON,
+                )}
               >
                 <X className="h-4 w-4 shrink-0" aria-hidden />
                 Cancel

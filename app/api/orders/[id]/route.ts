@@ -148,6 +148,8 @@ export async function PUT(
       >;
     if (updateData.trackingNumber)
       updatePayload.trackingNumber = updateData.trackingNumber;
+    if (updateData.trackingCarrier)
+      updatePayload.trackingCarrier = updateData.trackingCarrier;
     if (updateData.trackingUrl && updateData.trackingUrl !== "")
       updatePayload.trackingUrl = updateData.trackingUrl;
     if (updateData.estimatedDelivery && updateData.estimatedDelivery !== "")

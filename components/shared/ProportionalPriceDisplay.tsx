@@ -2,7 +2,7 @@
 
 /**
  * REQ-0116 — list-price strikethrough + adjusted line amount when order fees apply.
- * DRY for order line rows, catalog recent orders, and order-create live preview.
+ * REQ-0149 — final amount text-sm sm:text-base; strike text-xs sm:text-sm (all call sites).
  */
 
 import React from "react";
@@ -13,29 +13,39 @@ export type ProportionalPriceDisplayProps = {
   listAmount: number;
   /** Adjusted share of order.total; defaults to listAmount when omitted. */
   adjustedAmount?: number;
+  /**
+   * @deprecated REQ-0149 — typography is unified; kept for call-site compat.
+   */
   size?: "sm" | "md";
   className?: string;
   /** Hue for the final (adjusted) amount when it differs from list. */
   adjustedTone?: "rose" | "sky";
 };
 
+/** Final (non-strike) amount — Order Items, recent orders, create dialog. */
+export const PROPORTIONAL_PRICE_FINAL_CLASS = "text-sm sm:text-base";
+/** Strikethrough list amount when discount applies. */
+export const PROPORTIONAL_PRICE_STRIKE_CLASS = "text-xs sm:text-sm";
+
 function formatMoney(amount: number): string {
   return `$${Number(amount).toFixed(2)}`;
 }
 
-/** True when adjusted amount meaningfully differs from list (fee-adjusted orders). */
+/**
+ * Dual-price (strike + final) only when list is greater than adjusted (discount).
+ * REQ-0146 — never strike a lower list when tax/shipping makes adjusted higher.
+ */
 export function shouldShowAdjustedPrice(
   listAmount: number,
   adjustedAmount?: number,
 ): boolean {
   if (adjustedAmount == null || !Number.isFinite(adjustedAmount)) return false;
-  return Math.abs(adjustedAmount - listAmount) > 0.005;
+  return listAmount - adjustedAmount > 0.005;
 }
 
 export function ProportionalPriceDisplay({
   listAmount,
   adjustedAmount,
-  size = "md",
   className,
   adjustedTone = "rose",
 }: ProportionalPriceDisplayProps) {
@@ -43,26 +53,24 @@ export function ProportionalPriceDisplay({
     adjustedAmount != null && Number.isFinite(adjustedAmount)
       ? adjustedAmount
       : listAmount;
-  const showAdjusted = shouldShowAdjustedPrice(listAmount, finalAmount);
-
-  const sizeClass =
-    size === "sm" ? "text-sm" : "text-sm sm:text-lg";
+  const showStrike = shouldShowAdjustedPrice(listAmount, finalAmount);
 
   const adjustedColor =
     adjustedTone === "sky"
       ? "text-sky-600 dark:text-sky-400"
       : "text-rose-600 dark:text-rose-400";
 
-  if (!showAdjusted) {
+  // Upcharge or equal — single amount (prefer adjusted share when present)
+  if (!showStrike) {
     return (
       <span
         className={cn(
           "font-normal text-sky-600 dark:text-sky-400",
-          sizeClass,
+          PROPORTIONAL_PRICE_FINAL_CLASS,
           className,
         )}
       >
-        {formatMoney(listAmount)}
+        {formatMoney(finalAmount)}
       </span>
     );
   }
@@ -71,14 +79,20 @@ export function ProportionalPriceDisplay({
     <span
       className={cn(
         "font-normal inline-flex flex-wrap items-baseline gap-x-2",
-        sizeClass,
         className,
       )}
     >
-      <span className="text-gray-500 dark:text-white/50 line-through text-sm">
+      <span
+        className={cn(
+          "text-gray-500 dark:text-white/80 line-through",
+          PROPORTIONAL_PRICE_STRIKE_CLASS,
+        )}
+      >
         {formatMoney(listAmount)}
       </span>
-      <span className={adjustedColor}>{formatMoney(finalAmount)}</span>
+      <span className={cn(adjustedColor, PROPORTIONAL_PRICE_FINAL_CLASS)}>
+        {formatMoney(finalAmount)}
+      </span>
     </span>
   );
 }

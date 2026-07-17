@@ -2,33 +2,39 @@
 
 /**
  * REQ-0063 — shared product line-item rows (thumb + name/SKU/qty/subtotal).
- * REQ-0073 — two-row thumb layout + inline category/supplier/warehouse row.
+ * REQ-0147 — product name text-sm; meta Qty/SKU/catalog text-xs.
+ * REQ-0148 — meta · separators + invoice CopyableText chip when order has invoice.
  */
 
 import React from "react";
 import Link from "next/link";
-import { Hash, Package, Tag, Truck, Warehouse } from "lucide-react";
+import { FileText, Hash, Package, Tag, Truck, Warehouse } from "lucide-react";
 import { ProductThumb } from "@/components/products/ProductOptionRow";
 import { AvatarInlineLink } from "@/components/shared/AvatarInlineLink";
+import { CopyableText } from "@/components/shared/CopyableText";
 import { ProportionalPriceDisplay } from "@/components/shared/ProportionalPriceDisplay";
 import ProductReviewsSection from "@/components/product-reviews/ProductReviewsSection";
 import type { Order, OrderItem } from "@/types";
 import type { OrderReviewContext } from "@/lib/server/order-review-context-data";
 import { orderHasFeeAdjustments } from "@/lib/orders/proportional-line-amount";
+import { DETAIL_DATA_VALUE_CLASS } from "@/lib/ui/typography-scale";
+import { cn } from "@/lib/utils";
 
 export type ProductLineItemsListProps = {
   items: OrderItem[];
   linkMode: "admin" | "portal" | "none";
-  /** REQ-0073 — warehouse link for admin/owner; plain text for client/supplier */
   warehouseLinkMode?: "admin" | "owner" | "none";
-  /** REQ-0114 — order totals for proportional line display */
   orderSubtotal?: number;
   orderTotal?: number;
   emptyMessage?: string;
   showReviews?: boolean;
-  order?: Pick<Order, "id" | "paymentStatus">;
+  /** REQ-0148 — include invoiceForOrder for meta invoice chip */
+  order?: Pick<Order, "id" | "paymentStatus" | "invoiceForOrder">;
   initialReviewContext?: OrderReviewContext;
 };
+
+const META_LABEL =
+  "inline-flex items-center gap-1 text-xs font-normal text-gray-600 dark:text-gray-300";
 
 function CatalogLink({
   href,
@@ -42,12 +48,12 @@ function CatalogLink({
   children: React.ReactNode;
 }) {
   return (
-    <span className="inline-flex items-center gap-1 text-sm text-gray-600 dark:text-gray-400">
-      <Icon className="h-3.5 w-3.5 shrink-0 text-gray-500 dark:text-gray-400" />
+    <span className={META_LABEL}>
+      <Icon className="h-3 w-3 shrink-0 text-gray-500 dark:text-gray-300" />
       {label}{" "}
       <Link
         href={href}
-        className="text-sky-600 dark:text-sky-400 hover:text-sky-500 dark:hover:text-sky-300 font-medium"
+        className="text-sky-600 dark:text-sky-400 hover:text-sky-500 dark:hover:text-sky-300 font-normal"
       >
         {children}
       </Link>
@@ -65,10 +71,31 @@ function CatalogText({
   children: React.ReactNode;
 }) {
   return (
-    <span className="inline-flex items-center gap-1 text-sm text-gray-600 dark:text-gray-400">
-      <Icon className="h-3.5 w-3.5 shrink-0 text-gray-500 dark:text-gray-400" />
-      {label} {children}
+    <span className={META_LABEL}>
+      <Icon className="h-3 w-3 shrink-0 text-gray-500 dark:text-gray-300" />
+      {label}{" "}
+      <span className={cn("text-xs", DETAIL_DATA_VALUE_CLASS)}>{children}</span>
     </span>
+  );
+}
+
+/** REQ-0148 — join meta chips with · separators (skip empty). */
+function MetaSegmentRow({ segments }: { segments: React.ReactNode[] }) {
+  const nodes = segments.filter(Boolean);
+  if (nodes.length === 0) return null;
+  return (
+    <div className="mt-3 flex flex-wrap items-center gap-x-1.5 gap-y-1 pt-2 border-t border-sky-200/30 dark:border-sky-400/10">
+      {nodes.map((node, i) => (
+        <React.Fragment key={i}>
+          {i > 0 ? (
+            <span className="text-gray-400 text-xs" aria-hidden>
+              ·
+            </span>
+          ) : null}
+          {node}
+        </React.Fragment>
+      ))}
+    </div>
   );
 }
 
@@ -86,6 +113,16 @@ export function ProductLineItemsList({
   if (items.length === 0) {
     return <p className="text-muted-foreground">{emptyMessage}</p>;
   }
+
+  const invoice = order?.invoiceForOrder;
+  const invoiceHref =
+    invoice != null
+      ? linkMode === "admin"
+        ? `/admin/invoices/${invoice.id}`
+        : linkMode !== "none"
+          ? `/invoices/${invoice.id}`
+          : null
+      : null;
 
   return (
     <>
@@ -114,10 +151,94 @@ export function ProductLineItemsList({
 
         const showAdjusted =
           typeof item.proportionalAmount === "number" &&
-          (orderSubtotal != null &&
-          orderTotal != null
+          (orderSubtotal != null && orderTotal != null
             ? orderHasFeeAdjustments(orderSubtotal, orderTotal)
             : item.proportionalAmount !== item.subtotal);
+
+        const metaSegments: React.ReactNode[] = [];
+
+        if (item.categoryName || item.categoryId) {
+          metaSegments.push(
+            item.categoryId ? (
+              <CatalogLink
+                key="category"
+                href={categoryHref}
+                icon={Tag}
+                label="Category:"
+              >
+                {item.categoryName ?? "View category"}
+              </CatalogLink>
+            ) : (
+              <CatalogText key="category" icon={Tag} label="Category:">
+                {item.categoryName ?? "—"}
+              </CatalogText>
+            ),
+          );
+        }
+
+        if (item.supplierName || item.supplierId) {
+          metaSegments.push(
+            item.supplierId ? (
+              <span key="supplier" className={META_LABEL}>
+                <Truck className="h-3 w-3 shrink-0 text-gray-500 dark:text-gray-300" />
+                Supplier:{" "}
+                <AvatarInlineLink
+                  seed={item.supplierId}
+                  label={item.supplierName ?? "View supplier"}
+                  href={supplierHref}
+                  size={18}
+                  linkClassName="text-xs"
+                />
+              </span>
+            ) : (
+              <CatalogText key="supplier" icon={Truck} label="Supplier:">
+                {item.supplierName ?? "—"}
+              </CatalogText>
+            ),
+          );
+        }
+
+        if (item.warehouseName) {
+          metaSegments.push(
+            warehouseHref ? (
+              <CatalogLink
+                key="warehouse"
+                href={warehouseHref}
+                icon={Warehouse}
+                label="Warehouse:"
+              >
+                {item.warehouseName}
+              </CatalogLink>
+            ) : (
+              <CatalogText key="warehouse" icon={Warehouse} label="Warehouse:">
+                {item.warehouseName}
+              </CatalogText>
+            ),
+          );
+        }
+
+        // Invoice once per line row when order has a linked invoice (REQ-0148)
+        if (invoice) {
+          metaSegments.push(
+            <span key="invoice" className={META_LABEL}>
+              <FileText className="h-3 w-3 shrink-0 text-gray-500 dark:text-gray-300" />
+              <CopyableText value={invoice.invoiceNumber} className="min-w-0">
+                {invoiceHref ? (
+                  <Link
+                    href={invoiceHref}
+                    className="text-sky-600 dark:text-sky-400 hover:text-sky-500 dark:hover:text-sky-300 font-normal truncate"
+                  >
+                    {invoice.invoiceNumber}
+                  </Link>
+                ) : (
+                  <span className={cn("text-xs", DETAIL_DATA_VALUE_CLASS)}>
+                    {invoice.invoiceNumber}
+                  </span>
+                )}
+              </CopyableText>
+            </span>,
+          );
+        }
 
         return (
           <div
@@ -136,23 +257,58 @@ export function ProductLineItemsList({
                   {productHref ? (
                     <Link
                       href={productHref}
-                      className="font-medium text-sky-600 dark:text-sky-400 hover:text-sky-500 dark:hover:text-sky-300 truncate"
+                      className="text-sm font-normal text-sky-600 dark:text-sky-400 hover:text-sky-500 dark:hover:text-sky-300 truncate"
                     >
                       {item.productName}
                     </Link>
                   ) : (
-                    <span className="font-medium text-gray-700 dark:text-white truncate">
+                    <span
+                      className={cn(
+                        "text-sm font-normal truncate",
+                        DETAIL_DATA_VALUE_CLASS,
+                      )}
+                    >
                       {item.productName}
                     </span>
                   )}
-                  <span className="inline-flex items-center gap-1 text-sm text-gray-600 dark:text-gray-400 shrink-0">
-                    <Hash className="h-3.5 w-3.5 shrink-0" />
-                    SKU: {item.sku ?? "—"}
+                  <span className={cn(META_LABEL, "shrink-0")}>
+                    <Hash className="h-3 w-3 shrink-0" />
+                    SKU:{" "}
+                    {item.sku ? (
+                      <CopyableText value={item.sku}>
+                        <span
+                          className={cn(
+                            "font-mono text-xs",
+                            DETAIL_DATA_VALUE_CLASS,
+                          )}
+                        >
+                          {item.sku}
+                        </span>
+                      </CopyableText>
+                    ) : (
+                      "—"
+                    )}
                   </span>
                 </div>
-                <p className="flex items-center gap-1 text-sm text-gray-600 dark:text-gray-400">
-                  <Package className="h-3.5 w-3.5 shrink-0" />
-                  Quantity: {item.quantity} × ${Number(item.price).toFixed(2)}
+                <p
+                  className={cn(
+                    META_LABEL,
+                    "flex flex-wrap gap-x-1.5 gap-y-0.5",
+                  )}
+                >
+                  <Package className="h-3 w-3 shrink-0" />
+                  <span>
+                    Qty:{" "}
+                    <span className={cn("text-xs", DETAIL_DATA_VALUE_CLASS)}>
+                      {item.quantity}
+                    </span>
+                  </span>
+                  <span className="text-gray-400" aria-hidden>
+                    ·
+                  </span>
+                  <span className={cn("text-xs", DETAIL_DATA_VALUE_CLASS)}>
+                    ${Number(item.price).toFixed(2)}
+                  </span>
                 </p>
               </div>
               <div className="text-left sm:text-right flex flex-col items-end gap-2 shrink-0">
@@ -185,45 +341,7 @@ export function ProductLineItemsList({
               </div>
             </div>
 
-            <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1 pt-2 border-t border-sky-200/30 dark:border-sky-400/10">
-              {(item.categoryName || item.categoryId) &&
-                (item.categoryId ? (
-                  <CatalogLink href={categoryHref} icon={Tag} label="Category:">
-                    {item.categoryName ?? "View category"}
-                  </CatalogLink>
-                ) : (
-                  <CatalogText icon={Tag} label="Category:">
-                    {item.categoryName ?? "—"}
-                  </CatalogText>
-                ))}
-              {(item.supplierName || item.supplierId) &&
-                (item.supplierId ? (
-                  <span className="inline-flex items-center gap-1 text-sm text-gray-600 dark:text-gray-400">
-                    <Truck className="h-3.5 w-3.5 shrink-0 text-gray-500 dark:text-gray-400" />
-                    Supplier:{" "}
-                    <AvatarInlineLink
-                      seed={item.supplierId}
-                      label={item.supplierName ?? "View supplier"}
-                      href={supplierHref}
-                      size={20}
-                    />
-                  </span>
-                ) : (
-                  <CatalogText icon={Truck} label="Supplier:">
-                    {item.supplierName ?? "—"}
-                  </CatalogText>
-                ))}
-              {item.warehouseName &&
-                (warehouseHref ? (
-                  <CatalogLink href={warehouseHref} icon={Warehouse} label="Warehouse:">
-                    {item.warehouseName}
-                  </CatalogLink>
-                ) : (
-                  <CatalogText icon={Warehouse} label="Warehouse:">
-                    {item.warehouseName}
-                  </CatalogText>
-                ))}
-            </div>
+            <MetaSegmentRow segments={metaSegments} />
           </div>
         );
       })}

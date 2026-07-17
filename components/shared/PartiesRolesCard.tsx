@@ -7,13 +7,7 @@
 
 import React from "react";
 import type { LucideIcon } from "lucide-react";
-import {
-  FileText,
-  Package,
-  User,
-  MapPin,
-  Users,
-} from "lucide-react";
+import { FileText, Package, User, MapPin, Users } from "lucide-react";
 import { DataSlotPulse } from "@/components/shared";
 import { PersonInlineRow } from "@/components/shared/PersonInlineRow";
 import { cn } from "@/lib/utils";
@@ -85,7 +79,7 @@ function PartyFieldRow({
         className,
       )}
     >
-      <span className="text-gray-600 dark:text-gray-400 font-medium inline-flex items-center gap-1.5 text-sm shrink-0">
+      <span className="text-gray-600 dark:text-gray-300 font-normal inline-flex items-center gap-1.5 text-sm shrink-0">
         <Icon className="h-3.5 w-3.5 shrink-0" />
         {label}
       </span>
@@ -118,8 +112,8 @@ export function PartiesRolesCard({
         <div className="p-2 rounded-xl border border-teal-400/30 bg-teal-500/10 dark:bg-teal-500/20">
           <HeaderIcon className="h-5 w-5 text-teal-600 dark:text-teal-400" />
         </div>
-        <h3 className="text-sm sm:text-base font-medium text-gray-700 dark:text-white">
-          Parties & roles
+        <h3 className="text-sm sm:text-base font-normal text-gray-700 dark:text-white">
+          Parties & Roles
         </h3>
       </div>
       <div className="flex flex-col gap-2 text-sm">
@@ -163,7 +157,12 @@ export function PartiesRolesCard({
 }
 
 export function mapOrderProductOwners(
-  owners: { userId: string; name: string | null; email: string; image?: string | null }[],
+  owners: {
+    userId: string;
+    name: string | null;
+    email: string;
+    image?: string | null;
+  }[],
 ): PartyPerson[] {
   return owners.map((o) => ({
     userId: o.userId,

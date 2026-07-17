@@ -373,7 +373,7 @@ export default function ProductDetailPage({
             <h2 className="text-sm sm:text-base font-medium text-gray-700 dark:text-white mb-2">
               Product Not Found
             </h2>
-            <p className="text-gray-600 dark:text-gray-400 mb-4">
+            <p className="text-gray-600 dark:text-gray-300 mb-4">
               {productQuery.error instanceof Error
                 ? productQuery.error.message
                 : "Failed to load product details"}
@@ -480,7 +480,7 @@ export default function ProductDetailPage({
             <div className="flex flex-col gap-2 min-w-0 h-full">
               <GlassCard variant="emerald" className="flex-1 flex flex-col">
                 <GlassCardBody className="flex-1 flex flex-col justify-center">
-                  <p className="text-xs uppercase tracking-[0.2em] text-gray-600 dark:text-white/60 mb-3 flex items-center gap-2">
+                  <p className="text-xs uppercase tracking-[0.2em] text-gray-600 dark:text-white/80 mb-3 flex items-center gap-2">
                     <Activity
                       className="h-4 w-4 text-emerald-600 dark:text-emerald-400 shrink-0"
                       aria-hidden
@@ -494,13 +494,12 @@ export default function ProductDetailPage({
                     size="detail"
                     className="self-start text-sm w-fit"
                   />
-
                 </GlassCardBody>
               </GlassCard>
 
               <GlassCard variant="amber" className="flex-1 flex flex-col">
                 <GlassCardBody className="flex-1 flex flex-col justify-center">
-                  <p className="text-xs uppercase tracking-[0.2em] text-gray-600 dark:text-white/60 mb-3 flex items-center gap-2">
+                  <p className="text-xs uppercase tracking-[0.2em] text-gray-600 dark:text-white/80 mb-3 flex items-center gap-2">
                     <Layers
                       className="h-4 w-4 text-amber-600 dark:text-amber-400 shrink-0"
                       aria-hidden
@@ -532,7 +531,7 @@ export default function ProductDetailPage({
 
               <GlassCard variant="blue" className="flex-1 flex flex-col">
                 <GlassCardBody className="flex-1 flex flex-col justify-center">
-                  <p className="text-xs uppercase tracking-[0.2em] text-gray-600 dark:text-white/60 mb-3 flex items-center gap-2">
+                  <p className="text-xs uppercase tracking-[0.2em] text-gray-600 dark:text-white/80 mb-3 flex items-center gap-2">
                     <DollarSign
                       className="h-4 w-4 text-blue-600 dark:text-blue-400 shrink-0"
                       aria-hidden
@@ -566,7 +565,7 @@ export default function ProductDetailPage({
                   </div>
                 ) : (
                   <div className="w-full flex-1 min-h-64 rounded-xl bg-white/30 dark:bg-white/5 border border-gray-300/20 dark:border-white/10 flex items-center justify-center">
-                    <p className="text-gray-500 dark:text-white/50">
+                    <p className="text-gray-500 dark:text-white/80">
                       No image available
                     </p>
                   </div>
@@ -594,7 +593,7 @@ export default function ProductDetailPage({
                   </div>
                 ) : (
                   <div className="w-full flex-1 min-h-64 rounded-xl bg-white/30 dark:bg-white/5 border border-gray-300/20 dark:border-white/10 flex items-center justify-center">
-                    <p className="text-gray-500 dark:text-white/50">
+                    <p className="text-gray-500 dark:text-white/80">
                       No QR code available
                     </p>
                   </div>
@@ -873,11 +872,8 @@ export default function ProductDetailPage({
               productForecast={productForecast}
               productHref={productHref}
               catalogQuantity={catalogQuantity}
-              catalogAllocationSummary={
-                allocationSummaryParts ?? undefined
-              }
+              catalogAllocationSummary={allocationSummaryParts ?? undefined}
             />
-
           )}
 
           {showWarehouseStockCard && (
@@ -962,18 +958,19 @@ export default function ProductDetailPage({
                                 {warehouseLinkAllowed ? (
                                   <Link
                                     href={whHref}
-                                    className="font-medium text-sm text-sky-600 dark:text-sky-400 hover:text-sky-500"
+                                    className="font-normal text-sm text-sky-600 dark:text-sky-400 hover:text-sky-500"
                                   >
                                     {row.warehouse?.name ?? "Warehouse"}
                                   </Link>
                                 ) : (
-                                  <span className="font-medium text-sm text-gray-700 dark:text-white">
+                                  <span className="font-normal text-sm text-gray-700 dark:text-white">
                                     {row.warehouse?.name ?? "Warehouse"}
                                   </span>
                                 )}
                                 {row.warehouse?.status != null && (
                                   <ActiveInactiveBadge
                                     active={row.warehouse.status}
+                                    size="detail"
                                   />
                                 )}
                                 {row.warehouse?.type ? (
@@ -1014,7 +1011,7 @@ export default function ProductDetailPage({
                               )}
                             >
                               {avail}{" "}
-                              <span className="font-normal text-gray-500 dark:text-gray-400">
+                              <span className="font-normal text-gray-500 dark:text-gray-300">
                                 available
                               </span>
                             </span>

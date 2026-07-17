@@ -3,8 +3,14 @@
 import { useState, useEffect, useRef } from "react";
 import { useAuth } from "@/contexts";
 import { useRouter, useSearchParams } from "next/navigation";
-import { AUTH_FORM_FIELD_SKY, AUTH_GOOGLE_BUTTON } from "@/components/auth/auth-glass-styles";
-import { GLASS_BUTTON_ICON_HOVER, GLASS_PRIMARY_BUTTON } from "@/components/shared";
+import {
+  AUTH_FORM_FIELD_SKY,
+  AUTH_GOOGLE_BUTTON,
+} from "@/components/auth/auth-glass-styles";
+import {
+  GLASS_BUTTON_ICON_HOVER,
+  GLASS_PRIMARY_BUTTON,
+} from "@/components/shared";
 import { cn } from "@/lib/utils";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -189,7 +195,7 @@ export default function LoginPage() {
           <h2 className="text-sm sm:text-base font-medium text-gray-700 dark:text-white text-center">
             Welcome Back
           </h2>
-          <p className="text-xs sm:text-sm text-gray-600 dark:text-white/70 text-center">
+          <p className="text-xs sm:text-sm text-gray-600 dark:text-white/80 text-center">
             Sign in to your account to continue
           </p>
         </AuthAnimatedBlock>
@@ -247,7 +253,11 @@ export default function LoginPage() {
           <AuthAnimatedBlock delayMs={formRowDelay(4)}>
             <Button
               type="submit"
-              className={cn(GLASS_BUTTON_ICON_HOVER, "w-full", GLASS_PRIMARY_BUTTON.sky)}
+              className={cn(
+                GLASS_BUTTON_ICON_HOVER,
+                "w-full",
+                GLASS_PRIMARY_BUTTON.sky,
+              )}
               disabled={formDisabled}
             >
               {isNavigatingToHome ? (
@@ -275,7 +285,7 @@ export default function LoginPage() {
             <span className="w-full border-t border-sky-400/20 dark:border-white/10" />
           </div>
           <div className="relative flex justify-center text-xs uppercase">
-            <span className="bg-transparent px-2 text-gray-600 dark:text-white/60">
+            <span className="bg-transparent px-2 text-gray-600 dark:text-white/80">
               Or continue with
             </span>
           </div>
@@ -319,7 +329,7 @@ export default function LoginPage() {
           delayMs={formRowDelay(7)}
           className="text-center text-sm"
         >
-          <p className="text-gray-600 dark:text-white/70">
+          <p className="text-gray-600 dark:text-white/80">
             Don&apos;t have an account?{" "}
             <Link
               href="/register"

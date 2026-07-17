@@ -67,7 +67,10 @@ import { DetailInfoRow } from "@/components/orders/detail/order-detail-primitive
 import type { InvoiceStatus } from "@/types";
 import type { Invoice } from "@/types";
 import { cn } from "@/lib/utils";
-import { APP_SHELL_DETAIL_CLASS, DETAIL_PAGE_HEADER_SPACING_CLASS } from "@/lib/ui/shell-layout-styles";
+import {
+  APP_SHELL_DETAIL_CLASS,
+  DETAIL_PAGE_HEADER_SPACING_CLASS,
+} from "@/lib/ui/shell-layout-styles";
 import InvoiceDialog from "@/components/invoices/InvoiceDialog";
 import { AlertDialogWrapper } from "@/components/dialogs";
 import { PaymentDialog } from "@/components/payments";
@@ -232,11 +235,15 @@ export default function InvoiceDetailPage({
     return (
       <Wrapper>
         <div className="flex flex-col items-center justify-center min-h-[60vh] gap-2">
-          <GlassCard padding="body" variant="rose" className="max-w-md text-center">
+          <GlassCard
+            padding="body"
+            variant="rose"
+            className="max-w-md text-center"
+          >
             <h2 className="text-sm sm:text-base font-medium text-gray-700 dark:text-white mb-2">
               Invoice Not Found
             </h2>
-            <p className="text-gray-600 dark:text-gray-400 mb-4">
+            <p className="text-gray-600 dark:text-gray-300 mb-4">
               {error instanceof Error
                 ? error.message
                 : "Failed to load invoice details"}
@@ -259,11 +266,15 @@ export default function InvoiceDetailPage({
     return (
       <Wrapper>
         <div className="flex flex-col items-center justify-center min-h-[60vh] gap-2">
-          <GlassCard padding="body" variant="rose" className="max-w-md text-center">
+          <GlassCard
+            padding="body"
+            variant="rose"
+            className="max-w-md text-center"
+          >
             <h2 className="text-sm sm:text-base font-medium text-gray-700 dark:text-white mb-2">
               Invoice Not Found
             </h2>
-            <p className="text-gray-600 dark:text-gray-400 mb-4">
+            <p className="text-gray-600 dark:text-gray-300 mb-4">
               The invoice you are looking for does not exist or was removed.
             </p>
             <Button
@@ -344,7 +355,11 @@ export default function InvoiceDetailPage({
               dataLoading ? (
                 <DataSlotPulse variant="date" />
               ) : (
-                <ClientRelativeTime date={createdAt} prefix="Created " semantic="created" />
+                <ClientRelativeTime
+                  date={createdAt}
+                  prefix="Created "
+                  semantic="created"
+                />
               )
             }
           />
@@ -353,7 +368,7 @@ export default function InvoiceDetailPage({
           <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
             <GlassCard padding="body" variant="violet">
               <div className="">
-                <p className="text-xs uppercase tracking-[0.2em] text-gray-600 dark:text-white/60 mb-3">
+                <p className="text-xs uppercase tracking-[0.2em] text-gray-600 dark:text-white/80 mb-3">
                   Invoice Status
                 </p>
                 {dataLoading ? (
@@ -370,7 +385,8 @@ export default function InvoiceDetailPage({
               </div>
             </GlassCard>
 
-            <GlassCard padding="body"
+            <GlassCard
+              padding="body"
               variant={
                 !dataLoading && invoice!.amountDue > 0 && isOverdue
                   ? "rose"
@@ -379,7 +395,7 @@ export default function InvoiceDetailPage({
                     : "emerald"
               }
             >
-              <p className="text-xs uppercase tracking-[0.25em] text-gray-600 dark:text-white/60 mb-3">
+              <p className="text-xs uppercase tracking-[0.25em] text-gray-600 dark:text-white/80 mb-3">
                 Amount Due
               </p>
               {dataLoading ? (
@@ -399,7 +415,7 @@ export default function InvoiceDetailPage({
                     ${invoice!.amountDue.toFixed(2)}
                   </div>
                   {invoice!.amountPaid > 0 && (
-                    <p className="text-sm text-gray-600 dark:text-gray-400 mt-2">
+                    <p className="text-sm text-gray-600 dark:text-gray-300 mt-2">
                       Paid: ${invoice!.amountPaid.toFixed(2)} / $
                       {invoice!.total.toFixed(2)}
                     </p>
@@ -425,7 +441,7 @@ export default function InvoiceDetailPage({
                 <h3 className="text-sm sm:text-base font-medium text-gray-700 dark:text-white">
                   Invoice Information
                 </h3>
-                <p className="text-xs text-gray-600 dark:text-gray-400">
+                <p className="text-xs text-gray-600 dark:text-gray-300">
                   {dataLoading ? (
                     <DataSlotPulse variant="text-sm" className="w-40" />
                   ) : (
@@ -573,7 +589,7 @@ export default function InvoiceDetailPage({
                   <h3 className="text-sm sm:text-base font-medium text-gray-700 dark:text-white">
                     Order Items
                   </h3>
-                  <p className="text-xs text-gray-600 dark:text-gray-400">
+                  <p className="text-xs text-gray-600 dark:text-gray-300">
                     {dataLoading ? (
                       <DataSlotPulse variant="text-sm" className="w-28" />
                     ) : (

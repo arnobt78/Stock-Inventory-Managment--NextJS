@@ -1,10 +1,81 @@
 # Validation Summary — Cycle C1
 
-**Generated:** 2026-07-17 session activate  
+**Generated:** 2026-07-17 pre-commit audit REQ-0146–0149  
 **eval_gate_status:** PENDING (Human Gate 2)  
-**Prod target SHA:** `c62d364` / park `40a7198`  
-**Red Team:** lint ✓ test 571 ✓ invalidate 213 ✓ build ✓ (REQ-0145 gap)  
+**Prod target SHA:** pending push (REQ-0146–0149)  
+**Red Team:** PASS — lint/test573/invalidate213/build; no invalidate registry drift  
 **Resume:** **REQ-0136** UI explore → §10 A1/A2/B1 (see STATE.md)
+
+---
+
+## REQ-0149 line price + Owner/Buyer size evidence
+
+| Check | Result |
+|-------|--------|
+| Final price | `text-sm sm:text-base` via ProportionalPriceDisplay |
+| Strike price | `text-xs sm:text-sm` |
+| Owner/Buyer | `linkClassName="text-xs"` on catalog recent orders + product grid |
+| Invalidation | unchanged |
+| Gates | lint ✓ test **573** ✓ invalidate **213** ✓ build ✓ |
+
+```
+Scope: built/verified | Traceability: REQ-0149 | Findings: PASS
+Commands: lint, test, invalidate, build
+```
+
+---
+
+## REQ-0148 summary total + line meta + light Back evidence
+
+| Check | Result |
+|-------|--------|
+| Total typo | Order + Invoice Summary `text-sm sm:text-base` |
+| Line meta | · separators; Invoice FileText + CopyableText + sky Link |
+| Header Back | light gray glass token + Order `variant="ghost"` (Product parity; was red default) |
+| Invalidation | unchanged |
+| Gates | lint ✓ test **573** ✓ invalidate **213** ✓ build ✓ |
+
+```
+Scope: built/verified | Traceability: REQ-0148 | Findings: PASS
+Commands: lint, test, invalidate, build
+```
+
+---
+
+## REQ-0147 order detail gap closure evidence
+
+| Check | Result |
+|-------|--------|
+| Carrier | `CarrierGlassBadge` span — no shadcn Badge |
+| Layout | Items\|Summary; Info\|(Parties+addresses); related cards removed |
+| Invoice | DetailInfoRow in Order Information |
+| Parties | admin sky hrefs |
+| Header Back | slate glass, no ghost |
+| Invalidation | unchanged |
+| Gates | lint ✓ test **573** ✓ invalidate **213** ✓ build ✓ |
+
+```
+Scope: built/verified | Traceability: REQ-0147 | Findings: PASS
+Commands: lint, test, invalidate, build
+```
+
+---
+
+## REQ-0146 order detail density evidence
+
+| Check | Result |
+|-------|--------|
+| Status + tracking | equal-height `layout="stack"` + glass carrier badge |
+| Body grids | Created/Updated row; Shipping\|Billing; related cards |
+| Strike | dual-price only when list > adjusted |
+| trackingCarrier | updateOrderSchema + prisma + admin mutate |
+| Invalidation | unchanged |
+| Gates | lint ✓ test **572** ✓ invalidate **213** ✓ build ✓ |
+
+```
+Scope: built/verified | Traceability: REQ-0146 | Findings: PASS
+Commands: lint, test, invalidate, build
+```
 
 ---
 

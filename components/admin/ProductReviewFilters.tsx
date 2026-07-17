@@ -57,9 +57,7 @@ export default function ProductReviewFilters({
   }, [setSelectedStatuses, setSelectedRatings, setPagination]);
 
   const filterChipGroups = useMemo((): FilterChipGroup[] => {
-    const ratingLabelById = new Map(
-      RATING_OPTIONS.map((o) => [o.id, o.name]),
-    );
+    const ratingLabelById = new Map(RATING_OPTIONS.map((o) => [o.id, o.name]));
 
     return [
       {
@@ -92,7 +90,7 @@ export default function ProductReviewFilters({
     <div className="flex flex-col gap-2 w-full">
       <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
         <div className="relative flex-1 sm:max-w-md">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-600 dark:text-white/60 z-10" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-600 dark:text-white/80 z-10" />
           <Input
             placeholder="Search by product, SKU, or comment..."
             value={searchTerm}
@@ -104,7 +102,7 @@ export default function ProductReviewFilters({
               variant="ghost"
               size="sm"
               onClick={() => setSearchTerm("")}
-              className="absolute right-1 top-1/2 -translate-y-1/2 h-8 w-8 p-0 text-gray-700 dark:text-white/60 hover:text-gray-700 dark:hover:text-white hover:bg-white/10"
+              className="absolute right-1 top-1/2 -translate-y-1/2 h-8 w-8 p-0 text-gray-700 dark:text-white/80 hover:text-gray-700 dark:hover:text-white hover:bg-white/10"
             >
               <IoClose className="h-4 w-4" />
             </Button>

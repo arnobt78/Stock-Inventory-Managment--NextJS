@@ -4,6 +4,103 @@ Canonical REQ source. All artifacts link via `REQ-XXXX`. Status: `done` | `verif
 
 ---
 
+## REQ-0149 — Line price typography + Owner/Buyer label size
+
+| Field | Value |
+|-------|-------|
+| **Priority** | P0 |
+| **Risk** | R1 |
+| **Status** | done |
+| **Cycle** | C2 |
+| **Parent** | REQ-0148, REQ-0136 |
+
+**Intent:** Unify proportional line totals (`text-sm sm:text-base`) and strikethrough list prices (`text-xs sm:text-sm`) via `ProportionalPriceDisplay`; match Owner/Buyer name size to label (`text-xs`) on catalog recent-order / product grid rows.
+
+**Acceptance criteria**
+
+- AC1: `ProportionalPriceDisplay` final amount `text-sm sm:text-base`; strike `text-xs sm:text-sm` (Order Items, Recent Orders, create dialog)
+- AC2: Catalog recent orders + product grid `AvatarInlineLink` names use `linkClassName="text-xs"` (parity with Owner:/Buyer: labels)
+- AC3: Gates — lint, test, invalidate, build; invalidation unchanged
+
+**Artifacts:** `ProportionalPriceDisplay.tsx`, `CatalogDetailRecentOrdersList.tsx`, `CatalogDetailProductGrid.tsx`
+
+---
+
+## REQ-0148 — Summary Total, line meta separators, light header Back
+
+| Field | Value |
+|-------|-------|
+| **Priority** | P0 |
+| **Risk** | R1 |
+| **Status** | done |
+| **Cycle** | C2 |
+| **Parent** | REQ-0147, REQ-0136 |
+
+**Intent:** Shrink Order/Invoice Summary Total typography; add · separators + invoice CopyableText chip on line-item meta; replace heavy slate header Back with light gray glass for all detail pages.
+
+**Acceptance criteria**
+
+- AC1: Order + Invoice Summary Total use `text-sm sm:text-base` (not `sm:text-lg`); emerald row retained
+- AC2: `ProductLineItemsList` meta segments joined with ·; Invoice chip (`FileText` + `CopyableText` + sky Link) when `order.invoiceForOrder` present
+- AC3: `DETAIL_HEADER_BACK_ICON_CLASS` light border + gray-100/200 wash; Order header uses `variant="ghost"` + token (parity with Product; default Button was red)
+- AC4: Gates — lint, test, invalidate, build; invalidation unchanged
+
+**Artifacts:** `OrderSummaryCard.tsx`, `InvoiceSummaryCard.tsx`, `ProductLineItemsList.tsx`, `OrderItemsCard.tsx`, `glass-button-styles.ts`, `OrderDetailHeader.tsx`
+
+---
+
+## REQ-0147 — Order detail layout + carrier badge gap closure
+
+| Field | Value |
+|-------|-------|
+| **Priority** | P0 |
+| **Risk** | R1 |
+| **Status** | done |
+| **Cycle** | C2 |
+| **Parent** | REQ-0146, REQ-0136 |
+
+**Intent:** Fix red UPS shadcn Badge conflict; Items|Summary 2-col; Info|(Parties+addresses) stack; invoice row in Order Information; Parties sky admin links; line-item text-sm/xs; remove related-entity strip; slate glass header Back.
+
+**Acceptance criteria**
+
+- AC1: Carrier chips use `CarrierGlassBadge` span (no shadcn Badge / bg-primary)
+- AC2: `lg:grid-cols-2` Order Items | Order Summary (`h-full`)
+- AC3: Info left; Parties → Shipping → Billing stacked right; no `OrderRelatedEntitiesCards`
+- AC4: Invoice row in Order Information when `invoiceForOrder` exists
+- AC5: Parties `href` via `resolveAuditUserManagementHref` for admin
+- AC6: Line name `text-sm`; Qty/SKU/catalog meta `text-xs`; slate `DETAIL_HEADER_BACK_ICON_CLASS` without ghost
+- AC7: Gates — lint, test, invalidate, build; invalidation unchanged
+
+**Artifacts:** `OrderTrackingInfo.tsx` (`CarrierGlassBadge`), `OrderDetailPage.tsx`, `AdminOrderDetailContent.tsx`, `OrderPartiesCard.tsx`, `OrderItemsCard.tsx`, `ProductLineItemsList.tsx`, `glass-button-styles.ts`
+
+---
+
+## REQ-0146 — Order detail density + pricing + typography parity
+
+| Field | Value |
+|-------|-------|
+| **Priority** | P0 |
+| **Risk** | R1 |
+| **Status** | done |
+| **Cycle** | C2 |
+| **Parent** | REQ-0136 |
+
+**Intent:** Denser order detail layout (equal-height status/tracking, 2-col addresses/summary, related entity cards), fix proportional strikethrough for upcharges, typography parity with product detail (Qty:, font-normal, gray-600/700), solid Back, UPS glass glow, admin `trackingCarrier` persistence.
+
+**Acceptance criteria**
+
+- AC1: With tracking — `lg:grid-cols-2` status stack + `OrderTrackingInfo` equal height; carrier glass glow badge
+- AC2: Order Information Created/Updated same row; Shipping|Billing 2-col; compact related product/category/supplier/warehouse cards
+- AC3: Line items `Qty:`; names `font-normal`; Parties labels/names font-normal sky
+- AC4: Dual-price strike only when `listAmount > adjustedAmount`; upcharge shows single amount
+- AC5: Footer Back solid sky glass (no `variant="ghost"`); product warehouse + recent-order meta `text-xs` / font-normal
+- AC6: Admin manual tracking persists `trackingCarrier` (schema + prisma + API)
+- AC7: Gates — lint, test, invalidate, build; TanStack invalidation unchanged
+
+**Artifacts:** `OrderDetailPage.tsx`, `AdminOrderDetailContent.tsx`, `OrderTrackingInfo.tsx`, `OrderRelatedEntitiesCards.tsx`, `ProductLineItemsList.tsx`, `ProportionalPriceDisplay.tsx`, `updateOrderSchema` / `prisma/order.ts`
+
+---
+
 ## REQ-0145 — Orders table Status, Order # meta, Invoice # column
 
 | Field | Value |

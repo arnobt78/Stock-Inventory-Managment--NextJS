@@ -159,9 +159,11 @@ const IMPORT_TYPE: Record<string, BadgeTone> = {
   categories: { className: GLASS_BADGE_CLASS.amber, icon: FolderTree },
 };
 
-/** Admin order/invoice list — personal vs client-placed */
+/** Admin order/invoice list — personal vs client-placed (glass glow; height via BADGE_SIZE_CLASS) */
 const ADMIN_ORDER_SOURCE: Record<string, BadgeTone> = {
-  personal: { className: GLASS_BADGE_CLASS.violet, icon: User },
+  /** Self = admin/owner's own order */
+  personal: { className: GLASS_BADGE_CLASS.purple, icon: User },
+  /** Client = placed for / by a client */
   client: { className: GLASS_BADGE_CLASS.sky, icon: ShoppingBag },
 };
 
@@ -229,9 +231,12 @@ export type SemanticBadgeProps = {
   size?: "compact" | "detail";
 };
 
+/** Fixed height so Self/Client match Status/Payment and Active matches warehouse type. */
 const BADGE_SIZE_CLASS = {
-  compact: "text-[10px] py-0.5 gap-1 [&_svg]:h-3 [&_svg]:w-3",
-  detail: "text-xs py-0.5 gap-1 [&_svg]:h-3.5 [&_svg]:w-3.5",
+  compact:
+    "h-6 text-[10px] px-2.5 py-0 gap-1 [&_svg]:h-3 [&_svg]:w-3",
+  detail:
+    "h-7 text-xs px-2.5 py-0 gap-1 [&_svg]:h-3.5 [&_svg]:w-3.5",
 } as const;
 
 function SemanticBadgeBase({

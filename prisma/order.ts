@@ -553,6 +553,7 @@ export async function updateOrder(
     shippingAddress?: Prisma.InputJsonValue;
     billingAddress?: Prisma.InputJsonValue;
     trackingNumber?: string;
+    trackingCarrier?: string;
     trackingUrl?: string;
     estimatedDelivery?: Date;
     shippedAt?: Date;
@@ -578,6 +579,7 @@ export async function updateOrder(
       JSON.stringify(data.billingAddress),
     ) as Prisma.InputJsonValue;
   if (data.trackingNumber) updateData.trackingNumber = data.trackingNumber;
+  if (data.trackingCarrier) updateData.trackingCarrier = data.trackingCarrier;
   if (data.trackingUrl) updateData.trackingUrl = data.trackingUrl;
   if (data.estimatedDelivery)
     updateData.estimatedDelivery = data.estimatedDelivery;

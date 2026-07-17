@@ -131,6 +131,10 @@ export function glassDetailBackButtonClass(extra?: string): string {
   );
 }
 
-/** Icon-only back control in PageSectionHeader leading slot (REQ-0072 / REQ-0126 sky glass). */
+/**
+ * Icon-only back in PageSectionHeader leading slot (all detail pages).
+ * REQ-0148 — light gray border + gray-100/200 wash; icon gray-600/700 light, white/80 dark.
+ * Pair with Button variant="ghost" (default Button paints bg-primary / red over this token).
+ */
 export const DETAIL_HEADER_BACK_ICON_CLASS =
-  "h-10 w-10 shrink-0 self-center rounded-xl border border-sky-400/30 bg-gradient-to-r from-sky-500/70 via-sky-500/50 to-sky-500/30 dark:from-sky-500/70 dark:via-sky-500/50 dark:to-sky-500/30 text-white shadow-[0_10px_30px_rgba(2,132,199,0.25)] hover:from-sky-500/80 hover:via-sky-500/60 hover:to-sky-500/40";
+  "h-10 w-10 shrink-0 self-center rounded-xl border border-gray-300/60 dark:border-white/15 bg-gradient-to-br from-white via-gray-100 to-gray-200/80 dark:from-white/10 dark:via-white/5 dark:to-transparent text-gray-600 hover:text-gray-700 dark:text-white/80 dark:hover:text-white/90 shadow-[0_4px_14px_rgba(0,0,0,0.06)] dark:shadow-[0_4px_14px_rgba(0,0,0,0.25)] hover:border-gray-400/70 dark:hover:border-white/25 hover:from-white hover:via-gray-50 hover:to-gray-100 dark:hover:from-white/15 dark:hover:via-white/10";

@@ -1,5 +1,6 @@
 /**
  * REQ-0128 — shared warehouse type icon + badge tone map (DRY with WarehouseTypeBadge).
+ * Glass glow surfaces (parity with ActiveInactiveBadge / order status chips).
  */
 
 import {
@@ -8,7 +9,7 @@ import {
   Truck,
   type LucideIcon,
 } from "lucide-react";
-import { OPAQUE_BADGE_CLASS } from "@/lib/ui/glass-badge-styles";
+import { GLASS_BADGE_CLASS } from "@/lib/ui/glass-badge-styles";
 
 export type WarehouseTypeTone = {
   className: string;
@@ -19,17 +20,18 @@ function normalizeWarehouseTypeKey(value: string): string {
   return (value || "").toLowerCase().replace(/\s+/g, "_");
 }
 
+/** Meaningful hue per warehouse role — glass glow (not opaque flat chips). */
 export const WAREHOUSE_TYPE_TONES: Record<string, WarehouseTypeTone> = {
-  main: { className: OPAQUE_BADGE_CLASS.blue, icon: Building },
-  secondary: { className: OPAQUE_BADGE_CLASS.teal, icon: Building2 },
-  storage: { className: OPAQUE_BADGE_CLASS.amber, icon: Building2 },
-  distribution: { className: OPAQUE_BADGE_CLASS.violet, icon: Truck },
-  retail: { className: OPAQUE_BADGE_CLASS.sky, icon: Building },
-  other: { className: OPAQUE_BADGE_CLASS.gray, icon: Building },
+  main: { className: GLASS_BADGE_CLASS.sky, icon: Building },
+  secondary: { className: GLASS_BADGE_CLASS.teal, icon: Building2 },
+  storage: { className: GLASS_BADGE_CLASS.amber, icon: Building2 },
+  distribution: { className: GLASS_BADGE_CLASS.violet, icon: Truck },
+  retail: { className: GLASS_BADGE_CLASS.cyan, icon: Building },
+  other: { className: GLASS_BADGE_CLASS.slate, icon: Building },
 };
 
 const DEFAULT_WAREHOUSE_TYPE_TONE: WarehouseTypeTone = {
-  className: OPAQUE_BADGE_CLASS.gray,
+  className: GLASS_BADGE_CLASS.slate,
   icon: Building2,
 };
 

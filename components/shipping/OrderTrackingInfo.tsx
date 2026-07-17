@@ -1,13 +1,11 @@
 "use client";
 
 /**
- * Order Tracking Info Component
- * Displays shipping tracking information for an order.
- * Styled with glassmorphic card (round-28px, shadow glow) and gradient shadow buttons per UI_STYLING_GUIDE.
+ * Order Tracking Info — glass carrier glow badge (REQ-0146 / REQ-0147).
+ * REQ-0147 — never use shadcn Badge here (default bg-primary paints red over glass).
  */
 
 import React from "react";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
   Package,
@@ -20,6 +18,11 @@ import {
 import { cn } from "@/lib/utils";
 import { formatStableDate } from "@/lib/date/format-stable";
 import { CopyableText } from "@/components/shared";
+import {
+  GLASS_BADGE_CLASS,
+  type GlassBadgeHue,
+} from "@/lib/ui/glass-badge-styles";
+import { TYPO_CARD_TITLE, TYPO_SUBTITLE } from "@/lib/ui/typography-scale";
 
 interface Order {
   status: string;
@@ -37,62 +40,91 @@ interface OrderTrackingInfoProps {
   className?: string;
 }
 
-/**
- * Carrier display info
- */
 const CARRIER_INFO: Record<
   string,
   {
     name: string;
-    color: string;
+    hue: GlassBadgeHue;
     trackingUrl?: (trackingNumber: string) => string;
   }
 > = {
   usps: {
     name: "USPS",
-    color: "bg-blue-100 text-blue-800 dark:bg-blue-900/50 dark:text-blue-300",
+    hue: "blue",
     trackingUrl: (tn) =>
       `https://tools.usps.com/go/TrackConfirmAction_input?origTrackNum=${tn}`,
   },
   ups: {
     name: "UPS",
-    color:
-      "bg-amber-100 text-amber-800 dark:bg-amber-900/50 dark:text-amber-300",
+    hue: "amber",
     trackingUrl: (tn) => `https://www.ups.com/track?tracknum=${tn}`,
   },
   fedex: {
     name: "FedEx",
-    color:
-      "bg-purple-100 text-purple-800 dark:bg-purple-900/50 dark:text-purple-300",
+    hue: "purple",
     trackingUrl: (tn) => `https://www.fedex.com/fedextrack/?trknbr=${tn}`,
   },
   dhl: {
     name: "DHL",
-    color: "bg-red-100 text-red-800 dark:bg-red-900/50 dark:text-red-300",
+    hue: "red",
     trackingUrl: (tn) =>
       `https://www.dhl.com/en/express/tracking.html?AWB=${tn}`,
   },
   other: {
     name: "Other",
-    color: "bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300",
+    hue: "gray",
   },
 };
 
 /** Map Shippo provider / stored carrier to our known carrier key (e.g. Stamps.com -> usps). */
-function normalizeCarrier(carrier: string): string {
+export function normalizeCarrier(carrier: string): string {
   const c = carrier.toLowerCase();
   if (c === "usps" || c.includes("stamps") || c.includes("usps")) return "usps";
   if (c === "ups" || c.includes("ups")) return "ups";
   if (c === "fedex" || c.includes("fedex")) return "fedex";
   if (c === "dhl" || c.includes("dhl")) return "dhl";
-  return carrier || "other";
+  return "other";
+}
+
+/** REQ-0146 — glass glow badge meta for carrier chips outside OrderTrackingInfo. */
+export function getCarrierBadgeMeta(carrier?: string | null): {
+  name: string;
+  hue: GlassBadgeHue;
+} {
+  const key = normalizeCarrier(carrier ?? "other");
+  const info = CARRIER_INFO[key] ?? CARRIER_INFO.other!;
+  return { name: info.name, hue: info.hue };
+}
+
+/**
+ * REQ-0147 — plain span glass chip (no shadcn Badge / bg-primary).
+ * Compact height matches SemanticBadgeBase compact tokens.
+ */
+export function CarrierGlassBadge({
+  carrier,
+  className,
+}: {
+  carrier?: string | null;
+  className?: string;
+}) {
+  const meta = getCarrierBadgeMeta(carrier);
+  return (
+    <span
+      className={cn(
+        "relative isolate inline-flex h-6 shrink-0 items-center rounded-full border px-2.5 text-[10px] font-normal",
+        GLASS_BADGE_CLASS[meta.hue],
+        className,
+      )}
+    >
+      {meta.name}
+    </span>
+  );
 }
 
 export default function OrderTrackingInfo({
   order,
   className,
 }: OrderTrackingInfoProps) {
-  // Only show for shipped or delivered orders with tracking info
   const isCancelledOrRefunded =
     order.status === "cancelled" || order.paymentStatus === "refunded";
 
@@ -106,13 +138,11 @@ export default function OrderTrackingInfo({
   }
 
   const rawCarrier = order.trackingCarrier?.toLowerCase() || "other";
-  // Normalize Shippo provider names to our known carriers (e.g. "Stamps.com" -> usps)
   const carrier = normalizeCarrier(rawCarrier);
   const resolvedCarrier = carrier in CARRIER_INFO ? carrier : "other";
   const carrierInfo =
     CARRIER_INFO[resolvedCarrier as keyof typeof CARRIER_INFO]!;
 
-  // Generate tracking URL if not provided
   const trackingUrl =
     order.trackingUrl ||
     (carrierInfo?.trackingUrl && order.trackingNumber
@@ -122,7 +152,7 @@ export default function OrderTrackingInfo({
   return (
     <article
       className={cn(
-        "rounded-[28px] border border-emerald-400/20 dark:border-emerald-400/30 p-2 sm:p-4 backdrop-blur-md transition-all duration-300",
+        "h-full flex flex-col rounded-[28px] border border-emerald-400/20 dark:border-emerald-400/30 p-2 sm:p-4 backdrop-blur-md transition-all duration-300",
         "bg-white/60 dark:bg-white/5",
         "bg-gradient-to-br from-emerald-500/15 via-emerald-500/5 to-transparent dark:from-emerald-500/25 dark:via-emerald-500/10 dark:to-emerald-500/5",
         "shadow-[0_15px_40px_rgba(16,185,129,0.15)] dark:shadow-[0_30px_80px_rgba(16,185,129,0.25)]",
@@ -132,21 +162,28 @@ export default function OrderTrackingInfo({
     >
       <div className="pb-3">
         <div className="flex items-center justify-between gap-2">
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 min-w-0">
             {order.status === "delivered" ? (
-              <CheckCircle className="h-5 w-5 text-green-500 dark:text-emerald-400" />
+              <CheckCircle className="h-5 w-5 text-green-500 dark:text-emerald-400 shrink-0" />
             ) : (
-              <Truck className="h-5 w-5 text-primary dark:text-emerald-400" />
+              <Truck className="h-5 w-5 text-primary dark:text-emerald-400 shrink-0" />
             )}
-            <h3 className="text-base font-medium text-gray-700 dark:text-white">
+            <h3
+              className={cn(TYPO_CARD_TITLE, "text-gray-700 dark:text-white")}
+            >
               {order.status === "delivered"
                 ? "Package Delivered"
                 : "Shipping Information"}
             </h3>
           </div>
-          <Badge className={carrierInfo.color}>{carrierInfo.name}</Badge>
+          <CarrierGlassBadge carrier={order.trackingCarrier} />
         </div>
-        <p className="text-sm text-gray-600 dark:text-white/70 mt-1.5">
+        <p
+          className={cn(
+            TYPO_SUBTITLE,
+            "text-gray-600 dark:text-white/80 mt-1.5",
+          )}
+        >
           {order.status === "delivered" && order.deliveredAt
             ? `Delivered on ${formatStableDate(order.deliveredAt)}`
             : order.shippedAt
@@ -154,15 +191,14 @@ export default function OrderTrackingInfo({
               : "Your package is on its way"}
         </p>
       </div>
-      <div className="space-y-4">
-        {/* Tracking Number */}
+      <div className="space-y-4 flex-1 flex flex-col justify-end">
         <div className="flex items-center gap-2 p-2 rounded-xl border border-white/10 dark:border-white/10 bg-white/30 dark:bg-white/5">
-          <Package className="h-5 w-5 text-gray-500 dark:text-white/60 shrink-0" />
+          <Package className="h-5 w-5 text-gray-500 dark:text-white/80 shrink-0" />
           <div className="flex-1 min-w-0">
-            <p className="text-xs text-gray-500 dark:text-white/60">
+            <p className="text-xs text-gray-600 dark:text-gray-300">
               Tracking Number
             </p>
-            <p className="font-mono font-medium text-sm text-gray-700 dark:text-white truncate">
+            <p className="font-mono font-normal text-sm text-gray-700 dark:text-white truncate">
               {order.trackingNumber ? (
                 <CopyableText value={order.trackingNumber}>
                   {order.trackingNumber}
@@ -172,7 +208,6 @@ export default function OrderTrackingInfo({
           </div>
         </div>
 
-        {/* Track Package + Download Label PDF — same gradient shadow style as Update Order / Cancel Order */}
         <div className="flex flex-col sm:flex-row gap-2">
           {trackingUrl && (
             <Button

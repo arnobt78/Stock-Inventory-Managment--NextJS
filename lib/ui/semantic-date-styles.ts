@@ -23,7 +23,7 @@ export type SemanticDateKind =
 
 const SEMANTIC_DATE_CLASSES: Record<SemanticDateKind, string> = {
   /** REQ-0138 — muted (sky reserved for links) */
-  created: "text-gray-600 dark:text-gray-400",
+  created: "text-gray-600 dark:text-gray-300",
   updated: "text-violet-600 dark:text-violet-400",
   expiration: "text-amber-600 dark:text-amber-400",
   due: "text-orange-600 dark:text-orange-400",

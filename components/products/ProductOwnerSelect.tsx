@@ -74,7 +74,7 @@ function OwnerPickerRow({
           {owner.name}
         </span>
         {showEmail && owner.email ? (
-          <span className="truncate text-xs text-muted-foreground dark:text-white/50">
+          <span className="truncate text-xs text-muted-foreground dark:text-white/80">
             {owner.email}
           </span>
         ) : null}
@@ -140,7 +140,7 @@ export function ProductOwnerSelect({
             className="bg-transparent border-0 focus:ring-0 text-gray-700 dark:text-white/80 placeholder:text-gray-500 dark:placeholder:text-white/40"
           />
           <CommandList className="max-h-[min(60vh,280px)]">
-            <CommandEmpty className="text-gray-600 dark:text-white/60 text-sm text-center p-5">
+            <CommandEmpty className="text-gray-600 dark:text-white/80 text-sm text-center p-5">
               No product owner found.
             </CommandEmpty>
             <CommandGroup>

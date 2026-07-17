@@ -13,7 +13,7 @@ export const TYPO_CARD_TITLE =
 
 /** Subtitle, description, muted body */
 export const TYPO_SUBTITLE =
-  "text-xs sm:text-sm leading-tight text-gray-600 dark:text-white/70";
+  "text-xs sm:text-sm leading-tight text-gray-600 dark:text-white/80";
 
 /** Metric/stat primary value — do not use on titles */
 export const TYPO_STAT_VALUE =
@@ -42,4 +42,4 @@ export function detailStatValueToneClass(tone: DetailStatValueTone): string {
 export const TYPO_BODY = "text-gray-700 dark:text-white";
 
 /** REQ-0064 — muted body text color (secondary copy, meta labels) */
-export const TYPO_BODY_MUTED = "text-gray-600 dark:text-gray-400";
+export const TYPO_BODY_MUTED = "text-gray-600 dark:text-gray-300";

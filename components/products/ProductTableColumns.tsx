@@ -113,7 +113,7 @@ export function createProductColumns(
               />
             ) : (
               <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-gray-100 dark:bg-gray-800 border border-gray-200 dark:border-gray-700">
-                <span className="text-[10px] text-gray-500 dark:text-gray-400">
+                <span className="text-[10px] text-gray-500 dark:text-gray-300">
                   No Img
                 </span>
               </div>

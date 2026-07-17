@@ -61,15 +61,28 @@ import { useAuth } from "@/contexts";
 import Navbar from "@/components/layouts/Navbar";
 import PageWithSidebar from "@/components/layouts/PageWithSidebar";
 import BusinessInsightsSidebar from "@/components/layouts/BusinessInsightsSidebar";
-import { PageContentWrapper, DataSlotPulse, PageSectionHeader } from "@/components/shared";
+import {
+  PageContentWrapper,
+  DataSlotPulse,
+  PageSectionHeader,
+} from "@/components/shared";
 import { DETAIL_PAGE_HEADER_SPACING_CLASS } from "@/lib/ui/shell-layout-styles";
 import {
   InventoryHealthBadge,
   ProductStockStatusBadge,
   StockQuantityLeftBadge,
 } from "@/lib/ui/semantic-badges";
-import { useProducts, useOrders, useWarehouseStockSummary } from "@/hooks/queries";
-import { isDataSlotLoading, isDataSlotUnsettled, queryKeys, useSyncSsrQueryDataMany } from "@/lib/react-query";
+import {
+  useProducts,
+  useOrders,
+  useWarehouseStockSummary,
+} from "@/hooks/queries";
+import {
+  isDataSlotLoading,
+  isDataSlotUnsettled,
+  queryKeys,
+  useSyncSsrQueryDataMany,
+} from "@/lib/react-query";
 import { exportToExcel, exportToCSV } from "@/lib/export";
 import type { Product, Order } from "@/types";
 import type { ProductForHome } from "@/lib/server/home-data";
@@ -120,7 +133,9 @@ export default function BusinessInsightPage({
 }: BusinessInsightPageProps = {}) {
   const productsQuery = useProducts(initialProducts as Product[] | undefined);
   const ordersQuery = useOrders(initialOrders as Order[] | undefined);
-  const warehouseSummaryQuery = useWarehouseStockSummary(initialWarehouseSummary);
+  const warehouseSummaryQuery = useWarehouseStockSummary(
+    initialWarehouseSummary,
+  );
   const allProducts = (productsQuery.data ??
     initialProducts ??
     []) as Product[];
@@ -920,7 +935,7 @@ export default function BusinessInsightPage({
                   <div className="flex items-center gap-2">
                     <label
                       htmlFor="start-date"
-                      className="text-sm text-gray-600 dark:text-white/60 whitespace-nowrap w-10 sm:w-auto"
+                      className="text-sm text-gray-600 dark:text-white/80 whitespace-nowrap w-10 sm:w-auto"
                     >
                       From:
                     </label>
@@ -941,7 +956,7 @@ export default function BusinessInsightPage({
                   <div className="flex items-center gap-2">
                     <label
                       htmlFor="end-date"
-                      className="text-sm text-gray-600 dark:text-white/60 whitespace-nowrap w-10 sm:w-auto"
+                      className="text-sm text-gray-600 dark:text-white/80 whitespace-nowrap w-10 sm:w-auto"
                     >
                       To:
                     </label>
@@ -1485,11 +1500,13 @@ export default function BusinessInsightPage({
                                     <h4 className="font-medium text-sm text-gray-700 dark:text-white">
                                       {product.name}
                                     </h4>
-                                    <p className="text-xs text-gray-600 dark:text-white/60">
+                                    <p className="text-xs text-gray-600 dark:text-white/80">
                                       SKU: {product.sku}
                                     </p>
                                   </div>
-                                  <StockQuantityLeftBadge quantity={product.quantity} />
+                                  <StockQuantityLeftBadge
+                                    quantity={product.quantity}
+                                  />
                                 </div>
                               </div>
                             ),
@@ -1498,7 +1515,7 @@ export default function BusinessInsightPage({
                       ) : (
                         <div className="text-center py-8">
                           <AlertTriangle className="h-12 w-12 text-emerald-500 mx-auto mb-4" />
-                          <p className="text-gray-600 dark:text-white/60">
+                          <p className="text-gray-600 dark:text-white/80">
                             No low stock alerts at the moment!
                           </p>
                         </div>
@@ -1524,7 +1541,7 @@ export default function BusinessInsightPage({
               </div>
               <div className="space-y-2">
                 <div className="flex justify-between items-center">
-                  <span className="text-sm text-gray-600 dark:text-white/70">
+                  <span className="text-sm text-gray-600 dark:text-white/80">
                     Average Price
                   </span>
                   <span className="font-medium text-gray-700 dark:text-white">
@@ -1536,7 +1553,7 @@ export default function BusinessInsightPage({
                   </span>
                 </div>
                 <div className="flex justify-between items-center">
-                  <span className="text-sm text-gray-600 dark:text-white/70">
+                  <span className="text-sm text-gray-600 dark:text-white/80">
                     Total Quantity
                   </span>
                   <span className="font-medium text-gray-700 dark:text-white">
@@ -1548,7 +1565,7 @@ export default function BusinessInsightPage({
                   </span>
                 </div>
                 <div className="flex justify-between items-center">
-                  <span className="text-sm text-gray-600 dark:text-white/70">
+                  <span className="text-sm text-gray-600 dark:text-white/80">
                     Stock Utilization
                   </span>
                   <span className="font-medium text-gray-700 dark:text-white">
@@ -1574,17 +1591,19 @@ export default function BusinessInsightPage({
               </div>
               <div className="space-y-2">
                 <div className="flex justify-between items-center">
-                  <span className="text-sm text-gray-600 dark:text-white/70">
+                  <span className="text-sm text-gray-600 dark:text-white/80">
                     Inventory Health
                   </span>
                   {dataLoading ? (
                     <DataSlotPulse variant="badge" />
                   ) : (
-                    <InventoryHealthBadge lowStockItems={analyticsData.lowStockItems} />
+                    <InventoryHealthBadge
+                      lowStockItems={analyticsData.lowStockItems}
+                    />
                   )}
                 </div>
                 <div className="flex justify-between items-center">
-                  <span className="text-sm text-gray-600 dark:text-white/70">
+                  <span className="text-sm text-gray-600 dark:text-white/80">
                     Stock Coverage
                   </span>
                   <span className="text-xs sm:text-sm font-medium text-gray-700 dark:text-white">
@@ -1596,7 +1615,7 @@ export default function BusinessInsightPage({
                   </span>
                 </div>
                 <div className="flex justify-between items-center">
-                  <span className="text-sm text-gray-600 dark:text-white/70">
+                  <span className="text-sm text-gray-600 dark:text-white/80">
                     Value Density
                   </span>
                   <span className="text-xs sm:text-sm font-medium text-gray-700 dark:text-white">
@@ -1639,7 +1658,7 @@ export default function BusinessInsightPage({
                 </h3>
               </div>
               {aiInsightsUnavailable ? (
-                <p className="text-sm text-gray-600 dark:text-white/60">
+                <p className="text-sm text-gray-600 dark:text-white/80">
                   Configure OPENROUTER_API_KEY and/or GROQ_API_KEY in .env to
                   enable AI-powered recommendations.
                 </p>
@@ -1661,7 +1680,10 @@ export default function BusinessInsightPage({
                   >
                     {aiInsightsLoading ? (
                       <>
-                        <Loader2 className="h-4 w-4 shrink-0 animate-spin" aria-hidden />
+                        <Loader2
+                          className="h-4 w-4 shrink-0 animate-spin"
+                          aria-hidden
+                        />
                         Generating insights…
                       </>
                     ) : (
@@ -1674,7 +1696,7 @@ export default function BusinessInsightPage({
                 </div>
               ) : (
                 <div className="space-y-2">
-                  <p className="text-sm text-gray-600 dark:text-white/60">
+                  <p className="text-sm text-gray-600 dark:text-white/80">
                     Get short AI recommendations based on your current metrics.
                   </p>
                   <Button
@@ -1690,7 +1712,10 @@ export default function BusinessInsightPage({
                   >
                     {aiInsightsLoading ? (
                       <>
-                        <Loader2 className="h-4 w-4 shrink-0 animate-spin" aria-hidden />
+                        <Loader2
+                          className="h-4 w-4 shrink-0 animate-spin"
+                          aria-hidden
+                        />
                         Generating insights…
                       </>
                     ) : (

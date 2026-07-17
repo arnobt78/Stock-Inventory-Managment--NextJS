@@ -12,4 +12,4 @@ export const CARD_LIST_ROW_CLASS =
 
 /** Secondary meta line under primary link */
 export const CARD_LIST_META_CLASS =
-  "text-xs text-gray-700 dark:text-white/70 truncate block";
+  "text-xs text-gray-700 dark:text-white/80 truncate block";

@@ -25,10 +25,17 @@ import {
   ClientDateTime,
 } from "@/components/shared";
 import { GlassCard, DetailInfoRow } from "@/components/orders/detail";
-import { APP_SHELL_DETAIL_CLASS, DETAIL_PAGE_HEADER_SPACING_CLASS } from "@/lib/ui/shell-layout-styles";
+import {
+  APP_SHELL_DETAIL_CLASS,
+  DETAIL_PAGE_HEADER_SPACING_CLASS,
+} from "@/lib/ui/shell-layout-styles";
 import { cn } from "@/lib/utils";
 import { useBackWithRefresh } from "@/hooks/use-back-with-refresh";
-import { isDataSlotLoading, queryKeys, useSyncSsrQueryData } from "@/lib/react-query";
+import {
+  isDataSlotLoading,
+  queryKeys,
+  useSyncSsrQueryData,
+} from "@/lib/react-query";
 import {
   ImportStatusBadge,
   ImportTypeBadge,
@@ -82,12 +89,16 @@ export default function AdminHistoryDetailContent({
     return (
       <PageContentWrapper>
         <div className={APP_SHELL_DETAIL_CLASS}>
-          <Button size="sm" onClick={handleBack} className={cn("gap-2", GLASS_GHOST_BUTTON)}>
+          <Button
+            size="sm"
+            onClick={handleBack}
+            className={cn("gap-2", GLASS_GHOST_BUTTON)}
+          >
             <ArrowLeft className="h-4 w-4" />
             Back to History
           </Button>
           <GlassCard variant="rose">
-            <p className="py-8 text-center text-gray-600 dark:text-white/70">
+            <p className="py-8 text-center text-gray-600 dark:text-white/80">
               {error instanceof Error ? error.message : "Record not found"}
             </p>
           </GlassCard>
@@ -101,13 +112,18 @@ export default function AdminHistoryDetailContent({
     return (
       <PageContentWrapper>
         <div className={APP_SHELL_DETAIL_CLASS}>
-          <Button size="sm" onClick={handleBack} className={cn("gap-2", GLASS_GHOST_BUTTON)}>
+          <Button
+            size="sm"
+            onClick={handleBack}
+            className={cn("gap-2", GLASS_GHOST_BUTTON)}
+          >
             <ArrowLeft className="h-4 w-4" />
             Back to History
           </Button>
           <GlassCard variant="rose">
-            <p className="py-8 text-center text-gray-600 dark:text-white/70">
-              The import record you are looking for does not exist or was removed.
+            <p className="py-8 text-center text-gray-600 dark:text-white/80">
+              The import record you are looking for does not exist or was
+              removed.
             </p>
           </GlassCard>
           {footerBackRow}
@@ -157,7 +173,12 @@ export default function AdminHistoryDetailContent({
               title="Import Information"
             />
             <div className="space-y-2 mt-4">
-              <DetailInfoRow icon={Layers} label="Import Type:" tone="violet" loading={dataLoading}>
+              <DetailInfoRow
+                icon={Layers}
+                label="Import Type:"
+                tone="violet"
+                loading={dataLoading}
+              >
                 {!dataLoading && (
                   <ImportTypeBadge
                     status={r!.importType}
@@ -166,23 +187,55 @@ export default function AdminHistoryDetailContent({
                   />
                 )}
               </DetailInfoRow>
-              <DetailInfoRow icon={FileText} label="File Name:" tone="sky" loading={dataLoading}>
+              <DetailInfoRow
+                icon={FileText}
+                label="File Name:"
+                tone="sky"
+                loading={dataLoading}
+              >
                 {!dataLoading && (
-                  <span className="font-mono text-xs break-all">{r!.fileName}</span>
+                  <span className="font-mono text-xs break-all">
+                    {r!.fileName}
+                  </span>
                 )}
               </DetailInfoRow>
-              <DetailInfoRow icon={HardDrive} label="File Size:" tone="blue" loading={dataLoading}>
+              <DetailInfoRow
+                icon={HardDrive}
+                label="File Size:"
+                tone="blue"
+                loading={dataLoading}
+              >
                 {!dataLoading && `${(r!.fileSize / 1024).toFixed(2)} KB`}
               </DetailInfoRow>
-              <DetailInfoRow icon={CheckCircle} label="Status:" tone="emerald" loading={dataLoading}>
-                {!dataLoading && <ImportStatusBadge status={r!.status} size="detail" />}
+              <DetailInfoRow
+                icon={CheckCircle}
+                label="Status:"
+                tone="emerald"
+                loading={dataLoading}
+              >
+                {!dataLoading && (
+                  <ImportStatusBadge status={r!.status} size="detail" />
+                )}
               </DetailInfoRow>
-              <DetailInfoRow icon={Calendar} label="Date:" tone="orange" loading={dataLoading}>
-                {!dataLoading && <ClientDateTime date={new Date(r!.createdAt)} semantic="created" />}
+              <DetailInfoRow
+                icon={Calendar}
+                label="Date:"
+                tone="orange"
+                loading={dataLoading}
+              >
+                {!dataLoading && (
+                  <ClientDateTime
+                    date={new Date(r!.createdAt)}
+                    semantic="created"
+                  />
+                )}
               </DetailInfoRow>
               {!dataLoading && r!.completedAt && (
                 <DetailInfoRow icon={Calendar} label="Completed:" tone="amber">
-                  <ClientDateTime date={new Date(r!.completedAt)} semantic="completed" />
+                  <ClientDateTime
+                    date={new Date(r!.completedAt)}
+                    semantic="completed"
+                  />
                 </DetailInfoRow>
               )}
             </div>
@@ -191,17 +244,36 @@ export default function AdminHistoryDetailContent({
           <GlassCard variant="teal">
             <SectionCardHeader icon={Layers} tone="teal" title="Row Summary" />
             <div className="space-y-2 mt-4">
-              <DetailInfoRow icon={Layers} label="Total Rows:" tone="teal" loading={dataLoading}>
+              <DetailInfoRow
+                icon={Layers}
+                label="Total Rows:"
+                tone="teal"
+                loading={dataLoading}
+              >
                 {!dataLoading && r!.totalRows}
               </DetailInfoRow>
-              <DetailInfoRow icon={CheckCircle} label="Successful:" tone="emerald" loading={dataLoading}>
+              <DetailInfoRow
+                icon={CheckCircle}
+                label="Successful:"
+                tone="emerald"
+                loading={dataLoading}
+              >
                 {!dataLoading && (
-                  <span className="text-green-600 dark:text-green-400">{r!.successRows}</span>
+                  <span className="text-green-600 dark:text-green-400">
+                    {r!.successRows}
+                  </span>
                 )}
               </DetailInfoRow>
-              <DetailInfoRow icon={XCircle} label="Failed:" tone="rose" loading={dataLoading}>
+              <DetailInfoRow
+                icon={XCircle}
+                label="Failed:"
+                tone="rose"
+                loading={dataLoading}
+              >
                 {!dataLoading && (
-                  <span className="text-red-600 dark:text-red-400">{r!.failedRows}</span>
+                  <span className="text-red-600 dark:text-red-400">
+                    {r!.failedRows}
+                  </span>
                 )}
               </DetailInfoRow>
             </div>
@@ -222,13 +294,17 @@ export default function AdminHistoryDetailContent({
                   key={idx}
                   className="rounded-lg border border-destructive/30 bg-destructive/5 dark:bg-destructive/10 p-2 text-sm"
                 >
-                  <span className="font-mono font-medium">Row {err.rowNumber}</span>
+                  <span className="font-mono font-medium">
+                    Row {err.rowNumber}
+                  </span>
                   {err.field && (
-                    <span className="text-gray-500 dark:text-gray-400 mx-2">
+                    <span className="text-gray-500 dark:text-gray-300 mx-2">
                       • {err.field}
                     </span>
                   )}
-                  <p className="mt-1 text-gray-600 dark:text-white/70">{err.message}</p>
+                  <p className="mt-1 text-gray-600 dark:text-white/80">
+                    {err.message}
+                  </p>
                 </div>
               ))}
             </div>

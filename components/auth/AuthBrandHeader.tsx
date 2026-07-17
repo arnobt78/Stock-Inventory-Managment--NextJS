@@ -23,7 +23,7 @@ export function AuthBrandHeader() {
           <p className="text-sm sm:text-lg font-medium tracking-tight bg-gradient-to-r from-rose-600 to-gray-900 dark:from-rose-400 dark:to-gray-100 bg-clip-text text-transparent transition-all duration-300 ease-in-out group-hover:from-rose-700 group-hover:to-gray-950 dark:group-hover:from-rose-300 dark:group-hover:to-gray-50">
             Stockly
           </p>
-          <p className="text-sm text-gray-600 dark:text-white/70 leading-snug">
+          <p className="text-sm text-gray-600 dark:text-white/80 leading-snug">
             Stock Inventory Management
           </p>
         </div>

@@ -50,8 +50,8 @@ export const DIALOG_TABLE_FRAME_EMERALD =
  * REQ-0049 — embedded dialog tables: list-page parity in light mode; dark glass in dark mode.
  * Use td-level zebra so horizontal scroll does not break striping.
  */
-export const DIALOG_TABLE_TEXT = "text-gray-700 dark:text-white/90";
-export const DIALOG_TABLE_TEXT_MUTED = "text-gray-600 dark:text-white/70";
+export const DIALOG_TABLE_TEXT = "text-gray-700 dark:text-white/80";
+export const DIALOG_TABLE_TEXT_MUTED = "text-gray-600 dark:text-white/80";
 export const DIALOG_TABLE_HEAD_TEXT = "text-gray-700 dark:text-white/80";
 export const DIALOG_TABLE_HEAD_ROW =
   "[&_th]:bg-white/40 dark:[&_th]:bg-white/10";
@@ -69,7 +69,7 @@ export const DIALOG_TABLE_LINK =
 
 /** Kebab / row action icon in embedded dialog tables */
 export const DIALOG_TABLE_ACTION_ICON =
-  "text-gray-600 dark:text-white/70 hover:text-gray-800 dark:hover:text-white";
+  "text-gray-600 dark:text-white/80 hover:text-gray-800 dark:hover:text-white";
 
 /** REQ-0109 — full-width feedback row below dialog field grids */
 export const DIALOG_FORM_FEEDBACK_ROW =

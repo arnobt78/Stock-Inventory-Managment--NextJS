@@ -1,11 +1,22 @@
 "use client";
 
+/**
+ * REQ-0147 — Items card subtitle is count + created only (invoice lives in Order Information).
+ * REQ-0148 — pass full order so ProductLineItemsList can render invoice meta chip.
+ */
+
 import React from "react";
 import { Package } from "lucide-react";
-import { DataSlotPulse, ProductLineItemsList } from "@/components/shared";
+import {
+  ClientDateTime,
+  DataSlotPulse,
+  ProductLineItemsList,
+  SectionCardHeader,
+} from "@/components/shared";
 import type { Order } from "@/types";
 import { cn } from "@/lib/utils";
-import { GlassCard, variantConfig } from "./order-detail-primitives";
+import { TYPO_CARD_TITLE, TYPO_SUBTITLE } from "@/lib/ui/typography-scale";
+import { GlassCard } from "./order-detail-primitives";
 import type { OrderReviewContext } from "@/lib/server/order-review-context-data";
 
 export type OrderItemsCardProps = {
@@ -15,6 +26,7 @@ export type OrderItemsCardProps = {
   warehouseLinkMode?: "admin" | "owner" | "none";
   /** REQ-0026 — batch SSR review context keyed by productId */
   initialReviewContext?: OrderReviewContext;
+  className?: string;
 };
 
 export function OrderItemsCard({
@@ -23,36 +35,42 @@ export function OrderItemsCard({
   linkMode,
   warehouseLinkMode = "none",
   initialReviewContext,
+  className,
 }: OrderItemsCardProps) {
   const itemCount = order?.items?.length ?? 0;
 
+  const description = dataLoading ? (
+    <DataSlotPulse variant="text-sm" className="w-28" />
+  ) : (
+    <span className="inline-flex flex-wrap items-center gap-x-1.5 gap-y-0.5">
+      <span>
+        {itemCount} item{itemCount !== 1 ? "s" : ""} in this order
+      </span>
+      {order?.createdAt ? (
+        <>
+          <span className="text-gray-400" aria-hidden>
+            ·
+          </span>
+          <ClientDateTime date={new Date(order.createdAt)} semantic="created" />
+        </>
+      ) : null}
+    </span>
+  );
+
   return (
-    <GlassCard variant="sky">
-      <div className="flex items-center gap-2 mb-2">
-        <div
-          className={cn(
-            "p-2 rounded-xl border",
-            variantConfig.sky.iconBg,
-            "dark:border-sky-400/30 dark:bg-sky-500/20",
-          )}
-        >
-          <Package className="h-5 w-5 text-sky-600 dark:text-sky-400" />
-        </div>
-        <div>
-          <h3 className="text-sm sm:text-base font-medium text-gray-700 dark:text-white">
-            Order Items
-          </h3>
-          <p className="text-xs text-gray-600 dark:text-gray-400">
-            {dataLoading ? (
-              <DataSlotPulse variant="text-sm" className="w-28" />
-            ) : (
-              <>
-                {itemCount} item{itemCount !== 1 ? "s" : ""} in this order
-              </>
-            )}
-          </p>
-        </div>
-      </div>
+    <GlassCard variant="sky" className={cn("h-full", className)}>
+      <SectionCardHeader
+        title="Order Items"
+        description={description}
+        icon={Package}
+        tone="sky"
+        className="mb-2"
+        titleClassName={cn(TYPO_CARD_TITLE, "text-gray-700 dark:text-white")}
+        descriptionClassName={cn(
+          TYPO_SUBTITLE,
+          "text-gray-600 dark:text-gray-300",
+        )}
+      />
       <div className="space-y-2 mt-4">
         {dataLoading ? (
           [1, 2, 3].map((i) => (

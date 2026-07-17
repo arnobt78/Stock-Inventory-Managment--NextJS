@@ -25,7 +25,7 @@ export function CatalogAllocationSummaryText({
     <span
       className={cn(
         // Muted labels so sky/emerald/amber numbers match Warehouse Stock header
-        "inline-flex flex-wrap items-center gap-x-1 gap-y-0.5 text-xs font-normal text-gray-600 dark:text-white/60",
+        "inline-flex flex-wrap items-center gap-x-1 gap-y-0.5 text-xs sm:text-sm font-normal text-gray-600 dark:text-white/80",
         className,
       )}
     >
@@ -35,7 +35,7 @@ export function CatalogAllocationSummaryText({
           {catalogQty}
         </span>
       </span>
-      <span className="text-gray-400 dark:text-white/40" aria-hidden>
+      <span className="text-gray-400 dark:text-white/80" aria-hidden>
         ·
       </span>
       <span>
@@ -44,7 +44,7 @@ export function CatalogAllocationSummaryText({
           {allocatedTotal}
         </span>
       </span>
-      <span className="text-gray-400 dark:text-white/40" aria-hidden>
+      <span className="text-gray-400 dark:text-white/80" aria-hidden>
         ·
       </span>
       <span>
@@ -55,7 +55,7 @@ export function CatalogAllocationSummaryText({
       </span>
       {reservedCommitment > 0 ? (
         <>
-          <span className="text-gray-400 dark:text-white/40" aria-hidden>
+          <span className="text-gray-400 dark:text-white/80" aria-hidden>
             ·
           </span>
           <span>

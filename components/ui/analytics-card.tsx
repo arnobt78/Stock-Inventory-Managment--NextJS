@@ -135,7 +135,7 @@ export function AnalyticsCard({
     >
       <div className="flex flex-col w-full">
         <div className="flex items-center justify-between gap-2">
-          <p className="text-xs uppercase tracking-[0.3em] text-gray-700 dark:text-white/60 font-medium shrink-0">
+          <p className="text-xs uppercase tracking-[0.3em] text-gray-700 dark:text-white/80 font-medium shrink-0">
             {title}
           </p>
           <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-gray-300/30 bg-gray-100/50 shadow-inner shadow-primary/20 backdrop-blur dark:border-white/15 dark:bg-white/10">
@@ -159,7 +159,7 @@ export function AnalyticsCard({
               {trend.isPositive ? "+" : ""}
               {trend.value}%
             </span>
-            <span className="text-xs text-gray-500 dark:text-white/60 ml-1">
+            <span className="text-xs text-gray-500 dark:text-white/80 ml-1">
               from last month
             </span>
           </div>

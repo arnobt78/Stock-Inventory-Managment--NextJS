@@ -288,7 +288,7 @@ export function ForecastingCard({ products, className }: ForecastingCardProps) {
             <div className="text-sm sm:text-lg font-medium text-blue-600 dark:text-blue-400">
               {forecastData.totalProducts}
             </div>
-            <div className="text-sm text-gray-600 dark:text-white/70">
+            <div className="text-sm text-gray-600 dark:text-white/80">
               Total Products
             </div>
           </div>
@@ -296,7 +296,7 @@ export function ForecastingCard({ products, className }: ForecastingCardProps) {
             <div className="text-sm sm:text-lg font-medium text-amber-600 dark:text-amber-400">
               {forecastData.lowStockProducts}
             </div>
-            <div className="text-sm text-gray-600 dark:text-white/70">
+            <div className="text-sm text-gray-600 dark:text-white/80">
               Low Stock
             </div>
           </div>
@@ -304,7 +304,7 @@ export function ForecastingCard({ products, className }: ForecastingCardProps) {
             <div className="text-sm sm:text-base font-medium text-rose-600 dark:text-rose-400">
               {forecastData.outOfStockProducts}
             </div>
-            <div className="text-sm text-gray-600 dark:text-white/70">
+            <div className="text-sm text-gray-600 dark:text-white/80">
               Out of Stock
             </div>
           </div>
@@ -327,11 +327,11 @@ export function ForecastingCard({ products, className }: ForecastingCardProps) {
                     <div className="font-medium text-sm text-gray-700 dark:text-white">
                       {suggestion.product.name}
                     </div>
-                    <div className="text-xs text-gray-600 dark:text-white/60">
+                    <div className="text-xs text-gray-600 dark:text-white/80">
                       Current: {suggestion.available} | Suggested:{" "}
                       {suggestion.suggestedQuantity}
                     </div>
-                    <div className="text-xs text-gray-500 dark:text-white/50">
+                    <div className="text-xs text-gray-500 dark:text-white/80">
                       {suggestion.reason}
                     </div>
                   </div>
@@ -339,7 +339,7 @@ export function ForecastingCard({ products, className }: ForecastingCardProps) {
                 </div>
               ))
             ) : (
-              <div className="text-center py-4 text-gray-600 dark:text-white/60">
+              <div className="text-center py-4 text-gray-600 dark:text-white/80">
                 No reorder suggestions at this time
               </div>
             )}
@@ -362,11 +362,11 @@ export function ForecastingCard({ products, className }: ForecastingCardProps) {
                   <span className="font-medium text-sm text-gray-700 dark:text-white">
                     {forecast.category}
                   </span>
-                  <span className="text-xs text-gray-600 dark:text-white/60">
+                  <span className="text-xs text-gray-600 dark:text-white/80">
                     {forecast.confidence.toFixed(0)}% confidence
                   </span>
                 </div>
-                <div className="flex justify-between text-xs text-gray-500 dark:text-white/50">
+                <div className="flex justify-between text-xs text-gray-500 dark:text-white/80">
                   <span>Current: {forecast.currentStock}</span>
                   <span>Predicted: {forecast.predictedDemand}</span>
                 </div>

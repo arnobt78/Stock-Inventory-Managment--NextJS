@@ -27,9 +27,18 @@ import {
   useUsers,
 } from "@/hooks/queries";
 import { cn } from "@/lib/utils";
-import { isAnyDataSlotUnsettled, isDataSlotLoading, queryKeys, useSyncSsrQueryDataMany } from "@/lib/react-query";
+import {
+  isAnyDataSlotUnsettled,
+  isDataSlotLoading,
+  queryKeys,
+  useSyncSsrQueryDataMany,
+} from "@/lib/react-query";
 import { useAuth } from "@/contexts";
-import { PageContentWrapper, PageSectionHeader, SectionTitleRow } from "@/components/shared";
+import {
+  PageContentWrapper,
+  PageSectionHeader,
+  SectionTitleRow,
+} from "@/components/shared";
 import { FILTER_SEARCH_INPUT_SKY_CLASS } from "@/lib/ui/filter-toolbar-styles";
 import { ClientCurrency, ClientCompactDateTime } from "@/components/shared";
 import { formatStableCurrency } from "@/lib/format";
@@ -302,7 +311,7 @@ export default function AdminMyActivityContent({
       {
         id: "date",
         header: "Date",
-        cellClassName: "text-gray-600 dark:text-gray-400",
+        cellClassName: "text-gray-600 dark:text-gray-300",
         render: (order) => (
           <ClientCompactDateTime date={order.createdAt} semantic="created" />
         ),
@@ -512,7 +521,7 @@ export default function AdminMyActivityContent({
                 icon={ShoppingCart}
                 iconClassName="text-teal-600 dark:text-teal-400"
               />
-              <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+              <p className="text-sm text-gray-600 dark:text-gray-300 mt-1">
                 Latest 5 orders (self: {authUser?.name ?? "—"},{" "}
                 {authUser?.email ?? "—"})
               </p>

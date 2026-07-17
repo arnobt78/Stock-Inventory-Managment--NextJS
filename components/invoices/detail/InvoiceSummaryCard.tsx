@@ -15,7 +15,10 @@ import { Separator } from "@/components/ui/separator";
 import { DataSlotPulse } from "@/components/shared";
 import type { Invoice } from "@/types";
 import { cn } from "@/lib/utils";
-import { GlassCard, variantConfig } from "@/components/orders/detail/order-detail-primitives";
+import {
+  GlassCard,
+  variantConfig,
+} from "@/components/orders/detail/order-detail-primitives";
 
 export type InvoiceSummaryCardProps = {
   invoice?: Invoice;
@@ -50,7 +53,7 @@ export function InvoiceSummaryRow({
           "inline-flex items-center gap-1.5",
           variant === "glass"
             ? "text-white/80"
-            : "text-gray-600 dark:text-gray-400",
+            : "text-gray-600 dark:text-gray-300",
         )}
       >
         <Icon className="h-3.5 w-3.5 shrink-0" />
@@ -59,9 +62,7 @@ export function InvoiceSummaryRow({
       <span
         className={cn(
           "font-medium",
-          variant === "glass"
-            ? "text-white"
-            : "text-gray-700 dark:text-white",
+          variant === "glass" ? "text-white" : "text-gray-700 dark:text-white",
           valueClassName,
         )}
       >
@@ -72,10 +73,7 @@ export function InvoiceSummaryRow({
 }
 
 function SummaryRow(
-  props: Omit<
-    React.ComponentProps<typeof InvoiceSummaryRow>,
-    "variant"
-  >,
+  props: Omit<React.ComponentProps<typeof InvoiceSummaryRow>, "variant">,
 ) {
   return <InvoiceSummaryRow {...props} />;
 }
@@ -130,12 +128,13 @@ export function InvoiceSummaryCard({
           />
         )}
         <Separator className="my-2 bg-teal-200/50 dark:bg-teal-400/20" />
-        <div className="flex justify-between text-sm sm:text-lg font-medium p-2 rounded-xl bg-gradient-to-r from-emerald-100/50 via-emerald-50/30 to-transparent dark:from-emerald-500/15 dark:via-emerald-500/10 dark:to-transparent border border-emerald-200/30 dark:border-emerald-400/20">
+        {/* REQ-0148 — Total text-sm sm:text-base (parity with OrderSummaryCard) */}
+        <div className="flex justify-between text-sm sm:text-base font-normal p-2 rounded-xl bg-gradient-to-r from-emerald-100/50 via-emerald-50/30 to-transparent dark:from-emerald-500/15 dark:via-emerald-500/10 dark:to-transparent border border-emerald-200/30 dark:border-emerald-400/20">
           <span className="text-gray-700 dark:text-white inline-flex items-center gap-1.5">
             <CircleDollarSign className="h-4 w-4 shrink-0" />
             Total:
           </span>
-          <span className="text-emerald-600 dark:text-emerald-400">
+          <span className="text-emerald-600 dark:text-emerald-400 font-normal">
             {dataLoading ? (
               <DataSlotPulse variant="currency" />
             ) : (

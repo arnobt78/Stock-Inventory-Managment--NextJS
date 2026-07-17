@@ -1,5 +1,9 @@
 "use client";
 
+/**
+ * REQ-0147 — admin party names get sky user-management links via href.
+ */
+
 import React from "react";
 import { Package } from "lucide-react";
 import type { Order } from "@/types";
@@ -10,15 +14,19 @@ import {
   type PartyPerson,
 } from "@/components/shared/PartiesRolesCard";
 import { getCustomerDisplay, getCustomerEmail } from "./order-detail-primitives";
+import { resolveAuditUserManagementHref } from "@/lib/navigation/audit-user-href";
 
 export type OrderPartiesCardProps = {
   order?: Order;
   dataLoading: boolean;
+  /** When true, party names link to admin user management */
+  isAdminRole?: boolean;
 };
 
 export function OrderPartiesCard({
   order,
   dataLoading,
+  isAdminRole = false,
 }: OrderPartiesCardProps) {
   const shouldShow =
     dataLoading ||
@@ -35,16 +43,32 @@ export function OrderPartiesCard({
           name: order.placedByName,
           email: order.placedByEmail ?? "",
           image: order.placedByImage,
+          href: order.placedByUserId
+            ? resolveAuditUserManagementHref(order.placedByUserId, isAdminRole)
+            : undefined,
         }
       : null;
 
+  const customerUserId = order?.clientId ?? order?.userId;
   const customer: PartyPerson | null = order
     ? {
-        userId: order.clientId ?? order.userId,
+        userId: customerUserId ?? undefined,
         name: getCustomerDisplay(order),
         email: getCustomerEmail(order),
+        href: customerUserId
+          ? resolveAuditUserManagementHref(customerUserId, isAdminRole)
+          : undefined,
       }
     : null;
+
+  const productOwners = mapOrderProductOwners(
+    order?.orderProductOwners ?? [],
+  ).map((owner) => ({
+    ...owner,
+    href: owner.userId
+      ? resolveAuditUserManagementHref(owner.userId, isAdminRole)
+      : undefined,
+  }));
 
   return (
     <GlassCard variant="teal">
@@ -54,7 +78,7 @@ export function OrderPartiesCard({
         orderedBy={orderedBy}
         customer={customer}
         customerLabel="Customer / Ship to"
-        productOwners={mapOrderProductOwners(order?.orderProductOwners ?? [])}
+        productOwners={productOwners}
       />
     </GlassCard>
   );

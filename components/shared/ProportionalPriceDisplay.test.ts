@@ -7,8 +7,12 @@ describe("ProportionalPriceDisplay", () => {
       expect(shouldShowAdjustedPrice(100, 100)).toBe(false);
     });
 
-    it("returns true when adjusted differs (fee-adjusted order)", () => {
+    it("returns true when list is greater than adjusted (discount)", () => {
       expect(shouldShowAdjustedPrice(600, 346.99)).toBe(true);
+    });
+
+    it("returns false when adjusted is higher (tax/shipping upcharge)", () => {
+      expect(shouldShowAdjustedPrice(499, 534)).toBe(false);
     });
 
     it("returns false when adjusted is undefined", () => {

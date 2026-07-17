@@ -46,6 +46,7 @@ import {
   ClientDateTime,
   CopyableText,
   DeferredSelectGate,
+  DetailInfoRowGroup,
   PageContentWrapper,
   DataSlotPulse,
   GLASS_GHOST_BUTTON,
@@ -53,7 +54,11 @@ import {
   glassDetailFooterButtonClass,
   AuditUserDetailRow,
 } from "@/components/shared";
-import { isDataSlotLoading, queryKeys, useSyncSsrQueryData } from "@/lib/react-query";
+import {
+  isDataSlotLoading,
+  queryKeys,
+  useSyncSsrQueryData,
+} from "@/lib/react-query";
 import { useToast } from "@/hooks/use-toast";
 import type { OrderStatus, Order } from "@/types";
 import type { OrderReviewContext } from "@/lib/server/order-review-context-data";
@@ -171,6 +176,7 @@ export default function AdminOrderDetailContent({
         id: orderId,
         data: {
           trackingNumber: manualTrackingNumber.trim(),
+          trackingCarrier: manualCarrier,
           trackingUrl: undefined,
           status: "shipped",
           shippedAt: new Date(),
@@ -195,7 +201,13 @@ export default function AdminOrderDetailContent({
         },
       },
     );
-  }, [orderId, manualTrackingNumber, updateOrderMutation, toast]);
+  }, [
+    orderId,
+    manualTrackingNumber,
+    manualCarrier,
+    updateOrderMutation,
+    toast,
+  ]);
 
   const handleRefund = useCallback(() => {
     if (!orderId) return;
@@ -272,6 +284,46 @@ export default function AdminOrderDetailContent({
 
   const createdAt = order?.createdAt ? new Date(order.createdAt) : new Date();
   const updatedAt = order?.updatedAt ? new Date(order.updatedAt) : null;
+  const hasShipping =
+    !dataLoading &&
+    !!(
+      order?.trackingNumber &&
+      (order.status === "shipped" || order.status === "delivered")
+    );
+
+  const statusControl = (
+    <DeferredSelectGate
+      placeholder={
+        <div
+          className="w-[130px] h-8 text-xs border border-gray-300/30 dark:border-white/10 rounded-md flex items-center px-2 text-gray-700 dark:text-white/80"
+          aria-hidden
+        >
+          {ORDER_STATUSES.find((o) => o.value === order!.status)?.label ??
+            order!.status}
+        </div>
+      }
+    >
+      {({ selectRemountKey }) => (
+        <Select
+          key={selectRemountKey}
+          value={order!.status}
+          onValueChange={(v) => handleStatusChange(v as OrderStatus)}
+          disabled={isUpdating || actionsDisabled}
+        >
+          <SelectTrigger className="w-[130px] h-8 text-xs border-gray-300/30 dark:border-white/10">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            {ORDER_STATUSES.map((opt) => (
+              <SelectItem key={opt.value} value={opt.value}>
+                {opt.label}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      )}
+    </DeferredSelectGate>
+  );
 
   return (
     <PageContentWrapper>
@@ -284,229 +336,298 @@ export default function AdminOrderDetailContent({
           dataLoading={dataLoading}
         />
 
-        <OrderStatusBadges
-          status={order?.status}
-          paymentStatus={order?.paymentStatus}
-          dataLoading={dataLoading}
-          statusControl={
-            <DeferredSelectGate
-              placeholder={
-                <div
-                  className="w-[130px] h-8 text-xs border border-gray-300/30 dark:border-white/10 rounded-md flex items-center px-2 text-gray-700 dark:text-white/80"
-                  aria-hidden
-                >
-                  {ORDER_STATUSES.find((o) => o.value === order!.status)
-                    ?.label ?? order!.status}
-                </div>
-              }
-            >
-              {({ selectRemountKey }) => (
-                <Select
-                  key={selectRemountKey}
-                  value={order!.status}
-                  onValueChange={(v) => handleStatusChange(v as OrderStatus)}
-                  disabled={isUpdating || actionsDisabled}
-                >
-                  <SelectTrigger className="w-[130px] h-8 text-xs border-gray-300/30 dark:border-white/10">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {ORDER_STATUSES.map((opt) => (
-                      <SelectItem key={opt.value} value={opt.value}>
-                        {opt.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              )}
-            </DeferredSelectGate>
-          }
-        />
-
-        <OrderItemsCard
-          order={order}
-          dataLoading={dataLoading}
-          linkMode="admin"
-          warehouseLinkMode="admin"
-          initialReviewContext={initialReviewContext}
-        />
-
-        {/* Order Information + Customer — admin-only */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-2 sm:gap-4">
-          <GlassCard variant="orange">
-            <div className="flex items-center gap-2 mb-4">
-              <div
-                className={cn(
-                  "p-2 rounded-xl border",
-                  variantConfig.orange.iconBg,
-                  "dark:border-orange-400/30 dark:bg-orange-500/20",
-                )}
-              >
-                <FileText className="h-5 w-5 text-orange-600 dark:text-orange-400" />
-              </div>
-              <h3 className="text-sm sm:text-base font-medium text-gray-700 dark:text-white">
-                Order Information
-              </h3>
-            </div>
-            <div className="space-y-2">
-              {!dataLoading && order && (
-                <>
-                  <DetailInfoRow icon={Package} label="Order Status:" tone="sky">
-                    <OrderStatusBadge status={order.status} />
-                  </DetailInfoRow>
-                  <DetailInfoRow icon={CreditCard} label="Payment Status:" tone="emerald">
-                    <PaymentStatusBadge status={order.paymentStatus} />
-                  </DetailInfoRow>
-                </>
-              )}
-              <DetailInfoRow icon={Calendar} label="Created:" tone="orange" loading={dataLoading}>
-                {!dataLoading && <ClientDateTime date={createdAt} semantic="created" />}
-              </DetailInfoRow>
-              {!dataLoading && updatedAt && (
-                <DetailInfoRow icon={Calendar} label="Updated:" tone="amber">
-                  <ClientDateTime date={updatedAt} semantic="updated" />
-                </DetailInfoRow>
-              )}
-              {!dataLoading && order?.creator && (
-                <AuditUserDetailRow
-                  label="Created by:"
-                  tone="violet"
-                  user={order.creator}
-                  href={resolveAuditUserManagementHref(order.creator.id, true)}
-                />
-              )}
-              {!dataLoading && order?.updater && (
-                <AuditUserDetailRow
-                  label="Updated by:"
-                  tone="blue"
-                  user={order.updater}
-                  href={resolveAuditUserManagementHref(order.updater.id, true)}
-                />
-              )}
-              {!dataLoading && order?.notes && (
-                <DetailInfoRow icon={FileText} label="Notes:" tone="teal">
-                  {order.notes}
-                </DetailInfoRow>
-              )}
-            </div>
-          </GlassCard>
-
-          <GlassCard variant="blue">
-            <div className="flex items-center gap-2 mb-4">
-              <div
-                className={cn(
-                  "p-2 rounded-xl border",
-                  variantConfig.blue.iconBg,
-                  "dark:border-blue-400/30 dark:bg-blue-500/20",
-                )}
-              >
-                <MapPin className="h-5 w-5 text-blue-600 dark:text-blue-400" />
-              </div>
-              <h3 className="text-sm sm:text-base font-medium text-gray-700 dark:text-white">
-                Customer Information
-              </h3>
-            </div>
-            <div className="space-y-2">
-              <DetailInfoRow icon={User} label="Name:" tone="blue" loading={dataLoading}>
-                {!dataLoading && getCustomerDisplay(order!)}
-              </DetailInfoRow>
-              <DetailInfoRow icon={Mail} label="Email:" tone="sky" loading={dataLoading}>
-                {!dataLoading && getCustomerEmail(order!)}
-              </DetailInfoRow>
-              <DetailInfoRow icon={FileText} label="User ID:" tone="violet" loading={dataLoading}>
-                {!dataLoading && (
-                  <span className="font-mono text-xs break-all">{order!.userId}</span>
-                )}
-              </DetailInfoRow>
-            </div>
-          </GlassCard>
-        </div>
-
-        <OrderPartiesCard order={order} dataLoading={dataLoading} />
-
-        {/* Invoice card (admin) — link when the order has one, Create when it does not (REQ-0061) */}
-        {!dataLoading && order && (
-          <GlassCard variant="violet">
-            <div className="flex items-center gap-2 mb-2">
-              <div
-                className={cn(
-                  "p-2 rounded-xl border",
-                  variantConfig.violet.iconBg,
-                  "dark:border-violet-400/30 dark:bg-violet-500/20",
-                )}
-              >
-                <FileText className="h-5 w-5 text-violet-600 dark:text-violet-400" />
-              </div>
-              <h3 className="text-sm sm:text-base font-medium text-gray-700 dark:text-white">
-                Invoice
-              </h3>
-            </div>
-            {order.invoiceForOrder ? (
-              <>
-                <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
-                  This order has a linked invoice.
-                </p>
-                {/* CopyableText copies the invoice # without following the link */}
-                <CopyableText value={order.invoiceForOrder.invoiceNumber}>
-                  <Button
-                    asChild
-                    className={glassDetailFooterButtonClass("indigo", "w-auto")}
-                  >
-                    <Link href={`/admin/invoices/${order.invoiceForOrder.id}`}>
-                      <FileText className="h-4 w-4 shrink-0" />
-                      View invoice {order.invoiceForOrder.invoiceNumber}
-                    </Link>
-                  </Button>
-                </CopyableText>
-              </>
-            ) : (
-              <>
-                <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
-                  No invoice has been generated for this order yet.
-                </p>
-                <Button
-                  onClick={() => setCreateInvoiceOpen(true)}
-                  disabled={order.status === "cancelled"}
-                  className={glassDetailFooterButtonClass("indigo", "w-auto")}
-                >
-                  <FilePlus2 className="h-4 w-4 shrink-0" />
-                  Create Invoice
-                </Button>
-              </>
-            )}
-          </GlassCard>
+        {/* REQ-0146 — equal-height status stack + tracking when shipped */}
+        {hasShipping && order ? (
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-2 items-stretch">
+            <OrderStatusBadges
+              status={order.status}
+              paymentStatus={order.paymentStatus}
+              dataLoading={dataLoading}
+              layout="stack"
+              className="h-full"
+              statusControl={statusControl}
+            />
+            <OrderTrackingInfo order={order} className="h-full" />
+          </div>
+        ) : (
+          <OrderStatusBadges
+            status={order?.status}
+            paymentStatus={order?.paymentStatus}
+            dataLoading={dataLoading}
+            layout="grid"
+            statusControl={statusControl}
+          />
         )}
 
-        <OrderShippingAddressCard order={order} dataLoading={dataLoading} />
+        {/* REQ-0147 — Items | Summary */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-2 sm:gap-4 items-stretch">
+          <OrderItemsCard
+            order={order}
+            dataLoading={dataLoading}
+            linkMode="admin"
+            warehouseLinkMode="admin"
+            initialReviewContext={initialReviewContext}
+          />
+          <OrderSummaryCard order={order} dataLoading={dataLoading} />
+        </div>
 
-        <OrderSummaryCard order={order} dataLoading={dataLoading} />
-
-        {/* Shipping & Tracking — auto generate + manual; when generated show OrderTrackingInfo above */}
-        {!dataLoading && order && order.status !== "cancelled" && (
-          <GlassCard variant="emerald">
-            <div className="flex items-center gap-2 mb-4">
-              <div
-                className={cn(
-                  "p-2 rounded-xl border",
-                  variantConfig.emerald.iconBg,
-                  "dark:border-emerald-400/30 dark:bg-emerald-500/20",
-                )}
-              >
-                <Truck className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
+        {/* REQ-0147 — Info + Customer | Parties + Shipping stack */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-2 sm:gap-4 items-start">
+          <div className="flex flex-col gap-2 sm:gap-4 min-w-0">
+            <GlassCard variant="orange">
+              <div className="flex items-center gap-2 mb-4">
+                <div
+                  className={cn(
+                    "p-2 rounded-xl border",
+                    variantConfig.orange.iconBg,
+                    "dark:border-orange-400/30 dark:bg-orange-500/20",
+                  )}
+                >
+                  <FileText className="h-5 w-5 text-orange-600 dark:text-orange-400" />
+                </div>
+                <h3 className="text-sm sm:text-base font-medium text-gray-700 dark:text-white">
+                  Order Information
+                </h3>
               </div>
-              <h3 className="text-sm sm:text-base font-medium text-gray-700 dark:text-white">
-                Shipping & Tracking
-              </h3>
-            </div>
-            {order!.trackingNumber ? (
-              <OrderTrackingInfo order={order!} />
-            ) : (
+              <div className="space-y-2">
+                {!dataLoading && order && (
+                  <>
+                    <DetailInfoRow
+                      icon={Package}
+                      label="Order Status:"
+                      tone="sky"
+                    >
+                      <OrderStatusBadge status={order.status} />
+                    </DetailInfoRow>
+                    <DetailInfoRow
+                      icon={CreditCard}
+                      label="Payment Status:"
+                      tone="emerald"
+                    >
+                      <PaymentStatusBadge status={order.paymentStatus} />
+                    </DetailInfoRow>
+                    {order.invoiceForOrder && (
+                      <DetailInfoRow
+                        icon={FileText}
+                        label="Invoice:"
+                        tone="violet"
+                      >
+                        <CopyableText
+                          value={order.invoiceForOrder.invoiceNumber}
+                        >
+                          <Link
+                            href={`/admin/invoices/${order.invoiceForOrder.id}`}
+                            className="text-sky-600 dark:text-sky-400 hover:text-sky-500 font-normal"
+                          >
+                            {order.invoiceForOrder.invoiceNumber}
+                          </Link>
+                        </CopyableText>
+                      </DetailInfoRow>
+                    )}
+                  </>
+                )}
+                <DetailInfoRowGroup>
+                  <DetailInfoRow
+                    icon={Calendar}
+                    label="Created:"
+                    tone="orange"
+                    loading={dataLoading}
+                  >
+                    {!dataLoading && (
+                      <ClientDateTime date={createdAt} semantic="created" />
+                    )}
+                  </DetailInfoRow>
+                  {(dataLoading || updatedAt) && (
+                    <DetailInfoRow
+                      icon={Calendar}
+                      label="Updated:"
+                      tone="amber"
+                      loading={dataLoading}
+                    >
+                      {!dataLoading && updatedAt && (
+                        <ClientDateTime date={updatedAt} semantic="updated" />
+                      )}
+                    </DetailInfoRow>
+                  )}
+                </DetailInfoRowGroup>
+                {!dataLoading && order?.creator && (
+                  <AuditUserDetailRow
+                    label="Created by:"
+                    tone="violet"
+                    user={order.creator}
+                    href={resolveAuditUserManagementHref(
+                      order.creator.id,
+                      true,
+                    )}
+                  />
+                )}
+                {!dataLoading && order?.updater && (
+                  <AuditUserDetailRow
+                    label="Updated by:"
+                    tone="blue"
+                    user={order.updater}
+                    href={resolveAuditUserManagementHref(
+                      order.updater.id,
+                      true,
+                    )}
+                  />
+                )}
+                {!dataLoading && order?.notes && (
+                  <DetailInfoRow icon={FileText} label="Notes:" tone="teal">
+                    {order.notes}
+                  </DetailInfoRow>
+                )}
+              </div>
+            </GlassCard>
+
+            <GlassCard variant="blue">
+              <div className="flex items-center gap-2 mb-4">
+                <div
+                  className={cn(
+                    "p-2 rounded-xl border",
+                    variantConfig.blue.iconBg,
+                    "dark:border-blue-400/30 dark:bg-blue-500/20",
+                  )}
+                >
+                  <MapPin className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+                </div>
+                <h3 className="text-sm sm:text-base font-medium text-gray-700 dark:text-white">
+                  Customer Information
+                </h3>
+              </div>
+              <div className="space-y-2">
+                <DetailInfoRow
+                  icon={User}
+                  label="Name:"
+                  tone="blue"
+                  loading={dataLoading}
+                >
+                  {!dataLoading && getCustomerDisplay(order!)}
+                </DetailInfoRow>
+                <DetailInfoRow
+                  icon={Mail}
+                  label="Email:"
+                  tone="sky"
+                  loading={dataLoading}
+                >
+                  {!dataLoading && getCustomerEmail(order!)}
+                </DetailInfoRow>
+                <DetailInfoRow
+                  icon={FileText}
+                  label="User ID:"
+                  tone="violet"
+                  loading={dataLoading}
+                >
+                  {!dataLoading && (
+                    <span className="font-mono text-xs break-all">
+                      {order!.userId}
+                    </span>
+                  )}
+                </DetailInfoRow>
+              </div>
+            </GlassCard>
+          </div>
+
+          <div className="flex flex-col gap-2 sm:gap-4 min-w-0">
+            <OrderPartiesCard
+              order={order}
+              dataLoading={dataLoading}
+              isAdminRole
+            />
+            <OrderShippingAddressCard order={order} dataLoading={dataLoading} />
+            {/* Invoice actions (admin) — Create when absent (REQ-0061) */}
+            {!dataLoading && order && (
+              <GlassCard variant="violet">
+                <div className="flex items-center gap-2 mb-2">
+                  <div
+                    className={cn(
+                      "p-2 rounded-xl border",
+                      variantConfig.violet.iconBg,
+                      "dark:border-violet-400/30 dark:bg-violet-500/20",
+                    )}
+                  >
+                    <FileText className="h-5 w-5 text-violet-600 dark:text-violet-400" />
+                  </div>
+                  <h3 className="text-sm sm:text-base font-medium text-gray-700 dark:text-white">
+                    Invoice
+                  </h3>
+                </div>
+                {order.invoiceForOrder ? (
+                  <>
+                    <p className="text-sm text-gray-600 dark:text-gray-300 mb-2">
+                      This order has a linked invoice.
+                    </p>
+                    <CopyableText value={order.invoiceForOrder.invoiceNumber}>
+                      <Button
+                        asChild
+                        className={glassDetailFooterButtonClass(
+                          "indigo",
+                          "w-auto",
+                        )}
+                      >
+                        <Link
+                          href={`/admin/invoices/${order.invoiceForOrder.id}`}
+                        >
+                          <FileText className="h-4 w-4 shrink-0" />
+                          View invoice {order.invoiceForOrder.invoiceNumber}
+                        </Link>
+                      </Button>
+                    </CopyableText>
+                  </>
+                ) : (
+                  <>
+                    <p className="text-sm text-gray-600 dark:text-gray-300 mb-2">
+                      No invoice has been generated for this order yet.
+                    </p>
+                    <Button
+                      onClick={() => setCreateInvoiceOpen(true)}
+                      disabled={order.status === "cancelled"}
+                      className={glassDetailFooterButtonClass(
+                        "indigo",
+                        "w-auto",
+                      )}
+                    >
+                      <FilePlus2 className="h-4 w-4 shrink-0" />
+                      Create Invoice
+                    </Button>
+                  </>
+                )}
+              </GlassCard>
+            )}
+          </div>
+        </div>
+
+        {/* Shipping & Tracking — auto generate + manual (tracking card shown above when present) */}
+        {!dataLoading &&
+          order &&
+          order.status !== "cancelled" &&
+          !hasShipping && (
+            <GlassCard variant="emerald">
+              <div className="flex items-center gap-2 mb-4">
+                <div
+                  className={cn(
+                    "p-2 rounded-xl border",
+                    variantConfig.emerald.iconBg,
+                    "dark:border-emerald-400/30 dark:bg-emerald-500/20",
+                  )}
+                >
+                  <Truck className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
+                </div>
+                <h3 className="text-sm sm:text-base font-medium text-gray-700 dark:text-white">
+                  Shipping & Tracking
+                </h3>
+              </div>
               <>
                 <div className="flex flex-wrap items-center gap-2 mb-4">
                   <ShippingManagement
                     order={order!}
                     trigger={
-                      <Button className={glassDetailFooterButtonClass("emerald", "w-auto")}>
+                      <Button
+                        className={glassDetailFooterButtonClass(
+                          "emerald",
+                          "w-auto",
+                        )}
+                      >
                         <Truck className="h-4 w-4 shrink-0" />
                         Generate Shipping Label
                       </Button>
@@ -583,7 +704,10 @@ export default function AdminOrderDetailContent({
                       <Button
                         onClick={handleAddTracking}
                         disabled={isUpdating || !manualTrackingNumber.trim()}
-                        className={glassDetailFooterButtonClass("sky", "w-auto")}
+                        className={glassDetailFooterButtonClass(
+                          "sky",
+                          "w-auto",
+                        )}
                       >
                         {isUpdating ? (
                           <Loader2 className="h-4 w-4 animate-spin" />
@@ -594,15 +718,14 @@ export default function AdminOrderDetailContent({
                       </Button>
                     </div>
                   </div>
-                  <p className="text-xs text-gray-600 dark:text-gray-400 mt-2">
+                  <p className="text-xs text-gray-600 dark:text-gray-300 mt-2">
                     Manually enter tracking. Order status will be updated to
                     &quot;shipped&quot;.
                   </p>
                 </div>
               </>
-            )}
-          </GlassCard>
-        )}
+            </GlassCard>
+          )}
 
         {/* Refund Management */}
         {canRefund && (
@@ -612,7 +735,7 @@ export default function AdminOrderDetailContent({
                 Refund Management
               </h3>
             </div>
-            <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
+            <p className="text-sm text-gray-600 dark:text-gray-300 mb-4">
               Cancel the order and issue a full refund via Stripe. Stock will be
               restored and the linked invoice cancelled. All related pages will
               update.
@@ -663,7 +786,9 @@ export default function AdminOrderDetailContent({
         <div className="flex flex-col sm:flex-row flex-wrap gap-2">
           <Button
             onClick={handleBack}
-            className={glassDetailBackButtonClass("w-full sm:w-auto gap-2 px-8")}
+            className={glassDetailBackButtonClass(
+              "w-full sm:w-auto gap-2 px-8",
+            )}
           >
             <ArrowLeft className="h-4 w-4 shrink-0" />
             Back

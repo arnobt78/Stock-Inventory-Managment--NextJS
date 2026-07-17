@@ -78,7 +78,11 @@ export function InvoiceStatusDropDown({
           </Button>
         </PopoverTrigger>
         <PopoverContent
-          className={cn("p-0 w-48 poppins", filterCommandPopoverClass("rose"), FILTER_COMMAND_INPUT_WRAPPER_CLASS)}
+          className={cn(
+            "p-0 w-48 poppins",
+            filterCommandPopoverClass("rose"),
+            FILTER_COMMAND_INPUT_WRAPPER_CLASS,
+          )}
           side="bottom"
           align="center"
         >
@@ -105,7 +109,7 @@ export function InvoiceStatusDropDown({
                 ))}
               </CommandGroup>
             </CommandList>
-            <CommandEmpty className="text-gray-600 dark:text-white/60 text-sm text-center p-5">
+            <CommandEmpty className="text-gray-600 dark:text-white/80 text-sm text-center p-5">
               No status found.
             </CommandEmpty>
             <div className="flex flex-col gap-2 text-[23px]">

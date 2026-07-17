@@ -48,7 +48,7 @@ import {
 } from "@/lib/validations/user-management";
 
 const ROLE_OPTIONS = [
-  { value: "user", label: "User", color: "text-gray-600 dark:text-gray-400" },
+  { value: "user", label: "User", color: "text-gray-600 dark:text-gray-300" },
   { value: "admin", label: "Admin", color: "text-rose-600 dark:text-rose-400" },
   {
     value: "supplier",
