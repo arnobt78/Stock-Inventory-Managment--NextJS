@@ -2,7 +2,7 @@
 
 **Generated:** 2026-07-17 pre-commit audit REQ-0146–0149  
 **eval_gate_status:** PENDING (Human Gate 2)  
-**Prod target SHA:** pending push (REQ-0146–0149)  
+**Prod target SHA:** `61c1e79` (REQ-0146–0149)  
 **Red Team:** PASS — lint/test573/invalidate213/build; no invalidate registry drift  
 **Resume:** **REQ-0136** UI explore → §10 A1/A2/B1 (see STATE.md)
 

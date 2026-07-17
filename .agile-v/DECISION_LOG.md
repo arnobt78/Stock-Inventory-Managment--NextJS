@@ -387,3 +387,4 @@ Format: `TIMESTAMP | AGENT | DECISION | RATIONALE | REQ-ID`
 2026-07-17T14:55:00Z | build-agent | REQ-0149 line price + Owner/Buyer size | ProportionalPriceDisplay final base/strike xs; catalog AvatarInlineLink text-xs | REQ-0149
 2026-07-17T14:58:00Z | red-team | REQ-0149 gates | lint ✓ test 573 ✓ invalidate 213 ✓ build ✓ | REQ-0149
 2026-07-17T15:10:00Z | red-team | Pre-commit audit REQ-0146–0149 | UI/CSS+trackingCarrier only; no RQ/Redis/invalidate delta; ListIndexBadge dark text-gray-700; gates PASS | REQ-0146,REQ-0147,REQ-0148,REQ-0149
+2026-07-17T15:12:00Z | release | Prod SHA 61c1e79 pushed origin/main | REQ-0146–0149 order detail polish | REQ-0146,REQ-0147,REQ-0148,REQ-0149

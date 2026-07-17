@@ -7,7 +7,7 @@
 | **Last updated** | 2026-07-17 audit+ship REQ-0146–0149 |
 | **Active REQ** | **REQ-0136** (UI explore → §10 A1/A2/B1) |
 | **Done range** | REQ-0001 … REQ-0135 + REQ-0137–**0149** |
-| **Prod SHA** | pending push (REQ-0146–0149) · prior `c62d364` on `origin/main` |
+| **Prod SHA** | `61c1e79` (REQ-0146–0149) on `origin/main` · prior `c62d364` |
 | **Human Gate 1** | APPROVED (GATE-0001) |
 | **Human Gate 2** | PENDING (GATE-0002) — UI explore → §10 → Sentry 24h |
 | **Resume token** | `tomorrow-UI-then-cache` → **REQ-0136** |
@@ -40,12 +40,9 @@
 | 0141–0143 | Cat/sup list+detail; nest-button; Owner·Buyer; category+invoice recent orders | `9919eb0` |
 | 0144 | Products hydration plain `&`; ThemeProvider script filter; forecasting `gpt-4o-mini` | `3c3a441` |
 | 0145 | Orders Invoice #; product links; SemanticEventDate; `orders:list:v3` | `c62d364` |
-| 0146 | Order detail density + strike + trackingCarrier (local) | pending push |
-| 0147 | Order detail gap closure (carrier/layout/parties) | pending push |
-| 0148 | Summary Total typo; line · + invoice chip; light header Back | pending push |
-| 0149 | Line price typo + Owner/Buyer text-xs parity | pending push |
+| 0146–0149 | Order detail polish batch | `61c1e79` |
 
-**Gates:** lint ✓ · test **573** ✓ · invalidate **213** ✓ · build ✓ (REQ-0149)
+**Gates:** lint ✓ · test **573** ✓ · invalidate **213** ✓ · build ✓ · pushed `61c1e79`
 
 ---
 
