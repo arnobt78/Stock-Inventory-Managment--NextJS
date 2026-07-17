@@ -7,7 +7,7 @@
 | **Last updated** | 2026-07-17 REQ-0153 |
 | **Active REQ** | **REQ-0136** (UI explore → §10 A1/A2/B1) |
 | **Done range** | REQ-0001 … REQ-0135 + REQ-0137–**0153** |
-| **Prod SHA** | pending push (REQ-0150–0153) · tip `5477744` |
+| **Prod SHA** | `122da3d` (REQ-0150–0153) pushed `origin/main` |
 | **Human Gate 1** | APPROVED (GATE-0001) |
 | **Human Gate 2** | PENDING (GATE-0002) — UI explore → §10 → Sentry 24h |
 | **Resume token** | `tomorrow-UI-then-cache` → **REQ-0136** |
@@ -41,10 +41,7 @@
 | 0144 | Products hydration plain `&`; ThemeProvider script filter; forecasting `gpt-4o-mini` | `3c3a441` |
 | 0145 | Orders Invoice #; product links; SemanticEventDate; `orders:list:v3` | `c62d364` |
 | 0146–0149 | Order detail polish batch | `61c1e79` |
-| 0150 | Invoice table density + Edit Invoice fixes | pending push |
-| 0151 | Edit submit Zod dates; Order # badges; due Clock | pending push |
-| 0152 | Partial pay sync + Invoice Total + Pay toggle | pending push |
-| 0153 | Instant linked-order patch on invoice money CRUD | pending push |
+| 0150–0153 | Invoice densify + partial pay + linked-order patch | `122da3d` |
 
 **Gates:** lint ✓ · test **595** ✓ · invalidate **213** ✓ · build ✓ (REQ-0153)
 

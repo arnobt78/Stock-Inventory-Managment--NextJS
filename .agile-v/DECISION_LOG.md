@@ -396,3 +396,4 @@ Format: `TIMESTAMP | AGENT | DECISION | RATIONALE | REQ-ID`
 2026-07-17T17:10:00Z | red-team | REQ-0152 gates | lint ✓ test 593 ✓ invalidate 213 ✓ build ✓ | REQ-0152
 2026-07-17T17:20:00Z | build-agent | REQ-0153 instant linked-order patch | patchLinkedOrderFromInvoiceMoney on invoice money CRUD; optimistic amountDue | REQ-0153
 2026-07-17T17:25:00Z | red-team | REQ-0153 gates | lint ✓ test 595 ✓ invalidate 213 ✓ build ✓ | REQ-0153
+2026-07-17T18:00:00Z | release | Prod SHA 122da3d pushed origin/main | REQ-0150–0153 invoice densify + partial pay + linked-order patch | REQ-0150,REQ-0151,REQ-0152,REQ-0153

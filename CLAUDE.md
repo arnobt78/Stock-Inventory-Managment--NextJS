@@ -709,6 +709,8 @@ Hub: `lib/ui/typography-scale.ts`. Hubs import tokens; ~45 inline files use equi
 
 **REQ-0140 stock:** Beats SK56 — catalog 50, `product.reserved=0`, Main 30@20 reserved → UI **30 avail / 20 committed**. Sony BT23 — 99 / Main 49 (post-fulfill). Sold stats = delivered\|paid (`order-sales-eligibility.ts`). Insights buckets = `qty−committed`.
 
+**Explore (`--with-catalog`):** ORD-DEMO-001 paid/delivered; ORD-DEMO-002 confirmed + partial `$100`/`$3980` (REQ-0152); invoices/allocations/transfers/tickets/reviews.
+
 **No TanStack/invalidation changes** — seed + SSR read helpers only.
 
 ## Catalog audit user links (REQ-0089)
