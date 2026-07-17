@@ -272,7 +272,7 @@ flowchart LR
 | Invoice table (REQ-0150–0151) | Dense columns; linkedOrder status/payment badges; Zod date-only update; due Clock; `invoices:list:v2:` | Invalidation unchanged |
 | Partial pay (REQ-0152) | Order unpaid/partial/paid from invoice money; Stripe amount + webhook incremental; PaymentDialog toggle; `PaymentMoneyBreakdown`; `orders:list:v4` | Server sync + UI |
 | Instant order patch (REQ-0153) | `patchLinkedOrderFromInvoiceMoney` on invoice create/update/send | Patch → invalidate |
-| Next | Gate 2 — REQ-0136 UI + §10 A1/A2/B1; Sentry 24h | |
+| Next (tomorrow) | REQ-0136 UI explore + §10 A1/A2/B1 (incl. partial-pay cache); Gate 2 Sentry 24h | tip `ea20bef` |
 | AI warehouse insights (REQ-0067) | `POST /api/ai/insights` enriches payload with `getWarehouseStockSummary` |
 | Per-warehouse order picking (REQ-0068) | `OrderItem.warehouseId`; `stock-allocation-order-sync.ts`; `OrderLineWarehouseSelect`; reserve/fulfill/cancel sync; invoice-paid gap; `f892b65` removed unused `deleteCache`/`getRateLimitStatus` |
 | Demo reset | `npm run script:reset-demo-db` — accounts-only (3 users + Test Supplier); opt-in catalog via `seed-demo-catalog` |
