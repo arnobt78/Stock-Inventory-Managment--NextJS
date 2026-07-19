@@ -398,3 +398,4 @@ Format: `TIMESTAMP | AGENT | DECISION | RATIONALE | REQ-ID`
 2026-07-17T17:25:00Z | red-team | REQ-0153 gates | lint ✓ test 595 ✓ invalidate 213 ✓ build ✓ | REQ-0153
 2026-07-17T18:00:00Z | release | Prod SHA 122da3d pushed origin/main | REQ-0150–0153 invoice densify + partial pay + linked-order patch | REQ-0150,REQ-0151,REQ-0152,REQ-0153
 2026-07-17T18:05:00Z | release | EOD park — resume REQ-0136 UI+§10; seed ORD-DEMO-002 partial; tip ea20bef | REQ-0136
+2026-07-19T12:56:00Z | orchestrator | Agile V session activate (core+pipeline) | No re-bootstrap; resume REQ-0136 UI→§10→Gate2; tip 157c581 | REQ-0136
