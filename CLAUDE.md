@@ -851,6 +851,15 @@ Hub: `lib/ui/typography-scale.ts`. Hubs import tokens; ~45 inline files use equi
 
 **Invalidation unchanged.** Dead store-list path removed; KPI math untouched.
 
+## User overview copy (REQ-0160)
+
+| Piece | Location |
+|-------|----------|
+| Blurbs | `lib/ui/user-overview-copy.ts` — role-aware Overview description |
+| Tip | Own admin/user detail → sky Link to `/admin/my-activity` |
+
+**Copy-only** — overview KPI math unchanged.
+
 ## KPI badge helpers (REQ-0156–0157)
 
 | Helper | Use |

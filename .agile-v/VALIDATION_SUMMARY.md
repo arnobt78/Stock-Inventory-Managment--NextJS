@@ -1,9 +1,27 @@
 # Validation Summary — Cycle C1
 
-**Generated:** 2026-07-19 REQ-0159
+**Generated:** 2026-07-19 REQ-0160
 **eval_gate_status:** PENDING (Human Gate 2)
-**Prod target SHA:** `35bb8a2` (REQ-0158/0159)
+**Prod target SHA:** pending (REQ-0160)
 **Resume:** **REQ-0136** (see STATE.md)
+
+---
+
+## REQ-0160 User overview copy evidence
+
+| Check | Result |
+|-------|--------|
+| Helper | getUserOverviewDescription + shouldShowMyActivityTip |
+| UI | Overview blurb role-aware; My Activity tip isOwner admin/user |
+| Invalidation | unchanged |
+| Gates | lint ✓ test **615** ✓ invalidate **213** ✓ build ✓ tsc ✓ |
+
+```
+Scope: built/verified | Traceability: REQ-0160 | Findings: PASS
+Commands: lint, test, invalidate, build, tsc
+```
+
+---
 
 ---
 

@@ -414,3 +414,5 @@ Format: `TIMESTAMP | AGENT | DECISION | RATIONALE | REQ-ID`
 2026-07-19T15:45:00Z | build-agent | Buyer display + /invoices Self-only | placedBy/orderedBy/customerDisplay from resolveBuyerUserId; admin /invoices match /orders Self table; Store · labels; Redis list v5/v3 | REQ-0159
 
 2026-07-19T15:50:00Z | build-agent | Remove dead store invoice list path | getStoreInvoicesForAdmin + API scope=store unused after Self-only /invoices; KPIs keep getStoreOrderIds | REQ-0159
+
+2026-07-19T16:20:00Z | build-agent | Role-aware user overview copy + My Activity tip | Numbers unchanged; tip only isOwner store-owner | REQ-0160

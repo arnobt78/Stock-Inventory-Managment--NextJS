@@ -57,7 +57,12 @@ import {
   DialogSubmitButton,
   ClientDateTime,
 } from "@/components/shared";
-import { TYPO_BODY, TYPO_BODY_MUTED, TYPO_STAT_VALUE } from "@/lib/ui/typography-scale";
+import {
+  TYPO_BODY,
+  TYPO_BODY_MUTED,
+  TYPO_STAT_VALUE,
+  TYPO_SUBTITLE,
+} from "@/lib/ui/typography-scale";
 import { isDataSlotLoading, queryKeys, useSyncSsrQueryData } from "@/lib/react-query";
 import type { UserForAdmin, UserRole } from "@/types";
 import type { UserDetailForPage } from "@/hooks/queries/use-user-management";
@@ -65,6 +70,10 @@ import { cn } from "@/lib/utils";
 import { UserRoleBadge, userRoleBadgeClass } from "@/lib/ui/semantic-badges";
 import { GlassCard, DetailInfoRow } from "@/components/orders/detail";
 import { APP_SHELL_DETAIL_CLASS, DETAIL_PAGE_HEADER_SPACING_CLASS } from "@/lib/ui/shell-layout-styles";
+import {
+  getUserOverviewDescription,
+  shouldShowMyActivityTip,
+} from "@/lib/ui/user-overview-copy";
 
 const PROTECTED_EMAILS = [
   "test@admin.com",
@@ -375,7 +384,8 @@ export default function AdminUserManagementDetailContent({
           <GlassCard variant="sky">
             <SectionCardHeader
               title="Overview"
-              description="Orders, invoices, and activity linked to this user. Revenue = orders you created + sales from your supplier products; Spent/Due = orders/invoices where you are the buyer (userId or clientId)."
+              // REQ-0160 — role-aware blurb; KPI numbers unchanged
+              description={getUserOverviewDescription(u?.role)}
               icon={DollarSign}
               tone="sky"
               className="mb-4"
@@ -520,6 +530,22 @@ export default function AdminUserManagementDetailContent({
               </Link>
             </div>
           </GlassCard>
+        )}
+
+        {/* REQ-0160 — own store-owner account: Self-only tip (homepage sky link pattern) */}
+        {shouldShowMyActivityTip({ isOwner, role: u?.role }) && (
+          <p className={cn(TYPO_SUBTITLE, "text-gray-600 dark:text-white/70")}>
+            Overview counts are store-owner scope (owned orders and catalog). For
+            your personal (self-only) orders and invoices, visit{" "}
+            <Link
+              href="/admin/my-activity"
+              prefetch
+              className="font-medium text-sky-600 hover:text-sky-800 dark:text-sky-400 dark:hover:text-sky-300"
+            >
+              My Activity
+            </Link>
+            .
+          </p>
         )}
 
         <div className="flex flex-col sm:flex-row flex-wrap gap-2">

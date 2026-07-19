@@ -4,6 +4,28 @@ Canonical REQ source. All artifacts link via `REQ-XXXX`. Status: `done` | `verif
 
 ---
 
+## REQ-0160 — User overview copy + My Activity tip
+
+| Field | Value |
+|-------|-------|
+| **Priority** | P2 |
+| **Risk** | R1 |
+| **Status** | done |
+| **Cycle** | C2 |
+| **Parent** | REQ-0159 |
+
+**Intent:** Role-aware Overview blurb on user-management detail; My Activity sky tip for own store-owner account. Numbers unchanged.
+
+**Acceptance criteria**
+
+- AC1: `getUserOverviewDescription` by role (no userId/clientId jargon)
+- AC2: My Activity tip when `isOwner` + admin/user; homepage sky link pattern
+- AC3: No KPI/SSR/invalidation changes; gates pass
+
+**Artifacts:** `lib/ui/user-overview-copy.ts`, `AdminUserManagementDetailContent.tsx`
+
+---
+
 ## REQ-0159 — Buyer display + invoice list parity
 
 | Field | Value |
