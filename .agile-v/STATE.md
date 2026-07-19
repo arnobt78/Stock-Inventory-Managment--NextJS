@@ -4,10 +4,10 @@
 |-------|-------|
 | **Cycle** | C2 (C1 Gate 2 still PENDING) |
 | **Phase** | Stage 3–5 — **REQ-0136** (UI explore → cache smoke) |
-| **Last updated** | 2026-07-19 REQ-0161 |
+| **Last updated** | 2026-07-19 EOD REQ-0162–0164 |
 | **Active REQ** | **REQ-0136** (UI explore → §10 A1/A2/B1) |
-| **Done range** | REQ-0001 … REQ-0135 + REQ-0137–**0161** |
-| **Prod SHA** | `d5457ed` (REQ-0161) on `origin/main` |
+| **Done range** | REQ-0001 … REQ-0135 + REQ-0137–**0164** |
+| **Prod SHA** | pending push (REQ-0162–0164) |
 | **Human Gate 1** | APPROVED (GATE-0001) |
 | **Human Gate 2** | PENDING (GATE-0002) — UI explore → §10 → Sentry 24h |
 | **Resume token** | `tomorrow-UI-then-cache` → **REQ-0136** |
@@ -15,29 +15,26 @@
 
 ---
 
-## Active session (2026-07-19)
+## Tomorrow (start here)
 
-**Skills:** **01** core · **17** build-js · **19** red-team
+1. **REQ-0136** — Human UI + calc explore
+2. **Cache smoke** — `MANUAL_TEST_FIXTURES.md` §10 A1/A2/B1
+3. **Gate 2** — Sentry 24h after explore + smoke
+4. Re-seed if needed: `npm run script:reset-demo-db -- --with-catalog`
 
-### Resume order
-
-1. **Human UI + calc explore** (REQ-0136)
-2. **Cache smoke** — §10 A1/A2/B1
-3. **Gate 2** — Sentry 24h
-
-**Re-seed:** `npm run script:reset-demo-db -- --with-catalog`
+**Skills:** 01 · 17 · 19 → lint · test · test:invalidate · build → write-through
 
 ---
 
-## Shipped park (recent)
+## Shipped today (2026-07-19)
 
-| REQ | Summary | SHA |
-|-----|---------|-----|
-| 0158–0159 | Party + buyer display | `35bb8a2` |
-| 0160 | User overview copy | `5dcd6f9` |
-| 0161 | Order/Invoice header HelpTooltips | `d5457ed` |
+| REQ | Summary |
+|-----|---------|
+| 0162 | Invoice Detail ↔ Order Detail layout |
+| 0163 | Invoice items parity + SSR reviews + Back glass |
+| 0164 | Compact review UI + owner-products party links + summary icons |
 
-**Last gates (REQ-0161):** lint ✓ test **616** ✓ invalidate **213** ✓ build ✓ tsc ✓
+**Gates:** lint ✓ test **620** ✓ invalidate **213** ✓ build ✓
 
 ---
 
@@ -46,5 +43,5 @@
 1. Read this file
 2. Skills 01 + 17 + 19
 3. Map `REQ-XXXX`
-4. Red Team: lint · test · test:invalidate · build
+4. Red Team gates
 5. Write-through DECISION / BUILD / VALIDATION

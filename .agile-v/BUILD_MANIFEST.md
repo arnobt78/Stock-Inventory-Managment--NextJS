@@ -411,3 +411,6 @@
 | ART-0160 | REQ-0160 | `lib/ui/user-overview-copy.ts`, `AdminUserManagementDetailContent.tsx` | Role blurbs + My Activity tip |
 
 | ART-0161 | REQ-0161 | `lib/ui/order-invoice-column-tooltips.ts`, Order/Invoice TableColumns | Dense header HelpTooltip |
+| ART-0162 | REQ-0162 | `InvoiceDetailPage.tsx`, `InvoiceItemsCard`, `InvoicePartiesCard` | Invoice detail Order Detail parity |
+| ART-0163 | REQ-0163 | `ProductLineItemsList` relatedOrder; invoice SSR review context; Back glass | Items parity + hydrate fix |
+| ART-0164 | REQ-0164 | compact reviews; `owner-products-href`; InvoiceSummary icon hues | Reviews/parties/summary UX |

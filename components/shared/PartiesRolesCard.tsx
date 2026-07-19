@@ -3,6 +3,7 @@
 /**
  * REQ-0074 — shared Parties & roles card with avatar rings and per-party glow cards.
  * REQ-0127 — single inline row per party: icon label + PersonInlineRow (sky name · muted email).
+ * REQ-0164 — optional linkClassName for self (gray) vs other (sky) party names.
  */
 
 import React from "react";
@@ -17,8 +18,10 @@ export type PartyPerson = {
   name?: string | null;
   email: string;
   image?: string | null;
-  /** Optional profile/products link (admin contexts) */
+  /** Optional owner-products (or profile) link */
   href?: string;
+  /** REQ-0164 — override name link classes (self = gray/white) */
+  linkClassName?: string;
 };
 
 export type PartiesRolesCardProps = {
@@ -53,6 +56,7 @@ function PartyPersonDisplay({
       name={displayName}
       email={person.email}
       href={person.href}
+      linkClassName={person.linkClassName}
       avatarSize={28}
     />
   );
@@ -112,7 +116,7 @@ export function PartiesRolesCard({
         <div className="p-2 rounded-xl border border-teal-400/30 bg-teal-500/10 dark:bg-teal-500/20">
           <HeaderIcon className="h-5 w-5 text-teal-600 dark:text-teal-400" />
         </div>
-        <h3 className="text-sm sm:text-base font-normal text-gray-700 dark:text-white">
+        <h3 className="text-sm sm:text-base font-medium leading-none text-gray-700 dark:text-white">
           Parties & Roles
         </h3>
       </div>

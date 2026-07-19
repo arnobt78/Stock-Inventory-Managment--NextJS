@@ -869,6 +869,16 @@ Hub: `lib/ui/typography-scale.ts`. Hubs import tokens; ~45 inline files use equi
 
 **UI-only** — same pattern as catalog Products (REQ-0142).
 
+## Invoice detail parity (REQ-0162–0164)
+
+| REQ | What |
+|-----|------|
+| 0162 | Layout: status\|billing · items\|summary · info\|parties; `InvoiceItemsCard`/`InvoicePartiesCard`; FactsGrid removed |
+| 0163 | Items: count·date; `relatedOrder` ORD chip; SSR review ctx; Back sky glass (no footer ghost) |
+| 0164 | Compact reviews: stars+n/5+icon edit/del; party → `owner-products-href` (self gray); summary icon hues |
+
+**UI + SSR review prefetch only** — no invalidation registry changes.
+
 ## KPI badge helpers (REQ-0156–0157)
 
 | Helper | Use |

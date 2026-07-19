@@ -1,9 +1,63 @@
 # Validation Summary — Cycle C1
 
-**Generated:** 2026-07-19 REQ-0161
+**Generated:** 2026-07-19 REQ-0164
 **eval_gate_status:** PENDING (Human Gate 2)
-**Prod target SHA:** `d5457ed` (REQ-0161)
+**Prod target SHA:** pending (REQ-0164)
 **Resume:** **REQ-0136** (see STATE.md)
+
+---
+
+## REQ-0164 Compact reviews + party links + summary icons evidence
+
+| Check | Result |
+|-------|--------|
+| Compact reviews | stars + n/5 + icon Pencil/Trash |
+| Parties | owner-products href all roles; self gray |
+| Summary icons | sky/violet/cyan/rose/emerald/amber |
+| Invalidation | unchanged |
+| Gates | lint ✓ test **620** ✓ invalidate **213** ✓ build ✓ tsc ✓ |
+
+```
+Scope: built/verified | Traceability: REQ-0164 | Findings: PASS
+Commands: lint, test, invalidate, build, tsc
+```
+
+---
+
+## REQ-0163 Invoice Order Items parity + hydration/Back evidence
+
+| Check | Result |
+|-------|--------|
+| Subtitle | count on this invoice · ClientDateTime |
+| Meta | relatedOrder ORD # sky + CopyableText |
+| linkMode | admin / portal (incl. store owner) |
+| Back | no variant=ghost on footer |
+| Hydrate | SSR initialReviewContext; compact no Loader2 without SSR |
+| Invalidation | unchanged |
+| Gates | lint ✓ test **616** ✓ invalidate **213** ✓ build ✓ tsc ✓ |
+
+```
+Scope: built/verified | Traceability: REQ-0163 | Findings: PASS
+Commands: lint, test, invalidate, build, tsc
+```
+
+---
+
+## REQ-0162 Invoice Detail ↔ Order Detail parity evidence
+
+| Check | Result |
+|-------|--------|
+| Layout | status stack\|billing · items\|summary · info\|parties |
+| Info rows | DetailInfoRow*; hide empty dates; Related Order sky font-normal |
+| Cards | InvoiceItemsCard + InvoicePartiesCard (href sky); FactsGrid removed |
+| Paid line | emerald paid; total emerald when settled else muted |
+| Invalidation | unchanged |
+| Gates | lint ✓ test **616** ✓ invalidate **213** ✓ build ✓ tsc ✓ |
+
+```
+Scope: built/verified | Traceability: REQ-0162 | Findings: PASS
+Commands: lint, test, invalidate, build, tsc
+```
 
 ---
 

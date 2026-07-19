@@ -418,3 +418,6 @@ Format: `TIMESTAMP | AGENT | DECISION | RATIONALE | REQ-ID`
 2026-07-19T16:20:00Z | build-agent | Role-aware user overview copy + My Activity tip | Numbers unchanged; tip only isOwner store-owner | REQ-0160
 
 2026-07-19T16:30:00Z | build-agent | Order/Invoice header HelpTooltips | Sibling of SortableHeader; shared tip copy hub | REQ-0161
+2026-07-19T17:00:00Z | build-agent | Invoice Detail Order Detail layout parity | Reuse DetailInfoRow/SectionCardHeader/Items+Parties cards; hide empty dates; no invalidation | REQ-0162
+2026-07-19T17:20:00Z | build-agent | Invoice items relatedOrder chip + SSR review context | Match OrderItemsCard; drop footer ghost Back; compact no Loader2 hydrate | REQ-0163
+2026-07-19T17:35:00Z | build-agent | Compact review rating + owner-products party hrefs | Self gray name; Invoice Summary icon hues; no invalidation | REQ-0164

@@ -4,6 +4,7 @@
  * REQ-0063 — shared product line-item rows (thumb + name/SKU/qty/subtotal).
  * REQ-0147 — product name text-sm; meta Qty/SKU/catalog text-xs.
  * REQ-0148 — meta · separators + invoice CopyableText chip when order has invoice.
+ * REQ-0163 — optional relatedOrder meta chip (invoice detail → ORD # + clipboard).
  */
 
 import React from "react";
@@ -30,6 +31,11 @@ export type ProductLineItemsListProps = {
   showReviews?: boolean;
   /** REQ-0148 — include invoiceForOrder for meta invoice chip */
   order?: Pick<Order, "id" | "paymentStatus" | "invoiceForOrder">;
+  /**
+   * REQ-0163 — invoice detail: show linked order # chip (sky + clipboard).
+   * Prefer over self invoiceForOrder on invoice pages.
+   */
+  relatedOrder?: { id: string; orderNumber: string } | null;
   initialReviewContext?: OrderReviewContext;
 };
 
@@ -108,6 +114,7 @@ export function ProductLineItemsList({
   emptyMessage = "No items",
   showReviews = false,
   order,
+  relatedOrder = null,
   initialReviewContext,
 }: ProductLineItemsListProps) {
   if (items.length === 0) {
@@ -121,6 +128,15 @@ export function ProductLineItemsList({
         ? `/admin/invoices/${invoice.id}`
         : linkMode !== "none"
           ? `/invoices/${invoice.id}`
+          : null
+      : null;
+
+  const relatedOrderHref =
+    relatedOrder != null
+      ? linkMode === "admin"
+        ? `/admin/orders/${relatedOrder.id}`
+        : linkMode !== "none"
+          ? `/orders/${relatedOrder.id}`
           : null
       : null;
 
@@ -214,6 +230,32 @@ export function ProductLineItemsList({
                 {item.warehouseName}
               </CatalogText>
             ),
+          );
+        }
+
+        // REQ-0163 — linked order # on invoice detail (parity with invoice chip on order detail)
+        if (relatedOrder?.orderNumber) {
+          metaSegments.push(
+            <span key="related-order" className={META_LABEL}>
+              <FileText className="h-3 w-3 shrink-0 text-gray-500 dark:text-gray-300" />
+              <CopyableText
+                value={relatedOrder.orderNumber}
+                className="min-w-0"
+              >
+                {relatedOrderHref ? (
+                  <Link
+                    href={relatedOrderHref}
+                    className="text-sky-600 dark:text-sky-400 hover:text-sky-500 dark:hover:text-sky-300 font-normal truncate"
+                  >
+                    {relatedOrder.orderNumber}
+                  </Link>
+                ) : (
+                  <span className={cn("text-xs", DETAIL_DATA_VALUE_CLASS)}>
+                    {relatedOrder.orderNumber}
+                  </span>
+                )}
+              </CopyableText>
+            </span>,
           );
         }
 

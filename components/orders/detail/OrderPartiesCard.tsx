@@ -1,7 +1,8 @@
 "use client";
 
 /**
- * REQ-0147 — admin party names get sky user-management links via href.
+ * REQ-0147 / REQ-0164 — Parties & Roles on order detail.
+ * Owner-products links for all roles; self name gray/white; others sky.
  */
 
 import React from "react";
@@ -14,12 +15,13 @@ import {
   type PartyPerson,
 } from "@/components/shared/PartiesRolesCard";
 import { getCustomerDisplay, getCustomerEmail } from "./order-detail-primitives";
-import { resolveAuditUserManagementHref } from "@/lib/navigation/audit-user-href";
+import { enrichPartyPerson } from "@/lib/navigation/enrich-party-person";
+import { useAuth } from "@/contexts";
 
 export type OrderPartiesCardProps = {
   order?: Order;
   dataLoading: boolean;
-  /** When true, party names link to admin user management */
+  /** When true, party names link to /admin/products?ownerId= */
   isAdminRole?: boolean;
 };
 
@@ -28,6 +30,10 @@ export function OrderPartiesCard({
   dataLoading,
   isAdminRole = false,
 }: OrderPartiesCardProps) {
+  const { user } = useAuth();
+  const viewerUserId = user?.id;
+  const enrichOpts = { isAdminRole, viewerUserId };
+
   const shouldShow =
     dataLoading ||
     order?.placedByName != null ||
@@ -36,39 +42,35 @@ export function OrderPartiesCard({
 
   if (!shouldShow) return null;
 
-  const orderedBy: PartyPerson | null =
+  const orderedBy: PartyPerson | null = enrichPartyPerson(
     order?.placedByEmail || order?.placedByName
       ? {
           userId: order.placedByUserId ?? undefined,
           name: order.placedByName,
           email: order.placedByEmail ?? "",
           image: order.placedByImage,
-          href: order.placedByUserId
-            ? resolveAuditUserManagementHref(order.placedByUserId, isAdminRole)
-            : undefined,
         }
-      : null;
+      : null,
+    enrichOpts,
+  );
 
   const customerUserId = order?.clientId ?? order?.userId;
   const customer: PartyPerson | null = order
-    ? {
-        userId: customerUserId ?? undefined,
-        name: getCustomerDisplay(order),
-        email: getCustomerEmail(order),
-        href: customerUserId
-          ? resolveAuditUserManagementHref(customerUserId, isAdminRole)
-          : undefined,
-      }
+    ? enrichPartyPerson(
+        {
+          userId: customerUserId ?? undefined,
+          name: getCustomerDisplay(order),
+          email: getCustomerEmail(order),
+        },
+        enrichOpts,
+      )
     : null;
 
   const productOwners = mapOrderProductOwners(
     order?.orderProductOwners ?? [],
-  ).map((owner) => ({
-    ...owner,
-    href: owner.userId
-      ? resolveAuditUserManagementHref(owner.userId, isAdminRole)
-      : undefined,
-  }));
+  )
+    .map((owner) => enrichPartyPerson(owner, enrichOpts))
+    .filter((p): p is NonNullable<typeof p> => p != null);
 
   return (
     <GlassCard variant="teal">

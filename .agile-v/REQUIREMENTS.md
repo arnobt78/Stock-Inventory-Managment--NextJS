@@ -4,6 +4,76 @@ Canonical REQ source. All artifacts link via `REQ-XXXX`. Status: `done` | `verif
 
 ---
 
+## REQ-0164 — Compact reviews, party links, Invoice Summary icons
+
+| Field | Value |
+|-------|-------|
+| **Priority** | P2 |
+| **Risk** | R1 |
+| **Status** | done |
+| **Cycle** | C2 |
+| **Parent** | REQ-0163 |
+
+**Intent:** Compact Order Items reviews show rating + icon-only edit/delete; Parties names link to owner products for all roles (self gray); Invoice Summary icons use meaningful hues.
+
+**Acceptance criteria**
+
+- AC1: Compact reviews — StarRating + `n/5` + icon Pencil/Trash; Write review when eligible/paid
+- AC2: `resolveOwnerProductsHref` + enrichPartyPerson; Invoice/Order Parties cards; self `PARTY_SELF_LINK_CLASS`
+- AC3: InvoiceSummaryRow `iconClassName` hues (sky/violet/cyan/rose/emerald/amber)
+- AC4: No invalidation changes; gates pass
+
+**Artifacts:** `ProductReviewsSection.tsx`, `owner-products-href.ts`, `enrich-party-person.ts`, `InvoicePartiesCard`, `OrderPartiesCard`, `InvoiceSummaryCard`
+
+---
+
+## REQ-0163 — Invoice Order Items parity + hydration/Back
+
+| Field | Value |
+|-------|-------|
+| **Priority** | P2 |
+| **Risk** | R1 |
+| **Status** | done |
+| **Cycle** | C2 |
+| **Parent** | REQ-0162 |
+
+**Intent:** Close Invoice Detail Order Items gaps vs OrderItemsCard; fix footer Back glass washout; eliminate ProductReviewsSection compact hydration mismatch.
+
+**Acceptance criteria**
+
+- AC1: Invoice Items subtitle `{n} item(s) on this invoice · {date}`; related ORD # meta chip + clipboard (sky)
+- AC2: Store owner + portal roles get product sky links (`linkMode` portal/admin)
+- AC3: Footer Back without `variant="ghost"` (sky glass like Order Detail)
+- AC4: SSR `initialReviewContext` on `/invoices/[id]` + admin; compact reviews never Loader2 without SSR eligibility
+- AC5: No invalidation registry changes; gates pass
+
+**Artifacts:** `ProductLineItemsList.tsx`, `InvoiceItemsCard.tsx`, `InvoiceDetailPage.tsx`, `ProductReviewsSection.tsx`, `app/invoices/[id]/page.tsx`, `app/admin/invoices/[id]/page.tsx`
+
+---
+
+## REQ-0162 — Invoice Detail ↔ Order Detail parity
+
+| Field | Value |
+|-------|-------|
+| **Priority** | P2 |
+| **Risk** | R1 |
+| **Status** | done |
+| **Cycle** | C2 |
+| **Parent** | REQ-0126 |
+
+**Intent:** Redesign Invoice Detail to match Order Detail layout, shared detail primitives, and info density (status stack|billing, items|summary, info|parties).
+
+**Acceptance criteria**
+
+- AC1: Top row — Invoice Status + Amount Due stacked | Billing Address (`lg:grid-cols-2`)
+- AC2: Mid row — Order Items | Invoice Summary; bottom — Invoice Information | Parties (sky party links)
+- AC3: Invoice Information uses DetailInfoRow*; Invoice # top row; hide empty dates; Related Order sky `font-normal` (no ExternalLink)
+- AC4: Amount Due card Paid x / total semantic colors; glass Back unchanged; no invalidation/SSR API changes
+
+**Artifacts:** `InvoiceDetailPage.tsx`, `InvoiceItemsCard.tsx`, `InvoicePartiesCard.tsx`, `InvoiceSummaryCard.tsx` (removed dead `InvoiceDetailFactsGrid`)
+
+---
+
 ## REQ-0161 — Order/Invoice table header HelpTooltips
 
 | Field | Value |

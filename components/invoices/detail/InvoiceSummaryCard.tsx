@@ -1,5 +1,10 @@
 "use client";
 
+/**
+ * REQ-0162 / REQ-0164 — Invoice Summary beside Order Items.
+ * Meaningful icon hues (Order Summary parity).
+ */
+
 import React from "react";
 import {
   DollarSign,
@@ -12,13 +17,11 @@ import {
   Banknote,
 } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
-import { DataSlotPulse } from "@/components/shared";
+import { DataSlotPulse, SectionCardHeader } from "@/components/shared";
 import type { Invoice } from "@/types";
 import { cn } from "@/lib/utils";
-import {
-  GlassCard,
-  variantConfig,
-} from "@/components/orders/detail/order-detail-primitives";
+import { TYPO_CARD_TITLE } from "@/lib/ui/typography-scale";
+import { GlassCard } from "@/components/orders/detail/order-detail-primitives";
 
 export type InvoiceSummaryCardProps = {
   invoice?: Invoice;
@@ -31,6 +34,7 @@ export function InvoiceSummaryRow({
   label,
   value,
   valueClassName,
+  iconClassName,
   loading,
   variant = "teal",
 }: {
@@ -38,6 +42,8 @@ export function InvoiceSummaryRow({
   label: string;
   value: React.ReactNode;
   valueClassName?: string;
+  /** REQ-0164 — semantic icon hue */
+  iconClassName?: string;
   loading?: boolean;
   variant?: "teal" | "glass";
 }) {
@@ -56,7 +62,13 @@ export function InvoiceSummaryRow({
             : "text-gray-600 dark:text-gray-300",
         )}
       >
-        <Icon className="h-3.5 w-3.5 shrink-0" />
+        <Icon
+          className={cn(
+            "h-3.5 w-3.5 shrink-0",
+            iconClassName,
+            variant === "glass" && !iconClassName && "text-white/80",
+          )}
+        />
         {label}
       </span>
       <span
@@ -82,33 +94,30 @@ export function InvoiceSummaryCard({
   invoice,
   dataLoading,
 }: InvoiceSummaryCardProps) {
+  const amountDue = Number(invoice?.amountDue ?? 0);
+
   return (
-    <GlassCard variant="teal">
-      <div className="flex items-center gap-2 mb-4">
-        <div
-          className={cn(
-            "p-2 rounded-xl border",
-            variantConfig.teal.iconBg,
-            "dark:border-teal-400/30 dark:bg-teal-500/20",
-          )}
-        >
-          <DollarSign className="h-5 w-5 text-teal-600 dark:text-teal-400" />
-        </div>
-        <h3 className="text-sm sm:text-base font-medium text-gray-700 dark:text-white">
-          Invoice Summary
-        </h3>
-      </div>
+    <GlassCard variant="teal" className="h-full">
+      <SectionCardHeader
+        title="Invoice Summary"
+        icon={DollarSign}
+        tone="teal"
+        className="mb-4"
+        titleClassName={cn(TYPO_CARD_TITLE, "text-gray-700 dark:text-white")}
+      />
       <div className="space-y-2">
         <SummaryRow
           icon={Receipt}
           label="Subtotal:"
           loading={dataLoading}
+          iconClassName="text-sky-600 dark:text-sky-400"
           value={`$${Number(invoice?.subtotal ?? 0).toFixed(2)}`}
         />
         {!dataLoading && invoice?.tax != null && invoice.tax > 0 && (
           <SummaryRow
             icon={Percent}
             label="Tax:"
+            iconClassName="text-violet-600 dark:text-violet-400"
             value={`$${Number(invoice.tax).toFixed(2)}`}
           />
         )}
@@ -116,6 +125,7 @@ export function InvoiceSummaryCard({
           <SummaryRow
             icon={Truck}
             label="Shipping:"
+            iconClassName="text-cyan-600 dark:text-cyan-400"
             value={`$${Number(invoice.shipping).toFixed(2)}`}
           />
         )}
@@ -123,15 +133,16 @@ export function InvoiceSummaryCard({
           <SummaryRow
             icon={Tag}
             label="Discount:"
+            iconClassName="text-rose-600 dark:text-rose-400"
             value={`-$${Number(invoice.discount).toFixed(2)}`}
             valueClassName="text-rose-600 dark:text-rose-400"
           />
         )}
         <Separator className="my-2 bg-teal-200/50 dark:bg-teal-400/20" />
-        {/* REQ-0148 — Total text-sm sm:text-base (parity with OrderSummaryCard) */}
+        {/* REQ-0148 / REQ-0164 — Total + emerald icon (OrderSummaryCard parity) */}
         <div className="flex justify-between text-sm sm:text-base font-normal p-2 rounded-xl bg-gradient-to-r from-emerald-100/50 via-emerald-50/30 to-transparent dark:from-emerald-500/15 dark:via-emerald-500/10 dark:to-transparent border border-emerald-200/30 dark:border-emerald-400/20">
           <span className="text-gray-700 dark:text-white inline-flex items-center gap-1.5">
-            <CircleDollarSign className="h-4 w-4 shrink-0" />
+            <CircleDollarSign className="h-4 w-4 shrink-0 text-emerald-600 dark:text-emerald-400" />
             Total:
           </span>
           <span className="text-emerald-600 dark:text-emerald-400 font-normal">
@@ -146,6 +157,7 @@ export function InvoiceSummaryCard({
           icon={Wallet}
           label="Amount Paid:"
           loading={dataLoading}
+          iconClassName="text-emerald-600 dark:text-emerald-400"
           value={`$${Number(invoice?.amountPaid ?? 0).toFixed(2)}`}
           valueClassName="text-emerald-600 dark:text-emerald-400"
         />
@@ -153,9 +165,14 @@ export function InvoiceSummaryCard({
           icon={Banknote}
           label="Amount Due:"
           loading={dataLoading}
-          value={`$${Number(invoice?.amountDue ?? 0).toFixed(2)}`}
+          iconClassName={
+            amountDue > 0
+              ? "text-amber-600 dark:text-amber-400"
+              : "text-emerald-600 dark:text-emerald-400"
+          }
+          value={`$${amountDue.toFixed(2)}`}
           valueClassName={
-            (invoice?.amountDue ?? 0) > 0
+            amountDue > 0
               ? "text-amber-600 dark:text-amber-400"
               : "text-emerald-600 dark:text-emerald-400"
           }

@@ -1,6 +1,7 @@
 import { notFound, redirect } from "next/navigation";
 import { getSession } from "@/lib/auth-server";
 import { getInvoiceDetailForPage } from "@/lib/server/invoice-detail-data";
+import { getOrderReviewContextForPage } from "@/lib/server/order-review-context-data";
 import InvoiceDetailPage from "@/components/Pages/InvoiceDetailPage";
 
 type Props = { params: Promise<{ id: string }> };
@@ -19,11 +20,23 @@ export default async function AdminInvoiceDetailPage({ params }: Props) {
   );
   if (!initialInvoice) notFound();
 
+  // REQ-0163 — SSR review context for Order Items Write review (hydrate-safe)
+  const productIds =
+    initialInvoice.linkedOrderItems
+      ?.map((item) => item.productId)
+      .filter((pid): pid is string => Boolean(pid)) ?? [];
+  const initialReviewContext = await getOrderReviewContextForPage(
+    user.id,
+    initialInvoice.orderId,
+    productIds,
+  );
+
   return (
     <InvoiceDetailPage
       backHref="/admin/invoices"
       embedInAdmin
       initialInvoice={initialInvoice}
+      initialReviewContext={initialReviewContext}
     />
   );
 }

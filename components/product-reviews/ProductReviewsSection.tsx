@@ -157,12 +157,12 @@ export default function ProductReviewsSection({
   const config = variantConfig[variant];
 
   if (compact) {
+    // REQ-0163 — never show Loader2 in compact (SSR mismatch); wait for settled eligibility
+    // REQ-0164 — existing reviews: stars + rating text + icon-only edit/delete
     return (
       <>
         <div className="flex items-center gap-2 flex-wrap">
-          {eligibilityLoading ? (
-            <Loader2 className="h-4 w-4 animate-spin text-gray-400" />
-          ) : eligible ? (
+          {eligibilityLoading && !initialEligibility ? null : eligible ? (
             <Button
               type="button"
               variant="ghost"
@@ -178,28 +178,44 @@ export default function ProductReviewsSection({
             </Button>
           ) : null}
           {myReviews.map((r) => (
-            <span key={r.id} className="flex items-center gap-1">
+            <span
+              key={r.id}
+              className="flex items-center gap-1.5 min-w-0 flex-wrap"
+            >
+              <StarRating value={r.rating} />
+              <span className="text-xs font-normal text-gray-700 dark:text-white tabular-nums shrink-0">
+                {r.rating}/5
+              </span>
+              {r.comment ? (
+                <span
+                  className="text-xs text-gray-600 dark:text-gray-300 truncate max-w-[10rem]"
+                  title={r.comment}
+                >
+                  {r.comment}
+                </span>
+              ) : null}
               <Button
                 type="button"
                 variant="ghost"
-                size="sm"
+                size="icon"
                 onClick={() => handleEdit(r)}
-                className="h-8 rounded-lg text-gray-600 dark:text-gray-300"
+                aria-label="Edit review"
+                className="h-8 w-8 rounded-lg text-gray-600 dark:text-gray-300"
               >
-                <Pencil className="h-3.5 w-3.5 mr-1" />
-                Edit
+                <Pencil className="h-3.5 w-3.5" />
               </Button>
               <Button
                 type="button"
                 variant="ghost"
-                size="sm"
+                size="icon"
                 onClick={() =>
                   deleteReview.mutate(r.id, {
                     onSuccess: () => setEditingReview(null),
                   })
                 }
                 disabled={deleteReview.isPending}
-                className="h-8 rounded-lg text-rose-600 dark:text-rose-400"
+                aria-label="Delete review"
+                className="h-8 w-8 rounded-lg text-rose-600 dark:text-rose-400"
               >
                 <Trash2 className="h-3.5 w-3.5" />
               </Button>

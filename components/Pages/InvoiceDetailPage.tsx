@@ -1,6 +1,6 @@
 /**
  * Invoice Detail Page
- * Displays detailed information about a single invoice
+ * REQ-0162 — layout + info density parity with Order Detail (status|billing, items|summary, info|parties).
  */
 
 "use client";
@@ -15,18 +15,19 @@ import {
   MapPin,
   CreditCard,
   Send,
-  AlertTriangle,
   Edit,
   Download,
   ExternalLink,
-  Package,
   Hash,
   Trash2,
   StickyNote,
+  Wallet,
+  Banknote,
+  CheckCircle,
+  Ban,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { InvoiceStatusBadge } from "@/lib/ui/semantic-badges";
-import { Separator } from "@/components/ui/separator";
 import { useQueryClient } from "@tanstack/react-query";
 import { useInvoice, useDeleteInvoice, useSendInvoice } from "@/hooks/queries";
 import { useBackWithRefresh } from "@/hooks/use-back-with-refresh";
@@ -47,48 +48,34 @@ import {
   PageContentWrapper,
   DataSlotPulse,
   PageSectionHeader,
-  ProductLineItemsList,
-  GLASS_GHOST_BUTTON,
   glassDetailBackButtonClass,
   glassDetailFooterButtonClass,
   DETAIL_HEADER_BACK_ICON_CLASS,
   DialogSubmitButton,
   AuditUserDetailRow,
+  DetailInfoRowGroup,
+  SectionCardHeader,
   GlassCard,
-  GLASS_CARD_VARIANT_CONFIG as variantConfig,
 } from "@/components/shared";
-import {
-  PartiesRolesCard,
-  mapOrderProductOwners,
-} from "@/components/shared/PartiesRolesCard";
 import { InvoiceSummaryCard } from "@/components/invoices/detail/InvoiceSummaryCard";
-import { InvoiceDetailFactsGrid } from "@/components/invoices/detail/InvoiceDetailFactsGrid";
-import { DetailInfoRow } from "@/components/orders/detail/order-detail-primitives";
-import type { InvoiceStatus } from "@/types";
+import { InvoiceItemsCard } from "@/components/invoices/detail/InvoiceItemsCard";
+import { InvoicePartiesCard } from "@/components/invoices/detail/InvoicePartiesCard";
+import {
+  DetailInfoRow,
+  formatAddress,
+} from "@/components/orders/detail/order-detail-primitives";
 import type { Invoice } from "@/types";
+import type { OrderReviewContext } from "@/lib/server/order-review-context-data";
 import { cn } from "@/lib/utils";
 import {
   APP_SHELL_DETAIL_CLASS,
   DETAIL_PAGE_HEADER_SPACING_CLASS,
 } from "@/lib/ui/shell-layout-styles";
+import { TYPO_CARD_TITLE } from "@/lib/ui/typography-scale";
+import { dueDateSemanticKind } from "@/lib/ui/semantic-date-styles";
 import InvoiceDialog from "@/components/invoices/InvoiceDialog";
 import { AlertDialogWrapper } from "@/components/dialogs";
 import { PaymentDialog } from "@/components/payments";
-
-/**
- * Format address for display
- */
-function formatAddress(address: unknown): string {
-  if (!address || typeof address !== "object") return "N/A";
-  const addr = address as Record<string, unknown>;
-  const parts: string[] = [];
-  if (addr.street) parts.push(String(addr.street));
-  if (addr.city) parts.push(String(addr.city));
-  if (addr.state) parts.push(String(addr.state));
-  if (addr.zipCode) parts.push(String(addr.zipCode));
-  if (addr.country) parts.push(String(addr.country));
-  return parts.length > 0 ? parts.join(", ") : "N/A";
-}
 
 export type InvoiceDetailPageProps = {
   /** When set (e.g. "/admin/client-invoices"), Back button navigates here */
@@ -96,12 +83,15 @@ export type InvoiceDetailPageProps = {
   /** When true, do not wrap in Navbar (e.g. when embedded in admin layout) */
   embedInAdmin?: boolean;
   initialInvoice?: Invoice;
+  /** REQ-0163 — SSR reviews/eligibility for Order Items Write review (hydrate-safe) */
+  initialReviewContext?: OrderReviewContext;
 };
 
 export default function InvoiceDetailPage({
   backHref,
   embedInAdmin,
   initialInvoice,
+  initialReviewContext,
 }: InvoiceDetailPageProps = {}) {
   const params = useParams();
   const router = useRouter();
@@ -297,8 +287,8 @@ export default function InvoiceDetailPage({
     ? new Date(invoice.createdAt)
     : new Date();
   const updatedAt = invoice?.updatedAt ? new Date(invoice.updatedAt) : null;
-  const issuedAt = invoice?.issuedAt ? new Date(invoice.issuedAt) : new Date();
-  const dueDate = invoice?.dueDate ? new Date(invoice.dueDate) : new Date();
+  const issuedAt = invoice?.issuedAt ? new Date(invoice.issuedAt) : null;
+  const dueDate = invoice?.dueDate ? new Date(invoice.dueDate) : null;
   const sentAt = invoice?.sentAt ? new Date(invoice.sentAt) : null;
   const paidAt = invoice?.paidAt ? new Date(invoice.paidAt) : null;
   const cancelledAt = invoice?.cancelledAt
@@ -311,7 +301,17 @@ export default function InvoiceDetailPage({
     invoice != null &&
     invoice.status !== "paid" &&
     invoice.status !== "cancelled" &&
+    dueDate != null &&
     dueDate < new Date();
+
+  const amountDueToneClass =
+    !dataLoading && invoice
+      ? invoice.amountDue > 0 && isOverdue
+        ? "text-rose-600 dark:text-rose-400"
+        : invoice.amountDue > 0
+          ? "text-amber-600 dark:text-amber-400"
+          : "text-emerald-600 dark:text-emerald-400"
+      : "text-emerald-600 dark:text-emerald-400";
 
   return (
     <Wrapper>
@@ -364,10 +364,10 @@ export default function InvoiceDetailPage({
             }
           />
 
-          {/* Invoice Status Cards — shared semantic badges */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-            <GlassCard padding="body" variant="violet">
-              <div className="">
+          {/* REQ-0162 — status stack | billing (Order Detail parity) */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-2 sm:gap-4 items-stretch">
+            <div className="flex flex-col gap-2 min-w-0 h-full">
+              <GlassCard padding="body" variant="violet">
                 <p className="text-xs uppercase tracking-[0.2em] text-gray-600 dark:text-white/80 mb-3">
                   Invoice Status
                 </p>
@@ -382,336 +382,324 @@ export default function InvoiceDetailPage({
                     className="text-sm"
                   />
                 )}
-              </div>
-            </GlassCard>
+              </GlassCard>
 
-            <GlassCard
-              padding="body"
-              variant={
-                !dataLoading && invoice!.amountDue > 0 && isOverdue
-                  ? "rose"
-                  : !dataLoading && invoice!.amountDue > 0
-                    ? "amber"
-                    : "emerald"
-              }
-            >
-              <p className="text-xs uppercase tracking-[0.25em] text-gray-600 dark:text-white/80 mb-3">
-                Amount Due
-              </p>
-              {dataLoading ? (
-                <DataSlotPulse variant="currency" className="h-8 w-28" />
-              ) : (
-                <>
-                  <div
-                    className={cn(
-                      "text-sm sm:text-lg font-normal",
-                      invoice!.amountDue > 0 && !isOverdue
-                        ? "text-amber-600 dark:text-amber-400"
-                        : invoice!.amountDue > 0 && isOverdue
-                          ? "text-rose-600 dark:text-rose-400"
-                          : "text-emerald-600 dark:text-emerald-400",
-                    )}
-                  >
-                    ${invoice!.amountDue.toFixed(2)}
-                  </div>
-                  {invoice!.amountPaid > 0 && (
-                    <p className="text-sm text-gray-600 dark:text-gray-300 mt-2">
-                      Paid: ${invoice!.amountPaid.toFixed(2)} / $
-                      {invoice!.total.toFixed(2)}
-                    </p>
-                  )}
-                </>
-              )}
-            </GlassCard>
-          </div>
-
-          {/* Invoice Information */}
-          <GlassCard padding="body" variant="orange">
-            <div className="flex items-center gap-2 mb-2">
-              <div
-                className={cn(
-                  "p-2 rounded-xl border",
-                  variantConfig.orange.iconBg,
-                  "dark:border-orange-400/30 dark:bg-orange-500/20",
-                )}
+              <GlassCard
+                padding="body"
+                variant={
+                  !dataLoading && invoice!.amountDue > 0 && isOverdue
+                    ? "rose"
+                    : !dataLoading && invoice!.amountDue > 0
+                      ? "amber"
+                      : "emerald"
+                }
+                className="flex-1"
               >
-                <FileText className="h-5 w-5 text-orange-600 dark:text-orange-400" />
-              </div>
-              <div>
-                <h3 className="text-sm sm:text-base font-medium text-gray-700 dark:text-white">
-                  Invoice Information
-                </h3>
-                <p className="text-xs text-gray-600 dark:text-gray-300">
-                  {dataLoading ? (
-                    <DataSlotPulse variant="text-sm" className="w-40" />
-                  ) : (
-                    <CopyableText value={invoice!.invoiceNumber}>
-                      Invoice #{invoice!.invoiceNumber} -{" "}
-                      {invoice!.status.charAt(0).toUpperCase() +
-                        invoice!.status.slice(1)}
-                    </CopyableText>
-                  )}
+                <p className="text-xs uppercase tracking-[0.25em] text-gray-600 dark:text-white/80 mb-3">
+                  Amount Due
                 </p>
-              </div>
+                {dataLoading ? (
+                  <DataSlotPulse variant="currency" className="h-8 w-28" />
+                ) : (
+                  <>
+                    <div
+                      className={cn(
+                        "text-sm sm:text-lg font-normal",
+                        amountDueToneClass,
+                      )}
+                    >
+                      ${invoice!.amountDue.toFixed(2)}
+                    </div>
+                    {invoice!.amountPaid > 0 && (
+                      <p className="text-sm mt-2 flex flex-wrap items-baseline gap-x-1 gap-y-0.5 text-gray-600 dark:text-gray-300">
+                        <span>Paid:</span>
+                        <span className="text-emerald-600 dark:text-emerald-400 font-normal">
+                          ${invoice!.amountPaid.toFixed(2)}
+                        </span>
+                        <span>/</span>
+                        <span
+                          className={cn(
+                            "font-normal",
+                            invoice!.amountDue === 0
+                              ? "text-emerald-600 dark:text-emerald-400"
+                              : "text-gray-600 dark:text-gray-300",
+                          )}
+                        >
+                          ${invoice!.total.toFixed(2)}
+                        </span>
+                      </p>
+                    )}
+                  </>
+                )}
+              </GlassCard>
             </div>
 
-            <div className="space-y-2 mt-4">
-              {!dataLoading && invoice && (
-                <DetailInfoRow icon={Hash} label="Invoice ID:" tone="violet">
-                  <span className="font-mono text-xs">{invoice.id}</span>
-                </DetailInfoRow>
-              )}
-              <InvoiceDetailFactsGrid
-                dataLoading={dataLoading}
-                amountPaid={invoice?.amountPaid}
-                amountDue={invoice?.amountDue}
-                isOverdue={Boolean(isOverdue)}
-                issuedAt={issuedAt}
-                dueDate={dueDate}
-                sentAt={sentAt}
-                paidAt={paidAt}
-                cancelledAt={cancelledAt}
-              />
-              {(dataLoading || updatedAt) && (
-                <DetailInfoRow
-                  icon={Calendar}
-                  label="Updated:"
-                  tone="sky"
-                  loading={dataLoading}
-                >
-                  {!dataLoading && updatedAt && (
-                    <ClientDateTime date={updatedAt} semantic="updated" />
+            {(dataLoading || invoice?.billingAddress) && (
+              <GlassCard padding="body" variant="blue" className="h-full">
+                <SectionCardHeader
+                  title="Billing Address"
+                  icon={MapPin}
+                  tone="blue"
+                  className="mb-3"
+                  titleClassName={cn(
+                    TYPO_CARD_TITLE,
+                    "text-gray-700 dark:text-white",
                   )}
-                </DetailInfoRow>
-              )}
-              {!dataLoading && invoice?.orderId && (
-                <DetailInfoRow
-                  icon={FileText}
-                  label="Related Order:"
-                  tone="violet"
-                >
-                  {invoice.linkedOrderNumber ? (
-                    <CopyableText
-                      value={invoice.linkedOrderNumber}
-                      className="font-medium"
+                />
+                <p className="text-sm text-gray-700 dark:text-white p-2 rounded-xl bg-gradient-to-r from-blue-100/40 via-blue-50/20 to-transparent dark:from-blue-500/10 dark:via-blue-500/5 dark:to-transparent border border-blue-200/30 dark:border-blue-400/10">
+                  {dataLoading ? (
+                    <DataSlotPulse variant="text-md" className="w-full" />
+                  ) : (
+                    formatAddress(invoice!.billingAddress)
+                  )}
+                </p>
+              </GlassCard>
+            )}
+          </div>
+
+          {/* REQ-0162 — Order Items | Invoice Summary */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-2 sm:gap-4 items-stretch">
+            <InvoiceItemsCard
+              invoice={invoice}
+              dataLoading={dataLoading}
+              // REQ-0163 — store owner + client/supplier get portal product sky links
+              linkMode={
+                embedInAdmin || user?.role === "admin"
+                  ? "admin"
+                  : isClientRole ||
+                      user?.role === "supplier" ||
+                      user?.role === "user"
+                    ? "portal"
+                    : "none"
+              }
+              warehouseLinkMode={
+                user?.role === "admin"
+                  ? "admin"
+                  : user?.role === "user"
+                    ? "owner"
+                    : "none"
+              }
+              initialReviewContext={initialReviewContext}
+            />
+            <InvoiceSummaryCard invoice={invoice} dataLoading={dataLoading} />
+          </div>
+
+          {/* REQ-0162 — Invoice Information | Parties */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-2 sm:gap-4 items-start">
+            <GlassCard padding="body" variant="orange">
+              <SectionCardHeader
+                title="Invoice Information"
+                icon={FileText}
+                tone="orange"
+                className="mb-4"
+                titleClassName={cn(
+                  TYPO_CARD_TITLE,
+                  "text-gray-700 dark:text-white",
+                )}
+              />
+
+              <div className="space-y-2">
+                {!dataLoading && invoice && (
+                  <>
+                    <DetailInfoRow
+                      icon={FileText}
+                      label="Invoice #:"
+                      tone="orange"
                     >
+                      <CopyableText value={invoice.invoiceNumber}>
+                        {invoice.invoiceNumber}
+                      </CopyableText>
+                    </DetailInfoRow>
+                    <DetailInfoRow icon={Hash} label="Invoice ID:" tone="violet">
+                      <CopyableText value={invoice.id}>
+                        <span className="font-mono text-xs">{invoice.id}</span>
+                      </CopyableText>
+                    </DetailInfoRow>
+                    <DetailInfoRow
+                      icon={FileText}
+                      label="Invoice Status:"
+                      tone="violet"
+                    >
+                      <InvoiceStatusBadge status={invoice.status} />
+                    </DetailInfoRow>
+                    <DetailInfoRow
+                      icon={Wallet}
+                      label="Amount Paid:"
+                      tone="emerald"
+                    >
+                      <span className="text-emerald-600 dark:text-emerald-400 font-normal">
+                        ${Number(invoice.amountPaid).toFixed(2)}
+                      </span>
+                    </DetailInfoRow>
+                    <DetailInfoRow
+                      icon={Banknote}
+                      label="Amount Due:"
+                      tone={
+                        invoice.amountDue > 0 && isOverdue
+                          ? "rose"
+                          : invoice.amountDue > 0
+                            ? "amber"
+                            : "emerald"
+                      }
+                    >
+                      <span className={cn("font-normal", amountDueToneClass)}>
+                        ${Number(invoice.amountDue).toFixed(2)}
+                      </span>
+                    </DetailInfoRow>
+                  </>
+                )}
+
+                <DetailInfoRowGroup>
+                  {(dataLoading || issuedAt) && (
+                    <DetailInfoRow
+                      icon={Calendar}
+                      label="Issued:"
+                      tone="orange"
+                      loading={dataLoading}
+                    >
+                      {!dataLoading && issuedAt && (
+                        <ClientDateTime date={issuedAt} semantic="created" />
+                      )}
+                    </DetailInfoRow>
+                  )}
+                  {(dataLoading || updatedAt) && (
+                    <DetailInfoRow
+                      icon={Calendar}
+                      label="Updated:"
+                      tone="amber"
+                      loading={dataLoading}
+                    >
+                      {!dataLoading && updatedAt && (
+                        <ClientDateTime date={updatedAt} semantic="updated" />
+                      )}
+                    </DetailInfoRow>
+                  )}
+                </DetailInfoRowGroup>
+
+                {!dataLoading && dueDate && (
+                  <DetailInfoRow
+                    icon={Calendar}
+                    label="Due Date:"
+                    tone={isOverdue ? "rose" : "amber"}
+                  >
+                    <ClientDateTime
+                      date={dueDate}
+                      semantic={dueDateSemanticKind(Boolean(isOverdue))}
+                    />
+                  </DetailInfoRow>
+                )}
+                {!dataLoading && sentAt && (
+                  <DetailInfoRow icon={Send} label="Sent:" tone="violet">
+                    <ClientDateTime date={sentAt} semantic="sent" />
+                  </DetailInfoRow>
+                )}
+                {!dataLoading && paidAt && (
+                  <DetailInfoRow
+                    icon={CheckCircle}
+                    label="Paid:"
+                    tone="emerald"
+                  >
+                    <ClientDateTime date={paidAt} semantic="paid" />
+                  </DetailInfoRow>
+                )}
+                {!dataLoading && cancelledAt && (
+                  <DetailInfoRow icon={Ban} label="Cancelled:" tone="rose">
+                    <ClientDateTime date={cancelledAt} semantic="cancelled" />
+                  </DetailInfoRow>
+                )}
+
+                {!dataLoading && invoice?.orderId && (
+                  <DetailInfoRow
+                    icon={FileText}
+                    label="Related Order:"
+                    tone="violet"
+                  >
+                    {invoice.linkedOrderNumber ? (
+                      <CopyableText value={invoice.linkedOrderNumber}>
+                        <Link
+                          href={`${linkedOrderHrefBase}/${invoice.orderId}`}
+                          className="text-sky-600 dark:text-sky-400 hover:text-sky-500 dark:hover:text-sky-300 font-normal"
+                        >
+                          {invoice.linkedOrderNumber}
+                        </Link>
+                      </CopyableText>
+                    ) : (
                       <Link
                         href={`${linkedOrderHrefBase}/${invoice.orderId}`}
-                        className="text-sky-600 dark:text-sky-400 hover:text-sky-500 dark:hover:text-sky-300 inline-flex items-center gap-1"
+                        className="text-sky-600 dark:text-sky-400 hover:text-sky-500 dark:hover:text-sky-300 font-normal"
                       >
-                        {invoice.linkedOrderNumber}
-                        <ExternalLink className="h-3 w-3" />
+                        View Order
                       </Link>
-                    </CopyableText>
-                  ) : (
-                    <Link
-                      href={`${linkedOrderHrefBase}/${invoice.orderId}`}
-                      className="font-medium text-sky-600 dark:text-sky-400 hover:text-sky-500 dark:hover:text-sky-300 inline-flex items-center gap-1"
-                    >
-                      View Order <ExternalLink className="h-3 w-3" />
-                    </Link>
-                  )}
-                </DetailInfoRow>
-              )}
-              {!dataLoading && invoice && (
-                <DetailInfoRow
-                  icon={CreditCard}
-                  label="Payment Link:"
-                  tone="sky"
-                >
-                  {invoice.paymentLink ? (
+                    )}
+                  </DetailInfoRow>
+                )}
+
+                {!dataLoading && invoice?.paymentLink && (
+                  <DetailInfoRow
+                    icon={CreditCard}
+                    label="Payment Link:"
+                    tone="sky"
+                  >
                     <a
                       href={invoice.paymentLink}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-sky-600 dark:text-sky-400 hover:text-sky-500 dark:hover:text-sky-300 inline-flex items-center gap-1"
+                      className="text-sky-600 dark:text-sky-400 hover:text-sky-500 dark:hover:text-sky-300 inline-flex items-center gap-1 font-normal"
                     >
                       Pay Invoice <ExternalLink className="h-3 w-3" />
                     </a>
-                  ) : (
-                    "—"
-                  )}
-                </DetailInfoRow>
-              )}
-              {!dataLoading && invoice?.stripePaymentIntentId && (
-                <DetailInfoRow icon={CreditCard} label="Stripe:" tone="blue">
-                  <span className="font-mono text-xs break-all">
-                    {invoice.stripePaymentIntentId}
-                  </span>
-                </DetailInfoRow>
-              )}
-              {!dataLoading && invoice?.creator && (
-                <AuditUserDetailRow
-                  label="Created by:"
-                  tone="violet"
-                  user={invoice.creator}
-                  href={resolveAuditUserManagementHref(
-                    invoice.creator.id,
-                    isAdminRole,
-                  )}
-                />
-              )}
-              {!dataLoading && invoice?.updater && (
-                <AuditUserDetailRow
-                  label="Updated by:"
-                  tone="blue"
-                  user={invoice.updater}
-                  href={resolveAuditUserManagementHref(
-                    invoice.updater.id,
-                    isAdminRole,
-                  )}
-                />
-              )}
-              {!dataLoading && invoice?.notes && (
-                <DetailInfoRow icon={StickyNote} label="Notes:" tone="teal">
-                  {invoice.notes}
-                </DetailInfoRow>
-              )}
-            </div>
-          </GlassCard>
-
-          {/* REQ-0063 — linked order line items with product thumbnails (SSR via linkedOrderItems) */}
-          {(dataLoading ||
-            (invoice?.linkedOrderItems &&
-              invoice.linkedOrderItems.length > 0)) && (
-            <GlassCard padding="body" variant="sky">
-              <div className="flex items-center gap-2 mb-2">
-                <div
-                  className={cn(
-                    "p-2 rounded-xl border",
-                    variantConfig.sky.iconBg,
-                    "dark:border-sky-400/30 dark:bg-sky-500/20",
-                  )}
-                >
-                  <Package className="h-5 w-5 text-sky-600 dark:text-sky-400" />
-                </div>
-                <div>
-                  <h3 className="text-sm sm:text-base font-medium text-gray-700 dark:text-white">
-                    Order Items
-                  </h3>
-                  <p className="text-xs text-gray-600 dark:text-gray-300">
-                    {dataLoading ? (
-                      <DataSlotPulse variant="text-sm" className="w-28" />
-                    ) : (
-                      <>
-                        {invoice!.linkedOrderItems!.length} item
-                        {invoice!.linkedOrderItems!.length !== 1 ? "s" : ""} on
-                        this invoice
-                      </>
+                  </DetailInfoRow>
+                )}
+                {!dataLoading && invoice?.stripePaymentIntentId && (
+                  <DetailInfoRow icon={CreditCard} label="Stripe:" tone="blue">
+                    <CopyableText value={invoice.stripePaymentIntentId}>
+                      <span className="font-mono text-xs break-all">
+                        {invoice.stripePaymentIntentId}
+                      </span>
+                    </CopyableText>
+                  </DetailInfoRow>
+                )}
+                {!dataLoading && invoice?.creator && (
+                  <AuditUserDetailRow
+                    label="Created by:"
+                    tone="violet"
+                    user={invoice.creator}
+                    href={resolveAuditUserManagementHref(
+                      invoice.creator.id,
+                      isAdminRole,
                     )}
-                  </p>
-                </div>
-              </div>
-              <div className="space-y-2 mt-4">
-                {dataLoading ? (
-                  [1, 2, 3].map((i) => (
-                    <div
-                      key={i}
-                      className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 p-4 rounded-xl border border-sky-200/40 dark:border-sky-400/20 bg-gradient-to-r from-sky-100/40 via-sky-50/20 to-transparent dark:from-sky-500/10 dark:via-sky-500/5 dark:to-transparent"
-                    >
-                      <div className="flex-1 space-y-2">
-                        <DataSlotPulse variant="text-md" className="w-40" />
-                        <DataSlotPulse variant="text-sm" className="w-24" />
-                      </div>
-                      <DataSlotPulse variant="currency" />
-                    </div>
-                  ))
-                ) : (
-                  <ProductLineItemsList
-                    items={invoice!.linkedOrderItems ?? []}
-                    linkMode={
-                      embedInAdmin
-                        ? "admin"
-                        : isClientRole || user?.role === "supplier"
-                          ? "portal"
-                          : "none"
-                    }
-                    warehouseLinkMode={
-                      user?.role === "admin"
-                        ? "admin"
-                        : user?.role === "user"
-                          ? "owner"
-                          : "none"
-                    }
-                    orderSubtotal={invoice!.subtotal}
-                    orderTotal={invoice!.total}
-                    showReviews={invoice!.status === "paid"}
-                    order={{
-                      id: invoice!.orderId,
-                      // REQ-0152 — prefer linked order payment (partial), else derive from money
-                      paymentStatus: (invoice!.linkedOrderPaymentStatus ??
-                        (invoice!.status === "paid"
-                          ? "paid"
-                          : invoice!.amountPaid > 0
-                            ? "partial"
-                            : "unpaid")) as
-                        | "paid"
-                        | "unpaid"
-                        | "partial"
-                        | "refunded",
-                    }}
-                    emptyMessage="No items on linked order"
                   />
                 )}
-              </div>
-            </GlassCard>
-          )}
-
-          {(dataLoading ||
-            invoice?.invoiceCreatedBy != null ||
-            invoice?.orderedBy != null ||
-            invoice?.client != null ||
-            (invoice?.invoiceProductOwners &&
-              invoice.invoiceProductOwners.length > 0)) && (
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-2 sm:gap-4">
-              <GlassCard padding="body" variant="teal">
-                <PartiesRolesCard
-                  dataLoading={dataLoading}
-                  headerIcon={FileText}
-                  invoiceCreatedBy={invoice?.invoiceCreatedBy ?? null}
-                  orderedBy={invoice?.orderedBy ?? null}
-                  customer={invoice?.client ?? null}
-                  customerLabel="Customer / Bill to"
-                  productOwners={mapOrderProductOwners(
-                    invoice?.invoiceProductOwners ?? [],
-                  )}
-                />
-              </GlassCard>
-              <InvoiceSummaryCard invoice={invoice} dataLoading={dataLoading} />
-            </div>
-          )}
-
-          {/* Billing Address */}
-          {(dataLoading || invoice?.billingAddress) && (
-            <GlassCard padding="body" variant="sky">
-              <div className="flex items-center gap-2 mb-3">
-                <div
-                  className={cn(
-                    "p-2 rounded-xl border",
-                    variantConfig.sky.iconBg,
-                    "dark:border-sky-400/30 dark:bg-sky-500/20",
-                  )}
-                >
-                  <MapPin className="h-5 w-5 text-sky-600 dark:text-sky-400" />
-                </div>
-                <h3 className="text-sm sm:text-base font-medium text-gray-700 dark:text-white">
-                  Billing Address
-                </h3>
-              </div>
-              <p className="text-sm text-gray-700 dark:text-white p-2 rounded-xl bg-gradient-to-r from-sky-100/40 via-sky-50/20 to-transparent dark:from-sky-500/10 dark:via-sky-500/5 dark:to-transparent border border-sky-200/30 dark:border-sky-400/10">
-                {dataLoading ? (
-                  <DataSlotPulse variant="text-md" className="w-full" />
-                ) : (
-                  formatAddress(invoice!.billingAddress)
+                {!dataLoading && invoice?.updater && (
+                  <AuditUserDetailRow
+                    label="Updated by:"
+                    tone="blue"
+                    user={invoice.updater}
+                    href={resolveAuditUserManagementHref(
+                      invoice.updater.id,
+                      isAdminRole,
+                    )}
+                  />
                 )}
-              </p>
+                {!dataLoading && invoice?.notes && (
+                  <DetailInfoRow icon={StickyNote} label="Notes:" tone="teal">
+                    {invoice.notes}
+                  </DetailInfoRow>
+                )}
+              </div>
             </GlassCard>
-          )}
+
+            <InvoicePartiesCard
+              invoice={invoice}
+              dataLoading={dataLoading}
+              isAdminRole={isAdminRole}
+            />
+          </div>
 
           {/* Actions — Back, Edit Invoice, Send Invoice, Delete Invoice; same layout as order detail */}
           <div className="flex flex-col sm:flex-row flex-wrap gap-2">
+            {/* REQ-0163 — no variant=ghost (washes out sky glass; match Order Detail) */}
             <Button
-              variant="ghost"
               onClick={onBack}
               className={glassDetailBackButtonClass("w-full sm:w-auto gap-2")}
             >

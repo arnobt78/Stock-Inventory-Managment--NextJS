@@ -15,6 +15,8 @@ export type PersonInlineRowProps = {
   email?: string | null;
   image?: string | null;
   href?: string;
+  /** REQ-0164 — passed to AvatarInlineLink (self gray vs sky) */
+  linkClassName?: string;
   avatarSize?: number;
   className?: string;
 };
@@ -25,6 +27,7 @@ export function PersonInlineRow({
   email,
   image,
   href,
+  linkClassName,
   avatarSize = 24,
   className,
 }: PersonInlineRowProps) {
@@ -42,6 +45,7 @@ export function PersonInlineRow({
         image={image}
         label={name}
         href={href}
+        linkClassName={linkClassName}
         size={avatarSize}
       />
       {showEmail ? (
