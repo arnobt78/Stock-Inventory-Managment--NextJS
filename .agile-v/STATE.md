@@ -7,7 +7,7 @@
 | **Last updated** | 2026-07-19 REQ-0161 |
 | **Active REQ** | **REQ-0136** (UI explore → §10 A1/A2/B1) |
 | **Done range** | REQ-0001 … REQ-0135 + REQ-0137–**0161** |
-| **Prod SHA** | `c44b719` tip; REQ-0161 pending push |
+| **Prod SHA** | `d5457ed` (REQ-0161) on `origin/main` |
 | **Human Gate 1** | APPROVED (GATE-0001) |
 | **Human Gate 2** | PENDING (GATE-0002) — UI explore → §10 → Sentry 24h |
 | **Resume token** | `tomorrow-UI-then-cache` → **REQ-0136** |
@@ -35,7 +35,7 @@
 |-----|---------|-----|
 | 0158–0159 | Party + buyer display | `35bb8a2` |
 | 0160 | User overview copy | `5dcd6f9` |
-| 0161 | Order/Invoice header HelpTooltips | pending |
+| 0161 | Order/Invoice header HelpTooltips | `d5457ed` |
 
 **Last gates (REQ-0161):** lint ✓ test **616** ✓ invalidate **213** ✓ build ✓ tsc ✓
 
