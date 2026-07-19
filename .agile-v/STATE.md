@@ -7,7 +7,7 @@
 | **Last updated** | 2026-07-19 EOD REQ-0162–0164 |
 | **Active REQ** | **REQ-0136** (UI explore → §10 A1/A2/B1) |
 | **Done range** | REQ-0001 … REQ-0135 + REQ-0137–**0164** |
-| **Prod SHA** | pending push (REQ-0162–0164) |
+| **Prod SHA** | `a32be36` (REQ-0162–0164) |
 | **Human Gate 1** | APPROVED (GATE-0001) |
 | **Human Gate 2** | PENDING (GATE-0002) — UI explore → §10 → Sentry 24h |
 | **Resume token** | `tomorrow-UI-then-cache` → **REQ-0136** |
@@ -30,9 +30,7 @@
 
 | REQ | Summary |
 |-----|---------|
-| 0162 | Invoice Detail ↔ Order Detail layout |
-| 0163 | Invoice items parity + SSR reviews + Back glass |
-| 0164 | Compact review UI + owner-products party links + summary icons |
+| 0162–0164 | Invoice detail parity + items/reviews/parties/summary | `a32be36` |
 
 **Gates:** lint ✓ test **620** ✓ invalidate **213** ✓ build ✓
 
