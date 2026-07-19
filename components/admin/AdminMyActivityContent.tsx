@@ -42,6 +42,7 @@ import {
 import { FILTER_SEARCH_INPUT_SKY_CLASS } from "@/lib/ui/filter-toolbar-styles";
 import { ClientCurrency, ClientCompactDateTime } from "@/components/shared";
 import { formatStableCurrency } from "@/lib/format";
+import { buildPaymentMoneyStats } from "@/lib/insights/payment-money-stats";
 import { StatisticsCard } from "@/components/home/StatisticsCard";
 import {
   AdminEmbedDataTable,
@@ -158,22 +159,16 @@ export default function AdminMyActivityContent({
       (w) => w.status === false,
     ).length;
 
-    const invoicePaid = invoices.filter((i) => i.status === "paid").length;
-    const invoicePending = invoices.filter(
-      (i) => i.status === "draft" || i.status === "sent",
-    ).length;
+    // REQ-0154 — invoice-money partition (not order.total for partial)
+    const moneyStats = buildPaymentMoneyStats(invoices);
+    const invoicePaid = moneyStats.paidInvoiceCount;
+    const invoicePartial = moneyStats.partialInvoiceCount;
+    const invoicePending = moneyStats.pendingInvoiceCount;
     const invoiceOverdue = invoices.filter(
       (i) => i.status === "overdue",
     ).length;
-    const paidRevenue = invoices
-      .filter((i) => i.status === "paid")
-      .reduce((sum, i) => sum + Number(i.total ?? 0), 0);
-    const outstandingAmount = invoices
-      .filter(
-        (i) =>
-          i.status === "sent" || i.status === "draft" || i.status === "overdue",
-      )
-      .reduce((sum, i) => sum + Number(i.amountDue ?? 0), 0);
+    const paidRevenue = moneyStats.paidCollected;
+    const outstandingAmount = moneyStats.dueOutstanding;
 
     const userAdmin = users.filter((u) => u.role === "admin").length;
     const userClient = users.filter((u) => u.role === "client").length;
@@ -188,20 +183,12 @@ export default function AdminMyActivityContent({
         (o.paymentStatus || "").toLowerCase() === "partial",
     ).length;
 
-    const paidAmount = orders
-      .filter((o) => (o.paymentStatus || "").toLowerCase() === "paid")
-      .reduce((sum, o) => sum + Number(o.total), 0);
+    const paidAmount = moneyStats.paidCollected;
+    const partialAmount = moneyStats.partialCollected;
     const refundedAmount = orders
       .filter((o) => (o.paymentStatus || "").toLowerCase() === "refunded")
       .reduce((sum, o) => sum + Number(o.total), 0);
-    const unpaidAmount = orders
-      .filter(
-        (o) =>
-          (o.status || "").toLowerCase() !== "cancelled" &&
-          ((o.paymentStatus || "").toLowerCase() === "unpaid" ||
-            (o.paymentStatus || "").toLowerCase() === "partial"),
-      )
-      .reduce((sum, o) => sum + Number(o.total), 0);
+    const unpaidAmount = moneyStats.pendingUnpaidDue;
     const cancelledAmount = orders
       .filter(
         (o) =>
@@ -214,6 +201,7 @@ export default function AdminMyActivityContent({
       totalOrders,
       totalRevenue,
       paidAmount,
+      partialAmount,
       refundedAmount,
       unpaidAmount,
       cancelledAmount,
@@ -235,6 +223,7 @@ export default function AdminMyActivityContent({
       warehouseActive,
       warehouseInactive,
       invoicePaid,
+      invoicePartial,
       invoicePending,
       invoiceOverdue,
       paidRevenue,
@@ -390,6 +379,14 @@ export default function AdminMyActivityContent({
                 value: formatStableCurrency(stats.paidAmount),
               },
               {
+                label: "Partial",
+                value: formatStableCurrency(stats.partialAmount),
+              },
+              {
+                label: "Due",
+                value: formatStableCurrency(stats.outstandingAmount),
+              },
+              {
                 label: "Refunded",
                 value: formatStableCurrency(stats.refundedAmount),
               },
@@ -398,7 +395,7 @@ export default function AdminMyActivityContent({
                 value: formatStableCurrency(stats.cancelledAmount),
               },
               {
-                label: "Unpaid",
+                label: "Pending",
                 value: formatStableCurrency(stats.unpaidAmount),
               },
             ]}
@@ -467,6 +464,7 @@ export default function AdminMyActivityContent({
             badgeValuesLoading={cardsDataLoading}
             badges={[
               { label: "Paid", value: stats.invoicePaid },
+              { label: "Partial", value: stats.invoicePartial },
               { label: "Pending", value: stats.invoicePending },
               { label: "Overdue", value: stats.invoiceOverdue },
             ]}

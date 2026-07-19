@@ -24,7 +24,12 @@ import {
   useClientPortalDashboard,
   useSupplierPortalDashboard,
 } from "@/hooks/queries";
-import { isDataSlotLoading, isDataSlotUnsettled, queryKeys, useSyncSsrQueryData } from "@/lib/react-query";
+import {
+  isDataSlotLoading,
+  isDataSlotUnsettled,
+  queryKeys,
+  useSyncSsrQueryData,
+} from "@/lib/react-query";
 import { APP_SHELL_WIDTH_CLASS } from "@/lib/ui/shell-layout-styles";
 import OrderFilters from "./OrderFilters";
 import OrderDialog from "./OrderDialog";
@@ -43,7 +48,11 @@ import type { Order } from "@/types";
 import type { OrderForPage } from "@/lib/server/orders-data";
 import type { OrderWithSource } from "./OrderTableColumns";
 import type { OrderSourceFilterValue } from "./OrderSourceFilter";
-import type { DashboardStats, ClientPortalDashboard, SupplierPortalDashboard } from "@/types";
+import type {
+  DashboardStats,
+  ClientPortalDashboard,
+  SupplierPortalDashboard,
+} from "@/types";
 
 const formatCurrency = (value: number) =>
   `$${value.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
@@ -51,9 +60,7 @@ const formatCurrency = (value: number) =>
 /** Customer display: shipping name/email, or placedByName when missing (e.g. Google one-click) */
 function getCustomerDisplay(order: Order): string {
   const addr = order.shippingAddress as
-    | { name?: string; email?: string }
-    | null
-    | undefined;
+    { name?: string; email?: string } | null | undefined;
   if (addr?.name) return addr.name;
   if (addr?.email) return addr.email;
   if (order.placedByName) return order.placedByName;
@@ -98,9 +105,7 @@ const OrderList = React.memo(
     const enableClientOrders =
       dataSource === "clientOrders" || dataSource === "adminCombined";
     const enableDashboard =
-      (pathname === "/orders" &&
-        role !== "client" &&
-        role !== "supplier") ||
+      (pathname === "/orders" && role !== "client" && role !== "supplier") ||
       dataSource === "adminCombined";
     const enableClientPortal = pathname === "/orders" && role === "client";
     const enableSupplierPortal = pathname === "/orders" && role === "supplier";
@@ -406,6 +411,12 @@ const OrderList = React.memo(
                   ),
                 },
                 {
+                  label: "Partial",
+                  value: formatCurrency(
+                    ordersPageStats?.orderAnalytics?.partialOrderAmount ?? 0,
+                  ),
+                },
+                {
                   label: "Due",
                   value: formatCurrency(
                     ordersPageStats?.invoiceAnalytics?.outstandingAmount ?? 0,
@@ -512,12 +523,17 @@ const OrderList = React.memo(
                       ?.paid ?? 0,
                 },
                 {
+                  label: "Partial",
+                  value: ordersPageStats?.invoiceAnalytics?.partialCount ?? 0,
+                },
+                {
                   label: "Pending",
                   value:
+                    ordersPageStats?.invoiceAnalytics?.pendingCount ??
                     (ordersPageStats?.invoiceAnalytics?.statusDistribution
                       ?.draft ?? 0) +
-                    (ordersPageStats?.invoiceAnalytics?.statusDistribution
-                      ?.sent ?? 0),
+                      (ordersPageStats?.invoiceAnalytics?.statusDistribution
+                        ?.sent ?? 0),
                 },
                 {
                   label: "Overdue",
@@ -635,6 +651,12 @@ const OrderList = React.memo(
                   ),
                 },
                 {
+                  label: "Partial",
+                  value: formatCurrency(
+                    clientPortalDashboard?.paymentBreakdown?.partial ?? 0,
+                  ),
+                },
+                {
                   label: "Due",
                   value: formatCurrency(
                     clientPortalDashboard?.paymentBreakdown?.due ?? 0,
@@ -681,7 +703,13 @@ const OrderList = React.memo(
                   ),
                 },
                 {
-                  label: "due",
+                  label: "Partial",
+                  value: formatCurrency(
+                    clientPortalDashboard?.paymentBreakdown?.partial ?? 0,
+                  ),
+                },
+                {
+                  label: "Due",
                   value: formatCurrency(
                     clientPortalDashboard?.paymentBreakdown?.due ?? 0,
                   ),
@@ -809,6 +837,12 @@ const OrderList = React.memo(
                   ),
                 },
                 {
+                  label: "Partial",
+                  value: formatCurrency(
+                    supplierPortal?.revenueBreakdown?.partial ?? 0,
+                  ),
+                },
+                {
                   label: "Due",
                   value: formatCurrency(
                     supplierPortal?.revenueBreakdown?.due ?? 0,
@@ -841,6 +875,10 @@ const OrderList = React.memo(
                 {
                   label: "Paid",
                   value: supplierPortal?.invoiceBreakdown?.paid ?? 0,
+                },
+                {
+                  label: "Partial",
+                  value: supplierPortal?.invoiceBreakdown?.partial ?? 0,
                 },
                 {
                   label: "Pending",
@@ -926,6 +964,12 @@ const OrderList = React.memo(
                   ),
                 },
                 {
+                  label: "Partial",
+                  value: formatCurrency(
+                    dashboard?.orderAnalytics?.partialOrderAmount ?? 0,
+                  ),
+                },
+                {
                   label: "Due",
                   value: formatCurrency(
                     dashboard?.invoiceAnalytics?.outstandingAmount ?? 0,
@@ -998,12 +1042,17 @@ const OrderList = React.memo(
                     dashboard?.invoiceAnalytics?.statusDistribution?.paid ?? 0,
                 },
                 {
+                  label: "Partial",
+                  value: dashboard?.invoiceAnalytics?.partialCount ?? 0,
+                },
+                {
                   label: "Pending",
                   value:
+                    dashboard?.invoiceAnalytics?.pendingCount ??
                     (dashboard?.invoiceAnalytics?.statusDistribution?.draft ??
                       0) +
-                    (dashboard?.invoiceAnalytics?.statusDistribution?.sent ??
-                      0),
+                      (dashboard?.invoiceAnalytics?.statusDistribution?.sent ??
+                        0),
                 },
                 {
                   label: "Overdue",

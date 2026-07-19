@@ -353,6 +353,12 @@ const ProductList = React.memo(function ProductList({
                 ),
               },
               {
+                label: "Partial",
+                value: formatCurrency(
+                  supplierPortal?.revenueBreakdown?.partial ?? 0,
+                ),
+              },
+              {
                 label: "Due",
                 value: formatCurrency(
                   supplierPortal?.revenueBreakdown?.due ?? 0,

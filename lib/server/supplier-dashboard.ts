@@ -8,6 +8,7 @@ import {
   batchSumAllocationReserved,
   computeCommittedQuantity,
 } from "@/lib/products/enrich-product-committed-quantity";
+import { buildPaymentMoneyStats } from "@/lib/insights/payment-money-stats";
 import { withOrderStatusAt } from "@/lib/orders/order-status-display-date";
 import { orderStatusAtSelect } from "@/lib/server/catalog-detail-order-select";
 import type { SupplierPortalDashboard } from "@/types";
@@ -43,7 +44,8 @@ export async function getSupplierDashboard(
   });
 
   const productIds = products.map((p) => p.id);
-  const allocationReservedByProduct = await batchSumAllocationReserved(productIds);
+  const allocationReservedByProduct =
+    await batchSumAllocationReserved(productIds);
 
   const productCommitted = (productId: string, productReserved: number) =>
     computeCommittedQuantity(
@@ -140,47 +142,59 @@ export async function getSupplierDashboard(
   const getSupplierShare = (o: (typeof orders)[0]) =>
     o.subtotal > 0 ? (o.supplierSubtotal / o.subtotal) * o.total : 0;
 
-  const ordersExcludingCancelled = orders.filter((o) => o.status !== "cancelled");
+  const ordersExcludingCancelled = orders.filter(
+    (o) => o.status !== "cancelled",
+  );
   const totalRevenue = ordersExcludingCancelled.reduce(
     (sum, o) => sum + getSupplierShare(o),
     0,
   );
-  const paidRevenue = orders
-    .filter((o) => o.paymentStatus === "paid" && o.status !== "cancelled")
-    .reduce((sum, o) => sum + getSupplierShare(o), 0);
-  const unpaidRevenue = orders
-    .filter(
-      (o) =>
-        o.paymentStatus !== "paid" &&
-        o.paymentStatus !== "refunded" &&
-        o.status !== "cancelled",
-    )
-    .reduce((sum, o) => sum + getSupplierShare(o), 0);
+  // Invoices for orders that contain supplier's products (created by product owner)
+  const orderIds = orders.map((o) => o.id);
+  const refundedOrderIds = new Set(
+    orders.filter((o) => o.paymentStatus === "refunded").map((o) => o.id),
+  );
+  const invoices = await prisma.invoice.findMany({
+    where: { orderId: { in: orderIds } },
+    select: {
+      id: true,
+      orderId: true,
+      status: true,
+      amountPaid: true,
+      amountDue: true,
+      total: true,
+    },
+  });
+
+  // REQ-0154 — scale invoice money by supplier share of each order, then partition
+  const orderById = new Map(orders.map((o) => [o.id, o]));
+  const scaledInvoices = invoices.map((inv) => {
+    const o = orderById.get(inv.orderId);
+    const factor = o && o.total > 0 ? getSupplierShare(o) / o.total : 0;
+    return {
+      status: inv.status,
+      amountPaid: (inv.amountPaid ?? 0) * factor,
+      amountDue: (inv.amountDue ?? 0) * factor,
+      total: (inv.total ?? 0) * factor,
+    };
+  });
+  const moneyStats = buildPaymentMoneyStats(scaledInvoices);
 
   const revenueBreakdown = {
-    paid: orders
-      .filter((o) => o.paymentStatus === "paid" && o.status !== "cancelled")
-      .reduce((sum, o) => sum + getSupplierShare(o), 0),
-    due: orders
-      .filter(
-        (o) =>
-          (o.paymentStatus === "due" || o.paymentStatus === "unpaid") &&
-          o.status !== "cancelled",
-      )
-      .reduce((sum, o) => sum + getSupplierShare(o), 0),
+    paid: moneyStats.paidCollected,
+    partial: moneyStats.partialCollected,
+    due: moneyStats.dueOutstanding,
     refund: orders
       .filter((o) => o.paymentStatus === "refunded")
       .reduce((sum, o) => sum + getSupplierShare(o), 0),
-    pending: orders
-      .filter(
-        (o) =>
-          (o.paymentStatus === "unpaid" ||
-            o.paymentStatus === "partial" ||
-            o.paymentStatus === "pending") &&
-          o.status !== "cancelled",
-      )
-      .reduce((sum, o) => sum + getSupplierShare(o), 0),
+    pending: moneyStats.pendingUnpaidDue,
   };
+
+  const paidRevenue = moneyStats.paidCollected;
+  const unpaidRevenue =
+    moneyStats.partialCollected +
+    moneyStats.dueOutstanding +
+    moneyStats.pendingUnpaidDue;
 
   const cancelledOrderAmount = orders
     .filter((o) => o.status === "cancelled")
@@ -194,22 +208,11 @@ export async function getSupplierDashboard(
     refunded: revenueBreakdown.refund,
   };
 
-  // Invoices for orders that contain supplier's products (created by product owner)
-  const orderIds = orders.map((o) => o.id);
-  const refundedOrderIds = new Set(
-    orders.filter((o) => o.paymentStatus === "refunded").map((o) => o.id),
-  );
-  const invoices = await prisma.invoice.findMany({
-    where: { orderId: { in: orderIds } },
-    select: { id: true, orderId: true, status: true },
-  });
   const totalInvoices = invoices.length;
   const invoiceBreakdown = {
-    paid: invoices.filter((i) => i.status === "paid").length,
-    pending:
-      invoices.filter(
-        (i) => i.status === "draft" || i.status === "sent",
-      ).length,
+    paid: moneyStats.paidInvoiceCount,
+    partial: moneyStats.partialInvoiceCount,
+    pending: moneyStats.pendingInvoiceCount,
     overdue: invoices.filter((i) => i.status === "overdue").length,
     cancelled: invoices.filter((i) => i.status === "cancelled").length,
     refunded: invoices.filter((i) => refundedOrderIds.has(i.orderId)).length,
@@ -244,10 +247,7 @@ export async function getSupplierDashboard(
   let productValue = 0;
   for (const p of products) {
     const qty = Number(p.quantity) ?? 0;
-    const committed = productCommitted(
-      p.id,
-      Number(p.reservedQuantity ?? 0),
-    );
+    const committed = productCommitted(p.id, Number(p.reservedQuantity ?? 0));
     const available = qty - committed;
     productValue += qty * (Number(p.price) ?? 0);
     if (available > STOCK_LOW_MAX) productStatusCounts.available += 1;

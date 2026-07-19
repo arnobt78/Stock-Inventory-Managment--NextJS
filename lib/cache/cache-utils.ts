@@ -369,8 +369,8 @@ export const cacheKeys = {
   dashboard: {
     overview: (userId?: string) =>
       userId
-        ? `dashboard:overview:v2:${userId}`
-        : "dashboard:overview:v2",
+        ? `dashboard:overview:v3:${userId}`
+        : "dashboard:overview:v3",
     pattern: "dashboard:*",
   },
 

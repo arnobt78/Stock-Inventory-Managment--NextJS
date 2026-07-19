@@ -106,10 +106,19 @@ export interface DashboardOrderAnalytics {
   totalRevenue: number;
   /** Sum of order totals excluding cancelled orders (store-wide). Use for Total Revenue card. */
   totalRevenueExcludingCancelled: number;
-  /** Sum of order totals for non-cancelled orders with paymentStatus unpaid/partial (store-wide). */
+  /**
+   * REQ-0154 — Σ amountDue where amountPaid≈0 on draft/sent invoices (fully unpaid outstanding).
+   * Not order.total for paymentStatus partial.
+   */
   pendingOrderAmount: number;
-  /** Sum of order totals for non-cancelled orders with paymentStatus paid (store-wide). Makes Paid + Pending = totalRevenueExcludingCancelled. */
+  /**
+   * REQ-0154 — Σ amountPaid on fully settled invoices (status paid or amountDue≈0).
+   */
   paidOrderAmount: number;
+  /**
+   * REQ-0154 — Σ amountPaid on mid-pay invoices (amountPaid>0 && amountDue>0).
+   */
+  partialOrderAmount: number;
   /** Sum of order totals where paymentStatus === 'refunded' (store-wide) */
   refundedAmount: number;
   /** Count of orders where paymentStatus === 'refunded' (store-wide) */
@@ -139,12 +148,23 @@ export interface DashboardInvoiceAnalytics {
   totalExcludingCancelled?: number;
   /** Sum of cancelled invoice totals (store-wide) */
   cancelledInvoiceSum?: number;
+  /** REQ-0154 — Σ amountPaid on fully settled invoices (aligned with paidOrderAmount). */
   paidRevenue: number;
   outstandingAmount: number;
   overdueAmount: number;
   averageInvoiceValue: number;
   /** Average invoice total excluding cancelled (totalExcludingCancelled / non-cancelled count) */
   averageInvoiceValueExcludingCancelled?: number;
+  /**
+   * REQ-0154 — Count of mid-pay invoices (sent/overdue ∧ amountPaid>0 ∧ amountDue>0).
+   * Not a DB status — derived from amount fields.
+   */
+  partialCount?: number;
+  /**
+   * REQ-0154 — Count of draft/sent invoices with amountPaid≈0 (fully unpaid).
+   * Prefer over draft+sent statusDistribution for Pending badge.
+   */
+  pendingCount?: number;
 }
 
 /**

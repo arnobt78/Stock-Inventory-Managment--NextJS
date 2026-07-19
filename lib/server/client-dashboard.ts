@@ -4,6 +4,7 @@
 
 import { prisma } from "@/prisma/client";
 import type { ClientPortalDashboard } from "@/types";
+import { buildPaymentMoneyStats } from "@/lib/insights/payment-money-stats";
 import { withOrderStatusAt } from "@/lib/orders/order-status-display-date";
 
 /**
@@ -55,32 +56,16 @@ export async function getClientDashboard(
   ).length;
   const totalSpent = orders.reduce((sum, o) => sum + o.total, 0);
 
-  // Payment breakdown by payment status (for Total Spent card badges)
+  // REQ-0154 — invoice-money partition for Total Spent / Outstanding badges
+  const moneyStats = buildPaymentMoneyStats(invoices);
   const paymentBreakdown = {
-    paid: orders
-      .filter((o) => o.paymentStatus === "paid" && o.status !== "cancelled")
-      .reduce((sum, o) => sum + o.total, 0),
-    due: orders
-      .filter(
-        (o) =>
-          o.paymentStatus === "due" ||
-          (o.paymentStatus !== "paid" &&
-            o.paymentStatus !== "refunded" &&
-            o.status !== "cancelled"),
-      )
-      .reduce((sum, o) => sum + o.total, 0),
+    paid: moneyStats.paidCollected,
+    partial: moneyStats.partialCollected,
+    due: moneyStats.dueOutstanding,
     refund: orders
       .filter((o) => o.paymentStatus === "refunded")
       .reduce((sum, o) => sum + o.total, 0),
-    pending: orders
-      .filter(
-        (o) =>
-          (o.paymentStatus === "unpaid" ||
-            o.paymentStatus === "partial" ||
-            o.paymentStatus === "pending") &&
-          o.status !== "cancelled",
-      )
-      .reduce((sum, o) => sum + o.total, 0),
+    pending: moneyStats.pendingUnpaidDue,
     cancelled: orders
       .filter((o) => o.status === "cancelled")
       .reduce((sum, o) => sum + o.total, 0),
@@ -89,22 +74,18 @@ export async function getClientDashboard(
   // Total invoice amount (sum of invoice totals)
   const totalInvoiceAmount = invoices.reduce((sum, inv) => sum + inv.total, 0);
 
-  // Invoice breakdown by status (for Outstanding card badges)
+  // Invoice breakdown — Pending excludes mid-pay (partial); Partial is separate
   const invoiceBreakdown = {
-    paid: invoices.filter((inv) => inv.status === "paid").length,
-    pending: invoices.filter(
-      (inv) => inv.status === "sent" || inv.status === "draft",
-    ).length,
+    paid: moneyStats.paidInvoiceCount,
+    partial: moneyStats.partialInvoiceCount,
+    pending: moneyStats.pendingInvoiceCount,
     overdue: invoices.filter((inv) => inv.status === "overdue").length,
     cancelled: invoices.filter((inv) => inv.status === "cancelled").length,
     refunded: refundedOrdersCount,
     total: invoices.length,
   };
 
-  // Calculate outstanding amount from invoices
-  const outstandingAmount = invoices
-    .filter((inv) => inv.status !== "paid" && inv.status !== "cancelled")
-    .reduce((sum, inv) => sum + inv.amountDue, 0);
+  const outstandingAmount = moneyStats.dueOutstanding;
 
   // Recent orders (last 10)
   const recentOrders = orders.slice(0, 10).map((o) =>

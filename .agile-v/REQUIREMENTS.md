@@ -4,6 +4,31 @@ Canonical REQ source. All artifacts link via `REQ-XXXX`. Status: `done` | `verif
 
 ---
 
+## REQ-0154 — Partial pay stats + Total column typography
+
+| Field | Value |
+|-------|-------|
+| **Priority** | P0 |
+| **Risk** | R1 |
+| **Status** | done |
+| **Cycle** | C2 |
+| **Parent** | REQ-0152, REQ-0136 |
+
+**Intent:** Fix dashboard/list KPI badges for mid-pay invoices (Paid/Partial/Due/Pending money + invoice Partial count) across admin/user/client/supplier; shrink `PaymentMoneyBreakdown` table Total typography to match column meta.
+
+**Acceptance criteria**
+
+- AC1: `buildPaymentMoneyStats` pure helper + unit tests (demo partial fixture)
+- AC2: Admin/client/supplier dashboards use invoice-money partition; types expose `partialOrderAmount` / `partialCount` / `pendingCount`
+- AC3: Partial badge on StatisticsSection, AdminAnalytics, Order/Invoice lists, portals
+- AC4: `PaymentMoneyBreakdown` table variant `text-xs font-normal` gray base
+- AC5: Redis dashboard key bump `v3`; invalidation registry unchanged
+- AC6: Gates — lint, test, invalidate, build
+
+**Artifacts:** `lib/insights/payment-money-stats.ts`, `lib/server/dashboard-data.ts`, `lib/server/client-dashboard.ts`, `lib/server/supplier-dashboard.ts`, `PaymentMoneyBreakdown.tsx`
+
+---
+
 ## REQ-0153 — Instant linked-order patch on invoice money CRUD
 
 | Field | Value |

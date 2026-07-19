@@ -829,6 +829,18 @@ Hub: `lib/ui/typography-scale.ts`. Hubs import tokens; ~45 inline files use equi
 
 **Still patch → invalidate** — no registry change; closes client lag before refetch.
 
+## Partial pay KPI stats (REQ-0154)
+
+| Piece | Location |
+|-------|----------|
+| Helper | `lib/insights/payment-money-stats.ts` — Paid/Partial/Due/Pending from invoice amounts |
+| Dashboards | `dashboard-data` / `client-dashboard` / `supplier-dashboard` — `partialOrderAmount`, `partialCount` |
+| UI | Partial badge on home, admin analytics, order/invoice lists, portals |
+| Typography | `PaymentMoneyBreakdown` table → `text-xs font-normal` gray meta |
+| Cache | `dashboard:overview:v3:` |
+
+**Invalidation unchanged** — order-graph clears dashboards; no fake invoice status `partial`.
+
 ## Order detail density (REQ-0146 / REQ-0147 / REQ-0148 / REQ-0149)
 
 | Piece | Location |

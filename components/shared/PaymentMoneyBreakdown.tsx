@@ -30,15 +30,18 @@ export function PaymentMoneyBreakdown({
       ? Math.max(0, Number(amountDue) || 0)
       : Math.max(0, total - paid);
   const showBreakdown = paid > 0 || due > 0;
-  const textSize =
-    variant === "detail" ? "text-sm" : "text-xs sm:text-sm";
+  // REQ-0154 — table meta matches other column secondary lines (text-xs font-normal)
+  const isTable = variant === "table";
+  const textSize = isTable ? "text-xs font-normal" : "text-sm";
 
   return (
     <div className={cn("flex flex-col gap-0.5 min-w-0", className)}>
       <span
         className={cn(
-          "font-medium text-gray-900 dark:text-gray-100 tabular-nums",
-          variant === "detail" ? "text-sm sm:text-base" : "text-sm",
+          "tabular-nums",
+          isTable
+            ? "text-xs font-normal text-gray-700 dark:text-gray-300"
+            : "text-sm sm:text-base font-medium text-gray-900 dark:text-gray-100",
         )}
       >
         ${total.toFixed(2)}

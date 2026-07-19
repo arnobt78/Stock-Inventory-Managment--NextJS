@@ -16,7 +16,11 @@ import {
   GLASS_PRIMARY_BUTTON,
 } from "@/lib/ui/glass-button-styles";
 import { useDashboard } from "@/hooks/queries";
-import { isDataSlotUnsettled, queryKeys, useSyncSsrQueryData } from "@/lib/react-query";
+import {
+  isDataSlotUnsettled,
+  queryKeys,
+  useSyncSsrQueryData,
+} from "@/lib/react-query";
 import { useAuth } from "@/contexts";
 import { useToast } from "@/hooks/use-toast";
 import {
@@ -48,7 +52,11 @@ import {
 } from "recharts";
 import { ResponsiveChartContainer } from "@/components/ui/responsive-chart-container";
 import { DeferredChartSection } from "@/components/ui/deferred-chart-section";
-import { ClientCompactDateTime, CopyableText, RecentOrderStatusColumn } from "@/components/shared";
+import {
+  ClientCompactDateTime,
+  CopyableText,
+  RecentOrderStatusColumn,
+} from "@/components/shared";
 import { formatStableCurrency, formatClientCurrency } from "@/lib/format";
 import type { DashboardStats } from "@/types";
 import ForecastingSection from "@/components/admin/ForecastingSection";
@@ -261,6 +269,12 @@ export default function AdminAnalyticsContent({
                 ),
               },
               {
+                label: "Partial",
+                value: formatCurrency(
+                  stats?.orderAnalytics?.partialOrderAmount ?? 0,
+                ),
+              },
+              {
                 label: "Due",
                 value: formatCurrency(
                   stats?.invoiceAnalytics?.outstandingAmount ?? 0,
@@ -390,10 +404,15 @@ export default function AdminAnalyticsContent({
                 value: stats?.invoiceAnalytics?.statusDistribution?.paid ?? 0,
               },
               {
+                label: "Partial",
+                value: stats?.invoiceAnalytics?.partialCount ?? 0,
+              },
+              {
                 label: "Pending",
                 value:
+                  stats?.invoiceAnalytics?.pendingCount ??
                   (stats?.invoiceAnalytics?.statusDistribution?.draft ?? 0) +
-                  (stats?.invoiceAnalytics?.statusDistribution?.sent ?? 0),
+                    (stats?.invoiceAnalytics?.statusDistribution?.sent ?? 0),
               },
               {
                 label: "Overdue",
@@ -521,7 +540,15 @@ export default function AdminAnalyticsContent({
                 hasData={(stats.trends?.length ?? 0) > 0}
               >
                 <ResponsiveChartContainer>
-                  <AreaChart data={stats.trends} margin={{ top: CHART_LABEL_TOP_MARGIN, right: 8, left: 0, bottom: 0 }}>
+                  <AreaChart
+                    data={stats.trends}
+                    margin={{
+                      top: CHART_LABEL_TOP_MARGIN,
+                      right: 8,
+                      left: 0,
+                      bottom: 0,
+                    }}
+                  >
                     <CartesianGrid
                       strokeDasharray="3 3"
                       className="stroke-muted"
@@ -604,7 +631,12 @@ export default function AdminAnalyticsContent({
                 <ResponsiveChartContainer>
                   <BarChart
                     data={stats.trends}
-                    margin={{ top: CHART_LABEL_TOP_MARGIN, right: 8, left: 8, bottom: 8 }}
+                    margin={{
+                      top: CHART_LABEL_TOP_MARGIN,
+                      right: 8,
+                      left: 8,
+                      bottom: 8,
+                    }}
                   >
                     <CartesianGrid
                       strokeDasharray="3 3"
@@ -701,6 +733,12 @@ export default function AdminAnalyticsContent({
                     label: "Paid",
                     value: formatCurrency(
                       stats.orderAnalytics.paidOrderAmount ?? 0,
+                    ),
+                  },
+                  {
+                    label: "Partial",
+                    value: formatCurrency(
+                      stats.orderAnalytics.partialOrderAmount ?? 0,
                     ),
                   },
                   {
@@ -817,7 +855,12 @@ export default function AdminAnalyticsContent({
                         },
                       ]}
                       layout="vertical"
-                      margin={{ top: CHART_LABEL_TOP_MARGIN, right: 8, left: 70, bottom: 8 }}
+                      margin={{
+                        top: CHART_LABEL_TOP_MARGIN,
+                        right: 8,
+                        left: 70,
+                        bottom: 8,
+                      }}
                     >
                       <CartesianGrid
                         strokeDasharray="3 3"
@@ -847,7 +890,9 @@ export default function AdminAnalyticsContent({
                       <Bar
                         dataKey="count"
                         radius={[0, 4, 4, 0]}
-                        label={createChartBarLabelRenderer(formatChartCountLabel)}
+                        label={createChartBarLabelRenderer(
+                          formatChartCountLabel,
+                        )}
                       />
                     </BarChart>
                   </ResponsiveChartContainer>
@@ -971,12 +1016,15 @@ export default function AdminAnalyticsContent({
                     value: stats.invoiceAnalytics.statusDistribution.paid ?? 0,
                   },
                   {
-                    label: "Draft",
-                    value: stats.invoiceAnalytics.statusDistribution.draft ?? 0,
+                    label: "Partial",
+                    value: stats.invoiceAnalytics.partialCount ?? 0,
                   },
                   {
-                    label: "Sent",
-                    value: stats.invoiceAnalytics.statusDistribution.sent ?? 0,
+                    label: "Pending",
+                    value:
+                      stats.invoiceAnalytics.pendingCount ??
+                      (stats.invoiceAnalytics.statusDistribution.draft ?? 0) +
+                        (stats.invoiceAnalytics.statusDistribution.sent ?? 0),
                   },
                   {
                     label: "Cancelled",
@@ -1081,7 +1129,12 @@ export default function AdminAnalyticsContent({
                       },
                     ]}
                     layout="vertical"
-                    margin={{ top: CHART_LABEL_TOP_MARGIN, right: 8, left: 70, bottom: 8 }}
+                    margin={{
+                      top: CHART_LABEL_TOP_MARGIN,
+                      right: 8,
+                      left: 70,
+                      bottom: 8,
+                    }}
                   >
                     <CartesianGrid
                       strokeDasharray="3 3"
@@ -1214,7 +1267,12 @@ export default function AdminAnalyticsContent({
                             }),
                           )}
                           layout="vertical"
-                          margin={{ top: CHART_LABEL_TOP_MARGIN, right: 8, left: 90, bottom: 8 }}
+                          margin={{
+                            top: CHART_LABEL_TOP_MARGIN,
+                            right: 8,
+                            left: 90,
+                            bottom: 8,
+                          }}
                         >
                           <CartesianGrid
                             strokeDasharray="3 3"
@@ -1242,10 +1300,12 @@ export default function AdminAnalyticsContent({
                             formatter={(value) => [value, "Warehouses"]}
                           />
                           <Bar
-                        dataKey="count"
-                        radius={[0, 4, 4, 0]}
-                        label={createChartBarLabelRenderer(formatChartCountLabel)}
-                      />
+                            dataKey="count"
+                            radius={[0, 4, 4, 0]}
+                            label={createChartBarLabelRenderer(
+                              formatChartCountLabel,
+                            )}
+                          />
                         </BarChart>
                       </ResponsiveChartContainer>
                     </DeferredChartSection>
@@ -1272,7 +1332,10 @@ export default function AdminAnalyticsContent({
                     {stats.recent.orders.slice(0, 5).map((o) => (
                       <li key={o.id} className={CARD_LIST_ROW_CLASS}>
                         <div className="min-w-0 flex-1">
-                          <CopyableText value={o.orderNumber} className="max-w-full">
+                          <CopyableText
+                            value={o.orderNumber}
+                            className="max-w-full"
+                          >
                             <Link
                               href={`/admin/orders/${o.id}`}
                               className="text-xs font-normal text-sky-600 dark:text-sky-400 hover:text-sky-500 dark:hover:text-sky-300 truncate block"
@@ -1281,7 +1344,10 @@ export default function AdminAnalyticsContent({
                             </Link>
                           </CopyableText>
                           <p className={CARD_LIST_META_CLASS}>
-                            <ClientCompactDateTime date={o.createdAt} semantic="created" />
+                            <ClientCompactDateTime
+                              date={o.createdAt}
+                              semantic="created"
+                            />
                           </p>
                         </div>
                         <RecentOrderStatusColumn
@@ -1339,7 +1405,10 @@ export default function AdminAnalyticsContent({
                             {t.subject}
                           </Link>
                           <p className={CARD_LIST_META_CLASS}>
-                            <ClientCompactDateTime date={t.createdAt} semantic="created" />
+                            <ClientCompactDateTime
+                              date={t.createdAt}
+                              semantic="created"
+                            />
                           </p>
                         </div>
                         <TicketStatusBadge status={t.status} />
@@ -1388,7 +1457,10 @@ export default function AdminAnalyticsContent({
                             {r.productName} · {r.rating}★
                           </Link>
                           <p className={CARD_LIST_META_CLASS}>
-                            <ClientCompactDateTime date={r.createdAt} semantic="created" />
+                            <ClientCompactDateTime
+                              date={r.createdAt}
+                              semantic="created"
+                            />
                           </p>
                         </div>
                         <ReviewStatusBadge status={r.status} />
@@ -1437,8 +1509,11 @@ export default function AdminAnalyticsContent({
                             {im.importType} · {im.fileName}
                           </Link>
                           <p className={CARD_LIST_META_CLASS}>
-                            <ClientCompactDateTime date={im.createdAt} semantic="created" /> ·{" "}
-                            {im.successRows} ok, {im.failedRows} failed
+                            <ClientCompactDateTime
+                              date={im.createdAt}
+                              semantic="created"
+                            />{" "}
+                            · {im.successRows} ok, {im.failedRows} failed
                           </p>
                         </div>
                         <ImportStatusBadge status={im.status} />
@@ -1489,7 +1564,10 @@ export default function AdminAnalyticsContent({
             >
               {aiLoading ? (
                 <>
-                  <Loader2 className="h-4 w-4 shrink-0 animate-spin" aria-hidden />
+                  <Loader2
+                    className="h-4 w-4 shrink-0 animate-spin"
+                    aria-hidden
+                  />
                   Generating insights…
                 </>
               ) : (

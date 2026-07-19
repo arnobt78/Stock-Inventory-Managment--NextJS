@@ -17,7 +17,11 @@ import {
 } from "lucide-react";
 import { StatisticsCard } from "./StatisticsCard";
 import { useDashboard } from "@/hooks/queries/use-dashboard";
-import { isDataSlotUnsettled, queryKeys, useSyncSsrQueryData } from "@/lib/react-query";
+import {
+  isDataSlotUnsettled,
+  queryKeys,
+  useSyncSsrQueryData,
+} from "@/lib/react-query";
 import { useAuth } from "@/contexts";
 import type { DashboardStats } from "@/types";
 
@@ -32,7 +36,9 @@ export type StatisticsSectionProps = {
   initialStats?: DashboardStats | null;
 };
 
-export function StatisticsSection({ initialStats }: StatisticsSectionProps = {}) {
+export function StatisticsSection({
+  initialStats,
+}: StatisticsSectionProps = {}) {
   const { user } = useAuth();
   const dashboardQuery = useDashboard(initialStats ?? undefined);
   const stats = dashboardQuery.data ?? initialStats ?? null;
@@ -60,9 +66,18 @@ export function StatisticsSection({ initialStats }: StatisticsSectionProps = {})
         valueLoading={dataLoading}
         badgeValuesLoading={dataLoading}
         badges={[
-          { label: "Available", value: stats?.productStatusBreakdown?.available ?? 0 },
-          { label: "Stock low", value: stats?.productStatusBreakdown?.stockLow ?? 0 },
-          { label: "Stock out", value: stats?.productStatusBreakdown?.stockOut ?? 0 },
+          {
+            label: "Available",
+            value: stats?.productStatusBreakdown?.available ?? 0,
+          },
+          {
+            label: "Stock low",
+            value: stats?.productStatusBreakdown?.stockLow ?? 0,
+          },
+          {
+            label: "Stock out",
+            value: stats?.productStatusBreakdown?.stockOut ?? 0,
+          },
         ]}
       />
       <StatisticsCard
@@ -88,11 +103,15 @@ export function StatisticsSection({ initialStats }: StatisticsSectionProps = {})
           },
           {
             label: "Due",
-            value: formatCurrency(stats?.invoiceAnalytics?.outstandingAmount ?? 0),
+            value: formatCurrency(
+              stats?.invoiceAnalytics?.outstandingAmount ?? 0,
+            ),
           },
           {
             label: "Cancelled",
-            value: formatCurrency(stats?.orderAnalytics?.cancelledOrderAmount ?? 0),
+            value: formatCurrency(
+              stats?.orderAnalytics?.cancelledOrderAmount ?? 0,
+            ),
           },
         ]}
       />
@@ -110,8 +129,16 @@ export function StatisticsSection({ initialStats }: StatisticsSectionProps = {})
             value: formatCurrency(stats?.orderAnalytics?.paidOrderAmount ?? 0),
           },
           {
+            label: "Partial",
+            value: formatCurrency(
+              stats?.orderAnalytics?.partialOrderAmount ?? 0,
+            ),
+          },
+          {
             label: "Due",
-            value: formatCurrency(stats?.invoiceAnalytics?.outstandingAmount ?? 0),
+            value: formatCurrency(
+              stats?.invoiceAnalytics?.outstandingAmount ?? 0,
+            ),
           },
           {
             label: "Refund",
@@ -119,12 +146,20 @@ export function StatisticsSection({ initialStats }: StatisticsSectionProps = {})
           },
           {
             label: "Pending",
-            value: formatCurrency(stats?.orderAnalytics?.pendingOrderAmount ?? 0),
+            value: formatCurrency(
+              stats?.orderAnalytics?.pendingOrderAmount ?? 0,
+            ),
           },
           ...(selfOthers
             ? [
-                { label: "Self", value: formatCurrency(selfOthers.revenueSelf) },
-                { label: "Others", value: formatCurrency(selfOthers.revenueOthers) },
+                {
+                  label: "Self",
+                  value: formatCurrency(selfOthers.revenueSelf),
+                },
+                {
+                  label: "Others",
+                  value: formatCurrency(selfOthers.revenueOthers),
+                },
               ]
             : []),
         ]}
@@ -179,10 +214,15 @@ export function StatisticsSection({ initialStats }: StatisticsSectionProps = {})
             value: stats?.invoiceAnalytics?.statusDistribution?.paid ?? 0,
           },
           {
+            label: "Partial",
+            value: stats?.invoiceAnalytics?.partialCount ?? 0,
+          },
+          {
             label: "Pending",
             value:
+              stats?.invoiceAnalytics?.pendingCount ??
               (stats?.invoiceAnalytics?.statusDistribution?.draft ?? 0) +
-              (stats?.invoiceAnalytics?.statusDistribution?.sent ?? 0),
+                (stats?.invoiceAnalytics?.statusDistribution?.sent ?? 0),
           },
           {
             label: "Overdue",
@@ -192,7 +232,10 @@ export function StatisticsSection({ initialStats }: StatisticsSectionProps = {})
             label: "Cancelled",
             value: stats?.invoiceAnalytics?.statusDistribution?.cancelled ?? 0,
           },
-          { label: "Refunded", value: stats?.orderAnalytics?.refundedCount ?? 0 },
+          {
+            label: "Refunded",
+            value: stats?.orderAnalytics?.refundedCount ?? 0,
+          },
           ...(selfOthers
             ? [
                 { label: "Self", value: selfOthers.invoiceSelfCount },
@@ -210,8 +253,14 @@ export function StatisticsSection({ initialStats }: StatisticsSectionProps = {})
         valueLoading={dataLoading}
         badgeValuesLoading={dataLoading}
         badges={[
-          { label: "Active", value: stats?.warehouseAnalytics?.activeWarehouses ?? 0 },
-          { label: "Inactive", value: stats?.warehouseAnalytics?.inactiveWarehouses ?? 0 },
+          {
+            label: "Active",
+            value: stats?.warehouseAnalytics?.activeWarehouses ?? 0,
+          },
+          {
+            label: "Inactive",
+            value: stats?.warehouseAnalytics?.inactiveWarehouses ?? 0,
+          },
         ]}
       />
       <StatisticsCard
@@ -223,8 +272,14 @@ export function StatisticsSection({ initialStats }: StatisticsSectionProps = {})
         valueLoading={dataLoading}
         badgeValuesLoading={dataLoading}
         badges={[
-          { label: "Active", value: stats?.supplierStatusBreakdown?.active ?? 0 },
-          { label: "Inactive", value: stats?.supplierStatusBreakdown?.inactive ?? 0 },
+          {
+            label: "Active",
+            value: stats?.supplierStatusBreakdown?.active ?? 0,
+          },
+          {
+            label: "Inactive",
+            value: stats?.supplierStatusBreakdown?.inactive ?? 0,
+          },
         ]}
       />
       <StatisticsCard
@@ -236,8 +291,14 @@ export function StatisticsSection({ initialStats }: StatisticsSectionProps = {})
         valueLoading={dataLoading}
         badgeValuesLoading={dataLoading}
         badges={[
-          { label: "Active", value: stats?.categoryStatusBreakdown?.active ?? 0 },
-          { label: "Inactive", value: stats?.categoryStatusBreakdown?.inactive ?? 0 },
+          {
+            label: "Active",
+            value: stats?.categoryStatusBreakdown?.active ?? 0,
+          },
+          {
+            label: "Inactive",
+            value: stats?.categoryStatusBreakdown?.inactive ?? 0,
+          },
         ]}
       />
     </div>

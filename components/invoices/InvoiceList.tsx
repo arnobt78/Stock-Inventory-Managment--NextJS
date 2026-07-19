@@ -23,7 +23,12 @@ import {
   useDashboard,
   useClientPortalDashboard,
 } from "@/hooks/queries";
-import { isDataSlotLoading, isDataSlotUnsettled, queryKeys, useSyncSsrQueryData } from "@/lib/react-query";
+import {
+  isDataSlotLoading,
+  isDataSlotUnsettled,
+  queryKeys,
+  useSyncSsrQueryData,
+} from "@/lib/react-query";
 import { APP_SHELL_WIDTH_CLASS } from "@/lib/ui/shell-layout-styles";
 import InvoiceFilters from "./InvoiceFilters";
 import InvoiceDialog from "./InvoiceDialog";
@@ -108,9 +113,7 @@ const InvoiceList = React.memo(
     const enableClientInvoices =
       dataSource === "clientInvoices" || dataSource === "adminCombined";
     const enableDashboard =
-      (pathname === "/invoices" &&
-        role !== "client" &&
-        role !== "supplier") ||
+      (pathname === "/invoices" && role !== "client" && role !== "supplier") ||
       dataSource === "adminCombined";
     const enableClientPortal = pathname === "/invoices" && role === "client";
 
@@ -138,7 +141,8 @@ const InvoiceList = React.memo(
     );
 
     const useDefaultInvoiceFilters = isDefaultInvoiceListFilters(apiFilters);
-    const useDefaultClientFilters = isDefaultInvoiceListFilters(clientApiFilters);
+    const useDefaultClientFilters =
+      isDefaultInvoiceListFilters(clientApiFilters);
 
     const invoicesQueryDefault = useInvoices(
       apiFilters,
@@ -415,6 +419,12 @@ const InvoiceList = React.memo(
                   ),
                 },
                 {
+                  label: "Partial",
+                  value: formatCurrency(
+                    invoicesPageStats?.orderAnalytics?.partialOrderAmount ?? 0,
+                  ),
+                },
+                {
                   label: "Due",
                   value: formatCurrency(
                     invoicesPageStats?.invoiceAnalytics?.outstandingAmount ?? 0,
@@ -522,12 +532,17 @@ const InvoiceList = React.memo(
                       ?.paid ?? 0,
                 },
                 {
+                  label: "Partial",
+                  value: invoicesPageStats?.invoiceAnalytics?.partialCount ?? 0,
+                },
+                {
                   label: "Pending",
                   value:
+                    invoicesPageStats?.invoiceAnalytics?.pendingCount ??
                     (invoicesPageStats?.invoiceAnalytics?.statusDistribution
                       ?.draft ?? 0) +
-                    (invoicesPageStats?.invoiceAnalytics?.statusDistribution
-                      ?.sent ?? 0),
+                      (invoicesPageStats?.invoiceAnalytics?.statusDistribution
+                        ?.sent ?? 0),
                 },
                 {
                   label: "Overdue",
@@ -618,6 +633,12 @@ const InvoiceList = React.memo(
                   ),
                 },
                 {
+                  label: "Partial",
+                  value: formatCurrency(
+                    clientPortalDashboard?.paymentBreakdown?.partial ?? 0,
+                  ),
+                },
+                {
                   label: "Due",
                   value: formatCurrency(
                     clientPortalDashboard?.paymentBreakdown?.due ?? 0,
@@ -650,6 +671,12 @@ const InvoiceList = React.memo(
                   label: "Paid",
                   value: formatCurrency(
                     clientPortalDashboard?.paymentBreakdown?.paid ?? 0,
+                  ),
+                },
+                {
+                  label: "Partial",
+                  value: formatCurrency(
+                    clientPortalDashboard?.paymentBreakdown?.partial ?? 0,
                   ),
                 },
                 {
@@ -692,6 +719,10 @@ const InvoiceList = React.memo(
                   value: clientPortalDashboard?.invoiceBreakdown?.paid ?? 0,
                 },
                 {
+                  label: "Partial",
+                  value: clientPortalDashboard?.invoiceBreakdown?.partial ?? 0,
+                },
+                {
                   label: "Pending",
                   value: clientPortalDashboard?.invoiceBreakdown?.pending ?? 0,
                 },
@@ -731,12 +762,17 @@ const InvoiceList = React.memo(
                     dashboard?.invoiceAnalytics?.statusDistribution?.paid ?? 0,
                 },
                 {
+                  label: "Partial",
+                  value: dashboard?.invoiceAnalytics?.partialCount ?? 0,
+                },
+                {
                   label: "Pending",
                   value:
+                    dashboard?.invoiceAnalytics?.pendingCount ??
                     (dashboard?.invoiceAnalytics?.statusDistribution?.draft ??
                       0) +
-                    (dashboard?.invoiceAnalytics?.statusDistribution?.sent ??
-                      0),
+                      (dashboard?.invoiceAnalytics?.statusDistribution?.sent ??
+                        0),
                 },
                 {
                   label: "Overdue",
@@ -769,6 +805,12 @@ const InvoiceList = React.memo(
                   label: "Paid",
                   value: formatCurrency(
                     dashboard?.orderAnalytics?.paidOrderAmount ?? 0,
+                  ),
+                },
+                {
+                  label: "Partial",
+                  value: formatCurrency(
+                    dashboard?.orderAnalytics?.partialOrderAmount ?? 0,
                   ),
                 },
                 {

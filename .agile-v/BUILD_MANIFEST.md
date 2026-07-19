@@ -376,3 +376,11 @@
 | TC-0076 | REQ-0152 | order-payment-from-amounts + payment-api tests; gates lint/test/invalidate/build |
 | ART-0153 | REQ-0153 | Instant linked-order patch | patchLinkedOrderFromInvoiceMoney; use-invoices wire; optimistic amountDue |
 | TC-0077 | REQ-0153 | patch-mutation-cache linked-order tests; gates lint/test/invalidate/build |
+
+## REQ-0154
+
+| ART-0273 | REQ-0154 | `lib/insights/payment-money-stats.ts` | Paid/Partial/Due/Pending money + counts |
+| ART-0274 | REQ-0154 | `lib/server/dashboard-data.ts` | Admin dashboard money partition + cache v3 |
+| ART-0275 | REQ-0154 | `lib/server/client-dashboard.ts` / `supplier-dashboard.ts` | Portal money partition |
+| ART-0276 | REQ-0154 | `PaymentMoneyBreakdown.tsx` | Table typography text-xs font-normal |
+

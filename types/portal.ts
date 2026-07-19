@@ -26,9 +26,11 @@ export interface SupplierProductStatusCounts {
   stockOut: number;
 }
 
-/** Revenue by payment status (supplier's share) */
+/** Revenue by payment status (supplier's share) — REQ-0154 invoice-money partition */
 export interface SupplierRevenueBreakdown {
   paid: number;
+  /** Mid-pay collected (supplier share of amountPaid) */
+  partial?: number;
   due: number;
   refund: number;
   pending: number;
@@ -46,6 +48,8 @@ export interface SupplierValueBreakdown {
 /** Invoice counts for orders that contain supplier's products (created by product owner) */
 export interface SupplierInvoiceBreakdown {
   paid: number;
+  /** Mid-pay invoices — REQ-0154 */
+  partial?: number;
   pending: number;
   overdue: number;
   cancelled: number;
@@ -102,10 +106,12 @@ export interface SupplierPortalDashboard {
 }
 
 /**
- * Payment breakdown for client Total Spent card (order amounts by payment status)
+ * Payment breakdown for client Total Spent card — REQ-0154 invoice-money partition
  */
 export interface ClientPaymentBreakdown {
   paid: number;
+  /** Mid-pay collected (Σ amountPaid where still due) */
+  partial?: number;
   due: number;
   refund: number;
   pending: number;
@@ -117,6 +123,8 @@ export interface ClientPaymentBreakdown {
  */
 export interface ClientInvoiceBreakdown {
   paid: number;
+  /** Mid-pay invoices — REQ-0154 */
+  partial?: number;
   pending: number;
   overdue: number;
   cancelled: number;

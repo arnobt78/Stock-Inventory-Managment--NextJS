@@ -399,3 +399,6 @@ Format: `TIMESTAMP | AGENT | DECISION | RATIONALE | REQ-ID`
 2026-07-17T18:00:00Z | release | Prod SHA 122da3d pushed origin/main | REQ-0150–0153 invoice densify + partial pay + linked-order patch | REQ-0150,REQ-0151,REQ-0152,REQ-0153
 2026-07-17T18:05:00Z | release | EOD park — resume REQ-0136 UI+§10; seed ORD-DEMO-002 partial; tip ea20bef | REQ-0136
 2026-07-19T12:56:00Z | orchestrator | Agile V session activate (core+pipeline) | No re-bootstrap; resume REQ-0136 UI→§10→Gate2; tip 157c581 | REQ-0136
+2026-07-19T11:16:20Z | build-agent | Invoice-money KPI partition (Paid/Partial/Due/Pending) | Order-total pending ignored mid-pay collected; no fake invoice status partial | REQ-0154
+2026-07-19T11:16:20Z | build-agent | dashboard cache key v3 | New partialOrderAmount/partialCount semantics must not serve stale v2 payload | REQ-0154
+2026-07-19T11:16:20Z | red-team | REQ-0154 gates | lint · test · invalidate · build | REQ-0154

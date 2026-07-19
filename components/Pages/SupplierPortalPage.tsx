@@ -57,14 +57,19 @@ import {
   CARD_LIST_META_CLASS,
   CARD_LIST_ROW_CLASS,
 } from "@/lib/ui/card-list-styles";
-import {
-  ProductStockFromQuantityBadge,
-} from "@/lib/ui/semantic-badges";
+import { ProductStockFromQuantityBadge } from "@/lib/ui/semantic-badges";
 import { StatisticsCard } from "@/components/home/StatisticsCard";
-import { isDataSlotUnsettled, queryKeys, useSyncSsrQueryData } from "@/lib/react-query";
+import {
+  isDataSlotUnsettled,
+  queryKeys,
+  useSyncSsrQueryData,
+} from "@/lib/react-query";
 import { cn } from "@/lib/utils";
 import { PAGE_STATS_GRID_CLASS } from "@/lib/ui/shell-layout-styles";
-import { createChartDotLabelRenderer, CHART_LABEL_TOP_MARGIN } from "@/lib/ui/chart-point-label";
+import {
+  createChartDotLabelRenderer,
+  CHART_LABEL_TOP_MARGIN,
+} from "@/lib/ui/chart-point-label";
 import type { SupplierPortalDashboard } from "@/types";
 
 export type SupplierPortalPageProps = {
@@ -140,7 +145,12 @@ export default function SupplierPortalPage({
           />
 
           {/* Summary Cards — supplier's products/orders/revenue only */}
-          <div className={cn(PAGE_STATS_GRID_CLASS, "grid-cols-1 sm:grid-cols-2 md:grid-cols-4")}>
+          <div
+            className={cn(
+              PAGE_STATS_GRID_CLASS,
+              "grid-cols-1 sm:grid-cols-2 md:grid-cols-4",
+            )}
+          >
             <StatisticsCard
               title="Total Products"
               value={dashboard?.totalProducts ?? 0}
@@ -257,6 +267,15 @@ export default function SupplierPortalPage({
                   })}`,
                 },
                 {
+                  label: "Partial",
+                  value: `$${(
+                    dashboard?.revenueBreakdown?.partial ?? 0
+                  ).toLocaleString(undefined, {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2,
+                  })}`,
+                },
+                {
                   label: "Due",
                   value: `$${(
                     dashboard?.revenueBreakdown?.due ?? 0
@@ -309,184 +328,179 @@ export default function SupplierPortalPage({
 
           {/* Revenue Chart — glassmorphic card */}
           <div className="pb-6">
-          <article
-            className={cn(
-              "rounded-[28px] border border-emerald-400/20 dark:border-emerald-400/30 p-2 sm:p-4 backdrop-blur-md transition-all",
-              "bg-white/60 dark:bg-white/5",
-              "bg-gradient-to-br from-emerald-500/15 via-emerald-500/5 to-transparent dark:from-emerald-500/25 dark:via-emerald-500/10 dark:to-emerald-500/5",
-              "shadow-[0_15px_40px_rgba(16,185,129,0.15)] dark:shadow-[0_30px_80px_rgba(16,185,129,0.25)]",
-              "hover:border-emerald-300/40",
-            )}
-          >
-            <SectionCardHeader
-              className="mb-4"
-              icon={TrendingUp}
-              tone="emerald"
-              title="Monthly Revenue"
-              description="Revenue from your products over the last 6 months (grouped by month)"
-            />
-            <DeferredChartSection
-              loading={dataLoading}
-              hasData={(dashboard?.monthlyRevenue.length ?? 0) > 0}
-              emptyMessage={
-                <p className="text-muted-foreground text-center py-8">
-                  No revenue data yet
-                </p>
-              }
+            <article
+              className={cn(
+                "rounded-[28px] border border-emerald-400/20 dark:border-emerald-400/30 p-2 sm:p-4 backdrop-blur-md transition-all",
+                "bg-white/60 dark:bg-white/5",
+                "bg-gradient-to-br from-emerald-500/15 via-emerald-500/5 to-transparent dark:from-emerald-500/25 dark:via-emerald-500/10 dark:to-emerald-500/5",
+                "shadow-[0_15px_40px_rgba(16,185,129,0.15)] dark:shadow-[0_30px_80px_rgba(16,185,129,0.25)]",
+                "hover:border-emerald-300/40",
+              )}
             >
-              <ResponsiveChartContainer>
-                <AreaChart
-                  data={dashboard!.monthlyRevenue}
-                  margin={{ top: CHART_LABEL_TOP_MARGIN, right: 30, left: 0, bottom: 0 }}
-                >
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="month" />
-                  <YAxis />
-                  <Tooltip
-                    formatter={(value) => [
-                      `$${Number(value).toLocaleString()}`,
-                      "Revenue",
-                    ]}
-                  />
-                  <Area
-                    type="monotone"
-                    dataKey="revenue"
-                    stroke="#10b981"
-                    fill="#10b98133"
-                    dot={{ r: 4, fill: "#10b981", strokeWidth: 0 }}
-                    label={createChartDotLabelRenderer(
-                      dashboard!.monthlyRevenue.length,
-                    )}
-                  />
-                </AreaChart>
-              </ResponsiveChartContainer>
-            </DeferredChartSection>
-          </article>
+              <SectionCardHeader
+                className="mb-4"
+                icon={TrendingUp}
+                tone="emerald"
+                title="Monthly Revenue"
+                description="Revenue from your products over the last 6 months (grouped by month)"
+              />
+              <DeferredChartSection
+                loading={dataLoading}
+                hasData={(dashboard?.monthlyRevenue.length ?? 0) > 0}
+                emptyMessage={
+                  <p className="text-muted-foreground text-center py-8">
+                    No revenue data yet
+                  </p>
+                }
+              >
+                <ResponsiveChartContainer>
+                  <AreaChart
+                    data={dashboard!.monthlyRevenue}
+                    margin={{
+                      top: CHART_LABEL_TOP_MARGIN,
+                      right: 30,
+                      left: 0,
+                      bottom: 0,
+                    }}
+                  >
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis dataKey="month" />
+                    <YAxis />
+                    <Tooltip
+                      formatter={(value) => [
+                        `$${Number(value).toLocaleString()}`,
+                        "Revenue",
+                      ]}
+                    />
+                    <Area
+                      type="monotone"
+                      dataKey="revenue"
+                      stroke="#10b981"
+                      fill="#10b98133"
+                      dot={{ r: 4, fill: "#10b981", strokeWidth: 0 }}
+                      label={createChartDotLabelRenderer(
+                        dashboard!.monthlyRevenue.length,
+                      )}
+                    />
+                  </AreaChart>
+                </ResponsiveChartContainer>
+              </DeferredChartSection>
+            </article>
           </div>
 
           <div className="pb-6">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-2 sm:gap-4">
-            {/* Recent Orders — glassmorphic */}
-            <article
-              className={cn(
-                "rounded-[28px] border border-sky-400/20 dark:border-sky-400/30 p-2 sm:p-4 backdrop-blur-md transition-all",
-                "bg-white/60 dark:bg-white/5",
-                "bg-gradient-to-br from-sky-500/15 via-sky-500/5 to-transparent dark:from-sky-500/25 dark:via-sky-500/10 dark:to-sky-500/5",
-                "shadow-[0_15px_40px_rgba(2,132,199,0.15)] dark:shadow-[0_30px_80px_rgba(2,132,199,0.25)]",
-                "hover:border-sky-300/40",
-              )}
-            >
-              <SectionCardHeader
-                className="mb-4"
-                icon={ShoppingCart}
-                tone="sky"
-                title="Recent Orders"
-                description="Orders containing your products"
-              />
-              <div>
-                {dataLoading ? (
-                  <ul className="space-y-3 py-4">
-                    {[1, 2, 3, 4, 5].map((i) => (
-                      <li key={i} className="flex justify-between gap-2">
-                        <DataSlotPulse variant="text-sm" className="w-32" />
-                        <DataSlotPulse variant="badge" />
-                      </li>
-                    ))}
-                  </ul>
-                ) : (dashboard?.recentOrders.length ?? 0) === 0 ? (
-                  <p className="text-muted-foreground text-center py-4">
-                    No orders yet
-                  </p>
-                ) : (
-                  <ul className={CARD_LIST_DIVIDE_CLASS}>
-                    {dashboard!.recentOrders.slice(0, 5).map((order) => (
-                      <li key={order.id} className={CARD_LIST_ROW_CLASS}>
-                        <div className="min-w-0">
-                          <CopyableText value={order.orderNumber} className="max-w-full">
-                            <Link
-                              href={`/orders/${order.id}`}
-                              prefetch
-                              className="font-normal text-xs text-sky-600 dark:text-sky-400 hover:text-sky-500 dark:hover:text-sky-300 truncate block"
-                            >
-                              {order.orderNumber}
-                            </Link>
-                          </CopyableText>
-                          <span className={CARD_LIST_META_CLASS}>
-                            {order.productCount} products ·{" "}
-                            <ClientCompactDateTime date={order.createdAt} semantic="created" />
-                          </span>
-                        </div>
-                        <RecentOrderStatusColumn
-                          status={order.status}
-                          statusAt={order.statusAt}
-                          paymentStatus={order.paymentStatus}
-                          trailing={
-                            <span className="text-xs font-normal text-gray-700 dark:text-white">
-                              ${order.total.toFixed(2)}
-                            </span>
-                          }
-                        />
-                      </li>
-                    ))}
-                  </ul>
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-2 sm:gap-4">
+              {/* Recent Orders — glassmorphic */}
+              <article
+                className={cn(
+                  "rounded-[28px] border border-sky-400/20 dark:border-sky-400/30 p-2 sm:p-4 backdrop-blur-md transition-all",
+                  "bg-white/60 dark:bg-white/5",
+                  "bg-gradient-to-br from-sky-500/15 via-sky-500/5 to-transparent dark:from-sky-500/25 dark:via-sky-500/10 dark:to-sky-500/5",
+                  "shadow-[0_15px_40px_rgba(2,132,199,0.15)] dark:shadow-[0_30px_80px_rgba(2,132,199,0.25)]",
+                  "hover:border-sky-300/40",
                 )}
-                <div className="mt-4">
-                  <Button
-                    asChild
-                    variant="ghost"
-                    size="sm"
-                    className={cn(
-                      "group w-full gap-2",
-                      GLASS_BUTTON_ICON_HOVER,
-                      GLASS_BUTTON_SHELL_RESET,
-                      GLASS_ACTION_BUTTON.sky,
-                    )}
-                  >
-                    <Link href="/orders">
-                      <ArrowRight className="h-4 w-4 shrink-0" />
-                      View All Orders
-                    </Link>
-                  </Button>
+              >
+                <SectionCardHeader
+                  className="mb-4"
+                  icon={ShoppingCart}
+                  tone="sky"
+                  title="Recent Orders"
+                  description="Orders containing your products"
+                />
+                <div>
+                  {dataLoading ? (
+                    <ul className="space-y-3 py-4">
+                      {[1, 2, 3, 4, 5].map((i) => (
+                        <li key={i} className="flex justify-between gap-2">
+                          <DataSlotPulse variant="text-sm" className="w-32" />
+                          <DataSlotPulse variant="badge" />
+                        </li>
+                      ))}
+                    </ul>
+                  ) : (dashboard?.recentOrders.length ?? 0) === 0 ? (
+                    <p className="text-muted-foreground text-center py-4">
+                      No orders yet
+                    </p>
+                  ) : (
+                    <ul className={CARD_LIST_DIVIDE_CLASS}>
+                      {dashboard!.recentOrders.slice(0, 5).map((order) => (
+                        <li key={order.id} className={CARD_LIST_ROW_CLASS}>
+                          <div className="min-w-0">
+                            <CopyableText
+                              value={order.orderNumber}
+                              className="max-w-full"
+                            >
+                              <Link
+                                href={`/orders/${order.id}`}
+                                prefetch
+                                className="font-normal text-xs text-sky-600 dark:text-sky-400 hover:text-sky-500 dark:hover:text-sky-300 truncate block"
+                              >
+                                {order.orderNumber}
+                              </Link>
+                            </CopyableText>
+                            <span className={CARD_LIST_META_CLASS}>
+                              {order.productCount} products ·{" "}
+                              <ClientCompactDateTime
+                                date={order.createdAt}
+                                semantic="created"
+                              />
+                            </span>
+                          </div>
+                          <RecentOrderStatusColumn
+                            status={order.status}
+                            statusAt={order.statusAt}
+                            paymentStatus={order.paymentStatus}
+                            trailing={
+                              <span className="text-xs font-normal text-gray-700 dark:text-white">
+                                ${order.total.toFixed(2)}
+                              </span>
+                            }
+                          />
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                  <div className="mt-4">
+                    <Button
+                      asChild
+                      variant="ghost"
+                      size="sm"
+                      className={cn(
+                        "group w-full gap-2",
+                        GLASS_BUTTON_ICON_HOVER,
+                        GLASS_BUTTON_SHELL_RESET,
+                        GLASS_ACTION_BUTTON.sky,
+                      )}
+                    >
+                      <Link href="/orders">
+                        <ArrowRight className="h-4 w-4 shrink-0" />
+                        View All Orders
+                      </Link>
+                    </Button>
+                  </div>
                 </div>
-              </div>
-            </article>
+              </article>
 
-            {/* Low Stock Products — glassmorphic */}
-            <article
-              id="products"
-              className={cn(
-                "rounded-[28px] border border-amber-400/20 dark:border-amber-400/30 p-2 sm:p-4 backdrop-blur-md transition-all",
-                "bg-white/60 dark:bg-white/5",
-                "bg-gradient-to-br from-amber-500/15 via-amber-500/5 to-transparent dark:from-amber-500/25 dark:via-amber-500/10 dark:to-amber-500/5",
-                "shadow-[0_15px_40px_rgba(245,158,11,0.15)] dark:shadow-[0_30px_80px_rgba(245,158,11,0.2)]",
-                "hover:border-amber-300/40",
-              )}
-            >
-              <SectionCardHeader
-                className="mb-4"
-                icon={AlertTriangle}
-                tone="amber"
-                title="Low Stock Products"
-                description="Products with 20 or fewer available units (same threshold as product owner)"
-              />
-              <div>
-                {dataLoading ? (
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead>Product</TableHead>
-                        <TableHead className="text-right">Available</TableHead>
-                        <TableHead>Status</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBodyPulseRows rows={5} columnCount={3} />
-                  </Table>
-                ) : (dashboard?.lowStockProducts.length ?? 0) === 0 ? (
-                  <p className="text-muted-foreground text-center py-4">
-                    All products have sufficient stock
-                  </p>
-                ) : (
-                  <div className="overflow-x-auto">
+              {/* Low Stock Products — glassmorphic */}
+              <article
+                id="products"
+                className={cn(
+                  "rounded-[28px] border border-amber-400/20 dark:border-amber-400/30 p-2 sm:p-4 backdrop-blur-md transition-all",
+                  "bg-white/60 dark:bg-white/5",
+                  "bg-gradient-to-br from-amber-500/15 via-amber-500/5 to-transparent dark:from-amber-500/25 dark:via-amber-500/10 dark:to-amber-500/5",
+                  "shadow-[0_15px_40px_rgba(245,158,11,0.15)] dark:shadow-[0_30px_80px_rgba(245,158,11,0.2)]",
+                  "hover:border-amber-300/40",
+                )}
+              >
+                <SectionCardHeader
+                  className="mb-4"
+                  icon={AlertTriangle}
+                  tone="amber"
+                  title="Low Stock Products"
+                  description="Products with 20 or fewer available units (same threshold as product owner)"
+                />
+                <div>
+                  {dataLoading ? (
                     <Table>
                       <TableHeader>
                         <TableRow>
@@ -497,58 +511,76 @@ export default function SupplierPortalPage({
                           <TableHead>Status</TableHead>
                         </TableRow>
                       </TableHeader>
-                      <TableBody>
-                        {dashboard!.lowStockProducts
-                          .slice(0, 5)
-                          .map((product) => (
-                            <TableRow key={product.id}>
-                              <TableCell>
-                                <Link
-                                  href={`/products/${product.id}`}
-                                  prefetch
-                                  className="text-sky-600 dark:text-sky-400 hover:text-sky-500 dark:hover:text-sky-300"
-                                >
-                                  {product.name}
-                                </Link>
-                                <p className="text-xs text-muted-foreground">
-                                  {product.sku}
-                                </p>
-                              </TableCell>
-                              <TableCell className="text-right font-normal text-red-600">
-                                {product.quantity}
-                              </TableCell>
-                              <TableCell>
-                                <ProductStockFromQuantityBadge
-                                  available={product.quantity}
-                                />
-                              </TableCell>
-                            </TableRow>
-                          ))}
-                      </TableBody>
+                      <TableBodyPulseRows rows={5} columnCount={3} />
                     </Table>
+                  ) : (dashboard?.lowStockProducts.length ?? 0) === 0 ? (
+                    <p className="text-muted-foreground text-center py-4">
+                      All products have sufficient stock
+                    </p>
+                  ) : (
+                    <div className="overflow-x-auto">
+                      <Table>
+                        <TableHeader>
+                          <TableRow>
+                            <TableHead>Product</TableHead>
+                            <TableHead className="text-right">
+                              Available
+                            </TableHead>
+                            <TableHead>Status</TableHead>
+                          </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                          {dashboard!.lowStockProducts
+                            .slice(0, 5)
+                            .map((product) => (
+                              <TableRow key={product.id}>
+                                <TableCell>
+                                  <Link
+                                    href={`/products/${product.id}`}
+                                    prefetch
+                                    className="text-sky-600 dark:text-sky-400 hover:text-sky-500 dark:hover:text-sky-300"
+                                  >
+                                    {product.name}
+                                  </Link>
+                                  <p className="text-xs text-muted-foreground">
+                                    {product.sku}
+                                  </p>
+                                </TableCell>
+                                <TableCell className="text-right font-normal text-red-600">
+                                  {product.quantity}
+                                </TableCell>
+                                <TableCell>
+                                  <ProductStockFromQuantityBadge
+                                    available={product.quantity}
+                                  />
+                                </TableCell>
+                              </TableRow>
+                            ))}
+                        </TableBody>
+                      </Table>
+                    </div>
+                  )}
+                  <div className="mt-4">
+                    <Button
+                      asChild
+                      variant="ghost"
+                      size="sm"
+                      className={cn(
+                        "group w-full gap-2",
+                        GLASS_BUTTON_ICON_HOVER,
+                        GLASS_BUTTON_SHELL_RESET,
+                        GLASS_ACTION_BUTTON.amber,
+                      )}
+                    >
+                      <Link href="/products">
+                        <ArrowRight className="h-4 w-4 shrink-0" />
+                        View All Products
+                      </Link>
+                    </Button>
                   </div>
-                )}
-                <div className="mt-4">
-                  <Button
-                    asChild
-                    variant="ghost"
-                    size="sm"
-                    className={cn(
-                      "group w-full gap-2",
-                      GLASS_BUTTON_ICON_HOVER,
-                      GLASS_BUTTON_SHELL_RESET,
-                      GLASS_ACTION_BUTTON.amber,
-                    )}
-                  >
-                    <Link href="/products">
-                      <ArrowRight className="h-4 w-4 shrink-0" />
-                      View All Products
-                    </Link>
-                  </Button>
                 </div>
-              </div>
-            </article>
-          </div>
+              </article>
+            </div>
           </div>
         </div>
       </PageContentWrapper>
