@@ -205,7 +205,7 @@ export default function SupplierPortalPage({
                   value: dashboard?.orderStatusCounts?.inProgress ?? 0,
                 },
                 {
-                  label: "Shipped",
+                  label: "Shipping",
                   value: dashboard?.orderStatusCounts?.shipped ?? 0,
                 },
                 {

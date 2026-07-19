@@ -4,6 +4,30 @@ Canonical REQ source. All artifacts link via `REQ-XXXX`. Status: `done` | `verif
 
 ---
 
+## REQ-0155 — Delivered + Due badge parity
+
+| Field | Value |
+|-------|-------|
+| **Priority** | P1 |
+| **Risk** | R1 |
+| **Status** | done |
+| **Cycle** | C2 |
+| **Parent** | REQ-0154, REQ-0136 |
+
+**Intent:** Store Total Orders KPIs show Delivered (keep Shipping separate); align AOV/Outstanding money labels to Due; Shipping label parity on portals/My Activity.
+
+**Acceptance criteria**
+
+- AC1: `buildStoreOrderStatusBadges` — Pending→Confirmed→Shipping→Delivered→Refund→Cancel (+ Self/Others)
+- AC2: Wired on StatisticsSection, AdminAnalytics overview, OrderList, InvoiceList
+- AC3: AOV/Outstanding → Due; My Activity AOV uses `outstandingAmount`; Client portal card title Due
+- AC4: Shipped→Shipping on My Activity + client/supplier portal/list KPI cards
+- AC5: No invalidation/SSR/money-model changes; gates pass
+
+**Artifacts:** `lib/ui/store-order-status-badges.ts`
+
+---
+
 ## REQ-0154 — Partial pay stats + Total column typography
 
 | Field | Value |

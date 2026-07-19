@@ -21,6 +21,7 @@ import {
   queryKeys,
   useSyncSsrQueryData,
 } from "@/lib/react-query";
+import { buildStoreOrderStatusBadges } from "@/lib/ui/store-order-status-badges";
 import { useAuth } from "@/contexts";
 import { useToast } from "@/hooks/use-toast";
 import {
@@ -302,32 +303,10 @@ export default function AdminAnalyticsContent({
             variant="blue"
             valueLoading={dataLoading}
             badgeValuesLoading={dataLoading}
-            badges={[
-              {
-                label: "Pending",
-                value: stats?.orderAnalytics?.statusDistribution?.pending ?? 0,
-              },
-              {
-                label: "Confirmed",
-                value:
-                  stats?.orderAnalytics?.statusDistribution?.confirmed ?? 0,
-              },
-              {
-                label: "Shipping",
-                value:
-                  (stats?.orderAnalytics?.statusDistribution?.processing ?? 0) +
-                  (stats?.orderAnalytics?.statusDistribution?.shipped ?? 0),
-              },
-              {
-                label: "Refund",
-                value: stats?.orderAnalytics?.refundedCount ?? 0,
-              },
-              {
-                label: "Cancel",
-                value:
-                  stats?.orderAnalytics?.statusDistribution?.cancelled ?? 0,
-              },
-            ]}
+            badges={buildStoreOrderStatusBadges({
+              statusDistribution: stats?.orderAnalytics?.statusDistribution,
+              refundedCount: stats?.orderAnalytics?.refundedCount,
+            })}
           />
           <StatisticsCard
             title="Total Users"
@@ -517,7 +496,7 @@ export default function AdminAnalyticsContent({
                 ),
               },
               {
-                label: "Outstanding",
+                label: "Due",
                 value: formatCurrency(
                   stats?.invoiceAnalytics?.outstandingAmount ?? 0,
                 ),
@@ -1034,7 +1013,7 @@ export default function AdminAnalyticsContent({
                 ]}
               />
               <StatisticsCard
-                title="Outstanding"
+                title="Due"
                 value={formatCurrency(stats.invoiceAnalytics.outstandingAmount)}
                 description="Awaiting payment"
                 icon={FileText}

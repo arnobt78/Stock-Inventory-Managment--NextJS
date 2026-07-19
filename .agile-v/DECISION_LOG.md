@@ -402,3 +402,5 @@ Format: `TIMESTAMP | AGENT | DECISION | RATIONALE | REQ-ID`
 2026-07-19T11:16:20Z | build-agent | Invoice-money KPI partition (Paid/Partial/Due/Pending) | Order-total pending ignored mid-pay collected; no fake invoice status partial | REQ-0154
 2026-07-19T11:16:20Z | build-agent | dashboard cache key v3 | New partialOrderAmount/partialCount semantics must not serve stale v2 payload | REQ-0154
 2026-07-19T11:16:20Z | red-team | REQ-0154 gates | lint · test · invalidate · build | REQ-0154
+2026-07-19T11:50:50Z | build-agent | Store Total Orders: Shipping + Delivered separate | Delivered was missing from KPI row while table showed Delivered | REQ-0155
+2026-07-19T11:50:50Z | build-agent | Outstanding label → Due on AOV | Align with Revenue Due; My Activity used pendingUnpaidDue under wrong label | REQ-0155

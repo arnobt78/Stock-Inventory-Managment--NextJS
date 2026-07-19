@@ -829,6 +829,16 @@ Hub: `lib/ui/typography-scale.ts`. Hubs import tokens; ~45 inline files use equi
 
 **Still patch → invalidate** — no registry change; closes client lag before refetch.
 
+## Delivered + Due badge parity (REQ-0155)
+
+| Piece | Location |
+|-------|----------|
+| Helper | `lib/ui/store-order-status-badges.ts` — Shipping + Delivered on store Total Orders |
+| Due label | AOV / invoice Due card / My Activity AOV (`outstandingAmount`) / Client portal title |
+| Portals | Shipped→Shipping KPI label |
+
+**UI-only** — no invalidation/SSR/money-model changes.
+
 ## Partial pay KPI stats (REQ-0154)
 
 | Piece | Location |

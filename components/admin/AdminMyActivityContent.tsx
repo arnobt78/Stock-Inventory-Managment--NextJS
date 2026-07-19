@@ -350,7 +350,7 @@ export default function AdminMyActivityContent({
                 value: stats.ordersByStatus?.pending ?? 0,
               },
               {
-                label: "Shipped",
+                label: "Shipping",
                 value:
                   (stats.ordersByStatus?.shipped ?? 0) +
                   (stats.ordersByStatus?.processing ?? 0),
@@ -496,8 +496,8 @@ export default function AdminMyActivityContent({
                 value: formatStableCurrency(stats.paidAmount),
               },
               {
-                label: "Outstanding",
-                value: formatStableCurrency(stats.unpaidAmount),
+                label: "Due",
+                value: formatStableCurrency(stats.outstandingAmount),
               },
             ]}
           />

@@ -320,7 +320,7 @@ const ProductList = React.memo(function ProductList({
                 value: supplierPortal?.orderStatusCounts?.inProgress ?? 0,
               },
               {
-                label: "Shipped",
+                label: "Shipping",
                 value: supplierPortal?.orderStatusCounts?.shipped ?? 0,
               },
               {

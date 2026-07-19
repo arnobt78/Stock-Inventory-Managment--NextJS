@@ -384,3 +384,9 @@
 | ART-0275 | REQ-0154 | `lib/server/client-dashboard.ts` / `supplier-dashboard.ts` | Portal money partition |
 | ART-0276 | REQ-0154 | `PaymentMoneyBreakdown.tsx` | Table typography text-xs font-normal |
 
+## REQ-0155
+
+| ART-0155a | REQ-0155 | `lib/ui/store-order-status-badges.ts` | Shared Total Orders badges |
+| ART-0155b | REQ-0155 | StatisticsSection / AdminAnalytics / OrderList / InvoiceList | Delivered wired |
+| ART-0155c | REQ-0155 | AdminMyActivity / ClientPortal / portals | Due + Shipping labels |
+

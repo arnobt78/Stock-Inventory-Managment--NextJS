@@ -272,6 +272,7 @@ flowchart LR
 | Invoice table (REQ-0150–0151) | Dense columns; linkedOrder status/payment badges; Zod date-only update; due Clock; `invoices:list:v2:` | Invalidation unchanged |
 | Partial pay (REQ-0152) | Order unpaid/partial/paid from invoice money; Stripe amount + webhook incremental; PaymentDialog toggle; `PaymentMoneyBreakdown`; `orders:list:v4` | Server sync + UI |
 | Instant order patch (REQ-0153) | `patchLinkedOrderFromInvoiceMoney` on invoice create/update/send | Patch → invalidate |
+| Delivered + Due badges (REQ-0155) | `store-order-status-badges.ts`; Total Orders Delivered; Outstanding→Due | UI-only |
 | Partial pay KPIs (REQ-0154) | `payment-money-stats.ts` → dashboards Paid/Partial/Due/Pending; Partial badges; table Total `text-xs`; `dashboard:overview:v3` | Invalidation unchanged |
 | Next | REQ-0136 UI explore + §10 A1/A2/B1; Gate 2 Sentry 24h | |
 | AI warehouse insights (REQ-0067) | `POST /api/ai/insights` enriches payload with `getWarehouseStockSummary` |
@@ -287,13 +288,13 @@ flowchart LR
 3. Sentry **stock-inventory** — 24h: compare cases 1–7 vs `docs/SENTRY_ERRORS.md`
 4. Log result in `.agile-v/REVALIDATION_LOG.md`; CAPA if regression
 
-## 8. Quality gates (audit 2026-07-19 REQ-0154)
+## 8. Quality gates (audit 2026-07-19 REQ-0155)
 
 | Check | Status |
 |-------|--------|
 | `npm run lint` | pass |
 | `npm run build` | pass |
-| `npm run test` | 600 passed |
+| `npm run test` | 602 passed |
 | `npm run test:invalidate` | 213 passed |
 | Local | REQ-0146–0149 order detail polish (prior 0144–0145) |
 | Radix table Select | `useDeferredRadixSelect` + `PaginationSelector` (11 tables) |

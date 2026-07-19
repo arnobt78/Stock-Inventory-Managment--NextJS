@@ -4,9 +4,9 @@
 |-------|-------|
 | **Cycle** | C2 (C1 Gate 2 still PENDING) |
 | **Phase** | Stage 3–5 — **REQ-0136** (UI explore → cache smoke) |
-| **Last updated** | 2026-07-19 REQ-0154 |
+| **Last updated** | 2026-07-19 REQ-0155 |
 | **Active REQ** | **REQ-0136** (UI explore → §10 A1/A2/B1) |
-| **Done range** | REQ-0001 … REQ-0135 + REQ-0137–**0154** |
+| **Done range** | REQ-0001 … REQ-0135 + REQ-0137–**0155** |
 | **Prod SHA** | `4e7bd56` (REQ-0154) on `origin/main` |
 | **Human Gate 1** | APPROVED (GATE-0001) |
 | **Human Gate 2** | PENDING (GATE-0002) — UI explore → §10 → Sentry 24h |
@@ -44,9 +44,10 @@
 | 0146–0149 | Order detail polish | `61c1e79` |
 | 0150–0153 | Invoice densify + partial pay + linked-order patch | `122da3d` |
 | 0154 | Partial pay KPI stats + Total typography | `4e7bd56` |
+| 0155 | Delivered + Due badge parity | pending |
 | docs EOD | Park resume REQ-0136 | `157c581` |
 
-**Last gates (REQ-0154):** lint ✓ · test **600** ✓ · invalidate **213** ✓ · build ✓
+**Last gates (REQ-0155):** lint ✓ · test **602** ✓ · invalidate **213** ✓ · build ✓
 
 ---
 

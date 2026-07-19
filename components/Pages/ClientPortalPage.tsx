@@ -231,7 +231,7 @@ export default function ClientPortalPage({
                   value: dashboard?.orderStatusCounts?.inProgress ?? 0,
                 },
                 {
-                  label: "Shipped",
+                  label: "Shipping",
                   value: dashboard?.orderStatusCounts?.shipped ?? 0,
                 },
                 {
@@ -354,7 +354,7 @@ export default function ClientPortalPage({
               ]}
             />
             <StatisticsCard
-              title="Outstanding"
+              title="Due"
               value={`$${(dashboard?.outstandingAmount ?? 0).toLocaleString(
                 undefined,
                 {

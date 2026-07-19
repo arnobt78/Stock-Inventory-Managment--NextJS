@@ -30,6 +30,7 @@ import {
   useSyncSsrQueryData,
 } from "@/lib/react-query";
 import { APP_SHELL_WIDTH_CLASS } from "@/lib/ui/shell-layout-styles";
+import { buildStoreOrderStatusBadges } from "@/lib/ui/store-order-status-badges";
 import InvoiceFilters from "./InvoiceFilters";
 import InvoiceDialog from "./InvoiceDialog";
 import { StatisticsCard } from "@/components/home/StatisticsCard";
@@ -468,53 +469,19 @@ const InvoiceList = React.memo(
               variant="blue"
               valueLoading={dashboardCardsLoading}
               badgeValuesLoading={dashboardCardsLoading}
-              badges={[
-                {
-                  label: "Pending",
-                  value:
-                    invoicesPageStats?.orderAnalytics?.statusDistribution
-                      ?.pending ?? 0,
-                },
-                {
-                  label: "Confirmed",
-                  value:
-                    invoicesPageStats?.orderAnalytics?.statusDistribution
-                      ?.confirmed ?? 0,
-                },
-                {
-                  label: "Shipping",
-                  value:
-                    (invoicesPageStats?.orderAnalytics?.statusDistribution
-                      ?.processing ?? 0) +
-                    (invoicesPageStats?.orderAnalytics?.statusDistribution
-                      ?.shipped ?? 0),
-                },
-                {
-                  label: "Refund",
-                  value: invoicesPageStats?.orderAnalytics?.refundedCount ?? 0,
-                },
-                {
-                  label: "Cancel",
-                  value:
-                    invoicesPageStats?.orderAnalytics?.statusDistribution
-                      ?.cancelled ?? 0,
-                },
-                ...(invoicesPageStats?.selfOthersBreakdown
-                  ? [
-                      {
-                        label: "Self",
-                        value:
-                          invoicesPageStats?.selfOthersBreakdown.orderSelfCount,
-                      },
-                      {
-                        label: "Others",
-                        value:
-                          invoicesPageStats?.selfOthersBreakdown
-                            .orderOthersCount,
-                      },
-                    ]
-                  : []),
-              ]}
+              badges={buildStoreOrderStatusBadges({
+                statusDistribution:
+                  invoicesPageStats?.orderAnalytics?.statusDistribution,
+                refundedCount: invoicesPageStats?.orderAnalytics?.refundedCount,
+                selfOthers: invoicesPageStats?.selfOthersBreakdown
+                  ? {
+                      orderSelfCount:
+                        invoicesPageStats.selfOthersBreakdown.orderSelfCount,
+                      orderOthersCount:
+                        invoicesPageStats.selfOthersBreakdown.orderOthersCount,
+                    }
+                  : null,
+              })}
             />
             <StatisticsCard
               title="Invoices"
@@ -879,37 +846,11 @@ const InvoiceList = React.memo(
               variant="blue"
               valueLoading={dashboardCardsLoading}
               badgeValuesLoading={dashboardCardsLoading}
-              badges={[
-                {
-                  label: "Pending",
-                  value:
-                    dashboard?.orderAnalytics?.statusDistribution?.pending ?? 0,
-                },
-                {
-                  label: "Confirmed",
-                  value:
-                    dashboard?.orderAnalytics?.statusDistribution?.confirmed ??
-                    0,
-                },
-                {
-                  label: "Shipping",
-                  value:
-                    (dashboard?.orderAnalytics?.statusDistribution
-                      ?.processing ?? 0) +
-                    (dashboard?.orderAnalytics?.statusDistribution?.shipped ??
-                      0),
-                },
-                {
-                  label: "Refund",
-                  value: dashboard?.orderAnalytics?.refundedCount ?? 0,
-                },
-                {
-                  label: "Cancel",
-                  value:
-                    dashboard?.orderAnalytics?.statusDistribution?.cancelled ??
-                    0,
-                },
-              ]}
+              badges={buildStoreOrderStatusBadges({
+                statusDistribution:
+                  dashboard?.orderAnalytics?.statusDistribution,
+                refundedCount: dashboard?.orderAnalytics?.refundedCount,
+              })}
             />
           </div>
         )}

@@ -22,6 +22,7 @@ import {
   queryKeys,
   useSyncSsrQueryData,
 } from "@/lib/react-query";
+import { buildStoreOrderStatusBadges } from "@/lib/ui/store-order-status-badges";
 import { useAuth } from "@/contexts";
 import type { DashboardStats } from "@/types";
 
@@ -172,33 +173,16 @@ export function StatisticsSection({
         variant="blue"
         valueLoading={dataLoading}
         badgeValuesLoading={dataLoading}
-        badges={[
-          {
-            label: "Pending",
-            value: stats?.orderAnalytics?.statusDistribution?.pending ?? 0,
-          },
-          {
-            label: "Confirmed",
-            value: stats?.orderAnalytics?.statusDistribution?.confirmed ?? 0,
-          },
-          {
-            label: "Shipping",
-            value:
-              (stats?.orderAnalytics?.statusDistribution?.processing ?? 0) +
-              (stats?.orderAnalytics?.statusDistribution?.shipped ?? 0),
-          },
-          { label: "Refund", value: stats?.orderAnalytics?.refundedCount ?? 0 },
-          {
-            label: "Cancel",
-            value: stats?.orderAnalytics?.statusDistribution?.cancelled ?? 0,
-          },
-          ...(selfOthers
-            ? [
-                { label: "Self", value: selfOthers.orderSelfCount },
-                { label: "Others", value: selfOthers.orderOthersCount },
-              ]
-            : []),
-        ]}
+        badges={buildStoreOrderStatusBadges({
+          statusDistribution: stats?.orderAnalytics?.statusDistribution,
+          refundedCount: stats?.orderAnalytics?.refundedCount,
+          selfOthers: selfOthers
+            ? {
+                orderSelfCount: selfOthers.orderSelfCount,
+                orderOthersCount: selfOthers.orderOthersCount,
+              }
+            : null,
+        })}
       />
       <StatisticsCard
         title="Invoices"
