@@ -7,7 +7,7 @@
 | **Last updated** | 2026-07-19 REQ-0159 |
 | **Active REQ** | **REQ-0136** (UI explore → §10 A1/A2/B1) |
 | **Done range** | REQ-0001 … REQ-0135 + REQ-0137–**0159** |
-| **Prod SHA** | `cbc827f` (REQ-0158/0159) — push `origin/main` |
+| **Prod SHA** | `35bb8a2` (REQ-0158/0159) on `origin/main` |
 | **Human Gate 1** | APPROVED (GATE-0001) |
 | **Human Gate 2** | PENDING (GATE-0002) — UI explore → §10 → Sentry 24h |
 | **Resume token** | `tomorrow-UI-then-cache` → **REQ-0136** |
@@ -42,7 +42,7 @@
 | REQ | Summary | SHA |
 |-----|---------|-----|
 | 0156–0157 | Badge DRY + My Activity | `5efdc61` |
-| 0158–0159 | Party model + buyer display + Self invoices | `cbc827f` |
+| 0158–0159 | Party model + buyer display + Self invoices | `35bb8a2` |
 | docs EOD | Park resume REQ-0136 | `157c581` |
 
 **Last gates (REQ-0159):** lint ✓ test **612** ✓ invalidate **213** ✓ build ✓ tsc ✓
