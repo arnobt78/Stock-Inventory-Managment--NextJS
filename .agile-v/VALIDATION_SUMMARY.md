@@ -2,7 +2,7 @@
 
 **Generated:** 2026-07-19 REQ-0154  
 **eval_gate_status:** PENDING (Human Gate 2)  
-**Prod target SHA:** pending (REQ-0154)  
+**Prod target SHA:** `4e7bd56` (REQ-0154)  
 **Red Team:** (gates this session)  
 **Resume:** **REQ-0136** UI explore → §10 A1/A2/B1 (see STATE.md)
 
