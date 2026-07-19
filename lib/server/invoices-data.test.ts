@@ -69,7 +69,7 @@ describe("getInvoicesForSupplierId", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     vi.mocked(getCache).mockResolvedValue(null);
-    vi.mocked(setCache).mockResolvedValue(undefined);
+    vi.mocked(setCache).mockResolvedValue(true);
     vi.mocked(fetchOrderUserIdMap).mockResolvedValue(new Map([["ord-1", "client-1"]]));
     vi.mocked(prisma.user.findMany).mockResolvedValue([
       { id: "client-1", name: "Client One", email: "client@example.com" },
@@ -131,10 +131,12 @@ describe("getInvoicesForSupplierId", () => {
       expect.objectContaining({ fetchedAt: expect.any(Number) }),
     );
     expect(result).toHaveLength(1);
-    expect(result[0].invoiceNumber).toBe("INV-001");
-    expect(result[0].clientName).toBe("Client One");
-    expect(result[0].linkedOrderNumber).toBe("ORD-001");
-    expect(result[0].linkedOrderStatus).toBe("confirmed");
+    expect(result[0]).toBeDefined();
+    const row = result[0]!;
+    expect(row.invoiceNumber).toBe("INV-001");
+    expect(row.clientName).toBe("Client One");
+    expect(row.linkedOrderNumber).toBe("ORD-001");
+    expect(row.linkedOrderStatus).toBe("confirmed");
   });
 
   it("returns empty array when supplier has no orders", async () => {

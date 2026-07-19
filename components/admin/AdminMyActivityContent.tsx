@@ -43,6 +43,8 @@ import { FILTER_SEARCH_INPUT_SKY_CLASS } from "@/lib/ui/filter-toolbar-styles";
 import { ClientCurrency, ClientCompactDateTime } from "@/components/shared";
 import { formatStableCurrency } from "@/lib/format";
 import { buildPaymentMoneyStats } from "@/lib/insights/payment-money-stats";
+import { buildStoreOrderStatusBadges } from "@/lib/ui/store-order-status-badges";
+import { buildStoreInvoiceStatusBadges } from "@/lib/ui/store-invoice-status-badges";
 import { StatisticsCard } from "@/components/home/StatisticsCard";
 import {
   AdminEmbedDataTable,
@@ -128,10 +130,25 @@ export default function AdminMyActivityContent({
     const totalOrders = orders.length;
     const totalRevenue = orders.reduce((sum, o) => sum + Number(o.total), 0);
     const avgOrderValue = totalOrders > 0 ? totalRevenue / totalOrders : 0;
-    const ordersByStatus: Record<string, number> = {};
-    orders.forEach((o) => {
-      ordersByStatus[o.status] = (ordersByStatus[o.status] ?? 0) + 1;
-    });
+    // REQ-0156 — store-parity status dist for Total Orders badges
+    const statusDistribution = {
+      pending: 0,
+      confirmed: 0,
+      processing: 0,
+      shipped: 0,
+      delivered: 0,
+      cancelled: 0,
+    };
+    for (const o of orders) {
+      const s = (o.status || "").toLowerCase();
+      if (s in statusDistribution) {
+        statusDistribution[s as keyof typeof statusDistribution] += 1;
+      }
+    }
+    const refundedOrderCount = orders.filter(
+      (o) => (o.paymentStatus || "").toLowerCase() === "refunded",
+    ).length;
+    const ordersByStatus: Record<string, number> = { ...statusDistribution };
 
     const productAvailable = products.filter(
       (p) =>
@@ -167,6 +184,11 @@ export default function AdminMyActivityContent({
     const invoiceOverdue = invoices.filter(
       (i) => i.status === "overdue",
     ).length;
+    const invoiceCancelled = invoices.filter(
+      (i) => i.status === "cancelled",
+    ).length;
+    // Store parity: Refunded badge uses order paymentStatus refunded count
+    const invoiceRefunded = refundedOrderCount;
     const paidRevenue = moneyStats.paidCollected;
     const outstandingAmount = moneyStats.dueOutstanding;
 
@@ -213,6 +235,8 @@ export default function AdminMyActivityContent({
       totalCategories: categories.length,
       avgOrderValue,
       ordersByStatus,
+      statusDistribution,
+      refundedOrderCount,
       productAvailable,
       productStockLow,
       productStockOut,
@@ -226,6 +250,8 @@ export default function AdminMyActivityContent({
       invoicePartial,
       invoicePending,
       invoiceOverdue,
+      invoiceCancelled,
+      invoiceRefunded,
       paidRevenue,
       outstandingAmount,
       userAdmin,
@@ -344,26 +370,10 @@ export default function AdminMyActivityContent({
             variant="rose"
             valueLoading={cardsDataLoading}
             badgeValuesLoading={cardsDataLoading}
-            badges={[
-              {
-                label: "Pending",
-                value: stats.ordersByStatus?.pending ?? 0,
-              },
-              {
-                label: "Shipping",
-                value:
-                  (stats.ordersByStatus?.shipped ?? 0) +
-                  (stats.ordersByStatus?.processing ?? 0),
-              },
-              {
-                label: "Delivered",
-                value: stats.ordersByStatus?.delivered ?? 0,
-              },
-              {
-                label: "Cancelled",
-                value: stats.ordersByStatus?.cancelled ?? 0,
-              },
-            ]}
+            badges={buildStoreOrderStatusBadges({
+              statusDistribution: stats.statusDistribution,
+              refundedCount: stats.refundedOrderCount,
+            })}
           />
           <StatisticsCard
             title="Total order value"
@@ -462,12 +472,14 @@ export default function AdminMyActivityContent({
             variant="blue"
             valueLoading={cardsDataLoading}
             badgeValuesLoading={cardsDataLoading}
-            badges={[
-              { label: "Paid", value: stats.invoicePaid },
-              { label: "Partial", value: stats.invoicePartial },
-              { label: "Pending", value: stats.invoicePending },
-              { label: "Overdue", value: stats.invoiceOverdue },
-            ]}
+            badges={buildStoreInvoiceStatusBadges({
+              paidCount: stats.invoicePaid,
+              partialCount: stats.invoicePartial,
+              pendingCount: stats.invoicePending,
+              overdueCount: stats.invoiceOverdue,
+              cancelledCount: stats.invoiceCancelled,
+              refundedCount: stats.invoiceRefunded,
+            })}
           />
           <StatisticsCard
             title="Categories"

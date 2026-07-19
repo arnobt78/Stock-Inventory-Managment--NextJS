@@ -89,7 +89,7 @@ describe("computeCatalogInsights", () => {
         supplierId: "s1",
         reservedQuantity: BigInt(0),
       },
-    ] as Parameters<typeof computeCatalogInsights>[0];
+    ] as unknown as Parameters<typeof computeCatalogInsights>[0];
 
     const insights = computeCatalogInsights(products, 200, 2, 50);
     expect(insights.outOfStockCount).toBe(1);

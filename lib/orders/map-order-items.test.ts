@@ -58,10 +58,12 @@ describe("mapOrderItemsFromRaw", () => {
       },
     ]);
 
-    expect(result[0].imageUrl).toBeNull();
-    expect(result[0].categoryId).toBeNull();
-    expect(result[0].supplierId).toBeNull();
-    expect(result[0].categoryName).toBeNull();
-    expect(result[0].supplierName).toBeNull();
+    expect(result[0]).toBeDefined();
+    const item = result[0]!;
+    expect(item.imageUrl).toBeNull();
+    expect(item.categoryId).toBeNull();
+    expect(item.supplierId).toBeNull();
+    expect(item.categoryName).toBeNull();
+    expect(item.supplierName).toBeNull();
   });
 });

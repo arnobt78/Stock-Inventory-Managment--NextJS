@@ -62,8 +62,10 @@ describe("buildWarehouseQuantityChartData", () => {
   it("excludes zero-qty warehouses and sorts by quantity", () => {
     const rows = buildWarehouseQuantityChartData(FIXTURE);
     expect(rows).toHaveLength(2);
-    expect(rows[0].name).toBe("Main");
-    expect(rows[1].name).toBe("East");
+    expect(rows[0]).toBeDefined();
+    expect(rows[1]).toBeDefined();
+    expect(rows[0]!.name).toBe("Main");
+    expect(rows[1]!.name).toBe("East");
   });
 });
 

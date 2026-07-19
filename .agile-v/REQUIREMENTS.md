@@ -4,6 +4,53 @@ Canonical REQ source. All artifacts link via `REQ-XXXX`. Status: `done` | `verif
 
 ---
 
+## REQ-0157 — Badge DRY + portal helper + test tsc hygiene
+
+| Field | Value |
+|-------|-------|
+| **Priority** | P2 |
+| **Risk** | R1 |
+| **Status** | done |
+| **Cycle** | C2 |
+| **Parent** | REQ-0156 |
+
+**Intent:** DRY remaining portal invoice KPIs; portal order badge helper (keep portal semantics); fix pre-existing test tsc noise.
+
+**Acceptance criteria**
+
+- AC1: Client InvoiceList + supplier OrderList invoice count badges use `buildStoreInvoiceStatusBadges`
+- AC2: `buildPortalOrderStatusBadges` + Total Orders on client/supplier portals + OrderList
+- AC3: `npx tsc --noEmit` clean (test fixtures only)
+- AC4: No invalidation/Redis/SSR changes; gates pass
+
+**Artifacts:** `lib/ui/portal-order-status-badges.ts`
+
+---
+
+## REQ-0156 — My Activity + invoice badge set parity
+
+| Field | Value |
+|-------|-------|
+| **Priority** | P1 |
+| **Risk** | R1 |
+| **Status** | done |
+| **Cycle** | C2 |
+| **Parent** | REQ-0155 |
+
+**Intent:** My Activity Total Orders/Invoices match store badge sets; DRY store invoice KPIs via shared helper; Client Due card Refunded.
+
+**Acceptance criteria**
+
+- AC1: `buildStoreInvoiceStatusBadges` + tests
+- AC2: My Activity uses order + invoice helpers (Confirmed/Refund/Cancel; Cancelled/Refunded)
+- AC3: Store invoice KPI cards DRY onto helper
+- AC4: Client portal Due + Refunded badge
+- AC5: No invalidation changes; gates pass
+
+**Artifacts:** `lib/ui/store-invoice-status-badges.ts`, `AdminMyActivityContent.tsx`
+
+---
+
 ## REQ-0155 — Delivered + Due badge parity
 
 | Field | Value |

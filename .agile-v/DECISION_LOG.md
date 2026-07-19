@@ -404,3 +404,7 @@ Format: `TIMESTAMP | AGENT | DECISION | RATIONALE | REQ-ID`
 2026-07-19T11:16:20Z | red-team | REQ-0154 gates | lint · test · invalidate · build | REQ-0154
 2026-07-19T11:50:50Z | build-agent | Store Total Orders: Shipping + Delivered separate | Delivered was missing from KPI row while table showed Delivered | REQ-0155
 2026-07-19T11:50:50Z | build-agent | Outstanding label → Due on AOV | Align with Revenue Due; My Activity used pendingUnpaidDue under wrong label | REQ-0155
+2026-07-19T12:12:39Z | build-agent | My Activity order/invoice badges = store sets | Confirmed/Refund missing on self KPI | REQ-0156
+2026-07-19T12:12:39Z | build-agent | buildStoreInvoiceStatusBadges | DRY store invoice KPI cards | REQ-0156
+2026-07-19T12:18:49Z | build-agent | Portal order helper keeps In progress/Shipping | store Confirmed not portal model | REQ-0157
+2026-07-19T12:18:49Z | build-agent | Test-only tsc hygiene | Vitest green; typecheck clean | REQ-0157

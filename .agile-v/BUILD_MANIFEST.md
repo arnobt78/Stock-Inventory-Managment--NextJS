@@ -390,3 +390,13 @@
 | ART-0155b | REQ-0155 | StatisticsSection / AdminAnalytics / OrderList / InvoiceList | Delivered wired |
 | ART-0155c | REQ-0155 | AdminMyActivity / ClientPortal / portals | Due + Shipping labels |
 
+## REQ-0156
+
+| ART-0156a | REQ-0156 | `lib/ui/store-invoice-status-badges.ts` | Shared invoice KPI badges |
+| ART-0156b | REQ-0156 | `AdminMyActivityContent.tsx` | Store-parity Total Orders/Invoices |
+
+## REQ-0157
+
+| ART-0157a | REQ-0157 | `lib/ui/portal-order-status-badges.ts` | Portal Total Orders KPI badges |
+| ART-0157b | REQ-0157 | portal invoice KPI DRY + test tsc | InvoiceList/OrderList + fixtures |
+

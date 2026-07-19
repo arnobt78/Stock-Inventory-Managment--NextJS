@@ -85,6 +85,7 @@ import {
   createChartDotLabelRenderer,
   CHART_LABEL_TOP_MARGIN,
 } from "@/lib/ui/chart-point-label";
+import { buildPortalOrderStatusBadges } from "@/lib/ui/portal-order-status-badges";
 import type { ClientPortalDashboard, ClientCatalogOverview } from "@/types";
 import type { LucideIcon } from "lucide-react";
 
@@ -221,28 +222,13 @@ export default function ClientPortalPage({
               variant="sky"
               valueLoading={dashboardLoading}
               badgeValuesLoading={dashboardLoading}
-              badges={[
-                {
-                  label: "Pending",
-                  value: dashboard?.orderStatusCounts?.pending ?? 0,
-                },
-                {
-                  label: "In progress",
-                  value: dashboard?.orderStatusCounts?.inProgress ?? 0,
-                },
-                {
-                  label: "Shipping",
-                  value: dashboard?.orderStatusCounts?.shipped ?? 0,
-                },
-                {
-                  label: "Delivered",
-                  value: dashboard?.orderStatusCounts?.delivered ?? 0,
-                },
-                {
-                  label: "Refunded",
-                  value: dashboard?.refundedOrdersCount ?? 0,
-                },
-              ]}
+              badges={buildPortalOrderStatusBadges({
+                pending: dashboard?.orderStatusCounts?.pending,
+                inProgress: dashboard?.orderStatusCounts?.inProgress,
+                shipped: dashboard?.orderStatusCounts?.shipped,
+                delivered: dashboard?.orderStatusCounts?.delivered,
+                refundedCount: dashboard?.refundedOrdersCount ?? 0,
+              })}
             />
             <StatisticsCard
               title="Awaiting Payment"
@@ -390,6 +376,10 @@ export default function ClientPortalPage({
                 {
                   label: "Cancelled",
                   value: dashboard?.invoiceBreakdown?.cancelled ?? 0,
+                },
+                {
+                  label: "Refunded",
+                  value: dashboard?.invoiceBreakdown?.refunded ?? 0,
                 },
                 {
                   label: "Total Invoices",

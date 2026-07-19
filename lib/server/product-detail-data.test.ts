@@ -131,7 +131,8 @@ describe("getProductDetailForPage recentOrders (REQ-0077)", () => {
 
     expect(result).not.toBeNull();
     expect(result!.recentOrders).toHaveLength(1);
-    expect(result!.recentOrders![0].placedBy).toEqual({
+    expect(result!.recentOrders![0]).toBeDefined();
+    expect(result!.recentOrders![0]!.placedBy).toEqual({
       id: "buyer-1",
       name: "Buyer",
       email: "buyer@test.com",

@@ -32,6 +32,8 @@ import {
 } from "@/lib/react-query";
 import { APP_SHELL_WIDTH_CLASS } from "@/lib/ui/shell-layout-styles";
 import { buildStoreOrderStatusBadges } from "@/lib/ui/store-order-status-badges";
+import { buildStoreInvoiceStatusBadges } from "@/lib/ui/store-invoice-status-badges";
+import { buildPortalOrderStatusBadges } from "@/lib/ui/portal-order-status-badges";
 import OrderFilters from "./OrderFilters";
 import OrderDialog from "./OrderDialog";
 import InvoiceDialog from "@/components/invoices/InvoiceDialog";
@@ -483,58 +485,32 @@ const OrderList = React.memo(
               variant="sky"
               valueLoading={dashboardCardsLoading}
               badgeValuesLoading={dashboardCardsLoading}
-              badges={[
-                {
-                  label: "Paid",
-                  value:
-                    ordersPageStats?.invoiceAnalytics?.statusDistribution
-                      ?.paid ?? 0,
-                },
-                {
-                  label: "Partial",
-                  value: ordersPageStats?.invoiceAnalytics?.partialCount ?? 0,
-                },
-                {
-                  label: "Pending",
-                  value:
-                    ordersPageStats?.invoiceAnalytics?.pendingCount ??
+              badges={buildStoreInvoiceStatusBadges({
+                paidCount:
+                  ordersPageStats?.invoiceAnalytics?.statusDistribution?.paid,
+                partialCount: ordersPageStats?.invoiceAnalytics?.partialCount,
+                pendingCount:
+                  ordersPageStats?.invoiceAnalytics?.pendingCount ??
+                  (ordersPageStats?.invoiceAnalytics?.statusDistribution
+                    ?.draft ?? 0) +
                     (ordersPageStats?.invoiceAnalytics?.statusDistribution
-                      ?.draft ?? 0) +
-                      (ordersPageStats?.invoiceAnalytics?.statusDistribution
-                        ?.sent ?? 0),
-                },
-                {
-                  label: "Overdue",
-                  value:
-                    ordersPageStats?.invoiceAnalytics?.statusDistribution
-                      ?.overdue ?? 0,
-                },
-                {
-                  label: "Cancelled",
-                  value:
-                    ordersPageStats?.invoiceAnalytics?.statusDistribution
-                      ?.cancelled ?? 0,
-                },
-                {
-                  label: "Refunded",
-                  value: ordersPageStats?.orderAnalytics?.refundedCount ?? 0,
-                },
-                ...(ordersPageStats?.selfOthersBreakdown
-                  ? [
-                      {
-                        label: "Self",
-                        value:
-                          ordersPageStats?.selfOthersBreakdown.invoiceSelfCount,
-                      },
-                      {
-                        label: "Others",
-                        value:
-                          ordersPageStats?.selfOthersBreakdown
-                            .invoiceOthersCount,
-                      },
-                    ]
-                  : []),
-              ]}
+                      ?.sent ?? 0),
+                overdueCount:
+                  ordersPageStats?.invoiceAnalytics?.statusDistribution
+                    ?.overdue,
+                cancelledCount:
+                  ordersPageStats?.invoiceAnalytics?.statusDistribution
+                    ?.cancelled,
+                refundedCount: ordersPageStats?.orderAnalytics?.refundedCount,
+                selfOthers: ordersPageStats?.selfOthersBreakdown
+                  ? {
+                      invoiceSelfCount:
+                        ordersPageStats.selfOthersBreakdown.invoiceSelfCount,
+                      invoiceOthersCount:
+                        ordersPageStats.selfOthersBreakdown.invoiceOthersCount,
+                    }
+                  : null,
+              })}
             />
           </div>
         )}
@@ -550,30 +526,14 @@ const OrderList = React.memo(
               variant="sky"
               valueLoading={clientPortalCardsLoading}
               badgeValuesLoading={clientPortalCardsLoading}
-              badges={[
-                {
-                  label: "Pending",
-                  value: clientPortalDashboard?.orderStatusCounts?.pending ?? 0,
-                },
-                {
-                  label: "In progress",
-                  value:
-                    clientPortalDashboard?.orderStatusCounts?.inProgress ?? 0,
-                },
-                {
-                  label: "Shipping",
-                  value: clientPortalDashboard?.orderStatusCounts?.shipped ?? 0,
-                },
-                {
-                  label: "Delivered",
-                  value:
-                    clientPortalDashboard?.orderStatusCounts?.delivered ?? 0,
-                },
-                {
-                  label: "Refunded",
-                  value: clientPortalDashboard?.refundedOrdersCount ?? 0,
-                },
-              ]}
+              badges={buildPortalOrderStatusBadges({
+                pending: clientPortalDashboard?.orderStatusCounts?.pending,
+                inProgress:
+                  clientPortalDashboard?.orderStatusCounts?.inProgress,
+                shipped: clientPortalDashboard?.orderStatusCounts?.shipped,
+                delivered: clientPortalDashboard?.orderStatusCounts?.delivered,
+                refundedCount: clientPortalDashboard?.refundedOrdersCount ?? 0,
+              })}
             />
             <StatisticsCard
               title="Awaiting Payment"
@@ -762,32 +722,15 @@ const OrderList = React.memo(
               variant="emerald"
               valueLoading={supplierPortalCardsLoading}
               badgeValuesLoading={supplierPortalCardsLoading}
-              badges={[
-                {
-                  label: "Pending",
-                  value: supplierPortal?.orderStatusCounts?.pending ?? 0,
-                },
-                {
-                  label: "In progress",
-                  value: supplierPortal?.orderStatusCounts?.inProgress ?? 0,
-                },
-                {
-                  label: "Shipping",
-                  value: supplierPortal?.orderStatusCounts?.shipped ?? 0,
-                },
-                {
-                  label: "Delivered",
-                  value: supplierPortal?.orderStatusCounts?.delivered ?? 0,
-                },
-                {
-                  label: "Refunded",
-                  value: supplierPortal?.orderStatusCounts?.refunded ?? 0,
-                },
-                {
-                  label: "Cancelled",
-                  value: supplierPortal?.orderStatusCounts?.cancelled ?? 0,
-                },
-              ]}
+              badges={buildPortalOrderStatusBadges({
+                pending: supplierPortal?.orderStatusCounts?.pending,
+                inProgress: supplierPortal?.orderStatusCounts?.inProgress,
+                shipped: supplierPortal?.orderStatusCounts?.shipped,
+                delivered: supplierPortal?.orderStatusCounts?.delivered,
+                refundedCount: supplierPortal?.orderStatusCounts?.refunded ?? 0,
+                cancelledCount:
+                  supplierPortal?.orderStatusCounts?.cancelled ?? 0,
+              })}
             />
             <StatisticsCard
               title="Total Revenue"
@@ -839,32 +782,14 @@ const OrderList = React.memo(
               variant="sky"
               valueLoading={supplierPortalCardsLoading}
               badgeValuesLoading={supplierPortalCardsLoading}
-              badges={[
-                {
-                  label: "Paid",
-                  value: supplierPortal?.invoiceBreakdown?.paid ?? 0,
-                },
-                {
-                  label: "Partial",
-                  value: supplierPortal?.invoiceBreakdown?.partial ?? 0,
-                },
-                {
-                  label: "Pending",
-                  value: supplierPortal?.invoiceBreakdown?.pending ?? 0,
-                },
-                {
-                  label: "Overdue",
-                  value: supplierPortal?.invoiceBreakdown?.overdue ?? 0,
-                },
-                {
-                  label: "Cancelled",
-                  value: supplierPortal?.invoiceBreakdown?.cancelled ?? 0,
-                },
-                {
-                  label: "Refunded",
-                  value: supplierPortal?.invoiceBreakdown?.refunded ?? 0,
-                },
-              ]}
+              badges={buildStoreInvoiceStatusBadges({
+                paidCount: supplierPortal?.invoiceBreakdown?.paid,
+                partialCount: supplierPortal?.invoiceBreakdown?.partial,
+                pendingCount: supplierPortal?.invoiceBreakdown?.pending,
+                overdueCount: supplierPortal?.invoiceBreakdown?.overdue,
+                cancelledCount: supplierPortal?.invoiceBreakdown?.cancelled,
+                refundedCount: supplierPortal?.invoiceBreakdown?.refunded,
+              })}
             />
           </div>
         )}
@@ -977,38 +902,21 @@ const OrderList = React.memo(
               variant="sky"
               valueLoading={dashboardCardsLoading}
               badgeValuesLoading={dashboardCardsLoading}
-              badges={[
-                {
-                  label: "Paid",
-                  value:
-                    dashboard?.invoiceAnalytics?.statusDistribution?.paid ?? 0,
-                },
-                {
-                  label: "Partial",
-                  value: dashboard?.invoiceAnalytics?.partialCount ?? 0,
-                },
-                {
-                  label: "Pending",
-                  value:
-                    dashboard?.invoiceAnalytics?.pendingCount ??
-                    (dashboard?.invoiceAnalytics?.statusDistribution?.draft ??
-                      0) +
-                      (dashboard?.invoiceAnalytics?.statusDistribution?.sent ??
-                        0),
-                },
-                {
-                  label: "Overdue",
-                  value:
-                    dashboard?.invoiceAnalytics?.statusDistribution?.overdue ??
-                    0,
-                },
-                {
-                  label: "Cancelled",
-                  value:
-                    dashboard?.invoiceAnalytics?.statusDistribution
-                      ?.cancelled ?? 0,
-                },
-              ]}
+              badges={buildStoreInvoiceStatusBadges({
+                paidCount:
+                  dashboard?.invoiceAnalytics?.statusDistribution?.paid,
+                partialCount: dashboard?.invoiceAnalytics?.partialCount,
+                pendingCount:
+                  dashboard?.invoiceAnalytics?.pendingCount ??
+                  (dashboard?.invoiceAnalytics?.statusDistribution?.draft ??
+                    0) +
+                    (dashboard?.invoiceAnalytics?.statusDistribution?.sent ?? 0),
+                overdueCount:
+                  dashboard?.invoiceAnalytics?.statusDistribution?.overdue,
+                cancelledCount:
+                  dashboard?.invoiceAnalytics?.statusDistribution?.cancelled,
+                refundedCount: dashboard?.orderAnalytics?.refundedCount,
+              })}
             />
           </div>
         )}

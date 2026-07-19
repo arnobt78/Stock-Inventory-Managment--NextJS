@@ -829,6 +829,16 @@ Hub: `lib/ui/typography-scale.ts`. Hubs import tokens; ~45 inline files use equi
 
 **Still patch → invalidate** — no registry change; closes client lag before refetch.
 
+## KPI badge helpers (REQ-0156–0157)
+
+| Helper | Use |
+|--------|-----|
+| `store-order-status-badges` | Store Total Orders (Confirmed/Shipping/Delivered/Refund/Cancel) |
+| `store-invoice-status-badges` | Store + My Activity + portal invoice count KPIs |
+| `portal-order-status-badges` | Client/supplier Total Orders (In progress — not Confirmed) |
+
+My Activity uses store helpers. `tsc --noEmit` clean (test fixtures). **UI/test-only** — no invalidation changes.
+
 ## Delivered + Due badge parity (REQ-0155)
 
 | Piece | Location |

@@ -73,7 +73,8 @@ describe("getStockByWarehouseForPage", () => {
     );
 
     expect(result).toHaveLength(1);
-    expect(result![0].product).toMatchObject({
+    expect(result![0]).toBeDefined();
+    expect(result![0]!.product).toMatchObject({
       quantity: 100,
       allocatedTotal: 40,
       unallocated: 60,

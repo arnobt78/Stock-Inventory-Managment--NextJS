@@ -272,6 +272,7 @@ flowchart LR
 | Invoice table (REQ-0150–0151) | Dense columns; linkedOrder status/payment badges; Zod date-only update; due Clock; `invoices:list:v2:` | Invalidation unchanged |
 | Partial pay (REQ-0152) | Order unpaid/partial/paid from invoice money; Stripe amount + webhook incremental; PaymentDialog toggle; `PaymentMoneyBreakdown`; `orders:list:v4` | Server sync + UI |
 | Instant order patch (REQ-0153) | `patchLinkedOrderFromInvoiceMoney` on invoice create/update/send | Patch → invalidate |
+| KPI badge helpers (REQ-0156–0157) | store order/invoice + portal order helpers; My Activity parity; tsc clean | UI/test-only |
 | Delivered + Due badges (REQ-0155) | `store-order-status-badges.ts`; Total Orders Delivered; Outstanding→Due | UI-only |
 | Partial pay KPIs (REQ-0154) | `payment-money-stats.ts` → dashboards Paid/Partial/Due/Pending; Partial badges; table Total `text-xs`; `dashboard:overview:v3` | Invalidation unchanged |
 | Next | REQ-0136 UI explore + §10 A1/A2/B1; Gate 2 Sentry 24h | |

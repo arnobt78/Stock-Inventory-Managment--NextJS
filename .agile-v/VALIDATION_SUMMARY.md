@@ -1,10 +1,44 @@
 # Validation Summary — Cycle C1
 
-**Generated:** 2026-07-19 REQ-0155  
+**Generated:** 2026-07-19 REQ-0157  
 **eval_gate_status:** PENDING (Human Gate 2)  
-**Prod target SHA:** `e9349ca` (REQ-0155)  
-**Red Team:** (gates this session)  
-**Resume:** **REQ-0136** UI explore → §10 A1/A2/B1 (see STATE.md)
+**Prod target SHA:** pending (REQ-0157)  
+**Resume:** **REQ-0136** (see STATE.md)
+
+---
+
+## REQ-0157 Badge DRY + portal helper + tsc hygiene evidence
+
+| Check | Result |
+|-------|--------|
+| Invoice DRY | client InvoiceList + supplier OrderList |
+| Portal orders | `buildPortalOrderStatusBadges` |
+| tsc | `npx tsc --noEmit` clean |
+| Invalidation | unchanged |
+| Gates | lint ✓ test **606** ✓ invalidate **213** ✓ build ✓ tsc ✓ |
+
+```
+Scope: built/verified | Traceability: REQ-0157 | Findings: PASS
+Commands: lint, test, invalidate, build, tsc
+```
+
+---
+
+## REQ-0156 My Activity + invoice badge set parity evidence
+
+| Check | Result |
+|-------|--------|
+| Helper | `buildStoreInvoiceStatusBadges` |
+| My Activity | Total Orders + Invoices store badge sets |
+| DRY | home/admin/orders/invoices invoice KPIs |
+| Client Due | Refunded badge |
+| Invalidation | unchanged |
+| Gates | lint ✓ test **604** ✓ invalidate **213** ✓ build ✓ |
+
+```
+Scope: built/verified | Traceability: REQ-0156 | Findings: PASS
+Commands: lint, test, invalidate, build
+```
 
 ---
 

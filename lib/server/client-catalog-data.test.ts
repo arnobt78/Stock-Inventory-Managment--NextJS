@@ -58,6 +58,7 @@ describe("getClientCatalogOverview", () => {
       totalProducts: 100,
     });
     expect(result.suppliers).toHaveLength(1);
-    expect(result.products[0].productOwnerImage).toBeNull();
+    expect(result.products[0]).toBeDefined();
+    expect(result.products[0]!.productOwnerImage).toBeNull();
   });
 });

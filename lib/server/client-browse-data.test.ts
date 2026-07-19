@@ -59,6 +59,7 @@ describe("resolveDefaultBrowseOwnerId", () => {
         { id: "2", name: "Admin", email: "test@admin.com" },
       ],
       stats: {
+        storeOwners: { total: 0, withProducts: 0 },
         admins: 2,
         clients: 0,
         suppliers: { total: 0, active: 0, inactive: 0 },
@@ -73,6 +74,7 @@ describe("resolveDefaultBrowseOwnerId", () => {
     const meta: ClientBrowseMeta = {
       admins: [{ id: "first", name: "First", email: "first@test.com" }],
       stats: {
+        storeOwners: { total: 0, withProducts: 0 },
         admins: 1,
         clients: 0,
         suppliers: { total: 0, active: 0, inactive: 0 },
@@ -87,6 +89,7 @@ describe("resolveDefaultBrowseOwnerId", () => {
     const meta: ClientBrowseMeta = {
       admins: [],
       stats: {
+        storeOwners: { total: 0, withProducts: 0 },
         admins: 0,
         clients: 0,
         suppliers: { total: 0, active: 0, inactive: 0 },

@@ -23,6 +23,7 @@ import {
   useSyncSsrQueryData,
 } from "@/lib/react-query";
 import { buildStoreOrderStatusBadges } from "@/lib/ui/store-order-status-badges";
+import { buildStoreInvoiceStatusBadges } from "@/lib/ui/store-invoice-status-badges";
 import { useAuth } from "@/contexts";
 import type { DashboardStats } from "@/types";
 
@@ -192,41 +193,24 @@ export function StatisticsSection({
         variant="sky"
         valueLoading={dataLoading}
         badgeValuesLoading={dataLoading}
-        badges={[
-          {
-            label: "Paid",
-            value: stats?.invoiceAnalytics?.statusDistribution?.paid ?? 0,
-          },
-          {
-            label: "Partial",
-            value: stats?.invoiceAnalytics?.partialCount ?? 0,
-          },
-          {
-            label: "Pending",
-            value:
-              stats?.invoiceAnalytics?.pendingCount ??
-              (stats?.invoiceAnalytics?.statusDistribution?.draft ?? 0) +
-                (stats?.invoiceAnalytics?.statusDistribution?.sent ?? 0),
-          },
-          {
-            label: "Overdue",
-            value: stats?.invoiceAnalytics?.statusDistribution?.overdue ?? 0,
-          },
-          {
-            label: "Cancelled",
-            value: stats?.invoiceAnalytics?.statusDistribution?.cancelled ?? 0,
-          },
-          {
-            label: "Refunded",
-            value: stats?.orderAnalytics?.refundedCount ?? 0,
-          },
-          ...(selfOthers
-            ? [
-                { label: "Self", value: selfOthers.invoiceSelfCount },
-                { label: "Others", value: selfOthers.invoiceOthersCount },
-              ]
-            : []),
-        ]}
+        badges={buildStoreInvoiceStatusBadges({
+          paidCount: stats?.invoiceAnalytics?.statusDistribution?.paid,
+          partialCount: stats?.invoiceAnalytics?.partialCount,
+          pendingCount:
+            stats?.invoiceAnalytics?.pendingCount ??
+            (stats?.invoiceAnalytics?.statusDistribution?.draft ?? 0) +
+              (stats?.invoiceAnalytics?.statusDistribution?.sent ?? 0),
+          overdueCount: stats?.invoiceAnalytics?.statusDistribution?.overdue,
+          cancelledCount:
+            stats?.invoiceAnalytics?.statusDistribution?.cancelled,
+          refundedCount: stats?.orderAnalytics?.refundedCount,
+          selfOthers: selfOthers
+            ? {
+                invoiceSelfCount: selfOthers.invoiceSelfCount,
+                invoiceOthersCount: selfOthers.invoiceOthersCount,
+              }
+            : null,
+        })}
       />
       <StatisticsCard
         title="Total Warehouses"

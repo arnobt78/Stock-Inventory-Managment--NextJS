@@ -57,7 +57,9 @@ describe("transformInvoiceDetail", () => {
 
     expect(result.linkedOrderNumber).toBe("ORD-42");
     expect(result.linkedOrderItems).toHaveLength(1);
-    expect(result.linkedOrderItems![0].productName).toBe("Widget");
-    expect(result.linkedOrderItems![0].imageUrl).toBe("https://example.com/w.jpg");
+    expect(result.linkedOrderItems![0]).toBeDefined();
+    const linkedItem = result.linkedOrderItems![0]!;
+    expect(linkedItem.productName).toBe("Widget");
+    expect(linkedItem.imageUrl).toBe("https://example.com/w.jpg");
   });
 });

@@ -70,6 +70,7 @@ import {
   createChartDotLabelRenderer,
   CHART_LABEL_TOP_MARGIN,
 } from "@/lib/ui/chart-point-label";
+import { buildPortalOrderStatusBadges } from "@/lib/ui/portal-order-status-badges";
 import type { SupplierPortalDashboard } from "@/types";
 
 export type SupplierPortalPageProps = {
@@ -195,32 +196,14 @@ export default function SupplierPortalPage({
               variant="emerald"
               valueLoading={dataLoading}
               badgeValuesLoading={dataLoading}
-              badges={[
-                {
-                  label: "Pending",
-                  value: dashboard?.orderStatusCounts?.pending ?? 0,
-                },
-                {
-                  label: "In progress",
-                  value: dashboard?.orderStatusCounts?.inProgress ?? 0,
-                },
-                {
-                  label: "Shipping",
-                  value: dashboard?.orderStatusCounts?.shipped ?? 0,
-                },
-                {
-                  label: "Delivered",
-                  value: dashboard?.orderStatusCounts?.delivered ?? 0,
-                },
-                {
-                  label: "Refunded",
-                  value: dashboard?.orderStatusCounts?.refunded ?? 0,
-                },
-                {
-                  label: "Cancelled",
-                  value: dashboard?.orderStatusCounts?.cancelled ?? 0,
-                },
-              ]}
+              badges={buildPortalOrderStatusBadges({
+                pending: dashboard?.orderStatusCounts?.pending,
+                inProgress: dashboard?.orderStatusCounts?.inProgress,
+                shipped: dashboard?.orderStatusCounts?.shipped,
+                delivered: dashboard?.orderStatusCounts?.delivered,
+                refundedCount: dashboard?.orderStatusCounts?.refunded ?? 0,
+                cancelledCount: dashboard?.orderStatusCounts?.cancelled ?? 0,
+              })}
             />
             <StatisticsCard
               title="Pending Orders"

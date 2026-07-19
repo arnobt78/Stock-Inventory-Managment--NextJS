@@ -47,7 +47,6 @@ describe("user-avatar-sources", () => {
     const result = resolveUserAvatarSources({
       id: "u1",
       name: "Alice",
-      email: "alice@example.com",
       image: google,
     });
     expect(result).not.toBeNull();
@@ -61,7 +60,6 @@ describe("user-avatar-sources", () => {
     const result = resolveUserAvatarSources({
       id: "u2",
       name: "Bob",
-      email: "bob@example.com",
     });
     expect(result).not.toBeNull();
     expect(result!.src).toBe(result!.fallbackSrc);
@@ -73,7 +71,6 @@ describe("user-avatar-sources", () => {
   it("resolveUserAvatarSources treats empty/whitespace image as absent", () => {
     const result = resolveUserAvatarSources({
       id: "u3",
-      email: "c@example.com",
       image: "   ",
     });
     expect(result).not.toBeNull();

@@ -95,10 +95,12 @@ describe("getStockByProductForPage", () => {
       select: { id: true, name: true, status: true, address: true, type: true },
     });
     expect(result).toHaveLength(1);
-    expect(result![0].warehouse?.name).toBe("Main Warehouse");
-    expect(result![0].warehouse?.status).toBe(true);
-    expect(result![0].quantity).toBe(10);
-    expect(result![0].product).toMatchObject({
+    expect(result![0]).toBeDefined();
+    const row = result![0]!;
+    expect(row.warehouse?.name).toBe("Main Warehouse");
+    expect(row.warehouse?.status).toBe(true);
+    expect(row.quantity).toBe(10);
+    expect(row.product).toMatchObject({
       quantity: 100,
       categoryName: "Gadgets",
       supplierName: "Acme",

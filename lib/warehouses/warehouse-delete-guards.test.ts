@@ -40,7 +40,7 @@ describe("getWarehouseDeleteBlockers", () => {
   it("blocks when active order lines pick from warehouse", async () => {
     vi.mocked(prisma.stockAllocation.count).mockResolvedValue(0);
     vi.mocked(prisma.orderItem.findMany).mockResolvedValue([
-      { quantity: 3, order: { status: "pending" } },
+      { quantity: 3, order: { status: "pending" } } as never,
     ]);
     vi.mocked(prisma.stockTransfer.count).mockResolvedValue(0);
 

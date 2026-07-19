@@ -40,10 +40,10 @@ describe("enrichOrderItemsCatalogNames", () => {
   it("maps category and supplier names from IDs", async () => {
     vi.mocked(prisma.category.findMany).mockResolvedValue([
       { id: "cat-1", name: "Gadgets" },
-    ]);
+    ] as never);
     vi.mocked(prisma.supplier.findMany).mockResolvedValue([
       { id: "sup-1", name: "Acme Corp" },
-    ]);
+    ] as never);
 
     const result = await enrichOrderItemsCatalogNames([baseItem]);
 
@@ -67,8 +67,9 @@ describe("enrichOrderItemsCatalogNames", () => {
 
     const result = await enrichOrderItemsCatalogNames([baseItem]);
 
-    expect(result[0].categoryName).toBeNull();
-    expect(result[0].supplierName).toBeNull();
+    expect(result[0]).toBeDefined();
+    expect(result[0]!.categoryName).toBeNull();
+    expect(result[0]!.supplierName).toBeNull();
   });
 
   it("skips prisma when no category or supplier IDs", async () => {

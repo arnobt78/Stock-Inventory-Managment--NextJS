@@ -187,7 +187,8 @@ describe("attachProductAllocationTotals", () => {
     ]);
 
     const result = attachProductAllocationTotals(rows, totalsMap);
-    expect(result[0].product).toMatchObject({
+    expect(result[0]).toBeDefined();
+    expect(result[0]!.product).toMatchObject({
       allocatedTotal: 70,
       unallocated: 30,
     });
@@ -245,7 +246,8 @@ describe("enrichWarehouseAllocationRows", () => {
     ];
 
     const result = await enrichWarehouseAllocationRows(rows);
-    expect(result[0].product).toMatchObject({
+    expect(result[0]).toBeDefined();
+    expect(result[0]!.product).toMatchObject({
       allocatedTotal: 65,
       unallocated: 35,
     });
@@ -280,7 +282,8 @@ describe("enrichStockAllocationRows", () => {
     ];
 
     const result = await enrichStockAllocationRows(rows);
-    expect(result[0].product).toMatchObject({
+    expect(result[0]).toBeDefined();
+    expect(result[0]!.product).toMatchObject({
       allocatedTotal: 40,
       unallocated: 60,
     });
