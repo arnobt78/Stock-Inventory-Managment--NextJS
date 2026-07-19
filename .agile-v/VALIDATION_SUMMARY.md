@@ -2,7 +2,7 @@
 
 **Generated:** 2026-07-19 REQ-0160
 **eval_gate_status:** PENDING (Human Gate 2)
-**Prod target SHA:** pending (REQ-0160)
+**Prod target SHA:** `5dcd6f9` (REQ-0160)
 **Resume:** **REQ-0136** (see STATE.md)
 
 ---

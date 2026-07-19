@@ -7,7 +7,7 @@
 | **Last updated** | 2026-07-19 REQ-0160 |
 | **Active REQ** | **REQ-0136** (UI explore → §10 A1/A2/B1) |
 | **Done range** | REQ-0001 … REQ-0135 + REQ-0137–**0160** |
-| **Prod SHA** | `9b3deb1` tip; REQ-0160 pending push |
+| **Prod SHA** | `5dcd6f9` (REQ-0160) on `origin/main` |
 | **Human Gate 1** | APPROVED (GATE-0001) |
 | **Human Gate 2** | PENDING (GATE-0002) — UI explore → §10 → Sentry 24h |
 | **Resume token** | `tomorrow-UI-then-cache` → **REQ-0136** |
@@ -34,7 +34,7 @@
 | REQ | Summary | SHA |
 |-----|---------|-----|
 | 0158–0159 | Party + buyer display | `35bb8a2` |
-| 0160 | User overview copy + My Activity tip | pending |
+| 0160 | User overview copy + My Activity tip | `5dcd6f9` |
 | docs tip | SHA for 0158–0159 | `9b3deb1` |
 
 **Last gates (REQ-0160):** lint ✓ test **615** ✓ invalidate **213** ✓ build ✓ tsc ✓
