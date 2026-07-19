@@ -2,6 +2,7 @@
  * REQ-0150 — Invoice table columns densified to match Order table:
  * Invoice # (OrderTableInvoiceCell) · Order # (products + meta) · Status + statusAt · Total · Actions.
  * REQ-0151 — Order # row: OrderStatusBadge + PaymentStatusBadge + event dates inline.
+ * REQ-0161 — HelpTooltip on dense column headers (Invoice # / Order # / Status / Total)
  */
 
 "use client";
@@ -27,6 +28,7 @@ import Link from "next/link";
 import {
   CopyableText,
   ClientDate,
+  HelpTooltip,
   SemanticEventDate,
   PaymentMoneyBreakdown,
 } from "@/components/shared";
@@ -39,6 +41,12 @@ import {
 import { invoiceStatusAtSemanticKind } from "@/lib/invoices/invoice-status-display-date";
 import { statusAtSemanticKind } from "@/lib/ui/semantic-date-styles";
 import { formatStoreOwnerLabel } from "@/lib/orders/order-party";
+import {
+  INVOICE_NUMBER_COLUMN_TOOLTIP,
+  INVOICE_ORDER_COLUMN_TOOLTIP,
+  INVOICE_STATUS_COLUMN_TOOLTIP,
+  INVOICE_TOTAL_COLUMN_TOOLTIP,
+} from "@/lib/ui/order-invoice-column-tooltips";
 import { cn } from "@/lib/utils";
 
 const META_MUTED = "text-xs text-gray-500 dark:text-gray-300";
@@ -115,8 +123,17 @@ export const createInvoiceColumns = (
   return [
     {
       accessorKey: "invoiceNumber",
+      // REQ-0161 — HelpTooltip sibling of sort (catalog Products pattern)
       header: ({ column }) => (
-        <SortableHeader column={column} label="Invoice #" />
+        <div className="flex items-center gap-1">
+          <SortableHeader column={column} label="Invoice #" />
+          <HelpTooltip
+            content={INVOICE_NUMBER_COLUMN_TOOLTIP}
+            side="top"
+            ariaLabel="Invoice # column help"
+            className="shrink-0"
+          />
+        </div>
       ),
       cell: ({ row }) => {
         const invoice = row.original as InvoiceWithSource;
@@ -203,7 +220,15 @@ export const createInvoiceColumns = (
       id: "order",
       accessorFn: (row) => row.linkedOrderNumber ?? row.orderId,
       header: ({ column }) => (
-        <SortableHeader column={column} label="Order #" />
+        <div className="flex items-center gap-1">
+          <SortableHeader column={column} label="Order #" />
+          <HelpTooltip
+            content={INVOICE_ORDER_COLUMN_TOOLTIP}
+            side="top"
+            ariaLabel="Order # column help"
+            className="shrink-0"
+          />
+        </div>
       ),
       cell: ({ row }) => {
         const invoice = row.original;
@@ -339,7 +364,17 @@ export const createInvoiceColumns = (
     },
     {
       accessorKey: "status",
-      header: ({ column }) => <SortableHeader column={column} label="Status" />,
+      header: ({ column }) => (
+        <div className="flex items-center gap-1">
+          <SortableHeader column={column} label="Status" />
+          <HelpTooltip
+            content={INVOICE_STATUS_COLUMN_TOOLTIP}
+            side="top"
+            ariaLabel="Status column help"
+            className="shrink-0"
+          />
+        </div>
+      ),
       cell: ({ row }) => {
         const invoice = row.original;
         const kind = invoiceStatusAtSemanticKind(invoice.status);
@@ -359,7 +394,17 @@ export const createInvoiceColumns = (
     },
     {
       accessorKey: "total",
-      header: ({ column }) => <SortableHeader column={column} label="Total" />,
+      header: ({ column }) => (
+        <div className="flex items-center gap-1">
+          <SortableHeader column={column} label="Total" />
+          <HelpTooltip
+            content={INVOICE_TOTAL_COLUMN_TOOLTIP}
+            side="top"
+            ariaLabel="Total column help"
+            className="shrink-0"
+          />
+        </div>
+      ),
       cell: ({ row }) => {
         const invoice = row.original;
         return (

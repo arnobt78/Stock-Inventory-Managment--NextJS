@@ -416,3 +416,5 @@ Format: `TIMESTAMP | AGENT | DECISION | RATIONALE | REQ-ID`
 2026-07-19T15:50:00Z | build-agent | Remove dead store invoice list path | getStoreInvoicesForAdmin + API scope=store unused after Self-only /invoices; KPIs keep getStoreOrderIds | REQ-0159
 
 2026-07-19T16:20:00Z | build-agent | Role-aware user overview copy + My Activity tip | Numbers unchanged; tip only isOwner store-owner | REQ-0160
+
+2026-07-19T16:30:00Z | build-agent | Order/Invoice header HelpTooltips | Sibling of SortableHeader; shared tip copy hub | REQ-0161

@@ -409,3 +409,5 @@
 | ART-0159 | REQ-0159 | `lib/orders/order-party.ts`, `orders-data.ts`, `invoices-data.ts`, `invoice-detail-data.ts`, `app/invoices/page.tsx` | Buyer labels + Self-only invoices |
 
 | ART-0160 | REQ-0160 | `lib/ui/user-overview-copy.ts`, `AdminUserManagementDetailContent.tsx` | Role blurbs + My Activity tip |
+
+| ART-0161 | REQ-0161 | `lib/ui/order-invoice-column-tooltips.ts`, Order/Invoice TableColumns | Dense header HelpTooltip |

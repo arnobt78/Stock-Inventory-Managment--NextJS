@@ -4,6 +4,29 @@ Canonical REQ source. All artifacts link via `REQ-XXXX`. Status: `done` | `verif
 
 ---
 
+## REQ-0161 — Order/Invoice table header HelpTooltips
+
+| Field | Value |
+|-------|-------|
+| **Priority** | P2 |
+| **Risk** | R1 |
+| **Status** | done |
+| **Cycle** | C2 |
+| **Parent** | REQ-0142 |
+
+**Intent:** HelpTooltip (?) on dense Order/Invoice list headers so users understand badges, dates, and meta in each column (catalog Products pattern).
+
+**Acceptance criteria**
+
+- AC1: Shared tooltip copy in `order-invoice-column-tooltips.ts`
+- AC2: Order table: Order #, Total, Status, Payment, Invoice #
+- AC3: Invoice table: Invoice #, Order #, Status, Total
+- AC4: Sibling of SortableHeader (no nested interactive); gates pass; no invalidation changes
+
+**Artifacts:** `lib/ui/order-invoice-column-tooltips.ts`, `OrderTableColumns.tsx`, `InvoiceTableColumns.tsx`
+
+---
+
 ## REQ-0160 — User overview copy + My Activity tip
 
 | Field | Value |

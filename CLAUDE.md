@@ -860,6 +860,15 @@ Hub: `lib/ui/typography-scale.ts`. Hubs import tokens; ~45 inline files use equi
 
 **Copy-only** — overview KPI math unchanged.
 
+## Order/Invoice header HelpTooltips (REQ-0161)
+
+| Piece | Location |
+|-------|----------|
+| Copy | `lib/ui/order-invoice-column-tooltips.ts` |
+| Headers | `OrderTableColumns` / `InvoiceTableColumns` — `HelpTooltip` beside sort |
+
+**UI-only** — same pattern as catalog Products (REQ-0142).
+
 ## KPI badge helpers (REQ-0156–0157)
 
 | Helper | Use |

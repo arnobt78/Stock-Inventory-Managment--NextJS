@@ -1,9 +1,29 @@
 # Validation Summary — Cycle C1
 
-**Generated:** 2026-07-19 REQ-0160
+**Generated:** 2026-07-19 REQ-0161
 **eval_gate_status:** PENDING (Human Gate 2)
-**Prod target SHA:** `5dcd6f9` (REQ-0160)
+**Prod target SHA:** pending (REQ-0161)
 **Resume:** **REQ-0136** (see STATE.md)
+
+---
+
+## REQ-0161 Order/Invoice header HelpTooltips evidence
+
+| Check | Result |
+|-------|--------|
+| Copy hub | order-invoice-column-tooltips.ts |
+| Order headers | Order # Total Status Payment Invoice # |
+| Invoice headers | Invoice # Order # Status Total |
+| Pattern | HelpTooltip sibling of SortableHeader |
+| Invalidation | unchanged |
+| Gates | lint ✓ test **616** ✓ invalidate **213** ✓ build ✓ tsc ✓ |
+
+```
+Scope: built/verified | Traceability: REQ-0161 | Findings: PASS
+Commands: lint, test, invalidate, build, tsc
+```
+
+---
 
 ---
 

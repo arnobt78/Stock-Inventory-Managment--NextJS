@@ -2,6 +2,7 @@
  * Order Table Columns
  * Column definitions for the orders table using TanStack Table
  * REQ-0145 — Order # meta icons + product preview; Status start-align; Invoice # column
+ * REQ-0161 — HelpTooltip on dense column headers (Order # / Total / Status / Payment / Invoice #)
  */
 
 "use client";
@@ -25,6 +26,7 @@ import Link from "next/link";
 import {
   CopyableText,
   ClientDate,
+  HelpTooltip,
   RecentOrderStatusColumn,
   PaymentMoneyBreakdown,
 } from "@/components/shared";
@@ -37,6 +39,13 @@ import {
 } from "@/lib/orders/order-list-meta";
 import { statusAtSemanticKind } from "@/lib/ui/semantic-date-styles";
 import { formatStoreOwnerLabel } from "@/lib/orders/order-party";
+import {
+  INVOICE_NUMBER_COLUMN_TOOLTIP,
+  ORDER_NUMBER_COLUMN_TOOLTIP,
+  ORDER_PAYMENT_COLUMN_TOOLTIP,
+  ORDER_STATUS_COLUMN_TOOLTIP,
+  ORDER_TOTAL_COLUMN_TOOLTIP,
+} from "@/lib/ui/order-invoice-column-tooltips";
 import { cn } from "@/lib/utils";
 
 const META_MUTED = "text-xs text-gray-500 dark:text-gray-300";
@@ -153,8 +162,17 @@ export const createOrderColumns = (
   return [
     {
       accessorKey: "orderNumber",
+      // REQ-0161 — HelpTooltip sibling of sort (catalog Products pattern)
       header: ({ column }) => (
-        <SortableHeader column={column} label="Order #" />
+        <div className="flex items-center gap-1">
+          <SortableHeader column={column} label="Order #" />
+          <HelpTooltip
+            content={ORDER_NUMBER_COLUMN_TOOLTIP}
+            side="top"
+            ariaLabel="Order # column help"
+            className="shrink-0"
+          />
+        </div>
       ),
       cell: ({ row }) => {
         const order = row.original as OrderWithSource;
@@ -247,7 +265,17 @@ export const createOrderColumns = (
     },
     {
       accessorKey: "total",
-      header: ({ column }) => <SortableHeader column={column} label="Total" />,
+      header: ({ column }) => (
+        <div className="flex items-center gap-1">
+          <SortableHeader column={column} label="Total" />
+          <HelpTooltip
+            content={ORDER_TOTAL_COLUMN_TOOLTIP}
+            side="top"
+            ariaLabel="Total column help"
+            className="shrink-0"
+          />
+        </div>
+      ),
       cell: ({ row }) => {
         const order = row.original;
         const inv = order.invoiceForOrder;
@@ -270,7 +298,17 @@ export const createOrderColumns = (
     },
     {
       accessorKey: "status",
-      header: ({ column }) => <SortableHeader column={column} label="Status" />,
+      header: ({ column }) => (
+        <div className="flex items-center gap-1">
+          <SortableHeader column={column} label="Status" />
+          <HelpTooltip
+            content={ORDER_STATUS_COLUMN_TOOLTIP}
+            side="top"
+            ariaLabel="Status column help"
+            className="shrink-0"
+          />
+        </div>
+      ),
       cell: ({ row }) => {
         const order = row.original;
         return (
@@ -287,7 +325,15 @@ export const createOrderColumns = (
     {
       accessorKey: "paymentStatus",
       header: ({ column }) => (
-        <SortableHeader column={column} label="Payment" />
+        <div className="flex items-center gap-1">
+          <SortableHeader column={column} label="Payment" />
+          <HelpTooltip
+            content={ORDER_PAYMENT_COLUMN_TOOLTIP}
+            side="top"
+            ariaLabel="Payment column help"
+            className="shrink-0"
+          />
+        </div>
       ),
       cell: ({ row }) => {
         const order = row.original;
@@ -325,7 +371,15 @@ export const createOrderColumns = (
       id: "invoice",
       accessorFn: (row) => row.invoiceForOrder?.invoiceNumber ?? "",
       header: ({ column }) => (
-        <SortableHeader column={column} label="Invoice #" />
+        <div className="flex items-center gap-1">
+          <SortableHeader column={column} label="Invoice #" />
+          <HelpTooltip
+            content={INVOICE_NUMBER_COLUMN_TOOLTIP}
+            side="top"
+            ariaLabel="Invoice # column help"
+            className="shrink-0"
+          />
+        </div>
       ),
       cell: ({ row }) => (
         <OrderTableInvoiceCell

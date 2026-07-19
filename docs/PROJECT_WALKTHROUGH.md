@@ -275,6 +275,7 @@ flowchart LR
 | Order party Self/Client (REQ-0158) | `order-party.ts`; clientId portal; seed 001–004 | create/list/portal/seed |
 | Buyer display + Self invoices (REQ-0159) | buyer placedBy/orderedBy; `/invoices` Self-only; `Store ·` client labels; drop dead store list helper; KPIs via `getStoreOrderIds` | display + list scope; invalidation unchanged |
 | User overview copy (REQ-0160) | role-aware Overview blurb; My Activity sky tip on own store-owner user detail | copy-only |
+| Order/Invoice header help (REQ-0161) | HelpTooltip on dense Order/Invoice column headers | UI-only |
 | KPI badge helpers (REQ-0156–0157) | store order/invoice + portal order helpers; My Activity parity; tsc clean | UI/test-only |
 | Delivered + Due badges (REQ-0155) | `store-order-status-badges.ts`; Total Orders Delivered; Outstanding→Due | UI-only |
 | Partial pay KPIs (REQ-0154) | `payment-money-stats.ts` → dashboards Paid/Partial/Due/Pending; Partial badges; table Total `text-xs`; `dashboard:overview:v3` | Invalidation unchanged |
