@@ -7,7 +7,7 @@
 | **Last updated** | 2026-07-19 REQ-0157 |
 | **Active REQ** | **REQ-0136** (UI explore → §10 A1/A2/B1) |
 | **Done range** | REQ-0001 … REQ-0135 + REQ-0137–**0157** |
-| **Prod SHA** | `5efdc61` (REQ-0156–0157) — push pending |
+| **Prod SHA** | `02a5c6a` (REQ-0156–0157) on `origin/main` |
 | **Human Gate 1** | APPROVED (GATE-0001) |
 | **Human Gate 2** | PENDING (GATE-0002) — UI explore → §10 → Sentry 24h |
 | **Resume token** | `tomorrow-UI-then-cache` → **REQ-0136** |
