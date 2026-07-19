@@ -7,7 +7,7 @@
 | **Last updated** | 2026-07-19 REQ-0157 |
 | **Active REQ** | **REQ-0136** (UI explore → §10 A1/A2/B1) |
 | **Done range** | REQ-0001 … REQ-0135 + REQ-0137–**0157** |
-| **Prod SHA** | `e9349ca` (REQ-0155) on `origin/main` |
+| **Prod SHA** | `5efdc61` (REQ-0156–0157) — push pending |
 | **Human Gate 1** | APPROVED (GATE-0001) |
 | **Human Gate 2** | PENDING (GATE-0002) — UI explore → §10 → Sentry 24h |
 | **Resume token** | `tomorrow-UI-then-cache` → **REQ-0136** |
@@ -45,8 +45,8 @@
 | 0150–0153 | Invoice densify + partial pay + linked-order patch | `122da3d` |
 | 0154 | Partial pay KPI stats + Total typography | `4e7bd56` |
 | 0155 | Delivered + Due badge parity | `e9349ca` |
-| 0156 | My Activity + invoice badge set parity | pending |
-| 0157 | Badge DRY + portal helper + test tsc | pending |
+| 0156 | My Activity + invoice badge set parity | `5efdc61` |
+| 0157 | Badge DRY + portal helper + test tsc | `5efdc61` |
 | docs EOD | Park resume REQ-0136 | `157c581` |
 
 **Last gates (REQ-0157):** lint ✓ test **606** ✓ invalidate **213** ✓ build ✓ tsc ✓
