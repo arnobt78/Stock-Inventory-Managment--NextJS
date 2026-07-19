@@ -22,6 +22,11 @@ import { createOrderNotification, createClientOrderReceivedNotification } from "
 import { prisma } from "@/prisma/client";
 import { createAuditLog } from "@/prisma/audit-log";
 import type { CreateOrderInput } from "@/types";
+import {
+  resolveBuyerDisplayFromUsers,
+  resolveBuyerUserId,
+  resolveStoreOwnerUserId,
+} from "@/lib/orders/order-party";
 
 /**
  * GET /api/orders
@@ -73,12 +78,15 @@ export async function GET(request: NextRequest) {
         ? await getOrdersContainingSupplierProducts(supplier!.id)
         : await getOrdersByUser(userId);
 
-    const userIds = [...new Set(orders.map((o) => o.userId))];
-    // Batch invoice linkage (REQ-0061) alongside placer lookup — one query each
+    // REQ-0159 — placedBy = buyer (clientId when set), not store owner
+    const buyerIds = [
+      ...new Set(orders.map((o) => resolveBuyerUserId(o)).filter(Boolean)),
+    ];
+    // Batch invoice linkage (REQ-0061) alongside buyer lookup — one query each
     const [users, invoiceLinkMap] = await Promise.all([
-      userIds.length > 0
+      buyerIds.length > 0
         ? prisma.user.findMany({
-            where: { id: { in: userIds } },
+            where: { id: { in: buyerIds } },
             select: { id: true, name: true, email: true },
           })
         : Promise.resolve([]),
@@ -119,9 +127,12 @@ export async function GET(request: NextRequest) {
 
     // Transform orders for response
     const transformedOrders = orders.map((order) => {
-      const u = userMap.get(order.userId);
-      const placedByName = u?.name ?? u?.email ?? null;
-      const placedByEmail = u?.email ?? null;
+      const buyer = resolveBuyerDisplayFromUsers(
+        { userId: order.userId, clientId: order.clientId },
+        userMap,
+      );
+      const placedByName = buyer.name;
+      const placedByEmail = buyer.email;
       const po = isClient ? orderProductOwnerMap.get(order.id) : undefined;
       const invoiceForOrder = invoiceLinkMap.get(order.id) ?? null;
       return {
@@ -231,12 +242,40 @@ export async function POST(request: NextRequest) {
     }
 
     const orderData = validationResult.data as CreateOrderInput;
+    const role = session.role;
+    const isClientRole = role === "client";
 
-    // Set clientId to current user so they are the customer (for spent/due tracking for any role: admin, user, client)
-    orderData.clientId = userId;
+    // REQ-0158 — resolve store owner from line products; buyer = client or null (self)
+    const productIdsForParty = orderData.items.map((i) => i.productId);
+    const productsForParty = await prisma.product.findMany({
+      where: { id: { in: productIdsForParty } },
+      select: { id: true, userId: true },
+    });
+    const ownerFromProducts = resolveStoreOwnerUserId(
+      productsForParty.map((p) => p.userId),
+    );
 
-    // Create order
-    const order = await createOrder(orderData, userId);
+    let storeOwnerUserId: string;
+    let clientId: string | null;
+    if (isClientRole) {
+      storeOwnerUserId = ownerFromProducts ?? userId;
+      clientId = userId;
+    } else {
+      // Admin/user self (or optional body.clientId when ordering for a client)
+      storeOwnerUserId = userId;
+      const bodyClientId =
+        typeof orderData.clientId === "string" && orderData.clientId.length > 0
+          ? orderData.clientId
+          : null;
+      clientId =
+        bodyClientId && bodyClientId !== userId ? bodyClientId : null;
+    }
+
+    const order = await createOrder(orderData, {
+      storeOwnerUserId,
+      createdByUserId: userId,
+      clientId,
+    });
 
     createAuditLog({
       userId,
@@ -249,11 +288,12 @@ export async function POST(request: NextRequest) {
     // Global invalidation: orders affect product/category/supplier detail Recent Orders
     await invalidateOnOrderChange();
     // Create in-app notification for order confirmation (async, non-blocking)
+    const notifyUserId = order.clientId ?? order.userId;
     createOrderNotification(
       "order_confirmation",
       order.orderNumber,
       `Your order ${order.orderNumber} has been successfully created. Total: $${order.total.toFixed(2)}`,
-      userId,
+      notifyUserId,
       order.id,
     ).catch((error) => {
       // Log error but don't fail the request
@@ -261,35 +301,40 @@ export async function POST(request: NextRequest) {
     });
 
     // Notify product owners that a client placed an order containing their products (async, non-blocking)
-    const productIds = order.items.map((item) => item.productId);
-    if (productIds.length > 0) {
-      const products = await prisma.product.findMany({
-        where: { id: { in: productIds } },
-        select: { userId: true },
-      });
-      const ownerIds = [...new Set(products.map((p) => p.userId))].filter(
-        (id) => id !== order.userId,
-      );
-      if (ownerIds.length > 0) {
-        const buyer = await prisma.user.findUnique({
-          where: { id: order.userId },
-          select: { name: true, email: true },
+    if (isClientRole && order.clientId) {
+      const productIds = order.items.map((item) => item.productId);
+      if (productIds.length > 0) {
+        const products = await prisma.product.findMany({
+          where: { id: { in: productIds } },
+          select: { userId: true },
         });
-        const buyerDisplay = buyer
-          ? `${buyer.name ?? "Customer"} (${buyer.email})`
-          : "A client";
-        Promise.all(
-          ownerIds.map((ownerId) =>
-            createClientOrderReceivedNotification(
-              order.id,
-              order.orderNumber,
-              buyerDisplay,
-              ownerId,
+        const ownerIds = [...new Set(products.map((p) => p.userId))].filter(
+          (id) => id !== order.clientId,
+        );
+        if (ownerIds.length > 0) {
+          const buyer = await prisma.user.findUnique({
+            where: { id: order.clientId },
+            select: { name: true, email: true },
+          });
+          const buyerDisplay = buyer
+            ? `${buyer.name ?? "Customer"} (${buyer.email})`
+            : "A client";
+          Promise.all(
+            ownerIds.map((ownerId) =>
+              createClientOrderReceivedNotification(
+                order.id,
+                order.orderNumber,
+                buyerDisplay,
+                ownerId,
+              ),
             ),
-          ),
-        ).catch((error) => {
-          logger.error("Failed to create product-owner order notifications:", error);
-        });
+          ).catch((error) => {
+            logger.error(
+              "Failed to create product-owner order notifications:",
+              error,
+            );
+          });
+        }
       }
     }
 

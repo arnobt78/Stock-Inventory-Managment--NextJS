@@ -6,7 +6,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getSessionFromRequest } from "@/utils/auth";
 import { logger } from "@/lib/logger";
-import { createInvoice, getInvoicesByUser, getInvoicesByClientId, getInvoicesByOrderIds } from "@/prisma/invoice";
+import { createInvoice, getInvoicesByUser, getInvoicesByClientId } from "@/prisma/invoice";
 import { createInvoiceSchema } from "@/lib/validations";
 import { createAuditLog } from "@/prisma/audit-log";
 import { withRateLimit, defaultRateLimits } from "@/lib/api/rate-limit";
@@ -16,7 +16,6 @@ import {
   attachInvoiceListOrderPreview,
   fetchInvoiceListOrderPreviewMap,
 } from "@/lib/invoices/enrich-invoice-list-orders";
-import { getStoreOrderIds } from "@/lib/invoices/store-order-ids";
 import { getInvoicesForSupplierId } from "@/lib/server/invoices-data";
 import { getSupplierByUserId } from "@/prisma/supplier";
 import { cacheKeys, getCache, scheduleInvalidateInvoiceCaches, setCache } from "@/lib/cache";
@@ -64,11 +63,6 @@ export async function GET(request: NextRequest) {
       dueDateEnd: searchParams.get("dueDateEnd") || undefined,
     };
 
-    const listScope =
-      !isClient && !isSupplier && searchParams.get("scope") === "store"
-        ? "store"
-        : "issuer";
-
     // Supplier: invoices for orders containing this supplier's products (REQ-0075 AC2)
     if (isSupplier) {
       if (!supplier) {
@@ -81,12 +75,12 @@ export async function GET(request: NextRequest) {
       return NextResponse.json(supplierInvoices);
     }
 
-    // Check cache first (scoped per user / role)
+    // REQ-0159 — admin/user Self-only (parity with getInvoicesByUser / /orders)
     const cacheKey = cacheKeys.invoices.list({
       ...(filters as Record<string, unknown>),
       ...(isClient
         ? { byClient: true, userId }
-        : { userId, scope: listScope }),
+        : { userId, scope: "issuer" }),
     });
     const cacheReadStartedAt = Date.now();
     const cachedInvoices = await getCache(cacheKey);
@@ -95,12 +89,9 @@ export async function GET(request: NextRequest) {
       return NextResponse.json(cachedInvoices);
     }
 
-    // Fetch invoices: client sees their own; admin/user see issuer or store-wide list
     const invoices = isClient
       ? await getInvoicesByClientId(userId, filters)
-      : listScope === "store"
-        ? await getInvoicesByOrderIds(await getStoreOrderIds(userId), filters)
-        : await getInvoicesByUser(userId, filters);
+      : await getInvoicesByUser(userId, filters);
 
     // For client role, resolve the actual issuer (product owner) from order items
     let issuerMap = new Map<string, { name: string | null; email: string }>();

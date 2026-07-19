@@ -286,10 +286,10 @@ export const cacheKeys = {
   orders: {
     all: "orders:all",
     lists: () => "orders:lists",
-    // v3 — REQ-0145 invoice event dates (sentAt/cancelledAt/updatedAt)
+    // v5 — REQ-0159 placedByName = buyer (clientId), not store owner
     list: (filters?: Record<string, unknown>) => {
       const filterStr = filters ? JSON.stringify(filters) : "default";
-      return `orders:list:v4:${filterStr}`;
+      return `orders:list:v5:${filterStr}`;
     },
     detail: (id: string) => `orders:detail:${id}`,
     pattern: "orders:*",
@@ -314,10 +314,10 @@ export const cacheKeys = {
    */
   invoices: {
     all: "invoices:all",
-    /** REQ-0150 — v2 includes linkedOrder* + statusAt on list rows */
+    /** REQ-0159 — v3 buyer customerDisplay/clientName (not store owner) */
     list: (filters?: Record<string, unknown>) => {
       const filterStr = filters ? JSON.stringify(filters) : "default";
-      return `invoices:list:v2:${filterStr}`;
+      return `invoices:list:v3:${filterStr}`;
     },
     detail: (id: string) => `invoices:detail:${id}`,
     byOrder: (orderId: string) => `invoices:order:${orderId}`,
@@ -391,7 +391,8 @@ export const cacheKeys = {
    * Admin Client Portal cache keys
    */
   clientPortal: {
-    overview: "clientPortal:overview",
+    /** REQ-0158 — v2 filters by buyer clientId (not creator userId) */
+    overview: "clientPortal:overview:v2",
     pattern: "clientPortal:*",
   },
 

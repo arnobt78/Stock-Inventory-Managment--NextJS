@@ -7,6 +7,7 @@ import type { Prisma, PrismaClient } from "@prisma/client";
 import {
   DEMO_CATALOG_SEED,
   DEMO_LOCAL_SUPPLIER_ENTITY,
+  DEMO_SEED_USERS,
 } from "@/lib/auth/demo-seed-data";
 
 export type DemoSeedUserIds = {
@@ -40,7 +41,15 @@ export async function seedDemoCatalog(
 ): Promise<DemoCatalogSeedResult> {
   const now = new Date();
   const { adminId, clientId, supplierUserId, demoSupplierId } = ids;
-  const address = DEMO_CATALOG_SEED.demoAddress as unknown as Prisma.InputJsonValue;
+  const adminUser = DEMO_SEED_USERS.find((u) => u.role === "admin")!;
+  const clientUser = DEMO_SEED_USERS.find((u) => u.role === "client")!;
+  /** REQ-0159 — shipping/billing name = buyer so list fallbacks stay correct. */
+  const addressForBuyer = (buyer: "self" | "client"): Prisma.InputJsonValue =>
+    ({
+      ...DEMO_CATALOG_SEED.demoAddress,
+      name: buyer === "self" ? adminUser.name : clientUser.name,
+      email: buyer === "self" ? adminUser.email : clientUser.email,
+    }) as unknown as Prisma.InputJsonValue;
 
   // --- Extra editable supplier (admin-owned) ---
   const localSupplier = await prisma.supplier.create({
@@ -193,11 +202,17 @@ export async function seedDemoCatalog(
     const isPaid = spec.paymentStatus === "paid";
     const isDelivered = spec.status === "delivered";
 
+    // REQ-0158 — userId = store owner; clientId = buyer (null = self)
+    const isSelfBuyer = spec.buyerKey === "self";
+    const orderClientId = isSelfBuyer ? null : clientId;
+    const orderCreatedBy = isSelfBuyer ? adminId : clientId;
+    const partyAddress = addressForBuyer(isSelfBuyer ? "self" : "client");
+
     const order = await prisma.order.create({
       data: {
         orderNumber: spec.orderNumber,
         userId: adminId,
-        clientId,
+        clientId: orderClientId,
         status: spec.status,
         paymentStatus: spec.paymentStatus,
         subtotal,
@@ -206,8 +221,8 @@ export async function seedDemoCatalog(
         discount: spec.discount > 0 ? spec.discount : null,
         total,
         notes: spec.notes,
-        shippingAddress: address,
-        billingAddress: address,
+        shippingAddress: partyAddress,
+        billingAddress: partyAddress,
         trackingNumber: spec.trackingNumber ?? null,
         trackingCarrier: spec.trackingCarrier ?? null,
         trackingUrl: spec.trackingNumber
@@ -215,7 +230,7 @@ export async function seedDemoCatalog(
           : null,
         shippedAt: isDelivered ? orderDate : null,
         deliveredAt: isDelivered ? orderDate : null,
-        createdBy: clientId,
+        createdBy: orderCreatedBy,
         updatedBy: adminId,
         createdAt: orderDate,
         updatedAt: orderDate,
@@ -259,7 +274,7 @@ export async function seedDemoCatalog(
         invoiceNumber: spec.invoiceNumber,
         orderId: order.id,
         userId: adminId,
-        clientId,
+        clientId: orderClientId,
         status: spec.invoiceStatus,
         subtotal,
         tax: spec.tax > 0 ? spec.tax : null,
@@ -270,10 +285,10 @@ export async function seedDemoCatalog(
         amountDue,
         dueDate,
         issuedAt: orderDate,
-        sentAt: orderDate,
+        sentAt: spec.invoiceStatus === "draft" ? null : orderDate,
         paidAt: invoicePaid ? orderDate : null,
         notes: `Demo invoice for ${spec.orderNumber}`,
-        billingAddress: address,
+        billingAddress: partyAddress,
         createdBy: adminId,
         updatedBy: adminId,
         createdAt: orderDate,

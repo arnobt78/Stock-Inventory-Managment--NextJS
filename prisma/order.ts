@@ -56,15 +56,24 @@ export async function generateOrderNumber(): Promise<string> {
   return `ORD-${year}-${month}${day}-${hours}${minutes}${seconds}-${sequence}`;
 }
 
+/** REQ-0158 — party fields for order create (store owner ≠ always session). */
+export type CreateOrderParty = {
+  storeOwnerUserId: string;
+  createdByUserId: string;
+  /** Buyer; null = owner self-order */
+  clientId: string | null;
+};
+
 /**
  * Create a new order with order items
  * Includes validation and automatic calculations
  *
- * @param data - Order creation data
- * @param userId - User ID creating the order
- * @returns Promise<Order> - Created order with items
+ * REQ-0158: `userId` = store owner; `clientId` = buyer (null = self); `createdBy` = actor.
  */
-export async function createOrder(data: CreateOrderInput, userId: string) {
+export async function createOrder(
+  data: CreateOrderInput,
+  party: CreateOrderParty,
+) {
   // Generate unique order number
   const orderNumber = await generateOrderNumber();
 
@@ -167,12 +176,12 @@ export async function createOrder(data: CreateOrderInput, userId: string) {
   const discount = data.discount || 0;
   const total = subtotal + tax + shipping - discount;
 
-  // Create order with items
+  // Create order with items (REQ-0158 party semantics)
   const order = await prisma.order.create({
     data: {
       orderNumber,
-      userId,
-      clientId: data.clientId || null,
+      userId: party.storeOwnerUserId,
+      clientId: party.clientId,
       status: "pending",
       paymentStatus: "unpaid",
       subtotal,
@@ -191,7 +200,7 @@ export async function createOrder(data: CreateOrderInput, userId: string) {
           ) as Prisma.InputJsonValue)
         : null,
       notes: data.notes || null,
-      createdBy: userId,
+      createdBy: party.createdByUserId,
       items: {
         create: orderItemsData,
       },
@@ -225,15 +234,19 @@ export async function createOrder(data: CreateOrderInput, userId: string) {
 }
 
 /**
- * Get orders by user ID
- * Fetches all orders created by a specific user
+ * Get Self orders for a store owner (personal /orders list).
+ * REQ-0158: userId = owner AND (clientId null OR clientId = owner).
+ * Client-buyer orders on the same store are excluded (see /admin/orders merge).
  *
- * @param userId - User ID
- * @returns Promise<Order[]> - Array of orders
+ * @param userId - Store owner user ID
+ * @returns Promise<Order[]> - Array of self orders
  */
 export async function getOrdersByUser(userId: string) {
   return prisma.order.findMany({
-    where: { userId },
+    where: {
+      userId,
+      OR: [{ clientId: null }, { clientId: userId }],
+    },
     include: {
       items: {
         include: {

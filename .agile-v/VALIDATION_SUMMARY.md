@@ -1,9 +1,47 @@
 # Validation Summary — Cycle C1
 
-**Generated:** 2026-07-19 REQ-0157  
-**eval_gate_status:** PENDING (Human Gate 2)  
-**Prod target SHA:** `5efdc61` (REQ-0156–0157)  
+**Generated:** 2026-07-19 REQ-0159
+**eval_gate_status:** PENDING (Human Gate 2)
+**Prod target SHA:** `cbc827f` (REQ-0158/0159)
 **Resume:** **REQ-0136** (see STATE.md)
+
+---
+
+## REQ-0159 Buyer display + invoice list parity evidence
+
+| Check | Result |
+|-------|--------|
+| Buyer helpers | resolveBuyerDisplayFromUsers + formatStoreOwnerLabel |
+| SSR/API | placedBy / customerDisplay / orderedBy = buyer |
+| /invoices | Self-only (getInvoicesForUser); KPIs store-wide |
+| Client UI | Store · owner prefix |
+| Seed | shipping name/email = buyer; reset-demo-db --with-catalog ✓ |
+| Cache | orders:list:v5 · invoices:list:v3 |
+| Cleanup | removed dead `getStoreInvoicesForAdmin` + API/`InvoiceFilters.scope` store list |
+| Invalidation | unchanged (`getStoreOrderIds` kept for dashboard KPIs) |
+| Gates | lint ✓ test **612** ✓ invalidate **213** ✓ build ✓ tsc ✓ |
+
+```
+Scope: built/verified | Traceability: REQ-0159 | Findings: PASS
+Commands: lint, test, invalidate, build, tsc
+```
+
+---
+
+## REQ-0158 Order party semantics evidence
+
+| Check | Result |
+|-------|--------|
+| Model | userId=owner; clientId=buyer/null self |
+| Client portal | clientId filter + overview:v2 |
+| Seed | ORD/INV-DEMO-001…004 (reset-demo-db --with-catalog ✓) |
+| Invalidation | unchanged (order-graph) |
+| Gates | lint ✓ test **610** ✓ invalidate **213** ✓ build ✓ tsc ✓ |
+
+```
+Scope: built/verified | Traceability: REQ-0158 | Findings: PASS
+Commands: lint, test, invalidate, build, tsc
+```
 
 ---
 

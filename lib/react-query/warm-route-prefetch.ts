@@ -102,10 +102,7 @@ function buildWarmTasks(user: WarmUser): PrefetchTask[] {
       const r = await apiClient.productReviews.getAll();
       return r.data;
     });
-    add(queryKeys.invoices.list({ scope: "store" }), async () => {
-      const r = await apiClient.invoices.getAll({ scope: "store" });
-      return r.data;
-    });
+    // REQ-0159 — Self-only issuer list (matches /invoices SSR)
     add(queryKeys.invoices.list(undefined), async () => {
       const r = await apiClient.invoices.getAll();
       return r.data;

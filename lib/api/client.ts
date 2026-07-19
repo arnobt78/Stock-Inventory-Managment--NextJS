@@ -1564,9 +1564,6 @@ class ApiClient {
       if (filters?.dueDateEnd) {
         params.append("dueDateEnd", filters.dueDateEnd);
       }
-      if (filters?.scope) {
-        params.append("scope", filters.scope);
-      }
 
       const queryString = params.toString();
       const url = queryString

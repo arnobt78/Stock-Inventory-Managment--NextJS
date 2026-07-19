@@ -138,11 +138,12 @@ export async function createInvoice(
     ? (JSON.parse(JSON.stringify(order.billingAddress)) as Prisma.InputJsonValue)
     : null;
 
+  // REQ-0158: invoice.userId = store owner (order.userId); clientId = buyer; createdBy = actor
   const invoice = await prisma.invoice.create({
     data: {
       invoiceNumber,
       orderId: data.orderId,
-      userId, // Invoice issued by the authenticated user (product owner / admin)
+      userId: order.userId,
       clientId: order.clientId,
       status: "draft",
       subtotal,
@@ -171,7 +172,8 @@ export async function createInvoice(
     invoiceId: invoice.id,
     invoiceNumber: invoice.invoiceNumber,
     orderId: data.orderId,
-    userId,
+    userId: order.userId,
+    createdBy: userId,
   });
 
   return invoice;
@@ -261,11 +263,12 @@ export async function applyStripeChargeToOrderInvoice(
     ? (JSON.parse(JSON.stringify(order.billingAddress)) as Prisma.InputJsonValue)
     : null;
 
+  // REQ-0158 — invoice.userId = store owner on order; createdBy = product owner issuer
   const invoice = await prisma.invoice.create({
     data: {
       invoiceNumber,
       orderId,
-      userId: issuerId,
+      userId: order.userId,
       clientId: order.clientId,
       status: next.status,
       subtotal,
@@ -320,11 +323,21 @@ export async function ensureInvoiceForPaidOrder(
  * @param filters - Optional filters for invoices
  * @returns Promise<Invoice[]> - Array of invoices
  */
+/**
+ * Self invoices for a store owner (issuer + self buyer).
+ * REQ-0158: userId = owner AND (clientId null OR clientId = owner).
+ */
 export async function getInvoicesByUser(
   userId: string,
   filters?: InvoiceFilters
 ): Promise<Prisma.InvoiceGetPayload<Record<string, never>>[]> {
-  const where = applyInvoiceFiltersToWhere({ userId }, filters);
+  const where = applyInvoiceFiltersToWhere(
+    {
+      userId,
+      AND: [{ OR: [{ clientId: null }, { clientId: userId }] }],
+    },
+    filters,
+  );
 
   return prisma.invoice.findMany({
     where,

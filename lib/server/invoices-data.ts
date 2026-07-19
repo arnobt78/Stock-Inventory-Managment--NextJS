@@ -15,7 +15,10 @@ import {
   attachInvoiceListOrderPreview,
   fetchInvoiceListOrderPreviewMap,
 } from "@/lib/invoices/enrich-invoice-list-orders";
-import { getStoreOrderIds } from "@/lib/invoices/store-order-ids";
+import {
+  resolveBuyerDisplayFromUsers,
+  resolveBuyerUserId,
+} from "@/lib/orders/order-party";
 import { prisma } from "@/prisma/client";
 import type { InvoiceFilters } from "@/types/invoice";
 import type { OrderItem } from "@/types";
@@ -150,26 +153,6 @@ export async function getInvoicesForUser(
 }
 
 /**
- * Fetch all store-wide invoices (self + client orders) for admin/user /invoices page.
- * Matches dashboard invoice card counts.
- */
-export async function getStoreInvoicesForAdmin(
-  userId: string,
-): Promise<InvoiceForPage[]> {
-  const cacheKey = cacheKeys.invoices.list({ userId, scope: "store" });
-  const cacheReadStartedAt = Date.now();
-  const cached = await getCache<InvoiceForPage[]>(cacheKey);
-  if (cached) return cached;
-
-  const storeOrderIds = await getStoreOrderIds(userId);
-  const invoices = await getInvoicesByOrderIds(storeOrderIds);
-  const transformed = await transformInvoicesForList(invoices);
-
-  await setCache(cacheKey, transformed, 300, { fetchedAt: cacheReadStartedAt });
-  return transformed;
-}
-
-/**
  * Fetch invoices for orders that contain products from the given supplier.
  * Used for role=supplier on /invoices page SSR (REQ-0075 AC2).
  */
@@ -177,7 +160,7 @@ export async function getInvoicesForSupplierId(
   supplierId: string,
   filters?: InvoiceFilters,
 ): Promise<InvoiceForPage[]> {
-  const { scope: _scope, ...cacheFilters } = filters ?? {};
+  const cacheFilters = filters ?? {};
   const cacheKey = cacheKeys.invoices.list({
     supplierId,
     ...(Object.keys(cacheFilters).length > 0 ? cacheFilters : {}),
@@ -308,7 +291,7 @@ export async function getClientInvoicesForProductOwner(
   productOwnerUserId: string,
   filters?: InvoiceFilters,
 ): Promise<InvoiceForPage[]> {
-  const { scope: _scope, ...cacheFilters } = filters ?? {};
+  const cacheFilters = filters ?? {};
   const cacheKey = cacheKeys.invoices.list({
     productOwnerId: productOwnerUserId,
     ...(Object.keys(cacheFilters).length > 0 ? cacheFilters : {}),
@@ -323,11 +306,22 @@ export async function getClientInvoicesForProductOwner(
   const orderIds = orders.map((o) => o.id);
   const invoices = await getInvoicesByOrderIds(orderIds, cacheFilters);
 
-  const userIds = [...new Set(orders.map((o) => o.userId))];
+  // REQ-0159 — customerDisplay / clientName from buyer, not store owner
+  const orderById = new Map(orders.map((o) => [o.id, o]));
+  const buyerIds = [
+    ...new Set(
+      [
+        ...orders.map((o) => resolveBuyerUserId(o)),
+        ...invoices
+          .map((inv) => inv.clientId)
+          .filter((id): id is string => typeof id === "string" && id.length > 0),
+      ].filter(Boolean),
+    ),
+  ];
   const users =
-    userIds.length > 0
+    buyerIds.length > 0
       ? await prisma.user.findMany({
-          where: { id: { in: userIds } },
+          where: { id: { in: buyerIds } },
           select: { id: true, name: true, email: true },
         })
       : [];
@@ -336,11 +330,20 @@ export async function getClientInvoicesForProductOwner(
   const orderCustomerDisplay = new Map<string, string>();
   const orderUserIdMap = new Map<string, string>();
   for (const order of orders) {
-    const addr = order.shippingAddress as { name?: string; email?: string } | null | undefined;
-    const name = addr?.name ?? addr?.email ?? null;
-    const u = userMap.get(order.userId);
-    const placedByName = u?.name ?? u?.email ?? null;
-    orderCustomerDisplay.set(order.id, name ?? placedByName ?? "Client");
+    const buyer = resolveBuyerDisplayFromUsers(
+      { userId: order.userId, clientId: order.clientId },
+      userMap,
+    );
+    const addr = order.shippingAddress as
+      | { name?: string; email?: string }
+      | null
+      | undefined;
+    // Prefer shipping name only when it matches buyer context; else buyer user
+    const shipLabel = addr?.name ?? addr?.email ?? null;
+    orderCustomerDisplay.set(
+      order.id,
+      buyer.name ?? shipLabel ?? "Client",
+    );
     orderUserIdMap.set(order.id, order.userId);
   }
 
@@ -349,6 +352,14 @@ export async function getClientInvoicesForProductOwner(
   );
 
   const transformed: InvoiceForPage[] = invoices.map((invoice) => {
+    const order = orderById.get(invoice.orderId);
+    const buyer = resolveBuyerDisplayFromUsers(
+      {
+        userId: order?.userId ?? invoice.userId,
+        clientId: invoice.clientId ?? order?.clientId,
+      },
+      userMap,
+    );
     const base = {
       id: invoice.id,
       invoiceNumber: invoice.invoiceNumber,
@@ -375,7 +386,9 @@ export async function getClientInvoicesForProductOwner(
       updatedAt: invoice.updatedAt?.toISOString() || null,
       createdBy: invoice.createdBy,
       updatedBy: invoice.updatedBy,
-      customerDisplay: orderCustomerDisplay.get(invoice.orderId) ?? null,
+      customerDisplay: orderCustomerDisplay.get(invoice.orderId) ?? buyer.name,
+      clientName: buyer.name,
+      clientEmail: buyer.email,
       orderUserId: orderUserIdMap.get(invoice.orderId) ?? null,
     };
     return attachInvoiceListOrderPreview(base, orderPreviewMap);

@@ -16,6 +16,7 @@ import type { SessionForDetail } from "@/lib/server/order-detail-data";
 import { computeProductInsights } from "@/lib/server/product-insights";
 import { catalogDetailOrderSelect } from "@/lib/server/catalog-detail-order-select";
 import { resolveOrderStatusAtFromSource } from "@/lib/orders/order-status-display-date";
+import { resolveBuyerUserId } from "@/lib/orders/order-party";
 import { getInvoiceLinkMap } from "@/lib/server/orders-data";
 
 const productInclude = {
@@ -175,6 +176,7 @@ function transformProductDetail(
         subtotal?: number;
         total: number;
         userId?: string;
+        clientId?: string | null;
       };
       const orderSubtotal = order.subtotal ?? 0;
       const proportionalAmount = computeProportionalLineAmount(
@@ -182,7 +184,12 @@ function transformProductDetail(
         orderSubtotal,
         order.total,
       );
-      const placedByUserId = order.userId;
+      const placedByUserId = order.userId
+        ? resolveBuyerUserId({
+            userId: order.userId,
+            clientId: order.clientId,
+          })
+        : undefined;
       const placedBy = placedByUserId
         ? orderUserMap.get(placedByUserId)
         : undefined;
@@ -288,9 +295,17 @@ export async function getProductDetailForPage(
 
   const orderUserIds = [
     ...new Set(
-      (product.orderItems ?? [])
-        .map((item) => item.order.userId)
-        .filter(Boolean),
+      (product.orderItems ?? []).flatMap((item) => {
+        const o = item.order;
+        if (!o?.userId) return [];
+        return [
+          o.userId,
+          resolveBuyerUserId({
+            userId: o.userId,
+            clientId: o.clientId,
+          }),
+        ];
+      }),
     ),
   ] as string[];
 

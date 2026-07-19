@@ -36,6 +36,7 @@ import {
   getOrderProductPreviewLinks,
 } from "@/lib/orders/order-list-meta";
 import { statusAtSemanticKind } from "@/lib/ui/semantic-date-styles";
+import { formatStoreOwnerLabel } from "@/lib/orders/order-party";
 import { cn } from "@/lib/utils";
 
 const META_MUTED = "text-xs text-gray-500 dark:text-gray-300";
@@ -197,8 +198,14 @@ export const createOrderColumns = (
             )}
             {showProductOwner && (
               <span className={META_MUTED}>
-                {order.productOwnerName}
-                {order.productOwnerEmail ? ` (${order.productOwnerEmail})` : ""}
+                {/* REQ-0159 — Store · owner so client rows do not look like Admin is the customer */}
+                {formatStoreOwnerLabel(
+                  order.productOwnerName,
+                  order.productOwnerEmail,
+                )}
+                {order.productOwnerEmail
+                  ? ` (${order.productOwnerEmail})`
+                  : ""}
               </span>
             )}
             {/* REQ-0145 — product row with icon; sky links to product detail */}

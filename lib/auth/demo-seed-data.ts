@@ -82,6 +82,11 @@ export type DemoCatalogOrderSeed = {
   trackingCarrier?: string;
   /** REQ-0152 — partial pay fixture; omit = 0 or full when invoiceStatus paid */
   amountPaid?: number;
+  /**
+   * REQ-0158 — buyer: `client` → clientId=test client; `self` → clientId=null (admin self).
+   * Default `client` for explore fixtures.
+   */
+  buyerKey?: "client" | "self";
 };
 
 export type DemoCatalogTransferSeed = {
@@ -197,8 +202,8 @@ export const DEMO_CATALOG_SEED = {
       name: "Sony TV",
       sku: "BT23",
       price: 499,
-      // ORD-DEMO-001 delivered+paid qty 1 from Main — post-fulfill catalog
-      quantity: 99,
+      // 100 − ORD-001 (Main) − ORD-003 (Secondary) delivered
+      quantity: 98,
       reservedQuantity: 0,
       status: "Available",
       categoryName: "TV",
@@ -224,11 +229,15 @@ export const DEMO_CATALOG_SEED = {
     {
       productSku: "BT23",
       warehouseName: "Secondary Storage",
-      quantity: 20,
-      reservedQuantity: 0,
+      // 20 − ORD-DEMO-003 delivered 1 − ORD-DEMO-004 pending reserved 1
+      quantity: 18,
+      reservedQuantity: 1,
     },
   ] satisfies DemoCatalogAllocationSeed[],
-  /** Pending client order (stock reserved) + historical delivered/paid order. */
+  /**
+   * REQ-0158 party matrix:
+   * 001/002/004 = client buyer; 003 = admin self (clientId null).
+   */
   orders: [
     {
       orderNumber: "ORD-DEMO-001",
@@ -244,9 +253,10 @@ export const DEMO_CATALOG_SEED = {
       paymentStatus: "paid",
       invoiceStatus: "paid",
       orderDate: "2026-06-15T14:00:00.000Z",
-      notes: "Historical paid demo order for invoice + review explore.",
+      notes: "Client paid/delivered — buyer clientId.",
       trackingNumber: "DEMO-TRACK-001",
       trackingCarrier: "ups",
+      buyerKey: "client",
     },
     {
       orderNumber: "ORD-DEMO-002",
@@ -264,7 +274,44 @@ export const DEMO_CATALOG_SEED = {
       invoiceStatus: "sent",
       amountPaid: 100,
       orderDate: "2026-07-15T10:00:00.000Z",
-      notes: "Partial-paid reserved order — Pay remaining / stock allocate QA.",
+      notes: "Client partial-paid reserved — Pay remaining / stock allocate QA.",
+      buyerKey: "client",
+    },
+    {
+      orderNumber: "ORD-DEMO-003",
+      invoiceNumber: "INV-DEMO-003",
+      productSku: "BT23",
+      warehouseName: "Secondary Storage",
+      quantity: 1,
+      unitPrice: 499,
+      tax: 0,
+      shipping: 0,
+      discount: 0,
+      status: "delivered",
+      paymentStatus: "paid",
+      invoiceStatus: "paid",
+      orderDate: "2026-07-10T12:00:00.000Z",
+      notes: "Admin self-order — clientId null (Self badge).",
+      trackingNumber: "DEMO-TRACK-003",
+      trackingCarrier: "usps",
+      buyerKey: "self",
+    },
+    {
+      orderNumber: "ORD-DEMO-004",
+      invoiceNumber: "INV-DEMO-004",
+      productSku: "BT23",
+      warehouseName: "Secondary Storage",
+      quantity: 1,
+      unitPrice: 499,
+      tax: 0,
+      shipping: 0,
+      discount: 0,
+      status: "pending",
+      paymentStatus: "unpaid",
+      invoiceStatus: "draft",
+      orderDate: "2026-07-18T09:00:00.000Z",
+      notes: "Client unpaid/pending — Client portal + Self/Others QA.",
+      buyerKey: "client",
     },
   ] satisfies DemoCatalogOrderSeed[],
   transfers: [
@@ -391,6 +438,7 @@ export const DEMO_CATALOG_SEED = {
       details: { orderNumber: "ORD-DEMO-002", source: "demo-seed" },
     },
   ] satisfies DemoCatalogAuditSeed[],
+  /** Street-only base; seed merges buyer name/email per order (REQ-0159). */
   demoAddress: {
     street: "42 Explore Lane",
     city: "Austin",

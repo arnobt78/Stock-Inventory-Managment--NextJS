@@ -1,7 +1,7 @@
 /**
  * Server-side user detail fetch for SSR prefetch.
  * Mirrors GET /api/users/:id auth + response shape (admin-only, includes overview).
- * REQ-0024
+ * REQ-0024 · REQ-0158 — party-aware counts / revenue / spent.
  */
 
 import { getUserById } from "@/prisma/user-admin";
@@ -25,44 +25,50 @@ export function transformUserForAdmin(r: UserRecord): UserForAdmin {
   };
 }
 
-async function buildUserOverview(id: string): Promise<UserOverview> {
-  const ordersForSpent = prisma.order.findMany({
-    where: {
-      OR: [{ clientId: id }, { userId: id, clientId: null }],
-    },
-    select: { total: true },
-  });
-  const invoicesForDue = prisma.invoice.findMany({
-    where: {
-      OR: [{ clientId: id }, { userId: id, clientId: null }],
-    },
-    select: { amountDue: true },
-  });
+/**
+ * REQ-0158 / REQ-0159 overview:
+ * - Counts: single OR (userId | clientId) — no double-count
+ * - Spent/Due: distinct buyer only (`clientId === id` and `userId !== id`);
+ *   self-orders (clientId null/owner) are not counted as spent
+ * - Revenue: role-aware (client 0; supplier lines; admin/user = owned store orders)
+ */
+async function buildUserOverview(
+  id: string,
+  role: string | null,
+): Promise<UserOverview> {
+  const normalizedRole = (role || "admin").toLowerCase();
 
   const [
-    orderCountAsCreator,
-    orderCountAsClient,
-    invoiceCountAsCreator,
-    invoiceCountAsClient,
-    ordersAsCreator,
-    ordersForSpentResult,
-    invoicesForDueResult,
+    orderCount,
+    invoiceCount,
+    ordersAsOwner,
+    buyerOrders,
+    buyerInvoices,
     productCount,
     supplierCount,
     categoryCount,
     warehouseCount,
     suppliersForUser,
   ] = await Promise.all([
-    prisma.order.count({ where: { userId: id } }),
-    prisma.order.count({ where: { clientId: id } }),
-    prisma.invoice.count({ where: { userId: id } }),
-    prisma.invoice.count({ where: { clientId: id } }),
+    prisma.order.count({
+      where: { OR: [{ userId: id }, { clientId: id }] },
+    }),
+    prisma.invoice.count({
+      where: { OR: [{ userId: id }, { clientId: id }] },
+    }),
     prisma.order.findMany({
       where: { userId: id },
       select: { total: true },
     }),
-    ordersForSpent,
-    invoicesForDue,
+    // Distinct client buyer (not self-order where clientId === userId)
+    prisma.order.findMany({
+      where: { clientId: id, userId: { not: id } },
+      select: { total: true },
+    }),
+    prisma.invoice.findMany({
+      where: { clientId: id, userId: { not: id } },
+      select: { amountDue: true },
+    }),
     prisma.product.count({ where: { userId: id } }),
     prisma.supplier.count({ where: { userId: id } }),
     prisma.category.count({ where: { userId: id } }),
@@ -82,7 +88,7 @@ async function buildUserOverview(id: string): Promise<UserOverview> {
         })
       : [];
 
-  const revenueFromOrdersCreated = ordersAsCreator.reduce(
+  const revenueFromOrdersOwned = ordersAsOwner.reduce(
     (s, o) => s + (o.total ?? 0),
     0,
   );
@@ -90,19 +96,23 @@ async function buildUserOverview(id: string): Promise<UserOverview> {
     (s, i) => s + (i.subtotal ?? 0),
     0,
   );
-  const totalRevenue = revenueFromOrdersCreated + supplierRevenue;
-  const totalSpent = ordersForSpentResult.reduce(
-    (s, o) => s + (o.total ?? 0),
-    0,
-  );
-  const totalDue = invoicesForDueResult.reduce(
-    (s, i) => s + (i.amountDue ?? 0),
-    0,
-  );
+
+  let totalRevenue = 0;
+  if (normalizedRole === "client") {
+    totalRevenue = 0;
+  } else if (normalizedRole === "supplier") {
+    totalRevenue = supplierRevenue;
+  } else {
+    // admin / user — store owner order totals (do not also add supplier lines)
+    totalRevenue = revenueFromOrdersOwned;
+  }
+
+  const totalSpent = buyerOrders.reduce((s, o) => s + (o.total ?? 0), 0);
+  const totalDue = buyerInvoices.reduce((s, i) => s + (i.amountDue ?? 0), 0);
 
   return {
-    orderCount: orderCountAsCreator + orderCountAsClient,
-    invoiceCount: invoiceCountAsCreator + invoiceCountAsClient,
+    orderCount,
+    invoiceCount,
     totalRevenue,
     totalSpent,
     totalDue,
@@ -123,6 +133,6 @@ export async function getUserDetailForPage(
   const record = await getUserById(id);
   if (!record) return null;
 
-  const overview = await buildUserOverview(id);
+  const overview = await buildUserOverview(id, record.role);
   return { ...transformUserForAdmin(record), overview };
 }

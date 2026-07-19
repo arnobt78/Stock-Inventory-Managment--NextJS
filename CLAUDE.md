@@ -829,6 +829,28 @@ Hub: `lib/ui/typography-scale.ts`. Hubs import tokens; ~45 inline files use equi
 
 **Still patch → invalidate** — no registry change; closes client lag before refetch.
 
+## Order party Self vs Client (REQ-0158)
+
+| Piece | Location |
+|-------|----------|
+| Helpers | `lib/orders/order-party.ts` — `isSelfOrder` / `resolveStoreOwnerUserId` |
+| Create | API sets owner + buyer; Self list `clientId` null or = owner |
+| Portal | Admin Client Portal filters `clientId`; Redis `clientPortal:overview:v2` |
+| Seed | ORD/INV-DEMO-001…004 (003 = admin self) |
+
+**Invalidation unchanged** — order-graph already covers.
+
+## Buyer display + invoice Self-only (REQ-0159)
+
+| Piece | Location |
+|-------|----------|
+| Buyer labels | `resolveBuyerDisplayFromUsers` → lists/admin badges; invoice `orderedBy` |
+| `/invoices` | Self-only table; store Self/Others KPIs = dashboard + `getStoreOrderIds` (not list helper) |
+| `/admin/invoices` | Self+Client badges + buyer names |
+| Client UI | `Store · {owner}`; cache `orders:list:v5` / `invoices:list:v3` |
+
+**Invalidation unchanged.** Dead store-list path removed; KPI math untouched.
+
 ## KPI badge helpers (REQ-0156–0157)
 
 | Helper | Use |

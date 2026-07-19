@@ -4,6 +4,54 @@ Canonical REQ source. All artifacts link via `REQ-XXXX`. Status: `done` | `verif
 
 ---
 
+## REQ-0159 — Buyer display + invoice list parity
+
+| Field | Value |
+|-------|-------|
+| **Priority** | P0 |
+| **Risk** | R1 |
+| **Status** | done |
+| **Cycle** | C2 |
+| **Parent** | REQ-0158 |
+
+**Intent:** Display buyer (`clientId`) on Client-badge rows and invoice Ordered by; Self-only admin `/invoices` parity with `/orders`; clear Store · labels on client lists.
+
+**Acceptance criteria**
+
+- AC1: `resolveBuyerDisplayFromUsers` + `formatStoreOwnerLabel`; placedBy/customerDisplay/orderedBy use buyer
+- AC2: Admin merge `_displayName` = buyer for Client rows
+- AC3: Admin `/invoices` Self-only (SSR + TanStack + warm); store KPIs unchanged
+- AC4: Client tables show `Store · {owner}`; seed shipping name = buyer
+- AC5: Client Portal Revenue = order totals only; gates pass
+
+**Artifacts:** `lib/orders/order-party.ts`, `orders-data.ts`, `invoices-data.ts`, `invoice-detail-data.ts`, `app/invoices/page.tsx`
+
+---
+
+## REQ-0158 — Order/invoice party semantics (Self vs Client)
+
+| Field | Value |
+|-------|-------|
+| **Priority** | P0 |
+| **Risk** | R2 |
+| **Status** | done |
+| **Cycle** | C2 |
+| **Parent** | REQ-0136 |
+
+**Intent:** Lock `userId`=store owner, `clientId`=buyer (null=self); fix admin Client Portal; seed Self+Client matrix.
+
+**Acceptance criteria**
+
+- AC1: `order-party` helpers + create/list Self-only paths
+- AC2: Admin Client Portal filters `clientId`; Redis `overview:v2`
+- AC3: Self/Others KPIs + admin merge badges use `isSelfOrder`
+- AC4: User overview role-aware counts/revenue/spent
+- AC5: Seed ORD/INV-DEMO-001…004; gates pass
+
+**Artifacts:** `lib/orders/order-party.ts`, `client-portal-data.ts`, seed matrix
+
+---
+
 ## REQ-0157 — Badge DRY + portal helper + test tsc hygiene
 
 | Field | Value |

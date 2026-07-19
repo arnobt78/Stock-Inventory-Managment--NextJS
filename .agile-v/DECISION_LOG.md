@@ -408,3 +408,9 @@ Format: `TIMESTAMP | AGENT | DECISION | RATIONALE | REQ-ID`
 2026-07-19T12:12:39Z | build-agent | buildStoreInvoiceStatusBadges | DRY store invoice KPI cards | REQ-0156
 2026-07-19T12:18:49Z | build-agent | Portal order helper keeps In progress/Shipping | store Confirmed not portal model | REQ-0157
 2026-07-19T12:18:49Z | build-agent | Test-only tsc hygiene | Vitest green; typecheck clean | REQ-0157
+2026-07-19T13:00:46Z | build-agent | Keep userId+clientId; Self=null buyer | role-only userId collapses parties | REQ-0158
+2026-07-19T13:00:46Z | build-agent | Client portal filter clientId + overview:v2 | creator userId showed 0 | REQ-0158
+
+2026-07-19T15:45:00Z | build-agent | Buyer display + /invoices Self-only | placedBy/orderedBy/customerDisplay from resolveBuyerUserId; admin /invoices match /orders Self table; Store · labels; Redis list v5/v3 | REQ-0159
+
+2026-07-19T15:50:00Z | build-agent | Remove dead store invoice list path | getStoreInvoicesForAdmin + API scope=store unused after Self-only /invoices; KPIs keep getStoreOrderIds | REQ-0159

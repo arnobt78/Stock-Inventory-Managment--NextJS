@@ -38,6 +38,7 @@ import {
 } from "@/lib/orders/order-list-meta";
 import { invoiceStatusAtSemanticKind } from "@/lib/invoices/invoice-status-display-date";
 import { statusAtSemanticKind } from "@/lib/ui/semantic-date-styles";
+import { formatStoreOwnerLabel } from "@/lib/orders/order-party";
 import { cn } from "@/lib/utils";
 
 const META_MUTED = "text-xs text-gray-500 dark:text-gray-300";
@@ -184,8 +185,14 @@ export const createInvoiceColumns = (
             )}
             {showIssuedBy && (
               <span className={META_MUTED}>
-                {invoice.issuedByName}
-                {invoice.issuedByEmail ? ` (${invoice.issuedByEmail})` : ""}
+                {/* REQ-0159 — Store · issuer so client list does not look like Admin is the customer */}
+                {formatStoreOwnerLabel(
+                  invoice.issuedByName,
+                  invoice.issuedByEmail,
+                )}
+                {invoice.issuedByEmail
+                  ? ` (${invoice.issuedByEmail})`
+                  : ""}
               </span>
             )}
           </div>

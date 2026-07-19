@@ -14,6 +14,31 @@ import {
 import { getInvoicesByOrderIds } from "@/prisma/invoice";
 import { prisma } from "@/prisma/client";
 import { resolveOrderStatusAtFromSource } from "@/lib/orders/order-status-display-date";
+import {
+  resolveBuyerDisplayFromUsers,
+  resolveBuyerUserId,
+  type PartyUserRow,
+} from "@/lib/orders/order-party";
+
+/** Collect buyer user ids for list placedBy* (REQ-0159). */
+function collectBuyerUserIds(
+  orders: ReadonlyArray<{ userId: string; clientId?: string | null }>,
+): string[] {
+  return [
+    ...new Set(orders.map((o) => resolveBuyerUserId(o)).filter(Boolean)),
+  ];
+}
+
+async function loadPartyUserMap(
+  userIds: string[],
+): Promise<Map<string, PartyUserRow>> {
+  if (userIds.length === 0) return new Map();
+  const users = await prisma.user.findMany({
+    where: { id: { in: userIds } },
+    select: { id: true, name: true, email: true },
+  });
+  return new Map(users.map((u) => [u.id, u]));
+}
 
 /**
  * Linked invoice ref per order row (REQ-0061 actions; REQ-0145 list Invoice # column).
@@ -180,19 +205,16 @@ export async function getOrdersForUser(
   }
 
   const orders = await getOrdersByUser(userId);
-  const firstOrder = orders[0];
-  const [user, invoiceLinkMap] = await Promise.all([
-    firstOrder != null
-      ? prisma.user.findUnique({
-          where: { id: firstOrder.userId },
-          select: { name: true, email: true },
-        })
-      : Promise.resolve(null),
+  const [userMap, invoiceLinkMap] = await Promise.all([
+    loadPartyUserMap(collectBuyerUserIds(orders)),
     getInvoiceLinkMap(orders.map((o) => o.id)),
   ]);
-  const placedByName = user?.name ?? user?.email ?? null;
 
   const transformed: OrderForPage[] = orders.map((order) => {
+    const buyer = resolveBuyerDisplayFromUsers(
+      { userId: order.userId, clientId: order.clientId },
+      userMap,
+    );
     const invoiceForOrder = invoiceLinkMap.get(order.id) ?? null;
     return finalizeOrderForPage(
       {
@@ -231,7 +253,9 @@ export async function getOrdersForUser(
           subtotal: item.subtotal,
           createdAt: item.createdAt.toISOString(),
         })),
-        placedByName,
+        // REQ-0159 — buyer (self = owner)
+        placedByName: buyer.name,
+        placedByEmail: buyer.email,
       },
       invoiceForOrder,
     );
@@ -257,20 +281,16 @@ export async function getOrdersForSupplierId(
 
   const orders = await getOrdersContainingSupplierProducts(supplierId);
 
-  const userIds = [...new Set(orders.map((o) => o.userId))];
-  const [users, invoiceLinkMap] = await Promise.all([
-    userIds.length > 0
-      ? prisma.user.findMany({
-          where: { id: { in: userIds } },
-          select: { id: true, name: true, email: true },
-        })
-      : Promise.resolve([]),
+  const [userMap, invoiceLinkMap] = await Promise.all([
+    loadPartyUserMap(collectBuyerUserIds(orders)),
     getInvoiceLinkMap(orders.map((o) => o.id)),
   ]);
-  const userMap = new Map(users.map((u) => [u.id, u]));
 
   const transformed: OrderForPage[] = orders.map((order) => {
-    const u = userMap.get(order.userId);
+    const buyer = resolveBuyerDisplayFromUsers(
+      { userId: order.userId, clientId: order.clientId },
+      userMap,
+    );
     return finalizeOrderForPage(
       {
         id: order.id,
@@ -308,8 +328,9 @@ export async function getOrdersForSupplierId(
           subtotal: item.subtotal,
           createdAt: item.createdAt.toISOString(),
         })),
-        placedByName: u?.name ?? u?.email ?? null,
-        placedByEmail: u?.email ?? null,
+        // REQ-0159 — who ordered (buyer), not store owner
+        placedByName: buyer.name,
+        placedByEmail: buyer.email,
       },
       invoiceLinkMap.get(order.id) ?? null,
     );
@@ -334,21 +355,16 @@ export async function getClientOrdersForProductOwner(
   }
 
   const orders = await getOrdersContainingProductOwnerProducts(productOwnerUserId);
-  const userIds = [...new Set(orders.map((o) => o.userId))];
-  const [users, invoiceLinkMap] = await Promise.all([
-    userIds.length > 0
-      ? prisma.user.findMany({
-          where: { id: { in: userIds } },
-          select: { id: true, name: true, email: true },
-        })
-      : Promise.resolve([]),
+  const [userMap, invoiceLinkMap] = await Promise.all([
+    loadPartyUserMap(collectBuyerUserIds(orders)),
     getInvoiceLinkMap(orders.map((o) => o.id)),
   ]);
-  const userMap = new Map(users.map((u) => [u.id, u]));
 
   const transformed: OrderForPage[] = orders.map((order) => {
-    const u = userMap.get(order.userId);
-    const placedByName = u?.name ?? u?.email ?? null;
+    const buyer = resolveBuyerDisplayFromUsers(
+      { userId: order.userId, clientId: order.clientId },
+      userMap,
+    );
     return finalizeOrderForPage(
       {
         id: order.id,
@@ -386,7 +402,9 @@ export async function getClientOrdersForProductOwner(
           subtotal: item.subtotal,
           createdAt: item.createdAt.toISOString(),
         })),
-        placedByName,
+        // REQ-0159 — Client-badge rows must show buyer, not store owner
+        placedByName: buyer.name,
+        placedByEmail: buyer.email,
       },
       invoiceLinkMap.get(order.id) ?? null,
     );

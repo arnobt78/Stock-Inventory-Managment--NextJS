@@ -24,5 +24,7 @@ export const catalogDetailOrderSelect = {
   total: true,
   createdAt: true,
   userId: true,
+  /** REQ-0158 — buyer for placedBy (distinct from store owner userId) */
+  clientId: true,
   ...orderStatusAtSelect,
 } as const;

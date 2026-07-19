@@ -97,9 +97,8 @@ export function useClientInvoices(
   options?: { enabled?: boolean },
 ) {
   const enabled = options?.enabled ?? true;
-  const { scope: _scope, ...clientFilters } = filters ?? {};
   const queryFilters =
-    Object.keys(clientFilters).length > 0 ? clientFilters : undefined;
+    filters && Object.keys(filters).length > 0 ? filters : undefined;
 
   return useQuery<Invoice[], Error>({
     queryKey: queryKeys.clientInvoices.list(

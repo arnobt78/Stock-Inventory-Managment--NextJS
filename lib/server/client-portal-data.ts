@@ -1,6 +1,7 @@
 /**
  * Server-side data for Admin Client Portal page
  * Aggregates clients (role=client), their orders, invoices, revenue.
+ * REQ-0158: filter by buyer `clientId` (not creator `userId`).
  * Only import from server code (e.g. app/admin/client-portal/page.tsx, GET /api/client-portal).
  */
 
@@ -33,15 +34,16 @@ export async function getClientPortalForAdmin(): Promise<ClientPortalStats> {
 
   const clientIds = clientUsers.map((u) => u.id);
 
-  // Get orders for clients
+  // REQ-0158 — buyer field, not store-owner userId
   const orders = clientIds.length
     ? await prisma.order.findMany({
-        where: { userId: { in: clientIds } },
+        where: { clientId: { in: clientIds } },
         select: {
           id: true,
           orderNumber: true,
           total: true,
           userId: true,
+          clientId: true,
           createdAt: true,
           ...orderStatusAtSelect,
         },
@@ -49,33 +51,30 @@ export async function getClientPortalForAdmin(): Promise<ClientPortalStats> {
       })
     : [];
 
-  // Get invoices for clients
   const invoices = clientIds.length
     ? await prisma.invoice.findMany({
-        where: { userId: { in: clientIds } },
+        where: { clientId: { in: clientIds } },
         select: {
           id: true,
           invoiceNumber: true,
           status: true,
           total: true,
           userId: true,
+          clientId: true,
           createdAt: true,
         },
         orderBy: { createdAt: "desc" },
       })
     : [];
 
-  // Build user map
   const userMap = new Map(clientUsers.map((u) => [u.id, u]));
 
-  // Counts
   const counts: ClientPortalCounts = {
     clients: clientUsers.length,
     orders: orders.length,
     invoices: invoices.length,
   };
 
-  // Revenue
   const ordersRevenue = orders.reduce((sum, o) => sum + (o.total ?? 0), 0);
   const invoicesRevenue = invoices.reduce((sum, i) => sum + (i.total ?? 0), 0);
   const revenue: ClientPortalRevenue = {
@@ -83,17 +82,17 @@ export async function getClientPortalForAdmin(): Promise<ClientPortalStats> {
     invoices: invoicesRevenue,
   };
 
-  // Recent orders (last 10)
   const recentOrders: ClientPortalRecentOrder[] = orders
     .slice(0, 10)
-    .map((o) =>
-      withOrderStatusAt({
+    .map((o) => {
+      const buyerId = o.clientId ?? o.userId;
+      return withOrderStatusAt({
         id: o.id,
         orderNumber: o.orderNumber,
         status: o.status,
         total: o.total ?? 0,
-        clientId: o.userId,
-        clientName: userMap.get(o.userId)?.name ?? "Unknown",
+        clientId: buyerId,
+        clientName: userMap.get(buyerId)?.name ?? "Unknown",
         createdAt: o.createdAt.toISOString(),
         paymentStatus: o.paymentStatus,
         cancelledAt: o.cancelledAt,
@@ -101,26 +100,27 @@ export async function getClientPortalForAdmin(): Promise<ClientPortalStats> {
         shippedAt: o.shippedAt,
         updatedAt: o.updatedAt,
         invoice: o.invoice,
-      }),
-    );
+      });
+    });
 
-  // Recent invoices (last 10)
   const recentInvoices: ClientPortalRecentInvoice[] = invoices
     .slice(0, 10)
-    .map((i) => ({
-      id: i.id,
-      invoiceNumber: i.invoiceNumber,
-      status: i.status,
-      total: i.total ?? 0,
-      clientId: i.userId,
-      clientName: userMap.get(i.userId)?.name ?? "Unknown",
-      createdAt: i.createdAt.toISOString(),
-    }));
+    .map((i) => {
+      const buyerId = i.clientId ?? i.userId;
+      return {
+        id: i.id,
+        invoiceNumber: i.invoiceNumber,
+        status: i.status,
+        total: i.total ?? 0,
+        clientId: buyerId,
+        clientName: userMap.get(buyerId)?.name ?? "Unknown",
+        createdAt: i.createdAt.toISOString(),
+      };
+    });
 
-  // Client summary
   const clients: ClientPortalClient[] = clientUsers.map((u) => {
-    const userOrders = orders.filter((o) => o.userId === u.id);
-    const userInvoices = invoices.filter((i) => i.userId === u.id);
+    const userOrders = orders.filter((o) => o.clientId === u.id);
+    const userInvoices = invoices.filter((i) => i.clientId === u.id);
     const totalSpent = userOrders.reduce((s, o) => s + (o.total ?? 0), 0);
     return {
       id: u.id,

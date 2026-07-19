@@ -161,9 +161,10 @@ export default function AdminClientPortalContent({
           />
           <AnalyticsCard
             title="Revenue"
-            value={`$${((stats?.revenue?.orders ?? 0) + (stats?.revenue?.invoices ?? 0)).toLocaleString()}`}
+            // REQ-0159 — order totals only (avoid double-count with invoice totals)
+            value={`$${(stats?.revenue?.orders ?? 0).toLocaleString()}`}
             icon={DollarSign}
-            description="Orders + Invoices"
+            description="Order totals"
             variant="amber"
             valueLoading={dataLoading}
           />

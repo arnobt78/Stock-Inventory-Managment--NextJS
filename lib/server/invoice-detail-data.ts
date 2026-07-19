@@ -15,6 +15,7 @@ import {
 import { mapOrderItemsFromRaw } from "@/lib/orders/map-order-items";
 import { enrichOrderItemsCatalogNames } from "@/lib/orders/enrich-order-items-catalog";
 import { toParty } from "@/lib/server/catalog-party-snapshot";
+import { resolveBuyerUserId } from "@/lib/orders/order-party";
 import type { Invoice } from "@/types";
 import type { SessionForDetail } from "@/lib/server/order-detail-data";
 
@@ -40,12 +41,22 @@ async function enrichInvoice(
     },
   });
 
+  // Include buyer id for Ordered by (REQ-0159 — not store owner)
+  const orderBuyerId = order
+    ? resolveBuyerUserId({
+        userId: order.userId,
+        clientId: order.clientId,
+      })
+    : null;
+
   const partyUserIds = [
     invoice.userId,
     invoice.createdBy,
     invoice.updatedBy,
     invoice.clientId,
     order?.userId,
+    order?.clientId,
+    orderBuyerId,
     ...(order?.items ?? [])
       .map((item: { product?: { userId?: string } }) => item.product?.userId)
       .filter(Boolean),
@@ -80,13 +91,14 @@ async function enrichInvoice(
       }
     : null;
 
+  // REQ-0159 — Ordered by = buyer (clientId when Client order)
   const orderedBy =
-    order && userMap.get(order.userId)
+    order && orderBuyerId && userMap.get(orderBuyerId)
       ? {
-          userId: order.userId,
-          name: userMap.get(order.userId)!.name ?? null,
-          email: userMap.get(order.userId)!.email,
-          image: userMap.get(order.userId)!.image ?? null,
+          userId: orderBuyerId,
+          name: userMap.get(orderBuyerId)!.name ?? null,
+          email: userMap.get(orderBuyerId)!.email,
+          image: userMap.get(orderBuyerId)!.image ?? null,
         }
       : null;
 

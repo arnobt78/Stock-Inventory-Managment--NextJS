@@ -4,10 +4,10 @@
 |-------|-------|
 | **Cycle** | C2 (C1 Gate 2 still PENDING) |
 | **Phase** | Stage 3–5 — **REQ-0136** (UI explore → cache smoke) |
-| **Last updated** | 2026-07-19 REQ-0157 |
+| **Last updated** | 2026-07-19 REQ-0159 |
 | **Active REQ** | **REQ-0136** (UI explore → §10 A1/A2/B1) |
-| **Done range** | REQ-0001 … REQ-0135 + REQ-0137–**0157** |
-| **Prod SHA** | `02a5c6a` (REQ-0156–0157) on `origin/main` |
+| **Done range** | REQ-0001 … REQ-0135 + REQ-0137–**0159** |
+| **Prod SHA** | `cbc827f` (REQ-0158/0159) — push `origin/main` |
 | **Human Gate 1** | APPROVED (GATE-0001) |
 | **Human Gate 2** | PENDING (GATE-0002) — UI explore → §10 → Sentry 24h |
 | **Resume token** | `tomorrow-UI-then-cache` → **REQ-0136** |
@@ -33,7 +33,7 @@
 
 **Re-seed:** `npm run script:reset-demo-db -- --with-catalog`
 
-**Demo fixtures:** ORD-DEMO-001 paid/delivered · ORD-DEMO-002 confirmed + partial `$100`/`$3980` · INV-DEMO-001/002 · catalogs/stock/tickets/reviews
+**Demo fixtures:** ORD-001/002/004 client buyer · ORD-003 admin self · INV-001…004 · shipping name = buyer (REQ-0159)
 
 ---
 
@@ -41,15 +41,11 @@
 
 | REQ | Summary | SHA |
 |-----|---------|-----|
-| 0146–0149 | Order detail polish | `61c1e79` |
-| 0150–0153 | Invoice densify + partial pay + linked-order patch | `122da3d` |
-| 0154 | Partial pay KPI stats + Total typography | `4e7bd56` |
-| 0155 | Delivered + Due badge parity | `e9349ca` |
-| 0156 | My Activity + invoice badge set parity | `5efdc61` |
-| 0157 | Badge DRY + portal helper + test tsc | `5efdc61` |
+| 0156–0157 | Badge DRY + My Activity | `5efdc61` |
+| 0158–0159 | Party model + buyer display + Self invoices | `cbc827f` |
 | docs EOD | Park resume REQ-0136 | `157c581` |
 
-**Last gates (REQ-0157):** lint ✓ test **606** ✓ invalidate **213** ✓ build ✓ tsc ✓
+**Last gates (REQ-0159):** lint ✓ test **612** ✓ invalidate **213** ✓ build ✓ tsc ✓
 
 ---
 

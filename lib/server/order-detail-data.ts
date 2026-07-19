@@ -18,6 +18,7 @@ import {
 } from "@/lib/orders/transform-order-detail";
 import { enrichOrderItemsCatalogNames } from "@/lib/orders/enrich-order-items-catalog";
 import { toParty } from "@/lib/server/catalog-party-snapshot";
+import { resolveBuyerUserId } from "@/lib/orders/order-party";
 import type { Order } from "@/types";
 
 export type SessionForDetail = {
@@ -37,8 +38,14 @@ async function enrichOrder(orderId: string, order: NonNullable<Awaited<ReturnTyp
     ),
   ] as string[];
 
+  const buyerUserId = resolveBuyerUserId({
+    userId: order.userId,
+    clientId: order.clientId,
+  });
   const userIds = [
     order.userId,
+    order.clientId,
+    buyerUserId,
     order.createdBy,
     order.updatedBy,
     ...productOwnerIds,
@@ -54,7 +61,8 @@ async function enrichOrder(orderId: string, order: NonNullable<Awaited<ReturnTyp
       : [];
   const userMap = new Map(users.map((u) => [u.id, u]));
 
-  const placedBy = order.userId != null ? userMap.get(order.userId) : null;
+  // REQ-0158 — placedBy = buyer (clientId) when distinct; else store owner
+  const placedBy = userMap.get(buyerUserId) ?? null;
 
   const productOwnerUsers = productOwnerIds
     .map((id) => userMap.get(id))
@@ -88,7 +96,7 @@ async function enrichOrder(orderId: string, order: NonNullable<Awaited<ReturnTyp
   return {
     placedByName: placedBy?.name ?? placedBy?.email ?? null,
     placedByEmail: placedBy?.email ?? null,
-    placedByUserId: order.userId ?? null,
+    placedByUserId: buyerUserId,
     placedByImage: placedBy?.image ?? null,
     orderProductOwners: productOwnerUsers.map((u) => ({
       userId: u.id,

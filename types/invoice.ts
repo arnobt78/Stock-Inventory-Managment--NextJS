@@ -138,6 +138,4 @@ export interface InvoiceFilters {
   endDate?: string; // ISO string
   dueDateStart?: string; // ISO string
   dueDateEnd?: string; // ISO string
-  /** API-only: `store` = all invoices for store orders (admin /invoices); default `issuer` */
-  scope?: "issuer" | "store";
 }

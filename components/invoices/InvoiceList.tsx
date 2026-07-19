@@ -32,6 +32,7 @@ import {
 import { APP_SHELL_WIDTH_CLASS } from "@/lib/ui/shell-layout-styles";
 import { buildStoreOrderStatusBadges } from "@/lib/ui/store-order-status-badges";
 import { buildStoreInvoiceStatusBadges } from "@/lib/ui/store-invoice-status-badges";
+import { isSelfOrder } from "@/lib/orders/order-party";
 import InvoiceFilters from "./InvoiceFilters";
 import InvoiceDialog from "./InvoiceDialog";
 import { StatisticsCard } from "@/components/home/StatisticsCard";
@@ -119,19 +120,13 @@ const InvoiceList = React.memo(
       dataSource === "adminCombined";
     const enableClientPortal = pathname === "/invoices" && role === "client";
 
-    const useStoreInvoiceScope =
-      dataSource === "invoices" &&
-      pathname === "/invoices" &&
-      role !== "client" &&
-      role !== "supplier";
-
+    // REQ-0159 — admin/user /invoices uses Self-only issuer scope (match /orders)
     const apiFilters = useMemo(
       () =>
         buildInvoiceListFilters({
           searchTerm: debouncedSearchTerm,
-          scope: useStoreInvoiceScope ? "store" : undefined,
         }),
-      [debouncedSearchTerm, useStoreInvoiceScope],
+      [debouncedSearchTerm],
     );
 
     const clientApiFilters = useMemo(
@@ -220,32 +215,49 @@ const InvoiceList = React.memo(
       const client = invoicesQueryClient.data ?? [];
       const byId = new Map<string, InvoiceWithSource>();
       personal.forEach((inv) => {
-        const isPersonal = inv.orderUserId === user.id;
+        const ownerId = inv.orderUserId ?? inv.userId;
+        const self = isSelfOrder({
+          userId: ownerId,
+          clientId: inv.clientId,
+        });
         byId.set(inv.id, {
           ...inv,
-          _source: isPersonal ? "personal" : "client",
-          _displayName: isPersonal
+          _source: self ? "personal" : "client",
+          // REQ-0159 — Client rows: buyer clientName first (never store owner)
+          _displayName: self
             ? (user.name ?? "You")
             : (inv.clientName ?? inv.customerDisplay ?? "Client"),
         });
       });
       client.forEach((inv) => {
         if (!byId.has(inv.id)) {
+          const ownerId = inv.orderUserId ?? inv.userId;
+          const self = isSelfOrder({
+            userId: ownerId,
+            clientId: inv.clientId,
+          });
           byId.set(inv.id, {
             ...inv,
-            _source: "client",
-            _displayName: inv.customerDisplay ?? inv.clientName ?? "Client",
+            _source: self ? "personal" : "client",
+            _displayName: self
+              ? (user.name ?? "You")
+              : (inv.clientName ?? inv.customerDisplay ?? "Client"),
           });
         } else {
           const existing = byId.get(inv.id)!;
-          const isPersonal = existing.orderUserId === user.id;
+          const ownerId = existing.orderUserId ?? existing.userId;
+          const isPersonal = isSelfOrder({
+            userId: ownerId,
+            clientId: existing.clientId,
+          });
           if (!isPersonal) {
             byId.set(inv.id, {
               ...existing,
               _source: "client",
               _displayName:
-                inv.customerDisplay ??
+                inv.clientName ??
                 existing.clientName ??
+                inv.customerDisplay ??
                 existing._displayName ??
                 "Client",
             });
@@ -695,6 +707,14 @@ const InvoiceList = React.memo(
                 cancelledCount:
                   dashboard?.invoiceAnalytics?.statusDistribution?.cancelled,
                 refundedCount: dashboard?.orderAnalytics?.refundedCount,
+                selfOthers: dashboard?.selfOthersBreakdown
+                  ? {
+                      invoiceSelfCount:
+                        dashboard.selfOthersBreakdown.invoiceSelfCount,
+                      invoiceOthersCount:
+                        dashboard.selfOthersBreakdown.invoiceOthersCount,
+                    }
+                  : null,
               })}
             />
             <StatisticsCard
@@ -740,6 +760,22 @@ const InvoiceList = React.memo(
                     dashboard?.orderAnalytics?.pendingOrderAmount ?? 0,
                   ),
                 },
+                ...(dashboard?.selfOthersBreakdown
+                  ? [
+                      {
+                        label: "Self",
+                        value: formatCurrency(
+                          dashboard.selfOthersBreakdown.revenueSelf,
+                        ),
+                      },
+                      {
+                        label: "Others",
+                        value: formatCurrency(
+                          dashboard.selfOthersBreakdown.revenueOthers,
+                        ),
+                      },
+                    ]
+                  : []),
               ]}
             />
             <StatisticsCard
@@ -792,6 +828,14 @@ const InvoiceList = React.memo(
                 statusDistribution:
                   dashboard?.orderAnalytics?.statusDistribution,
                 refundedCount: dashboard?.orderAnalytics?.refundedCount,
+                selfOthers: dashboard?.selfOthersBreakdown
+                  ? {
+                      orderSelfCount:
+                        dashboard.selfOthersBreakdown.orderSelfCount,
+                      orderOthersCount:
+                        dashboard.selfOthersBreakdown.orderOthersCount,
+                    }
+                  : null,
               })}
             />
           </div>

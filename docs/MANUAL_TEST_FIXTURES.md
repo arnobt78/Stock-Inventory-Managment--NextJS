@@ -214,7 +214,16 @@ Example split for **Demo Wireless Headphone** (catalog qty `100`):
 
 ## 9. Troubleshooting (REQ-0103 / REQ-0106 / REQ-0140)
 
-**Explore seed (REQ-0140):** After `npm run script:reset-demo-db -- --with-catalog`, Beats (SK56) is catalog **50**, Main alloc **30** with **20 reserved** (ORD-DEMO-002 warehouse pick), `product.reservedQuantity` **0**. UI committed = **20**, available = **30**. If you still see **40 reserved**, you are on a pre-REQ-0140 seed or a manually double-booked DB — re-seed with the flag above (not accounts-only reset).
+**Explore seed (REQ-0140 / REQ-0158):** After `npm run script:reset-demo-db -- --with-catalog`:
+
+| Order | Buyer | Badge | Notes |
+|-------|-------|-------|-------|
+| ORD/INV-DEMO-001 | client | Client | paid/delivered Sony TV |
+| ORD/INV-DEMO-002 | client | Client | partial Beats $100 / $3980 |
+| ORD/INV-DEMO-003 | **self** (`clientId` null) | Self | admin self paid TV (Secondary) |
+| ORD/INV-DEMO-004 | client | Client | unpaid/pending |
+
+Beats (SK56) catalog **50**, Main alloc **30** with **20 reserved** (ORD-DEMO-002). UI committed = **20**, available = **30**. `/admin/client-portal` counts by `clientId`. If you still see **40 reserved**, re-seed with `--with-catalog`.
 
 Live warehouse-pick orders must never increment both `product.reservedQuantity` and `allocation.reservedQuantity` for the same line (REQ-0103).
 

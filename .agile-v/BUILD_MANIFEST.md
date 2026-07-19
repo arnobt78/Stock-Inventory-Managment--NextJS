@@ -400,3 +400,10 @@
 | ART-0157a | REQ-0157 | `lib/ui/portal-order-status-badges.ts` | Portal Total Orders KPI badges |
 | ART-0157b | REQ-0157 | portal invoice KPI DRY + test tsc | InvoiceList/OrderList + fixtures |
 
+## REQ-0158
+
+| ART-0158a | REQ-0158 | `lib/orders/order-party.ts` | Self/Client predicates |
+| ART-0158b | REQ-0158 | create + portal + seed DEMO-003/004 | Party matrix |
+
+
+| ART-0159 | REQ-0159 | `lib/orders/order-party.ts`, `orders-data.ts`, `invoices-data.ts`, `invoice-detail-data.ts`, `app/invoices/page.tsx` | Buyer labels + Self-only invoices |

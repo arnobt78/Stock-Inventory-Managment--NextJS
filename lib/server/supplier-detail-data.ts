@@ -23,6 +23,7 @@ import type { CatalogPartyUserRow } from "@/lib/server/catalog-party-snapshot";
 import { enrichProductsWithCommittedQuantity } from "@/lib/products/enrich-product-committed-quantity";
 import { catalogDetailOrderSelect } from "@/lib/server/catalog-detail-order-select";
 import { resolveOrderStatusAtFromSource } from "@/lib/orders/order-status-display-date";
+import { resolveBuyerUserId } from "@/lib/orders/order-party";
 import { getInvoiceLinkMap } from "@/lib/server/orders-data";
 
 type SupplierProductWithOrders = Awaited<
@@ -111,9 +112,13 @@ function transformSupplierDetail(
         orderSubtotal,
         orderTotal,
       );
-      const placedBy = order?.userId
-        ? toParty(orderUserMap.get(order.userId))
+      const buyerId = order
+        ? resolveBuyerUserId({
+            userId: order.userId,
+            clientId: order.clientId,
+          })
         : null;
+      const placedBy = buyerId ? toParty(orderUserMap.get(buyerId)) : null;
       return {
         id: item.id,
         orderId: order?.id || "",
@@ -280,9 +285,14 @@ export async function getSupplierDetailForPage(
   const orderUserIds = [
     ...new Set(
       products.flatMap((p) =>
-        (p.orderItems ?? [])
-          .map((item) => item.order?.userId)
-          .filter((uid): uid is string => Boolean(uid)),
+        (p.orderItems ?? []).flatMap((item) => {
+          const o = item.order;
+          if (!o?.userId) return [];
+          return [
+            o.userId,
+            resolveBuyerUserId({ userId: o.userId, clientId: o.clientId }),
+          ];
+        }),
       ),
     ),
   ];

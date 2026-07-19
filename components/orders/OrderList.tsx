@@ -34,6 +34,7 @@ import { APP_SHELL_WIDTH_CLASS } from "@/lib/ui/shell-layout-styles";
 import { buildStoreOrderStatusBadges } from "@/lib/ui/store-order-status-badges";
 import { buildStoreInvoiceStatusBadges } from "@/lib/ui/store-invoice-status-badges";
 import { buildPortalOrderStatusBadges } from "@/lib/ui/portal-order-status-badges";
+import { isSelfOrder } from "@/lib/orders/order-party";
 import OrderFilters from "./OrderFilters";
 import OrderDialog from "./OrderDialog";
 import InvoiceDialog from "@/components/invoices/InvoiceDialog";
@@ -60,14 +61,19 @@ import type {
 const formatCurrency = (value: number) =>
   `$${value.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 
-/** Customer display: shipping name/email, or placedByName when missing (e.g. Google one-click) */
-function getCustomerDisplay(order: Order): string {
+/**
+ * REQ-0159 — Admin Client-badge label: prefer buyer placedByName, then shipping.
+ * (Shipping alone can be stale/wrong after party-model seed fixes.)
+ */
+function getBuyerDisplayName(order: Order): string {
+  if (order.placedByName) return order.placedByName;
   const addr = order.shippingAddress as
-    { name?: string; email?: string } | null | undefined;
+    | { name?: string; email?: string }
+    | null
+    | undefined;
   if (addr?.name) return addr.name;
   if (addr?.email) return addr.email;
-  if (order.placedByName) return order.placedByName;
-  return "—";
+  return "Client";
 }
 
 export type OrderListProps = {
@@ -195,19 +201,25 @@ const OrderList = React.memo(
       const personal = ordersQueryDefault.data ?? [];
       const client = ordersQueryClient.data ?? [];
       const byId = new Map<string, OrderWithSource>();
+      // Product-owner leg first; Self leg overwrites (REQ-0158 isSelfOrder)
       client.forEach((o) => {
+        const self = isSelfOrder({
+          userId: o.userId,
+          clientId: o.clientId,
+        });
         byId.set(o.id, {
           ...o,
-          _source: "client",
-          _displayName: getCustomerDisplay(o),
+          _source: self ? "personal" : "client",
+          _displayName: self
+            ? (user.name ?? "You")
+            : getBuyerDisplayName(o),
         });
       });
       personal.forEach((o) => {
-        const isSelf = o.userId === user.id;
         byId.set(o.id, {
           ...o,
-          _source: isSelf ? "personal" : "client",
-          _displayName: isSelf ? (user.name ?? "You") : getCustomerDisplay(o),
+          _source: "personal",
+          _displayName: user.name ?? "You",
         });
       });
       return Array.from(byId.values());
@@ -809,6 +821,14 @@ const OrderList = React.memo(
                 statusDistribution:
                   dashboard?.orderAnalytics?.statusDistribution,
                 refundedCount: dashboard?.orderAnalytics?.refundedCount,
+                selfOthers: dashboard?.selfOthersBreakdown
+                  ? {
+                      orderSelfCount:
+                        dashboard.selfOthersBreakdown.orderSelfCount,
+                      orderOthersCount:
+                        dashboard.selfOthersBreakdown.orderOthersCount,
+                    }
+                  : null,
               })}
             />
             <StatisticsCard
@@ -854,6 +874,22 @@ const OrderList = React.memo(
                     dashboard?.orderAnalytics?.pendingOrderAmount ?? 0,
                   ),
                 },
+                ...(dashboard?.selfOthersBreakdown
+                  ? [
+                      {
+                        label: "Self",
+                        value: formatCurrency(
+                          dashboard.selfOthersBreakdown.revenueSelf,
+                        ),
+                      },
+                      {
+                        label: "Others",
+                        value: formatCurrency(
+                          dashboard.selfOthersBreakdown.revenueOthers,
+                        ),
+                      },
+                    ]
+                  : []),
               ]}
             />
             <StatisticsCard
@@ -916,6 +952,14 @@ const OrderList = React.memo(
                 cancelledCount:
                   dashboard?.invoiceAnalytics?.statusDistribution?.cancelled,
                 refundedCount: dashboard?.orderAnalytics?.refundedCount,
+                selfOthers: dashboard?.selfOthersBreakdown
+                  ? {
+                      invoiceSelfCount:
+                        dashboard.selfOthersBreakdown.invoiceSelfCount,
+                      invoiceOthersCount:
+                        dashboard.selfOthersBreakdown.invoiceOthersCount,
+                    }
+                  : null,
               })}
             />
           </div>

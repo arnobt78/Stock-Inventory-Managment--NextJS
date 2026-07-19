@@ -12,6 +12,7 @@ import { prisma } from "@/prisma/client";
 import { mergeProductListWhere } from "@/lib/products/product-query";
 import { orderStatusAtSelect } from "@/lib/server/catalog-detail-order-select";
 import { withOrderStatusAt } from "@/lib/orders/order-status-display-date";
+import { getStoreOrderIds } from "@/lib/invoices/store-order-ids";
 import { getDemoSupplierUserId } from "@/prisma/supplier";
 import type {
   DashboardStats,
@@ -82,25 +83,6 @@ function getTwelveMonthsAgo(): Date {
 /** Prisma where clause for resources owned by this user (products, categories, etc.). */
 const userScope = (userId: string) => ({ userId });
 
-/** Store-wide order IDs: self (created by userId) + client orders (contain products owned by userId). */
-async function getStoreOrderIds(productOwnerUserId: string): Promise<string[]> {
-  const [selfOrders, clientOrderItems] = await Promise.all([
-    prisma.order.findMany({
-      where: { userId: productOwnerUserId },
-      select: { id: true },
-    }),
-    prisma.orderItem.findMany({
-      where: { product: { userId: productOwnerUserId } },
-      select: { orderId: true },
-      distinct: ["orderId"],
-    }),
-  ]);
-  const ids = new Set<string>();
-  selfOrders.forEach((o) => ids.add(o.id));
-  clientOrderItems.forEach((o) => ids.add(o.orderId));
-  return Array.from(ids);
-}
-
 export async function getDashboardForAdmin(
   userId: string,
 ): Promise<DashboardStats> {
@@ -139,11 +121,16 @@ export async function getDashboardForAdmin(
       ? { orderId: { in: storeOrderIds } }
       : { orderId: { in: [] } };
 
+  // REQ-0158 — Self = store owner + no distinct client buyer
   const selfOrderIds =
     storeOrderIds.length > 0
       ? (
           await prisma.order.findMany({
-            where: { userId, id: { in: storeOrderIds } },
+            where: {
+              id: { in: storeOrderIds },
+              userId,
+              OR: [{ clientId: null }, { clientId: userId }],
+            },
             select: { id: true },
           })
         ).map((o) => o.id)
