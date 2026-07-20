@@ -163,9 +163,16 @@ export async function PUT(
       details: { productName: productForAudit?.name },
     }).catch(() => {});
 
+    // REQ-0180 — return same enriched shape as GET/SSR (catalog + purchase)
+    const detail = await getProductReviewDetailForPage(
+      { id: session.id, role: session.role },
+      id,
+    );
+    if (detail) return NextResponse.json(detail);
+
     const reviewer = await prisma.user.findUnique({
       where: { id: updated.userId },
-      select: { name: true, email: true },
+      select: { name: true, email: true, image: true },
     });
     return NextResponse.json(transformProductReviewDetail(updated, reviewer));
   } catch (error) {

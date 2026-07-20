@@ -93,9 +93,15 @@ export async function GET(request: NextRequest) {
     const cachedProducts = await getCache<
       Array<{ committedQuantity?: number }>
     >(cacheKey);
+    // REQ-0179 — require party avatar fields (list v3)
     if (
       cachedProducts &&
-      cachedProducts.every((p) => typeof p.committedQuantity === "number")
+      cachedProducts.every(
+        (p) =>
+          typeof p.committedQuantity === "number" &&
+          "productOwnerImage" in p &&
+          "supplierImage" in p,
+      )
     ) {
       logger.info(`✅ Cache hit for products: ${cacheKey}`);
       return NextResponse.json(cachedProducts);
@@ -112,68 +118,42 @@ export async function GET(request: NextRequest) {
       orderBy: { createdAt: "desc" },
     });
 
-    // Fetch all categories and suppliers once
-    const categoryIds = [...new Set(products.map((p) => p.categoryId))];
-    const supplierIds = [...new Set(products.map((p) => p.supplierId))];
-
-    const categorySupplierPromise = Promise.all([
-      prisma.category.findMany({
-        where: { id: { in: categoryIds } },
-        select: { id: true, name: true },
-      }),
-      prisma.supplier.findMany({
-        where: { id: { in: supplierIds } },
-        select: { id: true, name: true },
-      }),
-    ]);
-
-    // For supplier view: fetch product owner (user) names for "Product Owner" column
-    const ownerPromise = isSupplier
-      ? prisma.user.findMany({
-          where: {
-            id: { in: [...new Set(products.map((p) => p.userId))] },
-          },
-          select: { id: true, name: true },
-        })
-      : Promise.resolve([]);
-
-    const [[categories, suppliers], ownerUsers] = await Promise.all([
-      categorySupplierPromise,
-      ownerPromise,
-    ]);
-
-    const categoryMap = new Map(categories.map((c) => [c.id, c.name]));
-    const supplierMap = new Map(suppliers.map((s) => [s.id, s.name]));
-    const ownerNameMap = new Map(
-      ownerUsers.map((u) => [u.id, u.name ?? u.id]),
-    );
+    // REQ-0179 — category + owner/supplier avatars for dialog densify
+    const {
+      loadProductListPartyMaps,
+      productListPartyFields,
+    } = await import("@/lib/server/product-list-party");
+    const partyMaps = await loadProductListPartyMaps(products);
 
     const transformedProducts = await enrichProductsWithCommittedQuantity(
-      products.map((product) => ({
-        id: product.id,
-        name: product.name,
-        sku: product.sku,
-        price: Number(product.price),
-        quantity: Number(product.quantity),
-        reservedQuantity: Number(product.reservedQuantity ?? 0),
-        status: product.status,
-        categoryId: product.categoryId,
-        supplierId: product.supplierId,
-        category: categoryMap.get(product.categoryId) || "Unknown",
-        supplier: supplierMap.get(product.supplierId) || "Unknown",
-        userId: product.userId,
-        createdBy: product.createdBy,
-        updatedBy: product.updatedBy || null,
-        createdAt: product.createdAt.toISOString(),
-        updatedAt: product.updatedAt?.toISOString() || null,
-        qrCodeUrl: product.qrCodeUrl || null,
-        imageUrl: product.imageUrl || null,
-        imageFileId: product.imageFileId || null,
-        expirationDate: product.expirationDate?.toISOString() || null,
-        ...(isSupplier && {
-          productOwnerName: ownerNameMap.get(product.userId) ?? null,
-        }),
-      })),
+      products.map((product) => {
+        const party = productListPartyFields(product, partyMaps);
+        return {
+          id: product.id,
+          name: product.name,
+          sku: product.sku,
+          price: Number(product.price),
+          quantity: Number(product.quantity),
+          reservedQuantity: Number(product.reservedQuantity ?? 0),
+          status: product.status,
+          categoryId: product.categoryId,
+          supplierId: product.supplierId,
+          category: party.category,
+          supplier: party.supplier,
+          userId: product.userId,
+          createdBy: product.createdBy,
+          updatedBy: product.updatedBy || null,
+          createdAt: product.createdAt.toISOString(),
+          updatedAt: product.updatedAt?.toISOString() || null,
+          qrCodeUrl: product.qrCodeUrl || null,
+          imageUrl: product.imageUrl || null,
+          imageFileId: product.imageFileId || null,
+          expirationDate: product.expirationDate?.toISOString() || null,
+          productOwnerName: party.productOwnerName,
+          productOwnerImage: party.productOwnerImage,
+          supplierImage: party.supplierImage,
+        };
+      }),
     );
 
     // Cache the result for 5 minutes

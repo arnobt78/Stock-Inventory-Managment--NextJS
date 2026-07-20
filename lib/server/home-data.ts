@@ -33,8 +33,10 @@ export type ProductForHome = {
   imageUrl: string | null;
   imageFileId: string | null;
   expirationDate: string | null;
-  /** Product owner display name (populated when fetching by supplierId) */
+  /** REQ-0179 — owner/supplier display for list densify */
   productOwnerName?: string | null;
+  productOwnerImage?: string | null;
+  supplierImage?: string | null;
 };
 
 /** Category shape returned by categories API GET (dates as ISO strings) */
@@ -82,7 +84,12 @@ export async function getProductsForUser(userId: string): Promise<ProductForHome
   const cached = await getCache<ProductForHome[]>(cacheKey);
   if (
     cached &&
-    cached.every((p) => typeof p.committedQuantity === "number")
+    cached.every(
+      (p) =>
+        typeof p.committedQuantity === "number" &&
+        "productOwnerImage" in p &&
+        "supplierImage" in p,
+    )
   ) {
     return cached;
   }
@@ -92,46 +99,41 @@ export async function getProductsForUser(userId: string): Promise<ProductForHome
     orderBy: { createdAt: "desc" },
   });
 
-  const categoryIds = [...new Set(products.map((p) => p.categoryId))];
-  const supplierIds = [...new Set(products.map((p) => p.supplierId))];
-
-  const [categories, suppliers] = await Promise.all([
-    prisma.category.findMany({
-      where: { id: { in: categoryIds } },
-      select: { id: true, name: true },
-    }),
-    prisma.supplier.findMany({
-      where: { id: { in: supplierIds } },
-      select: { id: true, name: true },
-    }),
-  ]);
-
-  const categoryMap = new Map(categories.map((c) => [c.id, c.name]));
-  const supplierMap = new Map(suppliers.map((s) => [s.id, s.name]));
+  const {
+    loadProductListPartyMaps,
+    productListPartyFields,
+  } = await import("@/lib/server/product-list-party");
+  const partyMaps = await loadProductListPartyMaps(products);
 
   const transformed: ProductForHome[] = await enrichProductsWithCommittedQuantity(
-    products.map((product) => ({
-      id: product.id,
-      name: product.name,
-      sku: product.sku,
-      price: Number(product.price),
-      quantity: Number(product.quantity),
-      reservedQuantity: Number(product.reservedQuantity ?? 0),
-      status: product.status,
-      categoryId: product.categoryId,
-      supplierId: product.supplierId,
-      category: categoryMap.get(product.categoryId) || "Unknown",
-      supplier: supplierMap.get(product.supplierId) || "Unknown",
-      userId: product.userId,
-      createdBy: product.createdBy,
-      updatedBy: product.updatedBy || null,
-      createdAt: product.createdAt.toISOString(),
-      updatedAt: product.updatedAt?.toISOString() ?? null,
-      qrCodeUrl: product.qrCodeUrl ?? null,
-      imageUrl: product.imageUrl ?? null,
-      imageFileId: product.imageFileId ?? null,
-      expirationDate: product.expirationDate?.toISOString() ?? null,
-    })),
+    products.map((product) => {
+      const party = productListPartyFields(product, partyMaps);
+      return {
+        id: product.id,
+        name: product.name,
+        sku: product.sku,
+        price: Number(product.price),
+        quantity: Number(product.quantity),
+        reservedQuantity: Number(product.reservedQuantity ?? 0),
+        status: product.status,
+        categoryId: product.categoryId,
+        supplierId: product.supplierId,
+        category: party.category,
+        supplier: party.supplier,
+        userId: product.userId,
+        createdBy: product.createdBy,
+        updatedBy: product.updatedBy || null,
+        createdAt: product.createdAt.toISOString(),
+        updatedAt: product.updatedAt?.toISOString() ?? null,
+        qrCodeUrl: product.qrCodeUrl ?? null,
+        imageUrl: product.imageUrl ?? null,
+        imageFileId: product.imageFileId ?? null,
+        expirationDate: product.expirationDate?.toISOString() ?? null,
+        productOwnerName: party.productOwnerName,
+        productOwnerImage: party.productOwnerImage,
+        supplierImage: party.supplierImage,
+      };
+    }),
   );
 
   await setCache(cacheKey, transformed, 300, { fetchedAt: cacheReadStartedAt });
@@ -151,7 +153,12 @@ export async function getProductsBySupplierId(
   const cached = await getCache<ProductForHome[]>(cacheKey);
   if (
     cached &&
-    cached.every((p) => typeof p.committedQuantity === "number")
+    cached.every(
+      (p) =>
+        typeof p.committedQuantity === "number" &&
+        "productOwnerImage" in p &&
+        "supplierImage" in p,
+    )
   ) {
     return cached;
   }
@@ -161,55 +168,41 @@ export async function getProductsBySupplierId(
     orderBy: { createdAt: "desc" },
   });
 
-  const categoryIds = [...new Set(products.map((p) => p.categoryId))];
-  const supplierIds = [...new Set(products.map((p) => p.supplierId))];
-  const ownerIds = [...new Set(products.map((p) => p.userId))];
-
-  const [categories, suppliers, ownerUsers] = await Promise.all([
-    prisma.category.findMany({
-      where: { id: { in: categoryIds } },
-      select: { id: true, name: true },
-    }),
-    prisma.supplier.findMany({
-      where: { id: { in: supplierIds } },
-      select: { id: true, name: true },
-    }),
-    prisma.user.findMany({
-      where: { id: { in: ownerIds } },
-      select: { id: true, name: true },
-    }),
-  ]);
-
-  const categoryMap = new Map(categories.map((c) => [c.id, c.name]));
-  const supplierMap = new Map(suppliers.map((s) => [s.id, s.name]));
-  const ownerNameMap = new Map(
-    ownerUsers.map((u) => [u.id, u.name ?? u.id]),
-  );
+  const {
+    loadProductListPartyMaps,
+    productListPartyFields,
+  } = await import("@/lib/server/product-list-party");
+  const partyMaps = await loadProductListPartyMaps(products);
 
   const transformed: ProductForHome[] = await enrichProductsWithCommittedQuantity(
-    products.map((product) => ({
-      id: product.id,
-      name: product.name,
-      sku: product.sku,
-      price: Number(product.price),
-      quantity: Number(product.quantity),
-      reservedQuantity: Number(product.reservedQuantity ?? 0),
-      status: product.status,
-      categoryId: product.categoryId,
-      supplierId: product.supplierId,
-      category: categoryMap.get(product.categoryId) || "Unknown",
-      supplier: supplierMap.get(product.supplierId) || "Unknown",
-      userId: product.userId,
-      createdBy: product.createdBy,
-      updatedBy: product.updatedBy || null,
-      createdAt: product.createdAt.toISOString(),
-      updatedAt: product.updatedAt?.toISOString() ?? null,
-      qrCodeUrl: product.qrCodeUrl ?? null,
-      imageUrl: product.imageUrl ?? null,
-      imageFileId: product.imageFileId ?? null,
-      expirationDate: product.expirationDate?.toISOString() ?? null,
-      productOwnerName: ownerNameMap.get(product.userId) ?? null,
-    })),
+    products.map((product) => {
+      const party = productListPartyFields(product, partyMaps);
+      return {
+        id: product.id,
+        name: product.name,
+        sku: product.sku,
+        price: Number(product.price),
+        quantity: Number(product.quantity),
+        reservedQuantity: Number(product.reservedQuantity ?? 0),
+        status: product.status,
+        categoryId: product.categoryId,
+        supplierId: product.supplierId,
+        category: party.category,
+        supplier: party.supplier,
+        userId: product.userId,
+        createdBy: product.createdBy,
+        updatedBy: product.updatedBy || null,
+        createdAt: product.createdAt.toISOString(),
+        updatedAt: product.updatedAt?.toISOString() ?? null,
+        qrCodeUrl: product.qrCodeUrl ?? null,
+        imageUrl: product.imageUrl ?? null,
+        imageFileId: product.imageFileId ?? null,
+        expirationDate: product.expirationDate?.toISOString() ?? null,
+        productOwnerName: party.productOwnerName,
+        productOwnerImage: party.productOwnerImage,
+        supplierImage: party.supplierImage,
+      };
+    }),
   );
 
   await setCache(cacheKey, transformed, 300, { fetchedAt: cacheReadStartedAt });

@@ -455,3 +455,19 @@
 | TC-0085 | REQ-0177 | Gates lint/test/invalidate/build |
 | ART-0178a | REQ-0178 | Supplier recent orders placedBy* + date·buyer UI | supplier-portal-data + AdminSupplierPortalContent |
 | TC-0086 | REQ-0178 | Gates lint/test/invalidate/build |
+| ART-0179a | REQ-0179 | DialogProductOptionRow + ProductReviewDialog densify | ProductOptionRow + ProductReviewDialog |
+| ART-0179b | REQ-0179 | product-list-party + products:list:v3 | API + home-data |
+| TC-0087 | REQ-0179 | Gates lint/test/invalidate/build |
+| ART-0180a | REQ-0180 | enrich-review-catalog + list/detail SSR + Redis list:v2 | enrich-review-catalog, product-reviews-data, detail-data, cache-utils |
+| ART-0180b | REQ-0180 | Table densify + AdminProductReviewDetailContent redesign | ProductReviewTableColumns, AdminProductReviewDetailContent |
+| ART-0180c | REQ-0180 | Nit: detail key unversioned unused; hasReviewListV2Shape test | cache-utils, enrich-review-catalog.test |
+| TC-0088 | REQ-0180 | Gates lint/test/invalidate/build |
+| ART-0181a | REQ-0181 | Detail display-only + dialog allowStatusEdit | AdminProductReviewDetailContent, WriteEditReviewDialog |
+| TC-0089 | REQ-0181 | Gates lint/test/invalidate/build |
+| ART-0182a | REQ-0182 | ProductReviewActions MoreVertical View/Edit/Delete | ProductReviewActions, ProductReviewTableColumns |
+| TC-0090 | REQ-0182 | Gates lint/test/invalidate/build |
+| ART-0183a | REQ-0183 | ReviewStatusBadge contrast + detail/dialog layout polish | semantic-badges, AdminProductReviewDetailContent, WriteEditReviewDialog |
+| ART-0183b | REQ-0183 | Purchase enrich order/invoice densify fields | enrich-review-catalog, types/product-review |
+| TC-0091 | REQ-0183 | Gates lint/test/invalidate/build |
+| ART-0184a | REQ-0184 | Edit Review dialog stacked w-full (revert 2-col) | WriteEditReviewDialog |
+| TC-0092 | REQ-0184 | Gates lint/test/invalidate/build |

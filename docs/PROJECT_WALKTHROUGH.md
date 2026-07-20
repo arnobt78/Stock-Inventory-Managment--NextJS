@@ -283,6 +283,7 @@ flowchart LR
 | Forecast + Top Products (REQ-0171–0173) | Compact KPIs; `DenseCatalogProductCell`; forecast v4; dashboard overview v2/v7 | SSR enrich; invalidation unchanged |
 | Recent cards densify (REQ-0174–0176) | `CARD_LIST_META_ROW`; date-first buyer; gap-1.5; dashboard v7 | Clip fix + UI |
 | Admin portals densify (REQ-0177–0178) | SectionCardHeader; product/order/invoice meta; buyer `placedBy*`; Redis supplierPortal v4 / clientPortal v4 | SSR + UI; invalidation unchanged |
+| Product reviews (REQ-0179–0184) | Rating Select hues; list densify + Actions menu; detail Product/Purchase; badge contrast; Edit dialog stacked w-full; Redis `productReviews:list:v2` / `products:list:v3` | enrich-review-catalog; invalidation unchanged |
 | KPI badge helpers (REQ-0156–0157) | store order/invoice + portal order helpers; My Activity parity; tsc clean | UI/test-only |
 | Delivered + Due badges (REQ-0155) | `store-order-status-badges.ts`; Total Orders Delivered; Outstanding→Due | UI-only |
 | Partial pay KPIs (REQ-0154) | `payment-money-stats.ts` → dashboards Paid/Partial/Due/Pending; Partial badges; table Total `text-xs`; `dashboard:overview:v4` | Invalidation unchanged |
@@ -300,15 +301,15 @@ flowchart LR
 3. Sentry **stock-inventory** — 24h: compare cases 1–7 vs `docs/SENTRY_ERRORS.md`
 4. Log result in `.agile-v/REVALIDATION_LOG.md`; CAPA if regression
 
-## 8. Quality gates (audit 2026-07-20 REQ-0178)
+## 8. Quality gates (audit 2026-07-20 REQ-0184)
 
 | Check | Status |
 |-------|--------|
 | `npm run lint` | pass |
 | `npm run build` | pass |
-| `npm run test` | 630 passed |
-| `npm run test:invalidate` | 213 passed |
-| Local | REQ-0170–0178 forecast/portal/recent densify |
+| `npm run test` | 636 passed |
+| `npm run test:invalidate` | 214 passed |
+| Local | REQ-0179–0184 product reviews UX + edit dialog stack |
 | Radix table Select | `useDeferredRadixSelect` + `PaginationSelector` (11 tables) |
 | Pagination clamp + page-size reset | `useClampPaginationIndex` + `PaginationSelector` pageIndex 0 |
 | Sentry | tunnel + translate scrub + `syncSentryUserFromAuth` |

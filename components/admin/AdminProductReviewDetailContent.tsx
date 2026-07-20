@@ -1,18 +1,15 @@
 "use client";
 
-import React, { useCallback, useState, useEffect } from "react";
+/**
+ * REQ-0180 / REQ-0181 / REQ-0183 — admin product review detail (display-only).
+ * Status+Rating | Comment; densified Purchase; opaque status badge; text-sm values.
+ */
+
+import React, { useCallback, useState } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useBackWithRefresh } from "@/hooks/use-back-with-refresh";
 import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -26,51 +23,68 @@ import {
 } from "@/components/ui/alert-dialog";
 import {
   ArrowLeft,
-  Loader2,
   Star,
   Package,
   CircleDot,
   User,
   Calendar,
+  Tag,
+  Truck,
+  FileText,
+  Pencil,
+  Hash,
+  Trash2,
+  Wallet,
+  CircleDollarSign,
+  MessageSquare,
 } from "lucide-react";
+import { useProductReview, useDeleteProductReview } from "@/hooks/queries";
 import {
-  useProductReview,
-  useUpdateProductReview,
-  useDeleteProductReview,
-} from "@/hooks/queries";
-import {
-  DeferredSelectGate,
   PageContentWrapper,
   DataSlotPulse,
   PageSectionHeader,
   SectionCardHeader,
-  GLASS_BUTTON_SHELL_RESET,
   GLASS_GHOST_BUTTON,
   glassDetailBackButtonClass,
+  glassDetailFooterButtonClass,
   DETAIL_HEADER_BACK_ICON_CLASS,
   DialogSubmitButton,
   ClientDateTime,
+  CopyableText,
+  AvatarInlineLink,
+  PersonInlineRow,
+  TABLE_CATALOG_LINK_CLASS,
 } from "@/components/shared";
-import { TYPO_BODY, TYPO_BODY_MUTED } from "@/lib/ui/typography-scale";
+import { ProductThumb } from "@/components/products/ProductOptionRow";
+import WriteEditReviewDialog from "@/components/product-reviews/WriteEditReviewDialog";
+import {
+  DETAIL_DATA_VALUE_CLASS,
+  TYPO_BODY,
+  TYPO_BODY_MUTED,
+} from "@/lib/ui/typography-scale";
+import {
+  getRatingDisplay,
+  truncateReviewComment,
+} from "@/lib/ui/review-rating-display";
+import { formatStableCurrency } from "@/lib/format";
 import {
   isDataSlotLoading,
   queryKeys,
   useSyncSsrQueryData,
 } from "@/lib/react-query";
-import type { ProductReview, ProductReviewStatus } from "@/types";
+import type { ProductReview } from "@/types";
 import { cn } from "@/lib/utils";
-import { ReviewStatusBadge } from "@/lib/ui/semantic-badges";
+import {
+  InvoiceStatusBadge,
+  OrderStatusBadge,
+  PaymentStatusBadge,
+  ReviewStatusBadge,
+} from "@/lib/ui/semantic-badges";
 import { GlassCard, DetailInfoRow } from "@/components/orders/detail";
 import {
   APP_SHELL_DETAIL_CLASS,
   DETAIL_PAGE_HEADER_SPACING_CLASS,
 } from "@/lib/ui/shell-layout-styles";
-
-const STATUS_OPTIONS: { value: ProductReviewStatus; label: string }[] = [
-  { value: "pending", label: "Pending" },
-  { value: "approved", label: "Approved" },
-  { value: "rejected", label: "Rejected" },
-];
 
 const RATINGS = [1, 2, 3, 4, 5] as const;
 
@@ -91,44 +105,8 @@ export default function AdminProductReviewDetailContent({
 
   useSyncSsrQueryData(queryKeys.productReviews.detail(id), initialReview);
 
-  const updateMutation = useUpdateProductReview();
   const deleteMutation = useDeleteProductReview();
-
-  const [comment, setComment] = useState("");
-  const [commentTouched, setCommentTouched] = useState(false);
-
-  useEffect(() => {
-    if (!review || commentTouched) return;
-    queueMicrotask(() => setComment((review as ProductReview).comment ?? ""));
-  }, [review, commentTouched]);
-
-  const handleStatusChange = useCallback(
-    (newStatus: ProductReviewStatus) => {
-      if (!id || newStatus === review?.status) return;
-      updateMutation.mutate({ id, data: { status: newStatus } });
-    },
-    [id, review?.status, updateMutation],
-  );
-
-  const handleRatingChange = useCallback(
-    (newRating: number) => {
-      if (!id || newRating === review?.rating) return;
-      updateMutation.mutate({ id, data: { rating: newRating } });
-    },
-    [id, review?.rating, updateMutation],
-  );
-
-  const handleSaveComment = useCallback(() => {
-    if (!id) return;
-    updateMutation.mutate(
-      { id, data: { comment: comment.trim() } },
-      {
-        onSuccess: () => {
-          setCommentTouched(false);
-        },
-      },
-    );
-  }, [id, comment, updateMutation]);
+  const [editOpen, setEditOpen] = useState(false);
 
   const handleDelete = useCallback(() => {
     if (!id) return;
@@ -184,10 +162,16 @@ export default function AdminProductReviewDetailContent({
   }
 
   const r = review as ProductReview | undefined;
-  const isUpdating = updateMutation.isPending;
   const isDeleting = deleteMutation.isPending;
-  const commentValue = commentTouched ? comment : (r?.comment ?? "");
   const actionsDisabled = dataLoading || !review;
+  const ratingUi = r ? getRatingDisplay(r.rating) : null;
+  const reviewerLabel =
+    r?.reviewerName?.trim() || r?.reviewerEmail || "Reviewer";
+  const deleteDescription = r
+    ? truncateReviewComment(r.comment, 80)
+      ? `This will permanently delete the review for "${r.productName}": ${truncateReviewComment(r.comment, 80)}`
+      : `This will permanently delete the review for "${r.productName}". This action cannot be undone.`
+    : "This will permanently delete this review. This action cannot be undone.";
 
   return (
     <PageContentWrapper>
@@ -212,230 +196,50 @@ export default function AdminProductReviewDetailContent({
             dataLoading ? (
               <DataSlotPulse variant="text-sm" className="w-48" />
             ) : (
-              <>
-                {r!.productName}
-                {r!.productSku ? ` (${r!.productSku})` : ""}
-              </>
+              <span className="inline-flex flex-wrap items-center gap-x-2 gap-y-1">
+                <ProductThumb
+                  name={r!.productName}
+                  imageUrl={r!.productImageUrl}
+                  size="sm"
+                />
+                <span>
+                  {r!.productName}
+                  {r!.productSku ? (
+                    <span className={cn("ml-1", TYPO_BODY_MUTED)}>
+                      ({r!.productSku})
+                    </span>
+                  ) : null}
+                </span>
+              </span>
             )
           }
         />
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-2 sm:gap-4">
+        {/* REQ-0183 — Status + Rating | Comment */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-2 sm:gap-4 items-stretch">
           <GlassCard variant="amber">
-            <div className="p-2 sm:p-4">
+            <div className="p-2 sm:p-4 space-y-4">
               <SectionCardHeader
-                title="Status"
-                description="Changes apply immediately"
+                title="Status & Rating"
+                description="Moderation state and stars — edit via Edit Review"
                 icon={CircleDot}
                 tone="amber"
-                className="mb-4"
+                className="mb-0"
               />
-              <div className="flex flex-wrap items-center gap-2">
+              <div className="space-y-3">
                 {dataLoading ? (
                   <DataSlotPulse
                     variant="badge"
                     className="h-9 w-[140px] rounded-md"
                   />
                 ) : (
-                  <>
-                    <ReviewStatusBadge status={r!.status} size="detail" />
-                    <DeferredSelectGate
-                      placeholder={
-                        <div
-                          className="w-[140px] h-9 rounded-md border border-border flex items-center px-2 text-sm"
-                          aria-hidden
-                        >
-                          {STATUS_OPTIONS.find((o) => o.value === r!.status)
-                            ?.label ?? r!.status}
-                        </div>
-                      }
-                    >
-                      {({ selectRemountKey }) => (
-                        <Select
-                          key={selectRemountKey}
-                          value={r!.status}
-                          onValueChange={(v) =>
-                            handleStatusChange(v as ProductReviewStatus)
-                          }
-                          disabled={isUpdating || actionsDisabled}
-                        >
-                          <SelectTrigger className="w-[140px]">
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {STATUS_OPTIONS.map((opt) => (
-                              <SelectItem key={opt.value} value={opt.value}>
-                                <ReviewStatusBadge
-                                  status={opt.value}
-                                  label={opt.label}
-                                  size="detail"
-                                />
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      )}
-                    </DeferredSelectGate>
-                  </>
+                  <ReviewStatusBadge
+                    status={r!.status}
+                    size="detail"
+                    contrast="opaque"
+                  />
                 )}
-              </div>
-            </div>
-          </GlassCard>
-
-          <GlassCard variant="amber">
-            <div className="p-2 sm:p-4">
-              <SectionCardHeader
-                title="Rating"
-                description="Changes apply immediately"
-                icon={Star}
-                tone="amber"
-                className="mb-4"
-              />
-              {dataLoading ? (
-                <DataSlotPulse
-                  variant="badge"
-                  className="h-9 w-[120px] rounded-md"
-                />
-              ) : (
-                <DeferredSelectGate
-                  placeholder={
-                    <div
-                      className="w-[120px] h-9 rounded-md border border-border flex items-center px-2 text-sm"
-                      aria-hidden
-                    >
-                      {r!.rating} star{r!.rating !== 1 ? "s" : ""}
-                    </div>
-                  }
-                >
-                  {({ selectRemountKey }) => (
-                    <Select
-                      key={selectRemountKey}
-                      value={String(r!.rating)}
-                      onValueChange={(v) => handleRatingChange(Number(v))}
-                      disabled={isUpdating || actionsDisabled}
-                    >
-                      <SelectTrigger className="w-[120px]">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {RATINGS.map((n) => (
-                          <SelectItem key={n} value={String(n)}>
-                            {n} star{n !== 1 ? "s" : ""}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  )}
-                </DeferredSelectGate>
-              )}
-            </div>
-          </GlassCard>
-        </div>
-
-        <GlassCard variant="amber">
-          <div className="p-2 sm:p-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-2 sm:gap-4">
-              <div>
-                <SectionCardHeader
-                  title="Product & Reviewer"
-                  description="Linked product and reviewer account"
-                  icon={Package}
-                  tone="sky"
-                  className="mb-4"
-                />
-                <div className="space-y-2">
-                  <DetailInfoRow
-                    icon={Package}
-                    label="Product:"
-                    tone="sky"
-                    loading={dataLoading}
-                  >
-                    {!dataLoading && (
-                      <>
-                        <Link
-                          href={`/admin/products/${r!.productId}`}
-                          className="font-medium text-sky-600 dark:text-sky-400 hover:text-sky-500 dark:hover:text-sky-300"
-                        >
-                          {r!.productName}
-                        </Link>
-                        {r!.productSku ? (
-                          <span className={cn("ml-1", TYPO_BODY_MUTED)}>
-                            ({r!.productSku})
-                          </span>
-                        ) : null}
-                      </>
-                    )}
-                  </DetailInfoRow>
-                  <DetailInfoRow
-                    icon={User}
-                    label="Reviewer:"
-                    tone="violet"
-                    loading={dataLoading}
-                  >
-                    {!dataLoading && (
-                      <div className="space-y-0.5">
-                        <Link
-                          href={`/admin/user-management/${r!.userId}`}
-                          className="font-medium text-sky-600 dark:text-sky-400 hover:text-sky-500 dark:hover:text-sky-300"
-                        >
-                          {r!.reviewerName?.trim() ||
-                            r!.reviewerEmail ||
-                            "View user"}
-                        </Link>
-                        {r!.reviewerEmail && (
-                          <span
-                            className={cn("block text-xs", TYPO_BODY_MUTED)}
-                          >
-                            {r!.reviewerEmail}
-                          </span>
-                        )}
-                        <span
-                          className={cn(
-                            "block font-mono text-xs break-all",
-                            TYPO_BODY_MUTED,
-                          )}
-                        >
-                          {r!.userId}
-                        </span>
-                      </div>
-                    )}
-                  </DetailInfoRow>
-                  <DetailInfoRow
-                    icon={Calendar}
-                    label="Created:"
-                    tone="orange"
-                    loading={dataLoading}
-                  >
-                    {!dataLoading && (
-                      <ClientDateTime
-                        date={new Date(r!.createdAt)}
-                        semantic="created"
-                      />
-                    )}
-                  </DetailInfoRow>
-                  {!dataLoading && r!.updatedAt && (
-                    <DetailInfoRow
-                      icon={Calendar}
-                      label="Updated:"
-                      tone="amber"
-                    >
-                      <ClientDateTime
-                        date={new Date(r!.updatedAt)}
-                        semantic="updated"
-                      />
-                    </DetailInfoRow>
-                  )}
-                </div>
-              </div>
-              <div>
-                <SectionCardHeader
-                  title="Rating & Comment"
-                  description="Submitted review content"
-                  icon={Star}
-                  tone="amber"
-                  className="mb-4"
-                />
-                <div className="flex items-center gap-1 mb-3">
+                <div className="flex items-center gap-1">
                   {dataLoading ? (
                     <DataSlotPulse variant="text-md" className="w-32" />
                   ) : (
@@ -446,73 +250,360 @@ export default function AdminProductReviewDetailContent({
                           className={cn(
                             "h-6 w-6",
                             n <= r!.rating
-                              ? "fill-amber-400 text-amber-400"
+                              ? ratingUi!.starClass
                               : "text-muted-foreground/30",
                           )}
                         />
                       ))}
                       <span
-                        className={cn("ml-2 text-sm font-medium", TYPO_BODY)}
+                        className={cn(
+                          "ml-2 text-sm font-medium capitalize",
+                          ratingUi!.textClass,
+                          TYPO_BODY,
+                        )}
                       >
-                        {r!.rating}/5
+                        {r!.rating}/5 ({ratingUi!.label})
                       </span>
                     </>
                   )}
                 </div>
-                <p
-                  className={cn(
-                    "text-sm whitespace-pre-wrap rounded-lg border border-border/50 bg-muted/30 p-4",
-                    TYPO_BODY_MUTED,
-                  )}
-                >
-                  {dataLoading ? (
-                    <DataSlotPulse
-                      variant="text-md"
-                      className="w-full min-h-[4rem]"
-                    />
-                  ) : (
-                    r!.comment
-                  )}
-                </p>
               </div>
             </div>
-          </div>
-        </GlassCard>
+          </GlassCard>
 
-        <GlassCard variant="amber">
-          <div className="p-2 sm:p-4 space-y-2">
-            <SectionCardHeader
-              title="Edit Comment"
-              description="Update the review comment. Changes apply after Save."
-              icon={Star}
-              tone="neutral"
-              className="mb-2"
-            />
-            <Textarea
-              placeholder="Review comment..."
-              value={commentValue}
-              onChange={(e) => {
-                setComment(e.target.value);
-                setCommentTouched(true);
-              }}
-              disabled={isUpdating || actionsDisabled}
-              className="min-h-[100px] rounded-2xl resize-none"
-              maxLength={2000}
-            />
-            {commentTouched && (
-              <Button
-                size="sm"
-                onClick={handleSaveComment}
-                disabled={isUpdating || actionsDisabled}
+          <GlassCard variant="amber">
+            <div className="p-2 sm:p-4 h-full flex flex-col">
+              <SectionCardHeader
+                title="Comment"
+                description="Submitted review text"
+                icon={MessageSquare}
+                tone="amber"
+                className="mb-4"
+              />
+              <p
+                className={cn(
+                  "text-sm whitespace-pre-wrap rounded-lg border border-border/50 bg-muted/30 p-4 flex-1",
+                  DETAIL_DATA_VALUE_CLASS,
+                )}
               >
-                {isUpdating ? (
-                  <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                {dataLoading ? (
+                  <DataSlotPulse
+                    variant="text-md"
+                    className="w-full min-h-[4rem]"
+                  />
+                ) : (
+                  r!.comment
+                )}
+              </p>
+            </div>
+          </GlassCard>
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-2 sm:gap-4 items-stretch">
+          <GlassCard variant="sky">
+            <div className="p-2 sm:p-4">
+              <SectionCardHeader
+                title="Product"
+                description="Live catalog link"
+                icon={Package}
+                tone="sky"
+                className="mb-4"
+              />
+              {dataLoading ? (
+                <DataSlotPulse variant="text-md" className="w-full min-h-16" />
+              ) : (
+                <div className="flex gap-3 min-w-0">
+                  <ProductThumb
+                    name={r!.productName}
+                    imageUrl={r!.productImageUrl}
+                    size="md"
+                  />
+                  <div className="space-y-2 min-w-0 flex-1">
+                    <DetailInfoRow
+                      icon={Package}
+                      label="Name:"
+                      tone="sky"
+                      valueClassName={cn("text-sm", DETAIL_DATA_VALUE_CLASS)}
+                    >
+                      <Link
+                        href={`/admin/products/${r!.productId}`}
+                        className={cn(TABLE_CATALOG_LINK_CLASS, "text-sm")}
+                      >
+                        <CopyableText value={r!.productName}>
+                          {r!.productName}
+                        </CopyableText>
+                      </Link>
+                    </DetailInfoRow>
+                    {r!.productSku ? (
+                      <DetailInfoRow
+                        icon={Hash}
+                        label="SKU:"
+                        tone="violet"
+                        valueClassName={cn("text-sm", DETAIL_DATA_VALUE_CLASS)}
+                      >
+                        <CopyableText
+                          value={r!.productSku}
+                          className="text-sm"
+                        >
+                          {r!.productSku}
+                        </CopyableText>
+                      </DetailInfoRow>
+                    ) : null}
+                    {r!.categoryId && r!.categoryName ? (
+                      <DetailInfoRow
+                        icon={Tag}
+                        label="Category:"
+                        tone="amber"
+                        valueClassName={cn("text-sm", DETAIL_DATA_VALUE_CLASS)}
+                      >
+                        <Link
+                          href={`/admin/categories/${r!.categoryId}`}
+                          className={cn(TABLE_CATALOG_LINK_CLASS, "text-sm")}
+                        >
+                          {r!.categoryName}
+                        </Link>
+                      </DetailInfoRow>
+                    ) : null}
+                    {r!.supplierId && r!.supplierName ? (
+                      <DetailInfoRow
+                        icon={Truck}
+                        label="Supplier:"
+                        tone="emerald"
+                        valueClassName={cn("text-sm", DETAIL_DATA_VALUE_CLASS)}
+                      >
+                        <div className="flex flex-col gap-0.5 min-w-0">
+                          <AvatarInlineLink
+                            seed={r!.supplierId}
+                            image={r!.supplierImage}
+                            label={r!.supplierName}
+                            href={`/admin/suppliers/${r!.supplierId}`}
+                            size={24}
+                            linkClassName={cn(
+                              TABLE_CATALOG_LINK_CLASS,
+                              "text-sm",
+                            )}
+                          />
+                          {r!.supplierEmail ? (
+                            <CopyableText
+                              value={r!.supplierEmail}
+                              className={cn("text-xs", TYPO_BODY_MUTED)}
+                            >
+                              {r!.supplierEmail}
+                            </CopyableText>
+                          ) : null}
+                        </div>
+                      </DetailInfoRow>
+                    ) : null}
+                    <DetailInfoRow
+                      icon={Calendar}
+                      label="Created:"
+                      tone="orange"
+                      valueClassName={cn("text-sm", DETAIL_DATA_VALUE_CLASS)}
+                    >
+                      <ClientDateTime
+                        date={new Date(r!.createdAt)}
+                        semantic="created"
+                      />
+                    </DetailInfoRow>
+                    {r!.updatedAt ? (
+                      <DetailInfoRow
+                        icon={Calendar}
+                        label="Updated:"
+                        tone="amber"
+                        valueClassName={cn("text-sm", DETAIL_DATA_VALUE_CLASS)}
+                      >
+                        <ClientDateTime
+                          date={new Date(r!.updatedAt)}
+                          semantic="updated"
+                        />
+                      </DetailInfoRow>
+                    ) : null}
+                  </div>
+                </div>
+              )}
+            </div>
+          </GlassCard>
+
+          <GlassCard variant="violet">
+            <div className="p-2 sm:p-4">
+              <SectionCardHeader
+                title="Reviewer"
+                description="Account that submitted this review"
+                icon={User}
+                tone="violet"
+                className="mb-4"
+              />
+              {dataLoading ? (
+                <DataSlotPulse variant="text-md" className="w-full min-h-16" />
+              ) : (
+                <div className="space-y-2">
+                  <DetailInfoRow
+                    icon={User}
+                    label="Reviewer:"
+                    tone="violet"
+                    valueClassName={cn("text-sm", DETAIL_DATA_VALUE_CLASS)}
+                  >
+                    {/* REQ-0183 — name only; email in dedicated row below */}
+                    <PersonInlineRow
+                      seed={r!.userId}
+                      name={reviewerLabel}
+                      image={r!.reviewerImage}
+                      href={`/admin/user-management/${r!.userId}`}
+                      avatarSize={28}
+                    />
+                  </DetailInfoRow>
+                  {r!.reviewerEmail ? (
+                    <DetailInfoRow
+                      icon={Hash}
+                      label="Email:"
+                      tone="sky"
+                      valueClassName={cn("text-xs", TYPO_BODY_MUTED)}
+                    >
+                      <CopyableText
+                        value={r!.reviewerEmail}
+                        className="text-xs"
+                      >
+                        {r!.reviewerEmail}
+                      </CopyableText>
+                    </DetailInfoRow>
+                  ) : null}
+                  <DetailInfoRow
+                    icon={Hash}
+                    label="User ID:"
+                    tone="violet"
+                    valueClassName={cn("font-mono text-xs", TYPO_BODY_MUTED)}
+                  >
+                    <CopyableText
+                      value={r!.userId}
+                      className={cn("font-mono text-xs", TYPO_BODY_MUTED)}
+                    >
+                      {r!.userId}
+                    </CopyableText>
+                  </DetailInfoRow>
+                </div>
+              )}
+            </div>
+          </GlassCard>
+        </div>
+
+        {!dataLoading && r?.orderId ? (
+          <GlassCard variant="sky">
+            <div className="p-2 sm:p-4">
+              <SectionCardHeader
+                title="Purchase"
+                description="Related order and invoice for this review"
+                icon={FileText}
+                tone="sky"
+                className="mb-4"
+              />
+              <div className="space-y-2">
+                <DetailInfoRow
+                  icon={Package}
+                  label="Order:"
+                  tone="sky"
+                  valueClassName={cn("text-sm", DETAIL_DATA_VALUE_CLASS)}
+                >
+                  {r.orderNumber ? (
+                    <Link
+                      href={`/admin/orders/${r.orderId}`}
+                      className={cn(TABLE_CATALOG_LINK_CLASS, "text-sm")}
+                    >
+                      <CopyableText value={r.orderNumber}>
+                        {r.orderNumber}
+                      </CopyableText>
+                    </Link>
+                  ) : (
+                    <span className={TYPO_BODY_MUTED}>—</span>
+                  )}
+                </DetailInfoRow>
+                {r.orderStatus ? (
+                  <DetailInfoRow
+                    icon={CircleDot}
+                    label="Order status:"
+                    tone="amber"
+                  >
+                    <OrderStatusBadge status={r.orderStatus} size="detail" />
+                  </DetailInfoRow>
                 ) : null}
-                Save Comment
-              </Button>
-            )}
-          </div>
-        </GlassCard>
+                {r.orderPaymentStatus ? (
+                  <DetailInfoRow
+                    icon={Wallet}
+                    label="Payment:"
+                    tone="emerald"
+                  >
+                    <PaymentStatusBadge
+                      status={r.orderPaymentStatus}
+                      size="detail"
+                    />
+                  </DetailInfoRow>
+                ) : null}
+                {r.orderTotal != null ? (
+                  <DetailInfoRow
+                    icon={CircleDollarSign}
+                    label="Order total:"
+                    tone="emerald"
+                    valueClassName={cn("text-sm", DETAIL_DATA_VALUE_CLASS)}
+                  >
+                    {formatStableCurrency(r.orderTotal)}
+                  </DetailInfoRow>
+                ) : null}
+                {r.orderCreatedAt ? (
+                  <DetailInfoRow
+                    icon={Calendar}
+                    label="Order date:"
+                    tone="orange"
+                    valueClassName={cn("text-sm", DETAIL_DATA_VALUE_CLASS)}
+                  >
+                    <ClientDateTime
+                      date={new Date(r.orderCreatedAt)}
+                      semantic="created"
+                    />
+                  </DetailInfoRow>
+                ) : null}
+                {r.invoiceId && r.invoiceNumber ? (
+                  <DetailInfoRow
+                    icon={FileText}
+                    label="Invoice:"
+                    tone="violet"
+                    valueClassName={cn("text-sm", DETAIL_DATA_VALUE_CLASS)}
+                  >
+                    <Link
+                      href={`/admin/invoices/${r.invoiceId}`}
+                      className={cn(TABLE_CATALOG_LINK_CLASS, "text-sm")}
+                    >
+                      <CopyableText value={r.invoiceNumber}>
+                        {r.invoiceNumber}
+                      </CopyableText>
+                    </Link>
+                  </DetailInfoRow>
+                ) : null}
+                {r.invoiceStatus ? (
+                  <DetailInfoRow
+                    icon={FileText}
+                    label="Invoice status:"
+                    tone="violet"
+                  >
+                    <InvoiceStatusBadge
+                      status={r.invoiceStatus}
+                      size="detail"
+                      contrast="opaque"
+                    />
+                  </DetailInfoRow>
+                ) : null}
+                {r.invoiceTotal != null ? (
+                  <DetailInfoRow
+                    icon={CircleDollarSign}
+                    label="Invoice total:"
+                    tone="violet"
+                    valueClassName={cn("text-sm", DETAIL_DATA_VALUE_CLASS)}
+                  >
+                    {formatStableCurrency(r.invoiceTotal)}
+                  </DetailInfoRow>
+                ) : null}
+              </div>
+            </div>
+          </GlassCard>
+        ) : null}
 
         <div className="flex flex-col sm:flex-row flex-wrap gap-2">
           <Button
@@ -524,6 +615,18 @@ export default function AdminProductReviewDetailContent({
             <ArrowLeft className="h-4 w-4 shrink-0" />
             Back
           </Button>
+          <Button
+            type="button"
+            onClick={() => setEditOpen(true)}
+            disabled={actionsDisabled}
+            className={glassDetailFooterButtonClass(
+              "amber",
+              "w-full sm:w-auto gap-2 px-8",
+            )}
+          >
+            <Pencil className="h-4 w-4 shrink-0" />
+            Edit Review
+          </Button>
           <AlertDialog>
             <AlertDialogTrigger asChild>
               <DialogSubmitButton
@@ -531,6 +634,7 @@ export default function AdminProductReviewDetailContent({
                 isPending={isDeleting}
                 pendingLabel="Deleting…"
                 label="Delete Review"
+                icon={Trash2}
                 hue="rose"
                 disabled={actionsDisabled}
                 className="w-full sm:w-auto gap-2 px-8"
@@ -540,8 +644,7 @@ export default function AdminProductReviewDetailContent({
               <AlertDialogHeader>
                 <AlertDialogTitle>Delete product review?</AlertDialogTitle>
                 <AlertDialogDescription>
-                  This will permanently delete this review. This action cannot
-                  be undone.
+                  {deleteDescription}
                 </AlertDialogDescription>
               </AlertDialogHeader>
               <AlertDialogFooter>
@@ -559,6 +662,18 @@ export default function AdminProductReviewDetailContent({
             </AlertDialogContent>
           </AlertDialog>
         </div>
+
+        {r ? (
+          <WriteEditReviewDialog
+            open={editOpen}
+            onOpenChange={setEditOpen}
+            productId={r.productId}
+            productName={r.productName}
+            productSku={r.productSku}
+            existingReview={r}
+            allowStatusEdit
+          />
+        ) : null}
       </div>
     </PageContentWrapper>
   );

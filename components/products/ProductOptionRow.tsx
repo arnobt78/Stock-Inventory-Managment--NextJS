@@ -1,9 +1,11 @@
 /**
  * REQ-0048 — inline product thumb + label for order Select (matches ProductTableColumns).
  * REQ-0059 — ProductThumb extracted for reuse on detail-page line items / allocation rows.
+ * REQ-0179 — DialogProductOptionRow for Select densify (no Links inside SelectItem).
  */
-import { Package } from "lucide-react";
+import { Package, Tag } from "lucide-react";
 import { SafeImage } from "@/components/ui/safe-image";
+import { AvatarInlineLink } from "@/components/shared/AvatarInlineLink";
 import { cn } from "@/lib/utils";
 
 const thumbSize = {
@@ -156,4 +158,127 @@ export function productSupplierLabel(
 ): string | null {
   if (!supplier) return null;
   return typeof supplier === "string" ? supplier : supplier.name;
+}
+
+export type DialogProductOptionRowProps = {
+  name: string;
+  imageUrl?: string | null;
+  sku?: string | null;
+  categoryName?: string | null;
+  ownerId?: string | null;
+  ownerName?: string | null;
+  ownerImage?: string | null;
+  supplierId?: string | null;
+  supplierName?: string | null;
+  supplierImage?: string | null;
+  /** Dark amber/glass Select trigger */
+  metaOnDark?: boolean;
+  className?: string;
+};
+
+/**
+ * REQ-0179 — Select-safe densify row (no Link / CopyableText):
+ * thumb · name text-sm · sku muted xs
+ * Tag category · owner avatar · supplier avatar
+ */
+export function DialogProductOptionRow({
+  name,
+  imageUrl,
+  sku,
+  categoryName,
+  ownerId,
+  ownerName,
+  ownerImage,
+  supplierId,
+  supplierName,
+  supplierImage,
+  metaOnDark = false,
+  className,
+}: DialogProductOptionRowProps) {
+  const skuText = (sku ?? "").trim();
+  const cat = (categoryName ?? "").trim();
+  const ownerLabel = (ownerName ?? "").trim();
+  const supplierLabel = (supplierName ?? "").trim();
+  const mutedClass = metaOnDark
+    ? "text-white/70"
+    : "text-gray-500 dark:text-gray-400";
+  const nameClass = metaOnDark
+    ? "text-sm font-normal text-white/90"
+    : "text-sm font-normal text-gray-800 dark:text-gray-100";
+  const metaRowClass = metaOnDark
+    ? "text-xs text-white/80"
+    : "text-xs text-gray-600 dark:text-gray-300";
+
+  return (
+    <span
+      className={cn("flex min-w-0 flex-1 items-start gap-2 py-0.5", className)}
+      title={name}
+    >
+      <ProductThumb name={name} imageUrl={imageUrl} size="sm" />
+      <span className="flex min-w-0 flex-1 flex-col gap-0.5 text-left">
+        <span className="flex flex-wrap items-center gap-x-1.5 gap-y-0.5 min-w-0">
+          <span className={cn("truncate", nameClass)}>{name}</span>
+          {skuText ? (
+            <>
+              <span aria-hidden className={mutedClass}>
+                ·
+              </span>
+              <span className={cn("font-mono truncate", mutedClass, "text-xs")}>
+                {skuText}
+              </span>
+            </>
+          ) : null}
+        </span>
+        {(cat || ownerLabel || supplierLabel) && (
+          <span
+            className={cn(
+              "flex flex-wrap items-center gap-x-1.5 gap-y-0.5 min-w-0",
+              metaRowClass,
+            )}
+          >
+            {cat ? (
+              <span className="inline-flex items-center gap-1 min-w-0">
+                <Tag className="h-3 w-3 shrink-0" aria-hidden />
+                <span className="truncate">{cat}</span>
+              </span>
+            ) : null}
+            {cat && (ownerLabel || supplierLabel) ? (
+              <span aria-hidden className={mutedClass}>
+                ·
+              </span>
+            ) : null}
+            {ownerId && ownerLabel ? (
+              <AvatarInlineLink
+                seed={ownerId}
+                image={ownerImage}
+                label={ownerLabel}
+                size={18}
+                linkClassName={cn("text-xs", metaOnDark && "text-white/85")}
+                className="gap-1"
+              />
+            ) : ownerLabel ? (
+              <span className="truncate">{ownerLabel}</span>
+            ) : null}
+            {(ownerLabel || ownerId) && supplierLabel ? (
+              <span aria-hidden className={mutedClass}>
+                ·
+              </span>
+            ) : null}
+            {supplierId && supplierLabel ? (
+              <AvatarInlineLink
+                seed={supplierId}
+                image={supplierImage}
+                label={supplierLabel}
+                size={18}
+                linkClassName={cn("text-xs", metaOnDark && "text-white/85")}
+                className="gap-1"
+              />
+            ) : supplierLabel ? (
+              <span className="truncate">{supplierLabel}</span>
+            ) : null}
+          </span>
+        )}
+      </span>
+    </span>
+  );
 }

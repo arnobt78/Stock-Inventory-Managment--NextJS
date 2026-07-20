@@ -924,17 +924,15 @@ Hub: `lib/ui/typography-scale.ts`. Hubs import tokens; ~45 inline files use equi
 
 **No invalidation registry changes** — CRUD already clears `forecasting:*` / `dashboard:*`.
 
-## Recent + portal densify (REQ-0174–0178)
+## Recent + portal densify (REQ-0174–0184)
 
 | Piece | Location |
 |-------|----------|
-| Clip meta | `CARD_LIST_META_ROW_CLASS`; AvatarInlineLink ring not clipped |
-| Dashboard | Orders/Reviews densify; gap-1.5; date-first; Redis `dashboard:overview:v7` |
-| Shared cell | `DenseCatalogProductCell` (forecast + Top Products) |
-| Portals | `SectionCardHeader`; supplier/client densify; Redis `supplierPortal:v4` / `clientPortal:v4` |
-| Supplier buyer | REQ-0178 — Calendar · date · `placedBy*` AvatarInlineLink |
+| Clip/portals | `CARD_LIST_META_ROW`; dashboard v7; `DenseCatalogProductCell`; portals v4; REQ-0178 buyer row |
+| Reviews 0179–84 | Rating Select hues; `enrich-review-catalog` + list v2; detail Product/Purchase; Actions `...`; badge contrast; detail Status\|Comment; Edit dialog **stacked** w-full (0184) |
+| Cache | `products:list:v3`; `productReviews:list:v2` |
 
-**Invalidation unchanged** — order/catalog CRUD already clears `dashboard:*` / `*Portal:*`.
+**Invalidation unchanged** — review/product/dashboard CRUD already clears lists + portals.
 
 ## KPI badge helpers (REQ-0156–0157)
 

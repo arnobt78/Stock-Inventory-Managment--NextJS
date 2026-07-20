@@ -235,8 +235,8 @@ export const cacheKeys = {
     all: "products:all",
     list: (filters?: Record<string, unknown>) => {
       const filterStr = filters ? JSON.stringify(filters) : "default";
-      // v2: catalog filter includes legacy rows without deletedAt (see product-query.ts)
-      return `products:list:v2:${filterStr}`;
+      // REQ-0179 — v3: productOwnerName/Image + supplierImage on all list rows
+      return `products:list:v3:${filterStr}`;
     },
     detail: (id: string) => `products:detail:${id}`,
     pattern: "products:*",
@@ -357,8 +357,10 @@ export const cacheKeys = {
     all: "productReviews:all",
     list: (filters?: Record<string, unknown>) => {
       const filterStr = filters ? JSON.stringify(filters) : "default";
-      return `productReviews:list:${filterStr}`;
+      // REQ-0180 — v2: productImageUrl + reviewerImage catalog densify
+      return `productReviews:list:v2:${filterStr}`;
     },
+    // Unused helper (peer: orders/invoices detail) — list is the Redis surface; detail is Prisma+enrich only
     detail: (id: string) => `productReviews:detail:${id}`,
     pattern: "productReviews:*",
   },

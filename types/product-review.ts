@@ -23,6 +23,25 @@ export interface ProductReview {
   reviewerEmail?: string;
   /** Present when API returns by-product list (avatar in review card). */
   reviewerImage?: string | null;
+  /** REQ-0180 — live product catalog enrich for list/detail densify */
+  productImageUrl?: string | null;
+  categoryId?: string | null;
+  categoryName?: string | null;
+  supplierId?: string | null;
+  supplierName?: string | null;
+  supplierImage?: string | null;
+  supplierEmail?: string | null;
+  /** REQ-0180 — purchase link on detail when orderId set */
+  orderNumber?: string | null;
+  invoiceId?: string | null;
+  invoiceNumber?: string | null;
+  /** REQ-0183 — purchase densify on detail */
+  orderStatus?: string | null;
+  orderPaymentStatus?: string | null;
+  orderTotal?: number | null;
+  orderCreatedAt?: string | null;
+  invoiceStatus?: string | null;
+  invoiceTotal?: number | null;
 }
 
 export interface CreateProductReviewInput {

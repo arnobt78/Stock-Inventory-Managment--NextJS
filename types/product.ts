@@ -39,8 +39,12 @@ export interface Product {
   /** Set when product is archived (soft-deleted) due to order history */
   deletedAt?: Date | null;
   deletedBy?: string | null;
-  /** Product owner display name (populated when fetching by supplier) */
+  /** Product owner display name (REQ-0179 — always on list for dialog densify) */
   productOwnerName?: string | null;
+  /** REQ-0179 — owner User.image for dialog/table avatars */
+  productOwnerImage?: string | null;
+  /** REQ-0179 — supplier linked User.image */
+  supplierImage?: string | null;
   /** Extended by API for detail page */
   creator?: {
     id: string;

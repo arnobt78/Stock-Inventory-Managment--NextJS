@@ -456,3 +456,17 @@ Format: `TIMESTAMP | AGENT | DECISION | RATIONALE | REQ-ID`
 2026-07-20T15:40:00Z | red-team | REQ-0177 gates | lint ✓ test 630 ✓ invalidate 213 ✓ build ✓ | REQ-0177
 2026-07-20T15:45:00Z | build-agent | REQ-0178 supplier order buyer row | placedBy* SSR + AvatarInlineLink; supplierPortal Redis v4 | REQ-0178
 2026-07-20T15:50:00Z | red-team | REQ-0178 gates | lint ✓ test 630 ✓ invalidate 213 ✓ build ✓ | REQ-0178
+2026-07-20T16:00:00Z | build-agent | REQ-0179 review dialog densify | getRatingDisplay on Select; DialogProductOptionRow; products list v3 party enrich | REQ-0179
+2026-07-20T16:05:00Z | red-team | REQ-0179 gates | lint ✓ test 630 ✓ invalidate 213 ✓ build ✓ | REQ-0179
+2026-07-20T16:20:00Z | build-agent | REQ-0180 review table+detail densify | list/detail catalog enrich; productReviews:list:v2; Edit Review dialog; keep instant selects | REQ-0180
+2026-07-20T16:25:00Z | red-team | REQ-0180 gates | lint ✓ test 630 ✓ invalidate 213 ✓ build ✓ | REQ-0180
+2026-07-20T16:30:00Z | build-agent | REQ-0180 nit unused detail Redis key | Revert detail:v2→unversioned unused helper; AC2 list:v2 only; hasReviewListV2Shape unit test | REQ-0180
+2026-07-20T16:35:00Z | red-team | REQ-0180 nit gates | lint ✓ test 635 ✓ invalidate 213 ✓ build ✓ | REQ-0180
+2026-07-20T16:40:00Z | build-agent | REQ-0181 review edit-only dialog | Detail display-only; WriteEditReviewDialog allowStatusEdit Status Select | REQ-0181
+2026-07-20T16:45:00Z | red-team | REQ-0181 gates | lint ✓ test 635 ✓ invalidate 213 ✓ build ✓ | REQ-0181
+2026-07-20T16:50:00Z | build-agent | REQ-0182 review table Actions menu | ProductReviewActions View/Edit/Delete MoreVertical | REQ-0182
+2026-07-20T16:55:00Z | red-team | REQ-0182 gates | lint ✓ test 636 ✓ invalidate 214 ✓ build ✓ | REQ-0182
+2026-07-20T17:00:00Z | build-agent | REQ-0183 review detail UX polish | badge contrast; Status+Rating|Comment; purchase enrich; text-sm values | REQ-0183
+2026-07-20T17:05:00Z | red-team | REQ-0183 gates | lint ✓ test 636 ✓ invalidate 214 ✓ build ✓ | REQ-0183
+2026-07-20T17:10:00Z | build-agent | REQ-0184 restore edit dialog stack | drop 2-col/max-w-2xl; keep badge contrast | REQ-0184
+2026-07-20T17:15:00Z | red-team | REQ-0184 gates | lint ✓ test 636 ✓ invalidate 214 ✓ build ✓ | REQ-0184

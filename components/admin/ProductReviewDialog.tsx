@@ -28,6 +28,12 @@ import {
   DialogSubmitButton,
   GLASS_GHOST_BUTTON,
 } from "@/components/shared";
+import {
+  DialogProductOptionRow,
+  productCategoryLabel,
+  productSupplierLabel,
+} from "@/components/products/ProductOptionRow";
+import { getRatingDisplay } from "@/lib/ui/review-rating-display";
 import { cn } from "@/lib/utils";
 import { useCreateProductReview, useProducts } from "@/hooks/queries";
 
@@ -58,6 +64,7 @@ export default function ProductReviewDialog({
 
   const createMutation = useCreateProductReview();
   const { data: products = [] } = useProducts();
+  const selectedProduct = products.find((p) => p.id === productId);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -77,22 +84,29 @@ export default function ProductReviewDialog({
 
   const isPending = createMutation.isPending;
 
+  /** REQ-0179 — semantic star hues from getRatingDisplay (edit-dialog parity) */
   const renderStars = (count: number) => {
+    const display = getRatingDisplay(count);
     return (
-      <span className="flex items-center ">
+      <span className="flex items-center">
         {Array.from({ length: 5 }, (_, i) => (
           <Star
             key={i}
-            className={`h-4 w-4 ${
+            className={cn(
+              "h-4 w-4",
               i < count
-                ? "fill-amber-400 text-amber-400"
-                : "fill-transparent text-gray-400/50"
-            }`}
+                ? display.starClass
+                : "fill-transparent text-white/40",
+            )}
           />
         ))}
       </span>
     );
   };
+
+  /** REQ-0180 — readable (N stars) on dark dialog shell */
+  const ratingLabelClass = (n: number) =>
+    cn("text-sm font-medium", getRatingDisplay(n).dialogTextClass);
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -120,11 +134,33 @@ export default function ProductReviewDialog({
               enabled={open}
               placeholder={
                 <div
-                  className="flex h-11 w-full items-center rounded-md border border-amber-400/30 bg-white/10 px-2 text-sm text-white/60"
+                  className="flex min-h-11 w-full items-center rounded-md border border-amber-400/30 bg-white/10 px-2 text-sm text-white/60"
                   aria-hidden
                 >
-                  {products.find((p) => p.id === productId)?.name ??
-                    "Select product to review"}
+                  {selectedProduct ? (
+                    <DialogProductOptionRow
+                      name={selectedProduct.name}
+                      imageUrl={selectedProduct.imageUrl}
+                      sku={selectedProduct.sku}
+                      categoryName={productCategoryLabel(
+                        selectedProduct.category,
+                      )}
+                      ownerId={selectedProduct.userId}
+                      ownerName={
+                        selectedProduct.productOwnerName ?? undefined
+                      }
+                      ownerImage={selectedProduct.productOwnerImage}
+                      supplierId={selectedProduct.supplierId}
+                      supplierName={
+                        productSupplierLabel(selectedProduct.supplier) ??
+                        undefined
+                      }
+                      supplierImage={selectedProduct.supplierImage}
+                      metaOnDark
+                    />
+                  ) : (
+                    "Select product to review"
+                  )}
                 </div>
               }
             >
@@ -137,14 +173,40 @@ export default function ProductReviewDialog({
                 >
                   <SelectTrigger
                     id="product-review-product"
-                    className={cn("h-11 w-full", DIALOG_FORM_FIELD_AMBER)}
+                    className={cn(
+                      "h-auto min-h-11 w-full py-1.5",
+                      DIALOG_FORM_FIELD_AMBER,
+                    )}
                   >
-                    <SelectValue placeholder="Select product to review" />
+                    <SelectValue placeholder="Select product to review">
+                      {selectedProduct ? (
+                        <DialogProductOptionRow
+                          name={selectedProduct.name}
+                          imageUrl={selectedProduct.imageUrl}
+                          sku={selectedProduct.sku}
+                          categoryName={productCategoryLabel(
+                            selectedProduct.category,
+                          )}
+                          ownerId={selectedProduct.userId}
+                          ownerName={
+                            selectedProduct.productOwnerName ?? undefined
+                          }
+                          ownerImage={selectedProduct.productOwnerImage}
+                          supplierId={selectedProduct.supplierId}
+                          supplierName={
+                            productSupplierLabel(selectedProduct.supplier) ??
+                            undefined
+                          }
+                          supplierImage={selectedProduct.supplierImage}
+                          metaOnDark
+                        />
+                      ) : null}
+                    </SelectValue>
                   </SelectTrigger>
                   <SelectContent
                     className={cn(
                       DIALOG_SELECT_CONTENT_CLASS,
-                      "z-[100] max-h-[200px]",
+                      "z-[100] max-h-[280px]",
                     )}
                     position="popper"
                     sideOffset={5}
@@ -154,9 +216,22 @@ export default function ProductReviewDialog({
                       <SelectItem
                         key={p.id}
                         value={p.id}
-                        className={DIALOG_SELECT_ITEM_CLASS}
+                        className={cn(DIALOG_SELECT_ITEM_CLASS, "py-2")}
                       >
-                        {p.name} {p.sku ? `(${p.sku})` : ""}
+                        <DialogProductOptionRow
+                          name={p.name}
+                          imageUrl={p.imageUrl}
+                          sku={p.sku}
+                          categoryName={productCategoryLabel(p.category)}
+                          ownerId={p.userId}
+                          ownerName={p.productOwnerName ?? undefined}
+                          ownerImage={p.productOwnerImage}
+                          supplierId={p.supplierId}
+                          supplierName={
+                            productSupplierLabel(p.supplier) ?? undefined
+                          }
+                          supplierImage={p.supplierImage}
+                        />
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -197,7 +272,7 @@ export default function ProductReviewDialog({
                     <SelectValue>
                       <span className="flex items-center gap-2">
                         {renderStars(rating)}
-                        <span className="text-muted-foreground text-sm">
+                        <span className={ratingLabelClass(rating)}>
                           ({rating} star{rating !== 1 ? "s" : ""})
                         </span>
                       </span>
@@ -217,7 +292,7 @@ export default function ProductReviewDialog({
                       >
                         <span className="flex items-center gap-2">
                           {renderStars(r)}
-                          <span className="text-muted-foreground text-sm">
+                          <span className={ratingLabelClass(r)}>
                             ({r} star{r !== 1 ? "s" : ""})
                           </span>
                         </span>

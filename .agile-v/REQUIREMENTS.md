@@ -4,6 +4,145 @@ Canonical REQ source. All artifacts link via `REQ-XXXX`. Status: `done` | `verif
 
 ---
 
+## REQ-0184 — Restore Edit Review dialog stacked layout
+
+| Field | Value |
+|-------|-------|
+| **Priority** | P2 |
+| **Risk** | R0 |
+| **Status** | done |
+| **Cycle** | C2 |
+| **Parent** | REQ-0183 |
+
+**Intent:** Revert Edit Review dialog from 2-col Status|Comment back to stacked w-full (Status → Rating → Comment). Keep solid/opaque Status badges. Detail page 2-col unchanged.
+
+**Acceptance criteria**
+
+- AC1: Edit dialog form stacks Status → Rating → Comment (same as create)
+- AC2: No `sm:max-w-2xl` / `md:grid-cols-2` on edit
+- AC3: ReviewStatusBadge solid/opaque contrast retained
+- AC4: Invalidation unchanged; gates pass
+
+**Artifacts:** `WriteEditReviewDialog.tsx`
+
+---
+
+## REQ-0183 — Review detail + Edit dialog UX polish
+
+| Field | Value |
+|-------|-------|
+| **Priority** | P2 |
+| **Risk** | R0 |
+| **Status** | done |
+| **Cycle** | C2 |
+| **Parent** | REQ-0181, REQ-0182 |
+
+**Intent:** Readable ReviewStatusBadge contrast; Status+Rating | Comment layout; purchase densify + sky number links; reviewer email dedupe; product values text-sm; Trash icon + dynamic delete copy.
+
+**Acceptance criteria**
+
+- AC1: `ReviewStatusBadge` contrast solid/opaque; dialog Select uses solid/opaque; detail uses opaque
+- AC2: Detail + Edit dialog: Status+Rating left, Comment right
+- AC3: Purchase enrich order/invoice status/payment/total/date; sky Link on numbers
+- AC4: Reviewer PersonInlineRow no email; product DetailInfoRow text-sm; Delete Trash2 + dynamic copy
+- AC5: Invalidation unchanged; gates pass
+
+**Artifacts:** `semantic-badges`, `WriteEditReviewDialog`, `AdminProductReviewDetailContent`, `enrich-review-catalog`, `types/product-review`
+
+---
+
+## REQ-0182 — Product reviews table Actions `...` menu
+
+| Field | Value |
+|-------|-------|
+| **Priority** | P2 |
+| **Risk** | R0 |
+| **Status** | done |
+| **Cycle** | C2 |
+| **Parent** | REQ-0181, REQ-0180 |
+
+**Intent:** Replace product-reviews table View button with MoreVertical dropdown: View Details · Edit Review (dialog + allowStatusEdit) · Delete Review (confirm). CategoryActions parity.
+
+**Acceptance criteria**
+
+- AC1: Actions cell uses `ProductReviewActions` MoreVertical menu
+- AC2: Edit opens `WriteEditReviewDialog` with `allowStatusEdit`; Delete uses `useDeleteProductReview` + AlertDialog
+- AC3: Invalidation unchanged; gates pass
+
+**Artifacts:** `ProductReviewActions`, `ProductReviewTableColumns`
+
+---
+
+## REQ-0181 — Review detail display-only; edit via dialog (+ status)
+
+| Field | Value |
+|-------|-------|
+| **Priority** | P2 |
+| **Risk** | R1 |
+| **Status** | done |
+| **Cycle** | C2 |
+| **Parent** | REQ-0180, REQ-0165 |
+
+**Intent:** Admin review detail is display-only (status badge + stars/comment). Status/rating/comment edits only via `WriteEditReviewDialog` with admin Status Select (`allowStatusEdit`). Client/author edit paths omit status.
+
+**Acceptance criteria**
+
+- AC1: Detail removes instant Status/Rating Selects and Edit Comment; keep badge + stars + comment + catalog cards + footer Edit/Delete
+- AC2: Dialog `allowStatusEdit` → Status Select (Pending/Approved/Rejected) full-width; submit includes status
+- AC3: Client call sites omit `allowStatusEdit`; API status 403 for non-owner unchanged
+- AC4: Invalidation unchanged (patch → invalidateAllRelatedQueries); gates pass
+
+**Artifacts:** `AdminProductReviewDetailContent`, `WriteEditReviewDialog`
+
+---
+
+## REQ-0180 — Product reviews table densify + detail redesign
+
+| Field | Value |
+|-------|-------|
+| **Priority** | P2 |
+| **Risk** | R1 |
+| **Status** | done |
+| **Cycle** | C2 |
+| **Parent** | REQ-0179, REQ-0165 |
+
+**Intent:** Densify admin product-reviews table (product thumb+SKU copy, reviewer avatar+email copy) and redesign AdminProductReviewDetailContent to invoice/product-detail parity with catalog enrich, related order/invoice, glass Edit/Delete. Keep instant status/rating selects; add Edit Review dialog. Redis list v2.
+
+**Acceptance criteria**
+
+- AC1: List/detail SSR enrich product image/category/supplier + reviewerImage; detail orderNumber + invoice link when orderId set
+- AC2: Redis `productReviews:list:v2` + shape guard; detail is Prisma+enrich only (no Redis detail); invalidation unchanged
+- AC3: Table Product column = ProductThumb + sky name Link + CopyableText SKU; Reviewer = AvatarInlineLink + email copy
+- AC4: Detail layout: Status/Rating selects; Product/Reviewer cards; Purchase card; Rating&Comment; Edit Comment; footer Back + Edit Review + Delete
+- AC5: Add Review rating `(N stars)` uses dialogTextClass + font-medium; gates pass
+
+**Artifacts:** `enrich-review-catalog`, `product-reviews-data`, `product-review-detail-data`, `ProductReviewTableColumns`, `AdminProductReviewDetailContent`, `cache-utils`, `types/product-review`
+
+---
+
+## REQ-0179 — Add Product Review dialog rating + product picker
+
+| Field | Value |
+|-------|-------|
+| **Priority** | P2 |
+| **Risk** | R1 |
+| **Status** | done |
+| **Cycle** | C2 |
+| **Parent** | REQ-0167, REQ-0173 |
+
+**Intent:** Add Product Review dialog: rating label uses `getRatingDisplay` hues; product Select densifies with thumb/SKU/category/owner/supplier avatars via list API enrich.
+
+**Acceptance criteria**
+
+- AC1: Rating Select stars + `(N stars)` use `getRatingDisplay` starClass + dialogTextClass
+- AC2: `DialogProductOptionRow` (no Links) in product Select trigger + items
+- AC3: GET products + home-data list include `productOwnerName/Image` + `supplierImage`; Redis `products:list:v3`
+- AC4: Shared `product-list-party.ts`; invalidation unchanged; gates pass
+
+**Artifacts:** `ProductReviewDialog`, `ProductOptionRow`, `product-list-party`, `app/api/products/route`, `home-data`, `cache-utils`, `types/product`
+
+---
+
 ## REQ-0178 — Supplier portal recent orders buyer row
 
 | Field | Value |

@@ -73,6 +73,113 @@ Commands: lint, test, invalidate, build
 
 ---
 
+## REQ-0184 Restore Edit Review dialog stacked layout evidence
+
+| Check | Result |
+|-------|--------|
+| Stack layout | Status → Rating → Comment w-full (create + edit) |
+| No 2-col / max-w-2xl | Removed from edit dialog |
+| Badge contrast | solid/opaque retained (REQ-0183) |
+| Detail page | 2-col Status+Rating \| Comment unchanged |
+| Invalidation | unchanged |
+| Gates | lint ✓ test **636** ✓ invalidate **214** ✓ build ✓ |
+
+```
+Scope: built/verified | Traceability: REQ-0184 | Findings: PASS
+Commands: lint, test, invalidate, build
+```
+
+---
+
+## REQ-0183 Review detail + Edit dialog UX polish evidence
+
+| Check | Result |
+|-------|--------|
+| Badge contrast | ReviewStatusBadge solid/opaque; dialog Select wired |
+| Layout | Status+Rating \| Comment (detail + edit dialog) |
+| Purchase | status/payment/total/date + sky number links |
+| Polish | reviewer email dedupe; product text-sm; Trash2; dynamic delete |
+| Invalidation | unchanged |
+| Gates | lint ✓ test **636** ✓ invalidate **214** ✓ build ✓ |
+
+```
+Scope: built/verified | Traceability: REQ-0183 | Findings: PASS
+Commands: lint, test, invalidate, build
+```
+
+---
+
+## REQ-0182 Product reviews table Actions menu evidence
+
+| Check | Result |
+|-------|--------|
+| Actions | MoreVertical View Details · Edit Review · Delete Review |
+| Edit | WriteEditReviewDialog allowStatusEdit |
+| Delete | AlertDialogWrapper + useDeleteProductReview |
+| Invalidation | unchanged |
+| Gates | lint ✓ test **636** ✓ invalidate **214** ✓ build ✓ |
+
+```
+Scope: built/verified | Traceability: REQ-0182 | Findings: PASS
+Commands: lint, test, invalidate, build
+```
+
+---
+
+## REQ-0181 Review detail display-only; edit via dialog evidence
+
+| Check | Result |
+|-------|--------|
+| Detail | No Status/Rating Selects; no Edit Comment; badge + stars/comment |
+| Dialog | allowStatusEdit → Status Select w-full; PUT status+rating+comment |
+| Roles | Admin detail true; client call sites omit |
+| Invalidation | unchanged |
+| Gates | lint ✓ test **635** ✓ invalidate **213** ✓ build ✓ |
+
+```
+Scope: built/verified | Traceability: REQ-0181 | Findings: PASS
+Commands: lint, test, invalidate, build
+```
+
+---
+
+## REQ-0180 Product reviews table densify + detail redesign evidence
+
+| Check | Result |
+|-------|--------|
+| List/detail enrich | productImageUrl, category/supplier, reviewerImage; orderNumber + invoice |
+| Redis | productReviews:list:v2 only; shape guard productImageUrl/reviewerImage; detail no Redis |
+| Nit close | detail key unversioned unused helper; `hasReviewListV2Shape` unit tests |
+| Table | ProductThumb + SKU CopyableText; AvatarInlineLink + email copy |
+| Detail | Status/Rating selects; Product/Reviewer/Purchase cards; Edit Review + Delete |
+| Add dialog polish | ratingLabelClass font-medium + dialogTextClass |
+| Invalidation | unchanged |
+| Gates | lint ✓ test **635** ✓ invalidate **213** ✓ build ✓ |
+
+```
+Scope: built/verified | Traceability: REQ-0180 | Findings: PASS
+Commands: lint, test, invalidate, build
+```
+
+---
+
+## REQ-0179 Add Product Review dialog densify evidence
+
+| Check | Result |
+|-------|--------|
+| Rating hues | getRatingDisplay starClass + dialogTextClass on Select |
+| Product Select | DialogProductOptionRow thumb·SKU·cat·owner·supplier |
+| List API/SSR | productOwnerName/Image + supplierImage; products:list:v3 |
+| Invalidation | unchanged |
+| Gates | lint ✓ test **630** ✓ invalidate **213** ✓ build ✓ |
+
+```
+Scope: built/verified | Traceability: REQ-0179 | Findings: PASS
+Commands: lint, test, invalidate, build
+```
+
+---
+
 ## REQ-0178 Supplier portal recent orders buyer row evidence
 
 | Check | Result |

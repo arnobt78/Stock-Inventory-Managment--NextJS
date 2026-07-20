@@ -21,29 +21,12 @@ import { cacheKeys, getCache, scheduleInvalidateProductReviewCaches, setCache } 
 import { prisma } from "@/prisma/client";
 import { createAuditLog } from "@/prisma/audit-log";
 import type { ProductReview } from "@/types";
-
-function transform(
-  r: Awaited<ReturnType<typeof getAllProductReviews>>[number],
-  userMap?: Map<string, { name: string | null; email: string }>,
-): ProductReview {
-  const reviewer = userMap?.get(r.userId);
-  return {
-    id: r.id,
-    productId: r.productId,
-    userId: r.userId,
-    orderId: r.orderId,
-    orderItemId: r.orderItemId ?? null,
-    productName: r.productName,
-    productSku: r.productSku,
-    rating: r.rating,
-    comment: r.comment,
-    status: r.status as ProductReview["status"],
-    createdAt: r.createdAt.toISOString(),
-    updatedAt: r.updatedAt?.toISOString() ?? null,
-    reviewerName: reviewer?.name ?? null,
-    reviewerEmail: reviewer?.email,
-  };
-}
+import {
+  hasReviewListV2Shape,
+  mapProductReviewsWithCatalog,
+} from "@/lib/product-reviews/enrich-review-catalog";
+import { getProductReviewDetailForPage } from "@/lib/server/product-review-detail-data";
+import { transformProductReviewDetail } from "@/lib/product-reviews/transform-product-review-detail";
 
 /**
  * GET /api/product-reviews
@@ -69,25 +52,12 @@ export async function GET(request: NextRequest) {
     const cacheKey = cacheKeys.productReviews.list(cacheFilter);
     const cacheReadStartedAt = Date.now();
     const cached = await getCache<ProductReview[]>(cacheKey);
-    const first = cached?.[0];
-    const hasReviewerInfo =
-      cached != null &&
-      (cached.length === 0 || (first != null && ("reviewerName" in first || "reviewerEmail" in first)));
-    if (cached && hasReviewerInfo) return NextResponse.json(cached);
+    if (hasReviewListV2Shape(cached)) return NextResponse.json(cached);
 
     const records = isAdmin
       ? await getProductReviewsForProductOwner(session.id)
       : await getAllProductReviews();
-    const userIds = [...new Set(records.map((r) => r.userId))];
-    const users =
-      userIds.length > 0
-        ? await prisma.user.findMany({
-            where: { id: { in: userIds } },
-            select: { id: true, name: true, email: true },
-          })
-        : [];
-    const userMap = new Map(users.map((u) => [u.id, { name: u.name, email: u.email }]));
-    const transformed = records.map((r) => transform(r, userMap));
+    const transformed = await mapProductReviewsWithCatalog(records);
     await setCache(cacheKey, transformed, 300, { fetchedAt: cacheReadStartedAt });
     return NextResponse.json(transformed);
   } catch (error) {
@@ -208,7 +178,17 @@ export async function POST(request: NextRequest) {
       });
     }
 
-    return NextResponse.json(transform(created), { status: 201 });
+    // REQ-0180 — return enriched detail shape (catalog + reviewer)
+    const detail = await getProductReviewDetailForPage(
+      { id: session.id, role: session.role },
+      created.id,
+    );
+    if (detail) {
+      return NextResponse.json(detail, { status: 201 });
+    }
+    return NextResponse.json(transformProductReviewDetail(created), {
+      status: 201,
+    });
   } catch (error) {
     logger.error("Error creating product review:", error);
     return NextResponse.json(

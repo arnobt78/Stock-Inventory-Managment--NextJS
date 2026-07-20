@@ -117,6 +117,13 @@ const REVIEW_STATUS: Record<string, BadgeTone> = {
   rejected: { className: GLASS_BADGE_CLASS.red, icon: XCircle },
 };
 
+/** REQ-0183 — solid/opaque contrast for dark dialog Select + light detail */
+const REVIEW_STATUS_HUE: Record<string, GlassBadgeHue> = {
+  pending: "amber",
+  approved: "emerald",
+  rejected: "red",
+};
+
 const INVOICE_STATUS: Record<string, BadgeTone> = {
   draft: { className: GLASS_BADGE_CLASS.slate, icon: FileText },
   sent: { className: GLASS_BADGE_CLASS.sky, icon: FileText },
@@ -483,8 +490,16 @@ export function ReviewStatusBadge({
   className,
   label,
   size,
+  contrast = "glass",
 }: SemanticBadgeProps) {
-  const tone = resolveTone(REVIEW_STATUS, status);
+  const base = resolveTone(REVIEW_STATUS, status);
+  const hue = REVIEW_STATUS_HUE[normalizeKey(status)] ?? "amber";
+  const tone: BadgeTone =
+    contrast === "solid"
+      ? { icon: base.icon, className: SOLID_BADGE_CLASS[hue] }
+      : contrast === "opaque"
+        ? { icon: base.icon, className: OPAQUE_BADGE_CLASS[hue] }
+        : base;
   return (
     <SemanticBadgeBase
       tone={tone}

@@ -1,6 +1,7 @@
 /**
  * Product Review Table Columns
- * Column definitions for the product reviews table
+ * REQ-0180 — densify Product (thumb+SKU copy) + Reviewer (avatar+email copy)
+ * REQ-0182 — Actions → ProductReviewActions MoreVertical menu
  */
 
 "use client";
@@ -8,18 +9,24 @@
 import React from "react";
 import { Column, ColumnDef } from "@tanstack/react-table";
 import { ReviewStatusBadge } from "@/lib/ui/semantic-badges";
-import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { ArrowUpDown, Eye, Star } from "lucide-react";
+import { ArrowUpDown, Star } from "lucide-react";
 import { IoMdArrowDown, IoMdArrowUp } from "react-icons/io";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
-import { ClientDateTime } from "@/components/shared";
+import {
+  AvatarInlineLink,
+  ClientDateTime,
+  CopyableText,
+  TABLE_CATALOG_LINK_CLASS,
+} from "@/components/shared";
+import { ProductThumb } from "@/components/products/ProductOptionRow";
+import ProductReviewActions from "@/components/admin/ProductReviewActions";
 import { getRatingDisplay } from "@/lib/ui/review-rating-display";
 import type { ProductReview } from "@/types";
 
@@ -76,21 +83,36 @@ export function createProductReviewColumns(
       ),
       cell: ({ row }) => {
         const r = row.original;
-        const sku = r.productSku ? ` (${r.productSku})` : "";
         const productHref = `/admin/products/${r.productId}`;
+        const sku = r.productSku?.trim() || "";
         return (
-          <Link
-            href={productHref}
-            className="font-normal truncate max-w-[180px] block text-primary hover:text-primary/80"
-            title={`${r.productName}${sku}`}
-          >
-            {r.productName}
-            {r.productSku ? (
-              <span className="text-muted-foreground font-normal text-xs ml-0.5">
-                ({r.productSku})
-              </span>
-            ) : null}
-          </Link>
+          <div className="flex items-center gap-3 min-w-0 max-w-[220px]">
+            <ProductThumb
+              name={r.productName}
+              imageUrl={r.productImageUrl}
+              size="md"
+            />
+            <div className="flex min-w-0 flex-col gap-0.5">
+              <Link
+                href={productHref}
+                prefetch
+                className={cn("truncate", TABLE_CATALOG_LINK_CLASS)}
+                title={r.productName}
+              >
+                <CopyableText value={r.productName}>
+                  {r.productName}
+                </CopyableText>
+              </Link>
+              {sku ? (
+                <CopyableText
+                  value={sku}
+                  className="truncate text-xs text-muted-foreground"
+                >
+                  {sku}
+                </CopyableText>
+              ) : null}
+            </div>
+          </div>
         );
       },
     },
@@ -154,18 +176,26 @@ export function createProductReviewColumns(
           r.reviewerEmail ||
           r.userId?.slice(-8) ||
           "—";
-        const email = r.reviewerEmail ?? "—";
+        const email = r.reviewerEmail?.trim() || "";
+        const href = `/admin/user-management/${r.userId}`;
         return (
-          <div className="flex flex-col min-w-0 max-w-[180px]">
-            <span className=" truncate" title={String(name)}>
-              {name}
-            </span>
-            <span
-              className="text-xs text-muted-foreground truncate"
-              title={email}
-            >
-              {email}
-            </span>
+          <div className="flex flex-col gap-0.5 min-w-0 max-w-[200px]">
+            <AvatarInlineLink
+              seed={r.userId}
+              image={r.reviewerImage}
+              label={name}
+              href={href}
+              size={24}
+              linkClassName={TABLE_CATALOG_LINK_CLASS}
+            />
+            {email ? (
+              <CopyableText
+                value={email}
+                className="truncate text-xs text-muted-foreground pl-0.5"
+              >
+                {email}
+              </CopyableText>
+            ) : null}
           </div>
         );
       },
@@ -201,20 +231,12 @@ export function createProductReviewColumns(
     {
       id: "actions",
       header: "Actions",
-      cell: ({ row }) => {
-        const r = row.original;
-        const href = detailHrefBase
-          ? `${detailHrefBase}/${r.id}`
-          : `/admin/product-reviews/${r.id}`;
-        return (
-          <Button variant="ghost" size="sm" asChild>
-            <Link href={href} className="gap-2">
-              <Eye className="h-4 w-4" />
-              View
-            </Link>
-          </Button>
-        );
-      },
+      cell: ({ row }) => (
+        <ProductReviewActions
+          review={row.original}
+          detailHrefBase={detailHrefBase ?? "/admin/product-reviews"}
+        />
+      ),
     },
   ];
 }

@@ -4,10 +4,10 @@
 |-------|-------|
 | **Cycle** | C2 (C1 Gate 2 still PENDING) |
 | **Phase** | Stage 4–5 Verify — **REQ-0136** (UI explore → cache smoke) |
-| **Last updated** | 2026-07-20 REQ-0178 done (gates PASS) |
+| **Last updated** | 2026-07-20 REQ-0184 done (gates PASS) |
 | **Active REQ** | **REQ-0136** (UI explore → §10 A1/A2/B1) |
-| **Done range** | REQ-0001 … REQ-0135 + REQ-0137–**0178** |
-| **Prod SHA** | `9e97dc7` (REQ-0170–0178) |
+| **Done range** | REQ-0001 … REQ-0135 + REQ-0137–**0184** |
+| **Prod SHA** | `9e97dc7` (REQ-0170–0178; 0179–0184 pending push) |
 | **Human Gate 1** | APPROVED (GATE-0001) |
 | **Human Gate 2** | PENDING (GATE-0002) — UI explore → §10 → Sentry 24h |
 | **Resume token** | `tomorrow-UI-then-cache` → **REQ-0136** |
@@ -40,8 +40,14 @@
 | 0176 | Recent Orders/Reviews gap + date-first buyer |
 | 0177 | Admin portal recent densify + SectionCardHeader |
 | 0178 | Supplier portal recent orders buyer row |
+| 0179 | Add Product Review rating hues + product picker densify |
+| 0180 | Reviews table densify + admin detail redesign |
+| 0181 | Detail display-only; Edit dialog + status Select |
+| 0182 | Reviews table Actions MoreVertical menu |
+| 0183 | Review detail + Edit dialog UX polish |
+| 0184 | Restore Edit Review dialog stacked layout |
 
-**Gates:** lint ✓ test **630** ✓ invalidate **213** ✓ build ✓ (REQ-0178)
+**Gates:** lint ✓ test **636** ✓ invalidate **214** ✓ build ✓ (REQ-0184)
 
 ---
 
