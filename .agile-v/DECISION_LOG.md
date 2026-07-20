@@ -436,3 +436,4 @@ Format: `TIMESTAMP | AGENT | DECISION | RATIONALE | REQ-ID`
 2026-07-20T13:05:00Z | red-team | REQ-0168 gates | lint ✓ test 630 ✓ invalidate 213 ✓ build ✓ | REQ-0168
 2026-07-20T13:10:00Z | build-agent | REQ-0169 shell stats token + optional onEdit | PAGE_STATS_GRID_IN_SHELL_CLASS; hide Edit when no onEdit; My Activity embed | REQ-0169
 2026-07-20T13:12:00Z | red-team | REQ-0169 gates | lint ✓ test 630 ✓ invalidate 213 ✓ build ✓ | REQ-0169
+2026-07-20T13:15:00Z | release | Ship REQ-0168–0169 tip b3155a9; docs CLAUDE/walkthrough/agile-v; resume REQ-0136 | REQ-0168,REQ-0169

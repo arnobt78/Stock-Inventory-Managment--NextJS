@@ -10,7 +10,7 @@
   "human_gate_2": "PENDING",
   "resume_token": "tomorrow-UI-then-cache",
   "active_req": "REQ-0136",
-  "prod_target_sha": "pending",
+  "prod_target_sha": "b3155a9",
   "risk_default": "R2",
   "requirements_file": ".agile-v/REQUIREMENTS.md",
   "skills_upstream": "https://github.com/Agile-V/agile_v_skills",
