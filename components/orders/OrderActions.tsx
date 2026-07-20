@@ -33,7 +33,11 @@ import { AlertDialogWrapper } from "@/components/dialogs";
 
 interface OrderActionsProps {
   order: Order;
-  onEdit: (order: Order) => void;
+  /**
+   * REQ-0169 — optional; when omitted (e.g. My Activity embed), hide Edit Order.
+   * View / Cancel / invoice actions still work via links + mutation hooks.
+   */
+  onEdit?: (order: Order) => void;
   /** When set (e.g. "/admin/orders"), View link goes to {detailHrefBase}/{order.id} */
   detailHrefBase?: string;
   /** Open InvoiceDialog create mode pre-selected with this order (REQ-0061) */
@@ -85,11 +89,12 @@ export default function OrderActions({
     }
   };
 
-  // Handle Edit Order
+  // Handle Edit Order — no-op when onEdit not provided (REQ-0169 embed tables)
   const handleEditOrder = () => {
+    if (!onEdit) return;
     try {
       onEdit(order);
-    } catch (error) {
+    } catch {
       // Error handling
     }
   };
@@ -131,14 +136,16 @@ export default function OrderActions({
               View Details
             </Link>
           </DropdownMenuItem>
-          <DropdownMenuItem
-            onClick={handleEditOrder}
-            disabled={disableOrderActions}
-            className="flex items-center gap-2"
-          >
-            <Edit className="h-4 w-4" />
-            Edit Order
-          </DropdownMenuItem>
+          {onEdit != null && (
+            <DropdownMenuItem
+              onClick={handleEditOrder}
+              disabled={disableOrderActions}
+              className="flex items-center gap-2"
+            >
+              <Edit className="h-4 w-4" />
+              Edit Order
+            </DropdownMenuItem>
+          )}
           <DropdownMenuSeparator />
           {/* REQ-0061: situation-based invoice actions */}
           {linkedInvoice ? (

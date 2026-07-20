@@ -432,3 +432,7 @@ Format: `TIMESTAMP | AGENT | DECISION | RATIONALE | REQ-ID`
 2026-07-20T12:19:00Z | red-team | REQ-0167 gates | lint ✓ test 630 ✓ invalidate 213 ✓ build ✓ | REQ-0167
 2026-07-20T12:28:00Z | build-agent | Compact review same-row justify-between | rating left · edit/delete right full-width under line item | REQ-0167
 2026-07-20T12:29:00Z | release | Pre-commit audit PASS — docs CLAUDE/walkthrough/agile-v; ship REQ-0165–0167 | REQ-0165,REQ-0166,REQ-0167
+2026-07-20T13:00:00Z | build-agent | REQ-0168 admin/BI spacing + recent density | gap-6 BI; healthy reorder copy; ActivityLog mb-4; My Activity createOrderColumns embed; dashboard Latest 5 enrich + v4 cache | REQ-0168
+2026-07-20T13:05:00Z | red-team | REQ-0168 gates | lint ✓ test 630 ✓ invalidate 213 ✓ build ✓ | REQ-0168
+2026-07-20T13:10:00Z | build-agent | REQ-0169 shell stats token + optional onEdit | PAGE_STATS_GRID_IN_SHELL_CLASS; hide Edit when no onEdit; My Activity embed | REQ-0169
+2026-07-20T13:12:00Z | red-team | REQ-0169 gates | lint ✓ test 630 ✓ invalidate 213 ✓ build ✓ | REQ-0169

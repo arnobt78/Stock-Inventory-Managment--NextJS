@@ -75,7 +75,8 @@ export function ForecastingCard({ products, className }: ForecastingCardProps) {
       (p) => availableQty(p) <= 0,
     ).length;
 
-    // Reorder when available stock <= 20 (matches Low Stock metric above)
+    // REQ-0168 — Reorder when available <= 20 (same heuristic as Low Stock / Out of Stock cards).
+    // Empty list when lowStock + outOfStock === 0 is expected (healthy stock).
     const reorderSuggestions = products
       .map((product) => ({
         product,
@@ -340,7 +341,12 @@ export function ForecastingCard({ products, className }: ForecastingCardProps) {
               ))
             ) : (
               <div className="text-center py-4 text-gray-600 dark:text-white/80">
-                No reorder suggestions at this time
+                {/* REQ-0168 — clarify empty when Low Stock + Out of Stock are both 0 */}
+                {forecastData.lowStockProducts +
+                  forecastData.outOfStockProducts ===
+                0
+                  ? "No reorder suggestions — stock levels look healthy"
+                  : "No reorder suggestions at this time"}
               </div>
             )}
           </div>

@@ -12,6 +12,11 @@ import { prisma } from "@/prisma/client";
 import { mergeProductListWhere } from "@/lib/products/product-query";
 import { orderStatusAtSelect } from "@/lib/server/catalog-detail-order-select";
 import { withOrderStatusAt } from "@/lib/orders/order-status-display-date";
+import {
+  resolveBuyerDisplayFromUsers,
+  resolveBuyerUserId,
+  type PartyUserRow,
+} from "@/lib/orders/order-party";
 import { getStoreOrderIds } from "@/lib/invoices/store-order-ids";
 import { getDemoSupplierUserId } from "@/prisma/supplier";
 import type {
@@ -231,7 +236,22 @@ export async function getDashboardForAdmin(
         orderNumber: true,
         total: true,
         createdAt: true,
+        userId: true,
+        clientId: true,
         ...orderStatusAtSelect,
+        // REQ-0168 — first-line catalog meta for Latest 5 cards
+        // Product has no Prisma category/supplier relations — resolve names after fetch
+        items: {
+          select: {
+            productName: true,
+            product: {
+              select: {
+                categoryId: true,
+                supplierId: true,
+              },
+            },
+          },
+        },
       },
       orderBy: { createdAt: "desc" },
       take: 10,
@@ -477,9 +497,77 @@ export async function getDashboardForAdmin(
     };
   });
 
+  // REQ-0168 — buyer + first-line category/supplier for Latest 5
+  const recentBuyerIds = [
+    ...new Set(
+      recentOrders
+        .map((o) =>
+          resolveBuyerUserId({ userId: o.userId, clientId: o.clientId }),
+        )
+        .filter(Boolean),
+    ),
+  ];
+  const recentCategoryIds = [
+    ...new Set(
+      recentOrders
+        .map((o) => o.items[0]?.product?.categoryId)
+        .filter((id): id is string => Boolean(id)),
+    ),
+  ];
+  const recentSupplierIds = [
+    ...new Set(
+      recentOrders
+        .map((o) => o.items[0]?.product?.supplierId)
+        .filter((id): id is string => Boolean(id)),
+    ),
+  ];
+  const [recentBuyerRows, recentCategories, recentSuppliers] =
+    await Promise.all([
+      recentBuyerIds.length > 0
+        ? prisma.user.findMany({
+            where: { id: { in: recentBuyerIds } },
+            select: { id: true, name: true, email: true },
+          })
+        : Promise.resolve([] as PartyUserRow[]),
+      recentCategoryIds.length > 0
+        ? prisma.category.findMany({
+            where: { id: { in: recentCategoryIds } },
+            select: { id: true, name: true },
+          })
+        : Promise.resolve([] as { id: string; name: string }[]),
+      recentSupplierIds.length > 0
+        ? prisma.supplier.findMany({
+            where: { id: { in: recentSupplierIds } },
+            select: { id: true, name: true },
+          })
+        : Promise.resolve([] as { id: string; name: string }[]),
+    ]);
+  const recentBuyerMap = new Map<string, PartyUserRow>(
+    recentBuyerRows.map((u) => [u.id, u]),
+  );
+  const recentCategoryMap = new Map(
+    recentCategories.map((c) => [c.id, c.name]),
+  );
+  const recentSupplierMap = new Map(
+    recentSuppliers.map((s) => [s.id, s.name]),
+  );
+
   const recent: DashboardRecent = {
-    orders: recentOrders.map((o): DashboardRecentOrder =>
-      withOrderStatusAt({
+    orders: recentOrders.map((o): DashboardRecentOrder => {
+      const buyer = resolveBuyerDisplayFromUsers(
+        { userId: o.userId, clientId: o.clientId },
+        recentBuyerMap,
+      );
+      const firstItem = o.items[0];
+      const extraItemCount = Math.max(0, o.items.length - 1);
+      const productPreview = firstItem?.productName
+        ? extraItemCount > 0
+          ? `${firstItem.productName} +${extraItemCount}`
+          : firstItem.productName
+        : null;
+      const categoryId = firstItem?.product?.categoryId;
+      const supplierId = firstItem?.product?.supplierId;
+      return withOrderStatusAt({
         id: o.id,
         orderNumber: o.orderNumber,
         total: Number(o.total),
@@ -491,8 +579,18 @@ export async function getDashboardForAdmin(
         shippedAt: o.shippedAt,
         updatedAt: o.updatedAt,
         invoice: o.invoice,
-      }),
-    ),
+        placedByName: buyer.name,
+        placedByEmail: buyer.email,
+        productPreview,
+        extraItemCount,
+        categoryName: categoryId
+          ? (recentCategoryMap.get(categoryId) ?? null)
+          : null,
+        supplierName: supplierId
+          ? (recentSupplierMap.get(supplierId) ?? null)
+          : null,
+      });
+    }),
     tickets: recentTickets.map((t): DashboardRecentTicket => ({
       id: t.id,
       subject: t.subject,

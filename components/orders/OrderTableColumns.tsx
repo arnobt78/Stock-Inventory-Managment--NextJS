@@ -147,10 +147,11 @@ type CreateOrderColumnsOptions = {
  * Order Table Columns Definition
  * Defines the columns for the order table with sorting and actions
  * Matches Category/Product/Supplier table pattern
+ * @param onEdit - REQ-0169 optional; omit to hide Edit Order (embed tables)
  * @param detailHrefBase - When set (e.g. "/admin/orders"), View link uses {detailHrefBase}/{id}
  */
 export const createOrderColumns = (
-  onEdit: (order: Order) => void,
+  onEdit?: (order: Order) => void,
   detailHrefBase?: string,
   options?: CreateOrderColumnsOptions,
 ): ColumnDef<Order>[] => {

@@ -20,3 +20,6 @@ export const PAGE_SECTION_HEADER_SPACING_CLASS = "pb-6";
 /** Stats card grid — bottom gap before filters/table row. */
 export const PAGE_STATS_GRID_CLASS =
   "grid gap-2 items-stretch pb-6";
+
+/** REQ-0169 — stats grid under flex flex-col gap-6; parent gap owns rhythm (no pb-6). */
+export const PAGE_STATS_GRID_IN_SHELL_CLASS = "grid gap-2 items-stretch";

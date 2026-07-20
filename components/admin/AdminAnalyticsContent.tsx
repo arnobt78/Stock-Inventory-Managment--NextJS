@@ -385,7 +385,8 @@ export default function AdminAnalyticsContent({
                 stats?.invoiceAnalytics?.pendingCount ??
                 (stats?.invoiceAnalytics?.statusDistribution?.draft ?? 0) +
                   (stats?.invoiceAnalytics?.statusDistribution?.sent ?? 0),
-              overdueCount: stats?.invoiceAnalytics?.statusDistribution?.overdue,
+              overdueCount:
+                stats?.invoiceAnalytics?.statusDistribution?.overdue,
               cancelledCount:
                 stats?.invoiceAnalytics?.statusDistribution?.cancelled,
               refundedCount: stats?.orderAnalytics?.refundedCount,
@@ -875,16 +876,20 @@ export default function AdminAnalyticsContent({
                   <div className="overflow-x-auto">
                     <table className="min-w-full text-sm">
                       <thead>
-                        <tr className="border-b text-left text-muted-foreground">
+                        <tr className="border-b text-left text-gray-700 dark:text-white">
                           <th className="py-2 pr-4">Product</th>
                           <th
-                            className="py-2 pr-4 text-right"
+                            className="py-2 pr-4 text-right text-gray-700 dark:text-white"
                             title="Number of order lines"
                           >
                             Lines
                           </th>
-                          <th className="py-2 pr-4 text-right">Qty</th>
-                          <th className="py-2 text-right">Revenue</th>
+                          <th className="py-2 pr-4 text-right text-gray-700 dark:text-white">
+                            Qty
+                          </th>
+                          <th className="py-2 text-right text-gray-700 dark:text-white">
+                            Revenue
+                          </th>
                         </tr>
                       </thead>
                       <tbody className="divide-y divide-border">
@@ -893,7 +898,7 @@ export default function AdminAnalyticsContent({
                           .map((p) => (
                             <tr key={p.productId}>
                               <td
-                                className="py-2 pr-4 font-medium truncate max-w-[150px]"
+                                className="py-2 pr-4 font-normal truncate max-w-[150px]"
                                 title={p.productName}
                               >
                                 <Link
@@ -903,13 +908,13 @@ export default function AdminAnalyticsContent({
                                   {p.productName}
                                 </Link>
                               </td>
-                              <td className="py-2 pr-4 text-right">
+                              <td className="py-2 pr-4 text-right text-gray-700 dark:text-white">
                                 {p.orderCount}
                               </td>
-                              <td className="py-2 pr-4 text-right">
+                              <td className="py-2 pr-4 text-right text-gray-700 dark:text-white">
                                 {p.totalQuantity}
                               </td>
-                              <td className="py-2 text-right">
+                              <td className="py-2 text-right text-gray-700 dark:text-white">
                                 {formatStableCurrency(p.totalRevenue)}
                               </td>
                             </tr>
@@ -1290,39 +1295,63 @@ export default function AdminAnalyticsContent({
                   <p className={CARD_EMPTY_MESSAGE_CLASS}>No orders yet</p>
                 ) : (
                   <ul className={CARD_LIST_DIVIDE_CLASS}>
-                    {stats.recent.orders.slice(0, 5).map((o) => (
-                      <li key={o.id} className={CARD_LIST_ROW_CLASS}>
-                        <div className="min-w-0 flex-1">
-                          <CopyableText
-                            value={o.orderNumber}
-                            className="max-w-full"
-                          >
-                            <Link
-                              href={`/admin/orders/${o.id}`}
-                              className="text-xs font-normal text-sky-600 dark:text-sky-400 hover:text-sky-500 dark:hover:text-sky-300 truncate block"
+                    {stats.recent.orders.slice(0, 5).map((o) => {
+                      // REQ-0168 — denser Latest 5: buyer + product · category · supplier
+                      const buyerLabel =
+                        o.placedByName?.trim() ||
+                        o.placedByEmail?.trim() ||
+                        null;
+                      const catalogMeta = [
+                        o.productPreview,
+                        o.categoryName,
+                        o.supplierName,
+                      ]
+                        .filter((v): v is string => Boolean(v && v.trim()))
+                        .join(" · ");
+                      return (
+                        <li key={o.id} className={CARD_LIST_ROW_CLASS}>
+                          <div className="min-w-0 flex-1 flex flex-col gap-0.5">
+                            <CopyableText
+                              value={o.orderNumber}
+                              className="max-w-full"
                             >
-                              {o.orderNumber}
-                            </Link>
-                          </CopyableText>
-                          <p className={CARD_LIST_META_CLASS}>
-                            <ClientCompactDateTime
-                              date={o.createdAt}
-                              semantic="created"
-                            />
-                          </p>
-                        </div>
-                        <RecentOrderStatusColumn
-                          status={o.status}
-                          statusAt={o.statusAt}
-                          paymentStatus={o.paymentStatus}
-                          trailing={
-                            <span className="text-xs text-gray-700 dark:text-white">
-                              {formatStableCurrency(o.total)}
-                            </span>
-                          }
-                        />
-                      </li>
-                    ))}
+                              <Link
+                                href={`/admin/orders/${o.id}`}
+                                className="text-xs font-normal text-sky-600 dark:text-sky-400 hover:text-sky-500 dark:hover:text-sky-300 truncate block"
+                              >
+                                {o.orderNumber}
+                              </Link>
+                            </CopyableText>
+                            {buyerLabel ? (
+                              <p className={CARD_LIST_META_CLASS}>
+                                {buyerLabel}
+                              </p>
+                            ) : null}
+                            {catalogMeta ? (
+                              <p className={cn(CARD_LIST_META_CLASS, "truncate")}>
+                                {catalogMeta}
+                              </p>
+                            ) : null}
+                            <p className={CARD_LIST_META_CLASS}>
+                              <ClientCompactDateTime
+                                date={o.createdAt}
+                                semantic="created"
+                              />
+                            </p>
+                          </div>
+                          <RecentOrderStatusColumn
+                            status={o.status}
+                            statusAt={o.statusAt}
+                            paymentStatus={o.paymentStatus}
+                            trailing={
+                              <span className="text-xs text-gray-700 dark:text-white">
+                                {formatStableCurrency(o.total)}
+                              </span>
+                            }
+                          />
+                        </li>
+                      );
+                    })}
                   </ul>
                 )}
                 <div className="mt-auto pt-2">

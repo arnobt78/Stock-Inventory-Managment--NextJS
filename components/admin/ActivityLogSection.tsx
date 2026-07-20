@@ -337,7 +337,8 @@ export default function ActivityLogSection({
         }
         className="mb-4"
       />
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+      {/* REQ-0168 — filter → table gap (match Import History / Orders list) */}
+      <div className="mb-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
         <div className="relative flex-1 sm:max-w-md">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-600 dark:text-white/80 z-10" />
           <Input

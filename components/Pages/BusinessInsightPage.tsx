@@ -66,7 +66,10 @@ import {
   DataSlotPulse,
   PageSectionHeader,
 } from "@/components/shared";
-import { DETAIL_PAGE_HEADER_SPACING_CLASS } from "@/lib/ui/shell-layout-styles";
+import {
+  DETAIL_PAGE_HEADER_SPACING_CLASS,
+  PAGE_STATS_GRID_IN_SHELL_CLASS,
+} from "@/lib/ui/shell-layout-styles";
 import {
   InventoryHealthBadge,
   ProductStockStatusBadge,
@@ -895,6 +898,8 @@ export default function BusinessInsightPage({
         }
       >
         <PageContentWrapper className="px-1 sm:px-0">
+          {/* REQ-0168 — parent gap-6 owns section rhythm (match AdminAnalyticsContent) */}
+          <div className="flex flex-col gap-6">
           {/* Header — REQ-0098 PageSectionHeader icon parity */}
           <PageSectionHeader
             as="h1"
@@ -920,7 +925,7 @@ export default function BusinessInsightPage({
           />
 
           {/* Date Range Filter */}
-          <div className="pb-6">
+          <div>
             <div className="rounded-[16px] border border-violet-400/20 bg-gradient-to-r from-violet-500/10 via-violet-500/5 to-transparent p-4 backdrop-blur-md shadow-[0_10px_30px_rgba(139,92,246,0.1)]">
               <div className="flex flex-col sm:flex-row sm:items-center gap-2">
                 <div className="flex items-center gap-2">
@@ -992,8 +997,13 @@ export default function BusinessInsightPage({
             </div>
           </div>
 
-          {/* Key Metrics */}
-          <div className="pb-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-2">
+          {/* Key Metrics — REQ-0169 shell token (gap-6 parent, no pb-6) */}
+          <div
+            className={cn(
+              PAGE_STATS_GRID_IN_SHELL_CLASS,
+              "grid-cols-1 md:grid-cols-2 lg:grid-cols-4",
+            )}
+          >
             <AnalyticsCard
               title="Total Products"
               value={analyticsData.totalProducts}
@@ -1029,7 +1039,7 @@ export default function BusinessInsightPage({
           </div>
 
           {/* Charts and Insights — render Tabs only after mount to avoid Radix ID hydration mismatch */}
-          <div className="pb-6">
+          <div>
             {!isMounted ? (
               <>
                 <div
@@ -1528,7 +1538,7 @@ export default function BusinessInsightPage({
           </div>
 
           {/* Additional Insights */}
-          <div className="pb-6 grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-4 gap-2">
+          <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-4 gap-2">
             {/* Quick Insights Card */}
             <article className="rounded-[20px] border border-sky-400/20 bg-gradient-to-br from-sky-500/15 via-sky-500/5 to-transparent p-2 sm:p-4 backdrop-blur-md shadow-[0_15px_40px_rgba(2,132,199,0.15)] dark:shadow-[0_15px_40px_rgba(2,132,199,0.1)] transition hover:border-sky-300/40">
               <div className="flex items-center gap-2 mb-4">
@@ -1733,6 +1743,7 @@ export default function BusinessInsightPage({
           {/* Forecasting Section */}
           <div>
             <ForecastingCard products={allProducts} />
+          </div>
           </div>
         </PageContentWrapper>
       </PageWithSidebar>

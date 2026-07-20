@@ -4,6 +4,55 @@ Canonical REQ source. All artifacts link via `REQ-XXXX`. Status: `done` | `verif
 
 ---
 
+## REQ-0169 — Stats-grid shell spacing + My Activity Actions polish
+
+| Field | Value |
+|-------|-------|
+| **Priority** | P2 |
+| **Risk** | R0 |
+| **Status** | done |
+| **Cycle** | C2 |
+| **Parent** | REQ-0168, REQ-0045, REQ-0061 |
+
+**Intent:** Close REQ-0168 nits — no double pb under gap-6 shells; My Activity OrderActions without noop onEdit.
+
+**Acceptance criteria**
+
+- AC1: `PAGE_STATS_GRID_IN_SHELL_CLASS` on BI + My Activity (gap-6 parents)
+- AC2: `PAGE_STATS_GRID_CLASS` unchanged for portals/browse needing pb-6
+- AC3: `onEdit` optional on OrderActions + createOrderColumns; Edit hidden when absent
+- AC4: My Activity passes `undefined` onEdit; View/Cancel/invoice mutations still invalidate
+- AC5: No invalidation registry changes; gates pass
+
+**Artifacts:** `shell-layout-styles.ts`, `BusinessInsightPage`, `AdminMyActivityContent`, `OrderActions`, `OrderTableColumns`
+
+---
+
+## REQ-0168 — Admin/Business spacing + Recent Orders density
+
+| Field | Value |
+|-------|-------|
+| **Priority** | P2 |
+| **Risk** | R0 |
+| **Status** | done |
+| **Cycle** | C2 |
+| **Parent** | REQ-0045, REQ-0145, REQ-0128 |
+
+**Intent:** Fix gap-6/pb-6 consistency on Business Insights + Activity Logs; clarify empty reorder suggestions when stock healthy; My Activity Recent Orders uses Order-list columns; enrich dashboard Overall Insights Latest 5 with buyer/product/category/supplier.
+
+**Acceptance criteria**
+
+- AC1: BusinessInsightPage main content `flex flex-col gap-6`; stats use `PAGE_STATS_GRID_CLASS`; trim stacked `pb-6`
+- AC2: Forecasting empty reorder copy when low+out stock = 0 → healthy message (no algorithm change)
+- AC3: ActivityLogSection filter→table `mb-4` gap
+- AC4: My Activity — iconTile SectionTitleRow; `createOrderColumns` via AdminEmbedDataTable; keep search
+- AC5: DashboardRecentOrder enriched; Latest 5 denser UI; Redis `dashboard:overview:v4:`
+- AC6: No invalidation registry changes; gates pass
+
+**Artifacts:** `BusinessInsightPage`, `forecasting-card`, `ActivityLogSection`, `AdminMyActivityContent`, `dashboard-data`, `types/dashboard`, `AdminAnalyticsContent`, `cache-utils`
+
+---
+
 ## REQ-0167 — Compact review placement + dialog contrast
 
 | Field | Value |

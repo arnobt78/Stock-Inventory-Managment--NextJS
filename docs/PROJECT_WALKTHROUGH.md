@@ -278,9 +278,10 @@ flowchart LR
 | Order/Invoice header help (REQ-0161) | HelpTooltip on dense Order/Invoice column headers | UI-only |
 | Invoice detail (REQ-0162–0164) | Order-parity layout; items ORD chip + SSR reviews; compact reviews; party owner links; summary icon hues | UI + SSR review prefetch |
 | Detail review + audit (REQ-0165–0167) | Sky party/audit links; eligibility patch; compact rating\|edit-delete row; amber Write glass; dialogTextClass + Cancel ghost | UI + review mutation patch |
+| Admin spacing + recent density (REQ-0168–0169) | BI/My Activity gap-6 + shell stats token; healthy reorder copy; ActivityLog mb-4; My Activity Order columns; optional onEdit; dashboard Latest 5 enrich; `dashboard:overview:v4` | UI + SSR enrich; invalidation unchanged |
 | KPI badge helpers (REQ-0156–0157) | store order/invoice + portal order helpers; My Activity parity; tsc clean | UI/test-only |
 | Delivered + Due badges (REQ-0155) | `store-order-status-badges.ts`; Total Orders Delivered; Outstanding→Due | UI-only |
-| Partial pay KPIs (REQ-0154) | `payment-money-stats.ts` → dashboards Paid/Partial/Due/Pending; Partial badges; table Total `text-xs`; `dashboard:overview:v3` | Invalidation unchanged |
+| Partial pay KPIs (REQ-0154) | `payment-money-stats.ts` → dashboards Paid/Partial/Due/Pending; Partial badges; table Total `text-xs`; `dashboard:overview:v4` | Invalidation unchanged |
 | Next | REQ-0136 UI explore + §10 A1/A2/B1; Gate 2 Sentry 24h | |
 | AI warehouse insights (REQ-0067) | `POST /api/ai/insights` enriches payload with `getWarehouseStockSummary` |
 | Per-warehouse order picking (REQ-0068) | `OrderItem.warehouseId`; `stock-allocation-order-sync.ts`; `OrderLineWarehouseSelect`; reserve/fulfill/cancel sync; invoice-paid gap; `f892b65` removed unused `deleteCache`/`getRateLimitStatus` |

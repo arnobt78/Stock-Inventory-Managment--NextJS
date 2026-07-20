@@ -73,6 +73,44 @@ Commands: lint, test, invalidate, build
 
 ---
 
+## REQ-0169 Stats-grid shell + My Activity Actions polish evidence
+
+| Check | Result |
+|-------|--------|
+| Shell stats token | PAGE_STATS_GRID_IN_SHELL_CLASS on BI + My Activity |
+| Portal pb-6 | PAGE_STATS_GRID_CLASS unchanged |
+| Optional onEdit | Edit hidden when absent; OrderList still passes onEdit |
+| My Activity | createOrderColumns(undefined, "/admin/orders") |
+| Invalidation | unchanged (Cancel/Delete hooks) |
+| Gates | lint ✓ test **630** ✓ invalidate **213** ✓ build ✓ |
+
+```
+Scope: built/verified | Traceability: REQ-0169 | Findings: PASS
+Commands: lint, test, invalidate, build
+```
+
+---
+
+## REQ-0168 Admin/Business spacing + Recent Orders density evidence
+
+| Check | Result |
+|-------|--------|
+| BI spacing | flex flex-col gap-6 + PAGE_STATS_GRID; trimmed stacked pb-6 |
+| Reorder empty | healthy copy when low+out = 0 (heuristic unchanged) |
+| Activity Logs | filter row mb-4 before table |
+| My Activity | iconTile header; createOrderColumns → AdminEmbedDataTable |
+| Dashboard Latest 5 | buyer/product/category/supplier; denser cards |
+| Cache | `dashboard:overview:v4:` |
+| Invalidation | unchanged (order-graph already clears dashboard) |
+| Gates | lint ✓ test **630** ✓ invalidate **213** ✓ build ✓ |
+
+```
+Scope: built/verified | Traceability: REQ-0168 | Findings: PASS
+Commands: lint, test, invalidate, build
+```
+
+---
+
 ## REQ-0164 Compact reviews + party links + summary icons evidence
 
 | Check | Result |

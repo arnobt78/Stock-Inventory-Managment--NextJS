@@ -4,10 +4,10 @@
 |-------|-------|
 | **Cycle** | C2 (C1 Gate 2 still PENDING) |
 | **Phase** | Stage 4–5 Verify — **REQ-0136** (UI explore → cache smoke) |
-| **Last updated** | 2026-07-20 REQ-0165–0167 done (pre-commit) |
+| **Last updated** | 2026-07-20 REQ-0169 done (gates PASS) |
 | **Active REQ** | **REQ-0136** (UI explore → §10 A1/A2/B1) |
-| **Done range** | REQ-0001 … REQ-0135 + REQ-0137–**0167** |
-| **Prod SHA** | `672d782` (REQ-0165–0167) |
+| **Done range** | REQ-0001 … REQ-0135 + REQ-0137–**0169** |
+| **Prod SHA** | pending push (REQ-0168–0169 local; tip was `672d782`) |
 | **Human Gate 1** | APPROVED (GATE-0001) |
 | **Human Gate 2** | PENDING (GATE-0002) — UI explore → §10 → Sentry 24h |
 | **Resume token** | `tomorrow-UI-then-cache` → **REQ-0136** |
@@ -17,7 +17,7 @@
 
 ## Start here (this session)
 
-1. **REQ-0136 AC1–AC2** — Human UI + calc explore (0165 closed screenshot gaps)
+1. **REQ-0136 AC1–AC2** — Human UI + calc explore
 2. **REQ-0136 AC3–AC5** — Cache smoke `MANUAL_TEST_FIXTURES.md` §10 A1/A2/B1
 3. **Gate 2** — Sentry 24h (REQ-0009) after explore + smoke → `EVAL_RESULTS.md` PASS
 4. Re-seed if needed: `npm run script:reset-demo-db -- --with-catalog`
@@ -30,19 +30,11 @@
 
 | REQ | Summary |
 |-----|---------|
-| 0165 | Detail parties/audit sky links + review UX (layout/dialog/delete/flash) |
-| 0166 | Drop PARTY_SELF; catalog Created/Updated by sky via resolveDetailAuditUserHref |
-| 0167 | Compact rating left · edit/delete right; dialog contrast |
+| 0165–0167 | Detail review/audit UX |
+| 0168 | Admin/BI spacing; My Activity Order columns; dashboard Latest 5 |
+| 0169 | Shell stats token; optional onEdit (My Activity embed) |
 
 **Gates:** lint ✓ test **630** ✓ invalidate **213** ✓ build ✓
-
----
-
-## Last ship (2026-07-19)
-
-| REQ | Summary |
-|-----|---------|
-| 0162–0164 | Invoice detail parity + items/reviews/parties/summary | `a32be36` |
 
 ---
 

@@ -367,10 +367,11 @@ export const cacheKeys = {
    * Dashboard (admin overview) cache keys — per-admin (userId) for homepage
    */
   dashboard: {
+    // REQ-0168 — v4: recent orders include buyer/product/category/supplier
     overview: (userId?: string) =>
       userId
-        ? `dashboard:overview:v3:${userId}`
-        : "dashboard:overview:v3",
+        ? `dashboard:overview:v4:${userId}`
+        : "dashboard:overview:v4",
     pattern: "dashboard:*",
   },
 

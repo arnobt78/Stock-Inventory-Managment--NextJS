@@ -889,6 +889,20 @@ Hub: `lib/ui/typography-scale.ts`. Hubs import tokens; ~45 inline files use equi
 
 **Hubs:** `audit-user-href.ts`, `review-rating-display.ts`, `ProductReviewsSection`, `WriteEditReviewDialog`, `use-product-reviews.ts`. **Invalidation:** patch eligibility → `invalidateAllRelatedQueries` (registry unchanged).
 
+## Admin spacing + Recent Orders density (REQ-0168 / REQ-0169)
+
+| Piece | Location |
+|-------|----------|
+| BI spacing | `BusinessInsightPage` — `flex flex-col gap-6` + `PAGE_STATS_GRID_IN_SHELL_CLASS` (REQ-0169) |
+| Reorder empty | `forecasting-card` — healthy copy when low+out stock = 0 |
+| Activity Logs | `ActivityLogSection` — filter `mb-4` before table |
+| My Activity | iconTile + `createOrderColumns(undefined, …)` embed; optional `onEdit` hides Edit (REQ-0169) |
+| Dashboard Latest 5 | `DashboardRecentOrder` enrich in `dashboard-data`; denser rows in `AdminAnalyticsContent` |
+| Cache | `dashboard:overview:v4:` |
+| Shell token | `PAGE_STATS_GRID_IN_SHELL_CLASS` under gap-6; portals keep `PAGE_STATS_GRID_CLASS` + pb-6 |
+
+**No invalidation registry changes** — order-graph already clears dashboard; Cancel/Delete still use mutation hooks.
+
 ## KPI badge helpers (REQ-0156–0157)
 
 | Helper | Use |
@@ -917,7 +931,7 @@ My Activity uses store helpers. `tsc --noEmit` clean (test fixtures). **UI/test-
 | Dashboards | `dashboard-data` / `client-dashboard` / `supplier-dashboard` — `partialOrderAmount`, `partialCount` |
 | UI | Partial badge on home, admin analytics, order/invoice lists, portals |
 | Typography | `PaymentMoneyBreakdown` table → `text-xs font-normal` gray meta |
-| Cache | `dashboard:overview:v3:` |
+| Cache | `dashboard:overview:v4:` (REQ-0168 bump; was v3) |
 
 **Invalidation unchanged** — order-graph clears dashboards; no fake invoice status `partial`.
 

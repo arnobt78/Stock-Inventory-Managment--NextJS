@@ -38,6 +38,14 @@ export interface DashboardRecentOrder {
   createdAt: string;
   /** REQ-0128 — terminal status date for recent-order cards */
   statusAt?: string;
+  /** REQ-0168 — buyer display for Latest 5 density */
+  placedByName?: string | null;
+  placedByEmail?: string | null;
+  /** First line product name (+ optional "+N" via extraItemCount) */
+  productPreview?: string | null;
+  extraItemCount?: number;
+  categoryName?: string | null;
+  supplierName?: string | null;
 }
 
 export interface DashboardRecentTicket {

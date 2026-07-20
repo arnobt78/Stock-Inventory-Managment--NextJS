@@ -422,3 +422,10 @@
 | TC-0074 | REQ-0166 | Gates lint/test 629/invalidate 213/build |
 | ART-0167 | REQ-0167 | Compact under price; GLASS_COMPACT_AMBER; dialogTextClass; Cancel parity | ProductLineItemsList, ProductReviewsSection, WriteEditReviewDialog |
 | TC-0075 | REQ-0167 | Gates lint/test 630/invalidate 213/build |
+| ART-0168a | REQ-0168 | BusinessInsightPage gap-6 + PAGE_STATS_GRID; forecasting healthy empty copy | BI spacing |
+| ART-0168b | REQ-0168 | ActivityLogSection mb-4; AdminMyActivityContent createOrderColumns embed | Admin lists |
+| ART-0168c | REQ-0168 | DashboardRecentOrder enrich + v4 cache; AdminAnalyticsContent denser Latest 5 | dashboard-data |
+| TC-0076 | REQ-0168 | Gates lint/test/invalidate/build |
+| ART-0169a | REQ-0169 | `PAGE_STATS_GRID_IN_SHELL_CLASS` on BI + My Activity | shell-layout-styles |
+| ART-0169b | REQ-0169 | Optional onEdit OrderActions + createOrderColumns | My Activity no noop |
+| TC-0077 | REQ-0169 | Gates lint/test/invalidate/build |

@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useMemo, useState } from "react";
-import Link from "next/link";
+import type { CellContext, ColumnDef } from "@tanstack/react-table";
 import { Input } from "@/components/ui/input";
 import {
   ShoppingCart,
@@ -12,7 +12,6 @@ import {
   Warehouse as WarehouseIcon,
   TrendingUp,
   Search,
-  Eye,
   FileText,
   FolderTree,
   UserRound,
@@ -38,9 +37,13 @@ import {
   PageContentWrapper,
   PageSectionHeader,
   SectionTitleRow,
+  ClientCurrency,
 } from "@/components/shared";
 import { FILTER_SEARCH_INPUT_SKY_CLASS } from "@/lib/ui/filter-toolbar-styles";
-import { ClientCurrency, ClientCompactDateTime } from "@/components/shared";
+import {
+  DETAIL_PAGE_HEADER_SPACING_CLASS,
+  PAGE_STATS_GRID_IN_SHELL_CLASS,
+} from "@/lib/ui/shell-layout-styles";
 import { formatStableCurrency } from "@/lib/format";
 import { buildPaymentMoneyStats } from "@/lib/insights/payment-money-stats";
 import { buildStoreOrderStatusBadges } from "@/lib/ui/store-order-status-badges";
@@ -50,9 +53,8 @@ import {
   AdminEmbedDataTable,
   type AdminEmbedColumn,
 } from "@/components/admin/AdminEmbedDataTable";
-import { PaymentStatusBadge } from "@/lib/ui/semantic-badges";
-import { RecentOrderStatusColumn } from "@/components/shared/RecentOrderStatusColumn";
-import type { UserForAdmin } from "@/types";
+import { createOrderColumns } from "@/components/orders/OrderTableColumns";
+import type { Order, UserForAdmin } from "@/types";
 import type {
   ProductForHome,
   CategoryForHome,
@@ -61,6 +63,42 @@ import type {
 import type { OrderForPage } from "@/lib/server/orders-data";
 import type { WarehouseForPage } from "@/lib/server/warehouses-data";
 import type { InvoiceForPage } from "@/lib/server/invoices-data";
+
+/** REQ-0168 — adapt Order-list ColumnDefs for AdminEmbedDataTable (no sort chrome). */
+function orderColumnDefsToEmbed(
+  defs: ColumnDef<Order>[],
+): AdminEmbedColumn<OrderForPage>[] {
+  const headers: Record<string, string> = {
+    orderNumber: "Order #",
+    total: "Total",
+    status: "Status",
+    paymentStatus: "Payment",
+    invoice: "Invoice #",
+    actions: "Actions",
+  };
+  return defs.map((def, index) => {
+    const accessorKey = (def as { accessorKey?: string }).accessorKey;
+    const id =
+      typeof def.id === "string"
+        ? def.id
+        : typeof accessorKey === "string"
+          ? accessorKey
+          : `col-${index}`;
+    return {
+      id,
+      header: headers[id] ?? id,
+      headerClassName: id === "actions" ? "text-right" : undefined,
+      cellClassName: id === "actions" ? "text-right" : undefined,
+      render: (order) => {
+        if (typeof def.cell !== "function") return null;
+        // OrderForPage ISO strings vs Order Date — same cells as OrderList
+        return def.cell({
+          row: { original: order as unknown as Order },
+        } as CellContext<Order, unknown>);
+      },
+    };
+  });
+}
 
 export type AdminMyActivityContentProps = {
   initialOrders?: OrderForPage[];
@@ -267,101 +305,57 @@ export default function AdminMyActivityContent({
       (a, b) =>
         new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
     );
-    const filtered = searchTerm.trim()
-      ? sorted.filter(
-          (o) =>
-            o.orderNumber.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            o.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            (authUser?.name ?? "")
-              .toLowerCase()
-              .includes(searchTerm.toLowerCase()) ||
-            (authUser?.email ?? "")
-              .toLowerCase()
-              .includes(searchTerm.toLowerCase()),
-        )
+    const q = searchTerm.trim().toLowerCase();
+    const filtered = q
+      ? sorted.filter((o) => {
+          const productHit = (o.items ?? []).some((item) =>
+            (item.productName ?? "").toLowerCase().includes(q),
+          );
+          const invoiceHit = (o.invoiceForOrder?.invoiceNumber ?? "")
+            .toLowerCase()
+            .includes(q);
+          return (
+            o.orderNumber.toLowerCase().includes(q) ||
+            o.id.toLowerCase().includes(q) ||
+            productHit ||
+            invoiceHit ||
+            (authUser?.name ?? "").toLowerCase().includes(q) ||
+            (authUser?.email ?? "").toLowerCase().includes(q)
+          );
+        })
       : sorted;
     return filtered.slice(0, 5);
   }, [orders, searchTerm, authUser?.name, authUser?.email]);
 
-  /** REQ-0120 / REQ-0117 AC4 — portal embed table parity for Recent Orders */
-  const recentOrderColumns = useMemo<AdminEmbedColumn<OrderForPage>[]>(
-    () => [
-      {
-        id: "orderId",
-        header: "Order ID",
-        cellClassName: "font-mono text-xs text-gray-700 dark:text-gray-100",
-        render: (order) => `${order.id.slice(0, 8)}…`,
-      },
-      {
-        id: "status",
-        header: "Status",
-        render: (order) => (
-          <RecentOrderStatusColumn
-            status={order.status ?? ""}
-            statusAt={order.statusAt}
-            paymentStatus={order.paymentStatus}
-            className="items-start py-0"
-          />
-        ),
-      },
-      {
-        id: "payment",
-        header: "Payment",
-        render: (order) => (
-          <PaymentStatusBadge status={order.paymentStatus ?? ""} />
-        ),
-      },
-      {
-        id: "amount",
-        header: "Amount",
-        cellClassName: "text-gray-700 dark:text-gray-200",
-        render: (order) => <ClientCurrency value={Number(order.total)} />,
-      },
-      {
-        id: "items",
-        header: "Items",
-        cellClassName: "text-gray-700 dark:text-gray-200",
-        render: (order) => order.items?.length ?? 0,
-      },
-      {
-        id: "date",
-        header: "Date",
-        cellClassName: "text-gray-600 dark:text-gray-300",
-        render: (order) => (
-          <ClientCompactDateTime date={order.createdAt} semantic="created" />
-        ),
-      },
-      {
-        id: "actions",
-        header: "Actions",
-        headerClassName: "text-right",
-        cellClassName: "text-right",
-        render: (order) => (
-          <Link
-            href={`/admin/orders/${order.id}`}
-            className="inline-flex items-center gap-1 text-sm text-sky-600 dark:text-sky-400 hover:text-sky-500 dark:hover:text-sky-300"
-          >
-            <Eye className="h-4 w-4" />
-            View
-          </Link>
-        ),
-      },
-    ],
+  /** REQ-0168 — Order-list columns via AdminEmbedDataTable (no OrderList chrome / FAB) */
+  const recentOrderColumns = useMemo(
+    () =>
+      orderColumnDefsToEmbed(
+        // REQ-0169 — no onEdit (no OrderDialog host); View/Cancel/invoice still work
+        createOrderColumns(undefined, "/admin/orders"),
+      ),
     [],
   );
 
   return (
     <PageContentWrapper>
-      <div className="flex flex-col">
+      <div className="flex flex-col gap-6">
         <PageSectionHeader
           as="h1"
           icon={UserRound}
           tone="sky"
           title="My Activity (self-only as user)"
           description="Your orders, products, and key metrics as the store owner as you placed order, created products, invoices, and more. This is self-only data. This is different from the Store Analytics & Dashboard, which is the overall store metrics as the store owner & other users."
+          className={DETAIL_PAGE_HEADER_SPACING_CLASS}
         />
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2 items-stretch pb-6">
+        {/* REQ-0169 — shell token under gap-6 (no stacked pb-6) */}
+        <div
+          className={cn(
+            PAGE_STATS_GRID_IN_SHELL_CLASS,
+            "grid-cols-1 md:grid-cols-2 lg:grid-cols-3",
+          )}
+        >
           <StatisticsCard
             title="Total Orders"
             value={stats.totalOrders}
@@ -523,23 +517,24 @@ export default function AdminMyActivityContent({
             "p-2 sm:p-4 backdrop-blur-md overflow-hidden",
           )}
         >
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-4">
-            <div>
-              <SectionTitleRow
-                as="h3"
-                title="Recent Orders"
-                icon={ShoppingCart}
-                iconClassName="text-teal-600 dark:text-teal-400"
-              />
-              <p className="text-sm text-gray-600 dark:text-gray-300 mt-1">
-                Latest 5 orders (self: {authUser?.name ?? "—"},{" "}
-                {authUser?.email ?? "—"})
-              </p>
-            </div>
-            <div className="relative w-full sm:max-w-md">
+          <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2 mb-4">
+            <SectionTitleRow
+              as="h3"
+              title="Recent Orders"
+              icon={ShoppingCart}
+              iconClassName="text-teal-600 dark:text-teal-400"
+              iconTile
+              subtitle={
+                <>
+                  Latest 5 orders (self: {authUser?.name ?? "—"},{" "}
+                  {authUser?.email ?? "—"})
+                </>
+              }
+            />
+            <div className="relative w-full sm:max-w-md shrink-0">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
               <Input
-                placeholder="Search by order ID..."
+                placeholder="Search by order #, product, invoice..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className={cn(FILTER_SEARCH_INPUT_SKY_CLASS, "pr-4")}
