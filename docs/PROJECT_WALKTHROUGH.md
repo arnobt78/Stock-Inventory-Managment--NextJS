@@ -287,7 +287,7 @@ flowchart LR
 | KPI badge helpers (REQ-0156–0157) | store order/invoice + portal order helpers; My Activity parity; tsc clean | UI/test-only |
 | Delivered + Due badges (REQ-0155) | `store-order-status-badges.ts`; Total Orders Delivered; Outstanding→Due | UI-only |
 | Partial pay KPIs (REQ-0154) | `payment-money-stats.ts` → dashboards Paid/Partial/Due/Pending; Partial badges; table Total `text-xs`; `dashboard:overview:v4` | Invalidation unchanged |
-| Next | REQ-0136 UI explore + §10 A1/A2/B1; Gate 2 Sentry 24h | |
+| Next | REQ-0185 ticket table/detail → 0186 warehouse UI → 0187 order dialog → REQ-0136 §10 + Gate 2 | |
 | AI warehouse insights (REQ-0067) | `POST /api/ai/insights` enriches payload with `getWarehouseStockSummary` |
 | Per-warehouse order picking (REQ-0068) | `OrderItem.warehouseId`; `stock-allocation-order-sync.ts`; `OrderLineWarehouseSelect`; reserve/fulfill/cancel sync; invoice-paid gap; `f892b65` removed unused `deleteCache`/`getRateLimitStatus` |
 | Demo reset | `npm run script:reset-demo-db` — accounts-only (3 users + Test Supplier); opt-in catalog via `seed-demo-catalog` |

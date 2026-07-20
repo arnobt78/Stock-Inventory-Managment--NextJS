@@ -4,6 +4,73 @@ Canonical REQ source. All artifacts link via `REQ-XXXX`. Status: `done` | `verif
 
 ---
 
+## REQ-0185 — Support ticket table + detail UI (admin / client / supplier)
+
+| Field | Value |
+|-------|-------|
+| **Priority** | P2 |
+| **Risk** | R1 |
+| **Status** | planned |
+| **Cycle** | C2 |
+| **Parent** | REQ-0136 (UI explore findings) |
+
+**Intent:** Fix UI bugs on support ticket **list/table** and **detail** pages for admin, client, and supplier role surfaces (parity with recent densify patterns where applicable).
+
+**Acceptance criteria**
+
+- AC1: Ticket table densify / layout bugs fixed (admin + role-scoped lists)
+- AC2: Ticket detail UI polish (admin embed + client/supplier detail)
+- AC3: Role-correct actions/links; no hydrate issues
+- AC4: Invalidation unchanged unless a CRUD display bug requires it; gates pass
+
+**Artifacts:** (TBD at build) ticket list/columns, `SupportTicketDetailContent`, `AdminSupportTicketDetailContent`
+
+---
+
+## REQ-0186 — Warehouse dialog + detail UI polish
+
+| Field | Value |
+|-------|-------|
+| **Priority** | P2 |
+| **Risk** | R1 |
+| **Status** | planned |
+| **Cycle** | C2 |
+| **Parent** | REQ-0136 |
+
+**Intent:** Fix warehouse create/edit dialog and warehouse detail page UI bugs found in explore.
+
+**Acceptance criteria**
+
+- AC1: Warehouse dialog layout/fields readable (light + dark)
+- AC2: Warehouse detail page spacing/typography/actions polish
+- AC3: Invalidation unchanged unless required; gates pass
+
+**Artifacts:** (TBD) warehouse dialog, `WarehouseDetailPage`
+
+---
+
+## REQ-0187 — Order dialog UI polish
+
+| Field | Value |
+|-------|-------|
+| **Priority** | P2 |
+| **Risk** | R1 |
+| **Status** | planned |
+| **Cycle** | C2 |
+| **Parent** | REQ-0136 |
+
+**Intent:** Fix Order create/edit dialog UI bugs found in explore (layout, fields, warehouse pick, totals).
+
+**Acceptance criteria**
+
+- AC1: Order dialog UI bugs addressed (create + edit)
+- AC2: Stock/warehouse pick still valid; no regression on line validation
+- AC3: Invalidation unchanged; gates pass
+
+**Artifacts:** (TBD) `OrderDialog`, related line components
+
+---
+
 ## REQ-0184 — Restore Edit Review dialog stacked layout
 
 | Field | Value |

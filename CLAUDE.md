@@ -934,6 +934,8 @@ Hub: `lib/ui/typography-scale.ts`. Hubs import tokens; ~45 inline files use equi
 
 **Invalidation unchanged** — review/product/dashboard CRUD already clears lists + portals.
 
+**Tomorrow (parked):** REQ-0185 ticket table/detail (admin/client/supplier) → REQ-0186 warehouse dialog/detail → REQ-0187 order dialog → then REQ-0136.
+
 ## KPI badge helpers (REQ-0156–0157)
 
 | Helper | Use |

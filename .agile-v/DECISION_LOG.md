@@ -470,3 +470,5 @@ Format: `TIMESTAMP | AGENT | DECISION | RATIONALE | REQ-ID`
 2026-07-20T17:05:00Z | red-team | REQ-0183 gates | lint ✓ test 636 ✓ invalidate 214 ✓ build ✓ | REQ-0183
 2026-07-20T17:10:00Z | build-agent | REQ-0184 restore edit dialog stack | drop 2-col/max-w-2xl; keep badge contrast | REQ-0184
 2026-07-20T17:15:00Z | red-team | REQ-0184 gates | lint ✓ test 636 ✓ invalidate 214 ✓ build ✓ | REQ-0184
+2026-07-20T17:25:00Z | product-owner | EOD park 2026-07-20 | shipped 0179–0184; tomorrow REQ-0185 tickets → 0186 warehouse → 0187 order dialog → 0136 | REQ-0185
+2026-07-20T17:25:00Z | orchestrator | resume token | tomorrow-UI-tickets-warehouse-order → REQ-0185 | REQ-0185

@@ -471,3 +471,6 @@
 | TC-0091 | REQ-0183 | Gates lint/test/invalidate/build |
 | ART-0184a | REQ-0184 | Edit Review dialog stacked w-full (revert 2-col) | WriteEditReviewDialog |
 | TC-0092 | REQ-0184 | Gates lint/test/invalidate/build |
+| ART-0185a | REQ-0185 | Support ticket table + detail UI (planned) | TBD tomorrow |
+| ART-0186a | REQ-0186 | Warehouse dialog + detail UI (planned) | TBD tomorrow |
+| ART-0187a | REQ-0187 | Order dialog UI polish (planned) | TBD tomorrow |

@@ -1,9 +1,20 @@
 # Validation Summary — Cycle C1
 
-**Generated:** 2026-07-20 session activate
+**Generated:** 2026-07-20 EOD park
 **eval_gate_status:** PENDING (Human Gate 2)
-**Prod target SHA:** `9e97dc7` (REQ-0170–0178)
-**Resume:** **REQ-0136** — UI explore → §10 A1/A2/B1 (see STATE.md)
+**Prod target SHA:** `011d655` (REQ-0179–0184)
+**Resume:** **REQ-0185** → 0186 → 0187 → then REQ-0136 (see STATE.md)
+
+---
+
+## Session 2026-07-20 EOD — park for tomorrow UI bugs
+
+```
+Scope: parked | Traceability: REQ-0179–0184 done; REQ-0185–0187 planned | Findings: PASS (reviews)
+Shipped: product reviews densify + edit dialog stack → origin/main 011d655
+Tomorrow: ticket table/detail (admin/client/supplier) · warehouse dialog/detail · order dialog
+Then: REQ-0136 §10 smoke + Gate 2 Sentry 24h
+```
 
 ---
 

@@ -3,51 +3,55 @@
 | Field | Value |
 |-------|-------|
 | **Cycle** | C2 (C1 Gate 2 still PENDING) |
-| **Phase** | Stage 4–5 Verify — **REQ-0136** (UI explore → cache smoke) |
-| **Last updated** | 2026-07-20 REQ-0184 done (gates PASS) |
-| **Active REQ** | **REQ-0136** (UI explore → §10 A1/A2/B1) |
+| **Phase** | Parked 2026-07-20 — **tomorrow UI bugs** |
+| **Last updated** | 2026-07-20 EOD — reviews REQ-0179–0184 shipped |
+| **Active REQ** | **REQ-0185** (next) → then 0186 → 0187 → resume **REQ-0136** |
 | **Done range** | REQ-0001 … REQ-0135 + REQ-0137–**0184** |
-| **Prod SHA** | `011d655` (REQ-0179–0184) |
+| **Prod SHA** | `011d655` (REQ-0179–0184; tip docs `92bd766`) |
 | **Human Gate 1** | APPROVED (GATE-0001) |
-| **Human Gate 2** | PENDING (GATE-0002) — UI explore → §10 → Sentry 24h |
-| **Resume token** | `tomorrow-UI-then-cache` → **REQ-0136** |
+| **Human Gate 2** | PENDING (GATE-0002) — after UI bugs + §10 smoke → Sentry 24h |
+| **Resume token** | `tomorrow-UI-tickets-warehouse-order` → **REQ-0185** |
 | **CHECKPOINTS** | none PENDING |
 
 ---
 
-## Start here (this session)
+## Start here (tomorrow 2026-07-21)
 
-1. **REQ-0136 AC1–AC2** — Human UI + calc explore
-2. **REQ-0136 AC3–AC5** — Cache smoke `MANUAL_TEST_FIXTURES.md` §10 A1/A2/B1
-3. **Gate 2** — Sentry 24h (REQ-0009) after explore + smoke → `EVAL_RESULTS.md` PASS
+1. **REQ-0185** — Support ticket **table + detail** UI (admin / client / supplier)
+2. **REQ-0186** — Warehouse **dialog + detail** UI polish
+3. **REQ-0187** — Order **dialog** UI polish (bugs found in explore)
+4. Then **REQ-0136** — cache smoke §10 A1/A2/B1 + Gate 2 Sentry 24h
 
 **Skills active:** 01 · 02 · 03 · 06 · 07 · 17 · 19 · 23 → write-through every prompt
 
 ---
 
-## Shipped today (2026-07-20)
+## Shipped 2026-07-20
 
 | REQ | Summary |
 |-----|---------|
-| 0165–0167 | Detail review/audit UX |
-| 0168–0169 | Admin spacing + Actions polish |
-| 0170 | Portal/dashboard recent density + forecast shell |
-| 0171 | Forecast KPI compact + denser product cells |
-| 0172 | Forecast 2-line cell + table overflow-x fix |
-| 0173 | Top Products denser cells + header weight |
-| 0174 | Recent cards clip fix + Orders/Reviews densify |
-| 0175 | Portal recent-card meta row clip parity |
-| 0176 | Recent Orders/Reviews gap + date-first buyer |
-| 0177 | Admin portal recent densify + SectionCardHeader |
-| 0178 | Supplier portal recent orders buyer row |
-| 0179 | Add Product Review rating hues + product picker densify |
+| 0165–0169 | Detail review/audit + admin spacing |
+| 0170–0178 | Forecast / recent cards / admin portals densify |
+| 0179 | Add Product Review rating hues + product picker |
 | 0180 | Reviews table densify + admin detail redesign |
 | 0181 | Detail display-only; Edit dialog + status Select |
 | 0182 | Reviews table Actions MoreVertical menu |
-| 0183 | Review detail + Edit dialog UX polish |
-| 0184 | Restore Edit Review dialog stacked layout |
+| 0183 | Review detail polish + purchase enrich + badge contrast |
+| 0184 | Edit Review dialog stacked w-full (revert 2-col) |
 
-**Gates:** lint ✓ test **636** ✓ invalidate **214** ✓ build ✓ (REQ-0184)
+**Gates (EOD):** lint ✓ test **636** ✓ invalidate **214** ✓ build ✓ · pushed `011d655` / tip `92bd766`
+
+---
+
+## Tomorrow backlog (planned)
+
+| REQ | Focus | Roles / surfaces |
+|-----|-------|------------------|
+| **0185** | Ticket table + detail UI bugs | admin, client, supplier |
+| **0186** | Warehouse dialog + detail UI | admin / owner |
+| **0187** | Order dialog UI bugs | create/edit |
+
+**Out of scope until after 0185–0187:** broad invalidation registry changes (unless a bug requires it).
 
 ---
 
