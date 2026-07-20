@@ -897,11 +897,44 @@ Hub: `lib/ui/typography-scale.ts`. Hubs import tokens; ~45 inline files use equi
 | Reorder empty | `forecasting-card` — healthy copy when low+out stock = 0 |
 | Activity Logs | `ActivityLogSection` — filter `mb-4` before table |
 | My Activity | iconTile + `createOrderColumns(undefined, …)` embed; optional `onEdit` hides Edit (REQ-0169) |
-| Dashboard Latest 5 | `DashboardRecentOrder` enrich in `dashboard-data`; denser rows in `AdminAnalyticsContent` |
-| Cache | `dashboard:overview:v4:` |
 | Shell token | `PAGE_STATS_GRID_IN_SHELL_CLASS` under gap-6; portals keep `PAGE_STATS_GRID_CLASS` + pb-6 |
 
-**No invalidation registry changes** — order-graph already clears dashboard; Cancel/Delete still use mutation hooks.
+## Admin portal/dashboard card density (REQ-0170)
+
+| Piece | Location |
+|-------|----------|
+| Dashboard Latest 5 | clickable buyer/product/category/supplier + ticket/review/import avatars — `AdminAnalyticsContent` |
+| SSR | `dashboard-data.ts` — IDs/images; cache `dashboard:overview:v7:` (REQ-0174 recent catalog) |
+| Supplier portal | densify + SectionCardHeader + order buyer — `AdminSupplierPortalContent`; cache `supplierPortal:overview:v4:` (REQ-0177/0178) |
+| Client portal | densify + SectionCardHeader — `AdminClientPortalContent`; cache `clientPortal:overview:v4` (REQ-0177) |
+| Forecasting | `StatisticsCard` KPIs + `ChartCard` sections + `ProductThumb` links; `forecasting:summary:v4` (REQ-0171) |
+
+**No invalidation registry changes** — order/catalog/portal patterns already clear these caches.
+
+## Forecast KPI compact + denser cells (REQ-0171 / REQ-0172 / REQ-0173)
+
+| Piece | Location |
+|-------|----------|
+| Compact KPIs | `StatisticsCard` `compact` — ForecastingSection only (drops `min-h-[210px]`) |
+| SSR enrich | `demand-forecast.ts` — category/supplier + User.image → `supplierImage` |
+| Product cell | `DenseCatalogProductCell` — Name · SKU[copy] / Tag+category · `AvatarInlineLink` (forecast + Top Products) |
+| Top Products | `AdminAnalyticsContent` — denser cell + `font-medium` headers; dashboard cache v6 |
+| Table scroll | `ui/table` → `overflow-x-auto` only (avoids nested Y beside `#main-content`) |
+| Cache | `forecasting:summary:v4`; `dashboard:overview:v7` |
+
+**No invalidation registry changes** — CRUD already clears `forecasting:*` / `dashboard:*`.
+
+## Recent + portal densify (REQ-0174–0178)
+
+| Piece | Location |
+|-------|----------|
+| Clip meta | `CARD_LIST_META_ROW_CLASS`; AvatarInlineLink ring not clipped |
+| Dashboard | Orders/Reviews densify; gap-1.5; date-first; Redis `dashboard:overview:v7` |
+| Shared cell | `DenseCatalogProductCell` (forecast + Top Products) |
+| Portals | `SectionCardHeader`; supplier/client densify; Redis `supplierPortal:v4` / `clientPortal:v4` |
+| Supplier buyer | REQ-0178 — Calendar · date · `placedBy*` AvatarInlineLink |
+
+**Invalidation unchanged** — order/catalog CRUD already clears `dashboard:*` / `*Portal:*`.
 
 ## KPI badge helpers (REQ-0156–0157)
 
@@ -931,7 +964,7 @@ My Activity uses store helpers. `tsc --noEmit` clean (test fixtures). **UI/test-
 | Dashboards | `dashboard-data` / `client-dashboard` / `supplier-dashboard` — `partialOrderAmount`, `partialCount` |
 | UI | Partial badge on home, admin analytics, order/invoice lists, portals |
 | Typography | `PaymentMoneyBreakdown` table → `text-xs font-normal` gray meta |
-| Cache | `dashboard:overview:v4:` (REQ-0168 bump; was v3) |
+| Cache | `dashboard:overview:v7:` (REQ-0174; was v6) |
 
 **Invalidation unchanged** — order-graph clears dashboards; no fake invoice status `partial`.
 

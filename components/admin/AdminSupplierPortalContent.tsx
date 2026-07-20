@@ -7,7 +7,7 @@ import { ProductStockStatusBadge } from "@/lib/ui/semantic-badges";
 import {
   CARD_LIST_DIVIDE_CLASS,
   CARD_LIST_ROW_CLASS,
-  CARD_LIST_META_CLASS,
+  CARD_LIST_META_ROW_CLASS,
 } from "@/lib/ui/card-list-styles";
 import { AnalyticsCard } from "@/components/ui/analytics-card";
 import {
@@ -17,10 +17,10 @@ import {
   DataSlotPulse,
   GlassCard,
   SectionCountBadge,
+  SectionCardHeader,
   AvatarInlineLink,
   ClientCompactDateTime,
   RecentOrderStatusColumn,
-  GLASS_CARD_VARIANT_CONFIG as variantConfig,
 } from "@/components/shared";
 import { DETAIL_PAGE_HEADER_SPACING_CLASS } from "@/lib/ui/shell-layout-styles";
 import { CARD_EMPTY_MESSAGE_CLASS } from "@/lib/ui/card-empty-styles";
@@ -29,6 +29,7 @@ import {
   GLASS_BUTTON_ICON_HOVER,
   GLASS_BUTTON_SHELL_RESET,
 } from "@/lib/ui/glass-button-styles";
+import { getDisplayCommittedQuantity } from "@/lib/products/enrich-product-committed-quantity";
 import { useSupplierPortal } from "@/hooks/queries";
 import {
   isDataSlotUnsettled,
@@ -41,8 +42,12 @@ import {
   ShoppingCart,
   DollarSign,
   ArrowRight,
+  Tag,
+  Calendar,
+  Clock,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { ProductThumb } from "@/components/products/ProductOptionRow";
 import type { SupplierPortalStats, SupplierPortalSupplier } from "@/types";
 import {
   AdminEmbedDataTable,
@@ -171,27 +176,15 @@ export default function AdminSupplierPortalContent({
 
         {/* Recent products & orders — glassmorphic cards */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-2 sm:gap-4">
-          {/* Recent products */}
+          {/* Recent products — REQ-0177 densify + SectionCardHeader */}
           <GlassCard padding="body" variant="sky">
-            <div className="flex items-center gap-2 mb-4">
-              <div
-                className={cn(
-                  "p-2 rounded-xl border",
-                  variantConfig.sky.iconBg,
-                  "dark:border-sky-400/30 dark:bg-sky-500/20",
-                )}
-              >
-                <Package className="h-5 w-5 text-sky-600 dark:text-sky-400" />
-              </div>
-              <div>
-                <h3 className="text-sm sm:text-base font-medium text-gray-700 dark:text-white">
-                  Recent Supplier Products
-                </h3>
-                <p className="text-xs text-gray-600 dark:text-gray-300">
-                  Last 10 products from suppliers
-                </p>
-              </div>
-            </div>
+            <SectionCardHeader
+              title="Recent Supplier Products"
+              description="Last 10 products from suppliers"
+              icon={Package}
+              tone="sky"
+              className="mb-4"
+            />
             {dataLoading ? (
               <ul className="space-y-3 py-4">
                 {[1, 2, 3, 4, 5].map((i) => (
@@ -207,28 +200,104 @@ export default function AdminSupplierPortalContent({
               </p>
             ) : (
               <ul className={CARD_LIST_DIVIDE_CLASS}>
-                {(stats?.recentProducts ?? []).map((p) => (
-                  <li key={p.id} className={CARD_LIST_ROW_CLASS}>
-                    <div className="min-w-0">
-                      <Link
-                        href={`/admin/products/${p.id}`}
-                        prefetch
-                        className="font-normal text-xs text-sky-600 dark:text-sky-400 hover:text-sky-500 dark:hover:text-sky-300 truncate block"
-                      >
-                        {p.name}
-                      </Link>
-                      <span className={CARD_LIST_META_CLASS}>
-                        {p.supplierName} · {p.sku ?? "—"}
-                      </span>
-                    </div>
-                    <div className="flex items-center gap-2 flex-shrink-0">
-                      <ProductStockStatusBadge status={p.status} />
-                      <span className="text-xs font-normal text-gray-700 dark:text-white">
-                        ${p.price.toLocaleString()}
-                      </span>
-                    </div>
-                  </li>
-                ))}
+                {(stats?.recentProducts ?? []).map((p) => {
+                  const reserved = getDisplayCommittedQuantity(p);
+                  const sku = p.sku?.trim() || null;
+                  return (
+                    <li key={p.id} className={CARD_LIST_ROW_CLASS}>
+                      <div className="min-w-0 flex-1 flex flex-col gap-1.5 overflow-visible">
+                        {/* Line 1: thumb + name text-sm · SKU copy text-xs */}
+                        <div className="flex items-center gap-1.5 min-w-0">
+                          <ProductThumb
+                            name={p.name}
+                            imageUrl={p.imageUrl}
+                            size="sm"
+                          />
+                          <Link
+                            href={`/admin/products/${p.id}`}
+                            prefetch
+                            className="font-normal text-sm text-sky-600 dark:text-sky-400 hover:text-sky-500 dark:hover:text-sky-300 truncate"
+                          >
+                            {p.name}
+                          </Link>
+                          {sku ? (
+                            <>
+                              <span aria-hidden className="text-gray-400">
+                                ·
+                              </span>
+                              <CopyableText
+                                value={sku}
+                                className="min-w-0 max-w-[40%]"
+                              >
+                                <span className="font-mono text-xs text-gray-600 dark:text-gray-300 truncate">
+                                  {sku}
+                                </span>
+                              </CopyableText>
+                            </>
+                          ) : null}
+                        </div>
+                        {/* Line 2: stock · reserved · category · supplier */}
+                        <div className={CARD_LIST_META_ROW_CLASS}>
+                          <span className="inline-flex items-center gap-1 shrink-0">
+                            <Package
+                              className="h-3 w-3 shrink-0 text-gray-500 dark:text-gray-400"
+                              aria-hidden
+                            />
+                            <span>{p.quantity}</span>
+                          </span>
+                          {reserved > 0 ? (
+                            <>
+                              <span aria-hidden>·</span>
+                              <span className="inline-flex items-center gap-1 shrink-0">
+                                <Clock
+                                  className="h-3 w-3 shrink-0 text-gray-500 dark:text-gray-400"
+                                  aria-hidden
+                                />
+                                <span>{reserved} reserved</span>
+                              </span>
+                            </>
+                          ) : null}
+                          {p.categoryId && p.categoryName ? (
+                            <>
+                              <span aria-hidden>·</span>
+                              <Link
+                                href={`/admin/categories/${p.categoryId}`}
+                                className="inline-flex items-center gap-1 text-xs font-normal text-sky-600 dark:text-sky-400 hover:text-sky-500 dark:hover:text-sky-300 min-w-0"
+                              >
+                                <Tag
+                                  className="h-3 w-3 shrink-0"
+                                  aria-hidden
+                                />
+                                <span className="truncate">{p.categoryName}</span>
+                              </Link>
+                            </>
+                          ) : null}
+                          {p.supplierId ? (
+                            <>
+                              <span aria-hidden>·</span>
+                              <AvatarInlineLink
+                                label={p.supplierName}
+                                seed={p.supplierUserId ?? p.supplierId}
+                                image={p.supplierImage}
+                                href={`/admin/suppliers/${p.supplierId}`}
+                                size={20}
+                                linkClassName="text-xs"
+                                className="gap-1.5"
+                              />
+                            </>
+                          ) : null}
+                        </div>
+                      </div>
+                      {/* Right: status above price */}
+                      <div className="flex flex-col items-end gap-1 flex-shrink-0">
+                        <ProductStockStatusBadge status={p.status} />
+                        <span className="text-xs font-normal text-gray-700 dark:text-white">
+                          ${p.price.toLocaleString()}
+                        </span>
+                      </div>
+                    </li>
+                  );
+                })}
               </ul>
             )}
             <div className="mt-3">
@@ -251,27 +320,15 @@ export default function AdminSupplierPortalContent({
             </div>
           </GlassCard>
 
-          {/* Recent orders */}
+          {/* Recent orders — REQ-0177 product meta + date-first */}
           <GlassCard padding="body" variant="emerald">
-            <div className="flex items-center gap-2 mb-4">
-              <div
-                className={cn(
-                  "p-2 rounded-xl border",
-                  variantConfig.emerald.iconBg,
-                  "dark:border-emerald-400/30 dark:bg-emerald-500/20",
-                )}
-              >
-                <ShoppingCart className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
-              </div>
-              <div>
-                <h3 className="text-sm sm:text-base font-medium text-gray-700 dark:text-white">
-                  Recent Supplier Orders
-                </h3>
-                <p className="text-xs text-gray-600 dark:text-gray-300">
-                  Last 10 orders containing supplier products
-                </p>
-              </div>
-            </div>
+            <SectionCardHeader
+              title="Recent Supplier Orders"
+              description="Last 10 orders containing supplier products"
+              icon={ShoppingCart}
+              tone="emerald"
+              className="mb-4"
+            />
             {dataLoading ? (
               <ul className="space-y-3 py-4">
                 {[1, 2, 3, 4, 5].map((i) => (
@@ -287,41 +344,124 @@ export default function AdminSupplierPortalContent({
               </p>
             ) : (
               <ul className={CARD_LIST_DIVIDE_CLASS}>
-                {(stats?.recentOrders ?? []).map((o) => (
-                  <li key={o.id} className={CARD_LIST_ROW_CLASS}>
-                    <div className="min-w-0">
-                      <CopyableText
-                        value={o.orderNumber}
-                        className="max-w-full"
-                      >
-                        <Link
-                          href={`/admin/orders/${o.id}`}
-                          prefetch
-                          className="font-normal text-xs text-sky-600 dark:text-sky-400 hover:text-sky-500 dark:hover:text-sky-300 truncate block"
+                {(stats?.recentOrders ?? []).map((o) => {
+                  const productLabel = o.productPreview?.trim() || null;
+                  return (
+                    <li key={o.id} className={CARD_LIST_ROW_CLASS}>
+                      <div className="min-w-0 flex-1 flex flex-col gap-1.5 overflow-visible">
+                        <CopyableText
+                          value={o.orderNumber}
+                          className="max-w-full"
                         >
-                          {o.orderNumber}
-                        </Link>
-                      </CopyableText>
-                      <span className={CARD_LIST_META_CLASS}>
-                        {o.supplierName} ·{" "}
-                        <ClientCompactDateTime
-                          date={o.createdAt}
-                          semantic="created"
-                        />
-                      </span>
-                    </div>
-                    <RecentOrderStatusColumn
-                      status={o.status}
-                      statusAt={o.statusAt}
-                      paymentStatus={o.paymentStatus}
-                      trailing={
-                        <span className="text-xs font-normal text-gray-700 dark:text-white">
-                          ${o.total.toLocaleString()}
-                        </span>
-                      }
-                    />
-                  </li>
-                ))}
+                          <Link
+                            href={`/admin/orders/${o.id}`}
+                            prefetch
+                            className="font-normal text-xs text-sky-600 dark:text-sky-400 hover:text-sky-500 dark:hover:text-sky-300 truncate block"
+                          >
+                            {o.orderNumber}
+                          </Link>
+                        </CopyableText>
+                        <div className={CARD_LIST_META_ROW_CLASS}>
+                          {o.productId && productLabel ? (
+                            <span className="inline-flex items-center gap-1 min-w-0">
+                              <ProductThumb
+                                name={productLabel}
+                                imageUrl={o.productImageUrl}
+                                size="sm"
+                              />
+                              <Link
+                                href={`/admin/products/${o.productId}`}
+                                className="text-xs font-normal text-sky-600 dark:text-sky-400 hover:text-sky-500 dark:hover:text-sky-300 truncate"
+                              >
+                                {productLabel}
+                              </Link>
+                            </span>
+                          ) : productLabel ? (
+                            <span className="truncate">{productLabel}</span>
+                          ) : null}
+                          {o.categoryId && o.categoryName ? (
+                            <>
+                              <span aria-hidden>·</span>
+                              <Link
+                                href={`/admin/categories/${o.categoryId}`}
+                                className="inline-flex items-center gap-1 text-xs font-normal text-sky-600 dark:text-sky-400 hover:text-sky-500 dark:hover:text-sky-300 min-w-0"
+                              >
+                                <Tag
+                                  className="h-3 w-3 shrink-0"
+                                  aria-hidden
+                                />
+                                <span className="truncate">
+                                  {o.categoryName}
+                                </span>
+                              </Link>
+                            </>
+                          ) : null}
+                          {o.supplierId ? (
+                            <>
+                              {(productLabel ||
+                                (o.categoryId && o.categoryName)) && (
+                                <span aria-hidden>·</span>
+                              )}
+                              <AvatarInlineLink
+                                label={o.supplierName}
+                                seed={o.supplierUserId ?? o.supplierId}
+                                image={o.supplierImage}
+                                href={`/admin/suppliers/${o.supplierId}`}
+                                size={20}
+                                linkClassName="text-xs"
+                                className="gap-1.5"
+                              />
+                            </>
+                          ) : o.supplierName ? (
+                            <span>{o.supplierName}</span>
+                          ) : null}
+                        </div>
+                        {/* REQ-0178 — Calendar · date · buyer avatar (client-portal parity) */}
+                        <div className={CARD_LIST_META_ROW_CLASS}>
+                          <span className="inline-flex items-center gap-1 min-w-0">
+                            <Calendar
+                              className="h-3 w-3 shrink-0 text-gray-500 dark:text-gray-400"
+                              aria-hidden
+                            />
+                            <ClientCompactDateTime
+                              date={o.createdAt}
+                              semantic="created"
+                            />
+                          </span>
+                          {o.placedById && o.placedByName ? (
+                            <>
+                              <span aria-hidden>·</span>
+                              <AvatarInlineLink
+                                label={o.placedByName}
+                                seed={o.placedById}
+                                image={o.placedByImage}
+                                href={`/admin/user-management/${o.placedById}`}
+                                size={20}
+                                linkClassName="text-xs"
+                                className="gap-1.5"
+                              />
+                            </>
+                          ) : o.placedByName ? (
+                            <>
+                              <span aria-hidden>·</span>
+                              <span className="truncate">{o.placedByName}</span>
+                            </>
+                          ) : null}
+                        </div>
+                      </div>
+                      <RecentOrderStatusColumn
+                        status={o.status}
+                        statusAt={o.statusAt}
+                        paymentStatus={o.paymentStatus}
+                        trailing={
+                          <span className="text-xs font-normal text-gray-700 dark:text-white">
+                            ${o.total.toLocaleString()}
+                          </span>
+                        }
+                      />
+                    </li>
+                  );
+                })}
               </ul>
             )}
             <div className="mt-3">
@@ -347,25 +487,13 @@ export default function AdminSupplierPortalContent({
 
         {/* Suppliers table — glassmorphic card */}
         <GlassCard padding="body" variant="violet">
-          <div className="flex items-center gap-2 mb-4">
-            <div
-              className={cn(
-                "p-2 rounded-xl border",
-                variantConfig.violet.iconBg,
-                "dark:border-violet-400/30 dark:bg-violet-500/20",
-              )}
-            >
-              <Truck className="h-5 w-5 text-violet-600 dark:text-violet-400" />
-            </div>
-            <div>
-              <h3 className="text-sm sm:text-base font-medium text-gray-700 dark:text-white">
-                Suppliers
-              </h3>
-              <p className="text-xs text-gray-600 dark:text-gray-300">
-                Supplier entities and their product/order summary
-              </p>
-            </div>
-          </div>
+          <SectionCardHeader
+            title="Suppliers"
+            description="Supplier entities and their product/order summary"
+            icon={Truck}
+            tone="violet"
+            className="mb-4"
+          />
           <AdminEmbedDataTable
             columns={supplierColumns}
             data={stats?.suppliers ?? []}

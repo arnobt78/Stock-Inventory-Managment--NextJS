@@ -2,13 +2,17 @@
  * Server-side data for Admin Supplier Portal page
  * Aggregates Supplier entities for this admin (own + Demo Supplier), their products, and related orders.
  * Only import from server code (e.g. app/admin/supplier-portal/page.tsx, GET /api/supplier-portal).
+ * REQ-0177 — denser recent product/order catalog meta + Redis shape guard.
+ * REQ-0178 — recent orders buyer (placedBy*) + Redis v4.
  */
 
 import { getCache, setCache, cacheKeys } from "@/lib/cache";
 import { prisma } from "@/prisma/client";
 import { mergeProductListWhere } from "@/lib/products/product-query";
+import { enrichProductsWithCommittedQuantity } from "@/lib/products/enrich-product-committed-quantity";
 import { orderStatusAtSelect } from "@/lib/server/catalog-detail-order-select";
 import { withOrderStatusAt } from "@/lib/orders/order-status-display-date";
+import { resolveBuyerDisplayFromUsers } from "@/lib/orders/order-party";
 import { getSuppliersForAdminIncludingDemo } from "@/prisma/supplier";
 import type {
   SupplierPortalStats,
@@ -17,6 +21,28 @@ import type {
   SupplierPortalRecentOrder,
   SupplierPortalSupplier,
 } from "@/types";
+
+/** REQ-0177/0178 — reject stale Redis missing catalog + placedBy fields. */
+function hasSupplierPortalCatalogMeta(stats: SupplierPortalStats): boolean {
+  const products = stats.recentProducts ?? [];
+  if (
+    products.length > 0 &&
+    !products.every((p) => "categoryId" in p && "committedQuantity" in p)
+  ) {
+    return false;
+  }
+  const orders = stats.recentOrders ?? [];
+  if (
+    orders.length > 0 &&
+    !orders.every(
+      (o) =>
+        "productPreview" in o && "categoryId" in o && "placedById" in o,
+    )
+  ) {
+    return false;
+  }
+  return true;
+}
 
 /**
  * @param adminUserId - Current admin user id. Only their suppliers + Demo Supplier are included (same as sidebar badge and GET /api/suppliers).
@@ -27,7 +53,7 @@ export async function getSupplierPortalForAdmin(
   const cacheKey = cacheKeys.supplierPortal.overview(adminUserId);
   const cacheReadStartedAt = Date.now();
   const cached = await getCache<SupplierPortalStats>(cacheKey);
-  if (cached) return cached;
+  if (cached && hasSupplierPortalCatalogMeta(cached)) return cached;
 
   // Only suppliers this admin can see: own + Demo Supplier (same as sidebar badge)
   const supplierEntities = await getSuppliersForAdminIncludingDemo(adminUserId);
@@ -49,7 +75,10 @@ export async function getSupplierPortalForAdmin(
 
   const supplierIds = supplierEntities.map((s) => s.id);
   const supplierMap = new Map(
-    supplierEntities.map((s) => [s.id, { id: s.id, name: s.name, userId: s.userId, createdAt: s.createdAt }]),
+    supplierEntities.map((s) => [
+      s.id,
+      { id: s.id, name: s.name, userId: s.userId, createdAt: s.createdAt },
+    ]),
   );
 
   // Get products for those suppliers
@@ -62,8 +91,11 @@ export async function getSupplierPortalForAdmin(
           sku: true,
           price: true,
           quantity: true,
+          reservedQuantity: true,
           status: true,
           supplierId: true,
+          categoryId: true,
+          imageUrl: true,
           createdAt: true,
         },
         orderBy: { createdAt: "desc" },
@@ -77,14 +109,21 @@ export async function getSupplierPortalForAdmin(
         where: { productId: { in: productIds } },
         select: {
           productId: true,
+          productName: true,
           quantity: true,
           price: true,
           orderId: true,
+          product: {
+            select: {
+              imageUrl: true,
+              categoryId: true,
+            },
+          },
         },
       })
     : [];
 
-  // Get orders for these items
+  // Get orders for these items (REQ-0178 — userId/clientId for buyer row)
   const orderIds = [...new Set(orderItems.map((oi) => oi.orderId))];
   const orders = orderIds.length
     ? await prisma.order.findMany({
@@ -93,6 +132,8 @@ export async function getSupplierPortalForAdmin(
           id: true,
           orderNumber: true,
           total: true,
+          userId: true,
+          clientId: true,
           createdAt: true,
           ...orderStatusAtSelect,
         },
@@ -102,14 +143,55 @@ export async function getSupplierPortalForAdmin(
 
   // Map productId -> supplierId
   const productSupplierMap = new Map(products.map((p) => [p.id, p.supplierId]));
+  const productById = new Map(products.map((p) => [p.id, p]));
 
-  // Map orderId -> primary supplierId (first item supplier)
+  // Map orderId -> primary supplierId (first item supplier) + first item meta
   const orderSupplierMap = new Map<string, string>();
+  const orderFirstItemMap = new Map<
+    string,
+    {
+      productId: string;
+      productName: string;
+      imageUrl: string | null;
+      categoryId: string | null;
+      itemCount: number;
+    }
+  >();
   for (const oi of orderItems) {
     if (!orderSupplierMap.has(oi.orderId)) {
       const supplierId = productSupplierMap.get(oi.productId);
       if (supplierId) orderSupplierMap.set(oi.orderId, supplierId);
     }
+    const prev = orderFirstItemMap.get(oi.orderId);
+    if (!prev) {
+      orderFirstItemMap.set(oi.orderId, {
+        productId: oi.productId,
+        productName: oi.productName,
+        imageUrl: oi.product?.imageUrl ?? null,
+        categoryId: oi.product?.categoryId ?? null,
+        itemCount: 1,
+      });
+    } else {
+      prev.itemCount += 1;
+    }
+  }
+
+  // Category names for recent products + order first items
+  const categoryIds = [
+    ...new Set(
+      [
+        ...products.slice(0, 10).map((p) => p.categoryId),
+        ...[...orderFirstItemMap.values()].map((i) => i.categoryId),
+      ].filter((id): id is string => Boolean(id)),
+    ),
+  ];
+  const categoryMap = new Map<string, string>();
+  if (categoryIds.length > 0) {
+    const cats = await prisma.category.findMany({
+      where: { id: { in: categoryIds } },
+      select: { id: true, name: true },
+    });
+    cats.forEach((c) => categoryMap.set(c.id, c.name));
   }
 
   // Counts
@@ -124,33 +206,101 @@ export async function getSupplierPortalForAdmin(
     totalValue: totalProductValue,
   };
 
-  // Recent products (last 10)
-  const recentProducts: SupplierPortalRecentProduct[] = products
-    .slice(0, 10)
-    .map((p) => ({
+  // Recent products (last 10) — REQ-0177 category + committedQuantity
+  const recentSlice = products.slice(0, 10);
+  const recentEnriched = await enrichProductsWithCommittedQuantity(
+    recentSlice.map((p) => ({
       id: p.id,
-      name: p.name,
-      sku: p.sku,
-      price: p.price,
-      quantity: Number(p.quantity),
-      status: p.status,
-      supplierId: p.supplierId,
-      supplierName: supplierMap.get(p.supplierId)?.name ?? "Unknown",
-      createdAt: p.createdAt.toISOString(),
-    }));
+      reservedQuantity: Number(p.reservedQuantity ?? 0),
+    })),
+  );
+  const committedById = new Map(
+    recentEnriched.map((p) => [p.id, p.committedQuantity]),
+  );
 
-  // Recent orders (last 10)
-  const recentOrders: SupplierPortalRecentOrder[] = orders
-    .slice(0, 10)
-    .map((o) => {
+  const recentProducts: SupplierPortalRecentProduct[] = recentSlice.map(
+    (p) => {
+      const supplier = supplierMap.get(p.supplierId);
+      const supplierUserId = supplier?.userId ?? null;
+      const categoryId = p.categoryId ?? null;
+      return {
+        id: p.id,
+        name: p.name,
+        sku: p.sku,
+        price: p.price,
+        quantity: Number(p.quantity),
+        reservedQuantity: Number(p.reservedQuantity ?? 0),
+        committedQuantity: committedById.get(p.id) ?? 0,
+        status: p.status,
+        supplierId: p.supplierId,
+        supplierName: supplier?.name ?? "Unknown",
+        imageUrl: p.imageUrl ?? null,
+        supplierUserId,
+        supplierImage: supplierUserId
+          ? (supplierUserMap.get(supplierUserId)?.image ?? null)
+          : null,
+        categoryId,
+        categoryName: categoryId ? (categoryMap.get(categoryId) ?? null) : null,
+        createdAt: p.createdAt.toISOString(),
+      };
+    },
+  );
+
+  // Recent orders (last 10) — REQ-0177 product meta + REQ-0178 buyer
+  const recentOrderSlice = orders.slice(0, 10);
+  const buyerIds = [
+    ...new Set(
+      recentOrderSlice
+        .map((o) => o.clientId ?? o.userId)
+        .filter((id): id is string => Boolean(id)),
+    ),
+  ];
+  type BuyerUserRow = {
+    id: string;
+    name: string | null;
+    email: string | null;
+    image: string | null;
+  };
+  const buyerUserMap = new Map<string, BuyerUserRow>();
+  if (buyerIds.length > 0) {
+    const buyerUsers = await prisma.user.findMany({
+      where: { id: { in: buyerIds } },
+      select: { id: true, name: true, email: true, image: true },
+    });
+    buyerUsers.forEach((u) => buyerUserMap.set(u.id, u));
+  }
+
+  const recentOrders: SupplierPortalRecentOrder[] = recentOrderSlice.map(
+    (o) => {
       const supplierId = orderSupplierMap.get(o.id) ?? "";
+      const supplier = supplierMap.get(supplierId);
+      const supplierUserId = supplier?.userId ?? null;
+      const first = orderFirstItemMap.get(o.id);
+      const extraItemCount = first ? Math.max(0, first.itemCount - 1) : 0;
+      const productPreview = first?.productName
+        ? extraItemCount > 0
+          ? `${first.productName} +${extraItemCount}`
+          : first.productName
+        : null;
+      const categoryId = first?.categoryId ?? null;
+      // Prefer live product image when still in catalog map
+      const liveProduct = first ? productById.get(first.productId) : undefined;
+      const buyer = resolveBuyerDisplayFromUsers(
+        { userId: o.userId, clientId: o.clientId },
+        buyerUserMap,
+      );
+      const buyerRow = buyerUserMap.get(buyer.userId);
       return withOrderStatusAt({
         id: o.id,
         orderNumber: o.orderNumber,
         status: o.status,
         total: o.total ?? 0,
         supplierId,
-        supplierName: supplierMap.get(supplierId)?.name ?? "Unknown",
+        supplierName: supplier?.name ?? "Unknown",
+        supplierUserId,
+        supplierImage: supplierUserId
+          ? (supplierUserMap.get(supplierUserId)?.image ?? null)
+          : null,
         createdAt: o.createdAt.toISOString(),
         paymentStatus: o.paymentStatus,
         cancelledAt: o.cancelledAt,
@@ -158,8 +308,20 @@ export async function getSupplierPortalForAdmin(
         shippedAt: o.shippedAt,
         updatedAt: o.updatedAt,
         invoice: o.invoice,
+        productId: first?.productId ?? null,
+        productPreview,
+        productImageUrl: liveProduct?.imageUrl ?? first?.imageUrl ?? null,
+        extraItemCount,
+        categoryId,
+        categoryName: categoryId
+          ? (categoryMap.get(categoryId) ?? null)
+          : null,
+        placedById: buyer.userId,
+        placedByName: buyer.name,
+        placedByImage: buyerRow?.image ?? null,
       });
-    });
+    },
+  );
 
   // Supplier summary (based on Supplier entities; email from linked User via userId)
   const suppliers: SupplierPortalSupplier[] = supplierEntities.map((s) => {

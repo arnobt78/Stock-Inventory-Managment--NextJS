@@ -38,14 +38,22 @@ export interface DashboardRecentOrder {
   createdAt: string;
   /** REQ-0128 — terminal status date for recent-order cards */
   statusAt?: string;
-  /** REQ-0168 — buyer display for Latest 5 density */
+  /** REQ-0168 / REQ-0170 — buyer display + avatar link */
+  placedById?: string | null;
   placedByName?: string | null;
   placedByEmail?: string | null;
-  /** First line product name (+ optional "+N" via extraItemCount) */
+  placedByImage?: string | null;
+  /** First line product (+ optional "+N" via extraItemCount) */
+  productId?: string | null;
   productPreview?: string | null;
+  productImageUrl?: string | null;
   extraItemCount?: number;
+  categoryId?: string | null;
   categoryName?: string | null;
+  supplierId?: string | null;
   supplierName?: string | null;
+  /** REQ-0174 — User.image via Supplier.userId for AvatarInlineLink */
+  supplierImage?: string | null;
 }
 
 export interface DashboardRecentTicket {
@@ -53,6 +61,10 @@ export interface DashboardRecentTicket {
   subject: string;
   status: string;
   createdAt: string;
+  /** REQ-0170 — ticket creator */
+  userId?: string | null;
+  userName?: string | null;
+  userImage?: string | null;
 }
 
 export interface DashboardRecentReview {
@@ -61,6 +73,15 @@ export interface DashboardRecentReview {
   rating: number;
   status: string;
   createdAt: string;
+  /** REQ-0170 — reviewer + product thumb */
+  userId?: string | null;
+  userName?: string | null;
+  userImage?: string | null;
+  productId?: string | null;
+  productImageUrl?: string | null;
+  /** REQ-0174 — category beside rating★ */
+  categoryId?: string | null;
+  categoryName?: string | null;
 }
 
 export interface DashboardRecentImport {
@@ -71,6 +92,10 @@ export interface DashboardRecentImport {
   successRows: number;
   failedRows: number;
   createdAt: string;
+  /** REQ-0170 — importer */
+  userId?: string | null;
+  userName?: string | null;
+  userImage?: string | null;
 }
 
 export interface DashboardRecent {
@@ -94,6 +119,7 @@ export interface DashboardOrderStatusDist {
 
 /**
  * Top product by order count
+ * REQ-0173 — denser Product cell meta (image, category, supplier)
  */
 export interface DashboardTopProduct {
   productId: string;
@@ -102,6 +128,13 @@ export interface DashboardTopProduct {
   orderCount: number;
   totalQuantity: number;
   totalRevenue: number;
+  imageUrl?: string | null;
+  categoryId?: string | null;
+  categoryName?: string | null;
+  supplierId?: string | null;
+  supplierName?: string | null;
+  /** Linked User.image via Supplier.userId */
+  supplierImage?: string | null;
 }
 
 /**

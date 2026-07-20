@@ -367,11 +367,11 @@ export const cacheKeys = {
    * Dashboard (admin overview) cache keys — per-admin (userId) for homepage
    */
   dashboard: {
-    // REQ-0168 — v4: recent orders include buyer/product/category/supplier
+    // REQ-0174 — v7: recent orders supplierImage + review category
     overview: (userId?: string) =>
       userId
-        ? `dashboard:overview:v4:${userId}`
-        : "dashboard:overview:v4",
+        ? `dashboard:overview:v7:${userId}`
+        : "dashboard:overview:v7",
     pattern: "dashboard:*",
   },
 
@@ -392,8 +392,8 @@ export const cacheKeys = {
    * Admin Client Portal cache keys
    */
   clientPortal: {
-    /** REQ-0158 — v2 filters by buyer clientId (not creator userId) */
-    overview: "clientPortal:overview:v2",
+    /** REQ-0177 — v4: recent orders/invoices include productPreview catalog meta */
+    overview: "clientPortal:overview:v4",
     pattern: "clientPortal:*",
   },
 
@@ -401,7 +401,8 @@ export const cacheKeys = {
    * Admin Supplier Portal cache keys (per admin userId)
    */
   supplierPortal: {
-    overview: (userId: string) => `supplierPortal:overview:${userId}`,
+    // REQ-0178 — v4: recent orders include placedById/Name/Image
+    overview: (userId: string) => `supplierPortal:overview:v4:${userId}`,
     pattern: "supplierPortal:*",
   },
 

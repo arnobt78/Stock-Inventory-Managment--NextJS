@@ -50,21 +50,21 @@ export function AvatarInlineLink({
 
   return (
     <span className={cn("inline-flex items-center gap-2 min-w-0", className)}>
+      {/* REQ-0174 — ring on outer; overflow-hidden only on image (ring must not clip) */}
       <span
-        className={cn(
-          "relative shrink-0 overflow-hidden rounded-full",
-          AVATAR_RING_CLASS,
-        )}
+        className={cn("relative shrink-0 rounded-full", AVATAR_RING_CLASS)}
         style={{ width: size, height: size }}
       >
-        <SafeAvatarImage
-          src={avatar.src}
-          fallbackSrc={avatar.fallbackSrc}
-          alt=""
-          width={size}
-          height={size}
-          className="h-full w-full object-cover"
-        />
+        <span className="absolute inset-0 overflow-hidden rounded-full">
+          <SafeAvatarImage
+            src={avatar.src}
+            fallbackSrc={avatar.fallbackSrc}
+            alt=""
+            width={size}
+            height={size}
+            className="h-full w-full object-cover"
+          />
+        </span>
       </span>
       {nameEl}
     </span>

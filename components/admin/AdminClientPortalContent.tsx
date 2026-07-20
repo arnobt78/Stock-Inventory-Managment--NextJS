@@ -7,7 +7,7 @@ import { InvoiceStatusBadge } from "@/lib/ui/semantic-badges";
 import {
   CARD_LIST_DIVIDE_CLASS,
   CARD_LIST_ROW_CLASS,
-  CARD_LIST_META_CLASS,
+  CARD_LIST_META_ROW_CLASS,
 } from "@/lib/ui/card-list-styles";
 import { AnalyticsCard } from "@/components/ui/analytics-card";
 import {
@@ -17,10 +17,10 @@ import {
   DataSlotPulse,
   GlassCard,
   SectionCountBadge,
+  SectionCardHeader,
   AvatarInlineLink,
   ClientCompactDateTime,
   RecentOrderStatusColumn,
-  GLASS_CARD_VARIANT_CONFIG as variantConfig,
 } from "@/components/shared";
 import { DETAIL_PAGE_HEADER_SPACING_CLASS } from "@/lib/ui/shell-layout-styles";
 import { CARD_EMPTY_MESSAGE_CLASS } from "@/lib/ui/card-empty-styles";
@@ -41,8 +41,11 @@ import {
   FileText,
   DollarSign,
   ArrowRight,
+  Tag,
+  Calendar,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { ProductThumb } from "@/components/products/ProductOptionRow";
 import type { ClientPortalClient, ClientPortalStats } from "@/types";
 import {
   AdminEmbedDataTable,
@@ -170,29 +173,16 @@ export default function AdminClientPortalContent({
           />
         </div>
 
-        {/* Recent orders & invoices — glassmorphic cards */}
+        {/* Recent orders & invoices — REQ-0177 densify + SectionCardHeader */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-2 sm:gap-4">
-          {/* Recent orders */}
           <GlassCard padding="body" variant="sky">
-            <div className="flex items-center gap-2 mb-4">
-              <div
-                className={cn(
-                  "p-2 rounded-xl border",
-                  variantConfig.sky.iconBg,
-                  "dark:border-sky-400/30 dark:bg-sky-500/20",
-                )}
-              >
-                <ShoppingCart className="h-5 w-5 text-sky-600 dark:text-sky-400" />
-              </div>
-              <div>
-                <h3 className="text-sm sm:text-base font-medium text-gray-700 dark:text-white">
-                  Recent Client Orders
-                </h3>
-                <p className="text-xs text-gray-600 dark:text-gray-300">
-                  Last 10 orders placed by client users
-                </p>
-              </div>
-            </div>
+            <SectionCardHeader
+              title="Recent Client Orders"
+              description="Last 10 orders placed by client users"
+              icon={ShoppingCart}
+              tone="sky"
+              className="mb-4"
+            />
             {dataLoading ? (
               <ul className="space-y-3 py-4">
                 {[1, 2, 3, 4, 5].map((i) => (
@@ -206,41 +196,115 @@ export default function AdminClientPortalContent({
               <p className={CARD_EMPTY_MESSAGE_CLASS}>No client orders yet.</p>
             ) : (
               <ul className={CARD_LIST_DIVIDE_CLASS}>
-                {(stats?.recentOrders ?? []).map((o) => (
-                  <li key={o.id} className={CARD_LIST_ROW_CLASS}>
-                    <div className="min-w-0">
-                      <CopyableText
-                        value={o.orderNumber}
-                        className="max-w-full"
-                      >
-                        <Link
-                          href={`/admin/orders/${o.id}`}
-                          prefetch
-                          className="font-normal text-xs text-sky-600 dark:text-sky-400 hover:text-sky-500 dark:hover:text-sky-300 truncate block"
+                {(stats?.recentOrders ?? []).map((o) => {
+                  const productLabel = o.productPreview?.trim() || null;
+                  const hasProductMeta = Boolean(
+                    productLabel || (o.categoryId && o.categoryName),
+                  );
+                  return (
+                    <li key={o.id} className={CARD_LIST_ROW_CLASS}>
+                      <div className="min-w-0 flex-1 flex flex-col gap-1.5 overflow-visible">
+                        <CopyableText
+                          value={o.orderNumber}
+                          className="max-w-full"
                         >
-                          {o.orderNumber}
-                        </Link>
-                      </CopyableText>
-                      <span className={CARD_LIST_META_CLASS}>
-                        {o.clientName} ·{" "}
-                        <ClientCompactDateTime
-                          date={o.createdAt}
-                          semantic="created"
-                        />
-                      </span>
-                    </div>
-                    <RecentOrderStatusColumn
-                      status={o.status}
-                      statusAt={o.statusAt}
-                      paymentStatus={o.paymentStatus}
-                      trailing={
-                        <span className="text-xs font-normal text-gray-700 dark:text-white">
-                          ${o.total.toLocaleString()}
-                        </span>
-                      }
-                    />
-                  </li>
-                ))}
+                          <Link
+                            href={`/admin/orders/${o.id}`}
+                            prefetch
+                            className="font-normal text-xs text-sky-600 dark:text-sky-400 hover:text-sky-500 dark:hover:text-sky-300 truncate block"
+                          >
+                            {o.orderNumber}
+                          </Link>
+                        </CopyableText>
+                        <div className={CARD_LIST_META_ROW_CLASS}>
+                          {o.productId && productLabel ? (
+                            <span className="inline-flex items-center gap-1 min-w-0">
+                              <ProductThumb
+                                name={productLabel}
+                                imageUrl={o.productImageUrl}
+                                size="sm"
+                              />
+                              <Link
+                                href={`/admin/products/${o.productId}`}
+                                className="text-xs font-normal text-sky-600 dark:text-sky-400 hover:text-sky-500 dark:hover:text-sky-300 truncate"
+                              >
+                                {productLabel}
+                              </Link>
+                            </span>
+                          ) : productLabel ? (
+                            <span className="truncate">{productLabel}</span>
+                          ) : null}
+                          {o.categoryId && o.categoryName ? (
+                            <>
+                              <span aria-hidden>·</span>
+                              <Link
+                                href={`/admin/categories/${o.categoryId}`}
+                                className="inline-flex items-center gap-1 text-xs font-normal text-sky-600 dark:text-sky-400 hover:text-sky-500 dark:hover:text-sky-300 min-w-0"
+                              >
+                                <Tag
+                                  className="h-3 w-3 shrink-0"
+                                  aria-hidden
+                                />
+                                <span className="truncate">
+                                  {o.categoryName}
+                                </span>
+                              </Link>
+                            </>
+                          ) : null}
+                          {o.supplierId && o.supplierName ? (
+                            <>
+                              {hasProductMeta || productLabel ? (
+                                <span aria-hidden>·</span>
+                              ) : null}
+                              <AvatarInlineLink
+                                seed={o.supplierId}
+                                image={o.supplierImage}
+                                label={o.supplierName}
+                                href={`/admin/suppliers/${o.supplierId}`}
+                                size={20}
+                                linkClassName="text-xs"
+                                className="gap-1.5"
+                              />
+                            </>
+                          ) : null}
+                        </div>
+                        {/* REQ-0176/0177 — date-first then client avatar */}
+                        <div className={CARD_LIST_META_ROW_CLASS}>
+                          <span className="inline-flex items-center gap-1 min-w-0">
+                            <Calendar
+                              className="h-3 w-3 shrink-0 text-gray-500 dark:text-gray-400"
+                              aria-hidden
+                            />
+                            <ClientCompactDateTime
+                              date={o.createdAt}
+                              semantic="created"
+                            />
+                          </span>
+                          <span aria-hidden>·</span>
+                          <AvatarInlineLink
+                            label={o.clientName}
+                            seed={o.clientId}
+                            image={o.clientImage}
+                            href={`/admin/user-management/${o.clientId}`}
+                            size={20}
+                            linkClassName="text-xs"
+                            className="gap-1.5"
+                          />
+                        </div>
+                      </div>
+                      <RecentOrderStatusColumn
+                        status={o.status}
+                        statusAt={o.statusAt}
+                        paymentStatus={o.paymentStatus}
+                        trailing={
+                          <span className="text-xs font-normal text-gray-700 dark:text-white">
+                            ${o.total.toLocaleString()}
+                          </span>
+                        }
+                      />
+                    </li>
+                  );
+                })}
               </ul>
             )}
             <div className="mt-3">
@@ -263,27 +327,14 @@ export default function AdminClientPortalContent({
             </div>
           </GlassCard>
 
-          {/* Recent invoices */}
           <GlassCard padding="body" variant="emerald">
-            <div className="flex items-center gap-2 mb-4">
-              <div
-                className={cn(
-                  "p-2 rounded-xl border",
-                  variantConfig.emerald.iconBg,
-                  "dark:border-emerald-400/30 dark:bg-emerald-500/20",
-                )}
-              >
-                <FileText className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
-              </div>
-              <div>
-                <h3 className="text-sm sm:text-base font-medium text-gray-700 dark:text-white">
-                  Recent Client Invoices
-                </h3>
-                <p className="text-xs text-gray-600 dark:text-gray-300">
-                  Last 10 invoices for client users
-                </p>
-              </div>
-            </div>
+            <SectionCardHeader
+              title="Recent Client Invoices"
+              description="Last 10 invoices for client users"
+              icon={FileText}
+              tone="emerald"
+              className="mb-4"
+            />
             {dataLoading ? (
               <ul className="space-y-3 py-4">
                 {[1, 2, 3, 4, 5].map((i) => (
@@ -299,37 +350,93 @@ export default function AdminClientPortalContent({
               </p>
             ) : (
               <ul className={CARD_LIST_DIVIDE_CLASS}>
-                {(stats?.recentInvoices ?? []).map((i) => (
-                  <li key={i.id} className={CARD_LIST_ROW_CLASS}>
-                    <div className="min-w-0">
-                      <CopyableText
-                        value={i.invoiceNumber}
-                        className="max-w-full"
-                      >
-                        <Link
-                          href={`/admin/invoices/${i.id}`}
-                          prefetch
-                          className="font-normal text-xs text-sky-600 dark:text-sky-400 hover:text-sky-500 dark:hover:text-sky-300 truncate block"
+                {(stats?.recentInvoices ?? []).map((i) => {
+                  const productLabel = i.productPreview?.trim() || null;
+                  return (
+                    <li key={i.id} className={CARD_LIST_ROW_CLASS}>
+                      <div className="min-w-0 flex-1 flex flex-col gap-1.5 overflow-visible">
+                        <CopyableText
+                          value={i.invoiceNumber}
+                          className="max-w-full"
                         >
-                          {i.invoiceNumber}
-                        </Link>
-                      </CopyableText>
-                      <span className={CARD_LIST_META_CLASS}>
-                        {i.clientName} ·{" "}
-                        <ClientCompactDateTime
-                          date={i.createdAt}
-                          semantic="created"
-                        />
-                      </span>
-                    </div>
-                    <div className="flex items-center gap-2 flex-shrink-0">
-                      <InvoiceStatusBadge status={i.status} />
-                      <span className="text-xs font-normal text-gray-700 dark:text-white">
-                        ${i.total.toLocaleString()}
-                      </span>
-                    </div>
-                  </li>
-                ))}
+                          <Link
+                            href={`/admin/invoices/${i.id}`}
+                            prefetch
+                            className="font-normal text-xs text-sky-600 dark:text-sky-400 hover:text-sky-500 dark:hover:text-sky-300 truncate block"
+                          >
+                            {i.invoiceNumber}
+                          </Link>
+                        </CopyableText>
+                        {(i.productId || productLabel || i.categoryName) && (
+                          <div className={CARD_LIST_META_ROW_CLASS}>
+                            {i.productId && productLabel ? (
+                              <span className="inline-flex items-center gap-1 min-w-0">
+                                <ProductThumb
+                                  name={productLabel}
+                                  imageUrl={i.productImageUrl}
+                                  size="sm"
+                                />
+                                <Link
+                                  href={`/admin/products/${i.productId}`}
+                                  className="text-xs font-normal text-sky-600 dark:text-sky-400 hover:text-sky-500 dark:hover:text-sky-300 truncate"
+                                >
+                                  {productLabel}
+                                </Link>
+                              </span>
+                            ) : productLabel ? (
+                              <span className="truncate">{productLabel}</span>
+                            ) : null}
+                            {i.categoryId && i.categoryName ? (
+                              <>
+                                <span aria-hidden>·</span>
+                                <Link
+                                  href={`/admin/categories/${i.categoryId}`}
+                                  className="inline-flex items-center gap-1 text-xs font-normal text-sky-600 dark:text-sky-400 hover:text-sky-500 dark:hover:text-sky-300 min-w-0"
+                                >
+                                  <Tag
+                                    className="h-3 w-3 shrink-0"
+                                    aria-hidden
+                                  />
+                                  <span className="truncate">
+                                    {i.categoryName}
+                                  </span>
+                                </Link>
+                              </>
+                            ) : null}
+                          </div>
+                        )}
+                        <div className={CARD_LIST_META_ROW_CLASS}>
+                          <span className="inline-flex items-center gap-1 min-w-0">
+                            <Calendar
+                              className="h-3 w-3 shrink-0 text-gray-500 dark:text-gray-400"
+                              aria-hidden
+                            />
+                            <ClientCompactDateTime
+                              date={i.createdAt}
+                              semantic="created"
+                            />
+                          </span>
+                          <span aria-hidden>·</span>
+                          <AvatarInlineLink
+                            label={i.clientName}
+                            seed={i.clientId}
+                            image={i.clientImage}
+                            href={`/admin/user-management/${i.clientId}`}
+                            size={20}
+                            linkClassName="text-xs"
+                            className="gap-1.5"
+                          />
+                        </div>
+                      </div>
+                      <div className="flex flex-col items-end gap-1 flex-shrink-0">
+                        <InvoiceStatusBadge status={i.status} />
+                        <span className="text-xs font-normal text-gray-700 dark:text-white">
+                          ${i.total.toLocaleString()}
+                        </span>
+                      </div>
+                    </li>
+                  );
+                })}
               </ul>
             )}
             <div className="mt-3">
@@ -353,27 +460,15 @@ export default function AdminClientPortalContent({
           </GlassCard>
         </div>
 
-        {/* Clients list — glassmorphic card */}
+        {/* Clients list */}
         <GlassCard padding="body" variant="violet">
-          <div className="flex items-center gap-2 mb-4">
-            <div
-              className={cn(
-                "p-2 rounded-xl border",
-                variantConfig.violet.iconBg,
-                "dark:border-violet-400/30 dark:bg-violet-500/20",
-              )}
-            >
-              <Users className="h-5 w-5 text-violet-600 dark:text-violet-400" />
-            </div>
-            <div>
-              <h3 className="text-sm sm:text-base font-medium text-gray-700 dark:text-white">
-                Clients
-              </h3>
-              <p className="text-xs text-gray-600 dark:text-gray-300">
-                Users with role &ldquo;client&rdquo; and their activity summary
-              </p>
-            </div>
-          </div>
+          <SectionCardHeader
+            title="Clients"
+            description='Users with role "client" and their activity summary'
+            icon={Users}
+            tone="violet"
+            className="mb-4"
+          />
           <AdminEmbedDataTable
             columns={clientColumns}
             data={stats?.clients ?? []}

@@ -91,6 +91,15 @@ function analyzeTrend(
   return { trend, percentageChange, periodDays: n };
 }
 
+/** REQ-0171 — category/supplier fields shared by forecast + anomaly rows */
+type ForecastCatalogMeta = {
+  categoryId?: string | null;
+  categoryName?: string | null;
+  supplierId?: string | null;
+  supplierName?: string | null;
+  supplierImage?: string | null;
+};
+
 /**
  * Detect anomalies in sales data
  */
@@ -99,6 +108,8 @@ function detectAnomalies(
   productName: string,
   sku: string,
   dailySales: { date: string; quantity: number }[],
+  imageUrl?: string | null,
+  catalog?: ForecastCatalogMeta,
 ): SalesAnomaly[] {
   const anomalies: SalesAnomaly[] = [];
 
@@ -130,6 +141,12 @@ function detectAnomalies(
         productId,
         productName,
         sku,
+        imageUrl: imageUrl ?? null,
+        categoryId: catalog?.categoryId ?? null,
+        categoryName: catalog?.categoryName ?? null,
+        supplierId: catalog?.supplierId ?? null,
+        supplierName: catalog?.supplierName ?? null,
+        supplierImage: catalog?.supplierImage ?? null,
         date: day.date,
         actualQuantity: day.quantity,
         expectedQuantity: Math.round(mean),
@@ -153,6 +170,8 @@ function generateProductForecast(
   currentStock: number,
   reservedStock: number,
   dailySales: { date: string; quantity: number }[],
+  imageUrl?: string | null,
+  catalog?: ForecastCatalogMeta,
 ): ProductDemandForecast {
   const availableStock = currentStock - reservedStock;
   const quantities = dailySales.map((d) => d.quantity);
@@ -218,6 +237,12 @@ function generateProductForecast(
     productId,
     productName,
     sku,
+    imageUrl: imageUrl ?? null,
+    categoryId: catalog?.categoryId ?? null,
+    categoryName: catalog?.categoryName ?? null,
+    supplierId: catalog?.supplierId ?? null,
+    supplierName: catalog?.supplierName ?? null,
+    supplierImage: catalog?.supplierImage ?? null,
     currentStock,
     availableStock,
     averageDailySales: Math.round(averageDailySales * 100) / 100,
@@ -235,7 +260,7 @@ function generateProductForecast(
 export async function generateForecastingSummary(
   userId: string,
 ): Promise<ForecastingSummary> {
-  // Get all products for user
+  // Get all products for user (REQ-0171 — categoryId/supplierId for denser cells)
   const products = await prisma.product.findMany({
     where: mergeProductListWhere({ userId }),
     select: {
@@ -244,8 +269,57 @@ export async function generateForecastingSummary(
       sku: true,
       quantity: true,
       reservedQuantity: true,
+      imageUrl: true,
+      categoryId: true,
+      supplierId: true,
     },
   });
+
+  const categoryIds = [
+    ...new Set(
+      products.map((p) => p.categoryId).filter((id): id is string => Boolean(id)),
+    ),
+  ];
+  const supplierIds = [
+    ...new Set(
+      products.map((p) => p.supplierId).filter((id): id is string => Boolean(id)),
+    ),
+  ];
+
+  const [categories, suppliers] = await Promise.all([
+    categoryIds.length > 0
+      ? prisma.category.findMany({
+          where: { id: { in: categoryIds } },
+          select: { id: true, name: true },
+        })
+      : Promise.resolve([] as { id: string; name: string }[]),
+    supplierIds.length > 0
+      ? prisma.supplier.findMany({
+          where: { id: { in: supplierIds } },
+          select: { id: true, name: true, userId: true },
+        })
+      : Promise.resolve(
+          [] as { id: string; name: string; userId: string | null }[],
+        ),
+  ]);
+
+  const categoryNameById = new Map(categories.map((c) => [c.id, c.name]));
+  const supplierById = new Map(suppliers.map((s) => [s.id, s]));
+  const supplierUserIds = [
+    ...new Set(
+      suppliers
+        .map((s) => s.userId)
+        .filter((id): id is string => Boolean(id)),
+    ),
+  ];
+  const supplierUsers =
+    supplierUserIds.length > 0
+      ? await prisma.user.findMany({
+          where: { id: { in: supplierUserIds } },
+          select: { id: true, image: true },
+        })
+      : [];
+  const userImageById = new Map(supplierUsers.map((u) => [u.id, u.image]));
 
   // Calculate date range for analysis
   const endDate = new Date();
@@ -313,7 +387,22 @@ export async function generateForecastingSummary(
       allocationReservedByProduct.get(product.id) ?? 0,
     );
 
-    // Generate forecast
+    const supplier = product.supplierId
+      ? supplierById.get(product.supplierId)
+      : undefined;
+    const catalog: ForecastCatalogMeta = {
+      categoryId: product.categoryId ?? null,
+      categoryName: product.categoryId
+        ? (categoryNameById.get(product.categoryId) ?? null)
+        : null,
+      supplierId: product.supplierId ?? null,
+      supplierName: supplier?.name ?? null,
+      supplierImage: supplier?.userId
+        ? (userImageById.get(supplier.userId) ?? null)
+        : null,
+    };
+
+    // Generate forecast (REQ-0170 imageUrl; REQ-0171 catalog meta)
     const forecast = generateProductForecast(
       product.id,
       product.name,
@@ -321,6 +410,8 @@ export async function generateForecastingSummary(
       Number(product.quantity),
       committed,
       dailySales,
+      product.imageUrl,
+      catalog,
     );
     forecasts.push(forecast);
 
@@ -330,6 +421,8 @@ export async function generateForecastingSummary(
       product.name,
       product.sku,
       dailySales,
+      product.imageUrl,
+      catalog,
     );
     anomalies.push(...productAnomalies);
   }

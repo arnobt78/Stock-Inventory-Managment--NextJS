@@ -429,3 +429,29 @@
 | ART-0169a | REQ-0169 | `PAGE_STATS_GRID_IN_SHELL_CLASS` on BI + My Activity | shell-layout-styles |
 | ART-0169b | REQ-0169 | Optional onEdit OrderActions + createOrderColumns | My Activity no noop |
 | TC-0077 | REQ-0169 | Gates lint/test/invalidate/build |
+| ART-0170a | REQ-0170 | Dashboard recent orders/tickets/reviews/imports enrich + UI | dashboard v5 |
+| ART-0170b | REQ-0170 | Supplier/Client portal recent thumbs + avatars | portal cache bumps |
+| ART-0170c | REQ-0170 | ForecastingSection StatisticsCard + ChartCard + ProductThumb | forecast v3 |
+| TC-0078 | REQ-0170 | Gates lint/test/invalidate/build |
+| ART-0171a | REQ-0171 | StatisticsCard compact prop; ForecastingSection KPIs | forecast-only min-h drop |
+| ART-0171b | REQ-0171 | Forecast DTO catalog enrich + demand-forecast batch | cache v4 |
+| ART-0171c | REQ-0171 | ForecastProductCell SKU/category/square supplier | CopyableText + SafeImage |
+| TC-0079 | REQ-0171 | Gates lint/test/invalidate/build |
+| ART-0172a | REQ-0172 | ForecastProductCell 2-line + AvatarInlineLink | products-table parity |
+| ART-0172b | REQ-0172 | `ui/table` overflow-x-auto (drop overflow-auto Y) | nested scrollbar fix |
+| TC-0080 | REQ-0172 | Gates lint/test/invalidate |
+| ART-0173a | REQ-0173 | DenseCatalogProductCell + Top Products UI | shared with forecast |
+| ART-0173b | REQ-0173 | DashboardTopProduct enrich + cache v6 | dashboard-data |
+| TC-0081 | REQ-0173 | Gates lint/test/invalidate/build |
+| ART-0174a | REQ-0174 | CARD_LIST_META_ROW + AvatarInlineLink clip fix | all 4 Recent cards |
+| ART-0174b | REQ-0174 | Recent Orders 3-line + Reviews category; SSR v7 | dashboard-data |
+| TC-0082 | REQ-0174 | Gates lint/test/invalidate/build |
+| ART-0175a | REQ-0175 | Admin portal CARD_LIST_META_ROW on avatar flex rows | Client + Supplier embeds |
+| TC-0083 | REQ-0175 | Gates lint/test/invalidate |
+| ART-0176a | REQ-0176 | Recent Orders/Reviews gap-1.5 + date-first buyer row | AdminAnalyticsContent |
+| TC-0084 | REQ-0176 | Gates lint/invalidate |
+| ART-0177a | REQ-0177 | SectionCardHeader + densify AdminSupplier/ClientPortal | portal content UIs |
+| ART-0177b | REQ-0177 | SSR product/category/committed + Redis v3/v4 guards | supplier/client-portal-data |
+| TC-0085 | REQ-0177 | Gates lint/test/invalidate/build |
+| ART-0178a | REQ-0178 | Supplier recent orders placedBy* + date·buyer UI | supplier-portal-data + AdminSupplierPortalContent |
+| TC-0086 | REQ-0178 | Gates lint/test/invalidate/build |

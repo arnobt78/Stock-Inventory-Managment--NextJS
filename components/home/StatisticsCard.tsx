@@ -73,6 +73,10 @@ interface StatisticsCardProps {
    * When true, badge values pulse; badge labels remain visible
    */
   badgeValuesLoading?: boolean;
+  /**
+   * REQ-0171 — drop min-h-[210px] + tighter icon (forecast KPIs only)
+   */
+  compact?: boolean;
 }
 
 /**
@@ -166,6 +170,7 @@ export function StatisticsCard({
   className,
   valueLoading = false,
   badgeValuesLoading = false,
+  compact = false,
 }: StatisticsCardProps) {
   const config = variantConfig[variant];
   const displayValue = valueLoading ? (
@@ -177,7 +182,9 @@ export function StatisticsCard({
   return (
     <article
       className={cn(
-        "group rounded-[28px] border min-h-[210px] h-full flex flex-col p-2 sm:p-4 backdrop-blur-md transition min-w-0 overflow-visible",
+        "group rounded-[28px] border h-full flex flex-col p-2 sm:p-4 backdrop-blur-md transition min-w-0 overflow-visible",
+        // REQ-0171 — compact omits tall min-height (forecast KPIs)
+        !compact && "min-h-[210px]",
         config.border,
         config.gradient,
         config.shadow,
@@ -191,8 +198,18 @@ export function StatisticsCard({
           <p className="text-xs uppercase tracking-[0.45em] text-gray-700 dark:text-white/80 min-w-0">
             {title}
           </p>
-          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-gray-300/30 bg-gray-100/50 shadow-inner shadow-primary/30 backdrop-blur dark:border-white/15 dark:bg-white/10">
-            <Icon className="h-5 w-5 text-gray-700 dark:text-white" />
+          <div
+            className={cn(
+              "flex shrink-0 items-center justify-center rounded-xl border border-gray-300/30 bg-gray-100/50 shadow-inner shadow-primary/30 backdrop-blur dark:border-white/15 dark:bg-white/10",
+              compact ? "h-8 w-8" : "h-10 w-10",
+            )}
+          >
+            <Icon
+              className={cn(
+                "text-gray-700 dark:text-white",
+                compact ? "h-4 w-4" : "h-5 w-5",
+              )}
+            />
           </div>
         </div>
         <p className={TYPO_STAT_VALUE}>{displayValue}</p>

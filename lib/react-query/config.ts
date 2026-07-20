@@ -197,8 +197,9 @@ export const queryKeys = {
   // Dashboard (admin overview) queries — key by userId so cache is per-user (avoids showing previous user's data when persisted)
   dashboard: {
     all: ["dashboard"] as const,
+    // v2 — REQ-0173 topProducts catalog meta (drop stale warm-prefetch snapshots)
     overview: (userId?: string) =>
-      [...queryKeys.dashboard.all, "overview", userId ?? ""] as const,
+      [...queryKeys.dashboard.all, "overview", "v2", userId ?? ""] as const,
   },
 
   // Admin sidebar counts (client orders, client invoices, support tickets, product reviews)

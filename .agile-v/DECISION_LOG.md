@@ -437,3 +437,22 @@ Format: `TIMESTAMP | AGENT | DECISION | RATIONALE | REQ-ID`
 2026-07-20T13:10:00Z | build-agent | REQ-0169 shell stats token + optional onEdit | PAGE_STATS_GRID_IN_SHELL_CLASS; hide Edit when no onEdit; My Activity embed | REQ-0169
 2026-07-20T13:12:00Z | red-team | REQ-0169 gates | lint ✓ test 630 ✓ invalidate 213 ✓ build ✓ | REQ-0169
 2026-07-20T13:15:00Z | release | Ship REQ-0168–0169 tip b3155a9; docs CLAUDE/walkthrough/agile-v; resume REQ-0136 | REQ-0168,REQ-0169
+2026-07-20T13:45:00Z | build-agent | REQ-0170 portal/dashboard denser cards + forecast shell | AvatarInlineLink/ProductThumb; cache v5/v2/v3; StatisticsCard+ChartCard ForecastingSection | REQ-0170
+2026-07-20T13:50:00Z | red-team | REQ-0170 gates | lint ✓ test 630 ✓ invalidate 213 ✓ build ✓ | REQ-0170
+2026-07-20T14:00:00Z | build-agent | REQ-0171 forecast compact KPIs + denser cells | StatisticsCard compact; square supplier SafeImage (not Avatar); forecast cache v4 | REQ-0171
+2026-07-20T14:05:00Z | red-team | REQ-0171 gates | lint ✓ test 630 ✓ invalidate 213 ✓ build ✓ | REQ-0171
+2026-07-20T14:35:00Z | build-agent | REQ-0172 forecast 2-line + AvatarInlineLink + table overflow-x | User override: circle ring like products table; Table overflow-auto caused nested Y scrollbar | REQ-0172
+2026-07-20T14:40:00Z | red-team | REQ-0172 gates | lint ✓ test 630 ✓ invalidate 213 ✓ | REQ-0172
+2026-07-20T14:45:00Z | build-agent | REQ-0173 Top Products dense cell + dashboard v6 | Extract DenseCatalogProductCell; enrich topProducts; font-medium headers | REQ-0173
+2026-07-20T14:50:00Z | red-team | REQ-0173 gates | lint ✓ test 630 ✓ invalidate 213 ✓ build ✓ | REQ-0173
+2026-07-20T14:55:00Z | build-agent | REQ-0173 gap — category/supplier missing on Top Products | Stale TanStack dashboard from warm prefetch; bump overview v2 + Redis shape guard; empty SKU hide; show top 10 | REQ-0173
+2026-07-20T15:05:00Z | build-agent | REQ-0174 recent cards clip + densify | CARD_LIST_META_ROW (no truncate); AvatarInlineLink ring/overflow; Orders 3-line; review category; dashboard v7 | REQ-0174
+2026-07-20T15:10:00Z | red-team | REQ-0174 gates | lint ✓ test 630 ✓ invalidate 213 ✓ build ✓ | REQ-0174
+2026-07-20T15:15:00Z | build-agent | REQ-0175 portal meta clip parity | Admin Client/Supplier portal avatar rows → CARD_LIST_META_ROW_CLASS | REQ-0175
+2026-07-20T15:20:00Z | red-team | REQ-0175 gates | lint ✓ test 630 ✓ invalidate 213 ✓ | REQ-0175
+2026-07-20T15:25:00Z | build-agent | REQ-0176 recent meta gap + date-first | gap-1.5; Calendar·date before buyer/reviewer avatar (ring-offset vs ProductThumb) | REQ-0176
+2026-07-20T15:30:00Z | red-team | REQ-0176 gates | lint ✓ invalidate 213 ✓ | REQ-0176
+2026-07-20T15:35:00Z | build-agent | REQ-0177 portal densify + typography | SectionCardHeader; SSR product meta; supplierPortal v3 + clientPortal v4 + shape guards | REQ-0177
+2026-07-20T15:40:00Z | red-team | REQ-0177 gates | lint ✓ test 630 ✓ invalidate 213 ✓ build ✓ | REQ-0177
+2026-07-20T15:45:00Z | build-agent | REQ-0178 supplier order buyer row | placedBy* SSR + AvatarInlineLink; supplierPortal Redis v4 | REQ-0178
+2026-07-20T15:50:00Z | red-team | REQ-0178 gates | lint ✓ test 630 ✓ invalidate 213 ✓ build ✓ | REQ-0178

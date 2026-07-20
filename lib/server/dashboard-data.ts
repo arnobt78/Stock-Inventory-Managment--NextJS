@@ -88,13 +88,52 @@ function getTwelveMonthsAgo(): Date {
 /** Prisma where clause for resources owned by this user (products, categories, etc.). */
 const userScope = (userId: string) => ({ userId });
 
+/** REQ-0173 — reject Redis rows missing topProducts catalog meta (pre-enrich shape). */
+function hasTopProductsCatalogMeta(stats: DashboardStats): boolean {
+  const rows = stats.orderAnalytics?.topProducts ?? [];
+  if (rows.length === 0) return true;
+  return rows.every(
+    (p) =>
+      "categoryId" in p &&
+      "supplierId" in p &&
+      "imageUrl" in p &&
+      "categoryName" in p &&
+      "supplierName" in p,
+  );
+}
+
+/** REQ-0174 — recent orders need supplierImage; reviews need categoryId. */
+function hasRecentCatalogMeta(stats: DashboardStats): boolean {
+  const orders = stats.recent?.orders ?? [];
+  if (
+    orders.length > 0 &&
+    !orders.every((o) => "supplierImage" in o && "supplierId" in o)
+  ) {
+    return false;
+  }
+  const reviews = stats.recent?.reviews ?? [];
+  if (
+    reviews.length > 0 &&
+    !reviews.every((r) => "categoryId" in r && "categoryName" in r)
+  ) {
+    return false;
+  }
+  return true;
+}
+
 export async function getDashboardForAdmin(
   userId: string,
 ): Promise<DashboardStats> {
   const cacheKey = cacheKeys.dashboard.overview(userId);
   const cacheReadStartedAt = Date.now();
   const cached = await getCache<DashboardStats>(cacheKey);
-  if (cached) return cached;
+  if (
+    cached &&
+    hasTopProductsCatalogMeta(cached) &&
+    hasRecentCatalogMeta(cached)
+  ) {
+    return cached;
+  }
 
   const demoUserId = await getDemoSupplierUserId();
   const whereSuppliers =
@@ -239,13 +278,14 @@ export async function getDashboardForAdmin(
         userId: true,
         clientId: true,
         ...orderStatusAtSelect,
-        // REQ-0168 — first-line catalog meta for Latest 5 cards
-        // Product has no Prisma category/supplier relations — resolve names after fetch
+        // REQ-0168/0170 — first-line catalog meta + product id/image for Latest 5
         items: {
           select: {
+            productId: true,
             productName: true,
             product: {
               select: {
+                imageUrl: true,
                 categoryId: true,
                 supplierId: true,
               },
@@ -258,7 +298,13 @@ export async function getDashboardForAdmin(
     }),
     prisma.supportTicket.findMany({
       where: { assignedToId: userId },
-      select: { id: true, subject: true, status: true, createdAt: true },
+      select: {
+        id: true,
+        subject: true,
+        status: true,
+        createdAt: true,
+        userId: true,
+      },
       orderBy: { createdAt: "desc" },
       take: 10,
     }),
@@ -266,10 +312,12 @@ export async function getDashboardForAdmin(
       where: reviewWhere,
       select: {
         id: true,
+        productId: true,
         productName: true,
         rating: true,
         status: true,
         createdAt: true,
+        userId: true,
       },
       orderBy: { createdAt: "desc" },
       take: 10,
@@ -278,6 +326,7 @@ export async function getDashboardForAdmin(
       where: whereUser,
       select: {
         id: true,
+        userId: true,
         importType: true,
         fileName: true,
         status: true,
@@ -497,7 +546,14 @@ export async function getDashboardForAdmin(
     };
   });
 
-  // REQ-0168 — buyer + first-line category/supplier for Latest 5
+  // REQ-0168/0170/0174 — buyers, catalog, supplier avatars, review category
+  type UserAvatarRow = PartyUserRow & { image?: string | null };
+  type SupplierRow = { id: string; name: string; userId: string | null };
+  type ReviewProductRow = {
+    id: string;
+    imageUrl: string | null;
+    categoryId: string | null;
+  };
   const recentBuyerIds = [
     ...new Set(
       recentOrders
@@ -507,7 +563,16 @@ export async function getDashboardForAdmin(
         .filter(Boolean),
     ),
   ];
-  const recentCategoryIds = [
+  const recentActivityUserIds = [
+    ...new Set(
+      [
+        ...recentTickets.map((t) => t.userId),
+        ...recentReviews.map((r) => r.userId),
+        ...recentImports.map((im) => im.userId),
+      ].filter(Boolean),
+    ),
+  ];
+  const recentOrderCategoryIds = [
     ...new Set(
       recentOrders
         .map((o) => o.items[0]?.product?.categoryId)
@@ -521,43 +586,87 @@ export async function getDashboardForAdmin(
         .filter((id): id is string => Boolean(id)),
     ),
   ];
-  const [recentBuyerRows, recentCategories, recentSuppliers] =
-    await Promise.all([
-      recentBuyerIds.length > 0
-        ? prisma.user.findMany({
-            where: { id: { in: recentBuyerIds } },
-            select: { id: true, name: true, email: true },
-          })
-        : Promise.resolve([] as PartyUserRow[]),
-      recentCategoryIds.length > 0
-        ? prisma.category.findMany({
-            where: { id: { in: recentCategoryIds } },
-            select: { id: true, name: true },
-          })
-        : Promise.resolve([] as { id: string; name: string }[]),
-      recentSupplierIds.length > 0
-        ? prisma.supplier.findMany({
-            where: { id: { in: recentSupplierIds } },
-            select: { id: true, name: true },
-          })
-        : Promise.resolve([] as { id: string; name: string }[]),
-    ]);
-  const recentBuyerMap = new Map<string, PartyUserRow>(
-    recentBuyerRows.map((u) => [u.id, u]),
+  const recentReviewProductIds = [
+    ...new Set(
+      recentReviews
+        .map((r) => r.productId)
+        .filter((id): id is string => Boolean(id)),
+    ),
+  ];
+
+  const [recentSuppliers, recentReviewProducts] = await Promise.all([
+    recentSupplierIds.length > 0
+      ? prisma.supplier.findMany({
+          where: { id: { in: recentSupplierIds } },
+          select: { id: true, name: true, userId: true },
+        })
+      : Promise.resolve([] as SupplierRow[]),
+    recentReviewProductIds.length > 0
+      ? prisma.product.findMany({
+          where: { id: { in: recentReviewProductIds } },
+          select: { id: true, imageUrl: true, categoryId: true },
+        })
+      : Promise.resolve([] as ReviewProductRow[]),
+  ]);
+
+  const recentReviewCategoryIds = [
+    ...new Set(
+      recentReviewProducts
+        .map((p) => p.categoryId)
+        .filter((id): id is string => Boolean(id)),
+    ),
+  ];
+  const recentCategoryIds = [
+    ...new Set([...recentOrderCategoryIds, ...recentReviewCategoryIds]),
+  ];
+  const recentSupplierUserIds = [
+    ...new Set(
+      recentSuppliers
+        .map((s) => s.userId)
+        .filter((id): id is string => Boolean(id)),
+    ),
+  ];
+  const allRecentUserIds = [
+    ...new Set([
+      ...recentBuyerIds,
+      ...recentActivityUserIds,
+      ...recentSupplierUserIds,
+    ]),
+  ];
+
+  const [recentUserRows, recentCategories] = await Promise.all([
+    allRecentUserIds.length > 0
+      ? prisma.user.findMany({
+          where: { id: { in: allRecentUserIds } },
+          select: { id: true, name: true, email: true, image: true },
+        })
+      : Promise.resolve([] as UserAvatarRow[]),
+    recentCategoryIds.length > 0
+      ? prisma.category.findMany({
+          where: { id: { in: recentCategoryIds } },
+          select: { id: true, name: true },
+        })
+      : Promise.resolve([] as { id: string; name: string }[]),
+  ]);
+
+  const recentUserMap = new Map<string, UserAvatarRow>(
+    recentUserRows.map((u) => [u.id, u]),
   );
   const recentCategoryMap = new Map(
     recentCategories.map((c) => [c.id, c.name]),
   );
-  const recentSupplierMap = new Map(
-    recentSuppliers.map((s) => [s.id, s.name]),
+  const recentSupplierById = new Map(recentSuppliers.map((s) => [s.id, s]));
+  const recentReviewProductById = new Map(
+    recentReviewProducts.map((p) => [p.id, p]),
   );
 
   const recent: DashboardRecent = {
     orders: recentOrders.map((o): DashboardRecentOrder => {
       const buyer = resolveBuyerDisplayFromUsers(
         { userId: o.userId, clientId: o.clientId },
-        recentBuyerMap,
+        recentUserMap,
       );
+      const buyerRow = recentUserMap.get(buyer.userId);
       const firstItem = o.items[0];
       const extraItemCount = Math.max(0, o.items.length - 1);
       const productPreview = firstItem?.productName
@@ -565,8 +674,11 @@ export async function getDashboardForAdmin(
           ? `${firstItem.productName} +${extraItemCount}`
           : firstItem.productName
         : null;
-      const categoryId = firstItem?.product?.categoryId;
-      const supplierId = firstItem?.product?.supplierId;
+      const categoryId = firstItem?.product?.categoryId ?? null;
+      const supplierId = firstItem?.product?.supplierId ?? null;
+      const supplier = supplierId
+        ? recentSupplierById.get(supplierId)
+        : undefined;
       return withOrderStatusAt({
         id: o.id,
         orderNumber: o.orderNumber,
@@ -579,40 +691,73 @@ export async function getDashboardForAdmin(
         shippedAt: o.shippedAt,
         updatedAt: o.updatedAt,
         invoice: o.invoice,
+        placedById: buyer.userId,
         placedByName: buyer.name,
         placedByEmail: buyer.email,
+        placedByImage: buyerRow?.image ?? null,
+        productId: firstItem?.productId ?? null,
         productPreview,
+        productImageUrl: firstItem?.product?.imageUrl ?? null,
         extraItemCount,
+        categoryId,
         categoryName: categoryId
           ? (recentCategoryMap.get(categoryId) ?? null)
           : null,
-        supplierName: supplierId
-          ? (recentSupplierMap.get(supplierId) ?? null)
+        supplierId,
+        supplierName: supplier?.name ?? null,
+        supplierImage: supplier?.userId
+          ? (recentUserMap.get(supplier.userId)?.image ?? null)
           : null,
       });
     }),
-    tickets: recentTickets.map((t): DashboardRecentTicket => ({
-      id: t.id,
-      subject: t.subject,
-      status: t.status,
-      createdAt: t.createdAt.toISOString(),
-    })),
-    reviews: recentReviews.map((r): DashboardRecentReview => ({
-      id: r.id,
-      productName: r.productName,
-      rating: r.rating,
-      status: r.status,
-      createdAt: r.createdAt.toISOString(),
-    })),
-    imports: recentImports.map((im): DashboardRecentImport => ({
-      id: im.id,
-      importType: im.importType,
-      fileName: im.fileName,
-      status: im.status,
-      successRows: im.successRows,
-      failedRows: im.failedRows,
-      createdAt: im.createdAt.toISOString(),
-    })),
+    tickets: recentTickets.map((t): DashboardRecentTicket => {
+      const u = recentUserMap.get(t.userId);
+      return {
+        id: t.id,
+        subject: t.subject,
+        status: t.status,
+        createdAt: t.createdAt.toISOString(),
+        userId: t.userId,
+        userName: u?.name ?? u?.email ?? null,
+        userImage: u?.image ?? null,
+      };
+    }),
+    reviews: recentReviews.map((r): DashboardRecentReview => {
+      const u = recentUserMap.get(r.userId);
+      const product = recentReviewProductById.get(r.productId);
+      const categoryId = product?.categoryId ?? null;
+      return {
+        id: r.id,
+        productName: r.productName,
+        rating: r.rating,
+        status: r.status,
+        createdAt: r.createdAt.toISOString(),
+        userId: r.userId,
+        userName: u?.name ?? u?.email ?? null,
+        userImage: u?.image ?? null,
+        productId: r.productId,
+        productImageUrl: product?.imageUrl ?? null,
+        categoryId,
+        categoryName: categoryId
+          ? (recentCategoryMap.get(categoryId) ?? null)
+          : null,
+      };
+    }),
+    imports: recentImports.map((im): DashboardRecentImport => {
+      const u = recentUserMap.get(im.userId);
+      return {
+        id: im.id,
+        importType: im.importType,
+        fileName: im.fileName,
+        status: im.status,
+        successRows: im.successRows,
+        failedRows: im.failedRows,
+        createdAt: im.createdAt.toISOString(),
+        userId: im.userId,
+        userName: u?.name ?? u?.email ?? null,
+        userImage: u?.image ?? null,
+      };
+    }),
   };
 
   // Build order status distribution
@@ -631,15 +776,97 @@ export async function getDashboardForAdmin(
     }
   }
 
-  // Build top products
-  const topProducts: DashboardTopProduct[] = topProductsRaw.map((p) => ({
-    productId: p.productId,
-    productName: p.productName,
-    sku: p.sku,
-    orderCount: p._count.id,
-    totalQuantity: p._sum.quantity ?? 0,
-    totalRevenue: p._sum.subtotal ?? 0,
-  }));
+  // Build top products (REQ-0173 — catalog enrich for denser Product cell)
+  const topProductIds = [
+    ...new Set(topProductsRaw.map((p) => p.productId).filter(Boolean)),
+  ];
+  const topProductRows =
+    topProductIds.length > 0
+      ? await prisma.product.findMany({
+          where: { id: { in: topProductIds } },
+          select: {
+            id: true,
+            imageUrl: true,
+            categoryId: true,
+            supplierId: true,
+          },
+        })
+      : [];
+  const topProductById = new Map(topProductRows.map((p) => [p.id, p]));
+  const topCategoryIds = [
+    ...new Set(
+      topProductRows
+        .map((p) => p.categoryId)
+        .filter((id): id is string => Boolean(id)),
+    ),
+  ];
+  const topSupplierIds = [
+    ...new Set(
+      topProductRows
+        .map((p) => p.supplierId)
+        .filter((id): id is string => Boolean(id)),
+    ),
+  ];
+  const [topCategories, topSuppliers] = await Promise.all([
+    topCategoryIds.length > 0
+      ? prisma.category.findMany({
+          where: { id: { in: topCategoryIds } },
+          select: { id: true, name: true },
+        })
+      : Promise.resolve([] as { id: string; name: string }[]),
+    topSupplierIds.length > 0
+      ? prisma.supplier.findMany({
+          where: { id: { in: topSupplierIds } },
+          select: { id: true, name: true, userId: true },
+        })
+      : Promise.resolve(
+          [] as { id: string; name: string; userId: string | null }[],
+        ),
+  ]);
+  const topCategoryNameById = new Map(topCategories.map((c) => [c.id, c.name]));
+  const topSupplierById = new Map(topSuppliers.map((s) => [s.id, s]));
+  const topSupplierUserIds = [
+    ...new Set(
+      topSuppliers
+        .map((s) => s.userId)
+        .filter((id): id is string => Boolean(id)),
+    ),
+  ];
+  const topSupplierUsers =
+    topSupplierUserIds.length > 0
+      ? await prisma.user.findMany({
+          where: { id: { in: topSupplierUserIds } },
+          select: { id: true, image: true },
+        })
+      : [];
+  const topUserImageById = new Map(
+    topSupplierUsers.map((u) => [u.id, u.image]),
+  );
+
+  const topProducts: DashboardTopProduct[] = topProductsRaw.map((p) => {
+    const catalog = topProductById.get(p.productId);
+    const supplier = catalog?.supplierId
+      ? topSupplierById.get(catalog.supplierId)
+      : undefined;
+    return {
+      productId: p.productId,
+      productName: p.productName,
+      sku: p.sku,
+      orderCount: p._count.id,
+      totalQuantity: p._sum.quantity ?? 0,
+      totalRevenue: p._sum.subtotal ?? 0,
+      imageUrl: catalog?.imageUrl ?? null,
+      categoryId: catalog?.categoryId ?? null,
+      categoryName: catalog?.categoryId
+        ? (topCategoryNameById.get(catalog.categoryId) ?? null)
+        : null,
+      supplierId: catalog?.supplierId ?? null,
+      supplierName: supplier?.name ?? null,
+      supplierImage: supplier?.userId
+        ? (topUserImageById.get(supplier.userId) ?? null)
+        : null,
+    };
+  });
 
   // Calculate average order value (all orders for backward compatibility)
   const totalOrderRevenue = Number(orderSum._sum.total ?? 0);

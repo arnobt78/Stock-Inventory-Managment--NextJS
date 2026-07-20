@@ -41,6 +41,8 @@ import {
   Sparkles,
   Loader2,
   ArrowRight,
+  Tag,
+  Calendar,
 } from "lucide-react";
 import {
   Area,
@@ -55,10 +57,13 @@ import {
 import { ResponsiveChartContainer } from "@/components/ui/responsive-chart-container";
 import { DeferredChartSection } from "@/components/ui/deferred-chart-section";
 import {
+  AvatarInlineLink,
   ClientCompactDateTime,
   CopyableText,
+  DenseCatalogProductCell,
   RecentOrderStatusColumn,
 } from "@/components/shared";
+import { ProductThumb } from "@/components/products/ProductOptionRow";
 import { formatStableCurrency, formatClientCurrency } from "@/lib/format";
 import type { DashboardStats } from "@/types";
 import ForecastingSection from "@/components/admin/ForecastingSection";
@@ -71,6 +76,7 @@ import {
   CARD_LIST_DIVIDE_CLASS,
   CARD_LIST_ROW_CLASS,
   CARD_LIST_META_CLASS,
+  CARD_LIST_META_ROW_CLASS,
 } from "@/lib/ui/card-list-styles";
 import {
   CHART_LABEL_TOP_MARGIN,
@@ -864,7 +870,7 @@ export default function AdminAnalyticsContent({
               {/* Top Products by Orders — Orders = order lines; Revenue = sum of line subtotals (qty × price) */}
               <ChartCard
                 variant="teal"
-                title="Top Products by Orders"
+                title="Top 5 Products by Orders"
                 icon={Package}
                 description="Store-wide. Revenue = sum of order line subtotals."
               >
@@ -876,18 +882,20 @@ export default function AdminAnalyticsContent({
                   <div className="overflow-x-auto">
                     <table className="min-w-full text-sm">
                       <thead>
-                        <tr className="border-b text-left text-gray-700 dark:text-white">
-                          <th className="py-2 pr-4">Product</th>
+                        <tr className="border-b text-left">
+                          <th className="py-2 pr-4 text-gray-700 dark:text-white font-medium">
+                            Product
+                          </th>
                           <th
-                            className="py-2 pr-4 text-right text-gray-700 dark:text-white"
+                            className="py-2 pr-4 text-right text-gray-700 dark:text-white font-medium"
                             title="Number of order lines"
                           >
                             Lines
                           </th>
-                          <th className="py-2 pr-4 text-right text-gray-700 dark:text-white">
+                          <th className="py-2 pr-4 text-right text-gray-700 dark:text-white font-medium">
                             Qty
                           </th>
-                          <th className="py-2 text-right text-gray-700 dark:text-white">
+                          <th className="py-2 text-right text-gray-700 dark:text-white font-medium">
                             Revenue
                           </th>
                         </tr>
@@ -897,16 +905,18 @@ export default function AdminAnalyticsContent({
                           .slice(0, 5)
                           .map((p) => (
                             <tr key={p.productId}>
-                              <td
-                                className="py-2 pr-4 font-normal truncate max-w-[150px]"
-                                title={p.productName}
-                              >
-                                <Link
-                                  href={`/admin/products/${p.productId}`}
-                                  className="text-sky-600 dark:text-sky-400 hover:text-sky-500 dark:hover:text-sky-300"
-                                >
-                                  {p.productName}
-                                </Link>
+                              <td className="py-2 pr-4 font-normal min-w-0 max-w-[280px]">
+                                <DenseCatalogProductCell
+                                  productId={p.productId}
+                                  productName={p.productName}
+                                  sku={p.sku ?? ""}
+                                  imageUrl={p.imageUrl}
+                                  categoryId={p.categoryId}
+                                  categoryName={p.categoryName}
+                                  supplierId={p.supplierId}
+                                  supplierName={p.supplierName}
+                                  supplierImage={p.supplierImage}
+                                />
                               </td>
                               <td className="py-2 pr-4 text-right text-gray-700 dark:text-white">
                                 {p.orderCount}
@@ -1296,21 +1306,16 @@ export default function AdminAnalyticsContent({
                 ) : (
                   <ul className={CARD_LIST_DIVIDE_CLASS}>
                     {stats.recent.orders.slice(0, 5).map((o) => {
-                      // REQ-0168 — denser Latest 5: buyer + product · category · supplier
+                      // REQ-0174 — order # / product·category·supplier / buyer·date
                       const buyerLabel =
                         o.placedByName?.trim() ||
                         o.placedByEmail?.trim() ||
                         null;
-                      const catalogMeta = [
-                        o.productPreview,
-                        o.categoryName,
-                        o.supplierName,
-                      ]
-                        .filter((v): v is string => Boolean(v && v.trim()))
-                        .join(" · ");
+                      const productLabel = o.productPreview?.trim() || null;
                       return (
                         <li key={o.id} className={CARD_LIST_ROW_CLASS}>
-                          <div className="min-w-0 flex-1 flex flex-col gap-0.5">
+                          {/* REQ-0176 — gap-1.5 between meta lines; date-first buyer row (ring vs thumb align) */}
+                          <div className="min-w-0 flex-1 flex flex-col gap-1.5 overflow-visible">
                             <CopyableText
                               value={o.orderNumber}
                               className="max-w-full"
@@ -1322,22 +1327,86 @@ export default function AdminAnalyticsContent({
                                 {o.orderNumber}
                               </Link>
                             </CopyableText>
-                            {buyerLabel ? (
-                              <p className={CARD_LIST_META_CLASS}>
-                                {buyerLabel}
-                              </p>
-                            ) : null}
-                            {catalogMeta ? (
-                              <p className={cn(CARD_LIST_META_CLASS, "truncate")}>
-                                {catalogMeta}
-                              </p>
-                            ) : null}
-                            <p className={CARD_LIST_META_CLASS}>
-                              <ClientCompactDateTime
-                                date={o.createdAt}
-                                semantic="created"
-                              />
-                            </p>
+                            <div className={CARD_LIST_META_ROW_CLASS}>
+                              {o.productId && productLabel ? (
+                                <span className="inline-flex items-center gap-1 min-w-0">
+                                  <ProductThumb
+                                    name={productLabel}
+                                    imageUrl={o.productImageUrl}
+                                    size="sm"
+                                  />
+                                  <Link
+                                    href={`/admin/products/${o.productId}`}
+                                    className="text-xs font-normal text-sky-600 dark:text-sky-400 hover:text-sky-500 dark:hover:text-sky-300 truncate"
+                                  >
+                                    {productLabel}
+                                  </Link>
+                                </span>
+                              ) : productLabel ? (
+                                <span className="truncate">{productLabel}</span>
+                              ) : null}
+                              {o.categoryId && o.categoryName ? (
+                                <>
+                                  <span aria-hidden>·</span>
+                                  <Link
+                                    href={`/admin/categories/${o.categoryId}`}
+                                    className="inline-flex items-center gap-1 text-xs font-normal text-sky-600 dark:text-sky-400 hover:text-sky-500 dark:hover:text-sky-300 min-w-0"
+                                  >
+                                    <Tag
+                                      className="h-3 w-3 shrink-0"
+                                      aria-hidden
+                                    />
+                                    <span className="truncate">
+                                      {o.categoryName}
+                                    </span>
+                                  </Link>
+                                </>
+                              ) : null}
+                              {o.supplierId && o.supplierName ? (
+                                <>
+                                  <span aria-hidden>·</span>
+                                  <AvatarInlineLink
+                                    seed={o.supplierId}
+                                    image={o.supplierImage}
+                                    label={o.supplierName}
+                                    href={`/admin/suppliers/${o.supplierId}`}
+                                    size={20}
+                                    linkClassName="text-xs"
+                                    className="gap-1.5"
+                                  />
+                                </>
+                              ) : null}
+                            </div>
+                            <div className={CARD_LIST_META_ROW_CLASS}>
+                              <span className="inline-flex items-center gap-1 min-w-0">
+                                <Calendar
+                                  className="h-3 w-3 shrink-0 text-gray-500 dark:text-gray-400"
+                                  aria-hidden
+                                />
+                                <ClientCompactDateTime
+                                  date={o.createdAt}
+                                  semantic="created"
+                                />
+                              </span>
+                              {(buyerLabel || o.placedById) && (
+                                <span aria-hidden>·</span>
+                              )}
+                              {buyerLabel && o.placedById ? (
+                                <AvatarInlineLink
+                                  label={buyerLabel}
+                                  seed={o.placedById}
+                                  image={o.placedByImage}
+                                  href={`/admin/user-management/${o.placedById}`}
+                                  size={20}
+                                  linkClassName="text-xs"
+                                  className="gap-1.5"
+                                />
+                              ) : buyerLabel ? (
+                                <span className={CARD_LIST_META_CLASS}>
+                                  {buyerLabel}
+                                </span>
+                              ) : null}
+                            </div>
                           </div>
                           <RecentOrderStatusColumn
                             status={o.status}
@@ -1387,19 +1456,31 @@ export default function AdminAnalyticsContent({
                   <ul className={CARD_LIST_DIVIDE_CLASS}>
                     {stats.recent.tickets.slice(0, 5).map((t) => (
                       <li key={t.id} className={CARD_LIST_ROW_CLASS}>
-                        <div className="min-w-0 flex-1">
+                        <div className="min-w-0 flex-1 flex flex-col gap-0.5">
                           <Link
                             href={`/admin/support-tickets/${t.id}`}
                             className="text-xs font-normal text-sky-600 dark:text-sky-400 hover:text-sky-500 dark:hover:text-sky-300 truncate block"
                           >
                             {t.subject}
                           </Link>
-                          <p className={CARD_LIST_META_CLASS}>
+                          {/* REQ-0170/0174 — creator avatar + date (clip-safe row) */}
+                          <div className={CARD_LIST_META_ROW_CLASS}>
+                            {t.userId && t.userName ? (
+                              <AvatarInlineLink
+                                label={t.userName}
+                                seed={t.userId}
+                                image={t.userImage}
+                                href={`/admin/user-management/${t.userId}`}
+                                size={20}
+                                linkClassName="text-xs"
+                              />
+                            ) : null}
+                            <span aria-hidden>·</span>
                             <ClientCompactDateTime
                               date={t.createdAt}
                               semantic="created"
                             />
-                          </p>
+                          </div>
                         </div>
                         <TicketStatusBadge status={t.status} />
                       </li>
@@ -1439,19 +1520,70 @@ export default function AdminAnalyticsContent({
                   <ul className={CARD_LIST_DIVIDE_CLASS}>
                     {stats.recent.reviews.slice(0, 5).map((r) => (
                       <li key={r.id} className={CARD_LIST_ROW_CLASS}>
-                        <div className="min-w-0 flex-1">
-                          <Link
-                            href={`/admin/product-reviews/${r.id}`}
-                            className="text-xs font-normal text-sky-600 dark:text-sky-400 hover:text-sky-500 dark:hover:text-sky-300 truncate block"
-                          >
-                            {r.productName} · {r.rating}★
-                          </Link>
-                          <p className={CARD_LIST_META_CLASS}>
-                            <ClientCompactDateTime
-                              date={r.createdAt}
-                              semantic="created"
-                            />
-                          </p>
+                        {/* REQ-0176 — gap-1.5; date-first then reviewer avatar */}
+                        <div className="min-w-0 flex-1 flex flex-col gap-1.5 overflow-visible">
+                          {/* REQ-0174 — thumb · name · ★ · Tag category */}
+                          <div className={CARD_LIST_META_ROW_CLASS}>
+                            {r.productId ? (
+                              <ProductThumb
+                                name={r.productName}
+                                imageUrl={r.productImageUrl}
+                                size="sm"
+                              />
+                            ) : null}
+                            <Link
+                              href={`/admin/product-reviews/${r.id}`}
+                              className="text-xs font-normal text-sky-600 dark:text-sky-400 hover:text-sky-500 dark:hover:text-sky-300 truncate"
+                            >
+                              {r.productName}
+                            </Link>
+                            <span aria-hidden>·</span>
+                            <span className="shrink-0 text-xs text-amber-600 dark:text-amber-400">
+                              {r.rating}★
+                            </span>
+                            {r.categoryId && r.categoryName ? (
+                              <>
+                                <span aria-hidden>·</span>
+                                <Link
+                                  href={`/admin/categories/${r.categoryId}`}
+                                  className="inline-flex items-center gap-1 text-xs font-normal text-sky-600 dark:text-sky-400 hover:text-sky-500 dark:hover:text-sky-300 min-w-0"
+                                >
+                                  <Tag
+                                    className="h-3 w-3 shrink-0"
+                                    aria-hidden
+                                  />
+                                  <span className="truncate">
+                                    {r.categoryName}
+                                  </span>
+                                </Link>
+                              </>
+                            ) : null}
+                          </div>
+                          <div className={CARD_LIST_META_ROW_CLASS}>
+                            <span className="inline-flex items-center gap-1 min-w-0">
+                              <Calendar
+                                className="h-3 w-3 shrink-0 text-gray-500 dark:text-gray-400"
+                                aria-hidden
+                              />
+                              <ClientCompactDateTime
+                                date={r.createdAt}
+                                semantic="created"
+                              />
+                            </span>
+                            {r.userId && r.userName ? (
+                              <>
+                                <span aria-hidden>·</span>
+                                <AvatarInlineLink
+                                  label={r.userName}
+                                  seed={r.userId}
+                                  image={r.userImage}
+                                  href={`/admin/user-management/${r.userId}`}
+                                  size={20}
+                                  linkClassName="text-xs"
+                                />
+                              </>
+                            ) : null}
+                          </div>
                         </div>
                         <ReviewStatusBadge status={r.status} />
                       </li>
@@ -1491,20 +1623,34 @@ export default function AdminAnalyticsContent({
                   <ul className={CARD_LIST_DIVIDE_CLASS}>
                     {stats.recent.imports.slice(0, 5).map((im) => (
                       <li key={im.id} className={CARD_LIST_ROW_CLASS}>
-                        <div className="min-w-0 flex-1">
+                        <div className="min-w-0 flex-1 flex flex-col gap-0.5">
                           <Link
                             href={`/admin/activity-history/${im.id}`}
                             className="text-xs font-normal text-sky-600 dark:text-sky-400 hover:text-sky-500 dark:hover:text-sky-300 truncate block"
                           >
                             {im.importType} · {im.fileName}
                           </Link>
-                          <p className={CARD_LIST_META_CLASS}>
+                          <div className={CARD_LIST_META_ROW_CLASS}>
+                            {im.userId && im.userName ? (
+                              <AvatarInlineLink
+                                label={im.userName}
+                                seed={im.userId}
+                                image={im.userImage}
+                                href={`/admin/user-management/${im.userId}`}
+                                size={20}
+                                linkClassName="text-xs"
+                              />
+                            ) : null}
+                            <span aria-hidden>·</span>
                             <ClientCompactDateTime
                               date={im.createdAt}
                               semantic="created"
-                            />{" "}
-                            · {im.successRows} ok, {im.failedRows} failed
-                          </p>
+                            />
+                            <span aria-hidden>·</span>
+                            <span>
+                              {im.successRows} ok, {im.failedRows} failed
+                            </span>
+                          </div>
                         </div>
                         <ImportStatusBadge status={im.status} />
                       </li>

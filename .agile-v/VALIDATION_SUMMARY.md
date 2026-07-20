@@ -73,6 +73,167 @@ Commands: lint, test, invalidate, build
 
 ---
 
+## REQ-0178 Supplier portal recent orders buyer row evidence
+
+| Check | Result |
+|-------|--------|
+| DTO | placedById/Name/Image on SupplierPortalRecentOrder |
+| SSR | userId/clientId + resolveBuyerDisplayFromUsers |
+| UI | Calendar · date · AvatarInlineLink buyer |
+| Redis | supplierPortal:overview:v4 + placedById guard |
+| Invalidation | unchanged |
+| Gates | lint ✓ test **630** ✓ invalidate **213** ✓ build ✓ |
+
+```
+Scope: built/verified | Traceability: REQ-0178 | Findings: PASS
+Commands: lint, test, invalidate, build
+```
+
+---
+
+## REQ-0177 Admin portal recent densify + typography evidence
+
+| Check | Result |
+|-------|--------|
+| Headers | SectionCardHeader on 6 GlassCards (supplier + client) |
+| Supplier products | name text-sm · SKU copy; stock·reserved·cat·supplier; status/price stack |
+| Supplier orders | product·Tag·supplier + Calendar date |
+| Client orders/invoices | product meta + date-first client; invoice price under badge |
+| Redis | supplierPortal v3 + clientPortal v4 + shape guards |
+| Invalidation | unchanged |
+| Gates | lint ✓ test **630** ✓ invalidate **213** ✓ build ✓ |
+
+```
+Scope: built/verified | Traceability: REQ-0177 | Findings: PASS
+Commands: lint, test, invalidate, build
+```
+
+---
+
+## REQ-0176 Recent Orders/Reviews meta gap + date-first evidence
+
+| Check | Result |
+|-------|--------|
+| Vertical gap | Orders + Reviews `flex-col gap-1.5` |
+| Buyer/reviewer row | Calendar · date · AvatarInlineLink |
+| Root cause | Avatar ring-offset left of ProductThumb — avoided by date-first |
+| Invalidation/SSR | unchanged |
+| Gates | lint ✓ invalidate **213** ✓ |
+
+```
+Scope: built/verified | Traceability: REQ-0176 | Findings: PASS
+Commands: lint, invalidate
+```
+
+---
+
+## REQ-0175 Portal recent-card meta row clip parity evidence
+
+| Check | Result |
+|-------|--------|
+| Admin Client portal | orders + invoices → CARD_LIST_META_ROW |
+| Admin Supplier portal | products + orders → CARD_LIST_META_ROW |
+| Role portals | plain-text CARD_LIST_META unchanged |
+| Invalidation | unchanged |
+| Gates | lint ✓ test **630** ✓ invalidate **213** ✓ |
+
+```
+Scope: built/verified | Traceability: REQ-0175 | Findings: PASS
+Commands: lint, test, invalidate
+```
+
+---
+
+## REQ-0174 Recent cards clip fix + Orders/Reviews densify evidence
+
+| Check | Result |
+|-------|--------|
+| Clip-safe rows | CARD_LIST_META_ROW + AvatarInlineLink ring not clipped |
+| Orders layout | 3 lines: # / product·cat·supplier / buyer·date |
+| Reviews | Tag category beside ★ |
+| Cache | dashboard:overview:v7 + shape guard |
+| Invalidation | unchanged |
+| Gates | lint ✓ test **630** ✓ invalidate **213** ✓ build ✓ |
+
+```
+Scope: built/verified | Traceability: REQ-0174 | Findings: PASS
+Commands: lint, test, invalidate, build
+```
+
+---
+
+## REQ-0173 Top Products denser cells + header weight evidence
+
+| Check | Result |
+|-------|--------|
+| SSR enrich | topProducts image/category/supplier; cache v6 |
+| Shared cell | DenseCatalogProductCell (forecast + Top Products) |
+| Headers | font-medium text-gray-700 dark:text-white |
+| Invalidation | unchanged |
+| Gates | lint ✓ test **630** ✓ invalidate **213** ✓ build ✓ |
+
+```
+Scope: built/verified | Traceability: REQ-0173 | Findings: PASS
+Commands: lint, test, invalidate, build
+```
+
+---
+
+## REQ-0172 Forecast 2-line cell + table Y-scrollbar fix evidence
+
+| Check | Result |
+|-------|--------|
+| Product cell | Name · SKU / Category · AvatarInlineLink |
+| Supplier ring | Circle AVATAR_RING (products-table parity) |
+| Table scroll | `overflow-x-auto` only (no nested Y) |
+| Invalidation | unchanged |
+| Gates | lint ✓ test **630** ✓ invalidate **213** ✓ |
+
+```
+Scope: built/verified | Traceability: REQ-0172 | Findings: PASS
+Commands: lint, test, invalidate
+```
+
+---
+
+## REQ-0171 Forecast KPI compact + denser product cells evidence
+
+| Check | Result |
+|-------|--------|
+| Compact KPIs | StatisticsCard `compact` on ForecastingSection only |
+| SSR enrich | category/supplier/supplierImage on forecasts + anomalies |
+| Cache | `forecasting:summary:v4` (SSR + API) |
+| Product cell | CopyableText SKU · category; square supplier SafeImage + sky link |
+| Invalidation | unchanged |
+| Gates | lint ✓ test **630** ✓ invalidate **213** ✓ build ✓ |
+
+```
+Scope: built/verified | Traceability: REQ-0171 | Findings: PASS
+Commands: lint, test, invalidate, build
+```
+
+---
+
+## REQ-0170 Portal/dashboard recent density + forecast shell evidence
+
+| Check | Result |
+|-------|--------|
+| Dashboard Latest 5 | buyer/product/category/supplier clickable + avatars/thumbs |
+| Tickets/Reviews/Imports | user(+product) avatars/links |
+| Supplier portal | product thumbs + supplier avatars on recent cards |
+| Client portal | client avatars on orders/invoices |
+| Forecasting | StatisticsCard KPIs; ChartCard headers; ProductThumb links |
+| Cache | dashboard v5; supplierPortal v2; clientPortal v3; forecasting v3 |
+| Invalidation | unchanged |
+| Gates | lint ✓ test **630** ✓ invalidate **213** ✓ build ✓ |
+
+```
+Scope: built/verified | Traceability: REQ-0170 | Findings: PASS
+Commands: lint, test, invalidate, build
+```
+
+---
+
 ## REQ-0169 Stats-grid shell + My Activity Actions polish evidence
 
 | Check | Result |

@@ -278,7 +278,11 @@ flowchart LR
 | Order/Invoice header help (REQ-0161) | HelpTooltip on dense Order/Invoice column headers | UI-only |
 | Invoice detail (REQ-0162–0164) | Order-parity layout; items ORD chip + SSR reviews; compact reviews; party owner links; summary icon hues | UI + SSR review prefetch |
 | Detail review + audit (REQ-0165–0167) | Sky party/audit links; eligibility patch; compact rating\|edit-delete row; amber Write glass; dialogTextClass + Cancel ghost | UI + review mutation patch |
-| Admin spacing + recent density (REQ-0168–0169) | BI/My Activity gap-6 + shell stats token; healthy reorder copy; ActivityLog mb-4; My Activity Order columns; optional onEdit; dashboard Latest 5 enrich; `dashboard:overview:v4` | UI + SSR enrich; invalidation unchanged |
+| Admin spacing + recent density (REQ-0168–0169) | BI/My Activity gap-6 + shell stats token; healthy reorder copy; ActivityLog mb-4; My Activity Order columns; optional onEdit | UI; invalidation unchanged |
+| Portal/dashboard density (REQ-0170) | Clickable Latest-5 + portal recent (avatars/thumbs); Forecasting StatisticsCard+ChartCard | UI + SSR enrich; invalidation unchanged |
+| Forecast + Top Products (REQ-0171–0173) | Compact KPIs; `DenseCatalogProductCell`; forecast v4; dashboard overview v2/v7 | SSR enrich; invalidation unchanged |
+| Recent cards densify (REQ-0174–0176) | `CARD_LIST_META_ROW`; date-first buyer; gap-1.5; dashboard v7 | Clip fix + UI |
+| Admin portals densify (REQ-0177–0178) | SectionCardHeader; product/order/invoice meta; buyer `placedBy*`; Redis supplierPortal v4 / clientPortal v4 | SSR + UI; invalidation unchanged |
 | KPI badge helpers (REQ-0156–0157) | store order/invoice + portal order helpers; My Activity parity; tsc clean | UI/test-only |
 | Delivered + Due badges (REQ-0155) | `store-order-status-badges.ts`; Total Orders Delivered; Outstanding→Due | UI-only |
 | Partial pay KPIs (REQ-0154) | `payment-money-stats.ts` → dashboards Paid/Partial/Due/Pending; Partial badges; table Total `text-xs`; `dashboard:overview:v4` | Invalidation unchanged |
@@ -296,15 +300,15 @@ flowchart LR
 3. Sentry **stock-inventory** — 24h: compare cases 1–7 vs `docs/SENTRY_ERRORS.md`
 4. Log result in `.agile-v/REVALIDATION_LOG.md`; CAPA if regression
 
-## 8. Quality gates (audit 2026-07-19 REQ-0155)
+## 8. Quality gates (audit 2026-07-20 REQ-0178)
 
 | Check | Status |
 |-------|--------|
 | `npm run lint` | pass |
 | `npm run build` | pass |
-| `npm run test` | 602 passed |
+| `npm run test` | 630 passed |
 | `npm run test:invalidate` | 213 passed |
-| Local | REQ-0146–0149 order detail polish (prior 0144–0145) |
+| Local | REQ-0170–0178 forecast/portal/recent densify |
 | Radix table Select | `useDeferredRadixSelect` + `PaginationSelector` (11 tables) |
 | Pagination clamp + page-size reset | `useClampPaginationIndex` + `PaginationSelector` pageIndex 0 |
 | Sentry | tunnel + translate scrub + `syncSentryUserFromAuth` |

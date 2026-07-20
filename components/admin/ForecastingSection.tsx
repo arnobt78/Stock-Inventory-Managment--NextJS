@@ -3,17 +3,13 @@
 /**
  * Forecasting Section Component
  * Displays demand forecasting, stock predictions, and anomalies.
- * Uses mount guard so server and client render the same placeholder first (avoids hydration mismatch).
+ * REQ-0170 — StatisticsCard KPIs; ChartCard section headers; ProductThumb + sky links.
+ * REQ-0171 — compact KPIs; denser Product cell.
+ * REQ-0172 — 2-line Name·SKU / Category·supplier AvatarInlineLink; table overflow-x only.
+ * REQ-0173 — DenseCatalogProductCell shared with Top Products.
  */
 
 import React from "react";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import {
   Table,
@@ -25,8 +21,17 @@ import {
 } from "@/components/ui/table";
 import { TableBodyPulseRows } from "@/components/ui/table-data-skeleton";
 import { DataSlotPulse } from "@/components/shared/DataSlotPulse";
+import { DenseCatalogProductCell } from "@/components/shared/DenseCatalogProductCell";
+import { ChartCard } from "@/components/ui/chart-card";
+import { StatisticsCard } from "@/components/home/StatisticsCard";
 import { useForecastingSummary } from "@/hooks/queries";
-import { isDataSlotUnsettled, queryKeys, useSyncSsrQueryData } from "@/lib/react-query";
+import {
+  isDataSlotUnsettled,
+  queryKeys,
+  useSyncSsrQueryData,
+} from "@/lib/react-query";
+import { PAGE_STATS_GRID_IN_SHELL_CLASS } from "@/lib/ui/shell-layout-styles";
+import { cn } from "@/lib/utils";
 import {
   AlertTriangle,
   TrendingUp,
@@ -36,25 +41,11 @@ import {
   Sparkles,
   AlertCircle,
 } from "lucide-react";
-import type { ProductDemandForecast, SalesAnomaly } from "@/types";
-
-/**
- * Badge variant for reorder recommendation (Status column)
- */
-function getReorderBadgeVariant(
-  recommendation: ProductDemandForecast["reorderRecommendation"],
-): "destructive" | "secondary" | "default" | "outline" {
-  switch (recommendation) {
-    case "urgent":
-      return "destructive";
-    case "soon":
-      return "secondary";
-    case "overstocked":
-      return "outline";
-    default:
-      return "default";
-  }
-}
+import type {
+  ForecastingSummary,
+  ProductDemandForecast,
+  SalesAnomaly,
+} from "@/types";
 
 /**
  * Distinct colors for Status badges: normal=green, urgent=red, soon=amber, overstocked=slate
@@ -99,20 +90,6 @@ function getAnomalySeverityColor(severity: SalesAnomaly["severity"]): string {
   }
 }
 
-/** Inline metric value — pulse when loading (REQ-0021). */
-function MetricValue({
-  loading,
-  children,
-}: {
-  loading: boolean;
-  children: React.ReactNode;
-}) {
-  if (loading) return <DataSlotPulse variant="metric" />;
-  return <>{children}</>;
-}
-
-import type { ForecastingSummary } from "@/types";
-
 export type ForecastingSectionProps = {
   /** SSR-passed forecast summary (REQ-0025) */
   initialForecasting?: ForecastingSummary;
@@ -125,20 +102,20 @@ export default function ForecastingSection({
   const summary = forecastingQuery.data ?? initialForecasting;
   const dataLoading = isDataSlotUnsettled(forecastingQuery, initialForecasting);
 
-  useSyncSsrQueryData(
-    queryKeys.forecasting.summary(),
-    initialForecasting,
-  );
+  useSyncSsrQueryData(queryKeys.forecasting.summary(), initialForecasting);
 
   if (!dataLoading && (forecastingQuery.isError || !summary)) {
     return (
-      <Card>
-        <CardContent className="pt-6">
-          <p className="text-muted-foreground text-center text-gray-700 dark:text-white">
-            Failed to load forecasting data
-          </p>
-        </CardContent>
-      </Card>
+      <ChartCard
+        variant="rose"
+        title="Demand Forecasting"
+        icon={AlertTriangle}
+        description="Unable to load forecasting data"
+      >
+        <p className="text-muted-foreground text-center text-gray-700 dark:text-white py-4">
+          Failed to load forecasting data
+        </p>
+      </ChartCard>
     );
   }
 
@@ -149,387 +126,313 @@ export default function ForecastingSection({
     summary?.forecasts.filter((f) => f.reorderRecommendation === "soon") ?? [];
 
   return (
-    <div className="space-y-4">
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
-        <Card>
-          <CardHeader className="">
-            <CardTitle className="text-sm font-normal text-gray-700 dark:text-white">
-              Products Analyzed
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="flex items-center gap-2">
-              <Package className="h-5 w-5 text-blue-500" />
-              <span className="text-sm sm:text-lg font-medium">
-                <MetricValue loading={dataLoading}>
-                  {summary?.totalProducts ?? 0}
-                </MetricValue>
-              </span>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="">
-            <CardTitle className="text-sm font-normal text-gray-700 dark:text-white">
-              At Risk of Stockout
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="flex items-center gap-2">
-              <AlertTriangle className="h-5 w-5 text-red-500" />
-              <span className="text-sm sm:text-lg font-medium">
-                <MetricValue loading={dataLoading}>
-                  {summary?.productsAtRisk ?? 0}
-                </MetricValue>
-              </span>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="">
-            <CardTitle className="text-sm font-normal text-gray-700 dark:text-white">
-              Overstocked
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="flex items-center gap-2">
-              <TrendingDown className="h-5 w-5 text-orange-500" />
-              <span className="text-sm sm:text-lg font-medium">
-                <MetricValue loading={dataLoading}>
-                  {summary?.productsOverstocked ?? 0}
-                </MetricValue>
-              </span>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="">
-            <CardTitle className="text-sm font-normal text-gray-700 dark:text-white">
-              Anomalies Detected
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="flex items-center gap-2">
-              <AlertCircle className="h-5 w-5 text-purple-500" />
-              <span className="text-sm sm:text-lg font-medium">
-                <MetricValue loading={dataLoading}>
-                  {summary?.anomaliesDetected ?? 0}
-                </MetricValue>
-              </span>
-            </div>
-          </CardContent>
-        </Card>
+    <div className="flex flex-col gap-6">
+      {/* REQ-0170 — StatisticsCard KPIs (single card padding; no nested CardHeader p-4) */}
+      <div
+        className={cn(
+          PAGE_STATS_GRID_IN_SHELL_CLASS,
+          "grid-cols-2 md:grid-cols-4",
+        )}
+      >
+        <StatisticsCard
+          title="Products Analyzed"
+          value={summary?.totalProducts ?? 0}
+          icon={Package}
+          variant="blue"
+          valueLoading={dataLoading}
+          compact
+        />
+        <StatisticsCard
+          title="At Risk of Stockout"
+          value={summary?.productsAtRisk ?? 0}
+          icon={AlertTriangle}
+          variant="rose"
+          valueLoading={dataLoading}
+          compact
+        />
+        <StatisticsCard
+          title="Overstocked"
+          value={summary?.productsOverstocked ?? 0}
+          icon={TrendingDown}
+          variant="orange"
+          valueLoading={dataLoading}
+          compact
+        />
+        <StatisticsCard
+          title="Anomalies Detected"
+          value={summary?.anomaliesDetected ?? 0}
+          icon={AlertCircle}
+          variant="violet"
+          valueLoading={dataLoading}
+          compact
+        />
       </div>
 
       {dataLoading ? (
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Sparkles className="h-5 w-5 text-purple-500" />
-              AI Insights
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <DataSlotPulse variant="text-sm" className="w-full min-h-[4rem]" />
-          </CardContent>
-        </Card>
+        <ChartCard
+          variant="violet"
+          title="AI Insights"
+          icon={Sparkles}
+          description="Natural-language summary of demand and stock risk"
+        >
+          <DataSlotPulse variant="text-sm" className="w-full min-h-[4rem]" />
+        </ChartCard>
       ) : summary?.aiInsights ? (
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Sparkles className="h-5 w-5 text-purple-500" />
-              AI Insights
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-sm text-muted-foreground whitespace-pre-line">
-              {summary!.aiInsights}
-            </p>
-          </CardContent>
-        </Card>
+        <ChartCard
+          variant="violet"
+          title="AI Insights"
+          icon={Sparkles}
+          description="Natural-language summary of demand and stock risk"
+        >
+          <p className="text-sm text-gray-600 dark:text-white/80 whitespace-pre-line">
+            {summary.aiInsights}
+          </p>
+        </ChartCard>
       ) : null}
 
       {dataLoading ? (
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Clock className="h-5 w-5 text-red-500" />
-              Reorder Recommendations
-            </CardTitle>
-            <CardDescription>
-              Products that need attention based on predicted stockout dates
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="overflow-x-auto">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Product</TableHead>
-                    <TableHead className="text-right">Available</TableHead>
-                    <TableHead className="text-right">Daily Sales</TableHead>
-                    <TableHead className="text-right">Days Left</TableHead>
-                    <TableHead className="text-right">
-                      Suggested Order
-                    </TableHead>
-                    <TableHead>Status</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBodyPulseRows rows={5} columnCount={6} />
-              </Table>
-            </div>
-          </CardContent>
-        </Card>
+        <ChartCard
+          variant="rose"
+          title="Reorder Recommendations"
+          icon={Clock}
+          description="Products that need attention based on predicted stockout dates"
+        >
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Product</TableHead>
+                <TableHead className="text-right">Available</TableHead>
+                <TableHead className="text-right">Daily Sales</TableHead>
+                <TableHead className="text-right">Days Left</TableHead>
+                <TableHead className="text-right">Suggested Order</TableHead>
+                <TableHead>Status</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBodyPulseRows rows={5} columnCount={6} />
+          </Table>
+        </ChartCard>
       ) : urgentProducts.length > 0 || soonProducts.length > 0 ? (
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Clock className="h-5 w-5 text-red-500" />
-              Reorder Recommendations
-            </CardTitle>
-            <CardDescription>
-              Products that need attention based on predicted stockout dates
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="overflow-x-auto">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Product</TableHead>
-                    <TableHead className="text-right">Available</TableHead>
-                    <TableHead className="text-right">Daily Sales</TableHead>
-                    <TableHead className="text-right">Days Left</TableHead>
-                    <TableHead className="text-right">
-                      Suggested Order
-                    </TableHead>
-                    <TableHead>Status</TableHead>
+        <ChartCard
+          variant="rose"
+          title="Reorder Recommendations"
+          icon={Clock}
+          description="Products that need attention based on predicted stockout dates"
+        >
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Product</TableHead>
+                <TableHead className="text-right">Available</TableHead>
+                <TableHead className="text-right">Daily Sales</TableHead>
+                <TableHead className="text-right">Days Left</TableHead>
+                <TableHead className="text-right">Suggested Order</TableHead>
+                <TableHead>Status</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {[...urgentProducts, ...soonProducts]
+                .slice(0, 10)
+                .map((forecast) => (
+                  <TableRow key={forecast.productId}>
+                    <TableCell>
+                      <DenseCatalogProductCell
+                        productId={forecast.productId}
+                        productName={forecast.productName}
+                        sku={forecast.sku}
+                        imageUrl={forecast.imageUrl}
+                        categoryId={forecast.categoryId}
+                        categoryName={forecast.categoryName}
+                        supplierId={forecast.supplierId}
+                        supplierName={forecast.supplierName}
+                        supplierImage={forecast.supplierImage}
+                      />
+                    </TableCell>
+                    <TableCell className="text-right">
+                      {forecast.availableStock}
+                    </TableCell>
+                    <TableCell className="text-right">
+                      {forecast.predictedDailySales.toFixed(1)}
+                    </TableCell>
+                    <TableCell className="text-right">
+                      {forecast.daysUntilStockout ?? "∞"}
+                    </TableCell>
+                    <TableCell className="text-right">
+                      {forecast.suggestedReorderQuantity}
+                    </TableCell>
+                    <TableCell>
+                      <Badge
+                        variant="outline"
+                        className={getStatusBadgeClassName(
+                          forecast.reorderRecommendation,
+                        )}
+                      >
+                        {forecast.reorderRecommendation}
+                      </Badge>
+                    </TableCell>
                   </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {[...urgentProducts, ...soonProducts]
-                    .slice(0, 10)
-                    .map((forecast) => (
-                      <TableRow key={forecast.productId}>
-                        <TableCell>
-                          <div>
-                            <p className="font-medium">
-                              {forecast.productName}
-                            </p>
-                            <p className="text-xs text-muted-foreground">
-                              {forecast.sku}
-                            </p>
-                          </div>
-                        </TableCell>
-                        <TableCell className="text-right">
-                          {forecast.availableStock}
-                        </TableCell>
-                        <TableCell className="text-right">
-                          {forecast.predictedDailySales.toFixed(1)}
-                        </TableCell>
-                        <TableCell className="text-right">
-                          {forecast.daysUntilStockout ?? "∞"}
-                        </TableCell>
-                        <TableCell className="text-right">
-                          {forecast.suggestedReorderQuantity}
-                        </TableCell>
-                        <TableCell>
-                          <Badge
-                            variant="outline"
-                            className={getStatusBadgeClassName(
-                              forecast.reorderRecommendation,
-                            )}
-                          >
-                            {forecast.reorderRecommendation}
-                          </Badge>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                </TableBody>
-              </Table>
-            </div>
-          </CardContent>
-        </Card>
+                ))}
+            </TableBody>
+          </Table>
+        </ChartCard>
       ) : null}
 
       {dataLoading ? (
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <TrendingUp className="h-5 w-5 text-purple-500" />
-              Sales Anomalies
-            </CardTitle>
-            <CardDescription>
-              Unusual sales patterns detected in the last 30 days
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="overflow-x-auto">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Product</TableHead>
-                    <TableHead>Date</TableHead>
-                    <TableHead className="text-right">Expected</TableHead>
-                    <TableHead className="text-right">Actual</TableHead>
-                    <TableHead className="text-right">Deviation</TableHead>
-                    <TableHead>Type</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBodyPulseRows rows={5} columnCount={6} />
-              </Table>
-            </div>
-          </CardContent>
-        </Card>
+        <ChartCard
+          variant="violet"
+          title="Sales Anomalies"
+          icon={TrendingUp}
+          description="Unusual sales patterns detected in the last 30 days"
+        >
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Product</TableHead>
+                <TableHead>Date</TableHead>
+                <TableHead className="text-right">Expected</TableHead>
+                <TableHead className="text-right">Actual</TableHead>
+                <TableHead className="text-right">Deviation</TableHead>
+                <TableHead>Type</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBodyPulseRows rows={5} columnCount={6} />
+          </Table>
+        </ChartCard>
       ) : (summary?.anomalies.length ?? 0) > 0 ? (
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <TrendingUp className="h-5 w-5 text-purple-500" />
-              Sales Anomalies
-            </CardTitle>
-            <CardDescription>
-              Unusual sales patterns detected in the last 30 days
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="overflow-x-auto">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Product</TableHead>
-                    <TableHead>Date</TableHead>
-                    <TableHead className="text-right">Expected</TableHead>
-                    <TableHead className="text-right">Actual</TableHead>
-                    <TableHead className="text-right">Deviation</TableHead>
-                    <TableHead>Type</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {summary!.anomalies.slice(0, 10).map((anomaly, idx) => (
-                    <TableRow
-                      key={`${anomaly.productId}-${anomaly.date}-${idx}`}
+        <ChartCard
+          variant="violet"
+          title="Sales Anomalies"
+          icon={TrendingUp}
+          description="Unusual sales patterns detected in the last 30 days"
+        >
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Product</TableHead>
+                <TableHead>Date</TableHead>
+                <TableHead className="text-right">Expected</TableHead>
+                <TableHead className="text-right">Actual</TableHead>
+                <TableHead className="text-right">Deviation</TableHead>
+                <TableHead>Type</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {summary!.anomalies.slice(0, 10).map((anomaly, idx) => (
+                <TableRow key={`${anomaly.productId}-${anomaly.date}-${idx}`}>
+                  <TableCell>
+                      <DenseCatalogProductCell
+                        productId={anomaly.productId}
+                        productName={anomaly.productName}
+                        sku={anomaly.sku}
+                        imageUrl={anomaly.imageUrl}
+                        categoryId={anomaly.categoryId}
+                        categoryName={anomaly.categoryName}
+                        supplierId={anomaly.supplierId}
+                        supplierName={anomaly.supplierName}
+                        supplierImage={anomaly.supplierImage}
+                      />
+                  </TableCell>
+                  <TableCell>{anomaly.date}</TableCell>
+                  <TableCell className="text-right">
+                    {anomaly.expectedQuantity}
+                  </TableCell>
+                  <TableCell className="text-right">
+                    {anomaly.actualQuantity}
+                  </TableCell>
+                  <TableCell className="text-right">
+                    <span className={getAnomalySeverityColor(anomaly.severity)}>
+                      {anomaly.deviation > 0 ? "+" : ""}
+                      {anomaly.deviation}%
+                    </span>
+                  </TableCell>
+                  <TableCell>
+                    <Badge
+                      variant="outline"
+                      className={getAnomalyTypeBadgeClassName(
+                        anomaly.anomalyType,
+                      )}
                     >
-                      <TableCell>
-                        <div>
-                          <p className="font-medium">{anomaly.productName}</p>
-                          <p className="text-xs text-muted-foreground">
-                            {anomaly.sku}
-                          </p>
-                        </div>
-                      </TableCell>
-                      <TableCell>{anomaly.date}</TableCell>
-                      <TableCell className="text-right">
-                        {anomaly.expectedQuantity}
-                      </TableCell>
-                      <TableCell className="text-right">
-                        {anomaly.actualQuantity}
-                      </TableCell>
-                      <TableCell className="text-right">
-                        <span
-                          className={getAnomalySeverityColor(anomaly.severity)}
-                        >
-                          {anomaly.deviation > 0 ? "+" : ""}
-                          {anomaly.deviation}%
-                        </span>
-                      </TableCell>
-                      <TableCell>
-                        <Badge
-                          variant="outline"
-                          className={getAnomalyTypeBadgeClassName(
-                            anomaly.anomalyType,
-                          )}
-                        >
-                          {anomaly.anomalyType}
-                        </Badge>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </div>
-          </CardContent>
-        </Card>
+                      {anomaly.anomalyType}
+                    </Badge>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </ChartCard>
       ) : null}
 
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-gray-700 dark:text-white">
-            All Product Forecasts
-          </CardTitle>
-          <CardDescription className="text-gray-700 dark:text-white/80">
-            Demand predictions and stock levels for all products (sorted by
-            urgency)
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="overflow-x-auto">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Product</TableHead>
-                  <TableHead className="text-right">Current</TableHead>
-                  <TableHead className="text-right">Available</TableHead>
-                  <TableHead className="text-right">Avg Daily</TableHead>
-                  <TableHead className="text-right">Predicted</TableHead>
-                  <TableHead className="text-right">Days Left</TableHead>
-                  <TableHead className="text-right">Confidence</TableHead>
-                  <TableHead>Status</TableHead>
+      <ChartCard
+        variant="emerald"
+        title="All Product Forecasts"
+        icon={Package}
+        description="Demand predictions and stock levels for all products (sorted by urgency)"
+      >
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Product</TableHead>
+              <TableHead className="text-right">Current</TableHead>
+              <TableHead className="text-right">Available</TableHead>
+              <TableHead className="text-right">Avg Daily</TableHead>
+              <TableHead className="text-right">Predicted</TableHead>
+              <TableHead className="text-right">Days Left</TableHead>
+              <TableHead className="text-right">Confidence</TableHead>
+              <TableHead>Status</TableHead>
+            </TableRow>
+          </TableHeader>
+          {dataLoading ? (
+            <TableBodyPulseRows rows={10} columnCount={8} />
+          ) : (
+            <TableBody>
+              {(summary?.forecasts ?? []).slice(0, 20).map((forecast) => (
+                <TableRow key={forecast.productId}>
+                  <TableCell>
+                    <DenseCatalogProductCell
+                      productId={forecast.productId}
+                      productName={forecast.productName}
+                      sku={forecast.sku}
+                      imageUrl={forecast.imageUrl}
+                      categoryId={forecast.categoryId}
+                      categoryName={forecast.categoryName}
+                      supplierId={forecast.supplierId}
+                      supplierName={forecast.supplierName}
+                      supplierImage={forecast.supplierImage}
+                    />
+                  </TableCell>
+                  <TableCell className="text-right">
+                    {forecast.currentStock}
+                  </TableCell>
+                  <TableCell className="text-right">
+                    {forecast.availableStock}
+                  </TableCell>
+                  <TableCell className="text-right">
+                    {forecast.averageDailySales.toFixed(1)}
+                  </TableCell>
+                  <TableCell className="text-right">
+                    {forecast.predictedDailySales.toFixed(1)}
+                  </TableCell>
+                  <TableCell className="text-right">
+                    {forecast.daysUntilStockout ?? "∞"}
+                  </TableCell>
+                  <TableCell className="text-right">
+                    {forecast.confidenceScore}%
+                  </TableCell>
+                  <TableCell>
+                    <Badge
+                      variant="outline"
+                      className={getStatusBadgeClassName(
+                        forecast.reorderRecommendation,
+                      )}
+                    >
+                      {forecast.reorderRecommendation}
+                    </Badge>
+                  </TableCell>
                 </TableRow>
-              </TableHeader>
-              {dataLoading ? (
-                <TableBodyPulseRows rows={10} columnCount={8} />
-              ) : (
-                <TableBody>
-                  {(summary?.forecasts ?? []).slice(0, 20).map((forecast) => (
-                    <TableRow key={forecast.productId}>
-                      <TableCell>
-                        <div>
-                          <p className="font-medium">{forecast.productName}</p>
-                          <p className="text-xs text-muted-foreground">
-                            {forecast.sku}
-                          </p>
-                        </div>
-                      </TableCell>
-                      <TableCell className="text-right">
-                        {forecast.currentStock}
-                      </TableCell>
-                      <TableCell className="text-right">
-                        {forecast.availableStock}
-                      </TableCell>
-                      <TableCell className="text-right">
-                        {forecast.averageDailySales.toFixed(1)}
-                      </TableCell>
-                      <TableCell className="text-right">
-                        {forecast.predictedDailySales.toFixed(1)}
-                      </TableCell>
-                      <TableCell className="text-right">
-                        {forecast.daysUntilStockout ?? "∞"}
-                      </TableCell>
-                      <TableCell className="text-right">
-                        {forecast.confidenceScore}%
-                      </TableCell>
-                      <TableCell>
-                        <Badge
-                          variant="outline"
-                          className={getStatusBadgeClassName(
-                            forecast.reorderRecommendation,
-                          )}
-                        >
-                          {forecast.reorderRecommendation}
-                        </Badge>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              )}
-            </Table>
-          </div>
-        </CardContent>
-      </Card>
+              ))}
+            </TableBody>
+          )}
+        </Table>
+      </ChartCard>
     </div>
   );
 }

@@ -14,7 +14,8 @@ import { createChatCompletion, isLlmConfigured } from "@/lib/ai";
 import { LLM_INSIGHTS_MAX_TOKENS } from "@/lib/ai/constants";
 
 /** v2 — bust cache after max_tokens increase (REQ-0019). */
-const FORECASTING_CACHE_KEY_PREFIX = "forecasting:summary:v2";
+// REQ-0170 — keep in sync with lib/server/forecasting-data.ts
+const FORECASTING_CACHE_KEY_PREFIX = "forecasting:summary:v4";
 
 /**
  * Generate AI insights from forecasting data

@@ -24,6 +24,15 @@ export interface ProductDemandForecast {
   productId: string;
   productName: string;
   sku: string;
+  /** REQ-0170 — optional thumb for admin forecast tables */
+  imageUrl?: string | null;
+  /** REQ-0171 — denser Product column (admin forecast tables) */
+  categoryId?: string | null;
+  categoryName?: string | null;
+  supplierId?: string | null;
+  supplierName?: string | null;
+  /** Linked User.image via Supplier.userId (square thumb, not avatar) */
+  supplierImage?: string | null;
   currentStock: number;
   availableStock: number;
   averageDailySales: number;
@@ -41,6 +50,14 @@ export interface SalesAnomaly {
   productId: string;
   productName: string;
   sku: string;
+  /** REQ-0170 — optional thumb for admin forecast tables */
+  imageUrl?: string | null;
+  /** REQ-0171 — denser Product column (admin forecast tables) */
+  categoryId?: string | null;
+  categoryName?: string | null;
+  supplierId?: string | null;
+  supplierName?: string | null;
+  supplierImage?: string | null;
   date: string;
   actualQuantity: number;
   expectedQuantity: number;

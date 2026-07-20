@@ -4,6 +4,218 @@ Canonical REQ source. All artifacts link via `REQ-XXXX`. Status: `done` | `verif
 
 ---
 
+## REQ-0178 — Supplier portal recent orders buyer row
+
+| Field | Value |
+|-------|-------|
+| **Priority** | P2 |
+| **Risk** | R0 |
+| **Status** | done |
+| **Cycle** | C2 |
+| **Parent** | REQ-0177, REQ-0176 |
+
+**Intent:** Recent Supplier Orders date row shows Calendar · date · clickable buyer avatar+name (client-portal / analytics parity).
+
+**Acceptance criteria**
+
+- AC1: `SupplierPortalRecentOrder` has `placedById` / `placedByName` / `placedByImage`
+- AC2: SSR selects `userId`/`clientId`, batch users, `resolveBuyerDisplayFromUsers`
+- AC3: UI third meta row = Calendar · date · AvatarInlineLink → `/admin/user-management/{id}`
+- AC4: Redis `supplierPortal:overview:v4` + shape guard `placedById`; invalidation unchanged
+- AC5: Gates pass
+
+**Artifacts:** `types/supplier-portal`, `supplier-portal-data`, `AdminSupplierPortalContent`, `cache-utils`
+
+---
+
+## REQ-0177 — Admin portal recent-card densify + typography
+
+| Field | Value |
+|-------|-------|
+| **Priority** | P2 |
+| **Risk** | R1 |
+| **Status** | done |
+| **Cycle** | C2 |
+| **Parent** | REQ-0174, REQ-0176, REQ-0170 |
+
+**Intent:** Admin supplier/client portal GlassCard headers use `SectionCardHeader` (TYPO_CARD_TITLE / TYPO_SUBTITLE). Densify Recent Products/Orders/Invoices to match dashboard Recent cards; SSR enrich + Redis key bumps.
+
+**Acceptance criteria**
+
+- AC1: Supplier + Client portal section cards → `SectionCardHeader` (Products/Orders/Suppliers; Orders/Invoices/Clients)
+- AC2: Recent Supplier Products — name text-sm · SKU copy; stock·reserved·category·supplier; status above price
+- AC3: Recent Supplier Orders — product·Tag·supplier + Calendar date; Redis `supplierPortal:overview:v3`
+- AC4: Recent Client Orders/Invoices — product meta + date-first client; Redis `clientPortal:overview:v4`
+- AC5: Shape guards reject stale Redis; invalidation registry unchanged; gates pass
+
+**Artifacts:** `AdminSupplierPortalContent`, `AdminClientPortalContent`, `supplier-portal-data`, `client-portal-data`, `types/*-portal`, `cache-utils`
+
+---
+
+## REQ-0176 — Recent Orders/Reviews meta gap + date-first buyer
+
+| Field | Value |
+|-------|-------|
+| **Priority** | P2 |
+| **Risk** | R0 |
+| **Status** | done |
+| **Cycle** | C2 |
+| **Parent** | REQ-0174 |
+
+**Intent:** Add vertical gap between product and buyer meta lines; put Calendar+date before buyer/reviewer avatar so ring-offset avatars are not left-aligned under ProductThumb.
+
+**Acceptance criteria**
+
+- AC1: Recent Orders + Reviews card body `flex-col gap-1.5` (was `gap-0.5`)
+- AC2: Buyer/reviewer meta row order = Calendar · date · AvatarInlineLink name
+- AC3: CSS/UI only — no SSR/invalidation/cache changes; gates pass
+
+**Artifacts:** `AdminAnalyticsContent`
+
+---
+
+## REQ-0175 — Portal recent-card meta row clip parity
+
+| Field | Value |
+|-------|-------|
+| **Priority** | P2 |
+| **Risk** | R0 |
+| **Status** | done |
+| **Cycle** | C2 |
+| **Parent** | REQ-0174 |
+
+**Intent:** Admin Client/Supplier portal avatar meta rows use `CARD_LIST_META_ROW_CLASS` (no truncate clip).
+
+**Acceptance criteria**
+
+- AC1: AdminClientPortalContent orders + invoices meta → `CARD_LIST_META_ROW_CLASS`
+- AC2: AdminSupplierPortalContent products + orders meta → same
+- AC3: Role Client/Supplier portal plain-text meta spans unchanged
+- AC4: No invalidation/SSR/cache changes; gates pass
+
+**Artifacts:** `AdminClientPortalContent`, `AdminSupplierPortalContent`, `card-list-styles`
+
+---
+
+## REQ-0174 — Recent cards clip fix + Orders/Reviews densify
+
+| Field | Value |
+|-------|-------|
+| **Priority** | P2 |
+| **Risk** | R0 |
+| **Status** | done |
+| **Cycle** | C2 |
+| **Parent** | REQ-0170, REQ-0173 |
+
+**Intent:** Stop avatar ring clipping on Recent cards; denser Recent Orders (3 lines) and category beside review stars; SSR supplierImage + review category; dashboard cache v7.
+
+**Acceptance criteria**
+
+- AC1: `CARD_LIST_META_ROW_CLASS` + AvatarInlineLink overflow fix; all 4 Recent cards use clip-safe rows
+- AC2: Recent Orders — order # / product·Tag category·supplier avatar / buyer·Calendar date
+- AC3: Recent Reviews — product · ★ · Tag category; reviewer·date clip-safe
+- AC4: DTO enrich + Redis `dashboard:overview:v7` + shape guard; no invalidation registry changes
+- AC5: Gates pass
+
+**Artifacts:** `card-list-styles`, `AvatarInlineLink`, `dashboard-data`, `AdminAnalyticsContent`, `types/dashboard`, `cache-utils`
+
+---
+
+## REQ-0173 — Top Products denser cells + header weight
+
+| Field | Value |
+|-------|-------|
+| **Priority** | P2 |
+| **Risk** | R0 |
+| **Status** | done |
+| **Cycle** | C2 |
+| **Parent** | REQ-0172, REQ-0170 |
+
+**Intent:** Top Products by Orders matches forecast denser product cell; `font-medium` headers; shared `DenseCatalogProductCell`.
+
+**Acceptance criteria**
+
+- AC1: `DashboardTopProduct` + dashboard-data enrich image/category/supplier; cache `dashboard:overview:v6`
+- AC2: Extract `DenseCatalogProductCell`; ForecastingSection + Top Products use it
+- AC3: Top Products `<th>` `text-gray-700 dark:text-white font-medium`
+- AC4: No invalidation registry changes; gates pass
+
+**Artifacts:** `DenseCatalogProductCell`, `dashboard-data`, `AdminAnalyticsContent`, `ForecastingSection`, `cache-utils`
+
+---
+
+## REQ-0172 — Forecast product cell 2-line + table Y-scrollbar fix
+
+| Field | Value |
+|-------|-------|
+| **Priority** | P2 |
+| **Risk** | R0 |
+| **Status** | done |
+| **Cycle** | C2 |
+| **Parent** | REQ-0171, REQ-0077 |
+
+**Intent:** Tighten forecast Product column to 2 responsive lines; supplier AvatarInlineLink (products-table circle ring); stop nested Y scrollbars from Table `overflow-auto`.
+
+**Acceptance criteria**
+
+- AC1: Line 1 — product name · SKU CopyableText (flex-wrap)
+- AC2: Line 2 — category · AvatarInlineLink supplier (circle ring + optional User.image)
+- AC3: `ui/table` wrapper `overflow-x-auto` (not `overflow-auto`); remove redundant forecast `overflow-x-auto` wrappers
+- AC4: No invalidation changes; gates pass
+
+**Artifacts:** `ForecastingSection`, `components/ui/table.tsx`
+
+---
+
+## REQ-0171 — Forecast KPI compact + denser product cells
+
+| Field | Value |
+|-------|-------|
+| **Priority** | P2 |
+| **Risk** | R0 |
+| **Status** | done |
+| **Cycle** | C2 |
+| **Parent** | REQ-0170, REQ-0059, REQ-0058 |
+
+**Intent:** Compact Forecasting StatisticsCards (drop min-h); denser forecast Product column with CopyableText SKU, clickable category, square supplier image + sky name.
+
+**Acceptance criteria**
+
+- AC1: `StatisticsCard` optional `compact` — ForecastingSection KPIs only (no global min-h removal)
+- AC2: `ProductDemandForecast` / `SalesAnomaly` include category + supplier (+ supplierImage); demand-forecast batch enrich
+- AC3: Forecast cache `forecasting:summary:v4` (SSR + API in sync)
+- AC4: `ForecastProductCell` — CopyableText SKU · Tag+category link; square SafeImage supplier (`rounded-md`, not circle) + sky supplier link; all three tables
+- AC5: No invalidation registry changes; gates pass
+
+**Artifacts:** `StatisticsCard`, `ForecastingSection`, `types/forecasting`, `demand-forecast`, `forecasting-data`, `app/api/forecasting`
+
+---
+
+## REQ-0170 — Admin portal/dashboard recent-card density + forecast shell
+
+| Field | Value |
+|-------|-------|
+| **Priority** | P2 |
+| **Risk** | R1 |
+| **Status** | done |
+| **Cycle** | C2 |
+| **Parent** | REQ-0168, REQ-0077, REQ-0127 |
+
+**Intent:** Clickable denser Latest-5 / portal recent cards (avatars, thumbs, · separators); ForecastingSection StatisticsCard + ChartCard parity.
+
+**Acceptance criteria**
+
+- AC1: Dashboard Recent Orders — buyer/product/category/supplier sky + AvatarInlineLink/ProductThumb; cache v5
+- AC2: Tickets/Reviews/Imports — user(+product) avatars/links
+- AC3: Supplier portal recent products/orders thumbs + supplier avatars; cache v2
+- AC4: Client portal recent orders/invoices client avatars; cache v3
+- AC5: ForecastingSection KPIs → StatisticsCard; sections → ChartCard; product cells thumb+sky; forecast cache v3
+- AC6: No invalidation registry changes; gates pass
+
+**Artifacts:** dashboard-data, AdminAnalyticsContent, supplier/client portal SSR+UI, ForecastingSection, demand-forecast, cache-utils
+
+---
+
 ## REQ-0169 — Stats-grid shell spacing + My Activity Actions polish
 
 | Field | Value |

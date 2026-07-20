@@ -7,7 +7,8 @@ import { getCache, setCache } from "@/lib/cache";
 import { generateForecastingSummary } from "@/lib/forecasting";
 import type { ForecastingSummary } from "@/types";
 
-const FORECASTING_CACHE_KEY_PREFIX = "forecasting:summary:v2";
+// REQ-0171 — v4: category/supplier meta on forecasts + anomalies (was v3 imageUrl)
+const FORECASTING_CACHE_KEY_PREFIX = "forecasting:summary:v4";
 
 export function forecastingSummaryCacheKey(userId: string): string {
   return `${FORECASTING_CACHE_KEY_PREFIX}:${userId}`;
