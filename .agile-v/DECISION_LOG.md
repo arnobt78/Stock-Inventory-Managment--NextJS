@@ -421,3 +421,14 @@ Format: `TIMESTAMP | AGENT | DECISION | RATIONALE | REQ-ID`
 2026-07-19T17:00:00Z | build-agent | Invoice Detail Order Detail layout parity | Reuse DetailInfoRow/SectionCardHeader/Items+Parties cards; hide empty dates; no invalidation | REQ-0162
 2026-07-19T17:20:00Z | build-agent | Invoice items relatedOrder chip + SSR review context | Match OrderItemsCard; drop footer ghost Back; compact no Loader2 hydrate | REQ-0163
 2026-07-19T17:35:00Z | build-agent | Compact review rating + owner-products party hrefs | Self gray name; Invoice Summary icon hues; no invalidation | REQ-0164
+
+2026-07-20T11:17:00Z | orchestrator | Agile V session activate (core+pipeline) | No re-bootstrap — .agile-v intact (24 skills, runtime contracts); sync config.json resume_token + prod SHA; resume REQ-0136 Human UI explore → §10 A1/A2/B1 → Gate 2; tip 32711fa | REQ-0136,REQ-0008
+
+2026-07-20T11:50:00Z | build-agent | REQ-0165 detail review UX | Parties self sky; detail audit href all roles; compact reviews left+hues; WriteEdit dialog parity; delete AlertDialog; eligibility patch before invalidate | REQ-0165
+2026-07-20T11:52:00Z | red-team | REQ-0165 gates | lint ✓ test 630 ✓ invalidate 213 ✓ build ✓ | REQ-0165
+2026-07-20T11:58:00Z | build-agent | REQ-0166 catalog audit sky + drop PARTY_SELF | resolveDetailAuditUserHref on cat/sup/wh/product Updated; dead class removed | REQ-0166
+2026-07-20T11:59:00Z | red-team | REQ-0166 gates | lint ✓ test 629 ✓ invalidate 213 ✓ build ✓ | REQ-0166
+2026-07-20T12:18:00Z | build-agent | REQ-0167 compact review under price + dialog contrast | GLASS_COMPACT_AMBER; dialogTextClass; Cancel secondary+ghost | REQ-0167
+2026-07-20T12:19:00Z | red-team | REQ-0167 gates | lint ✓ test 630 ✓ invalidate 213 ✓ build ✓ | REQ-0167
+2026-07-20T12:28:00Z | build-agent | Compact review same-row justify-between | rating left · edit/delete right full-width under line item | REQ-0167
+2026-07-20T12:29:00Z | release | Pre-commit audit PASS — docs CLAUDE/walkthrough/agile-v; ship REQ-0165–0167 | REQ-0165,REQ-0166,REQ-0167

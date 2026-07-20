@@ -1,10 +1,19 @@
 "use client";
 
+/**
+ * REQ-0163/0164/0165/0167 — product reviews on detail + compact Order/Invoice line items.
+ * REQ-0167: compact under price (right); amber glass Write; edit/delete row under rating.
+ */
+
 import React, { useState } from "react";
 import { SafeAvatarImage } from "@/components/ui/safe-avatar-image";
 import { resolveAvatarSourcesFromSeed } from "@/lib/ui/user-avatar-sources";
 import { CARD_EMPTY_MESSAGE_CLASS } from "@/lib/ui/card-empty-styles";
 import { SectionTitleRow } from "@/lib/ui/section-title-row";
+import {
+  getRatingDisplay,
+  truncateReviewComment,
+} from "@/lib/ui/review-rating-display";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts";
 import {
@@ -12,7 +21,12 @@ import {
   useReviewEligibility,
   useDeleteProductReview,
 } from "@/hooks/queries";
-import { ClientCompactDateTime } from "@/components/shared";
+import {
+  ClientCompactDateTime,
+  GLASS_BUTTON_SHELL_RESET,
+  GLASS_COMPACT_AMBER_BUTTON,
+} from "@/components/shared";
+import { AlertDialogWrapper } from "@/components/dialogs";
 import { cn } from "@/lib/utils";
 import { queryKeys, useSyncSsrQueryDataMany } from "@/lib/react-query";
 import type { ProductReview, ReviewEligibilitySlot } from "@/types";
@@ -26,16 +40,17 @@ import {
 import { Loader2, MessageSquare, Pencil, Star, Trash2 } from "lucide-react";
 
 function StarRating({ value }: { value: number }) {
+  const { starClass } = getRatingDisplay(value);
   return (
-    <div className="flex ">
+    <div className="flex">
       {[1, 2, 3, 4, 5].map((v) => (
         <Star
           key={v}
           className={cn(
             "h-4 w-4",
             value >= v
-              ? "text-amber-500 fill-amber-500"
-              : "text-gray-300 dark:text-gray-300",
+              ? starClass
+              : "text-gray-300 dark:text-gray-500 fill-transparent",
           )}
         />
       ))}
@@ -46,6 +61,8 @@ function StarRating({ value }: { value: number }) {
 export type ProductReviewsSectionProps = {
   productId: string;
   productName: string;
+  /** Optional SKU for WriteEditReviewDialog header */
+  productSku?: string | null;
   /** When on order detail, pass orderId to only show eligibility for this order */
   orderId?: string;
   /** Optional: show compact (e.g. inside order item row) */
@@ -94,6 +111,7 @@ const variantConfig = {
 export default function ProductReviewsSection({
   productId,
   productName,
+  productSku,
   orderId,
   compact = false,
   variant = "amber",
@@ -105,6 +123,8 @@ export default function ProductReviewsSection({
   const [editingReview, setEditingReview] = useState<ProductReview | null>(
     null,
   );
+  /** REQ-0165 — pending delete target for AlertDialog */
+  const [deleteTarget, setDeleteTarget] = useState<ProductReview | null>(null);
 
   const { data: reviews = [], isLoading: reviewsLoading } = useReviewsByProduct(
     productId,
@@ -140,6 +160,11 @@ export default function ProductReviewsSection({
   const reviewsToShow = [...approvedReviews, ...myPendingReviews];
   const eligible = eligibility?.eligible ?? false;
   const firstSlot = eligibility?.slots?.[0];
+  // REQ-0165 — hide Write when this order already has my review (belt + eligibility patch)
+  const alreadyReviewedThisOrder = myReviews.some(
+    (r) => !orderId || r.orderId === orderId,
+  );
+  const showWrite = Boolean(user) && eligible && !alreadyReviewedThisOrder;
 
   const handleEdit = (review: ProductReview) => {
     setEditingReview(review);
@@ -154,84 +179,133 @@ export default function ProductReviewsSection({
     if (!open) setEditingReview(null);
   };
 
+  const handleConfirmDelete = () => {
+    if (!deleteTarget) return;
+    deleteReview.mutate(deleteTarget.id, {
+      onSuccess: () => {
+        setDeleteTarget(null);
+        setEditingReview(null);
+      },
+    });
+  };
+
+  const deleteDescription = deleteTarget
+    ? `Delete your review of "${productName}"${
+        deleteTarget.comment
+          ? `: "${truncateReviewComment(deleteTarget.comment)}"`
+          : ""
+      }? This cannot be undone.`
+    : "Are you sure you want to delete this review? This cannot be undone.";
+
   const config = variantConfig[variant];
+
+  const deleteDialog = (
+    <AlertDialogWrapper
+      open={!!deleteTarget}
+      onOpenChange={(open) => !open && setDeleteTarget(null)}
+      title="Delete review"
+      description={deleteDescription}
+      actionLabel="Delete"
+      actionLoadingLabel="Deleting..."
+      isLoading={deleteReview.isPending}
+      onAction={handleConfirmDelete}
+      onCancel={() => setDeleteTarget(null)}
+    />
+  );
+
+  const reviewDialog = (
+    <WriteEditReviewDialog
+      open={dialogOpen}
+      onOpenChange={handleDialogClose}
+      productId={productId}
+      productName={productName}
+      productSku={productSku}
+      orderId={editingReview ? undefined : firstSlot?.orderId}
+      orderItemId={editingReview ? undefined : firstSlot?.orderItemId}
+      existingReview={editingReview}
+      onSuccess={() => {}}
+    />
+  );
 
   if (compact) {
     // REQ-0163 — never show Loader2 in compact (SSR mismatch); wait for settled eligibility
-    // REQ-0164 — existing reviews: stars + rating text + icon-only edit/delete
+    // REQ-0167 — same row: stars/rating/comment left · edit+delete right (justify-between)
     return (
       <>
-        <div className="flex items-center gap-2 flex-wrap">
-          {eligibilityLoading && !initialEligibility ? null : eligible ? (
-            <Button
-              type="button"
-              variant="ghost"
-              size="sm"
-              onClick={handleWriteNew}
-              className={cn(
-                "rounded-lg h-8 text-amber-600 dark:text-amber-400",
-                "border border-amber-400/30 bg-amber-500/5 hover:bg-amber-500/10",
-              )}
-            >
-              <MessageSquare className="h-3.5 w-3.5 mr-1" />
-              Write review
-            </Button>
+        <div className="flex flex-col gap-1.5 w-full min-w-0">
+          {eligibilityLoading && !initialEligibility ? null : showWrite ? (
+            <div className="flex w-full justify-end">
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                onClick={handleWriteNew}
+                className={cn(
+                  "group",
+                  GLASS_BUTTON_SHELL_RESET,
+                  GLASS_COMPACT_AMBER_BUTTON,
+                )}
+              >
+                <MessageSquare className="h-3.5 w-3.5 shrink-0" />
+                Write review
+              </Button>
+            </div>
           ) : null}
-          {myReviews.map((r) => (
-            <span
-              key={r.id}
-              className="flex items-center gap-1.5 min-w-0 flex-wrap"
-            >
-              <StarRating value={r.rating} />
-              <span className="text-xs font-normal text-gray-700 dark:text-white tabular-nums shrink-0">
-                {r.rating}/5
-              </span>
-              {r.comment ? (
-                <span
-                  className="text-xs text-gray-600 dark:text-gray-300 truncate max-w-[10rem]"
-                  title={r.comment}
-                >
-                  {r.comment}
-                </span>
-              ) : null}
-              <Button
-                type="button"
-                variant="ghost"
-                size="icon"
-                onClick={() => handleEdit(r)}
-                aria-label="Edit review"
-                className="h-8 w-8 rounded-lg text-gray-600 dark:text-gray-300"
+          {myReviews.map((r) => {
+            const ratingUi = getRatingDisplay(r.rating);
+            return (
+              <div
+                key={r.id}
+                className="flex w-full min-w-0 items-center justify-between gap-2"
               >
-                <Pencil className="h-3.5 w-3.5" />
-              </Button>
-              <Button
-                type="button"
-                variant="ghost"
-                size="icon"
-                onClick={() =>
-                  deleteReview.mutate(r.id, {
-                    onSuccess: () => setEditingReview(null),
-                  })
-                }
-                disabled={deleteReview.isPending}
-                aria-label="Delete review"
-                className="h-8 w-8 rounded-lg text-rose-600 dark:text-rose-400"
-              >
-                <Trash2 className="h-3.5 w-3.5" />
-              </Button>
-            </span>
-          ))}
+                <div className="flex items-center gap-1.5 min-w-0 flex-1 overflow-hidden">
+                  <StarRating value={r.rating} />
+                  <span
+                    className={cn(
+                      "text-xs font-normal tabular-nums shrink-0",
+                      ratingUi.textClass,
+                    )}
+                  >
+                    {r.rating}/5
+                  </span>
+                  {r.comment ? (
+                    <span
+                      className="text-xs text-gray-600 dark:text-gray-300 truncate min-w-0"
+                      title={r.comment}
+                    >
+                      {r.comment}
+                    </span>
+                  ) : null}
+                </div>
+                <div className="flex shrink-0 items-center gap-0.5">
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => handleEdit(r)}
+                    aria-label="Edit review"
+                    className="h-8 w-8 rounded-lg text-gray-600 dark:text-gray-300"
+                  >
+                    <Pencil className="h-3.5 w-3.5" />
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => setDeleteTarget(r)}
+                    disabled={deleteReview.isPending}
+                    aria-label="Delete review"
+                    className="h-8 w-8 rounded-lg text-rose-600 dark:text-rose-400"
+                  >
+                    <Trash2 className="h-3.5 w-3.5" />
+                  </Button>
+                </div>
+              </div>
+            );
+          })}
         </div>
-        <WriteEditReviewDialog
-          open={dialogOpen}
-          onOpenChange={handleDialogClose}
-          productId={productId}
-          productName={productName}
-          orderId={firstSlot?.orderId}
-          orderItemId={firstSlot?.orderItemId}
-          existingReview={editingReview}
-          onSuccess={() => {}}
-        />
+        {reviewDialog}
+        {deleteDialog}
       </>
     );
   }
@@ -261,7 +335,7 @@ export default function ProductReviewsSection({
           <div className="flex items-center gap-2">
             {eligibilityLoading ? (
               <Loader2 className="h-4 w-4 animate-spin text-gray-400" />
-            ) : eligible ? (
+            ) : showWrite ? (
               <Button
                 type="button"
                 onClick={handleWriteNew}
@@ -291,7 +365,7 @@ export default function ProductReviewsSection({
       ) : reviewsToShow.length === 0 ? (
         <p className={CARD_EMPTY_MESSAGE_CLASS}>
           No reviews yet.
-          {user && eligible && " Click “Write a review” above."}
+          {user && showWrite && " Click “Write a review” above."}
         </p>
       ) : (
         <ul className="space-y-4">
@@ -316,6 +390,14 @@ export default function ProductReviewsSection({
                   <div className="min-w-0 flex-1">
                     <div className="flex items-center gap-2 flex-wrap">
                       <StarRating value={review.rating} />
+                      <span
+                        className={cn(
+                          "text-xs font-normal tabular-nums",
+                          getRatingDisplay(review.rating).textClass,
+                        )}
+                      >
+                        {review.rating}/5
+                      </span>
                       {review.status === "pending" && (
                         <span className="text-xs font-medium text-amber-600 dark:text-amber-400 bg-amber-100/80 dark:bg-amber-500/20 px-2 py-0.5 rounded-full">
                           Pending approval
@@ -366,11 +448,7 @@ export default function ProductReviewsSection({
                           Edit review
                         </DropdownMenuItem>
                         <DropdownMenuItem
-                          onClick={() =>
-                            deleteReview.mutate(review.id, {
-                              onSuccess: () => setEditingReview(null),
-                            })
-                          }
+                          onClick={() => setDeleteTarget(review)}
                           disabled={deleteReview.isPending}
                           className="cursor-pointer text-rose-600 dark:text-rose-400"
                         >
@@ -387,16 +465,8 @@ export default function ProductReviewsSection({
         </ul>
       )}
 
-      <WriteEditReviewDialog
-        open={dialogOpen}
-        onOpenChange={handleDialogClose}
-        productId={productId}
-        productName={productName}
-        orderId={editingReview ? undefined : firstSlot?.orderId}
-        orderItemId={editingReview ? undefined : firstSlot?.orderItemId}
-        existingReview={editingReview}
-        onSuccess={() => {}}
-      />
+      {reviewDialog}
+      {deleteDialog}
     </article>
   );
 }

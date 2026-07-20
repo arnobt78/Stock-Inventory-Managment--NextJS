@@ -15,7 +15,7 @@ export type PersonInlineRowProps = {
   email?: string | null;
   image?: string | null;
   href?: string;
-  /** REQ-0164 — passed to AvatarInlineLink (self gray vs sky) */
+  /** Optional name link class override; omit for default sky */
   linkClassName?: string;
   avatarSize?: number;
   className?: string;

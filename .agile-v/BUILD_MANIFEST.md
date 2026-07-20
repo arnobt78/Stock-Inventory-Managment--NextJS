@@ -414,3 +414,11 @@
 | ART-0162 | REQ-0162 | `InvoiceDetailPage.tsx`, `InvoiceItemsCard`, `InvoicePartiesCard` | Invoice detail Order Detail parity |
 | ART-0163 | REQ-0163 | `ProductLineItemsList` relatedOrder; invoice SSR review context; Back glass | Items parity + hydrate fix |
 | ART-0164 | REQ-0164 | compact reviews; `owner-products-href`; InvoiceSummary icon hues | Reviews/parties/summary UX |
+| ART-0165a | REQ-0165 | `enrich-party-person.ts`, `audit-user-href.ts` | Parties sky self; detail audit href |
+| ART-0165b | REQ-0165 | `review-rating-display.ts`, ProductLineItemsList, ProductReviewsSection | Compact left + hues + delete confirm |
+| ART-0165c | REQ-0165 | WriteEditReviewDialog, `use-product-reviews.ts` | Dialog parity + eligibility patch |
+| TC-0073 | REQ-0165 | Unit: audit/enrich/rating; gates lint/test/invalidate/build |
+| ART-0166 | REQ-0166 | Drop PARTY_SELF; catalog audit → resolveDetailAuditUserHref | cat/sup/wh/product Updated |
+| TC-0074 | REQ-0166 | Gates lint/test 629/invalidate 213/build |
+| ART-0167 | REQ-0167 | Compact under price; GLASS_COMPACT_AMBER; dialogTextClass; Cancel parity | ProductLineItemsList, ProductReviewsSection, WriteEditReviewDialog |
+| TC-0075 | REQ-0167 | Gates lint/test 630/invalidate 213/build |

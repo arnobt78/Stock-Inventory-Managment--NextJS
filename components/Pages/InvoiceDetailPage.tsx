@@ -31,7 +31,7 @@ import { InvoiceStatusBadge } from "@/lib/ui/semantic-badges";
 import { useQueryClient } from "@tanstack/react-query";
 import { useInvoice, useDeleteInvoice, useSendInvoice } from "@/hooks/queries";
 import { useBackWithRefresh } from "@/hooks/use-back-with-refresh";
-import { resolveAuditUserManagementHref } from "@/lib/navigation/audit-user-href";
+import { resolveDetailAuditUserHref } from "@/lib/navigation/audit-user-href";
 import {
   queryKeys,
   invalidateAfterOrderGraphChange,
@@ -664,7 +664,7 @@ export default function InvoiceDetailPage({
                     label="Created by:"
                     tone="violet"
                     user={invoice.creator}
-                    href={resolveAuditUserManagementHref(
+                    href={resolveDetailAuditUserHref(
                       invoice.creator.id,
                       isAdminRole,
                     )}
@@ -675,7 +675,7 @@ export default function InvoiceDetailPage({
                     label="Updated by:"
                     tone="blue"
                     user={invoice.updater}
-                    href={resolveAuditUserManagementHref(
+                    href={resolveDetailAuditUserHref(
                       invoice.updater.id,
                       isAdminRole,
                     )}

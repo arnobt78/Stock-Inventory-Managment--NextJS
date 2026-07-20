@@ -47,7 +47,7 @@ import {
   useForecastingSummary,
 } from "@/hooks/queries";
 import { useBackWithRefresh } from "@/hooks/use-back-with-refresh";
-import { resolveAuditUserManagementHref } from "@/lib/navigation/audit-user-href";
+import { resolveDetailAuditUserHref } from "@/lib/navigation/audit-user-href";
 import { useAuth } from "@/contexts";
 import { useProductStore } from "@/stores";
 import Navbar from "@/components/layouts/Navbar";
@@ -768,7 +768,7 @@ export default function ProductDetailPage({
                       label="Updated by:"
                       tone="blue"
                       user={product.updater}
-                      href={resolveAuditUserManagementHref(
+                      href={resolveDetailAuditUserHref(
                         product.updater.id,
                         isAdminRole,
                       )}

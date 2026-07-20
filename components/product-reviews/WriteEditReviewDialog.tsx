@@ -1,23 +1,29 @@
 "use client";
 
+/**
+ * REQ-0165 / REQ-0167 — Write/Edit review dialog.
+ * DialogHeaderBrand, FormLabels + icons, Cancel secondary+GLASS_GHOST (OrderDialog),
+ * dialogTextClass for readable rating on always-dark shell.
+ */
+
 import React, { useState, useEffect } from "react";
 import {
   Dialog,
   DialogContent,
-  DialogDescription,
   DialogFooter,
-  DialogHeader,
-  DialogTitle,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Star } from "lucide-react";
+import { Hash, MessageSquare, Package, Star, X } from "lucide-react";
 import { DIALOG_FORM_FIELD_AMBER } from "@/components/shared/dialog-form-field";
 import {
+  DialogFormLabel,
+  DialogHeaderBrand,
   DialogSubmitButton,
+  GLASS_BUTTON_SHELL_RESET,
   GLASS_GHOST_BUTTON,
 } from "@/components/shared";
+import { getRatingDisplay } from "@/lib/ui/review-rating-display";
 import { cn } from "@/lib/utils";
 import {
   useCreateProductReview,
@@ -30,6 +36,8 @@ export type WriteEditReviewDialogProps = {
   onOpenChange: (open: boolean) => void;
   productId: string;
   productName: string;
+  /** Optional SKU shown in header subtitle */
+  productSku?: string | null;
   /** For create: first eligible slot to use */
   orderId?: string;
   orderItemId?: string;
@@ -43,6 +51,7 @@ export default function WriteEditReviewDialog({
   onOpenChange,
   productId,
   productName,
+  productSku,
   orderId,
   orderItemId,
   existingReview,
@@ -64,6 +73,8 @@ export default function WriteEditReviewDialog({
   const createMutation = useCreateProductReview();
   const updateMutation = useUpdateProductReview();
   const isPending = createMutation.isPending || updateMutation.isPending;
+  const ratingDisplay = getRatingDisplay(rating);
+  const sku = productSku ?? existingReview?.productSku ?? null;
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -112,31 +123,56 @@ export default function WriteEditReviewDialog({
           if (first && first instanceof HTMLElement) first.focus();
         }}
       >
-        <DialogHeader>
-          <DialogTitle className="text-[22px] text-white flex items-center gap-2">
-            <div className="p-2 rounded-xl border border-amber-300/30 bg-amber-100/50 dark:border-amber-400/30 dark:bg-amber-500/20">
-              <Star className="h-5 w-5 text-amber-500" />
-            </div>
-            {isEdit ? "Edit review" : "Write a review"}
-          </DialogTitle>
-          <DialogDescription className="text-white/50">
-            Product: {productName}
-          </DialogDescription>
-        </DialogHeader>
+        <DialogHeaderBrand
+          icon={Star}
+          tone="amber"
+          title={isEdit ? "Edit review" : "Write a review"}
+          description={
+            isEdit
+              ? "Update your rating and comment"
+              : "Share your experience"
+          }
+        />
+        {/* REQ-0167 — product meta with icons (description is action-only) */}
+        <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-white/70">
+          <span className="inline-flex items-center gap-1.5 min-w-0">
+            <Package className="h-3.5 w-3.5 shrink-0 text-amber-400/80" />
+            <span className="truncate">{productName}</span>
+          </span>
+          {sku ? (
+            <span className="inline-flex items-center gap-1 text-white/50">
+              <Hash className="h-3 w-3 shrink-0" />
+              <span className="font-mono text-xs">{sku}</span>
+            </span>
+          ) : null}
+        </div>
         <form onSubmit={handleSubmit} className="space-y-4 mt-4">
-          <div>
-            <Label className="text-sm font-medium text-white/80">Rating</Label>
+          <div className="space-y-2">
+            <div className="flex flex-wrap items-center gap-2">
+              <DialogFormLabel icon={Star} required>
+                Rating
+              </DialogFormLabel>
+              <span
+                className={cn(
+                  "text-xs font-normal tabular-nums",
+                  ratingDisplay.dialogTextClass,
+                )}
+              >
+                {rating}/5 · {ratingDisplay.label}
+              </span>
+            </div>
             <div className="flex gap-1 mt-1">
               {[1, 2, 3, 4, 5].map((v) => (
                 <button
                   key={v}
                   type="button"
                   onClick={() => setRating(v)}
+                  aria-label={`${v} star${v === 1 ? "" : "s"}`}
                   className={cn(
                     "p-1 rounded-lg transition-colors",
                     rating >= v
-                      ? "text-amber-400 hover:text-amber-300"
-                      : "text-white/50 hover:text-amber-400",
+                      ? ratingDisplay.starClass
+                      : "text-white/40 hover:text-amber-400",
                   )}
                 >
                   <Star
@@ -148,13 +184,14 @@ export default function WriteEditReviewDialog({
               ))}
             </div>
           </div>
-          <div>
-            <Label
+          <div className="space-y-2">
+            <DialogFormLabel
               htmlFor="review-comment"
-              className="text-sm font-medium text-white/80"
+              icon={MessageSquare}
+              required
             >
-              Comment *
-            </Label>
+              Comment
+            </DialogFormLabel>
             <Textarea
               id="review-comment"
               value={comment}
@@ -168,13 +205,19 @@ export default function WriteEditReviewDialog({
             />
           </div>
           <DialogFooter className="mt-6 flex flex-col sm:flex-row items-center gap-2">
+            {/* REQ-0167 — same Cancel as OrderDialog (secondary + glass ghost) */}
             <Button
               type="button"
-              variant="ghost"
+              variant="secondary"
               onClick={() => onOpenChange(false)}
               disabled={isPending}
-              className={cn("h-11 rounded-xl", GLASS_GHOST_BUTTON)}
+              className={cn(
+                "h-11 rounded-xl gap-2",
+                GLASS_GHOST_BUTTON,
+                GLASS_BUTTON_SHELL_RESET,
+              )}
             >
+              <X className="h-4 w-4 shrink-0" aria-hidden />
               Cancel
             </Button>
             <DialogSubmitButton
@@ -182,6 +225,7 @@ export default function WriteEditReviewDialog({
               pendingLabel={isEdit ? "Saving review…" : "Submitting review…"}
               label={isEdit ? "Save" : "Submit review"}
               hue="amber"
+              icon={Star}
               disabled={!comment.trim()}
               className="h-11 rounded-xl"
             />

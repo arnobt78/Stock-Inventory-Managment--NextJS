@@ -1,9 +1,13 @@
 /**
  * Product Review query hooks
  * TanStack Query hooks for product review data fetching and mutations
+ *
+ * REQ-0165 — patch eligibility (order-scoped) before invalidate so Write review
+ * never flashes beside stars after create/delete.
  */
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import type { QueryClient } from "@tanstack/react-query";
 import { apiClient, getErrorMessage } from "@/lib/api";
 import {
   queryKeys,
@@ -20,6 +24,59 @@ import type {
   CreateProductReviewInput,
   UpdateProductReviewInput,
 } from "@/types";
+
+/** Find a review in detail or list caches (before remove). */
+function findCachedProductReview(
+  queryClient: QueryClient,
+  id: string,
+): ProductReview | undefined {
+  const detail = queryClient.getQueryData<ProductReview>(
+    queryKeys.productReviews.detail(id),
+  );
+  if (detail?.id === id) return detail;
+
+  const queries = queryClient.getQueriesData<unknown>({
+    queryKey: queryKeys.productReviews.all,
+  });
+  for (const [, data] of queries) {
+    if (Array.isArray(data)) {
+      const hit = (data as ProductReview[]).find((r) => r.id === id);
+      if (hit) return hit;
+    }
+  }
+  return undefined;
+}
+
+/** Instant eligibility patch for order-scoped Write button (then invalidate). */
+function patchReviewEligibilityAfterCreate(
+  queryClient: QueryClient,
+  data: ProductReview,
+): void {
+  const orderId = data.orderId ?? undefined;
+  queryClient.setQueryData(
+    queryKeys.productReviews.eligibility(data.productId, orderId),
+    { eligible: false, slots: [] },
+  );
+}
+
+function patchReviewEligibilityAfterDelete(
+  queryClient: QueryClient,
+  review: ProductReview,
+): void {
+  if (!review.productId || !review.orderId) return;
+  queryClient.setQueryData(
+    queryKeys.productReviews.eligibility(review.productId, review.orderId),
+    {
+      eligible: true,
+      slots: [
+        {
+          orderId: review.orderId,
+          orderItemId: review.orderItemId ?? undefined,
+        },
+      ],
+    },
+  );
+}
 
 export function useProductReviews(initialData?: ProductReview[]) {
   return useQuery({
@@ -109,6 +166,8 @@ export function useCreateProductReview() {
       patchListCaches(queryClient, queryKeys.productReviews.all, data, {
         prependIfMissing: true,
       });
+      // REQ-0165 — hide Write immediately (before eligibility refetch)
+      patchReviewEligibilityAfterCreate(queryClient, data);
       invalidateAllRelatedQueries(queryClient);
       toast({
         title: "Review created",
@@ -175,6 +234,9 @@ export function useDeleteProductReview() {
       return response.data;
     },
     onSuccess: (_data, id) => {
+      // REQ-0165 — restore eligibility before list remove so Write appears without lag flash
+      const cached = findCachedProductReview(queryClient, id);
+      if (cached) patchReviewEligibilityAfterDelete(queryClient, cached);
       removeFromListCaches(queryClient, queryKeys.productReviews.all, id);
       cancelOrRemoveDetailQuery(
         queryClient,

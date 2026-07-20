@@ -41,7 +41,7 @@ import {
 import InvoiceDialog from "@/components/invoices/InvoiceDialog";
 import { useOrder, useUpdateOrder, useDeleteOrder } from "@/hooks/queries";
 import { useBackWithRefresh } from "@/hooks/use-back-with-refresh";
-import { resolveAuditUserManagementHref } from "@/lib/navigation/audit-user-href";
+import { resolveDetailAuditUserHref } from "@/lib/navigation/audit-user-href";
 import {
   ClientDateTime,
   CopyableText,
@@ -486,10 +486,7 @@ export default function AdminOrderDetailContent({
                     label="Created by:"
                     tone="violet"
                     user={order.creator}
-                    href={resolveAuditUserManagementHref(
-                      order.creator.id,
-                      true,
-                    )}
+                    href={resolveDetailAuditUserHref(order.creator.id, true)}
                   />
                 )}
                 {!dataLoading && order?.updater && (
@@ -497,10 +494,7 @@ export default function AdminOrderDetailContent({
                     label="Updated by:"
                     tone="blue"
                     user={order.updater}
-                    href={resolveAuditUserManagementHref(
-                      order.updater.id,
-                      true,
-                    )}
+                    href={resolveDetailAuditUserHref(order.updater.id, true)}
                   />
                 )}
                 {!dataLoading && order?.notes && (

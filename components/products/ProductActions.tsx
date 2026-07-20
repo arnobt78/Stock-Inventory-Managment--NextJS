@@ -103,7 +103,6 @@ export default function ProductsDropDown({
         supplierId: row.original.supplierId,
         userId: row.original.userId,
       });
-
     } catch (error) {
       // Error toast is handled by the mutation hook
       logger.error("Error copying product:", error);
@@ -225,7 +224,7 @@ export default function ProductsDropDown({
             }
           >
             <Star className="h-4 w-4" />
-            Write review
+            Write Review
           </DropdownMenuItem>
           <DropdownMenuItem
             onClick={handleOpenEditReview}
@@ -233,7 +232,7 @@ export default function ProductsDropDown({
             className="flex items-center gap-2"
           >
             <Pencil className="h-4 w-4" />
-            Edit review
+            Edit Review
           </DropdownMenuItem>
           <DropdownMenuItem
             onClick={() => myReviews[0] && setDeleteReviewId(myReviews[0].id)}
@@ -241,7 +240,7 @@ export default function ProductsDropDown({
             className="flex items-center gap-2 text-red-600 dark:text-red-400"
           >
             <Trash2 className="h-4 w-4" />
-            Delete review
+            Delete Review
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
@@ -263,7 +262,7 @@ export default function ProductsDropDown({
       <AlertDialogWrapper
         open={!!deleteReviewId}
         onOpenChange={(open) => !open && setDeleteReviewId(null)}
-        title="Delete review"
+        title="Delete Review"
         description="Are you sure you want to delete this review? This cannot be undone."
         actionLabel="Delete"
         actionLoadingLabel="Deleting..."

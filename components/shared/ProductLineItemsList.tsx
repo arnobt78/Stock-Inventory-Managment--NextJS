@@ -360,28 +360,33 @@ export function ProductLineItemsList({
                     showAdjusted ? Number(item.proportionalAmount) : undefined
                   }
                 />
-                {showReviews &&
-                  order?.paymentStatus === "paid" &&
-                  item.productId &&
-                  order.id && (
-                    <ProductReviewsSection
-                      productId={item.productId}
-                      productName={item.productName ?? "Product"}
-                      orderId={order.id}
-                      compact
-                      variant="sky"
-                      initialReviews={
-                        initialReviewContext?.reviewsByProductId[item.productId]
-                      }
-                      initialEligibility={
-                        initialReviewContext?.eligibilityByProductId[
-                          item.productId
-                        ]
-                      }
-                    />
-                  )}
               </div>
             </div>
+
+            {/* REQ-0167 — full-width row: rating left · edit/delete right (justify-between) */}
+            {showReviews &&
+              order?.paymentStatus === "paid" &&
+              item.productId &&
+              order.id && (
+                <div className="mt-2 w-full min-w-0">
+                  <ProductReviewsSection
+                    productId={item.productId}
+                    productName={item.productName ?? "Product"}
+                    productSku={item.sku ?? undefined}
+                    orderId={order.id}
+                    compact
+                    variant="sky"
+                    initialReviews={
+                      initialReviewContext?.reviewsByProductId[item.productId]
+                    }
+                    initialEligibility={
+                      initialReviewContext?.eligibilityByProductId[
+                        item.productId
+                      ]
+                    }
+                  />
+                </div>
+              )}
 
             <MetaSegmentRow segments={metaSegments} />
           </div>

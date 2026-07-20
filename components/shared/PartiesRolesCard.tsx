@@ -3,7 +3,7 @@
 /**
  * REQ-0074 — shared Parties & roles card with avatar rings and per-party glow cards.
  * REQ-0127 — single inline row per party: icon label + PersonInlineRow (sky name · muted email).
- * REQ-0164 — optional linkClassName for self (gray) vs other (sky) party names.
+ * REQ-0165/0166 — optional linkClassName override; default sky for all party names.
  */
 
 import React from "react";
@@ -20,7 +20,7 @@ export type PartyPerson = {
   image?: string | null;
   /** Optional owner-products (or profile) link */
   href?: string;
-  /** REQ-0164 — override name link classes (self = gray/white) */
+  /** Optional name link class override; omit for default sky */
   linkClassName?: string;
 };
 

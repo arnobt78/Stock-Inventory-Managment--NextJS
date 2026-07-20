@@ -875,9 +875,19 @@ Hub: `lib/ui/typography-scale.ts`. Hubs import tokens; ~45 inline files use equi
 |-----|------|
 | 0162 | Layout: status\|billing · items\|summary · info\|parties; `InvoiceItemsCard`/`InvoicePartiesCard`; FactsGrid removed |
 | 0163 | Items: count·date; `relatedOrder` ORD chip; SSR review ctx; Back sky glass (no footer ghost) |
-| 0164 | Compact reviews: stars+n/5+icon edit/del; party → `owner-products-href` (self gray); summary icon hues |
+| 0164 | Compact reviews + party owner-products href; Invoice Summary icon hues |
 
 **UI + SSR review prefetch only** — no invalidation registry changes.
+
+## Detail review + audit links (REQ-0165–0167)
+
+| REQ | What |
+|-----|------|
+| 0165 | Parties self sky; `resolveDetailAuditUserHref`; compact reviews; WriteEdit dialog; delete AlertDialog; eligibility patch (no Write flash) |
+| 0166 | Drop `PARTY_SELF_LINK_CLASS`; catalog Created/Updated by → `resolveDetailAuditUserHref` |
+| 0167 | Compact row: rating left · edit/delete right (`justify-between`); `GLASS_COMPACT_AMBER_BUTTON`; `dialogTextClass`; Cancel = OrderDialog ghost |
+
+**Hubs:** `audit-user-href.ts`, `review-rating-display.ts`, `ProductReviewsSection`, `WriteEditReviewDialog`, `use-product-reviews.ts`. **Invalidation:** patch eligibility → `invalidateAllRelatedQueries` (registry unchanged).
 
 ## KPI badge helpers (REQ-0156–0157)
 

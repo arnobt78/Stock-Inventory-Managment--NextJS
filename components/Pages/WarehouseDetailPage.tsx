@@ -37,7 +37,7 @@ import {
   useDeleteStockAllocation,
 } from "@/hooks/queries";
 import { useBackWithRefresh } from "@/hooks/use-back-with-refresh";
-import { resolveAuditUserManagementHref } from "@/lib/navigation/audit-user-href";
+import { resolveDetailAuditUserHref } from "@/lib/navigation/audit-user-href";
 import { useAuth } from "@/contexts";
 import Navbar from "@/components/layouts/Navbar";
 import {
@@ -575,7 +575,7 @@ export default function WarehouseDetailPage({
                       label="Created by:"
                       tone="violet"
                       user={warehouse.creator}
-                      href={resolveAuditUserManagementHref(
+                      href={resolveDetailAuditUserHref(
                         warehouse.creator.id,
                         isAdminRole,
                       )}
@@ -586,7 +586,7 @@ export default function WarehouseDetailPage({
                       label="Updated by:"
                       tone="blue"
                       user={warehouse.updater}
-                      href={resolveAuditUserManagementHref(
+                      href={resolveDetailAuditUserHref(
                         warehouse.updater.id,
                         isAdminRole,
                       )}

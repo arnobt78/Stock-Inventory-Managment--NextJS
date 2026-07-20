@@ -31,7 +31,7 @@ import {
   useDeleteSupplier,
   useForecastingSummary,
 } from "@/hooks/queries";
-import { resolveAuditUserManagementHref } from "@/lib/navigation/audit-user-href";
+import { resolveDetailAuditUserHref } from "@/lib/navigation/audit-user-href";
 import { useBackWithRefresh } from "@/hooks/use-back-with-refresh";
 import { useAuth } from "@/contexts";
 import Navbar from "@/components/layouts/Navbar";
@@ -390,7 +390,7 @@ export default function SupplierDetailPage({
                       label="Created by:"
                       tone="violet"
                       user={supplier.creator}
-                      href={resolveAuditUserManagementHref(
+                      href={resolveDetailAuditUserHref(
                         supplier.creator.id,
                         isAdminRole,
                       )}
@@ -401,7 +401,7 @@ export default function SupplierDetailPage({
                       label="Updated by:"
                       tone="blue"
                       user={supplier.updater}
-                      href={resolveAuditUserManagementHref(
+                      href={resolveDetailAuditUserHref(
                         supplier.updater.id,
                         isAdminRole,
                       )}

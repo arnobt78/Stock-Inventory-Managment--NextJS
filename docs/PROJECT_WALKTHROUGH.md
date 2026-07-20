@@ -1,6 +1,6 @@
 # PROJECT_WALKTHROUGH.md
 
-Agent-oriented map of **stock-inventory** (Stockly). Last updated: 2026-07-15.
+Agent-oriented map of **stock-inventory** (Stockly). Last updated: 2026-07-20.
 
 ## 1. What this app is
 
@@ -277,6 +277,7 @@ flowchart LR
 | User overview copy (REQ-0160) | role-aware Overview blurb; My Activity sky tip on own store-owner user detail | copy-only |
 | Order/Invoice header help (REQ-0161) | HelpTooltip on dense Order/Invoice column headers | UI-only |
 | Invoice detail (REQ-0162–0164) | Order-parity layout; items ORD chip + SSR reviews; compact reviews; party owner links; summary icon hues | UI + SSR review prefetch |
+| Detail review + audit (REQ-0165–0167) | Sky party/audit links; eligibility patch; compact rating\|edit-delete row; amber Write glass; dialogTextClass + Cancel ghost | UI + review mutation patch |
 | KPI badge helpers (REQ-0156–0157) | store order/invoice + portal order helpers; My Activity parity; tsc clean | UI/test-only |
 | Delivered + Due badges (REQ-0155) | `store-order-status-badges.ts`; Total Orders Delivered; Outstanding→Due | UI-only |
 | Partial pay KPIs (REQ-0154) | `payment-money-stats.ts` → dashboards Paid/Partial/Due/Pending; Partial badges; table Total `text-xs`; `dashboard:overview:v3` | Invalidation unchanged |

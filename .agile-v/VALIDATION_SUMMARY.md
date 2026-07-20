@@ -1,9 +1,75 @@
 # Validation Summary — Cycle C1
 
-**Generated:** 2026-07-19 REQ-0164
+**Generated:** 2026-07-20 session activate
 **eval_gate_status:** PENDING (Human Gate 2)
 **Prod target SHA:** `a32be36` (REQ-0162–0164)
-**Resume:** **REQ-0136** (see STATE.md)
+**Resume:** **REQ-0136** — UI explore → §10 A1/A2/B1 (see STATE.md)
+
+---
+
+## Session 2026-07-20 — Agile V activate
+
+```
+Scope: resume/activate | Traceability: REQ-0136, REQ-0008 | Findings: FLAG (human QA pending)
+Decision Points: no re-bootstrap; continue C2 from park; config.json sync
+Log: 2026-07-20 | orchestrator | session activate | Infinity Loop ready | REQ-0136
+```
+
+---
+
+## REQ-0165 Order/Invoice detail + review UX evidence
+
+| Check | Result |
+|-------|--------|
+| Parties self | sky (no PARTY_SELF gray) |
+| Created/Updated by | resolveDetailAuditUserHref — admin UM / else products?ownerId= |
+| Compact reviews | under product row, left; getRatingDisplay hues |
+| WriteEdit dialog | HeaderBrand, FormLabels, Cancel+X, Submit+Star |
+| Delete | AlertDialog + product/comment truncate |
+| Flash | eligibility patch + showWrite guard |
+| Invalidation registry | unchanged |
+| Gates | lint ✓ test **630** ✓ invalidate **213** ✓ build ✓ |
+
+```
+Scope: built/verified | Traceability: REQ-0165 | Findings: PASS
+Commands: lint, test, invalidate, build
+```
+
+---
+
+## REQ-0166 Dead party class + catalog audit sky evidence
+
+| Check | Result |
+|-------|--------|
+| PARTY_SELF_LINK_CLASS | removed (code + test) |
+| Catalog Created/Updated | Category/Supplier/Warehouse → resolveDetailAuditUserHref |
+| Product Updated by | resolveDetailAuditUserHref; Created keeps ownerProductsHref |
+| Invalidation | unchanged |
+| Gates | lint ✓ test **629** ✓ invalidate **213** ✓ build ✓ |
+
+```
+Scope: built/verified | Traceability: REQ-0166 | Findings: PASS
+Commands: lint, test, invalidate, build
+```
+
+---
+
+## REQ-0167 Compact review placement + dialog contrast evidence
+
+| Check | Result |
+|-------|--------|
+| Placement | reviews under price column (right) |
+| Write button | GLASS_COMPACT_AMBER_BUTTON hover glow |
+| Edit/delete | justify-between under rating |
+| Dialog rating | dialogTextClass (bright on dark shell) |
+| Cancel | secondary + GLASS_GHOST + shell reset |
+| Invalidation | unchanged |
+| Gates | lint ✓ test **630** ✓ invalidate **213** ✓ build ✓ |
+
+```
+Scope: built/verified | Traceability: REQ-0167 | Findings: PASS
+Commands: lint, test, invalidate, build
+```
 
 ---
 

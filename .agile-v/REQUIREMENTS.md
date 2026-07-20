@@ -4,6 +4,79 @@ Canonical REQ source. All artifacts link via `REQ-XXXX`. Status: `done` | `verif
 
 ---
 
+## REQ-0167 — Compact review placement + dialog contrast
+
+| Field | Value |
+|-------|-------|
+| **Priority** | P2 |
+| **Risk** | R0 |
+| **Status** | done |
+| **Cycle** | C2 |
+| **Parent** | REQ-0165 |
+
+**Intent:** Write review / edit-delete under line-item price (right); amber glass hover; dialog rating readable on always-dark shell; Cancel matches OrderDialog.
+
+**Acceptance criteria**
+
+- AC1: Compact reviews in price column under amount
+- AC2: `GLASS_COMPACT_AMBER_BUTTON` Write review (no gray ghost hover)
+- AC3: Existing review — stars/rating then edit+delete `justify-between` under price
+- AC4: `dialogTextClass` on rating label; Cancel `secondary` + `GLASS_GHOST` + shell reset
+- AC5: No invalidation changes; gates pass
+
+**Artifacts:** `ProductLineItemsList`, `ProductReviewsSection`, `WriteEditReviewDialog`, `review-rating-display.ts`, `glass-button-styles.ts`
+
+---
+
+## REQ-0166 — Dead party class + catalog audit sky links
+
+| Field | Value |
+|-------|-------|
+| **Priority** | P2 |
+| **Risk** | R0 |
+| **Status** | done |
+| **Cycle** | C2 |
+| **Parent** | REQ-0165, REQ-0089 |
+
+**Intent:** Remove unused `PARTY_SELF_LINK_CLASS`; unify catalog Created/Updated by with Order/Invoice via `resolveDetailAuditUserHref` (sky for all roles).
+
+**Acceptance criteria**
+
+- AC1: `PARTY_SELF_LINK_CLASS` removed from code + tests
+- AC2: Category/Supplier/Warehouse Created+Updated by use `resolveDetailAuditUserHref`
+- AC3: Product Updated by uses `resolveDetailAuditUserHref` (Created stays ownerProductsHref)
+- AC4: No invalidation/SSR changes; gates pass
+
+**Artifacts:** `owner-products-href.ts`, `audit-user-href.ts`, Category/Supplier/Warehouse/Product detail pages
+
+---
+
+## REQ-0165 — Order/Invoice detail + review UX gaps
+
+| Field | Value |
+|-------|-------|
+| **Priority** | P1 |
+| **Risk** | R1 |
+| **Status** | done |
+| **Cycle** | C2 |
+| **Parent** | REQ-0136, REQ-0164, REQ-0089, REQ-0122 |
+
+**Intent:** Close Order/Invoice detail screenshot gaps — sky party/audit links for all roles, left-aligned compact reviews with table rating hues, WriteEditReviewDialog parity, delete confirm, instant eligibility patch (no Write-review flash).
+
+**Acceptance criteria**
+
+- AC1: Parties self names use default sky link (no gray `PARTY_SELF_LINK_CLASS` override)
+- AC2: Created by / Updated by sky-clickable for admin + non-admin; admin → user-management; else → `/products?ownerId=`
+- AC3: Compact reviews left-aligned under product row; stars + `n/5` use shared `getRatingDisplay` hues
+- AC4: WriteEditReviewDialog — DialogHeaderBrand, FormLabels+icons, Cancel+X, Submit+Star
+- AC5: Delete review opens AlertDialog with product + truncated comment
+- AC6: Create/delete patch eligibility before invalidate; `showWrite` hides when myReviews cover order; no flash
+- AC7: Gates pass; no invalidation registry changes
+
+**Artifacts:** `enrich-party-person.ts`, `audit-user-href.ts`, `review-rating-display.ts`, `ProductLineItemsList`, `ProductReviewsSection`, `WriteEditReviewDialog`, `use-product-reviews.ts`
+
+---
+
 ## REQ-0164 — Compact reviews, party links, Invoice Summary icons
 
 | Field | Value |

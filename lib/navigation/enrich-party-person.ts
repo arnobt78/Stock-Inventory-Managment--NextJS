@@ -1,12 +1,10 @@
 /**
- * REQ-0164 — attach owner-products href + self name tone for Parties & Roles rows.
+ * REQ-0164 / REQ-0165 — attach owner-products href for Parties & Roles rows.
+ * REQ-0165 — self uses default sky link (no gray override); href unchanged.
  * Pure helper (no React); safe for client party cards.
  */
 
-import {
-  PARTY_SELF_LINK_CLASS,
-  resolveOwnerProductsHref,
-} from "@/lib/navigation/owner-products-href";
+import { resolveOwnerProductsHref } from "@/lib/navigation/owner-products-href";
 
 export type EnrichedPartyPerson = {
   userId?: string;
@@ -14,6 +12,7 @@ export type EnrichedPartyPerson = {
   email: string;
   image?: string | null;
   href?: string;
+  /** Optional name link class override; leave undefined for default sky. */
   linkClassName?: string;
 };
 
@@ -33,10 +32,6 @@ export function enrichPartyPerson(
   const href = person.userId
     ? resolveOwnerProductsHref(person.userId, options.isAdminRole)
     : undefined;
-  const isSelf =
-    Boolean(person.userId) &&
-    Boolean(options.viewerUserId) &&
-    person.userId === options.viewerUserId;
 
   return {
     userId: person.userId,
@@ -44,6 +39,7 @@ export function enrichPartyPerson(
     email: person.email,
     image: person.image,
     href,
-    linkClassName: isSelf ? PARTY_SELF_LINK_CLASS : undefined,
+    // REQ-0165 — self + non-self both use AvatarInlineLink default sky
+    linkClassName: undefined,
   };
 }

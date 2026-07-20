@@ -20,58 +20,8 @@ import { IoMdArrowDown, IoMdArrowUp } from "react-icons/io";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { ClientDateTime } from "@/components/shared";
+import { getRatingDisplay } from "@/lib/ui/review-rating-display";
 import type { ProductReview } from "@/types";
-
-/** Rating label and star color (softer, friendly look) */
-function getRatingDisplay(rating: number): {
-  label: string;
-  starClass: string;
-  textClass: string;
-} {
-  switch (rating) {
-    case 5:
-      return {
-        label: "best",
-        starClass:
-          "fill-amber-400 text-amber-400 dark:fill-amber-400 dark:text-amber-400",
-        textClass: "text-amber-700 dark:text-amber-300",
-      };
-    case 4:
-      return {
-        label: "very good",
-        starClass:
-          "fill-emerald-400 text-emerald-400 dark:fill-emerald-400 dark:text-emerald-400",
-        textClass: "text-emerald-700 dark:text-emerald-300",
-      };
-    case 3:
-      return {
-        label: "good",
-        starClass:
-          "fill-sky-400 text-sky-400 dark:fill-sky-400 dark:text-sky-400",
-        textClass: "text-sky-700 dark:text-sky-300",
-      };
-    case 2:
-      return {
-        label: "not good",
-        starClass:
-          "fill-orange-400 text-orange-400 dark:fill-orange-400 dark:text-orange-400",
-        textClass: "text-orange-700 dark:text-orange-300",
-      };
-    case 1:
-      return {
-        label: "bad",
-        starClass:
-          "fill-rose-400 text-rose-400 dark:fill-rose-400 dark:text-rose-400",
-        textClass: "text-rose-700 dark:text-rose-300",
-      };
-    default:
-      return {
-        label: "—",
-        starClass: "fill-muted-foreground/50 text-muted-foreground",
-        textClass: "text-muted-foreground",
-      };
-  }
-}
 
 type SortableHeaderProps = {
   column: Column<ProductReview, unknown>;

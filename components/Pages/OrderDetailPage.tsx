@@ -27,7 +27,7 @@ import { Button } from "@/components/ui/button";
 import { useQueryClient } from "@tanstack/react-query";
 import { useOrder, useDeleteOrder } from "@/hooks/queries";
 import { useBackWithRefresh } from "@/hooks/use-back-with-refresh";
-import { resolveAuditUserManagementHref } from "@/lib/navigation/audit-user-href";
+import { resolveDetailAuditUserHref } from "@/lib/navigation/audit-user-href";
 import {
   queryKeys,
   invalidateAfterOrderGraphChange,
@@ -548,7 +548,7 @@ export default function OrderDetailPage({
                     label="Created by:"
                     tone="violet"
                     user={order.creator}
-                    href={resolveAuditUserManagementHref(
+                    href={resolveDetailAuditUserHref(
                       order.creator.id,
                       isAdminRole,
                     )}
@@ -559,7 +559,7 @@ export default function OrderDetailPage({
                     label="Updated by:"
                     tone="blue"
                     user={order.updater}
-                    href={resolveAuditUserManagementHref(
+                    href={resolveDetailAuditUserHref(
                       order.updater.id,
                       isAdminRole,
                     )}
