@@ -7,7 +7,7 @@
 | **Last updated** | 2026-07-20 REQ-0184 done (gates PASS) |
 | **Active REQ** | **REQ-0136** (UI explore → §10 A1/A2/B1) |
 | **Done range** | REQ-0001 … REQ-0135 + REQ-0137–**0184** |
-| **Prod SHA** | `9e97dc7` (REQ-0170–0178; 0179–0184 pending push) |
+| **Prod SHA** | `011d655` (REQ-0179–0184) |
 | **Human Gate 1** | APPROVED (GATE-0001) |
 | **Human Gate 2** | PENDING (GATE-0002) — UI explore → §10 → Sentry 24h |
 | **Resume token** | `tomorrow-UI-then-cache` → **REQ-0136** |
