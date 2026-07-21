@@ -3,7 +3,7 @@
 **Generated:** 2026-07-21 EOD
 **eval_gate_status:** PENDING (Human Gate 2)
 **Stopped:** REQ-0202 done — tickets/dialogs/SSR flicker wave complete
-**Prod target SHA:** tip after push (0194–0202)
+**Prod target SHA:** `43dda87` (REQ-0194–0202)
 **Resume tomorrow:** **REQ-0186** warehouse → 0187 → REQ-0136 (see STATE.md)
 
 ---

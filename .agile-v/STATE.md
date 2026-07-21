@@ -7,7 +7,7 @@
 | **Stopped** | 2026-07-21 EOD — tickets/dialogs/SSR flicker through **REQ-0202** |
 | **Active REQ** | **REQ-0186** → 0187 → **REQ-0136** |
 | **Done range** | REQ-0001…0135 + 0137–0185 + **0188–0202** |
-| **Prod SHA** | tip after push (was `45fd5d6` for 0191–0193) |
+| **Prod SHA** | `43dda87` (REQ-0194–0202 on `origin/main`) |
 | **Human Gate 1** | APPROVED (GATE-0001) |
 | **Human Gate 2** | PENDING — after 0186–0187 + §10 smoke → Sentry 24h |
 | **Resume token** | `tomorrow-0186-warehouse-ui` → **REQ-0186** |
