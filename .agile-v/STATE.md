@@ -7,7 +7,7 @@
 | **Last updated** | 2026-07-21 REQ-0190 done (gates PASS) |
 | **Active REQ** | **REQ-0186** → 0187 → **REQ-0136** |
 | **Done range** | REQ-0001 … REQ-0135 + REQ-0137–**0185** + **0188–0190** |
-| **Prod SHA** | `011d655` (REQ-0179–0184; 0185–0190 pending push) |
+| **Prod SHA** | `2c14b50` (REQ-0185–0190) |
 | **Human Gate 1** | APPROVED (GATE-0001) |
 | **Human Gate 2** | PENDING (GATE-0002) — after 0186–0187 + §10 smoke → Sentry 24h |
 | **Resume token** | `tomorrow-UI-tickets-warehouse-order` → **REQ-0186** |
