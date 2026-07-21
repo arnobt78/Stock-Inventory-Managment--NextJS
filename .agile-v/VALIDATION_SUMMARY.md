@@ -2,7 +2,7 @@
 
 **Generated:** 2026-07-21 session activate
 **eval_gate_status:** PENDING (Human Gate 2)
-**Prod target SHA:** tip after REQ-0193
+**Prod target SHA:** `45fd5d6` (REQ-0191–0193)
 **Resume:** **REQ-0186** next → 0187 → REQ-0136 (see STATE.md)
 
 ---
