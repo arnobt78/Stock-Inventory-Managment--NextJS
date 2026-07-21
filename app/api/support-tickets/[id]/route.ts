@@ -240,9 +240,19 @@ export async function DELETE(
         { status: 404 },
       );
     }
-    const isCreator = existing.userId === session.id;
-    const isAssignee = existing.assignedToId === session.id;
-    if (!isCreator && !isAssignee) {
+    // REQ-0191 — admin OR creator OR assignee (parity with PUT)
+    const sessionId = session.id ?? "";
+    const sessionRole = session.role ?? "";
+    if (
+      !sessionId ||
+      !canMutateSupportTicket(
+        { id: sessionId, role: sessionRole },
+        {
+          userId: existing.userId,
+          assignedToId: existing.assignedToId ?? null,
+        },
+      )
+    ) {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 

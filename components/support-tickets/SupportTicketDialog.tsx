@@ -5,6 +5,7 @@
  * Client/supplier: assignedTo required; densify owner Select; Priority solid/opaque badges.
  * REQ-0188 — Send-to trigger: no line-clamp clip; dual-surface owner text.
  * REQ-0190 — Edit: Send-to read-only (all roles); omit assignedToId on PUT. Create Select unchanged.
+ * REQ-0191 — Edit: Status Select (no inline detail Selects).
  */
 
 import React, { useEffect, useState } from "react";
@@ -27,6 +28,7 @@ import {
 } from "@/components/ui/select";
 import {
   AlertTriangle,
+  CircleDot,
   FileText,
   MessageSquare,
   Pencil,
@@ -54,11 +56,15 @@ import {
 } from "@/hooks/queries";
 import { useAuth } from "@/contexts";
 import { cn } from "@/lib/utils";
-import { TicketPriorityBadge } from "@/lib/ui/semantic-badges";
+import {
+  TicketPriorityBadge,
+  TicketStatusBadge,
+} from "@/lib/ui/semantic-badges";
 import type {
   ProductOwnerOption,
   SupportTicket,
   SupportTicketPriority,
+  SupportTicketStatus,
 } from "@/types";
 
 export type { ProductOwnerOption };
@@ -68,6 +74,13 @@ const PRIORITIES: { value: SupportTicketPriority; label: string }[] = [
   { value: "medium", label: "Medium" },
   { value: "high", label: "High" },
   { value: "urgent", label: "Urgent" },
+];
+
+const STATUSES: { value: SupportTicketStatus; label: string }[] = [
+  { value: "open", label: "Open" },
+  { value: "in_progress", label: "In Progress" },
+  { value: "resolved", label: "Resolved" },
+  { value: "closed", label: "Closed" },
 ];
 
 /**
@@ -89,7 +102,7 @@ export function OwnerSelectRow({
   const nameClass =
     surface === "trigger"
       ? "truncate text-sm text-white"
-      : "truncate text-sm text-gray-800 dark:text-white";
+      : "truncate text-sm text-gray-700 dark:text-white";
   const metaClass =
     surface === "trigger"
       ? "truncate text-xs text-white/75"
@@ -157,6 +170,7 @@ export default function SupportTicketDialog({
   const [subject, setSubject] = useState("");
   const [description, setDescription] = useState("");
   const [priority, setPriority] = useState<SupportTicketPriority>("medium");
+  const [status, setStatus] = useState<SupportTicketStatus>("open");
   const [assignedToId, setAssignedToId] = useState<string | null>(null);
 
   const createMutation = useCreateSupportTicket();
@@ -175,11 +189,13 @@ export default function SupportTicketDialog({
         setSubject(existingTicket.subject ?? "");
         setDescription(existingTicket.description ?? "");
         setPriority(existingTicket.priority ?? "medium");
+        setStatus(existingTicket.status ?? "open");
         setAssignedToId(existingTicket.assignedToId ?? null);
       } else {
         setSubject("");
         setDescription("");
         setPriority("medium");
+        setStatus("open");
         setAssignedToId(null);
       }
     });
@@ -189,6 +205,7 @@ export default function SupportTicketDialog({
     existingTicket?.subject,
     existingTicket?.description,
     existingTicket?.priority,
+    existingTicket?.status,
     existingTicket?.assignedToId,
   ]);
 
@@ -222,6 +239,7 @@ export default function SupportTicketDialog({
 
     if (isEdit && existingTicket) {
       // REQ-0190 — never send assignedToId from edit (admin Reassign is separate)
+      // REQ-0191 — status via Edit dialog (detail page is read-only badges)
       updateMutation.mutate(
         {
           id: existingTicket.id,
@@ -229,6 +247,7 @@ export default function SupportTicketDialog({
             subject: subject.trim(),
             description: description.trim(),
             priority,
+            status,
           },
         },
         {
@@ -290,7 +309,7 @@ export default function SupportTicketDialog({
           title={isEdit ? "Edit Support Ticket" : "Create Support Ticket"}
           description={
             isEdit
-              ? "Update subject, description, or priority. Send-to cannot be changed here."
+              ? "Update subject, description, status, or priority. Send-to cannot be changed here."
               : productOwners.length > 0
                 ? "Open a new support ticket. Add a subject, description, and choose who to send it to (product owner)."
                 : "Open a new support ticket. Add a subject and description."
@@ -426,7 +445,10 @@ export default function SupportTicketDialog({
                         </SelectValue>
                       </SelectTrigger>
                       <SelectContent
-                        className={cn(DIALOG_SELECT_CONTENT_CLASS, "rounded-xl")}
+                        className={cn(
+                          DIALOG_SELECT_CONTENT_CLASS,
+                          "rounded-xl",
+                        )}
                         position="popper"
                         sideOffset={5}
                       >
@@ -454,6 +476,76 @@ export default function SupportTicketDialog({
               )}
             </div>
           )}
+          {/* REQ-0191 — Status only on edit (create defaults open) */}
+          {isEdit ? (
+            <div className="space-y-2">
+              <DialogFormLabel
+                htmlFor="support-ticket-status"
+                icon={CircleDot}
+                required
+              >
+                Status
+              </DialogFormLabel>
+              <DeferredSelectGate
+                enabled={open}
+                placeholder={
+                  <div
+                    className={cn(
+                      "flex h-11 w-full items-center rounded-xl px-2 text-sm text-white/60",
+                      inputClass,
+                    )}
+                    aria-hidden
+                  >
+                    {STATUSES.find((s) => s.value === status)?.label ??
+                      "Status"}
+                  </div>
+                }
+              >
+                {({ selectRemountKey }) => (
+                  <Select
+                    key={selectRemountKey}
+                    value={status}
+                    onValueChange={(v) => setStatus(v as SupportTicketStatus)}
+                    disabled={isPending}
+                  >
+                    <SelectTrigger
+                      id="support-ticket-status"
+                      className={cn("h-11 rounded-xl w-full", inputClass)}
+                    >
+                      <SelectValue>
+                        {/* REQ-0193 — solid/opaque Status badges (Priority parity) */}
+                        <TicketStatusBadge
+                          status={status}
+                          size="compact"
+                          contrast="solid"
+                        />
+                      </SelectValue>
+                    </SelectTrigger>
+                    <SelectContent
+                      className={cn(DIALOG_SELECT_CONTENT_CLASS, "rounded-xl")}
+                      position="popper"
+                      sideOffset={5}
+                    >
+                      {STATUSES.map((s) => (
+                        <SelectItem
+                          key={s.value}
+                          value={s.value}
+                          className={DIALOG_SELECT_ITEM_CLASS}
+                        >
+                          <TicketStatusBadge
+                            status={s.value}
+                            label={s.label}
+                            size="compact"
+                            contrast="opaque"
+                          />
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                )}
+              </DeferredSelectGate>
+            </div>
+          ) : null}
           <div className="space-y-2">
             <DialogFormLabel
               htmlFor="support-ticket-priority"

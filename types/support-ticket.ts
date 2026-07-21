@@ -40,6 +40,13 @@ export interface SupportTicket {
   assignedToImage?: string | null;
   /** Number of replies/messages on this ticket. Present when API includes it. */
   replyCount?: number;
+  /** REQ-0191 — related catalog/order densify on detail */
+  relatedProductName?: string | null;
+  relatedProductSku?: string | null;
+  relatedOrderNumber?: string | null;
+  relatedOrderStatus?: string | null;
+  relatedOrderPaymentStatus?: string | null;
+  relatedSupplierName?: string | null;
 }
 
 export interface CreateSupportTicketInput {

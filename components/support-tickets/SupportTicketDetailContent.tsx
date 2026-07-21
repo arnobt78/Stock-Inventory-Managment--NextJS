@@ -1,39 +1,58 @@
 "use client";
 
+/**
+ * REQ-0191 — Client/supplier ticket detail: densify + chat thread + Edit/Delete when allowed.
+ */
+
 import React, { useState } from "react";
-import { SafeAvatarImage } from "@/components/ui/safe-avatar-image";
-import { resolveAvatarSourcesFromSeed } from "@/lib/ui/user-avatar-sources";
 import Navbar from "@/components/layouts/Navbar";
 import {
   PageContentWrapper,
   ClientDateTime,
   PersonNameEmailCell,
+  CopyableText,
+  glassDetailBackButtonClass,
+  glassDetailFooterButtonClass,
+  DialogSubmitButton,
 } from "@/components/shared";
 import { useBackWithRefresh } from "@/hooks/use-back-with-refresh";
 import {
   useSupportTicket,
   useSupportTicketReplies,
-  useCreateSupportTicketReply,
+  useDeleteSupportTicket,
 } from "@/hooks/queries";
 import {
   isDataSlotLoading,
   queryKeys,
   useSyncSsrQueryDataMany,
 } from "@/lib/react-query";
-import {
-  MessageSquare,
-  ArrowLeft,
-  Send,
-  Loader2,
-} from "lucide-react";
+import { MessageSquare, ArrowLeft, Pencil, Trash2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import {
   TicketStatusBadge,
   TicketPriorityBadge,
 } from "@/lib/ui/semantic-badges";
-import type { SupportTicket, SupportTicketReply } from "@/types";
+import { useAuth } from "@/contexts";
+import SupportTicketDialog from "@/components/support-tickets/SupportTicketDialog";
+import SupportTicketReplyThread from "@/components/support-tickets/SupportTicketReplyThread";
+import { resolveDetailAuditUserHref } from "@/lib/navigation/audit-user-href";
+import type {
+  ProductOwnerOption,
+  SupportTicket,
+  SupportTicketReply,
+} from "@/types";
 
 const variantConfig = {
   border: "border-sky-400/20",
@@ -46,15 +65,17 @@ const variantConfig = {
 
 export type SupportTicketDetailContentProps = {
   initialTicket: SupportTicket;
-  /** SSR replies for first paint (REQ-0025 P2) */
   initialReplies?: SupportTicketReply[];
+  productOwners?: ProductOwnerOption[];
 };
 
 export default function SupportTicketDetailContent({
   initialTicket,
   initialReplies,
+  productOwners = [],
 }: SupportTicketDetailContentProps) {
-  const [replyBody, setReplyBody] = useState("");
+  const { user } = useAuth();
+  const [editOpen, setEditOpen] = useState(false);
   const { navigateTo } = useBackWithRefresh("support-ticket");
   const { data: ticket = initialTicket } = useSupportTicket(initialTicket.id);
 
@@ -75,40 +96,30 @@ export default function SupportTicketDetailContent({
   const repliesQuery = useSupportTicketReplies(ticket.id, initialReplies);
   const replies = repliesQuery.data ?? initialReplies ?? [];
   const repliesLoading = isDataSlotLoading(repliesQuery, initialReplies);
-  const createReply = useCreateSupportTicketReply(ticket.id);
+  const deleteMutation = useDeleteSupportTicket();
+  const isDeleting = deleteMutation.isPending;
 
-  const handleSubmitReply = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!replyBody.trim()) return;
-    createReply.mutate(
-      { body: replyBody.trim() },
-      {
-        onSuccess: () => setReplyBody(""),
-      },
-    );
+  const sessionId = user?.id;
+  const canMutate =
+    !!sessionId &&
+    (ticket.userId === sessionId || ticket.assignedToId === sessionId);
+
+  const descPreview = (ticket.description ?? "").trim();
+  const deleteDescription =
+    descPreview.length > 80
+      ? `This will permanently delete the ticket "${ticket.subject}": ${descPreview.slice(0, 80)}…`
+      : `This will permanently delete the ticket "${ticket.subject}". This action cannot be undone.`;
+
+  const handleDelete = () => {
+    deleteMutation.mutate(ticket.id, {
+      onSuccess: () => navigateTo("/support-tickets"),
+    });
   };
 
   return (
     <Navbar>
       <PageContentWrapper>
         <div className="space-y-4 poppins">
-          <div className="flex items-center gap-2">
-            <Button
-              type="button"
-              variant="ghost"
-              onClick={() => navigateTo("/support-tickets")}
-              className={cn(
-                "inline-flex items-center gap-2 rounded-xl border border-sky-400/30 dark:border-sky-400/30",
-                "bg-white/60 dark:bg-white/5 backdrop-blur-md",
-                "hover:bg-white/80 dark:hover:bg-white/10",
-                "text-gray-700 dark:text-gray-300 text-sm font-medium px-2 py-2 h-auto",
-              )}
-            >
-              <ArrowLeft className="h-4 w-4" />
-              Back to tickets
-            </Button>
-          </div>
-
           <article
             className={cn(
               "rounded-[20px] border p-2 sm:p-4 backdrop-blur-md",
@@ -128,12 +139,15 @@ export default function SupportTicketDetailContent({
                 <MessageSquare className="h-6 w-6 text-sky-600 dark:text-sky-400" />
               </div>
               <div className="min-w-0 flex-1">
-                {ticket.ticketNumber && (
-                  <p className="text-xs font-mono text-sky-600 dark:text-sky-400 mb-1">
+                {ticket.ticketNumber ? (
+                  <CopyableText
+                    value={ticket.ticketNumber}
+                    className="text-xs font-mono text-sky-600 dark:text-sky-400 mb-1"
+                  >
                     {ticket.ticketNumber}
-                  </p>
-                )}
-                <h1 className="text-sm sm:text-lg font-medium text-gray-700 dark:text-white">
+                  </CopyableText>
+                ) : null}
+                <h1 className="text-sm sm:text-lg font-medium text-emerald-600 dark:text-emerald-300">
                   {ticket.subject}
                 </h1>
                 <div className="flex flex-wrap items-center gap-2 mt-2">
@@ -143,15 +157,9 @@ export default function SupportTicketDetailContent({
                     size="detail"
                     contrast="opaque"
                   />
-                  <ClientDateTime
-                    date={ticket.createdAt}
-                    semantic="created"
-                    className="text-xs"
-                  />
                 </div>
-                {/* REQ-0185 — densify creator / sent-to like table */}
-                {(ticket.creatorName || ticket.creatorEmail) && (
-                  <div className="mt-3 flex flex-wrap items-center gap-2">
+                <div className="mt-3 flex flex-col sm:flex-row gap-2 sm:gap-4">
+                  <div className="flex flex-wrap items-center gap-2">
                     <span className="text-xs font-medium text-muted-foreground">
                       Creator
                     </span>
@@ -166,13 +174,11 @@ export default function SupportTicketDetailContent({
                       image={ticket.creatorImage}
                     />
                   </div>
-                )}
-                {ticket.assignedToId &&
-                  (ticket.assignedToName || ticket.assignedToEmail) && (
-                    <div className="mt-2 flex flex-wrap items-center gap-2">
-                      <span className="text-xs font-medium text-muted-foreground">
-                        Sent to
-                      </span>
+                  <div className="flex flex-wrap items-center gap-2">
+                    <span className="text-xs font-medium text-muted-foreground">
+                      Sent to
+                    </span>
+                    {ticket.assignedToId ? (
                       <PersonNameEmailCell
                         seed={ticket.assignedToId}
                         name={
@@ -184,117 +190,120 @@ export default function SupportTicketDetailContent({
                         image={ticket.assignedToImage}
                         href={`/products?ownerId=${ticket.assignedToId}`}
                       />
-                    </div>
-                  )}
+                    ) : (
+                      <span className="text-xs text-muted-foreground">
+                        — No specific owner —
+                      </span>
+                    )}
+                  </div>
+                </div>
+                <div className="mt-2 flex flex-col sm:flex-row gap-2 sm:gap-4 text-xs">
+                  <span>
+                    <span className="text-muted-foreground">Created: </span>
+                    <ClientDateTime
+                      date={ticket.createdAt}
+                      semantic="created"
+                    />
+                  </span>
+                  {ticket.updatedAt ? (
+                    <span>
+                      <span className="text-muted-foreground">Updated: </span>
+                      <ClientDateTime
+                        date={ticket.updatedAt}
+                        semantic="updated"
+                      />
+                    </span>
+                  ) : null}
+                </div>
               </div>
             </div>
             <div className="rounded-xl bg-white/40 dark:bg-white/5 border border-sky-200/30 dark:border-white/10 p-4">
-              <p className="text-sm text-gray-700 dark:text-gray-300 whitespace-pre-wrap">
+              <p className="text-sm text-gray-700 dark:text-white whitespace-pre-wrap">
                 {ticket.description}
               </p>
             </div>
           </article>
 
-          <section
-            className={cn(
-              "rounded-[20px] border p-2 sm:p-4 backdrop-blur-md",
-              "bg-white/60 dark:bg-white/5",
-              variantConfig.border,
-              variantConfig.gradient,
-              variantConfig.shadow,
-            )}
-          >
-            <h2 className="text-sm sm:text-base font-medium text-gray-700 dark:text-white mb-4">
-              Replies
-            </h2>
-            {repliesLoading ? (
-              <div className="space-y-2">
-                <div className="h-16 rounded-xl bg-gray-200/50 dark:bg-white/10 animate-pulse" />
-                <div className="h-16 rounded-xl bg-gray-200/50 dark:bg-white/10 animate-pulse" />
-              </div>
-            ) : replies.length === 0 ? (
-              <p className="text-sm text-gray-500 dark:text-gray-300 py-4">
-                No replies yet. Add a reply below.
-              </p>
-            ) : (
-              <ul className="space-y-2 mb-6">
-                {replies.map((r) => {
-                  const avatar = resolveAvatarSourcesFromSeed(
-                    r.userId,
-                    r.userImage,
-                  );
-                  const displayName =
-                    r.userName?.trim() ||
-                    r.userEmail ||
-                    `User ${r.userId.slice(-8)}`;
-                  return (
-                    <li
-                      key={r.id}
-                      className={cn(
-                        "rounded-xl border border-sky-200/40 dark:border-white/10 p-4",
-                        "bg-white/50 dark:bg-white/5",
-                      )}
-                    >
-                      <p className="text-sm text-gray-700 dark:text-gray-200 whitespace-pre-wrap">
-                        {r.body}
-                      </p>
-                      <div className="flex items-center gap-2 mt-2 flex-wrap">
-                        <SafeAvatarImage
-                          src={avatar.src}
-                          fallbackSrc={avatar.fallbackSrc}
-                          alt=""
-                          width={32}
-                          height={32}
-                          className="h-8 w-8 rounded-full object-cover border border-sky-200/90 dark:border-white/30 flex-shrink-0"
-                        />
-                        <span className="text-xs font-medium text-gray-700 dark:text-gray-300">
-                          {displayName}
-                        </span>
-                        {r.userEmail && (
-                          <span className="text-xs text-gray-500 dark:text-gray-300">
-                            {r.userEmail}
-                          </span>
-                        )}
-                        <ClientDateTime
-                          date={r.createdAt}
-                          semantic="created"
-                          className="text-xs"
-                        />
-                      </div>
-                    </li>
-                  );
-                })}
-              </ul>
-            )}
+          <SupportTicketReplyThread
+            ticket={ticket}
+            replies={replies}
+            repliesLoading={repliesLoading}
+            variant="sky"
+            authorHrefForUserId={(userId) =>
+              resolveDetailAuditUserHref(userId, false)
+            }
+          />
 
-            <form onSubmit={handleSubmitReply} className="space-y-2">
-              <Textarea
-                placeholder="Write a reply..."
-                value={replyBody}
-                onChange={(e) => setReplyBody(e.target.value)}
-                disabled={createReply.isPending}
-                className="min-h-[100px] rounded-xl border-sky-400/30 dark:border-white/20 bg-white/80 dark:bg-white/5 text-gray-700 dark:text-white placeholder:text-gray-500 resize-none"
-              />
+          <div className="flex flex-col sm:flex-row flex-wrap gap-2">
+            <Button
+              type="button"
+              onClick={() => navigateTo("/support-tickets")}
+              className={glassDetailBackButtonClass(
+                "w-full sm:w-auto gap-2 px-8",
+              )}
+            >
+              <ArrowLeft className="h-4 w-4 shrink-0" />
+              Back
+            </Button>
+            {canMutate ? (
               <Button
-                type="submit"
-                disabled={createReply.isPending || !replyBody.trim()}
-                className={cn(
-                  "rounded-xl border border-sky-400/30 bg-gradient-to-r from-sky-500/60 to-sky-500/40 text-white gap-2",
-                  "shadow-[0_10px_30px_rgba(2,132,199,0.25)]",
-                  "hover:from-sky-500/70 hover:to-sky-500/50",
+                type="button"
+                onClick={() => setEditOpen(true)}
+                className={glassDetailFooterButtonClass(
+                  "amber",
+                  "w-full sm:w-auto gap-2 px-8",
                 )}
               >
-                {createReply.isPending ? (
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                ) : (
-                  <>
-                    <Send className="h-4 w-4 mr-2 inline-block" />
-                    Send Reply
-                  </>
-                )}
+                <Pencil className="h-4 w-4 shrink-0" />
+                Edit Ticket
               </Button>
-            </form>
-          </section>
+            ) : null}
+            {canMutate ? (
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <DialogSubmitButton
+                    type="button"
+                    isPending={isDeleting}
+                    pendingLabel="Deleting…"
+                    label="Delete Ticket"
+                    icon={Trash2}
+                    hue="rose"
+                    className="w-full sm:w-auto gap-2 px-8"
+                  />
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>Delete support ticket?</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      {deleteDescription}
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel disabled={isDeleting}>
+                      Cancel
+                    </AlertDialogCancel>
+                    <AlertDialogAction
+                      onClick={handleDelete}
+                      disabled={isDeleting}
+                      className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                    >
+                      {isDeleting ? "Deleting..." : "Delete"}
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
+            ) : null}
+          </div>
+
+          {canMutate ? (
+            <SupportTicketDialog
+              open={editOpen}
+              onOpenChange={setEditOpen}
+              productOwners={productOwners}
+              existingTicket={ticket}
+              variant="sky"
+            />
+          ) : null}
         </div>
       </PageContentWrapper>
     </Navbar>

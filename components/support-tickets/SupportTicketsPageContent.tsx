@@ -16,6 +16,7 @@ import SupportTicketFilters from "@/components/admin/SupportTicketFilters";
 import { SupportTicketTable } from "@/components/admin/SupportTicketTable";
 import { createSupportTicketColumns } from "@/components/admin/SupportTicketTableColumns";
 import { StatisticsCard } from "@/components/home/StatisticsCard";
+import { ticketMessageTotal } from "@/lib/support-tickets/ticket-message-stats";
 
 export type SupportTicketsPageContentProps = {
   initialTickets: SupportTicket[];
@@ -49,7 +50,7 @@ export default function SupportTicketsPageContent({
     for (const t of list) {
       statusCounts[t.status as keyof typeof statusCounts]++;
       priorityCounts[t.priority as keyof typeof priorityCounts]++;
-      totalMessages += 1 + (t.replyCount ?? 0);
+      totalMessages += ticketMessageTotal(t.replyCount);
     }
     return { statusCounts, priorityCounts, totalMessages };
   }, [list]);

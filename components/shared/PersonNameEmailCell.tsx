@@ -38,10 +38,7 @@ export function PersonNameEmailCell({
 
   return (
     <div
-      className={cn(
-        "flex items-center gap-2 min-w-0 max-w-[220px]",
-        className,
-      )}
+      className={cn("flex items-center gap-2 min-w-0 max-w-[220px]", className)}
     >
       <AvatarInlineLink
         seed={seed}
@@ -60,7 +57,7 @@ export function PersonNameEmailCell({
           </Link>
         ) : (
           <span
-            className="truncate text-sm text-gray-800 dark:text-white"
+            className="truncate text-sm text-gray-700 dark:text-white"
             title={name}
           >
             {name}

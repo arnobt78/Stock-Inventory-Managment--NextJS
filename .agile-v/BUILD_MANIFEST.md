@@ -484,5 +484,15 @@
 | ART-0190b | REQ-0190 | Admin Reassign Select + confirm | SupportTicketActions |
 | ART-0190c | REQ-0190 | canMutate + resolveAssignedToUpdate policy | ticket-assignee-policy |
 | TC-0096 | REQ-0190 | Gates lint/test/invalidate/build + policy unit tests |
+| ART-0191a | REQ-0191 | Admin ticket detail RO cards + chat + footer CTAs | AdminSupportTicketDetailContent |
+| ART-0191b | REQ-0191 | SupportTicketReplyThread + TicketReassignDialog extract | support-tickets/* |
+| ART-0191c | REQ-0191 | Related enrich + admin GET/replies/DELETE parity | ticket-related-enrich, API |
+| TC-0097 | REQ-0191 | Gates lint/test/invalidate/build |
+| ART-0192a | REQ-0192 | ticketMessageTotal + computeTicketMessageStats | ticket-message-stats |
+| TC-0098 | REQ-0192 | Gates lint/test/invalidate/build |
+| ART-0193a | REQ-0193 | Reassign placeholder height + sync open reset | TicketReassignDialog |
+| ART-0193b | REQ-0193 | Opening bubble + 90% width + author links | SupportTicketReplyThread |
+| ART-0193c | REQ-0193 | Notes clear AlertDialog + Status solid/opaque | AdminSupportTicketDetailContent, semantic-badges |
+| TC-0099 | REQ-0193 | Gates lint/test/invalidate/build |
 | ART-0186a | REQ-0186 | Warehouse dialog + detail UI (planned) | TBD |
 | ART-0187a | REQ-0187 | Order dialog UI polish (planned) | TBD |

@@ -4,6 +4,82 @@ Canonical REQ source. All artifacts link via `REQ-XXXX`. Status: `done` | `verif
 
 ---
 
+## REQ-0193 — Support ticket detail/dialog gap closure
+
+| Field | Value |
+|-------|-------|
+| **Priority** | P2 |
+| **Risk** | R0 |
+| **Status** | done |
+| **Cycle** | C2 |
+| **Parent** | REQ-0190–0192 |
+
+**Intent:** Close ticket detail/dialog UX gaps: smooth Reassign open, Reply header typography, opening description in chat, 90% bubbles + clickable authors, notes delete confirm, Status Select solid/opaque badges.
+
+**Acceptance criteria**
+
+- AC1: Reassign dialog placeholder height matches SelectTrigger; sync open reset (no microtask bounce)
+- AC2: “Reply to” + creator name same title size; name sky + Link when href
+- AC3: Opening description prepended as first left chat bubble (Description card kept)
+- AC4: Bubbles `w-[90%]`; author names Link via `authorHrefForUserId`
+- AC5: Notes trash → AlertDialogWrapper with subject + notes preview
+- AC6: `TicketStatusBadge` contrast solid/opaque; Edit Status Select uses them
+- AC7: Invalidation unchanged; gates pass
+
+**Artifacts:** TicketReassignDialog, SupportTicketReplyThread, AdminSupportTicketDetailContent, SupportTicketDetailContent, SupportTicketDialog, semantic-badges TicketStatusBadge
+
+---
+
+## REQ-0192 — Ticket message count parity (description + replies)
+
+| Field | Value |
+|-------|-------|
+| **Priority** | P2 |
+| **Risk** | R0 |
+| **Status** | done |
+| **Cycle** | C2 |
+| **Parent** | REQ-0191 |
+
+**Intent:** Detail Messages stats match table: opening description counts as 1 creator message plus replies (`1 + replyCount`).
+
+**Acceptance criteria**
+
+- AC1: `computeTicketMessageStats` / `ticketMessageTotal` shared helper + unit tests
+- AC2: Detail Messages card uses helper; subtitle “Opening description + thread replies”
+- AC3: Table Messages column + list KPIs use `ticketMessageTotal`
+- AC4: Invalidation unchanged; gates pass
+
+**Artifacts:** `ticket-message-stats.ts`, AdminSupportTicketDetailContent, SupportTicketTableColumns, SupportTicketList, SupportTicketsPageContent
+
+---
+
+## REQ-0191 — Support ticket detail redesign (review parity)
+
+| Field | Value |
+|-------|-------|
+| **Priority** | P1 |
+| **Risk** | R1 |
+| **Status** | done |
+| **Cycle** | C2 |
+| **Parent** | REQ-0185 / REQ-0190 |
+
+**Intent:** Ticket detail matches review detail: read-only Status/Priority badges, message stats column, densified info + Sent to, chat replies, notes header edit, footer Edit/Reassign/Delete dialogs. Admin API parity for GET/replies/DELETE.
+
+**Acceptance criteria**
+
+- AC1: No inline Status/Priority Selects; edit via SupportTicketDialog (Status on edit)
+- AC2: Messages card — total / from creator / from staff from replies
+- AC3: Ticket info — subject accent, Creator + Sent to densify, Created|Updated same row
+- AC4: Chat bubbles left=creator / right=staff; Reply to {name} sky; Send icon on compose
+- AC5: Internal Notes read-only + header Edit/Delete icons; inline Cancel/Save
+- AC6: Footer Back · Edit · Reassign (admin) · Delete with icon + dynamic alert
+- AC7: Related product/order/supplier when IDs present; review Created|Updated same row
+- AC8: Admin can GET detail, replies, DELETE; invalidation unchanged; gates pass
+
+**Artifacts:** AdminSupportTicketDetailContent, SupportTicketDetailContent, SupportTicketReplyThread, TicketReassignDialog, ticket-related-enrich, ticket-assignee-policy reuse
+
+---
+
 ## REQ-0190 — Edit Send-to read-only + admin Reassign
 
 | Field | Value |

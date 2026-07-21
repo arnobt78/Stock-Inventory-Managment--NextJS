@@ -33,6 +33,7 @@ import type {
   SupportTicket,
   DashboardStats,
 } from "@/types";
+import { ticketMessageTotal } from "@/lib/support-tickets/ticket-message-stats";
 
 export type SupportTicketListProps = {
   detailHrefBase?: string;
@@ -76,7 +77,7 @@ export default function SupportTicketList({
     for (const t of allTickets) {
       statusCounts[t.status as keyof typeof statusCounts]++;
       priorityCounts[t.priority as keyof typeof priorityCounts]++;
-      totalMessages += 1 + (t.replyCount ?? 0);
+      totalMessages += ticketMessageTotal(t.replyCount);
     }
     return { statusCounts, priorityCounts, totalMessages };
   }, [allTickets]);

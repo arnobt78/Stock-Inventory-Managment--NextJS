@@ -115,15 +115,17 @@ Details: `docs/Redis_Sentry_PostHog_INTEGRATION_GUIDE.md`
 | Domains patched | products/categories/suppliers/warehouses, orders/invoices (+ client variants), portal browse, support tickets, product reviews, user management |
 | Intentional pulse-only | dashboard/home KPI counts (server aggregates); stock transfer (multi-warehouse — invalidate + pulse) |
 
-### Support tickets (REQ-0185–0190)
+### Support tickets (REQ-0185–0193)
 
 | Piece | Location |
 |-------|----------|
 | List densify | `PersonNameEmailCell`; Redis `supportTickets:list:v2`; `ticket-list-enrich` |
-| Actions | `SupportTicketActions` — View / Edit / Delete; admin **Reassign…** (0190) |
-| Create/Edit | `SupportTicketDialog` — create Select Send-to; **edit Send-to read-only** |
-| Policy | `ticket-assignee-policy` — admin-only `assignedToId` change; admin may PUT any ticket |
-| Mutate UI | `useUpdateSupportTicket` — patch detail/list → `invalidateAllRelatedQueries` |
+| Actions | `SupportTicketActions` + `TicketReassignDialog` |
+| Create/Edit | `SupportTicketDialog` — edit Send-to RO; Status solid/opaque (0193); Priority solid/opaque |
+| Detail | Admin RO cards + chat (`SupportTicketReplyThread`) + notes confirm (0193) + footer CTAs |
+| Chat | Opening description left bubble; 90% width; author links (0193) |
+| Policy | `ticket-assignee-policy` — admin GET/PUT/DELETE/replies + assignee mutate |
+| Related | `ticket-related-enrich` — product/order/supplier on detail SSR |
 
 **Next UI wave:** REQ-0186 warehouse → 0187 order dialog → REQ-0136 Gate 2.
 

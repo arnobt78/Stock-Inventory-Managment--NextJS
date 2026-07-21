@@ -483,3 +483,9 @@ Format: `TIMESTAMP | AGENT | DECISION | RATIONALE | REQ-ID`
 2026-07-21T13:35:00Z | build-agent | REQ-0190 Send-to lock + Reassign | edit read-only; admin Reassign; API policy | REQ-0190
 2026-07-21T13:40:00Z | red-team | REQ-0190 gates | lint ✓ test 648 ✓ invalidate 215 ✓ build ✓ | REQ-0190
 2026-07-21T14:00:00Z | red-team | REQ-0190 pre-commit audit | plan ACs match; no invalidation gaps; docs sync | REQ-0190
+2026-07-21T14:40:00Z | build-agent | REQ-0191 ticket detail redesign | RO cards; chat; notes header edit; footer CTAs; admin API | REQ-0191
+2026-07-21T14:50:00Z | red-team | REQ-0191 gates | lint ✓ test 651 ✓ invalidate 217 ✓ build ✓ | REQ-0191
+2026-07-21T14:55:00Z | build-agent | REQ-0192 message count parity | description+replies; shared helper; table/detail/KPI | REQ-0192
+2026-07-21T15:00:00Z | red-team | REQ-0192 gates | lint ✓ test 656 ✓ invalidate 217 ✓ build ✓ | REQ-0192
+2026-07-21T15:25:00Z | build-agent | REQ-0193 ticket UI gaps | reassign smooth; opening bubble; notes confirm; Status contrast | REQ-0193
+2026-07-21T15:30:00Z | red-team | REQ-0193 gates | lint ✓ test 656 ✓ invalidate 217 ✓ build ✓ | REQ-0193

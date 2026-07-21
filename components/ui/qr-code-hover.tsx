@@ -90,7 +90,7 @@ export function QRCodeHover({
       {/* Dialog — same glassmorphic style as Product/Category dialogs */}
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
         <DialogContent
-          className="p-2 sm:p-4 sm:px-8 poppins max-h-[90vh] overflow-y-auto border-violet-400/30 dark:border-violet-400/30 shadow-[0_30px_80px_rgba(139,92,246,0.35)] dark:shadow-[0_30px_80px_rgba(139,92,246,0.25)] bg-gradient-to-br from-gray-800/98 via-gray-700/95 to-gray-800/98 dark:from-black/20 dark:via-black/10 dark:to-black/5"
+          className="p-2 sm:p-4 sm:px-8 poppins max-h-[90vh] overflow-y-auto border-violet-400/30 dark:border-violet-400/30 shadow-[0_30px_80px_rgba(139,92,246,0.35)] dark:shadow-[0_30px_80px_rgba(139,92,246,0.25)] bg-gradient-to-br from-gray-700/98 via-gray-700/95 to-gray-700/98 dark:from-black/20 dark:via-black/10 dark:to-black/5"
           onOpenAutoFocus={(e) => e.preventDefault()}
         >
           <DialogHeader>

@@ -51,8 +51,8 @@ import {
   DialogSubmitButton,
   ClientDateTime,
   CopyableText,
-  AvatarInlineLink,
   PersonInlineRow,
+  PersonNameEmailCell,
   TABLE_CATALOG_LINK_CLASS,
 } from "@/components/shared";
 import { ProductThumb } from "@/components/products/ProductOptionRow";
@@ -369,55 +369,47 @@ export default function AdminProductReviewDetailContent({
                         icon={Truck}
                         label="Supplier:"
                         tone="emerald"
-                        valueClassName={cn("text-sm", DETAIL_DATA_VALUE_CLASS)}
+                        valueClassName="min-w-0"
                       >
-                        <div className="flex flex-col gap-0.5 min-w-0">
-                          <AvatarInlineLink
-                            seed={r!.supplierId}
-                            image={r!.supplierImage}
-                            label={r!.supplierName}
-                            href={`/admin/suppliers/${r!.supplierId}`}
-                            size={24}
-                            linkClassName={cn(
-                              TABLE_CATALOG_LINK_CLASS,
-                              "text-sm",
-                            )}
-                          />
-                          {r!.supplierEmail ? (
-                            <CopyableText
-                              value={r!.supplierEmail}
-                              className={cn("text-xs", TYPO_BODY_MUTED)}
-                            >
-                              {r!.supplierEmail}
-                            </CopyableText>
-                          ) : null}
-                        </div>
-                      </DetailInfoRow>
-                    ) : null}
-                    <DetailInfoRow
-                      icon={Calendar}
-                      label="Created:"
-                      tone="orange"
-                      valueClassName={cn("text-sm", DETAIL_DATA_VALUE_CLASS)}
-                    >
-                      <ClientDateTime
-                        date={new Date(r!.createdAt)}
-                        semantic="created"
-                      />
-                    </DetailInfoRow>
-                    {r!.updatedAt ? (
-                      <DetailInfoRow
-                        icon={Calendar}
-                        label="Updated:"
-                        tone="amber"
-                        valueClassName={cn("text-sm", DETAIL_DATA_VALUE_CLASS)}
-                      >
-                        <ClientDateTime
-                          date={new Date(r!.updatedAt)}
-                          semantic="updated"
+                        {/* REQ-0191 gap — avatar centered beside name + email (PersonNameEmailCell) */}
+                        <PersonNameEmailCell
+                          seed={r!.supplierId}
+                          image={r!.supplierImage}
+                          name={r!.supplierName}
+                          email={r!.supplierEmail}
+                          href={`/admin/suppliers/${r!.supplierId}`}
+                          avatarSize={24}
+                          className="max-w-none"
                         />
                       </DetailInfoRow>
                     ) : null}
+                    {/* REQ-0191 — Created | Updated same responsive row */}
+                    <div className="flex flex-col sm:flex-row gap-2 sm:gap-4 [&>*]:flex-1 [&>*]:min-w-0">
+                      <DetailInfoRow
+                        icon={Calendar}
+                        label="Created:"
+                        tone="orange"
+                        valueClassName={cn("text-sm", DETAIL_DATA_VALUE_CLASS)}
+                      >
+                        <ClientDateTime
+                          date={new Date(r!.createdAt)}
+                          semantic="created"
+                        />
+                      </DetailInfoRow>
+                      {r!.updatedAt ? (
+                        <DetailInfoRow
+                          icon={Calendar}
+                          label="Updated:"
+                          tone="amber"
+                          valueClassName={cn("text-sm", DETAIL_DATA_VALUE_CLASS)}
+                        >
+                          <ClientDateTime
+                            date={new Date(r!.updatedAt)}
+                            semantic="updated"
+                          />
+                        </DetailInfoRow>
+                      ) : null}
+                    </div>
                   </div>
                 </div>
               )}

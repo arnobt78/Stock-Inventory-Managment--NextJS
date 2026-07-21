@@ -2,21 +2,78 @@
 
 **Generated:** 2026-07-21 session activate
 **eval_gate_status:** PENDING (Human Gate 2)
-**Prod target SHA:** `2c14b50` (REQ-0185–0190)
+**Prod target SHA:** tip after REQ-0193
 **Resume:** **REQ-0186** next → 0187 → REQ-0136 (see STATE.md)
+
+---
+
+## REQ-0193 Ticket detail/dialog gap closure evidence
+
+| Check | Result |
+| ----- | ------ |
+| Reassign open | placeholder `h-auto min-h-11`; sync reset (no microtask) |
+| Reply header | title-size sky Link for creator name |
+| Opening chat | description first left bubble; Description card kept |
+| Bubble width | `w-[90%]`; author Link via `authorHrefForUserId` |
+| Notes delete | AlertDialogWrapper + subject/notes preview |
+| Status Select | TicketStatusBadge contrast solid/opaque |
+| Invalidation | unchanged |
+| Gates | lint ✓ test **656** ✓ invalidate **217** ✓ build ✓ |
+
+```
+Scope: built/verified | Traceability: REQ-0193 | Findings: PASS
+Commands: lint, test, invalidate, build
+```
+
+---
+
+## REQ-0192 Ticket message count parity evidence
+
+| Check        | Result                                                    |
+| ------------ | --------------------------------------------------------- |
+| Formula      | total = 1 + replies; creator includes opening description |
+| Table/KPI    | `ticketMessageTotal(replyCount)`                          |
+| Detail       | `computeTicketMessageStats`                               |
+| Invalidation | unchanged                                                 |
+| Gates        | lint ✓ test **656** ✓ invalidate **217** ✓ build ✓        |
+
+```
+Scope: built/verified | Traceability: REQ-0192 | Findings: PASS
+Commands: lint, test, invalidate, build
+```
+
+---
+
+## REQ-0191 Ticket detail redesign evidence
+
+| Check                | Result                                             |
+| -------------------- | -------------------------------------------------- |
+| Status/Priority      | RO badges; Edit dialog has Status                  |
+| Messages stats       | total / creator / staff from replies               |
+| Chat + Reply to name | SupportTicketReplyThread                           |
+| Notes                | header Edit/Delete; Cancel/Save icons              |
+| Footer               | Back · Edit · Reassign · Delete+icon               |
+| API                  | admin GET/replies/DELETE via canMutate             |
+| Invalidation         | unchanged                                          |
+| Gates                | lint ✓ test **651** ✓ invalidate **217** ✓ build ✓ |
+
+```
+Scope: built/verified | Traceability: REQ-0191 | Findings: PASS
+Commands: lint, test, invalidate, build
+```
 
 ---
 
 ## REQ-0190 Edit Send-to read-only + admin Reassign evidence
 
-| Check | Result |
-|-------|--------|
-| Edit Send-to | read-only densified row; PUT omits assignedToId |
-| Create Select | unchanged |
+| Check          | Result                                                   |
+| -------------- | -------------------------------------------------------- |
+| Edit Send-to   | read-only densified row; PUT omits assignedToId          |
+| Create Select  | unchanged                                                |
 | Admin Reassign | Actions → Select → AlertDialog confirm → update mutation |
-| API policy | admin mutate any; assignee change admin-only |
-| Invalidation | unchanged (patch + invalidateAll) |
-| Gates | lint ✓ test **648** ✓ invalidate **215** ✓ build ✓ |
+| API policy     | admin mutate any; assignee change admin-only             |
+| Invalidation   | unchanged (patch + invalidateAll)                        |
+| Gates          | lint ✓ test **648** ✓ invalidate **215** ✓ build ✓       |
 
 ```
 Scope: built/verified | Traceability: REQ-0190 | Findings: PASS
@@ -27,14 +84,14 @@ Commands: lint, test, invalidate, build
 
 ## REQ-0189 Ticket/review Subject·Comment·Date polish evidence
 
-| Check | Result |
-|-------|--------|
-| Ticket header | Subject & Description |
+| Check            | Result                                                     |
+| ---------------- | ---------------------------------------------------------- |
+| Ticket header    | Subject & Description                                      |
 | Subject sky link | `TABLE_CATALOG_LINK_CLASS` → detail; dual truncate + title |
-| Review Comment | sky Link → detail; truncate max-w-[200px] |
-| Date labels | muted Created:/Updated: on both tables |
-| Invalidation | unchanged |
-| Gates | lint ✓ test **641** ✓ invalidate **215** ✓ build ✓ |
+| Review Comment   | sky Link → detail; truncate max-w-[200px]                  |
+| Date labels      | muted Created:/Updated: on both tables                     |
+| Invalidation     | unchanged                                                  |
+| Gates            | lint ✓ test **641** ✓ invalidate **215** ✓ build ✓         |
 
 ```
 Scope: built/verified | Traceability: REQ-0189 | Findings: PASS
@@ -45,13 +102,13 @@ Commands: lint, test, invalidate, build
 
 ## REQ-0188 Send-to Select clip + readable text evidence
 
-| Check | Result |
-|-------|--------|
-| Avatar clip | SelectTrigger `line-clamp-none` + overflow-visible; circle overflow-hidden only |
-| Text trigger | white / white/75 |
-| Text item | gray-800 / muted (light popover) |
-| Invalidation | unchanged |
-| Gates | lint ✓ test **641** ✓ invalidate **215** ✓ build ✓ |
+| Check        | Result                                                                          |
+| ------------ | ------------------------------------------------------------------------------- |
+| Avatar clip  | SelectTrigger `line-clamp-none` + overflow-visible; circle overflow-hidden only |
+| Text trigger | white / white/75                                                                |
+| Text item    | gray-700 / muted (light popover)                                                |
+| Invalidation | unchanged                                                                       |
+| Gates        | lint ✓ test **641** ✓ invalidate **215** ✓ build ✓                              |
 
 ```
 Scope: built/verified | Traceability: REQ-0188 | Findings: PASS
@@ -62,15 +119,15 @@ Commands: lint, test, invalidate, build
 
 ## REQ-0185 Support ticket densify evidence
 
-| Check | Result |
-|-------|--------|
-| Person cells | Customer/Sent to + Reviewer supplier-style |
-| Actions | SupportTicketActions View/Edit/Delete |
-| Dialog | create/edit; Send-to required client/supplier; owner densify |
-| Priority contrast | solid/opaque in dialog + table opaque |
-| Redis | supportTickets:list:v2 + shape guard |
-| Invalidation | unchanged |
-| Gates | lint ✓ test **641** ✓ invalidate **215** ✓ build ✓ |
+| Check             | Result                                                       |
+| ----------------- | ------------------------------------------------------------ |
+| Person cells      | Customer/Sent to + Reviewer supplier-style                   |
+| Actions           | SupportTicketActions View/Edit/Delete                        |
+| Dialog            | create/edit; Send-to required client/supplier; owner densify |
+| Priority contrast | solid/opaque in dialog + table opaque                        |
+| Redis             | supportTickets:list:v2 + shape guard                         |
+| Invalidation      | unchanged                                                    |
+| Gates             | lint ✓ test **641** ✓ invalidate **215** ✓ build ✓           |
 
 ```
 Scope: built/verified | Traceability: REQ-0185 | Findings: PASS
@@ -113,16 +170,16 @@ Log: 2026-07-20 | orchestrator | session activate | Infinity Loop ready | REQ-01
 
 ## REQ-0165 Order/Invoice detail + review UX evidence
 
-| Check | Result |
-|-------|--------|
-| Parties self | sky (no PARTY_SELF gray) |
-| Created/Updated by | resolveDetailAuditUserHref — admin UM / else products?ownerId= |
-| Compact reviews | under product row, left; getRatingDisplay hues |
-| WriteEdit dialog | HeaderBrand, FormLabels, Cancel+X, Submit+Star |
-| Delete | AlertDialog + product/comment truncate |
-| Flash | eligibility patch + showWrite guard |
-| Invalidation registry | unchanged |
-| Gates | lint ✓ test **630** ✓ invalidate **213** ✓ build ✓ |
+| Check                 | Result                                                         |
+| --------------------- | -------------------------------------------------------------- |
+| Parties self          | sky (no PARTY_SELF gray)                                       |
+| Created/Updated by    | resolveDetailAuditUserHref — admin UM / else products?ownerId= |
+| Compact reviews       | under product row, left; getRatingDisplay hues                 |
+| WriteEdit dialog      | HeaderBrand, FormLabels, Cancel+X, Submit+Star                 |
+| Delete                | AlertDialog + product/comment truncate                         |
+| Flash                 | eligibility patch + showWrite guard                            |
+| Invalidation registry | unchanged                                                      |
+| Gates                 | lint ✓ test **630** ✓ invalidate **213** ✓ build ✓             |
 
 ```
 Scope: built/verified | Traceability: REQ-0165 | Findings: PASS
@@ -133,13 +190,13 @@ Commands: lint, test, invalidate, build
 
 ## REQ-0166 Dead party class + catalog audit sky evidence
 
-| Check | Result |
-|-------|--------|
-| PARTY_SELF_LINK_CLASS | removed (code + test) |
-| Catalog Created/Updated | Category/Supplier/Warehouse → resolveDetailAuditUserHref |
-| Product Updated by | resolveDetailAuditUserHref; Created keeps ownerProductsHref |
-| Invalidation | unchanged |
-| Gates | lint ✓ test **629** ✓ invalidate **213** ✓ build ✓ |
+| Check                   | Result                                                      |
+| ----------------------- | ----------------------------------------------------------- |
+| PARTY_SELF_LINK_CLASS   | removed (code + test)                                       |
+| Catalog Created/Updated | Category/Supplier/Warehouse → resolveDetailAuditUserHref    |
+| Product Updated by      | resolveDetailAuditUserHref; Created keeps ownerProductsHref |
+| Invalidation            | unchanged                                                   |
+| Gates                   | lint ✓ test **629** ✓ invalidate **213** ✓ build ✓          |
 
 ```
 Scope: built/verified | Traceability: REQ-0166 | Findings: PASS
@@ -150,15 +207,15 @@ Commands: lint, test, invalidate, build
 
 ## REQ-0167 Compact review placement + dialog contrast evidence
 
-| Check | Result |
-|-------|--------|
-| Placement | reviews under price column (right) |
-| Write button | GLASS_COMPACT_AMBER_BUTTON hover glow |
-| Edit/delete | justify-between under rating |
-| Dialog rating | dialogTextClass (bright on dark shell) |
-| Cancel | secondary + GLASS_GHOST + shell reset |
-| Invalidation | unchanged |
-| Gates | lint ✓ test **630** ✓ invalidate **213** ✓ build ✓ |
+| Check         | Result                                             |
+| ------------- | -------------------------------------------------- |
+| Placement     | reviews under price column (right)                 |
+| Write button  | GLASS_COMPACT_AMBER_BUTTON hover glow              |
+| Edit/delete   | justify-between under rating                       |
+| Dialog rating | dialogTextClass (bright on dark shell)             |
+| Cancel        | secondary + GLASS_GHOST + shell reset              |
+| Invalidation  | unchanged                                          |
+| Gates         | lint ✓ test **630** ✓ invalidate **213** ✓ build ✓ |
 
 ```
 Scope: built/verified | Traceability: REQ-0167 | Findings: PASS
@@ -169,14 +226,14 @@ Commands: lint, test, invalidate, build
 
 ## REQ-0184 Restore Edit Review dialog stacked layout evidence
 
-| Check | Result |
-|-------|--------|
-| Stack layout | Status → Rating → Comment w-full (create + edit) |
-| No 2-col / max-w-2xl | Removed from edit dialog |
-| Badge contrast | solid/opaque retained (REQ-0183) |
-| Detail page | 2-col Status+Rating \| Comment unchanged |
-| Invalidation | unchanged |
-| Gates | lint ✓ test **636** ✓ invalidate **214** ✓ build ✓ |
+| Check                | Result                                             |
+| -------------------- | -------------------------------------------------- |
+| Stack layout         | Status → Rating → Comment w-full (create + edit)   |
+| No 2-col / max-w-2xl | Removed from edit dialog                           |
+| Badge contrast       | solid/opaque retained (REQ-0183)                   |
+| Detail page          | 2-col Status+Rating \| Comment unchanged           |
+| Invalidation         | unchanged                                          |
+| Gates                | lint ✓ test **636** ✓ invalidate **214** ✓ build ✓ |
 
 ```
 Scope: built/verified | Traceability: REQ-0184 | Findings: PASS
@@ -187,14 +244,14 @@ Commands: lint, test, invalidate, build
 
 ## REQ-0183 Review detail + Edit dialog UX polish evidence
 
-| Check | Result |
-|-------|--------|
-| Badge contrast | ReviewStatusBadge solid/opaque; dialog Select wired |
-| Layout | Status+Rating \| Comment (detail + edit dialog) |
-| Purchase | status/payment/total/date + sky number links |
-| Polish | reviewer email dedupe; product text-sm; Trash2; dynamic delete |
-| Invalidation | unchanged |
-| Gates | lint ✓ test **636** ✓ invalidate **214** ✓ build ✓ |
+| Check          | Result                                                         |
+| -------------- | -------------------------------------------------------------- |
+| Badge contrast | ReviewStatusBadge solid/opaque; dialog Select wired            |
+| Layout         | Status+Rating \| Comment (detail + edit dialog)                |
+| Purchase       | status/payment/total/date + sky number links                   |
+| Polish         | reviewer email dedupe; product text-sm; Trash2; dynamic delete |
+| Invalidation   | unchanged                                                      |
+| Gates          | lint ✓ test **636** ✓ invalidate **214** ✓ build ✓             |
 
 ```
 Scope: built/verified | Traceability: REQ-0183 | Findings: PASS
@@ -205,13 +262,13 @@ Commands: lint, test, invalidate, build
 
 ## REQ-0182 Product reviews table Actions menu evidence
 
-| Check | Result |
-|-------|--------|
-| Actions | MoreVertical View Details · Edit Review · Delete Review |
-| Edit | WriteEditReviewDialog allowStatusEdit |
-| Delete | AlertDialogWrapper + useDeleteProductReview |
-| Invalidation | unchanged |
-| Gates | lint ✓ test **636** ✓ invalidate **214** ✓ build ✓ |
+| Check        | Result                                                  |
+| ------------ | ------------------------------------------------------- |
+| Actions      | MoreVertical View Details · Edit Review · Delete Review |
+| Edit         | WriteEditReviewDialog allowStatusEdit                   |
+| Delete       | AlertDialogWrapper + useDeleteProductReview             |
+| Invalidation | unchanged                                               |
+| Gates        | lint ✓ test **636** ✓ invalidate **214** ✓ build ✓      |
 
 ```
 Scope: built/verified | Traceability: REQ-0182 | Findings: PASS
@@ -222,13 +279,13 @@ Commands: lint, test, invalidate, build
 
 ## REQ-0181 Review detail display-only; edit via dialog evidence
 
-| Check | Result |
-|-------|--------|
-| Detail | No Status/Rating Selects; no Edit Comment; badge + stars/comment |
-| Dialog | allowStatusEdit → Status Select w-full; PUT status+rating+comment |
-| Roles | Admin detail true; client call sites omit |
-| Invalidation | unchanged |
-| Gates | lint ✓ test **635** ✓ invalidate **213** ✓ build ✓ |
+| Check        | Result                                                            |
+| ------------ | ----------------------------------------------------------------- |
+| Detail       | No Status/Rating Selects; no Edit Comment; badge + stars/comment  |
+| Dialog       | allowStatusEdit → Status Select w-full; PUT status+rating+comment |
+| Roles        | Admin detail true; client call sites omit                         |
+| Invalidation | unchanged                                                         |
+| Gates        | lint ✓ test **635** ✓ invalidate **213** ✓ build ✓                |
 
 ```
 Scope: built/verified | Traceability: REQ-0181 | Findings: PASS
@@ -239,16 +296,16 @@ Commands: lint, test, invalidate, build
 
 ## REQ-0180 Product reviews table densify + detail redesign evidence
 
-| Check | Result |
-|-------|--------|
-| List/detail enrich | productImageUrl, category/supplier, reviewerImage; orderNumber + invoice |
-| Redis | productReviews:list:v2 only; shape guard productImageUrl/reviewerImage; detail no Redis |
-| Nit close | detail key unversioned unused helper; `hasReviewListV2Shape` unit tests |
-| Table | ProductThumb + SKU CopyableText; AvatarInlineLink + email copy |
-| Detail | Status/Rating selects; Product/Reviewer/Purchase cards; Edit Review + Delete |
-| Add dialog polish | ratingLabelClass font-medium + dialogTextClass |
-| Invalidation | unchanged |
-| Gates | lint ✓ test **635** ✓ invalidate **213** ✓ build ✓ |
+| Check              | Result                                                                                  |
+| ------------------ | --------------------------------------------------------------------------------------- |
+| List/detail enrich | productImageUrl, category/supplier, reviewerImage; orderNumber + invoice                |
+| Redis              | productReviews:list:v2 only; shape guard productImageUrl/reviewerImage; detail no Redis |
+| Nit close          | detail key unversioned unused helper; `hasReviewListV2Shape` unit tests                 |
+| Table              | ProductThumb + SKU CopyableText; AvatarInlineLink + email copy                          |
+| Detail             | Status/Rating selects; Product/Reviewer/Purchase cards; Edit Review + Delete            |
+| Add dialog polish  | ratingLabelClass font-medium + dialogTextClass                                          |
+| Invalidation       | unchanged                                                                               |
+| Gates              | lint ✓ test **635** ✓ invalidate **213** ✓ build ✓                                      |
 
 ```
 Scope: built/verified | Traceability: REQ-0180 | Findings: PASS
@@ -259,13 +316,13 @@ Commands: lint, test, invalidate, build
 
 ## REQ-0179 Add Product Review dialog densify evidence
 
-| Check | Result |
-|-------|--------|
-| Rating hues | getRatingDisplay starClass + dialogTextClass on Select |
-| Product Select | DialogProductOptionRow thumb·SKU·cat·owner·supplier |
-| List API/SSR | productOwnerName/Image + supplierImage; products:list:v3 |
-| Invalidation | unchanged |
-| Gates | lint ✓ test **630** ✓ invalidate **213** ✓ build ✓ |
+| Check          | Result                                                   |
+| -------------- | -------------------------------------------------------- |
+| Rating hues    | getRatingDisplay starClass + dialogTextClass on Select   |
+| Product Select | DialogProductOptionRow thumb·SKU·cat·owner·supplier      |
+| List API/SSR   | productOwnerName/Image + supplierImage; products:list:v3 |
+| Invalidation   | unchanged                                                |
+| Gates          | lint ✓ test **630** ✓ invalidate **213** ✓ build ✓       |
 
 ```
 Scope: built/verified | Traceability: REQ-0179 | Findings: PASS
@@ -276,14 +333,14 @@ Commands: lint, test, invalidate, build
 
 ## REQ-0178 Supplier portal recent orders buyer row evidence
 
-| Check | Result |
-|-------|--------|
-| DTO | placedById/Name/Image on SupplierPortalRecentOrder |
-| SSR | userId/clientId + resolveBuyerDisplayFromUsers |
-| UI | Calendar · date · AvatarInlineLink buyer |
-| Redis | supplierPortal:overview:v4 + placedById guard |
-| Invalidation | unchanged |
-| Gates | lint ✓ test **630** ✓ invalidate **213** ✓ build ✓ |
+| Check        | Result                                             |
+| ------------ | -------------------------------------------------- |
+| DTO          | placedById/Name/Image on SupplierPortalRecentOrder |
+| SSR          | userId/clientId + resolveBuyerDisplayFromUsers     |
+| UI           | Calendar · date · AvatarInlineLink buyer           |
+| Redis        | supplierPortal:overview:v4 + placedById guard      |
+| Invalidation | unchanged                                          |
+| Gates        | lint ✓ test **630** ✓ invalidate **213** ✓ build ✓ |
 
 ```
 Scope: built/verified | Traceability: REQ-0178 | Findings: PASS
@@ -294,15 +351,15 @@ Commands: lint, test, invalidate, build
 
 ## REQ-0177 Admin portal recent densify + typography evidence
 
-| Check | Result |
-|-------|--------|
-| Headers | SectionCardHeader on 6 GlassCards (supplier + client) |
-| Supplier products | name text-sm · SKU copy; stock·reserved·cat·supplier; status/price stack |
-| Supplier orders | product·Tag·supplier + Calendar date |
-| Client orders/invoices | product meta + date-first client; invoice price under badge |
-| Redis | supplierPortal v3 + clientPortal v4 + shape guards |
-| Invalidation | unchanged |
-| Gates | lint ✓ test **630** ✓ invalidate **213** ✓ build ✓ |
+| Check                  | Result                                                                   |
+| ---------------------- | ------------------------------------------------------------------------ |
+| Headers                | SectionCardHeader on 6 GlassCards (supplier + client)                    |
+| Supplier products      | name text-sm · SKU copy; stock·reserved·cat·supplier; status/price stack |
+| Supplier orders        | product·Tag·supplier + Calendar date                                     |
+| Client orders/invoices | product meta + date-first client; invoice price under badge              |
+| Redis                  | supplierPortal v3 + clientPortal v4 + shape guards                       |
+| Invalidation           | unchanged                                                                |
+| Gates                  | lint ✓ test **630** ✓ invalidate **213** ✓ build ✓                       |
 
 ```
 Scope: built/verified | Traceability: REQ-0177 | Findings: PASS
@@ -313,13 +370,13 @@ Commands: lint, test, invalidate, build
 
 ## REQ-0176 Recent Orders/Reviews meta gap + date-first evidence
 
-| Check | Result |
-|-------|--------|
-| Vertical gap | Orders + Reviews `flex-col gap-1.5` |
-| Buyer/reviewer row | Calendar · date · AvatarInlineLink |
-| Root cause | Avatar ring-offset left of ProductThumb — avoided by date-first |
-| Invalidation/SSR | unchanged |
-| Gates | lint ✓ invalidate **213** ✓ |
+| Check              | Result                                                          |
+| ------------------ | --------------------------------------------------------------- |
+| Vertical gap       | Orders + Reviews `flex-col gap-1.5`                             |
+| Buyer/reviewer row | Calendar · date · AvatarInlineLink                              |
+| Root cause         | Avatar ring-offset left of ProductThumb — avoided by date-first |
+| Invalidation/SSR   | unchanged                                                       |
+| Gates              | lint ✓ invalidate **213** ✓                                     |
 
 ```
 Scope: built/verified | Traceability: REQ-0176 | Findings: PASS
@@ -330,13 +387,13 @@ Commands: lint, invalidate
 
 ## REQ-0175 Portal recent-card meta row clip parity evidence
 
-| Check | Result |
-|-------|--------|
-| Admin Client portal | orders + invoices → CARD_LIST_META_ROW |
-| Admin Supplier portal | products + orders → CARD_LIST_META_ROW |
-| Role portals | plain-text CARD_LIST_META unchanged |
-| Invalidation | unchanged |
-| Gates | lint ✓ test **630** ✓ invalidate **213** ✓ |
+| Check                 | Result                                     |
+| --------------------- | ------------------------------------------ |
+| Admin Client portal   | orders + invoices → CARD_LIST_META_ROW     |
+| Admin Supplier portal | products + orders → CARD_LIST_META_ROW     |
+| Role portals          | plain-text CARD_LIST_META unchanged        |
+| Invalidation          | unchanged                                  |
+| Gates                 | lint ✓ test **630** ✓ invalidate **213** ✓ |
 
 ```
 Scope: built/verified | Traceability: REQ-0175 | Findings: PASS
@@ -347,14 +404,14 @@ Commands: lint, test, invalidate
 
 ## REQ-0174 Recent cards clip fix + Orders/Reviews densify evidence
 
-| Check | Result |
-|-------|--------|
+| Check          | Result                                                 |
+| -------------- | ------------------------------------------------------ |
 | Clip-safe rows | CARD_LIST_META_ROW + AvatarInlineLink ring not clipped |
-| Orders layout | 3 lines: # / product·cat·supplier / buyer·date |
-| Reviews | Tag category beside ★ |
-| Cache | dashboard:overview:v7 + shape guard |
-| Invalidation | unchanged |
-| Gates | lint ✓ test **630** ✓ invalidate **213** ✓ build ✓ |
+| Orders layout  | 3 lines: # / product·cat·supplier / buyer·date         |
+| Reviews        | Tag category beside ★                                  |
+| Cache          | dashboard:overview:v7 + shape guard                    |
+| Invalidation   | unchanged                                              |
+| Gates          | lint ✓ test **630** ✓ invalidate **213** ✓ build ✓     |
 
 ```
 Scope: built/verified | Traceability: REQ-0174 | Findings: PASS
@@ -365,13 +422,13 @@ Commands: lint, test, invalidate, build
 
 ## REQ-0173 Top Products denser cells + header weight evidence
 
-| Check | Result |
-|-------|--------|
-| SSR enrich | topProducts image/category/supplier; cache v6 |
-| Shared cell | DenseCatalogProductCell (forecast + Top Products) |
-| Headers | font-medium text-gray-700 dark:text-white |
-| Invalidation | unchanged |
-| Gates | lint ✓ test **630** ✓ invalidate **213** ✓ build ✓ |
+| Check        | Result                                             |
+| ------------ | -------------------------------------------------- |
+| SSR enrich   | topProducts image/category/supplier; cache v6      |
+| Shared cell  | DenseCatalogProductCell (forecast + Top Products)  |
+| Headers      | font-medium text-gray-700 dark:text-white          |
+| Invalidation | unchanged                                          |
+| Gates        | lint ✓ test **630** ✓ invalidate **213** ✓ build ✓ |
 
 ```
 Scope: built/verified | Traceability: REQ-0173 | Findings: PASS
@@ -382,13 +439,13 @@ Commands: lint, test, invalidate, build
 
 ## REQ-0172 Forecast 2-line cell + table Y-scrollbar fix evidence
 
-| Check | Result |
-|-------|--------|
-| Product cell | Name · SKU / Category · AvatarInlineLink |
+| Check         | Result                                     |
+| ------------- | ------------------------------------------ |
+| Product cell  | Name · SKU / Category · AvatarInlineLink   |
 | Supplier ring | Circle AVATAR_RING (products-table parity) |
-| Table scroll | `overflow-x-auto` only (no nested Y) |
-| Invalidation | unchanged |
-| Gates | lint ✓ test **630** ✓ invalidate **213** ✓ |
+| Table scroll  | `overflow-x-auto` only (no nested Y)       |
+| Invalidation  | unchanged                                  |
+| Gates         | lint ✓ test **630** ✓ invalidate **213** ✓ |
 
 ```
 Scope: built/verified | Traceability: REQ-0172 | Findings: PASS
@@ -399,14 +456,14 @@ Commands: lint, test, invalidate
 
 ## REQ-0171 Forecast KPI compact + denser product cells evidence
 
-| Check | Result |
-|-------|--------|
-| Compact KPIs | StatisticsCard `compact` on ForecastingSection only |
-| SSR enrich | category/supplier/supplierImage on forecasts + anomalies |
-| Cache | `forecasting:summary:v4` (SSR + API) |
+| Check        | Result                                                            |
+| ------------ | ----------------------------------------------------------------- |
+| Compact KPIs | StatisticsCard `compact` on ForecastingSection only               |
+| SSR enrich   | category/supplier/supplierImage on forecasts + anomalies          |
+| Cache        | `forecasting:summary:v4` (SSR + API)                              |
 | Product cell | CopyableText SKU · category; square supplier SafeImage + sky link |
-| Invalidation | unchanged |
-| Gates | lint ✓ test **630** ✓ invalidate **213** ✓ build ✓ |
+| Invalidation | unchanged                                                         |
+| Gates        | lint ✓ test **630** ✓ invalidate **213** ✓ build ✓                |
 
 ```
 Scope: built/verified | Traceability: REQ-0171 | Findings: PASS
@@ -417,16 +474,16 @@ Commands: lint, test, invalidate, build
 
 ## REQ-0170 Portal/dashboard recent density + forecast shell evidence
 
-| Check | Result |
-|-------|--------|
-| Dashboard Latest 5 | buyer/product/category/supplier clickable + avatars/thumbs |
-| Tickets/Reviews/Imports | user(+product) avatars/links |
-| Supplier portal | product thumbs + supplier avatars on recent cards |
-| Client portal | client avatars on orders/invoices |
-| Forecasting | StatisticsCard KPIs; ChartCard headers; ProductThumb links |
-| Cache | dashboard v5; supplierPortal v2; clientPortal v3; forecasting v3 |
-| Invalidation | unchanged |
-| Gates | lint ✓ test **630** ✓ invalidate **213** ✓ build ✓ |
+| Check                   | Result                                                           |
+| ----------------------- | ---------------------------------------------------------------- |
+| Dashboard Latest 5      | buyer/product/category/supplier clickable + avatars/thumbs       |
+| Tickets/Reviews/Imports | user(+product) avatars/links                                     |
+| Supplier portal         | product thumbs + supplier avatars on recent cards                |
+| Client portal           | client avatars on orders/invoices                                |
+| Forecasting             | StatisticsCard KPIs; ChartCard headers; ProductThumb links       |
+| Cache                   | dashboard v5; supplierPortal v2; clientPortal v3; forecasting v3 |
+| Invalidation            | unchanged                                                        |
+| Gates                   | lint ✓ test **630** ✓ invalidate **213** ✓ build ✓               |
 
 ```
 Scope: built/verified | Traceability: REQ-0170 | Findings: PASS
@@ -437,14 +494,14 @@ Commands: lint, test, invalidate, build
 
 ## REQ-0169 Stats-grid shell + My Activity Actions polish evidence
 
-| Check | Result |
-|-------|--------|
-| Shell stats token | PAGE_STATS_GRID_IN_SHELL_CLASS on BI + My Activity |
-| Portal pb-6 | PAGE_STATS_GRID_CLASS unchanged |
-| Optional onEdit | Edit hidden when absent; OrderList still passes onEdit |
-| My Activity | createOrderColumns(undefined, "/admin/orders") |
-| Invalidation | unchanged (Cancel/Delete hooks) |
-| Gates | lint ✓ test **630** ✓ invalidate **213** ✓ build ✓ |
+| Check             | Result                                                 |
+| ----------------- | ------------------------------------------------------ |
+| Shell stats token | PAGE_STATS_GRID_IN_SHELL_CLASS on BI + My Activity     |
+| Portal pb-6       | PAGE_STATS_GRID_CLASS unchanged                        |
+| Optional onEdit   | Edit hidden when absent; OrderList still passes onEdit |
+| My Activity       | createOrderColumns(undefined, "/admin/orders")         |
+| Invalidation      | unchanged (Cancel/Delete hooks)                        |
+| Gates             | lint ✓ test **630** ✓ invalidate **213** ✓ build ✓     |
 
 ```
 Scope: built/verified | Traceability: REQ-0169 | Findings: PASS
@@ -455,16 +512,16 @@ Commands: lint, test, invalidate, build
 
 ## REQ-0168 Admin/Business spacing + Recent Orders density evidence
 
-| Check | Result |
-|-------|--------|
-| BI spacing | flex flex-col gap-6 + PAGE_STATS_GRID; trimmed stacked pb-6 |
-| Reorder empty | healthy copy when low+out = 0 (heuristic unchanged) |
-| Activity Logs | filter row mb-4 before table |
-| My Activity | iconTile header; createOrderColumns → AdminEmbedDataTable |
-| Dashboard Latest 5 | buyer/product/category/supplier; denser cards |
-| Cache | `dashboard:overview:v4:` |
-| Invalidation | unchanged (order-graph already clears dashboard) |
-| Gates | lint ✓ test **630** ✓ invalidate **213** ✓ build ✓ |
+| Check              | Result                                                      |
+| ------------------ | ----------------------------------------------------------- |
+| BI spacing         | flex flex-col gap-6 + PAGE_STATS_GRID; trimmed stacked pb-6 |
+| Reorder empty      | healthy copy when low+out = 0 (heuristic unchanged)         |
+| Activity Logs      | filter row mb-4 before table                                |
+| My Activity        | iconTile header; createOrderColumns → AdminEmbedDataTable   |
+| Dashboard Latest 5 | buyer/product/category/supplier; denser cards               |
+| Cache              | `dashboard:overview:v4:`                                    |
+| Invalidation       | unchanged (order-graph already clears dashboard)            |
+| Gates              | lint ✓ test **630** ✓ invalidate **213** ✓ build ✓          |
 
 ```
 Scope: built/verified | Traceability: REQ-0168 | Findings: PASS
@@ -475,13 +532,13 @@ Commands: lint, test, invalidate, build
 
 ## REQ-0164 Compact reviews + party links + summary icons evidence
 
-| Check | Result |
-|-------|--------|
-| Compact reviews | stars + n/5 + icon Pencil/Trash |
-| Parties | owner-products href all roles; self gray |
-| Summary icons | sky/violet/cyan/rose/emerald/amber |
-| Invalidation | unchanged |
-| Gates | lint ✓ test **620** ✓ invalidate **213** ✓ build ✓ tsc ✓ |
+| Check           | Result                                                   |
+| --------------- | -------------------------------------------------------- |
+| Compact reviews | stars + n/5 + icon Pencil/Trash                          |
+| Parties         | owner-products href all roles; self gray                 |
+| Summary icons   | sky/violet/cyan/rose/emerald/amber                       |
+| Invalidation    | unchanged                                                |
+| Gates           | lint ✓ test **620** ✓ invalidate **213** ✓ build ✓ tsc ✓ |
 
 ```
 Scope: built/verified | Traceability: REQ-0164 | Findings: PASS
@@ -492,15 +549,15 @@ Commands: lint, test, invalidate, build, tsc
 
 ## REQ-0163 Invoice Order Items parity + hydration/Back evidence
 
-| Check | Result |
-|-------|--------|
-| Subtitle | count on this invoice · ClientDateTime |
-| Meta | relatedOrder ORD # sky + CopyableText |
-| linkMode | admin / portal (incl. store owner) |
-| Back | no variant=ghost on footer |
-| Hydrate | SSR initialReviewContext; compact no Loader2 without SSR |
-| Invalidation | unchanged |
-| Gates | lint ✓ test **616** ✓ invalidate **213** ✓ build ✓ tsc ✓ |
+| Check        | Result                                                   |
+| ------------ | -------------------------------------------------------- |
+| Subtitle     | count on this invoice · ClientDateTime                   |
+| Meta         | relatedOrder ORD # sky + CopyableText                    |
+| linkMode     | admin / portal (incl. store owner)                       |
+| Back         | no variant=ghost on footer                               |
+| Hydrate      | SSR initialReviewContext; compact no Loader2 without SSR |
+| Invalidation | unchanged                                                |
+| Gates        | lint ✓ test **616** ✓ invalidate **213** ✓ build ✓ tsc ✓ |
 
 ```
 Scope: built/verified | Traceability: REQ-0163 | Findings: PASS
@@ -511,14 +568,14 @@ Commands: lint, test, invalidate, build, tsc
 
 ## REQ-0162 Invoice Detail ↔ Order Detail parity evidence
 
-| Check | Result |
-|-------|--------|
-| Layout | status stack\|billing · items\|summary · info\|parties |
-| Info rows | DetailInfoRow*; hide empty dates; Related Order sky font-normal |
-| Cards | InvoiceItemsCard + InvoicePartiesCard (href sky); FactsGrid removed |
-| Paid line | emerald paid; total emerald when settled else muted |
-| Invalidation | unchanged |
-| Gates | lint ✓ test **616** ✓ invalidate **213** ✓ build ✓ tsc ✓ |
+| Check        | Result                                                              |
+| ------------ | ------------------------------------------------------------------- |
+| Layout       | status stack\|billing · items\|summary · info\|parties              |
+| Info rows    | DetailInfoRow\*; hide empty dates; Related Order sky font-normal    |
+| Cards        | InvoiceItemsCard + InvoicePartiesCard (href sky); FactsGrid removed |
+| Paid line    | emerald paid; total emerald when settled else muted                 |
+| Invalidation | unchanged                                                           |
+| Gates        | lint ✓ test **616** ✓ invalidate **213** ✓ build ✓ tsc ✓            |
 
 ```
 Scope: built/verified | Traceability: REQ-0162 | Findings: PASS
@@ -529,14 +586,14 @@ Commands: lint, test, invalidate, build, tsc
 
 ## REQ-0161 Order/Invoice header HelpTooltips evidence
 
-| Check | Result |
-|-------|--------|
-| Copy hub | order-invoice-column-tooltips.ts |
-| Order headers | Order # Total Status Payment Invoice # |
-| Invoice headers | Invoice # Order # Status Total |
-| Pattern | HelpTooltip sibling of SortableHeader |
-| Invalidation | unchanged |
-| Gates | lint ✓ test **616** ✓ invalidate **213** ✓ build ✓ tsc ✓ |
+| Check           | Result                                                   |
+| --------------- | -------------------------------------------------------- |
+| Copy hub        | order-invoice-column-tooltips.ts                         |
+| Order headers   | Order # Total Status Payment Invoice #                   |
+| Invoice headers | Invoice # Order # Status Total                           |
+| Pattern         | HelpTooltip sibling of SortableHeader                    |
+| Invalidation    | unchanged                                                |
+| Gates           | lint ✓ test **616** ✓ invalidate **213** ✓ build ✓ tsc ✓ |
 
 ```
 Scope: built/verified | Traceability: REQ-0161 | Findings: PASS
@@ -549,12 +606,12 @@ Commands: lint, test, invalidate, build, tsc
 
 ## REQ-0160 User overview copy evidence
 
-| Check | Result |
-|-------|--------|
-| Helper | getUserOverviewDescription + shouldShowMyActivityTip |
-| UI | Overview blurb role-aware; My Activity tip isOwner admin/user |
-| Invalidation | unchanged |
-| Gates | lint ✓ test **615** ✓ invalidate **213** ✓ build ✓ tsc ✓ |
+| Check        | Result                                                        |
+| ------------ | ------------------------------------------------------------- |
+| Helper       | getUserOverviewDescription + shouldShowMyActivityTip          |
+| UI           | Overview blurb role-aware; My Activity tip isOwner admin/user |
+| Invalidation | unchanged                                                     |
+| Gates        | lint ✓ test **615** ✓ invalidate **213** ✓ build ✓ tsc ✓      |
 
 ```
 Scope: built/verified | Traceability: REQ-0160 | Findings: PASS
@@ -567,17 +624,17 @@ Commands: lint, test, invalidate, build, tsc
 
 ## REQ-0159 Buyer display + invoice list parity evidence
 
-| Check | Result |
-|-------|--------|
-| Buyer helpers | resolveBuyerDisplayFromUsers + formatStoreOwnerLabel |
-| SSR/API | placedBy / customerDisplay / orderedBy = buyer |
-| /invoices | Self-only (getInvoicesForUser); KPIs store-wide |
-| Client UI | Store · owner prefix |
-| Seed | shipping name/email = buyer; reset-demo-db --with-catalog ✓ |
-| Cache | orders:list:v5 · invoices:list:v3 |
-| Cleanup | removed dead `getStoreInvoicesForAdmin` + API/`InvoiceFilters.scope` store list |
-| Invalidation | unchanged (`getStoreOrderIds` kept for dashboard KPIs) |
-| Gates | lint ✓ test **612** ✓ invalidate **213** ✓ build ✓ tsc ✓ |
+| Check         | Result                                                                          |
+| ------------- | ------------------------------------------------------------------------------- |
+| Buyer helpers | resolveBuyerDisplayFromUsers + formatStoreOwnerLabel                            |
+| SSR/API       | placedBy / customerDisplay / orderedBy = buyer                                  |
+| /invoices     | Self-only (getInvoicesForUser); KPIs store-wide                                 |
+| Client UI     | Store · owner prefix                                                            |
+| Seed          | shipping name/email = buyer; reset-demo-db --with-catalog ✓                     |
+| Cache         | orders:list:v5 · invoices:list:v3                                               |
+| Cleanup       | removed dead `getStoreInvoicesForAdmin` + API/`InvoiceFilters.scope` store list |
+| Invalidation  | unchanged (`getStoreOrderIds` kept for dashboard KPIs)                          |
+| Gates         | lint ✓ test **612** ✓ invalidate **213** ✓ build ✓ tsc ✓                        |
 
 ```
 Scope: built/verified | Traceability: REQ-0159 | Findings: PASS
@@ -588,13 +645,13 @@ Commands: lint, test, invalidate, build, tsc
 
 ## REQ-0158 Order party semantics evidence
 
-| Check | Result |
-|-------|--------|
-| Model | userId=owner; clientId=buyer/null self |
-| Client portal | clientId filter + overview:v2 |
-| Seed | ORD/INV-DEMO-001…004 (reset-demo-db --with-catalog ✓) |
-| Invalidation | unchanged (order-graph) |
-| Gates | lint ✓ test **610** ✓ invalidate **213** ✓ build ✓ tsc ✓ |
+| Check         | Result                                                   |
+| ------------- | -------------------------------------------------------- |
+| Model         | userId=owner; clientId=buyer/null self                   |
+| Client portal | clientId filter + overview:v2                            |
+| Seed          | ORD/INV-DEMO-001…004 (reset-demo-db --with-catalog ✓)    |
+| Invalidation  | unchanged (order-graph)                                  |
+| Gates         | lint ✓ test **610** ✓ invalidate **213** ✓ build ✓ tsc ✓ |
 
 ```
 Scope: built/verified | Traceability: REQ-0158 | Findings: PASS
@@ -605,13 +662,13 @@ Commands: lint, test, invalidate, build, tsc
 
 ## REQ-0157 Badge DRY + portal helper + tsc hygiene evidence
 
-| Check | Result |
-|-------|--------|
-| Invoice DRY | client InvoiceList + supplier OrderList |
-| Portal orders | `buildPortalOrderStatusBadges` |
-| tsc | `npx tsc --noEmit` clean |
-| Invalidation | unchanged |
-| Gates | lint ✓ test **606** ✓ invalidate **213** ✓ build ✓ tsc ✓ |
+| Check         | Result                                                   |
+| ------------- | -------------------------------------------------------- |
+| Invoice DRY   | client InvoiceList + supplier OrderList                  |
+| Portal orders | `buildPortalOrderStatusBadges`                           |
+| tsc           | `npx tsc --noEmit` clean                                 |
+| Invalidation  | unchanged                                                |
+| Gates         | lint ✓ test **606** ✓ invalidate **213** ✓ build ✓ tsc ✓ |
 
 ```
 Scope: built/verified | Traceability: REQ-0157 | Findings: PASS
@@ -622,14 +679,14 @@ Commands: lint, test, invalidate, build, tsc
 
 ## REQ-0156 My Activity + invoice badge set parity evidence
 
-| Check | Result |
-|-------|--------|
-| Helper | `buildStoreInvoiceStatusBadges` |
-| My Activity | Total Orders + Invoices store badge sets |
-| DRY | home/admin/orders/invoices invoice KPIs |
-| Client Due | Refunded badge |
-| Invalidation | unchanged |
-| Gates | lint ✓ test **604** ✓ invalidate **213** ✓ build ✓ |
+| Check        | Result                                             |
+| ------------ | -------------------------------------------------- |
+| Helper       | `buildStoreInvoiceStatusBadges`                    |
+| My Activity  | Total Orders + Invoices store badge sets           |
+| DRY          | home/admin/orders/invoices invoice KPIs            |
+| Client Due   | Refunded badge                                     |
+| Invalidation | unchanged                                          |
+| Gates        | lint ✓ test **604** ✓ invalidate **213** ✓ build ✓ |
 
 ```
 Scope: built/verified | Traceability: REQ-0156 | Findings: PASS
@@ -640,14 +697,14 @@ Commands: lint, test, invalidate, build
 
 ## REQ-0155 Delivered + Due badge parity evidence
 
-| Check | Result |
-|-------|--------|
-| Helper | `buildStoreOrderStatusBadges` — Shipping=processing+shipped; Delivered separate |
-| Store Total Orders | home / admin / orders / invoices KPI rows |
-| Due label | AOV + invoice Due card + My Activity AOV uses outstandingAmount |
-| Portals | Shipped→Shipping; Client Outstanding→Due |
-| Invalidation | unchanged |
-| Gates | lint ✓ test **602** ✓ invalidate **213** ✓ build ✓ |
+| Check              | Result                                                                          |
+| ------------------ | ------------------------------------------------------------------------------- |
+| Helper             | `buildStoreOrderStatusBadges` — Shipping=processing+shipped; Delivered separate |
+| Store Total Orders | home / admin / orders / invoices KPI rows                                       |
+| Due label          | AOV + invoice Due card + My Activity AOV uses outstandingAmount                 |
+| Portals            | Shipped→Shipping; Client Outstanding→Due                                        |
+| Invalidation       | unchanged                                                                       |
+| Gates              | lint ✓ test **602** ✓ invalidate **213** ✓ build ✓                              |
 
 ```
 Scope: built/verified | Traceability: REQ-0155 | Findings: PASS
@@ -658,15 +715,15 @@ Commands: lint, test, invalidate, build
 
 ## REQ-0154 partial pay stats + Total typography evidence
 
-| Check | Result |
-|-------|--------|
-| Helper | `buildPaymentMoneyStats` — demo Paid $534.93 + Partial $100 + Due $3880 |
-| Dashboards | admin/client/supplier invoice-money partition; `partialOrderAmount` / `partialCount` |
-| UI | Partial badge on home/admin/lists/portals |
-| Typography | PaymentMoneyBreakdown table `text-xs font-normal` gray |
-| Cache | `dashboard:overview:v3:` |
-| Invalidation | unchanged |
-| Gates | lint ✓ test **600** ✓ invalidate **213** ✓ build ✓ |
+| Check        | Result                                                                               |
+| ------------ | ------------------------------------------------------------------------------------ |
+| Helper       | `buildPaymentMoneyStats` — demo Paid $534.93 + Partial $100 + Due $3880              |
+| Dashboards   | admin/client/supplier invoice-money partition; `partialOrderAmount` / `partialCount` |
+| UI           | Partial badge on home/admin/lists/portals                                            |
+| Typography   | PaymentMoneyBreakdown table `text-xs font-normal` gray                               |
+| Cache        | `dashboard:overview:v3:`                                                             |
+| Invalidation | unchanged                                                                            |
+| Gates        | lint ✓ test **600** ✓ invalidate **213** ✓ build ✓                                   |
 
 ```
 Scope: built/verified | Traceability: REQ-0154 | Findings: PASS
@@ -677,13 +734,13 @@ Commands: lint, test, invalidate, build
 
 ## REQ-0153 instant linked-order patch evidence
 
-| Check | Result |
-|-------|--------|
-| Helper | `patchLinkedOrderFromInvoiceMoney` — order lists/detail + invoice badge |
-| Hooks | useUpdateInvoice mutate/success/error; create + send |
-| Optimistic due | mergeOptimisticInvoiceUpdate recomputes amountDue |
-| Invalidation | unchanged — patch then `invalidateAfterOrderGraphChange` |
-| Gates | lint ✓ test **595** ✓ invalidate **213** ✓ build ✓ |
+| Check          | Result                                                                  |
+| -------------- | ----------------------------------------------------------------------- |
+| Helper         | `patchLinkedOrderFromInvoiceMoney` — order lists/detail + invoice badge |
+| Hooks          | useUpdateInvoice mutate/success/error; create + send                    |
+| Optimistic due | mergeOptimisticInvoiceUpdate recomputes amountDue                       |
+| Invalidation   | unchanged — patch then `invalidateAfterOrderGraphChange`                |
+| Gates          | lint ✓ test **595** ✓ invalidate **213** ✓ build ✓                      |
 
 ```
 Scope: built/verified | Traceability: REQ-0153 | Findings: PASS
@@ -694,16 +751,16 @@ Commands: lint, test, invalidate, build
 
 ## REQ-0152 partial pay sync + Invoice Total + Pay toggle evidence
 
-| Check | Result |
-|-------|--------|
-| Order sync | unpaid/partial/paid from invoice amountPaid vs total on PUT + Stripe |
-| Checkout | optional amount; admin canCheckout; no unpaid clobber |
-| Webhook | incremental amountPaid; fulfill only on full pay |
-| PaymentDialog | full/partial toggle + Zod live errors |
-| UI | PaymentMoneyBreakdown Invoice Total; Order Total when paid>0; admin detail parity |
-| Cache | `orders:list:v4:` (amountPaid on invoiceForOrder) |
-| Invalidation | unchanged (`invalidateAfterOrderGraphChange` / invoice Redis) |
-| Gates | lint ✓ test **593** ✓ invalidate **213** ✓ build ✓ |
+| Check         | Result                                                                            |
+| ------------- | --------------------------------------------------------------------------------- |
+| Order sync    | unpaid/partial/paid from invoice amountPaid vs total on PUT + Stripe              |
+| Checkout      | optional amount; admin canCheckout; no unpaid clobber                             |
+| Webhook       | incremental amountPaid; fulfill only on full pay                                  |
+| PaymentDialog | full/partial toggle + Zod live errors                                             |
+| UI            | PaymentMoneyBreakdown Invoice Total; Order Total when paid>0; admin detail parity |
+| Cache         | `orders:list:v4:` (amountPaid on invoiceForOrder)                                 |
+| Invalidation  | unchanged (`invalidateAfterOrderGraphChange` / invoice Redis)                     |
+| Gates         | lint ✓ test **593** ✓ invalidate **213** ✓ build ✓                                |
 
 ```
 Scope: built/verified | Traceability: REQ-0152 | Findings: PASS
@@ -714,14 +771,14 @@ Commands: lint, test, invalidate, build
 
 ## REQ-0151 edit submit + Order # badges + due Clock evidence
 
-| Check | Result |
-|-------|--------|
-| Zod dates | sentAt/paidAt/cancelledAt accept YYYY-MM-DD |
-| Invalid toast | InvoiceDialog onInvalid |
-| Order # badges | linkedOrder status/payment + SemanticEventDate |
-| Due icon | Clock for due/overdue |
-| Invalidation | unchanged |
-| Gates | lint ✓ test **580** ✓ invalidate **213** ✓ build ✓ |
+| Check          | Result                                             |
+| -------------- | -------------------------------------------------- |
+| Zod dates      | sentAt/paidAt/cancelledAt accept YYYY-MM-DD        |
+| Invalid toast  | InvoiceDialog onInvalid                            |
+| Order # badges | linkedOrder status/payment + SemanticEventDate     |
+| Due icon       | Clock for due/overdue                              |
+| Invalidation   | unchanged                                          |
+| Gates          | lint ✓ test **580** ✓ invalidate **213** ✓ build ✓ |
 
 ```
 Scope: built/verified | Traceability: REQ-0151 | Findings: PASS
@@ -732,14 +789,14 @@ Commands: lint, test, invalidate, build
 
 ## REQ-0150 invoice table density + Edit Invoice evidence
 
-| Check | Result |
-|-------|--------|
-| Edit submit | Cancel `type="button"` |
-| Status Select | solid trigger / opaque items |
-| List enrich | linkedOrder* + statusAt; `invoices:list:v2:` |
-| Columns | Invoice # · Order # · Status · Total · Actions |
-| Invalidation | unchanged |
-| Gates | lint ✓ test **578** ✓ invalidate **213** ✓ build ✓ |
+| Check         | Result                                             |
+| ------------- | -------------------------------------------------- |
+| Edit submit   | Cancel `type="button"`                             |
+| Status Select | solid trigger / opaque items                       |
+| List enrich   | linkedOrder\* + statusAt; `invoices:list:v2:`      |
+| Columns       | Invoice # · Order # · Status · Total · Actions     |
+| Invalidation  | unchanged                                          |
+| Gates         | lint ✓ test **578** ✓ invalidate **213** ✓ build ✓ |
 
 ```
 Scope: built/verified | Traceability: REQ-0150 | Findings: PASS
@@ -750,13 +807,13 @@ Commands: lint, test, invalidate, build
 
 ## REQ-0149 line price + Owner/Buyer size evidence
 
-| Check | Result |
-|-------|--------|
-| Final price | `text-sm sm:text-base` via ProportionalPriceDisplay |
-| Strike price | `text-xs sm:text-sm` |
-| Owner/Buyer | `linkClassName="text-xs"` on catalog recent orders + product grid |
-| Invalidation | unchanged |
-| Gates | lint ✓ test **573** ✓ invalidate **213** ✓ build ✓ |
+| Check        | Result                                                            |
+| ------------ | ----------------------------------------------------------------- |
+| Final price  | `text-sm sm:text-base` via ProportionalPriceDisplay               |
+| Strike price | `text-xs sm:text-sm`                                              |
+| Owner/Buyer  | `linkClassName="text-xs"` on catalog recent orders + product grid |
+| Invalidation | unchanged                                                         |
+| Gates        | lint ✓ test **573** ✓ invalidate **213** ✓ build ✓                |
 
 ```
 Scope: built/verified | Traceability: REQ-0149 | Findings: PASS
@@ -767,13 +824,13 @@ Commands: lint, test, invalidate, build
 
 ## REQ-0148 summary total + line meta + light Back evidence
 
-| Check | Result |
-|-------|--------|
-| Total typo | Order + Invoice Summary `text-sm sm:text-base` |
-| Line meta | · separators; Invoice FileText + CopyableText + sky Link |
-| Header Back | light gray glass token + Order `variant="ghost"` (Product parity; was red default) |
-| Invalidation | unchanged |
-| Gates | lint ✓ test **573** ✓ invalidate **213** ✓ build ✓ |
+| Check        | Result                                                                             |
+| ------------ | ---------------------------------------------------------------------------------- |
+| Total typo   | Order + Invoice Summary `text-sm sm:text-base`                                     |
+| Line meta    | · separators; Invoice FileText + CopyableText + sky Link                           |
+| Header Back  | light gray glass token + Order `variant="ghost"` (Product parity; was red default) |
+| Invalidation | unchanged                                                                          |
+| Gates        | lint ✓ test **573** ✓ invalidate **213** ✓ build ✓                                 |
 
 ```
 Scope: built/verified | Traceability: REQ-0148 | Findings: PASS
@@ -784,15 +841,15 @@ Commands: lint, test, invalidate, build
 
 ## REQ-0147 order detail gap closure evidence
 
-| Check | Result |
-|-------|--------|
-| Carrier | `CarrierGlassBadge` span — no shadcn Badge |
-| Layout | Items\|Summary; Info\|(Parties+addresses); related cards removed |
-| Invoice | DetailInfoRow in Order Information |
-| Parties | admin sky hrefs |
-| Header Back | slate glass, no ghost |
-| Invalidation | unchanged |
-| Gates | lint ✓ test **573** ✓ invalidate **213** ✓ build ✓ |
+| Check        | Result                                                           |
+| ------------ | ---------------------------------------------------------------- |
+| Carrier      | `CarrierGlassBadge` span — no shadcn Badge                       |
+| Layout       | Items\|Summary; Info\|(Parties+addresses); related cards removed |
+| Invoice      | DetailInfoRow in Order Information                               |
+| Parties      | admin sky hrefs                                                  |
+| Header Back  | slate glass, no ghost                                            |
+| Invalidation | unchanged                                                        |
+| Gates        | lint ✓ test **573** ✓ invalidate **213** ✓ build ✓               |
 
 ```
 Scope: built/verified | Traceability: REQ-0147 | Findings: PASS
@@ -803,14 +860,14 @@ Commands: lint, test, invalidate, build
 
 ## REQ-0146 order detail density evidence
 
-| Check | Result |
-|-------|--------|
-| Status + tracking | equal-height `layout="stack"` + glass carrier badge |
-| Body grids | Created/Updated row; Shipping\|Billing; related cards |
-| Strike | dual-price only when list > adjusted |
-| trackingCarrier | updateOrderSchema + prisma + admin mutate |
-| Invalidation | unchanged |
-| Gates | lint ✓ test **572** ✓ invalidate **213** ✓ build ✓ |
+| Check             | Result                                                |
+| ----------------- | ----------------------------------------------------- |
+| Status + tracking | equal-height `layout="stack"` + glass carrier badge   |
+| Body grids        | Created/Updated row; Shipping\|Billing; related cards |
+| Strike            | dual-price only when list > adjusted                  |
+| trackingCarrier   | updateOrderSchema + prisma + admin mutate             |
+| Invalidation      | unchanged                                             |
+| Gates             | lint ✓ test **572** ✓ invalidate **213** ✓ build ✓    |
 
 ```
 Scope: built/verified | Traceability: REQ-0146 | Findings: PASS
@@ -821,12 +878,12 @@ Commands: lint, test, invalidate, build
 
 ## EOD park 2026-07-16
 
-| Area | Status |
-|------|--------|
-| REQ-0137–0145 | done + pushed `origin/main` |
-| UI explore (REQ-0136) | in progress — continue tomorrow |
-| §10 cache A1/A2/B1 | **not started** — after UI/calc OK |
-| Gate 2 Sentry 24h | blocked on smoke |
+| Area                  | Status                             |
+| --------------------- | ---------------------------------- |
+| REQ-0137–0145         | done + pushed `origin/main`        |
+| UI explore (REQ-0136) | in progress — continue tomorrow    |
+| §10 cache A1/A2/B1    | **not started** — after UI/calc OK |
+| Gate 2 Sentry 24h     | blocked on smoke                   |
 
 ```
 Scope: parked | Traceability: REQ-0136, REQ-0144–0145 | Findings: PASS (shipped); PENDING (human QA)
@@ -837,14 +894,14 @@ Commands: lint, test, invalidate, build (571 / 213)
 
 ## REQ-0145 orders table Invoice # evidence
 
-| Check | Result |
-|-------|--------|
-| Status/Payment | `SemanticEventDate` icons + semantic hues |
-| Order # | clickable product links + meta icons |
-| Invoice # | 2-line nowrap; paid/cancelled/refunded/due event |
-| SSR | InvoiceLinkFields + sentAt/cancelledAt; orders:list:v3 |
-| Invalidation | unchanged |
-| Gates | lint ✓ test 571 ✓ invalidate 213 ✓ build ✓ |
+| Check          | Result                                                 |
+| -------------- | ------------------------------------------------------ |
+| Status/Payment | `SemanticEventDate` icons + semantic hues              |
+| Order #        | clickable product links + meta icons                   |
+| Invoice #      | 2-line nowrap; paid/cancelled/refunded/due event       |
+| SSR            | InvoiceLinkFields + sentAt/cancelledAt; orders:list:v3 |
+| Invalidation   | unchanged                                              |
+| Gates          | lint ✓ test 571 ✓ invalidate 213 ✓ build ✓             |
 
 ```
 Scope: built/verified | Traceability: REQ-0145 | Findings: PASS
@@ -855,14 +912,14 @@ Commands: lint, test, invalidate, build
 
 ## REQ-0144 products hydration + theme evidence
 
-| Check | Result |
-|-------|--------|
-| Stock header | `label="QR & Stock"` (plain `&`; no `&amp;` props) |
-| Product header | `label="Product & SKU"` |
-| ThemeProvider | Dev-only filter for next-themes script false positive |
-| Forecasting model | `openai/gpt-4o-mini` |
-| Invalidation | unchanged |
-| Gates | lint ✓ test 559 ✓ invalidate 213 ✓ build ✓ |
+| Check             | Result                                                |
+| ----------------- | ----------------------------------------------------- |
+| Stock header      | `label="QR & Stock"` (plain `&`; no `&amp;` props)    |
+| Product header    | `label="Product & SKU"`                               |
+| ThemeProvider     | Dev-only filter for next-themes script false positive |
+| Forecasting model | `openai/gpt-4o-mini`                                  |
+| Invalidation      | unchanged                                             |
+| Gates             | lint ✓ test 559 ✓ invalidate 213 ✓ build ✓            |
 
 ```
 Scope: built/verified | Traceability: REQ-0144 | Findings: PASS
@@ -873,13 +930,13 @@ Commands: lint, test, invalidate, build
 
 ## REQ-0143 detail meta polish evidence
 
-| Check | Result |
-|-------|--------|
-| Product grid | Owner · Supplier |
+| Check         | Result                                               |
+| ------------- | ---------------------------------------------------- |
+| Product grid  | Owner · Supplier                                     |
 | Recent orders | SKU · Category · Qty; Owner · Buyer; INV when linked |
-| SSR | category + invoiceForOrder via getInvoiceLinkMap |
-| Invalidation | unchanged |
-| Gates | lint ✓ test 559 ✓ invalidate 213 ✓ build ✓ |
+| SSR           | category + invoiceForOrder via getInvoiceLinkMap     |
+| Invalidation  | unchanged                                            |
+| Gates         | lint ✓ test 559 ✓ invalidate 213 ✓ build ✓           |
 
 ```
 Scope: built/verified | Traceability: REQ-0143 | Findings: PASS
@@ -890,14 +947,14 @@ Commands: lint, test, invalidate, build
 
 ## REQ-0142 cat/sup polish evidence
 
-| Check | Result |
-|-------|--------|
-| Nest button | Name control + email CopyableText siblings |
-| Supplier & Email | product-like avatar \| name \| email stack |
+| Check            | Result                                          |
+| ---------------- | ----------------------------------------------- |
+| Nest button      | Name control + email CopyableText siblings      |
+| Supplier & Email | product-like avatar \| name \| email stack      |
 | Products tooltip | `HelpTooltip` + `CATALOG_PRODUCT_SHARE_TOOLTIP` |
-| Count scope | groupBy `userId` = viewer |
-| Detail headers | iconTile + subtitle Products/Recent Orders |
-| Gates | lint ✓ test 559 ✓ invalidate 213 ✓ build ✓ |
+| Count scope      | groupBy `userId` = viewer                       |
+| Detail headers   | iconTile + subtitle Products/Recent Orders      |
+| Gates            | lint ✓ test 559 ✓ invalidate 213 ✓ build ✓      |
 
 ```
 Scope: built/verified | Traceability: REQ-0142 | Findings: PASS
@@ -908,15 +965,15 @@ Commands: lint, test, invalidate, build
 
 ## REQ-0141 category/supplier UI evidence
 
-| Check | Result |
-|-------|--------|
-| List enrich | `productCount` + supplier `email`; home + GET lists |
-| Tables/export | Notes removed; Products count · %; CSV Products |
-| Detail Status | Badge by Created; no top STATUS strip |
-| Product grid | Name · SKU; category link; SSR category on supplier products |
-| Stock companion | `CatalogSnapshotCompanion` → no pie `lg:col-span-2` |
-| Invalidation | unchanged |
-| Gates | lint ✓ test 559 ✓ invalidate 213 ✓ build ✓ |
+| Check           | Result                                                       |
+| --------------- | ------------------------------------------------------------ |
+| List enrich     | `productCount` + supplier `email`; home + GET lists          |
+| Tables/export   | Notes removed; Products count · %; CSV Products              |
+| Detail Status   | Badge by Created; no top STATUS strip                        |
+| Product grid    | Name · SKU; category link; SSR category on supplier products |
+| Stock companion | `CatalogSnapshotCompanion` → no pie `lg:col-span-2`          |
+| Invalidation    | unchanged                                                    |
+| Gates           | lint ✓ test 559 ✓ invalidate 213 ✓ build ✓                   |
 
 ```
 Scope: built/verified | Traceability: REQ-0141 | Findings: PASS
@@ -927,15 +984,15 @@ Commands: lint, test, invalidate, build
 
 ## REQ-0140 seed stock coherence evidence
 
-| Check | Result |
-|-------|--------|
-| Beats seed | `product.reservedQuantity=0`; Main alloc reserved 20 |
-| Sony seed | catalog 99; Main alloc 49 (post ORD-DEMO-001 fulfill) |
-| Sold filter | `isOrderCountedAsSold` — delivered or paid |
-| Insights stock | `qty − committed` in product/catalog insights |
-| Manual fixtures | §9 REQ-0140 floor documented |
+| Check              | Result                                                              |
+| ------------------ | ------------------------------------------------------------------- |
+| Beats seed         | `product.reservedQuantity=0`; Main alloc reserved 20                |
+| Sony seed          | catalog 99; Main alloc 49 (post ORD-DEMO-001 fulfill)               |
+| Sold filter        | `isOrderCountedAsSold` — delivered or paid                          |
+| Insights stock     | `qty − committed` in product/catalog insights                       |
+| Manual fixtures    | §9 REQ-0140 floor documented                                        |
 | Re-seed spot-check | Beats committed **20**, avail **30**; Sony qty **99** / Main **49** |
-| Gates | lint ✓ test 556 ✓ invalidate 213 ✓ build ✓ |
+| Gates              | lint ✓ test 556 ✓ invalidate 213 ✓ build ✓                          |
 
 ```
 Scope: built/verified | Traceability: REQ-0140 | Findings: PASS
@@ -946,12 +1003,12 @@ Commands: lint, test, invalidate, build, reset-demo-db --with-catalog
 
 ## REQ-0125 loading parity evidence
 
-| Check | Result |
-|-------|--------|
-| patchDetailCacheMerge | helper + test + export |
-| useUpdateInvoice | optimistic detail + list; patchDetailCache rollback |
-| Admin support/users | prefetchListPageStats + split loading predicates |
-| Client tickets | unsettled stat cards + loading table |
+| Check                 | Result                                              |
+| --------------------- | --------------------------------------------------- |
+| patchDetailCacheMerge | helper + test + export                              |
+| useUpdateInvoice      | optimistic detail + list; patchDetailCache rollback |
+| Admin support/users   | prefetchListPageStats + split loading predicates    |
+| Client tickets        | unsettled stat cards + loading table                |
 
 ```
 Scope: built/verified | Traceability: REQ-0125 | Findings: PASS
@@ -962,12 +1019,12 @@ Commands: lint, test, invalidate, build
 
 ## REQ-0124 secondary entities evidence
 
-| Check | Result |
-|-------|--------|
-| Support/reviews/users | list+detail patch before invalidate |
-| Soft-delete portal | `removeProductFromPortalCaches` on soft + hard delete |
-| Docs | PROJECT_WALKTHROUGH §7 Instant UI; CLAUDE compact block |
-| Stock transfer / dashboard KPI | invalidate-only / pulse-only (documented) |
+| Check                          | Result                                                  |
+| ------------------------------ | ------------------------------------------------------- |
+| Support/reviews/users          | list+detail patch before invalidate                     |
+| Soft-delete portal             | `removeProductFromPortalCaches` on soft + hard delete   |
+| Docs                           | PROJECT_WALKTHROUGH §7 Instant UI; CLAUDE compact block |
+| Stock transfer / dashboard KPI | invalidate-only / pulse-only (documented)               |
 
 ```
 Scope: built/verified | Traceability: REQ-0124 | Findings: PASS
@@ -978,13 +1035,13 @@ Commands: lint, test, invalidate, build
 
 ## REQ-0123 instant UI gap closure evidence
 
-| Check | Result |
-|-------|--------|
-| Order graph lists | `patchOrderGraphListCaches` on orders/invoices create/update/cancel/send |
-| Portal browse | `patchProductInPortalCaches` + `removeProductFromPortalCaches` on product CRUD |
-| Stock delete | `removeStockAllocationFromCaches` wired with scoped delete input |
-| Admin activity | `isAnyDataSlotUnsettled` on stat cards |
-| Dashboard KPIs | pulse-only (intentional — no client-side aggregate patch) |
+| Check             | Result                                                                         |
+| ----------------- | ------------------------------------------------------------------------------ |
+| Order graph lists | `patchOrderGraphListCaches` on orders/invoices create/update/cancel/send       |
+| Portal browse     | `patchProductInPortalCaches` + `removeProductFromPortalCaches` on product CRUD |
+| Stock delete      | `removeStockAllocationFromCaches` wired with scoped delete input               |
+| Admin activity    | `isAnyDataSlotUnsettled` on stat cards                                         |
+| Dashboard KPIs    | pulse-only (intentional — no client-side aggregate patch)                      |
 
 ```
 Scope: built/verified | Traceability: REQ-0123 | Findings: PASS
@@ -995,13 +1052,13 @@ Commands: lint, test 518, test:invalidate 208, build
 
 ## REQ-0122 instant UI evidence
 
-| Check | Result |
-|-------|--------|
-| Cache patch | `patchDetailCache` + `patchListCaches` on catalog CRUD hooks before invalidate |
-| SSR sync | `resolveSsrSyncAction` skips when cached `updatedAt >= server` |
-| Pulse | `isDataSlotUnsettled` on dashboard/portal/forecast/stock aggregates |
-| Dialog | `mutateAsync` + patch in `onSuccess` before close |
-| Invalidation registry | audit accepts `patchDetailCache`; 208 checks pass |
+| Check                 | Result                                                                         |
+| --------------------- | ------------------------------------------------------------------------------ |
+| Cache patch           | `patchDetailCache` + `patchListCaches` on catalog CRUD hooks before invalidate |
+| SSR sync              | `resolveSsrSyncAction` skips when cached `updatedAt >= server`                 |
+| Pulse                 | `isDataSlotUnsettled` on dashboard/portal/forecast/stock aggregates            |
+| Dialog                | `mutateAsync` + patch in `onSuccess` before close                              |
+| Invalidation registry | audit accepts `patchDetailCache`; 208 checks pass                              |
 
 ```
 Scope: built/verified | Traceability: REQ-0122 | Findings: PASS
@@ -1012,15 +1069,15 @@ Commands: lint, test 516, test:invalidate 208, build
 
 ## REQ-0120 nav invalidation + SSR sync evidence
 
-| Check | Result |
-|-------|--------|
-| Business Insights SSR sync | `useSyncSsrQueryDataMany` — products, orders, warehouse summary keys |
-| Admin My Activity table | `AdminEmbedDataTable` + column defs (REQ-0117 AC4 closure) |
-| Back nav | `useBackWithRefresh("history")`, `("support-ticket")` |
-| Post-delete nav | `navigateTo` on product/category/supplier/warehouse detail delete success |
-| Dead code | Removed unused warehouse select props; OrderDialog/LoginRoleSelect imports |
-| Docs | Duplicate REQ-0051 backlog entry removed |
-| Invalidation registry | unchanged — no new mutation paths |
+| Check                      | Result                                                                     |
+| -------------------------- | -------------------------------------------------------------------------- |
+| Business Insights SSR sync | `useSyncSsrQueryDataMany` — products, orders, warehouse summary keys       |
+| Admin My Activity table    | `AdminEmbedDataTable` + column defs (REQ-0117 AC4 closure)                 |
+| Back nav                   | `useBackWithRefresh("history")`, `("support-ticket")`                      |
+| Post-delete nav            | `navigateTo` on product/category/supplier/warehouse detail delete success  |
+| Dead code                  | Removed unused warehouse select props; OrderDialog/LoginRoleSelect imports |
+| Docs                       | Duplicate REQ-0051 backlog entry removed                                   |
+| Invalidation registry      | unchanged — no new mutation paths                                          |
 
 ```
 Scope: built/verified | Traceability: REQ-0120 | Findings: PASS
@@ -1031,44 +1088,44 @@ Commands: lint, test 504, test:invalidate 208, build
 
 ## REQ-0106 order auto-assign evidence
 
-| Check | Result |
-|-------|--------|
-| Shared validator | `validateOrderLineStock` — auto catalog cap + manual warehouse cap |
-| Server createOrder | `needsPick && !warehouseId` allowed — product-path reserve |
-| OrderDialog | Submit disabled uses committed available; auto-assign default |
-| OrderLineWarehouseSelect | Optional picker; "Auto-assign warehouses" sentinel |
-| Manual fixture | `MANUAL_TEST_FIXTURES.md` §9 Beats path |
+| Check                    | Result                                                             |
+| ------------------------ | ------------------------------------------------------------------ |
+| Shared validator         | `validateOrderLineStock` — auto catalog cap + manual warehouse cap |
+| Server createOrder       | `needsPick && !warehouseId` allowed — product-path reserve         |
+| OrderDialog              | Submit disabled uses committed available; auto-assign default      |
+| OrderLineWarehouseSelect | Optional picker; "Auto-assign warehouses" sentinel                 |
+| Manual fixture           | `MANUAL_TEST_FIXTURES.md` §9 Beats path                            |
 
 ---
 
 ## REQ-0107 product detail summary evidence
 
-| Check | Result |
-|-------|--------|
+| Check          | Result                                                         |
+| -------------- | -------------------------------------------------------------- |
 | Detail summary | `formatCatalogAllocationDetailSummary` on Warehouse Stock card |
-| Badges | catalog avail + in-warehouses counts |
-| Invalidation | unchanged — derives from existing hooks |
+| Badges         | catalog avail + in-warehouses counts                           |
+| Invalidation   | unchanged — derives from existing hooks                        |
 
 ---
 
 ## REQ-0108 live validation evidence
 
-| Check | Result |
-|-------|--------|
-| Product edit | `useCatalogQuantityReconcilePreview` — live block + shrink preview |
-| Allocate edit | `minReserved` floor in `StockQuantityField` |
-| Submit gate | disabled when reconcile `!ok` or below reserved |
+| Check         | Result                                                             |
+| ------------- | ------------------------------------------------------------------ |
+| Product edit  | `useCatalogQuantityReconcilePreview` — live block + shrink preview |
+| Allocate edit | `minReserved` floor in `StockQuantityField`                        |
+| Submit gate   | disabled when reconcile `!ok` or below reserved                    |
 
 ---
 
 ## REQ-0113 warehouse select fetch removal evidence
 
-| Check | Result |
-|-------|--------|
-| Props-only select | No `useStockByProduct` in `OrderLineWarehouseSelect` |
-| Required rows | `allocationRows` + `allocationsLoading` from parent hook |
-| Types merge | `OrderFormData` in `OrderDialogCreateLineItem.tsx`; `.types.ts` deleted |
-| Invalidation | unchanged |
+| Check             | Result                                                                  |
+| ----------------- | ----------------------------------------------------------------------- |
+| Props-only select | No `useStockByProduct` in `OrderLineWarehouseSelect`                    |
+| Required rows     | `allocationRows` + `allocationsLoading` from parent hook                |
+| Types merge       | `OrderFormData` in `OrderDialogCreateLineItem.tsx`; `.types.ts` deleted |
+| Invalidation      | unchanged                                                               |
 
 ```
 Scope: built/verified | Traceability: REQ-0113 | Findings: PASS
@@ -1079,12 +1136,12 @@ Commands: lint, test, test:invalidate, build
 
 ## REQ-0112 order line fetch DRY evidence
 
-| Check | Result |
-|-------|--------|
+| Check        | Result                                                                             |
+| ------------ | ---------------------------------------------------------------------------------- |
 | Single fetch | Hook returns `allocationRows`; warehouse select skips internal query when injected |
-| Options DRY | `buildOrderLineWarehousePickOptions` shared lib |
-| Stock errors | `lineStockErrors` keyed by `field.id`; prune on remove; reset on dialog close |
-| Invalidation | unchanged — no registry changes |
+| Options DRY  | `buildOrderLineWarehousePickOptions` shared lib                                    |
+| Stock errors | `lineStockErrors` keyed by `field.id`; prune on remove; reset on dialog close      |
+| Invalidation | unchanged — no registry changes                                                    |
 
 ```
 Scope: built/verified | Traceability: REQ-0112 | Findings: PASS
@@ -1095,14 +1152,14 @@ Commands: lint, test, test:invalidate, build
 
 ## REQ-0111 order stock workflow evidence
 
-| Check | Result |
-|-------|--------|
-| Reactive validation | `useOrderLineStockValidation` + `useStockByProduct` |
-| Submit ensure | `ensureStockAllocationsAndValidate` before create |
-| Manual error DRY | `OrderLineWarehouseSelect.manualPickError` from parent |
-| Server parity | `validateWarehousePick` → `Max {n} at {name}` |
-| Catalog DRY | `prisma/order.ts` uses `getOrderLineCatalogAvailable` |
-| Invalidation | unchanged — no registry changes |
+| Check               | Result                                                 |
+| ------------------- | ------------------------------------------------------ |
+| Reactive validation | `useOrderLineStockValidation` + `useStockByProduct`    |
+| Submit ensure       | `ensureStockAllocationsAndValidate` before create      |
+| Manual error DRY    | `OrderLineWarehouseSelect.manualPickError` from parent |
+| Server parity       | `validateWarehousePick` → `Max {n} at {name}`          |
+| Catalog DRY         | `prisma/order.ts` uses `getOrderLineCatalogAvailable`  |
+| Invalidation        | unchanged — no registry changes                        |
 
 ```
 Scope: built/verified | Traceability: REQ-0111 | Findings: PASS
@@ -1113,15 +1170,15 @@ Commands: lint, test, test:invalidate, build
 
 ## REQ-0110 stock UX gap closure evidence
 
-| Check | Result |
-|-------|--------|
+| Check              | Result                                                                       |
+| ------------------ | ---------------------------------------------------------------------------- |
 | Order cap fallback | `getOrderLineCatalogAvailableFromProduct` + `resolveOrderLineHasAllocations` |
-| Prefetch | `prefetchStockByProduct` on OrderDialog product select |
-| Warehouse errors | Manual pick `Max {n} at {warehouseName}` |
-| Bounds DRY | `getAllocationQtyBounds` in validate + AllocateStockDialog |
-| Reserve test | Auto-assign qty 40 → product `reservedQuantity` only |
-| Dialog shells | ProductForm `DIALOG_EDGE_SCROLL_*`; Allocate `DIALOG_FORM_FEEDBACK_ROW` |
-| Invalidation | unchanged — no registry changes |
+| Prefetch           | `prefetchStockByProduct` on OrderDialog product select                       |
+| Warehouse errors   | Manual pick `Max {n} at {warehouseName}`                                     |
+| Bounds DRY         | `getAllocationQtyBounds` in validate + AllocateStockDialog                   |
+| Reserve test       | Auto-assign qty 40 → product `reservedQuantity` only                         |
+| Dialog shells      | ProductForm `DIALOG_EDGE_SCROLL_*`; Allocate `DIALOG_FORM_FEEDBACK_ROW`      |
+| Invalidation       | unchanged — no registry changes                                              |
 
 ```
 Scope: built/verified | Traceability: REQ-0110 | Findings: PASS
@@ -1132,290 +1189,290 @@ Commands: lint, test, test:invalidate, build
 
 ## REQ-0109 dialog feedback tokens evidence
 
-| Check | Result |
-|-------|--------|
-| Tokens | `DIALOG_FORM_FEEDBACK_*` in `dialog-edge-scroll.ts` |
+| Check   | Result                                                           |
+| ------- | ---------------------------------------------------------------- |
+| Tokens  | `DIALOG_FORM_FEEDBACK_*` in `dialog-edge-scroll.ts`              |
 | Applied | ProductForm, Order, OrderLineWarehouseSelect, StockQuantityField |
 
 ---
 
 ## REQ-0105 product detail committedQuantity SSR evidence
 
-| Check | Result |
-|-------|--------|
-| Single enrich | `enrichProductDetailWithCommittedQuantity` — one allocation sum query |
-| Detail SSR/API | `getProductDetailForPage` enriches after transform |
-| Cache guard | Stale Redis entries without `committedQuantity` refetch |
-| Display UI | `ProductDetailPage` — `getDisplayCommittedQuantity` + warehouse fallback |
-| CLAUDE.md | Removed from `.gitignore`; REQ-0103/0104/0105 sections tracked |
-| Invalidation | unchanged — `PRODUCT_PATTERNS` clears `products:*` on order/stock CRUD |
+| Check          | Result                                                                   |
+| -------------- | ------------------------------------------------------------------------ |
+| Single enrich  | `enrichProductDetailWithCommittedQuantity` — one allocation sum query    |
+| Detail SSR/API | `getProductDetailForPage` enriches after transform                       |
+| Cache guard    | Stale Redis entries without `committedQuantity` refetch                  |
+| Display UI     | `ProductDetailPage` — `getDisplayCommittedQuantity` + warehouse fallback |
+| CLAUDE.md      | Removed from `.gitignore`; REQ-0103/0104/0105 sections tracked           |
+| Invalidation   | unchanged — `PRODUCT_PATTERNS` clears `products:*` on order/stock CRUD   |
 
 ---
 
 ## REQ-0104 committedQuantity parity evidence
 
-| Check | Result |
-|-------|--------|
-| Category/supplier detail SSR | `enrichProductsWithCommittedQuantity` + cache guard |
-| ForecastingCard | `getDisplayCommittedQuantity` for avail |
-| demand-forecast + supplier-dashboard | `computeCommittedQuantity` with batch allocation sum |
-| Invalidation | unchanged — ORDER_GRAPH clears categories/suppliers/forecasting |
+| Check                                | Result                                                          |
+| ------------------------------------ | --------------------------------------------------------------- |
+| Category/supplier detail SSR         | `enrichProductsWithCommittedQuantity` + cache guard             |
+| ForecastingCard                      | `getDisplayCommittedQuantity` for avail                         |
+| demand-forecast + supplier-dashboard | `computeCommittedQuantity` with batch allocation sum            |
+| Invalidation                         | unchanged — ORDER_GRAPH clears categories/suppliers/forecasting |
 
 ---
 
 ## REQ-0103 disjoint reservation evidence
 
-| Check | Result |
-|-------|--------|
-| Reserve create | Warehouse pick → allocation only; no pick → product only |
+| Check            | Result                                                                               |
+| ---------------- | ------------------------------------------------------------------------------------ |
+| Reserve create   | Warehouse pick → allocation only; no pick → product only                             |
 | Cancel / fulfill | `releasePendingOrderLines` / `fulfillPendingOrderLines` in order + webhook + invoice |
-| Catalog floor | Beats scenario: 20 reserved blocks at 10, not 40 |
-| List display | `committedQuantity` on products/browse/home APIs |
-| UI badges | `getDisplayCommittedQuantity` on table + detail summary |
+| Catalog floor    | Beats scenario: 20 reserved blocks at 10, not 40                                     |
+| List display     | `committedQuantity` on products/browse/home APIs                                     |
+| UI badges        | `getDisplayCommittedQuantity` on table + detail summary                              |
 
 ---
 
 ## REQ-0102 enrichment consistency evidence
 
-| Check | Result |
-|-------|--------|
-| Single enrich impl | `enrichStockAllocationRows` only; `enrichWarehouseAllocationRows` alias |
-| All SSR paths | `product-stock-data.ts` + `warehouse-stock-data.ts` use `enrichStockAllocationRows` |
-| Dead code removed | `enrichProductAllocationTotals` deleted |
-| Fetch gates | ProductFormDialog, AllocateStockDialog, OrderLineWarehouseSelect |
-| DRY catalog copy | `formatCatalogAllocationSummary` shared helper |
+| Check              | Result                                                                              |
+| ------------------ | ----------------------------------------------------------------------------------- |
+| Single enrich impl | `enrichStockAllocationRows` only; `enrichWarehouseAllocationRows` alias             |
+| All SSR paths      | `product-stock-data.ts` + `warehouse-stock-data.ts` use `enrichStockAllocationRows` |
+| Dead code removed  | `enrichProductAllocationTotals` deleted                                             |
+| Fetch gates        | ProductFormDialog, AllocateStockDialog, OrderLineWarehouseSelect                    |
+| DRY catalog copy   | `formatCatalogAllocationSummary` shared helper                                      |
 
 ---
 
 ## REQ-0102 enrichment parity evidence
 
-| Check | Result |
-|-------|--------|
-| Unified enrich | `enrichStockAllocationRows` on API GET all scopes + product SSR |
-| Product SSR | `product-stock-data.ts` shared transform + cross-warehouse totals |
-| Warehouse row UI | Catalog / allocated / unallocated meta on `WarehouseStockAllocationRow` |
-| Allocate dialog gate | `useStockByProduct({ enabled: open && activeProductId })` |
-| Dead script | `fix-product2-stock.ts` absent |
+| Check                | Result                                                                  |
+| -------------------- | ----------------------------------------------------------------------- |
+| Unified enrich       | `enrichStockAllocationRows` on API GET all scopes + product SSR         |
+| Product SSR          | `product-stock-data.ts` shared transform + cross-warehouse totals       |
+| Warehouse row UI     | Catalog / allocated / unallocated meta on `WarehouseStockAllocationRow` |
+| Allocate dialog gate | `useStockByProduct({ enabled: open && activeProductId })`               |
+| Dead script          | `fix-product2-stock.ts` absent                                          |
 
 ---
 
 ## REQ-0102 gap closure evidence
 
-| Check | Result |
-|-------|--------|
-| Warehouse cross-totals | `enrichStockAllocationRows` on SSR + API all list scopes |
-| Edit allocation | `useUpdateStockAllocation` + AllocateStockDialog PUT in edit mode |
-| Product form gate | `useStockByProduct({ enabled: open && selected })` |
-| Reconcile apply test | `apply-catalog-quantity-reconcile.test.ts` |
-| Dead script | `fix-product2-stock.ts` absent |
+| Check                  | Result                                                            |
+| ---------------------- | ----------------------------------------------------------------- |
+| Warehouse cross-totals | `enrichStockAllocationRows` on SSR + API all list scopes          |
+| Edit allocation        | `useUpdateStockAllocation` + AllocateStockDialog PUT in edit mode |
+| Product form gate      | `useStockByProduct({ enabled: open && selected })`                |
+| Reconcile apply test   | `apply-catalog-quantity-reconcile.test.ts`                        |
+| Dead script            | `fix-product2-stock.ts` absent                                    |
 
 ---
 
 ## REQ-0102 evidence
 
-| Check | Command | Result | REQ-IDs |
-|-------|---------|--------|---------|
-| Lint | `npm run lint` | PASS | REQ-0102 |
-| Unit tests | `npm run test` | PASS (449) | REQ-0102 |
-| Invalidation audit | `npm run test:invalidate` | PASS (208) | REQ-0102 |
-| Build | `npm run build` | PASS | REQ-0102 |
-| Catalog reconcile | `planCatalogQuantityReconcile` + product PUT transaction | PASS | REQ-0102 AC1–2 |
-| Allocation guards | POST/PUT `validateAllocationUpsert` | PASS | REQ-0102 AC3 |
-| Warehouse delete | `getWarehouseDeleteBlockers` 409 | PASS | REQ-0102 AC4 |
-| Archived rows | `isArchived` enrich + read-only warehouse row | PASS | REQ-0102 AC5 |
+| Check              | Command                                                  | Result     | REQ-IDs        |
+| ------------------ | -------------------------------------------------------- | ---------- | -------------- |
+| Lint               | `npm run lint`                                           | PASS       | REQ-0102       |
+| Unit tests         | `npm run test`                                           | PASS (449) | REQ-0102       |
+| Invalidation audit | `npm run test:invalidate`                                | PASS (208) | REQ-0102       |
+| Build              | `npm run build`                                          | PASS       | REQ-0102       |
+| Catalog reconcile  | `planCatalogQuantityReconcile` + product PUT transaction | PASS       | REQ-0102 AC1–2 |
+| Allocation guards  | POST/PUT `validateAllocationUpsert`                      | PASS       | REQ-0102 AC3   |
+| Warehouse delete   | `getWarehouseDeleteBlockers` 409                         | PASS       | REQ-0102 AC4   |
+| Archived rows      | `isArchived` enrich + read-only warehouse row            | PASS       | REQ-0102 AC5   |
 
 ---
 
 ## REQ-0100 evidence
 
-| Check | Command | Result | REQ-IDs |
-|-------|---------|--------|---------|
-| Lint | `npm run lint` | PASS | REQ-0100 |
-| Unit tests | `npm run test` | PASS (418) | REQ-0100 |
-| Invalidation audit | `npm run test:invalidate` | PASS (205) | REQ-0100 |
-| Build | `npm run build` | PASS | REQ-0100 |
-| Avatar seed fallback | `seed={s.userId ?? s.id}` on supplier portal | PASS | REQ-0100 AC1 |
-| No cache bump | supplierPortal Redis key unchanged | PASS | REQ-0100 AC2 |
+| Check                | Command                                      | Result     | REQ-IDs      |
+| -------------------- | -------------------------------------------- | ---------- | ------------ |
+| Lint                 | `npm run lint`                               | PASS       | REQ-0100     |
+| Unit tests           | `npm run test`                               | PASS (418) | REQ-0100     |
+| Invalidation audit   | `npm run test:invalidate`                    | PASS (205) | REQ-0100     |
+| Build                | `npm run build`                              | PASS       | REQ-0100     |
+| Avatar seed fallback | `seed={s.userId ?? s.id}` on supplier portal | PASS       | REQ-0100 AC1 |
+| No cache bump        | supplierPortal Redis key unchanged           | PASS       | REQ-0100 AC2 |
 
 ---
 
 ## REQ-0099 evidence
 
-| Check | Command | Result | REQ-IDs |
-|-------|---------|--------|---------|
-| Lint | `npm run lint` | PASS | REQ-0099 |
-| Unit tests | `npm run test` | PASS (418) | REQ-0099 |
-| Invalidation audit | `npm run test:invalidate` | PASS (205) | REQ-0099 |
-| Build | `npm run build` | PASS | REQ-0099 |
-| Analytics gap-6 | Order/Invoice/Warehouse sections | PASS | REQ-0099 AC1 |
-| Supplier avatar seed | `userId` on SSR + AvatarInlineLink | PASS | REQ-0099 AC2 |
-| Dead scripts | 3 npm entries + files removed | PASS | REQ-0099 AC3 |
+| Check                | Command                            | Result     | REQ-IDs      |
+| -------------------- | ---------------------------------- | ---------- | ------------ |
+| Lint                 | `npm run lint`                     | PASS       | REQ-0099     |
+| Unit tests           | `npm run test`                     | PASS (418) | REQ-0099     |
+| Invalidation audit   | `npm run test:invalidate`          | PASS (205) | REQ-0099     |
+| Build                | `npm run build`                    | PASS       | REQ-0099     |
+| Analytics gap-6      | Order/Invoice/Warehouse sections   | PASS       | REQ-0099 AC1 |
+| Supplier avatar seed | `userId` on SSR + AvatarInlineLink | PASS       | REQ-0099 AC2 |
+| Dead scripts         | 3 npm entries + files removed      | PASS       | REQ-0099 AC3 |
 
 ---
 
 ## REQ-0098 evidence
 
-| Check | Command | Result | REQ-IDs |
-|-------|---------|--------|---------|
-| Lint | `npm run lint` | PASS | REQ-0098 |
-| Unit tests | `npm run test` | PASS (418) | REQ-0098 |
-| Invalidation audit | `npm run test:invalidate` | PASS (205) | REQ-0098 |
-| Build | `npm run build` | PASS | REQ-0098 |
-| Api GlassCardBody | ApiStatus + ApiDocs inner padding | PASS | REQ-0098 AC1 |
-| QR truncate | QRCodeHover max-width + product name title | PASS | REQ-0098 AC2 |
-| Glow badges | AdminOrderSource, forecast urgency, stock left, health, New | PASS | REQ-0098 AC3–4 |
-| Dashboard CTAs | AdminAnalytics recent cards + AI glass button | PASS | REQ-0098 AC5–6 |
-| Portal parity | gap-6, SectionCountBadge, AvatarInlineLink + SSR image | PASS | REQ-0098 AC7–8 |
-| Activity + notifications | Activity Logs icon; dropdown counter/inline New/Close | PASS | REQ-0098 AC9–10 |
+| Check                    | Command                                                     | Result     | REQ-IDs         |
+| ------------------------ | ----------------------------------------------------------- | ---------- | --------------- |
+| Lint                     | `npm run lint`                                              | PASS       | REQ-0098        |
+| Unit tests               | `npm run test`                                              | PASS (418) | REQ-0098        |
+| Invalidation audit       | `npm run test:invalidate`                                   | PASS (205) | REQ-0098        |
+| Build                    | `npm run build`                                             | PASS       | REQ-0098        |
+| Api GlassCardBody        | ApiStatus + ApiDocs inner padding                           | PASS       | REQ-0098 AC1    |
+| QR truncate              | QRCodeHover max-width + product name title                  | PASS       | REQ-0098 AC2    |
+| Glow badges              | AdminOrderSource, forecast urgency, stock left, health, New | PASS       | REQ-0098 AC3–4  |
+| Dashboard CTAs           | AdminAnalytics recent cards + AI glass button               | PASS       | REQ-0098 AC5–6  |
+| Portal parity            | gap-6, SectionCountBadge, AvatarInlineLink + SSR image      | PASS       | REQ-0098 AC7–8  |
+| Activity + notifications | Activity Logs icon; dropdown counter/inline New/Close       | PASS       | REQ-0098 AC9–10 |
 
 ---
 
 ## REQ-0097 evidence
 
-| Check | Command | Result | REQ-IDs |
-|-------|---------|--------|---------|
-| Lint | `npm run lint` | PASS | REQ-0097 |
-| Unit tests | `npm run test` | PASS (418) | REQ-0097 |
-| Invalidation audit | `npm run test:invalidate` | PASS (205) | REQ-0097 |
-| Build | `npm run build` | PASS | REQ-0097 |
-| SectionCardHeader titleTrailing | Email prefs inline HelpTooltip | PASS | REQ-0097 AC1 |
-| Email prefs spacing | PageSectionHeader pb-0 + gap-6 parent | PASS | REQ-0097 AC1 |
-| Admin order audit | AdminOrderDetailContent creator/updater rows | PASS | REQ-0097 AC2 |
-| GlassCardBody DRY | 4 catalog detail pages + EmailPreferences | PASS | REQ-0097 AC3 |
-| Insights GlassCard | shared import + padding=body | PASS | REQ-0097 AC4 |
+| Check                           | Command                                      | Result     | REQ-IDs      |
+| ------------------------------- | -------------------------------------------- | ---------- | ------------ |
+| Lint                            | `npm run lint`                               | PASS       | REQ-0097     |
+| Unit tests                      | `npm run test`                               | PASS (418) | REQ-0097     |
+| Invalidation audit              | `npm run test:invalidate`                    | PASS (205) | REQ-0097     |
+| Build                           | `npm run build`                              | PASS       | REQ-0097     |
+| SectionCardHeader titleTrailing | Email prefs inline HelpTooltip               | PASS       | REQ-0097 AC1 |
+| Email prefs spacing             | PageSectionHeader pb-0 + gap-6 parent        | PASS       | REQ-0097 AC1 |
+| Admin order audit               | AdminOrderDetailContent creator/updater rows | PASS       | REQ-0097 AC2 |
+| GlassCardBody DRY               | 4 catalog detail pages + EmailPreferences    | PASS       | REQ-0097 AC3 |
+| Insights GlassCard              | shared import + padding=body                 | PASS       | REQ-0097 AC4 |
 
 ---
 
 ## REQ-0096 evidence
 
-| Check | Command | Result | REQ-IDs |
-|-------|---------|--------|---------|
-| Lint | `npm run lint` | PASS | REQ-0096 |
-| Unit tests | `npm run test` | PASS (418) | REQ-0096 |
-| Invalidation audit | `npm run test:invalidate` | PASS (205) | REQ-0096 |
-| Build | `npm run build` | PASS | REQ-0096 |
-| GlassCard hub | `lib/ui/glass-card.tsx` + 11-file migration | PASS | REQ-0096 AC1 |
-| Audit SSR + UI | order/invoice/warehouse creator/updater | PASS | REQ-0096 AC2 |
-| Product section icons | Recent Orders + Warehouse Stock SectionTitleRow | PASS | REQ-0096 AC3 |
-| Tests | warehouse-detail-data + transform-order-detail | PASS | REQ-0096 AC4 |
+| Check                 | Command                                         | Result     | REQ-IDs      |
+| --------------------- | ----------------------------------------------- | ---------- | ------------ |
+| Lint                  | `npm run lint`                                  | PASS       | REQ-0096     |
+| Unit tests            | `npm run test`                                  | PASS (418) | REQ-0096     |
+| Invalidation audit    | `npm run test:invalidate`                       | PASS (205) | REQ-0096     |
+| Build                 | `npm run build`                                 | PASS       | REQ-0096     |
+| GlassCard hub         | `lib/ui/glass-card.tsx` + 11-file migration     | PASS       | REQ-0096 AC1 |
+| Audit SSR + UI        | order/invoice/warehouse creator/updater         | PASS       | REQ-0096 AC2 |
+| Product section icons | Recent Orders + Warehouse Stock SectionTitleRow | PASS       | REQ-0096 AC3 |
+| Tests                 | warehouse-detail-data + transform-order-detail  | PASS       | REQ-0096 AC4 |
 
 ---
 
 ## REQ-0095 evidence
 
-| Check | Command | Result | REQ-IDs |
-|-------|---------|--------|---------|
-| Lint | `npm run lint` | PASS | REQ-0095 |
-| Unit tests | `npm run test` | PASS (415) | REQ-0095 |
-| Invalidation audit | `npm run test:invalidate` | PASS (205) | REQ-0095 |
-| Build | `npm run build` | PASS | REQ-0095 |
-| Portal header pb-6 | ClientPortalPage + SupplierPortalPage | PASS — removed pb-0 override | REQ-0095 AC1 |
-| Support tickets header | SupportTicketsPageContent PageSectionHeader | PASS | REQ-0095 AC2 |
-| Email prefs glass | EmailPreferencesPage GlassCard + SectionCardHeader | PASS | REQ-0095 AC3 |
-| Audit user row | AuditUserDetailRow on catalog detail pages | PASS | REQ-0095 AC4 |
-| Section icons | Category/Supplier SectionTitleRow icons | PASS | REQ-0095 AC5 |
-| Card padding | CategoryDetailPage shell; insights inner trim; WarehouseDetailPage | PASS | REQ-0095 AC6 |
+| Check                  | Command                                                            | Result                       | REQ-IDs      |
+| ---------------------- | ------------------------------------------------------------------ | ---------------------------- | ------------ |
+| Lint                   | `npm run lint`                                                     | PASS                         | REQ-0095     |
+| Unit tests             | `npm run test`                                                     | PASS (415)                   | REQ-0095     |
+| Invalidation audit     | `npm run test:invalidate`                                          | PASS (205)                   | REQ-0095     |
+| Build                  | `npm run build`                                                    | PASS                         | REQ-0095     |
+| Portal header pb-6     | ClientPortalPage + SupplierPortalPage                              | PASS — removed pb-0 override | REQ-0095 AC1 |
+| Support tickets header | SupportTicketsPageContent PageSectionHeader                        | PASS                         | REQ-0095 AC2 |
+| Email prefs glass      | EmailPreferencesPage GlassCard + SectionCardHeader                 | PASS                         | REQ-0095 AC3 |
+| Audit user row         | AuditUserDetailRow on catalog detail pages                         | PASS                         | REQ-0095 AC4 |
+| Section icons          | Category/Supplier SectionTitleRow icons                            | PASS                         | REQ-0095 AC5 |
+| Card padding           | CategoryDetailPage shell; insights inner trim; WarehouseDetailPage | PASS                         | REQ-0095 AC6 |
 
 ---
 
 ## REQ-0094 evidence
 
-| Check | Command | Result | REQ-IDs |
-|-------|---------|--------|---------|
-| Lint | `npm run lint` | PASS | REQ-0094 |
-| Unit tests | `npm run test` | PASS (415) | REQ-0094 |
-| Invalidation audit | `npm run test:invalidate` | PASS (205) | REQ-0094 |
-| Build | `npm run build` | PASS | REQ-0094 |
-| Navbar Link prefetch | code review | PASS — brand, nav, profile, mobile | REQ-0094 AC2 |
-| Extended RSC warm | `getWarmPathsForRole` | PASS — nav + profile + admin sidebar | REQ-0094 |
-| Client filter leak | `CategoryFilter` enabled gate | PASS — no fetch when override | REQ-0094 AC3 |
-| REQ-0075 smoke | code review | PASS — no regressions | REQ-0094 AC4 |
-| /admin warm redirect fix | `resolveWarmNavPath` | PASS — warms dashboard not redirect | REQ-0094 gap |
-| Portal detail prefetch | 5 portal/recent-order files | PASS | REQ-0094 gap |
-| Invalidate count note | AdminSidebar logout fetch removed REQ-0094 | INFO — 205 correct (not regression) | REQ-0094 gap |
+| Check                    | Command                                    | Result                               | REQ-IDs      |
+| ------------------------ | ------------------------------------------ | ------------------------------------ | ------------ |
+| Lint                     | `npm run lint`                             | PASS                                 | REQ-0094     |
+| Unit tests               | `npm run test`                             | PASS (415)                           | REQ-0094     |
+| Invalidation audit       | `npm run test:invalidate`                  | PASS (205)                           | REQ-0094     |
+| Build                    | `npm run build`                            | PASS                                 | REQ-0094     |
+| Navbar Link prefetch     | code review                                | PASS — brand, nav, profile, mobile   | REQ-0094 AC2 |
+| Extended RSC warm        | `getWarmPathsForRole`                      | PASS — nav + profile + admin sidebar | REQ-0094     |
+| Client filter leak       | `CategoryFilter` enabled gate              | PASS — no fetch when override        | REQ-0094 AC3 |
+| REQ-0075 smoke           | code review                                | PASS — no regressions                | REQ-0094 AC4 |
+| /admin warm redirect fix | `resolveWarmNavPath`                       | PASS — warms dashboard not redirect  | REQ-0094 gap |
+| Portal detail prefetch   | 5 portal/recent-order files                | PASS                                 | REQ-0094 gap |
+| Invalidate count note    | AdminSidebar logout fetch removed REQ-0094 | INFO — 205 correct (not regression)  | REQ-0094 gap |
 
 ---
 
 ### Manual / production (REQ-0094)
 
-| Check | Result | REQ-ID |
-|-------|--------|--------|
+| Check                               | Result                    | REQ-ID           |
+| ----------------------------------- | ------------------------- | ---------------- |
 | Prod `npm start` nav click baseline | PENDING user QA on Vercel | REQ-0094 AC1/AC2 |
-| Sentry 24h after deploy | PENDING | REQ-0009 AC5 |
+| Sentry 24h after deploy             | PENDING                   | REQ-0009 AC5     |
 
 ---
 
 ## Automated evidence
 
-| Check | Command | Result | REQ-IDs |
-|-------|---------|--------|---------|
-| Lint | `npm run lint` | PASS | ALL |
-| Unit tests | `npm run test` | PASS (413) | REQ-0092 |
-| Invalidation audit | `npm run test:invalidate` | PASS (205) | ALL |
-| Build | `npm run build` | PASS | ALL |
-| Typecheck (touched scripts) | `tsc --noEmit` | PASS | REQ-0056 |
+| Check                       | Command                   | Result     | REQ-IDs  |
+| --------------------------- | ------------------------- | ---------- | -------- |
+| Lint                        | `npm run lint`            | PASS       | ALL      |
+| Unit tests                  | `npm run test`            | PASS (413) | REQ-0092 |
+| Invalidation audit          | `npm run test:invalidate` | PASS (205) | ALL      |
+| Build                       | `npm run build`           | PASS       | ALL      |
+| Typecheck (touched scripts) | `tsc --noEmit`            | PASS       | REQ-0056 |
 
 ---
 
 ## Manual / production
 
-| Check | Result | REQ-ID |
-|-------|--------|--------|
-| AI insights 200 + `provider: groq` | PASS (user verified) | REQ-0005 |
-| Notification bell dropdown visible | PASS (code + prod reachable) | REQ-0007 |
-| Supplier category/supplier detail from product | PENDING user QA | REQ-0029 |
-| removeChild nav smoke | PENDING | REQ-0001, REQ-0006, REQ-0017 |
-| Sentry 24h regression | PENDING (checklist in REVALIDATION_LOG) | REQ-0009 |
-| Gmail OAuth login + navbar avatar before/after profile dropdown click | PASS (user screenshot 2026-07-10) | REQ-0039, REQ-0040 |
-| Vercel prod SHA = `73060a1` | PENDING confirm | ALL |
-| CRUD delete fast (no 504) | PASS (local dev: category/supplier/warehouse DELETE ~150ms) | REQ-0052 |
+| Check                                                                 | Result                                                      | REQ-ID                       |
+| --------------------------------------------------------------------- | ----------------------------------------------------------- | ---------------------------- |
+| AI insights 200 + `provider: groq`                                    | PASS (user verified)                                        | REQ-0005                     |
+| Notification bell dropdown visible                                    | PASS (code + prod reachable)                                | REQ-0007                     |
+| Supplier category/supplier detail from product                        | PENDING user QA                                             | REQ-0029                     |
+| removeChild nav smoke                                                 | PENDING                                                     | REQ-0001, REQ-0006, REQ-0017 |
+| Sentry 24h regression                                                 | PENDING (checklist in REVALIDATION_LOG)                     | REQ-0009                     |
+| Gmail OAuth login + navbar avatar before/after profile dropdown click | PASS (user screenshot 2026-07-10)                           | REQ-0039, REQ-0040           |
+| Vercel prod SHA = `73060a1`                                           | PENDING confirm                                             | ALL                          |
+| CRUD delete fast (no 504)                                             | PASS (local dev: category/supplier/warehouse DELETE ~150ms) | REQ-0052                     |
 
 ---
 
 ## Findings
 
-| ID | Severity | Finding | Status |
-|----|----------|---------|--------|
-| VS-007 | INFO | ChunkLoadError auto-reload in ErrorBoundary | PASS |
-| VS-008 | INFO | OrderDialog RHF validation logger level | PASS |
-| VS-009 | INFO | Hydration /admin/dashboard-overall-insights | PASS (REQ-0019 stable formatters) |
-| VS-010 | INFO | OAuth state mismatch logger.warn | PASS |
-| VS-011 | INFO | Radix portal removeChild scrub + ErrorBoundary | PASS |
-| VS-012 | INFO | Groq model chain migration (REQ-0018) | PASS |
-| VS-013 | INFO | Forecasting AI max_tokens + cache v2 (REQ-0019) | PASS |
-| VS-014 | INFO | Locale-aware admin formatting (REQ-0020) | PASS |
-| VS-015 | INFO | Shell-first nav + data-slot pulse (REQ-0021) | PASS |
-| VS-016 | INFO | Tier-3 user detail shell-first gap (REQ-0022) | PASS |
-| VS-017 | INFO | Admin detail shell-first gap (REQ-0023) | PASS |
-| VS-018 | INFO | Shell-first consistency + detail SSR + order DRY (REQ-0024) | PASS |
-| VS-019 | INFO | P3 SSR gaps: ghost fetches, detail secondary, client browse (REQ-0026) | PASS |
-| VS-020 | INFO | Client owner dropdown hang fix (ProductOwnerSelect) | PASS |
-| VS-021 | INFO | REQ-0027 shallow ownerId URL + deferred admin warm | PASS |
-| VS-022 | INFO | Glass badges + invoice list scope (REQ-0028) | PASS (automated) |
-| VS-024 | INFO | Auth login/register UX polish (REQ-0030) | PASS (automated) |
-| VS-025 | INFO | Auth left panel list + brand redesign (REQ-0031) | PASS (automated) |
-| VS-026 | INFO | Auth glass parity, flat list, BG animation (REQ-0032) | PASS (automated) |
-| VS-027 | INFO | Auth copy, scroll shift, icon glow, spacing (REQ-0033) | PASS (automated) |
-| VS-028 | INFO | Auth welcome/goodbye session toasts (REQ-0034) | PASS (automated + user QA) |
-| VS-029 | INFO | Google OAuth welcome toast (REQ-0035) | PASS (automated) |
-| VS-030 | INFO | Glass button tokens + Batch A/B migration (REQ-0047) | PASS (automated) |
-| VS-031 | INFO | Auth light mode + dialog tables + order thumbs (REQ-0048) | PASS (automated) |
-| VS-032 | INFO | Portal & detail UX polish (REQ-0071) | PASS (automated) |
-| VS-033 | INFO | REQ-0075 gap closure (REQ-0076) | PASS (automated) |
-| VS-034 | INFO | Chart labels, portal headers, product detail UX (REQ-0077) | PASS (automated) |
-| VS-035 | INFO | Badge nesting hydration fix on /client (REQ-0078) | PASS (automated) |
-| VS-036 | INFO | Client UI polish — badges, spacing, avatars (REQ-0079) | PASS (automated) |
-| VS-037 | INFO | Stat badge revert + slate section counters (REQ-0080) | PASS (automated) |
-| VS-038 | INFO | Client owner picker + category detail parity (REQ-0081) | PASS (automated) |
-| VS-039 | INFO | Category gap closure + non-blocking forecast (REQ-0082) | PASS (automated) |
-| VS-040 | INFO | Category forecast loading shell parity (REQ-0083) | PASS (automated) |
-| VS-041 | INFO | Detail insights parity + forecast SSR sync (REQ-0084) | PASS (automated) |
-| VS-042 | INFO | Stock UX clarity + dialog/detail UI parity (REQ-0114) | PASS (automated) |
-| VS-043 | INFO | REQ-0114 dialog gap closure + warehouse summary test (REQ-0115) | PASS (automated) |
-| VS-044 | INFO | Dialog parity + proportional price DRY + detail typography (REQ-0116) | PASS (automated) |
-| VS-045 | INFO | Dialog UX parity + admin embed tables + admin network audit (REQ-0117) | PASS (automated + audit doc) |
-| VS-046 | INFO | Readable popover full sweep + prod network confirm (REQ-0118) | PASS (automated) |
-| VS-047 | INFO | Catalog popover parity + order address labels + warehouse rollup (REQ-0119) | PASS (automated) |
+| ID     | Severity | Finding                                                                     | Status                            |
+| ------ | -------- | --------------------------------------------------------------------------- | --------------------------------- |
+| VS-007 | INFO     | ChunkLoadError auto-reload in ErrorBoundary                                 | PASS                              |
+| VS-008 | INFO     | OrderDialog RHF validation logger level                                     | PASS                              |
+| VS-009 | INFO     | Hydration /admin/dashboard-overall-insights                                 | PASS (REQ-0019 stable formatters) |
+| VS-010 | INFO     | OAuth state mismatch logger.warn                                            | PASS                              |
+| VS-011 | INFO     | Radix portal removeChild scrub + ErrorBoundary                              | PASS                              |
+| VS-012 | INFO     | Groq model chain migration (REQ-0018)                                       | PASS                              |
+| VS-013 | INFO     | Forecasting AI max_tokens + cache v2 (REQ-0019)                             | PASS                              |
+| VS-014 | INFO     | Locale-aware admin formatting (REQ-0020)                                    | PASS                              |
+| VS-015 | INFO     | Shell-first nav + data-slot pulse (REQ-0021)                                | PASS                              |
+| VS-016 | INFO     | Tier-3 user detail shell-first gap (REQ-0022)                               | PASS                              |
+| VS-017 | INFO     | Admin detail shell-first gap (REQ-0023)                                     | PASS                              |
+| VS-018 | INFO     | Shell-first consistency + detail SSR + order DRY (REQ-0024)                 | PASS                              |
+| VS-019 | INFO     | P3 SSR gaps: ghost fetches, detail secondary, client browse (REQ-0026)      | PASS                              |
+| VS-020 | INFO     | Client owner dropdown hang fix (ProductOwnerSelect)                         | PASS                              |
+| VS-021 | INFO     | REQ-0027 shallow ownerId URL + deferred admin warm                          | PASS                              |
+| VS-022 | INFO     | Glass badges + invoice list scope (REQ-0028)                                | PASS (automated)                  |
+| VS-024 | INFO     | Auth login/register UX polish (REQ-0030)                                    | PASS (automated)                  |
+| VS-025 | INFO     | Auth left panel list + brand redesign (REQ-0031)                            | PASS (automated)                  |
+| VS-026 | INFO     | Auth glass parity, flat list, BG animation (REQ-0032)                       | PASS (automated)                  |
+| VS-027 | INFO     | Auth copy, scroll shift, icon glow, spacing (REQ-0033)                      | PASS (automated)                  |
+| VS-028 | INFO     | Auth welcome/goodbye session toasts (REQ-0034)                              | PASS (automated + user QA)        |
+| VS-029 | INFO     | Google OAuth welcome toast (REQ-0035)                                       | PASS (automated)                  |
+| VS-030 | INFO     | Glass button tokens + Batch A/B migration (REQ-0047)                        | PASS (automated)                  |
+| VS-031 | INFO     | Auth light mode + dialog tables + order thumbs (REQ-0048)                   | PASS (automated)                  |
+| VS-032 | INFO     | Portal & detail UX polish (REQ-0071)                                        | PASS (automated)                  |
+| VS-033 | INFO     | REQ-0075 gap closure (REQ-0076)                                             | PASS (automated)                  |
+| VS-034 | INFO     | Chart labels, portal headers, product detail UX (REQ-0077)                  | PASS (automated)                  |
+| VS-035 | INFO     | Badge nesting hydration fix on /client (REQ-0078)                           | PASS (automated)                  |
+| VS-036 | INFO     | Client UI polish — badges, spacing, avatars (REQ-0079)                      | PASS (automated)                  |
+| VS-037 | INFO     | Stat badge revert + slate section counters (REQ-0080)                       | PASS (automated)                  |
+| VS-038 | INFO     | Client owner picker + category detail parity (REQ-0081)                     | PASS (automated)                  |
+| VS-039 | INFO     | Category gap closure + non-blocking forecast (REQ-0082)                     | PASS (automated)                  |
+| VS-040 | INFO     | Category forecast loading shell parity (REQ-0083)                           | PASS (automated)                  |
+| VS-041 | INFO     | Detail insights parity + forecast SSR sync (REQ-0084)                       | PASS (automated)                  |
+| VS-042 | INFO     | Stock UX clarity + dialog/detail UI parity (REQ-0114)                       | PASS (automated)                  |
+| VS-043 | INFO     | REQ-0114 dialog gap closure + warehouse summary test (REQ-0115)             | PASS (automated)                  |
+| VS-044 | INFO     | Dialog parity + proportional price DRY + detail typography (REQ-0116)       | PASS (automated)                  |
+| VS-045 | INFO     | Dialog UX parity + admin embed tables + admin network audit (REQ-0117)      | PASS (automated + audit doc)      |
+| VS-046 | INFO     | Readable popover full sweep + prod network confirm (REQ-0118)               | PASS (automated)                  |
+| VS-047 | INFO     | Catalog popover parity + order address labels + warehouse rollup (REQ-0119) | PASS (automated)                  |
 
 **Evidence summary (REQ-0114):** Scope: built/verified | Traceability: REQ-0114 | Findings: PASS | Commands: lint, test 492, test:invalidate 208, build
 
@@ -1431,13 +1488,13 @@ Commands: lint, test, test:invalidate, build
 
 ### VS-045 — Admin network audit (REQ-0117, read-only)
 
-| Pattern | Sample | Verdict |
-|---------|--------|---------|
-| RSC prefetch `*_rsc=` | 200–650 ms repeat nav | Expected — `RouteWarmPrefetch` idle + staggered `router.prefetch` |
-| Cold list API (`orders`, `products`) | 1.0–2.0 s | Expected — MongoDB + Redis miss on Vercel |
-| `session` / `jwe` | 20–290 ms | Expected |
-| High total requests (~292–453) | Warm prefetch + TanStack warm + RSC | Expected aggregate — **no duplicate API call proven** |
-| Admin My Activity hooks | `useOrders`/`useProducts`/… + SSR `initial*` + `useSyncSsrQueryDataMany` | OK — `withInitialData` / `refetchOnMount:false` pattern (REQ-0021) |
+| Pattern                              | Sample                                                                   | Verdict                                                            |
+| ------------------------------------ | ------------------------------------------------------------------------ | ------------------------------------------------------------------ |
+| RSC prefetch `*_rsc=`                | 200–650 ms repeat nav                                                    | Expected — `RouteWarmPrefetch` idle + staggered `router.prefetch`  |
+| Cold list API (`orders`, `products`) | 1.0–2.0 s                                                                | Expected — MongoDB + Redis miss on Vercel                          |
+| `session` / `jwe`                    | 20–290 ms                                                                | Expected                                                           |
+| High total requests (~292–453)       | Warm prefetch + TanStack warm + RSC                                      | Expected aggregate — **no duplicate API call proven**              |
+| Admin My Activity hooks              | `useOrders`/`useProducts`/… + SSR `initial*` + `useSyncSsrQueryDataMany` | OK — `withInitialData` / `refetchOnMount:false` pattern (REQ-0021) |
 
 **Recommendation:** Defer prefetch reduction unless HAR shows same endpoint twice on single page mount (confirmed VS-046).
 
@@ -1445,23 +1502,23 @@ Commands: lint, test, test:invalidate, build
 
 **Verdict: OK for production** — timings are acceptable for this architecture; not a bug.
 
-| Signal | Range | Status |
-|--------|-------|--------|
-| Repeat RSC nav | 96–650 ms | Good — warm prefetch working |
-| Cold list API | 1.0–2.0 s | Expected — Mongo + Redis miss on serverless |
-| session/jwe | 20–290 ms | Normal |
-| High request count | ~292–453 | Intentional warm tradeoff — no duplicate proven |
-| CRUD instant UI | `invalidateAllRelatedQueries` + `useBackWithRefresh` + SSR `initialData` | Unchanged — no regression |
+| Signal             | Range                                                                    | Status                                          |
+| ------------------ | ------------------------------------------------------------------------ | ----------------------------------------------- |
+| Repeat RSC nav     | 96–650 ms                                                                | Good — warm prefetch working                    |
+| Cold list API      | 1.0–2.0 s                                                                | Expected — Mongo + Redis miss on serverless     |
+| session/jwe        | 20–290 ms                                                                | Normal                                          |
+| High request count | ~292–453                                                                 | Intentional warm tradeoff — no duplicate proven |
+| CRUD instant UI    | `invalidateAllRelatedQueries` + `useBackWithRefresh` + SSR `initialData` | Unchanged — no regression                       |
 
 ---
 
 ## Dev manual QA (2026-07-08, cold `.next`)
 
-| Role | First compile | Repeat nav | Detail first | Detail repeat | Notes |
-|------|---------------|------------|--------------|---------------|-------|
-| Admin | RSC 700ms–1.05s | 96–211ms | 1.1–2.7s | 175–477ms | Login warm-prefetch expected |
-| Supplier | RSC 400–735ms | 388–401ms | 385–521ms | — | Re-test category link post-REQ-0029 |
-| Client | browse-meta 277ms | RSC 249–323ms | 322–601ms | — | Owner dropdown 7 items |
+| Role     | First compile     | Repeat nav    | Detail first | Detail repeat | Notes                               |
+| -------- | ----------------- | ------------- | ------------ | ------------- | ----------------------------------- |
+| Admin    | RSC 700ms–1.05s   | 96–211ms      | 1.1–2.7s     | 175–477ms     | Login warm-prefetch expected        |
+| Supplier | RSC 400–735ms     | 388–401ms     | 385–521ms    | —             | Re-test category link post-REQ-0029 |
+| Client   | browse-meta 277ms | RSC 249–323ms | 322–601ms    | —             | Owner dropdown 7 items              |
 
 ---
 
@@ -1513,14 +1570,14 @@ Commands: lint, test, test:invalidate, build
 
 **Tomorrow (short — do not full-matrix):**
 
-| Order | Task | Done when |
-|------|------|-----------|
-| 0 | Redeploy Vercel + re-login | Cookie/JWT 1d |
-| 1 | UI blockers only | Can open lists/dialogs without broken chrome |
-| 2 | §10 A1 product edit + 5 min | No revert |
-| 3 | §10 A2 back from detail | List shows update |
-| 4 | §10 B1 invoice paid → stock | No revert |
-| 5 | Stop / optionally one-CRUD each domain | Record PASS/FAIL here |
+| Order | Task                                   | Done when                                    |
+| ----- | -------------------------------------- | -------------------------------------------- |
+| 0     | Redeploy Vercel + re-login             | Cookie/JWT 1d                                |
+| 1     | UI blockers only                       | Can open lists/dialogs without broken chrome |
+| 2     | §10 A1 product edit + 5 min            | No revert                                    |
+| 3     | §10 A2 back from detail                | List shows update                            |
+| 4     | §10 B1 invoice paid → stock            | No revert                                    |
+| 5     | Stop / optionally one-CRUD each domain | Record PASS/FAIL here                        |
 
 **Defer:** Infinity staleTime, full B2–D, every role×route. Record results under this section after QA.
 
@@ -1530,13 +1587,13 @@ Commands: lint, test, test:invalidate, build
 
 **Status:** in_progress — product UI blockers closed (REQ-0138); cache smoke next
 
-| Order | Task | Result |
-|------|------|--------|
-| 0 | Explore seed (REQ-0137) | PASS — local DB seeded |
-| 1 | UI mismatches (product list/detail) | PASS — REQ-0138 |
-| 2 | §10 A1 | _pending_ |
-| 3 | §10 A2 | _pending_ |
-| 4 | §10 B1 | _pending_ |
+| Order | Task                                | Result                 |
+| ----- | ----------------------------------- | ---------------------- |
+| 0     | Explore seed (REQ-0137)             | PASS — local DB seeded |
+| 1     | UI mismatches (product list/detail) | PASS — REQ-0138        |
+| 2     | §10 A1                              | _pending_              |
+| 3     | §10 A2                              | _pending_              |
+| 4     | §10 B1                              | _pending_              |
 
 ```
 Scope: product UI fixed | Traceability: REQ-0138,REQ-0136 | Findings: PASS UI; FLAG cache TBD
@@ -1574,16 +1631,16 @@ Commands: lint, test, test:invalidate, build
 
 **Scope:** Opt-in catalog seed with 1–2 connected rows per user-facing entity + stub models.
 
-| Entity | Count |
-|--------|-------|
-| Users / Test Supplier | 3 / 1 |
-| Local Parts Co supplier | 1 |
-| Categories / Warehouses / Products | 2 / 2 / 2 |
-| Allocations / Transfers | 3 / 1 |
-| Orders / Invoices | 2 / 2 |
-| Tickets / Reviews / Notifications | 2 / 2 / 3 |
-| Imports / SystemConfig / Audits | 2 / 2 / 2 |
-| Stubs | 6 models × 1 |
+| Entity                             | Count        |
+| ---------------------------------- | ------------ |
+| Users / Test Supplier              | 3 / 1        |
+| Local Parts Co supplier            | 1            |
+| Categories / Warehouses / Products | 2 / 2 / 2    |
+| Allocations / Transfers            | 3 / 1        |
+| Orders / Invoices                  | 2 / 2        |
+| Tickets / Reviews / Notifications  | 2 / 2 / 3    |
+| Imports / SystemConfig / Audits    | 2 / 2 / 2    |
+| Stubs                              | 6 models × 1 |
 
 **Commands:** `script:seed-demo-catalog` ✓ · `verify-demo-accounts` ✓
 

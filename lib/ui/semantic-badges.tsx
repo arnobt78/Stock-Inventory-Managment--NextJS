@@ -119,6 +119,14 @@ const TICKET_STATUS: Record<string, BadgeTone> = {
   closed: { className: GLASS_BADGE_CLASS.gray, icon: XCircle },
 };
 
+/** REQ-0193 — solid/opaque contrast for dark dialog Status Select */
+const TICKET_STATUS_HUE: Record<string, GlassBadgeHue> = {
+  open: "amber",
+  in_progress: "blue",
+  resolved: "emerald",
+  closed: "gray",
+};
+
 const REVIEW_STATUS: Record<string, BadgeTone> = {
   pending: { className: GLASS_BADGE_CLASS.amber, icon: Clock },
   approved: { className: GLASS_BADGE_CLASS.emerald, icon: CheckCircle },
@@ -488,8 +496,17 @@ export function TicketStatusBadge({
   className,
   label,
   size,
+  contrast = "glass",
 }: SemanticBadgeProps) {
-  const tone = resolveTone(TICKET_STATUS, status);
+  const base = resolveTone(TICKET_STATUS, status);
+  const hue = TICKET_STATUS_HUE[normalizeKey(status)] ?? "amber";
+  // REQ-0193 — glass default (lists/detail); solid/opaque for dark Select
+  const tone: BadgeTone =
+    contrast === "solid"
+      ? { icon: base.icon, className: SOLID_BADGE_CLASS[hue] }
+      : contrast === "opaque"
+        ? { icon: base.icon, className: OPAQUE_BADGE_CLASS[hue] }
+        : base;
   return (
     <SemanticBadgeBase
       tone={tone}

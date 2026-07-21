@@ -1,8 +1,12 @@
 "use client";
 
-import React, { useCallback, useState, useEffect } from "react";
-import { SafeAvatarImage } from "@/components/ui/safe-avatar-image";
-import { resolveAvatarSourcesFromSeed } from "@/lib/ui/user-avatar-sources";
+/**
+ * REQ-0191 — Support ticket detail (review parity): read-only Status/Priority/Messages,
+ * densified Ticket info + Sent to, chat replies, notes header edit, footer Edit/Reassign/Delete.
+ */
+
+import React, { useCallback, useMemo, useState } from "react";
+import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useBackWithRefresh } from "@/hooks/use-back-with-refresh";
 import { GlassCard, DetailInfoRow } from "@/components/orders/detail";
@@ -12,13 +16,6 @@ import {
 } from "@/lib/ui/shell-layout-styles";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -33,80 +30,83 @@ import {
 import {
   ArrowLeft,
   LifeBuoy,
-  Loader2,
   MessageSquare,
   NotebookPen,
-  Send,
   User,
   Flag,
   CircleDot,
   Calendar,
   Hash,
+  Pencil,
+  Trash2,
+  UserRoundPen,
+  Check,
+  X,
+  Package,
+  Boxes,
+  Building2,
+  MessagesSquare,
 } from "lucide-react";
 import {
   useSupportTicket,
   useUpdateSupportTicket,
   useDeleteSupportTicket,
   useSupportTicketReplies,
-  useCreateSupportTicketReply,
 } from "@/hooks/queries";
 import {
-  DeferredSelectGate,
   PageContentWrapper,
   DataSlotPulse,
   PageSectionHeader,
   SectionCardHeader,
-  GLASS_BUTTON_SHELL_RESET,
-  GLASS_GHOST_BUTTON,
   glassDetailBackButtonClass,
+  glassDetailFooterButtonClass,
   DETAIL_HEADER_BACK_ICON_CLASS,
   DialogSubmitButton,
   ClientDateTime,
   PersonNameEmailCell,
+  CopyableText,
+  TABLE_CATALOG_LINK_CLASS,
 } from "@/components/shared";
-import { TYPO_BODY, TYPO_BODY_MUTED } from "@/lib/ui/typography-scale";
+import { DETAIL_DATA_VALUE_CLASS } from "@/lib/ui/typography-scale";
 import {
   isDataSlotLoading,
   queryKeys,
   useSyncSsrQueryDataMany,
 } from "@/lib/react-query";
 import type {
+  ProductOwnerOption,
   SupportTicket,
-  SupportTicketStatus,
-  SupportTicketPriority,
   SupportTicketReply,
 } from "@/types";
 import { cn } from "@/lib/utils";
 import {
   TicketStatusBadge,
   TicketPriorityBadge,
+  OrderStatusBadge,
+  PaymentStatusBadge,
 } from "@/lib/ui/semantic-badges";
-
-const STATUS_OPTIONS: { value: SupportTicketStatus; label: string }[] = [
-  { value: "open", label: "Open" },
-  { value: "in_progress", label: "In Progress" },
-  { value: "resolved", label: "Resolved" },
-  { value: "closed", label: "Closed" },
-];
-
-const PRIORITY_OPTIONS: { value: SupportTicketPriority; label: string }[] = [
-  { value: "low", label: "Low" },
-  { value: "medium", label: "Medium" },
-  { value: "high", label: "High" },
-  { value: "urgent", label: "Urgent" },
-];
+import { useAuth } from "@/contexts";
+import SupportTicketDialog from "@/components/support-tickets/SupportTicketDialog";
+import TicketReassignDialog from "@/components/support-tickets/TicketReassignDialog";
+import SupportTicketReplyThread from "@/components/support-tickets/SupportTicketReplyThread";
+import { AlertDialogWrapper } from "@/components/dialogs";
+import { computeTicketMessageStats } from "@/lib/support-tickets/ticket-message-stats";
+import { resolveDetailAuditUserHref } from "@/lib/navigation/audit-user-href";
 
 export type AdminSupportTicketDetailContentProps = {
   initialTicket?: SupportTicket;
-  /** SSR replies for first paint (REQ-0025 P2) */
   initialReplies?: SupportTicketReply[];
+  /** REQ-0191 — for footer Reassign */
+  productOwners?: ProductOwnerOption[];
 };
 
 export default function AdminSupportTicketDetailContent({
   initialTicket,
   initialReplies,
+  productOwners = [],
 }: AdminSupportTicketDetailContentProps = {}) {
   const params = useParams();
+  const { user } = useAuth();
   const { navigateTo, handleBack } = useBackWithRefresh("support-ticket");
   const id = params?.id as string;
   const ticketQuery = useSupportTicket(id, initialTicket);
@@ -130,49 +130,75 @@ export default function AdminSupportTicketDetailContent({
   const repliesQuery = useSupportTicketReplies(id, initialReplies);
   const replies = repliesQuery.data ?? initialReplies ?? [];
   const repliesLoading = isDataSlotLoading(repliesQuery, initialReplies);
-  const createReply = useCreateSupportTicketReply(id);
 
-  const [notes, setNotes] = useState("");
-  const [notesTouched, setNotesTouched] = useState(false);
-  const [replyBody, setReplyBody] = useState("");
+  const [editOpen, setEditOpen] = useState(false);
+  const [reassignOpen, setReassignOpen] = useState(false);
+  const [notesEditing, setNotesEditing] = useState(false);
+  const [notesDraft, setNotesDraft] = useState("");
+  /** REQ-0193 — confirm before clearing internal notes */
+  const [notesClearOpen, setNotesClearOpen] = useState(false);
 
-  useEffect(() => {
-    if (!ticket || notesTouched) return;
-    queueMicrotask(() => setNotes((ticket as SupportTicket).notes ?? ""));
-  }, [ticket, notesTouched]);
+  const sessionId = user?.id;
+  const isAdmin = user?.role === "admin";
+  const canMutate =
+    !!ticket &&
+    !!sessionId &&
+    (isAdmin ||
+      ticket.userId === sessionId ||
+      ticket.assignedToId === sessionId);
+  const canReassign = isAdmin && productOwners.length > 0;
 
-  const handleStatusChange = useCallback(
-    (newStatus: SupportTicketStatus) => {
-      if (!id || newStatus === ticket?.status) return;
-      updateMutation.mutate({ id, data: { status: newStatus } });
-    },
-    [id, ticket?.status, updateMutation],
+  // REQ-0192 — opening description + replies (parity with table 1 + replyCount)
+  // Deps: full `ticket` (not ticket?.userId) so React Compiler can preserve memoization
+  const messageStats = useMemo(
+    () =>
+      ticket
+        ? computeTicketMessageStats(ticket.userId, replies)
+        : { total: 0, fromCreator: 0, fromStaff: 0 },
+    [replies, ticket],
   );
 
-  const handlePriorityChange = useCallback(
-    (newPriority: SupportTicketPriority) => {
-      if (!id || newPriority === ticket?.priority) return;
-      updateMutation.mutate({ id, data: { priority: newPriority } });
-    },
-    [id, ticket?.priority, updateMutation],
-  );
+  const hasRelated =
+    !!ticket && (!!ticket.productId || !!ticket.orderId || !!ticket.supplierId);
 
-  const handleSaveNotes = useCallback(() => {
+  const actionsDisabled =
+    dataLoading || updateMutation.isPending || deleteMutation.isPending;
+  const isDeleting = deleteMutation.isPending;
+
+  const startNotesEdit = () => {
+    setNotesDraft(ticket?.notes ?? "");
+    setNotesEditing(true);
+  };
+
+  const cancelNotesEdit = () => {
+    setNotesEditing(false);
+    setNotesDraft(ticket?.notes ?? "");
+  };
+
+  const saveNotes = () => {
     if (!id) return;
     updateMutation.mutate(
-      { id, data: { notes: notes.trim() || null } },
+      { id, data: { notes: notesDraft.trim() || null } },
+      { onSuccess: () => setNotesEditing(false) },
+    );
+  };
+
+  const clearNotes = () => {
+    if (!id) return;
+    updateMutation.mutate(
+      { id, data: { notes: null } },
       {
         onSuccess: () => {
-          setNotesTouched(false);
+          setNotesEditing(false);
+          setNotesDraft("");
+          setNotesClearOpen(false);
         },
       },
     );
-  }, [id, notes, updateMutation]);
+  };
 
   const handleDelete = useCallback(() => {
     if (!id) return;
-    // useDeleteSupportTicket.onSuccess calls cancelOrRemoveDetailQuery + invalidateAllRelatedQueries;
-    // navigateTo triggers a second invalidation before push for belt-and-suspenders freshness.
     deleteMutation.mutate(id, {
       onSuccess: () => {
         navigateTo("/admin/support-tickets");
@@ -180,73 +206,44 @@ export default function AdminSupportTicketDetailContent({
     });
   }, [id, deleteMutation, navigateTo]);
 
-  const handleSubmitReply = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!replyBody.trim()) return;
-    createReply.mutate(
-      { body: replyBody.trim() },
-      { onSuccess: () => setReplyBody("") },
-    );
-  };
+  const descPreview = (ticket?.description ?? "").trim();
+  const deleteDescription =
+    descPreview.length > 80
+      ? `This will permanently delete the ticket "${ticket?.subject}": ${descPreview.slice(0, 80)}…`
+      : ticket
+        ? `This will permanently delete the ticket "${ticket.subject}". This action cannot be undone.`
+        : "This will permanently delete this support ticket.";
+
+  // REQ-0193 — dynamic confirm copy for clear-notes (subject + notes preview)
+  const notesPreview = (ticket?.notes ?? "").trim();
+  const clearNotesDescription =
+    notesPreview.length > 80
+      ? `Clear internal notes for "${ticket?.subject}": ${notesPreview.slice(0, 80)}…`
+      : ticket && notesPreview
+        ? `Clear internal notes for "${ticket.subject}": ${notesPreview}`
+        : ticket
+          ? `Clear internal notes for "${ticket.subject}"? This cannot be undone.`
+          : "Clear internal notes for this ticket?";
 
   if (isError) {
     return (
       <PageContentWrapper>
-        <div className="space-y-4">
-          <Button
-            size="sm"
-            onClick={handleBack}
-            className={cn("gap-2", GLASS_GHOST_BUTTON)}
-          >
-            <ArrowLeft className="h-4 w-4" />
-            Back to Support Tickets
-          </Button>
-          <GlassCard variant="rose">
-            <p className="py-8 text-center text-gray-600 dark:text-white/80">
-              {error instanceof Error ? error.message : "Ticket not found"}
-            </p>
-          </GlassCard>
+        <div className="p-6 text-destructive">
+          {error instanceof Error ? error.message : "Failed to load ticket"}
         </div>
       </PageContentWrapper>
     );
   }
 
-  if (!dataLoading && !ticket) {
-    return (
-      <PageContentWrapper>
-        <div className="space-y-4">
-          <Button
-            size="sm"
-            onClick={handleBack}
-            className={cn("gap-2", GLASS_GHOST_BUTTON)}
-          >
-            <ArrowLeft className="h-4 w-4" />
-            Back to Support Tickets
-          </Button>
-          <GlassCard variant="rose">
-            <p className="py-8 text-center text-gray-600 dark:text-white/80">
-              The ticket you are looking for does not exist or was removed.
-            </p>
-          </GlassCard>
-        </div>
-      </PageContentWrapper>
-    );
-  }
-
-  const t = ticket as SupportTicket | undefined;
-  const isUpdating = updateMutation.isPending;
-  const isDeleting = deleteMutation.isPending;
-  const notesValue = notesTouched ? notes : (t?.notes ?? "");
-  const actionsDisabled = dataLoading || !ticket;
+  const t = ticket;
 
   return (
     <PageContentWrapper>
       <div className={APP_SHELL_DETAIL_CLASS}>
         <PageSectionHeader
-          as="h1"
           className={DETAIL_PAGE_HEADER_SPACING_CLASS}
-          tone="violet"
           icon={LifeBuoy}
+          tone="violet"
           leading={
             <Button
               variant="ghost"
@@ -267,367 +264,419 @@ export default function AdminSupportTicketDetailContent({
           }
         />
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-2 sm:gap-4">
-          <GlassCard variant="violet">
+        {/* Status | Priority | Messages */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-2 sm:gap-4 items-stretch">
+          <GlassCard variant="amber">
             <div className="p-2 sm:p-4">
               <SectionCardHeader
                 title="Status"
-                description="Changes apply immediately"
+                description="Ticket workflow state — edit via Edit Ticket"
                 icon={CircleDot}
                 tone="amber"
                 className="mb-4"
               />
-              <div className="flex flex-wrap items-center gap-2">
-                {dataLoading ? (
-                  <DataSlotPulse
-                    variant="badge"
-                    className="h-6 w-20 rounded-full"
-                  />
-                ) : (
-                  <TicketStatusBadge status={t!.status} size="detail" />
-                )}
-                {!dataLoading && (
-                  <DeferredSelectGate
-                    placeholder={
-                      <div
-                        className="w-[160px] h-9 rounded-md border border-border flex items-center px-2 text-sm"
-                        aria-hidden
-                      >
-                        {STATUS_OPTIONS.find((o) => o.value === t!.status)
-                          ?.label ?? t!.status}
-                      </div>
-                    }
-                  >
-                    {({ selectRemountKey }) => (
-                      <Select
-                        key={selectRemountKey}
-                        value={t!.status}
-                        onValueChange={(v) =>
-                          handleStatusChange(v as SupportTicketStatus)
-                        }
-                        disabled={isUpdating || actionsDisabled}
-                      >
-                        <SelectTrigger className="w-[160px]">
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {STATUS_OPTIONS.map((opt) => (
-                            <SelectItem key={opt.value} value={opt.value}>
-                              <TicketStatusBadge
-                                status={opt.value}
-                                label={opt.label}
-                                size="detail"
-                              />
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    )}
-                  </DeferredSelectGate>
-                )}
-              </div>
+              {dataLoading ? (
+                <DataSlotPulse
+                  variant="badge"
+                  className="h-6 w-20 rounded-full"
+                />
+              ) : (
+                <TicketStatusBadge status={t!.status} size="detail" />
+              )}
+            </div>
+          </GlassCard>
+
+          <GlassCard variant="rose">
+            <div className="p-2 sm:p-4">
+              <SectionCardHeader
+                title="Priority"
+                description="Urgency — edit via Edit Ticket"
+                icon={Flag}
+                tone="rose"
+                className="mb-4"
+              />
+              {dataLoading ? (
+                <DataSlotPulse
+                  variant="badge"
+                  className="h-6 w-16 rounded-full"
+                />
+              ) : (
+                <TicketPriorityBadge
+                  status={t!.priority}
+                  size="detail"
+                  contrast="opaque"
+                />
+              )}
             </div>
           </GlassCard>
 
           <GlassCard variant="violet">
             <div className="p-2 sm:p-4">
               <SectionCardHeader
-                title="Priority"
-                description="Changes apply immediately"
-                icon={Flag}
-                tone="rose"
+                title="Messages"
+                description="Opening description + thread replies"
+                icon={MessagesSquare}
+                tone="violet"
                 className="mb-4"
               />
-              <div className="flex flex-wrap items-center gap-2">
-                {dataLoading ? (
-                  <DataSlotPulse
-                    variant="badge"
-                    className="h-6 w-16 rounded-full"
-                  />
-                ) : (
-                  <TicketPriorityBadge
-                    status={t!.priority}
-                    size="detail"
-                    contrast="opaque"
-                  />
-                )}
-                {!dataLoading && (
-                  <DeferredSelectGate
-                    placeholder={
-                      <div
-                        className="w-[140px] h-9 rounded-md border border-border flex items-center px-2 text-sm"
-                        aria-hidden
-                      >
-                        {PRIORITY_OPTIONS.find((o) => o.value === t!.priority)
-                          ?.label ?? t!.priority}
-                      </div>
-                    }
-                  >
-                    {({ selectRemountKey }) => (
-                      <Select
-                        key={selectRemountKey}
-                        value={t!.priority}
-                        onValueChange={(v) =>
-                          handlePriorityChange(v as SupportTicketPriority)
-                        }
-                        disabled={isUpdating || actionsDisabled}
-                      >
-                        <SelectTrigger className="w-[160px]">
-                          <SelectValue>
-                            <TicketPriorityBadge
-                              status={t!.priority}
-                              size="detail"
-                              contrast="solid"
-                            />
-                          </SelectValue>
-                        </SelectTrigger>
-                        <SelectContent>
-                          {PRIORITY_OPTIONS.map((opt) => (
-                            <SelectItem key={opt.value} value={opt.value}>
-                              <TicketPriorityBadge
-                                status={opt.value}
-                                label={opt.label}
-                                size="detail"
-                                contrast="opaque"
-                              />
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    )}
-                  </DeferredSelectGate>
-                )}
-              </div>
+              {repliesLoading && replies.length === 0 ? (
+                <DataSlotPulse variant="text-md" className="w-32" />
+              ) : (
+                <div className="flex flex-col gap-1 text-sm">
+                  <span className={DETAIL_DATA_VALUE_CLASS}>
+                    Total{" "}
+                    <span className="text-violet-600 dark:text-violet-300 font-medium">
+                      {messageStats.total}
+                    </span>
+                  </span>
+                  <span className="text-xs text-muted-foreground">
+                    From creator{" "}
+                    <span className="text-sky-600 dark:text-sky-300">
+                      {messageStats.fromCreator}
+                    </span>
+                    {" · "}
+                    From staff{" "}
+                    <span className="text-emerald-600 dark:text-emerald-300">
+                      {messageStats.fromStaff}
+                    </span>
+                  </span>
+                </div>
+              )}
             </div>
           </GlassCard>
         </div>
 
-        <GlassCard variant="violet">
-          <div className="p-2 sm:p-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-2 sm:gap-4">
-              <div>
-                <SectionCardHeader
-                  title="Ticket Information"
-                  description="Creator, dates, and ticket number"
-                  icon={MessageSquare}
-                  tone="violet"
-                  className="mb-4"
-                />
+        {/* Ticket information | Description */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-2 sm:gap-4 items-stretch">
+          <GlassCard variant="violet">
+            <div className="p-2 sm:p-4">
+              <SectionCardHeader
+                title="Ticket information"
+                description="Creator, Send-to, dates, and ticket number"
+                icon={Hash}
+                tone="violet"
+                className="mb-4"
+              />
+              {dataLoading || !t ? (
+                <DataSlotPulse variant="text-md" className="w-full h-24" />
+              ) : (
                 <div className="space-y-2">
-                  {!dataLoading && t!.ticketNumber && (
-                    <DetailInfoRow icon={Hash} label="Ticket #:" tone="blue">
-                      <span className="font-mono text-xs">
-                        {t!.ticketNumber}
-                      </span>
-                    </DetailInfoRow>
-                  )}
+                  <DetailInfoRow
+                    icon={Hash}
+                    label="Ticket #:"
+                    tone="violet"
+                    valueClassName={cn("text-sm", DETAIL_DATA_VALUE_CLASS)}
+                  >
+                    <CopyableText
+                      value={t.ticketNumber ?? t.id}
+                      className="text-violet-600 dark:text-violet-300"
+                    >
+                      {t.ticketNumber ?? t.id}
+                    </CopyableText>
+                  </DetailInfoRow>
                   <DetailInfoRow
                     icon={MessageSquare}
                     label="Subject:"
-                    tone="violet"
-                    loading={dataLoading}
+                    tone="emerald"
+                    valueClassName={cn("text-sm", DETAIL_DATA_VALUE_CLASS)}
                   >
-                    {!dataLoading && t!.subject}
+                    <span className="text-emerald-600 dark:text-emerald-300 font-normal">
+                      {t.subject}
+                    </span>
                   </DetailInfoRow>
                   <DetailInfoRow
                     icon={User}
                     label="Creator:"
                     tone="sky"
-                    loading={dataLoading}
+                    valueClassName="min-w-0"
                   >
-                    {/* REQ-0185 — densify person cell */}
-                    {!dataLoading && (
-                      <PersonNameEmailCell
-                        seed={t!.userId}
-                        name={
-                          t!.creatorName?.trim() ||
-                          t!.creatorEmail ||
-                          t!.userId
-                        }
-                        email={t!.creatorEmail}
-                        image={t!.creatorImage}
-                        href={`/admin/user-management/${t!.userId}`}
-                      />
-                    )}
+                    <PersonNameEmailCell
+                      seed={t.userId}
+                      name={
+                        t.creatorName?.trim() ||
+                        t.creatorEmail ||
+                        t.userId.slice(-8)
+                      }
+                      email={t.creatorEmail}
+                      image={t.creatorImage}
+                      href={`/admin/user-management/${t.userId}`}
+                      avatarSize={28}
+                    />
                   </DetailInfoRow>
                   <DetailInfoRow
-                    icon={Calendar}
-                    label="Created:"
-                    tone="orange"
-                    loading={dataLoading}
+                    icon={UserRoundPen}
+                    label="Sent to:"
+                    tone="teal"
+                    valueClassName="min-w-0"
                   >
-                    {!dataLoading && (
-                      <ClientDateTime
-                        date={new Date(t!.createdAt)}
-                        semantic="created"
+                    {t.assignedToId ? (
+                      <PersonNameEmailCell
+                        seed={t.assignedToId}
+                        name={
+                          t.assignedToName?.trim() ||
+                          t.assignedToEmail ||
+                          t.assignedToId.slice(-8)
+                        }
+                        email={t.assignedToEmail}
+                        image={t.assignedToImage}
+                        href={`/admin/user-management/${t.assignedToId}`}
+                        avatarSize={28}
                       />
+                    ) : (
+                      <span className="text-sm text-muted-foreground">
+                        — No specific owner —
+                      </span>
                     )}
                   </DetailInfoRow>
-                  {!dataLoading && t!.updatedAt && (
+                  {/* REQ-0191 — Created | Updated same responsive row */}
+                  <div className="flex flex-col sm:flex-row gap-2 sm:gap-4 [&>*]:flex-1 [&>*]:min-w-0">
                     <DetailInfoRow
                       icon={Calendar}
-                      label="Updated:"
-                      tone="amber"
+                      label="Created:"
+                      tone="orange"
+                      valueClassName={cn("text-sm", DETAIL_DATA_VALUE_CLASS)}
                     >
                       <ClientDateTime
-                        date={new Date(t!.updatedAt)}
-                        semantic="updated"
+                        date={new Date(t.createdAt)}
+                        semantic="created"
                       />
                     </DetailInfoRow>
-                  )}
+                    {t.updatedAt ? (
+                      <DetailInfoRow
+                        icon={Calendar}
+                        label="Updated:"
+                        tone="amber"
+                        valueClassName={cn("text-sm", DETAIL_DATA_VALUE_CLASS)}
+                      >
+                        <ClientDateTime
+                          date={new Date(t.updatedAt)}
+                          semantic="updated"
+                        />
+                      </DetailInfoRow>
+                    ) : null}
+                  </div>
                 </div>
-              </div>
-              <div>
-                <SectionCardHeader
-                  title="Description"
-                  description="Message submitted with the ticket"
-                  icon={MessageSquare}
-                  tone="neutral"
-                  className="mb-4"
-                />
-                <p
+              )}
+            </div>
+          </GlassCard>
+
+          <GlassCard variant="amber">
+            <div className="p-2 sm:p-4">
+              <SectionCardHeader
+                title="Description"
+                description="Message submitted with the ticket"
+                icon={MessageSquare}
+                tone="amber"
+                className="mb-4"
+              />
+              {dataLoading || !t ? (
+                <DataSlotPulse variant="text-md" className="w-full h-24" />
+              ) : (
+                <div
                   className={cn(
-                    "text-sm whitespace-pre-wrap rounded-lg border border-border/50 bg-muted/30 p-4",
-                    TYPO_BODY_MUTED,
+                    "whitespace-pre-wrap rounded-lg border border-border/50 bg-muted/30 p-4",
+                    "font-normal text-sm text-emerald-600 dark:text-emerald-300",
                   )}
                 >
-                  {dataLoading ? (
-                    <DataSlotPulse
-                      variant="text-md"
-                      className="w-full min-h-[4rem]"
-                    />
-                  ) : (
-                    t!.description
-                  )}
-                </p>
+                  {t.description}
+                </div>
+              )}
+            </div>
+          </GlassCard>
+        </div>
+
+        {/* Related context */}
+        {!dataLoading && t && hasRelated ? (
+          <GlassCard variant="sky">
+            <div className="p-2 sm:p-4">
+              <SectionCardHeader
+                title="Related"
+                description="Linked product, order, or supplier for quick overview"
+                icon={Boxes}
+                tone="sky"
+                className="mb-4"
+              />
+              <div className="space-y-2">
+                {t.productId ? (
+                  <DetailInfoRow
+                    icon={Package}
+                    label="Product:"
+                    tone="sky"
+                    valueClassName="min-w-0"
+                  >
+                    <div className="flex flex-col gap-0.5 min-w-0">
+                      <Link
+                        href={`/admin/products/${t.productId}`}
+                        className={TABLE_CATALOG_LINK_CLASS}
+                      >
+                        {t.relatedProductName ?? t.productId.slice(-8)}
+                      </Link>
+                      {t.relatedProductSku ? (
+                        <CopyableText
+                          value={t.relatedProductSku}
+                          className="text-xs text-muted-foreground dark:text-muted-foreground"
+                        >
+                          {t.relatedProductSku}
+                        </CopyableText>
+                      ) : null}
+                    </div>
+                  </DetailInfoRow>
+                ) : null}
+                {t.orderId ? (
+                  <DetailInfoRow
+                    icon={Boxes}
+                    label="Order:"
+                    tone="emerald"
+                    valueClassName="min-w-0"
+                  >
+                    <div className="flex flex-wrap items-center gap-2">
+                      <Link
+                        href={`/admin/orders/${t.orderId}`}
+                        className={TABLE_CATALOG_LINK_CLASS}
+                      >
+                        {t.relatedOrderNumber ?? t.orderId.slice(-8)}
+                      </Link>
+                      {t.relatedOrderStatus ? (
+                        <OrderStatusBadge
+                          status={t.relatedOrderStatus}
+                          size="compact"
+                        />
+                      ) : null}
+                      {t.relatedOrderPaymentStatus ? (
+                        <PaymentStatusBadge
+                          status={t.relatedOrderPaymentStatus}
+                          size="compact"
+                        />
+                      ) : null}
+                    </div>
+                  </DetailInfoRow>
+                ) : null}
+                {t.supplierId ? (
+                  <DetailInfoRow
+                    icon={Building2}
+                    label="Supplier:"
+                    tone="amber"
+                    valueClassName="min-w-0"
+                  >
+                    <Link
+                      href={`/admin/suppliers/${t.supplierId}`}
+                      className={TABLE_CATALOG_LINK_CLASS}
+                    >
+                      {t.relatedSupplierName ?? t.supplierId.slice(-8)}
+                    </Link>
+                  </DetailInfoRow>
+                ) : null}
               </div>
             </div>
-          </div>
-        </GlassCard>
+          </GlassCard>
+        ) : null}
 
-        <GlassCard variant="violet">
-          <div className="p-2 sm:p-4 space-y-2">
-            <SectionCardHeader
-              title="Reply to user"
-              description="Send a message to the ticket creator. They will see this in the ticket thread and get a notification."
-              icon={Send}
-              tone="violet"
-              className="mb-2"
-            />
-            {repliesLoading ? (
-              <ul className="space-y-2 mb-4">
-                {[1, 2].map((i) => (
-                  <li
-                    key={i}
-                    className="rounded-xl border border-border/50 bg-muted/20 p-4"
+        {/* Reply thread */}
+        {!dataLoading && t ? (
+          <SupportTicketReplyThread
+            ticket={t}
+            replies={replies}
+            repliesLoading={repliesLoading}
+            variant="violet"
+            creatorHref={`/admin/user-management/${t.userId}`}
+            authorHrefForUserId={(userId) =>
+              resolveDetailAuditUserHref(userId, true)
+            }
+          />
+        ) : (
+          <DataSlotPulse variant="text-md" className="w-full h-40" />
+        )}
+
+        {/* Internal Notes — admin header edit/delete */}
+        <GlassCard variant="teal">
+          <div className="p-2 sm:p-4 space-y-3">
+            <div className="flex items-start justify-between gap-2">
+              <SectionCardHeader
+                title="Internal Notes"
+                description="Admin-only notes. Not visible to the ticket creator."
+                icon={NotebookPen}
+                tone="teal"
+              />
+              {!notesEditing ? (
+                <div className="flex shrink-0 items-center gap-1">
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon"
+                    className="h-8 w-8"
+                    onClick={startNotesEdit}
+                    disabled={actionsDisabled || dataLoading}
+                    aria-label="Edit notes"
                   >
-                    <DataSlotPulse variant="text-md" className="w-full mb-2" />
-                    <DataSlotPulse variant="text-sm" className="w-32" />
-                  </li>
-                ))}
-              </ul>
-            ) : replies.length === 0 ? (
-              <p className={cn("text-sm py-2", TYPO_BODY_MUTED)}>
-                No replies yet. Add a reply below.
-              </p>
-            ) : (
-              <ul className="space-y-2 mb-4">
-                {replies.map((r) => {
-                  const avatar = resolveAvatarSourcesFromSeed(
-                    r.userId,
-                    r.userImage,
-                  );
-                  const displayName =
-                    r.userName?.trim() ||
-                    r.userEmail ||
-                    `User ${r.userId.slice(-8)}`;
-                  return (
-                    <li
-                      key={r.id}
-                      className="rounded-xl border border-border/50 bg-muted/20 p-4 text-sm"
-                    >
-                      <p className={cn("whitespace-pre-wrap", TYPO_BODY)}>
-                        {r.body}
-                      </p>
-                      <div className="flex items-center gap-2 mt-2 flex-wrap">
-                        <SafeAvatarImage
-                          src={avatar.src}
-                          fallbackSrc={avatar.fallbackSrc}
-                          alt=""
-                          width={32}
-                          height={32}
-                          className="h-8 w-8 rounded-full object-cover border border-border flex-shrink-0"
-                        />
-                        <span className={cn("text-xs font-medium", TYPO_BODY)}>
-                          {displayName}
-                        </span>
-                        {r.userEmail && (
-                          <span className={cn("text-xs", TYPO_BODY_MUTED)}>
-                            {r.userEmail}
-                          </span>
-                        )}
-                        <ClientDateTime
-                          date={r.createdAt}
-                          semantic="created"
-                          className="text-xs"
-                        />
-                      </div>
-                    </li>
-                  );
-                })}
-              </ul>
-            )}
-            <form onSubmit={handleSubmitReply} className="space-y-2">
+                    <Pencil className="h-4 w-4" />
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon"
+                    className="h-8 w-8 text-rose-600"
+                    onClick={() => setNotesClearOpen(true)}
+                    disabled={
+                      actionsDisabled ||
+                      dataLoading ||
+                      !(t?.notes && t.notes.trim())
+                    }
+                    aria-label="Clear notes"
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
+                </div>
+              ) : (
+                <div className="flex shrink-0 items-center gap-1">
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon"
+                    className="h-8 w-8"
+                    onClick={cancelNotesEdit}
+                    disabled={updateMutation.isPending}
+                    aria-label="Cancel"
+                  >
+                    <X className="h-4 w-4" />
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon"
+                    className="h-8 w-8 text-emerald-600"
+                    onClick={saveNotes}
+                    disabled={updateMutation.isPending}
+                    aria-label="Save notes"
+                  >
+                    <Check className="h-4 w-4" />
+                  </Button>
+                </div>
+              )}
+            </div>
+            {dataLoading ? (
+              <DataSlotPulse variant="text-md" className="w-full h-16" />
+            ) : notesEditing ? (
               <Textarea
-                placeholder="Write a reply to the user..."
-                value={replyBody}
-                onChange={(e) => setReplyBody(e.target.value)}
-                disabled={createReply.isPending || actionsDisabled}
+                value={notesDraft}
+                onChange={(e) => setNotesDraft(e.target.value)}
+                disabled={updateMutation.isPending}
                 className="min-h-[100px] rounded-xl resize-none"
+                placeholder="Internal notes…"
               />
-              <DialogSubmitButton
-                type="submit"
-                isPending={createReply.isPending}
-                pendingLabel="Sending…"
-                label="Send Reply"
-                hue="violet"
-                disabled={!replyBody.trim() || actionsDisabled}
-                className="rounded-xl"
-              />
-            </form>
-          </div>
-        </GlassCard>
-
-        <GlassCard variant="violet">
-          <div className="p-2 sm:p-4 space-y-2">
-            <SectionCardHeader
-              title="Internal Notes"
-              description="Admin-only notes. Not visible to the ticket creator."
-              icon={NotebookPen}
-              tone="neutral"
-              className="mb-2"
-            />
-            <Textarea
-              placeholder="Add internal notes..."
-              value={notesValue}
-              onChange={(e) => {
-                setNotes(e.target.value);
-                setNotesTouched(true);
-              }}
-              disabled={isUpdating || actionsDisabled}
-              className="min-h-[100px] rounded-2xl resize-none"
-            />
-            {notesTouched && (
-              <Button size="sm" onClick={handleSaveNotes} disabled={isUpdating}>
-                {isUpdating ? (
-                  <Loader2 className="h-4 w-4 animate-spin mr-2" />
-                ) : null}
-                Save Notes
-              </Button>
+            ) : (
+              <p
+                className={cn(
+                  "whitespace-pre-wrap text-sm text-gray-700 dark:text-white",
+                  !t?.notes?.trim() && "text-muted-foreground italic",
+                )}
+              >
+                {t?.notes?.trim() || "No internal notes yet."}
+              </p>
             )}
           </div>
         </GlassCard>
 
+        {/* Footer CTAs */}
         <div className="flex flex-col sm:flex-row flex-wrap gap-2">
           <Button
             onClick={handleBack}
@@ -638,41 +687,105 @@ export default function AdminSupportTicketDetailContent({
             <ArrowLeft className="h-4 w-4 shrink-0" />
             Back
           </Button>
-          <AlertDialog>
-            <AlertDialogTrigger asChild>
-              <DialogSubmitButton
-                type="button"
-                isPending={isDeleting}
-                pendingLabel="Deleting…"
-                label="Delete Ticket"
-                hue="rose"
-                disabled={actionsDisabled}
-                className="w-full sm:w-auto gap-2 px-8"
-              />
-            </AlertDialogTrigger>
-            <AlertDialogContent>
-              <AlertDialogHeader>
-                <AlertDialogTitle>Delete support ticket?</AlertDialogTitle>
-                <AlertDialogDescription>
-                  This will permanently delete this ticket. This action cannot
-                  be undone.
-                </AlertDialogDescription>
-              </AlertDialogHeader>
-              <AlertDialogFooter>
-                <AlertDialogCancel disabled={isDeleting}>
-                  Cancel
-                </AlertDialogCancel>
-                <AlertDialogAction
-                  onClick={handleDelete}
-                  disabled={isDeleting || actionsDisabled}
-                  className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-                >
-                  {isDeleting ? "Deleting..." : "Delete"}
-                </AlertDialogAction>
-              </AlertDialogFooter>
-            </AlertDialogContent>
-          </AlertDialog>
+          {canMutate && t ? (
+            <Button
+              type="button"
+              onClick={() => setEditOpen(true)}
+              disabled={actionsDisabled}
+              className={glassDetailFooterButtonClass(
+                "amber",
+                "w-full sm:w-auto gap-2 px-8",
+              )}
+            >
+              <Pencil className="h-4 w-4 shrink-0" />
+              Edit Ticket
+            </Button>
+          ) : null}
+          {canReassign && t ? (
+            <Button
+              type="button"
+              onClick={() => setReassignOpen(true)}
+              disabled={actionsDisabled}
+              className={glassDetailFooterButtonClass(
+                "violet",
+                "w-full sm:w-auto gap-2 px-8",
+              )}
+            >
+              <UserRoundPen className="h-4 w-4 shrink-0" />
+              Reassign Ticket
+            </Button>
+          ) : null}
+          {canMutate ? (
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <DialogSubmitButton
+                  type="button"
+                  isPending={isDeleting}
+                  pendingLabel="Deleting…"
+                  label="Delete Ticket"
+                  icon={Trash2}
+                  hue="rose"
+                  disabled={actionsDisabled}
+                  className="w-full sm:w-auto gap-2 px-8"
+                />
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Delete support ticket?</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    {deleteDescription}
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel disabled={isDeleting}>
+                    Cancel
+                  </AlertDialogCancel>
+                  <AlertDialogAction
+                    onClick={handleDelete}
+                    disabled={isDeleting || actionsDisabled}
+                    className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                  >
+                    {isDeleting ? "Deleting..." : "Delete"}
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
+          ) : null}
         </div>
+
+        {t ? (
+          <>
+            <SupportTicketDialog
+              open={editOpen}
+              onOpenChange={setEditOpen}
+              productOwners={productOwners}
+              existingTicket={t}
+              variant="violet"
+            />
+            {canReassign ? (
+              <TicketReassignDialog
+                ticket={t}
+                productOwners={productOwners}
+                open={reassignOpen}
+                onOpenChange={setReassignOpen}
+                variant="violet"
+              />
+            ) : null}
+            {/* REQ-0193 — clear notes confirm with subject + preview */}
+            <AlertDialogWrapper
+              open={notesClearOpen}
+              onOpenChange={setNotesClearOpen}
+              title="Clear internal notes?"
+              description={clearNotesDescription}
+              actionLabel="Clear notes"
+              actionLoadingLabel="Clearing…"
+              isLoading={updateMutation.isPending}
+              onAction={clearNotes}
+              onCancel={() => setNotesClearOpen(false)}
+              actionVariant="destructive"
+            />
+          </>
+        ) : null}
       </div>
     </PageContentWrapper>
   );

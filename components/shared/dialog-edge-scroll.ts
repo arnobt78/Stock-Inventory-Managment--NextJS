@@ -69,7 +69,7 @@ export const DIALOG_TABLE_LINK =
 
 /** Kebab / row action icon in embedded dialog tables */
 export const DIALOG_TABLE_ACTION_ICON =
-  "text-gray-600 dark:text-white/80 hover:text-gray-800 dark:hover:text-white";
+  "text-gray-600 dark:text-white/80 hover:text-gray-700 dark:hover:text-white";
 
 /** REQ-0109 — full-width feedback row below dialog field grids */
 export const DIALOG_FORM_FEEDBACK_ROW =

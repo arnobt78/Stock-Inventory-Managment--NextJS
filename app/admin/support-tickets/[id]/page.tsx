@@ -2,6 +2,7 @@ import { notFound, redirect } from "next/navigation";
 import { getSession } from "@/lib/auth-server";
 import { getSupportTicketDetailForPage } from "@/lib/server/support-ticket-detail-data";
 import { getSupportTicketRepliesForPage } from "@/lib/server/support-ticket-replies-data";
+import { getProductOwnersForSupport } from "@/lib/server/support-tickets-data";
 import AdminSupportTicketDetailContent from "@/components/admin/AdminSupportTicketDetailContent";
 
 type Props = { params: Promise<{ id: string }> };
@@ -14,9 +15,11 @@ export default async function AdminSupportTicketDetailPage({ params }: Props) {
   if (!user) redirect("/login");
   const { id } = await params;
 
-  const [initialTicket, initialReplies] = await Promise.all([
+  // REQ-0191 — productOwners for footer Reassign
+  const [initialTicket, initialReplies, productOwners] = await Promise.all([
     getSupportTicketDetailForPage({ id: user.id, role: user.role }, id),
     getSupportTicketRepliesForPage(id),
+    getProductOwnersForSupport(),
   ]);
   if (!initialTicket) notFound();
 
@@ -24,6 +27,7 @@ export default async function AdminSupportTicketDetailPage({ params }: Props) {
     <AdminSupportTicketDetailContent
       initialTicket={initialTicket}
       initialReplies={initialReplies}
+      productOwners={productOwners}
     />
   );
 }

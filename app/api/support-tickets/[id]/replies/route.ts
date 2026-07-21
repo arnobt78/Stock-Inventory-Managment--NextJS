@@ -17,6 +17,7 @@ import { withRateLimit, defaultRateLimits } from "@/lib/api/rate-limit";
 import { createSupportTicketRepliedNotification } from "@/lib/notifications/in-app";
 import { scheduleInvalidateSupportTicketCaches } from "@/lib/cache";
 import { prisma } from "@/prisma/client";
+import { canMutateSupportTicket } from "@/lib/support-tickets/ticket-assignee-policy";
 import type { SupportTicketReply } from "@/types";
 
 function transform(
@@ -62,9 +63,19 @@ export async function GET(
         { status: 404 },
       );
     }
-    const isCreator = ticket.userId === session.id;
-    const isAssignee = ticket.assignedToId === session.id;
-    if (!isCreator && !isAssignee) {
+    // REQ-0191 — admin OR creator OR assignee may read replies
+    const sessionId = session.id ?? "";
+    const sessionRole = session.role ?? "";
+    if (
+      !sessionId ||
+      !canMutateSupportTicket(
+        { id: sessionId, role: sessionRole },
+        {
+          userId: ticket.userId,
+          assignedToId: ticket.assignedToId ?? null,
+        },
+      )
+    ) {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 
@@ -120,9 +131,19 @@ export async function POST(
         { status: 404 },
       );
     }
-    const isCreator = ticket.userId === session.id;
-    const isAssignee = ticket.assignedToId === session.id;
-    if (!isCreator && !isAssignee) {
+    // REQ-0191 — admin OR creator OR assignee may post replies
+    const sessionId = session.id ?? "";
+    const sessionRole = session.role ?? "";
+    if (
+      !sessionId ||
+      !canMutateSupportTicket(
+        { id: sessionId, role: sessionRole },
+        {
+          userId: ticket.userId,
+          assignedToId: ticket.assignedToId ?? null,
+        },
+      )
+    ) {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 

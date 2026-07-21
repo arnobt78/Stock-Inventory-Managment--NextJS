@@ -2,6 +2,7 @@
  * Support Ticket Table Columns
  * REQ-0185 — densify Customer/Sent to; Actions MoreVertical; priority opaque on table.
  * REQ-0189 — Subject & Description header; sky subject link; dual truncate; muted date labels.
+ * REQ-0192 — Messages column via ticketMessageTotal (description + replies).
  */
 
 "use client";
@@ -28,6 +29,7 @@ import {
   TABLE_CATALOG_LINK_CLASS,
 } from "@/components/shared";
 import SupportTicketActions from "@/components/admin/SupportTicketActions";
+import { ticketMessageTotal } from "@/lib/support-tickets/ticket-message-stats";
 import type { ProductOwnerOption, SupportTicket } from "@/types";
 
 type SortableHeaderProps = {
@@ -211,7 +213,7 @@ export function createSupportTicketColumns(
       header: "Messages",
       cell: ({ row }) => (
         <span className="text-muted-foreground">
-          {1 + (row.original.replyCount ?? 0)}
+          {ticketMessageTotal(row.original.replyCount)}
         </span>
       ),
     },
