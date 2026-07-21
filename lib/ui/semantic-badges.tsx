@@ -104,6 +104,14 @@ const TICKET_PRIORITY: Record<string, BadgeTone> = {
   urgent: { className: GLASS_BADGE_CLASS.red, icon: XCircle },
 };
 
+/** REQ-0185 — solid/opaque contrast for dark dialog Priority Select */
+const TICKET_PRIORITY_HUE: Record<string, GlassBadgeHue> = {
+  low: "gray",
+  medium: "blue",
+  high: "orange",
+  urgent: "red",
+};
+
 const TICKET_STATUS: Record<string, BadgeTone> = {
   open: { className: GLASS_BADGE_CLASS.amber, icon: MessageSquare },
   in_progress: { className: GLASS_BADGE_CLASS.blue, icon: Loader2 },
@@ -455,8 +463,16 @@ export function TicketPriorityBadge({
   className,
   label,
   size,
+  contrast = "glass",
 }: SemanticBadgeProps) {
-  const tone = resolveTone(TICKET_PRIORITY, status);
+  const base = resolveTone(TICKET_PRIORITY, status);
+  const hue = TICKET_PRIORITY_HUE[normalizeKey(status)] ?? "blue";
+  const tone: BadgeTone =
+    contrast === "solid"
+      ? { icon: base.icon, className: SOLID_BADGE_CLASS[hue] }
+      : contrast === "opaque"
+        ? { icon: base.icon, className: OPAQUE_BADGE_CLASS[hue] }
+        : base;
   return (
     <SemanticBadgeBase
       tone={tone}

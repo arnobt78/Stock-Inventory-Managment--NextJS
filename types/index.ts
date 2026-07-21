@@ -95,6 +95,7 @@ export type {
   SupportTicketFilters,
   SupportTicketReply,
   CreateSupportTicketReplyInput,
+  ProductOwnerOption,
 } from "./support-ticket";
 
 // Product Review types

@@ -30,6 +30,8 @@ export { CopyableText } from "./CopyableText";
 export type { CopyableTextProps } from "./CopyableText";
 export { AvatarInlineLink } from "./AvatarInlineLink";
 export type { AvatarInlineLinkProps } from "./AvatarInlineLink";
+export { PersonNameEmailCell } from "./PersonNameEmailCell";
+export type { PersonNameEmailCellProps } from "./PersonNameEmailCell";
 export { DenseCatalogProductCell } from "./DenseCatalogProductCell";
 export type { DenseCatalogProductCellProps } from "./DenseCatalogProductCell";
 export { ProductLineItemsList } from "./ProductLineItemsList";

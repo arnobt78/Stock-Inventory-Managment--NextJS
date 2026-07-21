@@ -1,7 +1,8 @@
 /**
  * Support Tickets API Route Handler
- * GET /api/support-tickets — list all (admin)
+ * GET /api/support-tickets — list (admin assigned / user created)
  * POST /api/support-tickets — create ticket
+ * REQ-0185 — list densify images; client/supplier must set assignedToId
  */
 
 import { NextRequest, NextResponse } from "next/server";
@@ -14,55 +15,73 @@ import {
 import { createSupportTicketSchema } from "@/lib/validations";
 import { withRateLimit, defaultRateLimits } from "@/lib/api/rate-limit";
 import { createSupportTicketCreatedNotification } from "@/lib/notifications/in-app";
-import { cacheKeys, getCache, scheduleInvalidateSupportTicketCaches, setCache } from "@/lib/cache";
+import {
+  cacheKeys,
+  getCache,
+  scheduleInvalidateSupportTicketCaches,
+  setCache,
+} from "@/lib/cache";
 import { prisma } from "@/prisma/client";
 import { createAuditLog } from "@/prisma/audit-log";
+import {
+  hasTicketListV2Shape,
+  transformSupportTicketListRow,
+  type TicketUserSnap,
+} from "@/lib/support-tickets/ticket-list-enrich";
 import type { SupportTicket } from "@/types";
-
-function transform(
-  r: Awaited<ReturnType<typeof getSupportTicketsByAssignedTo>>[number],
-  creator?: { name: string | null; email: string } | null,
-  assignedTo?: { name: string | null; email: string } | null,
-  replyCount?: number,
-): SupportTicket {
-  return {
-    id: r.id,
-    subject: r.subject,
-    description: r.description,
-    status: r.status as SupportTicket["status"],
-    priority: r.priority as SupportTicket["priority"],
-    userId: r.userId,
-    assignedToId: r.assignedToId,
-    productId: r.productId,
-    orderId: r.orderId,
-    supplierId: r.supplierId,
-    notes: r.notes,
-    createdAt: r.createdAt.toISOString(),
-    updatedAt: r.updatedAt?.toISOString() ?? null,
-    creatorName: creator?.name ?? undefined,
-    creatorEmail: creator?.email ?? undefined,
-    assignedToName: assignedTo?.name ?? undefined,
-    assignedToEmail: assignedTo?.email ?? undefined,
-    replyCount: replyCount ?? 0,
-  };
-}
 
 async function getUsersMap(
   userIds: string[],
-): Promise<Map<string, { name: string | null; email: string }>> {
+): Promise<Map<string, TicketUserSnap>> {
   if (userIds.length === 0) return new Map();
   const users = await prisma.user.findMany({
     where: { id: { in: userIds } },
-    select: { id: true, name: true, email: true },
+    select: { id: true, name: true, email: true, image: true },
   });
   return new Map(
-    users.map((u) => [u.id, { name: u.name, email: u.email ?? "" }]),
+    users.map((u) => [
+      u.id,
+      { name: u.name, email: u.email ?? "", image: u.image ?? null },
+    ]),
+  );
+}
+
+async function mapTicketRecords(
+  records: Awaited<ReturnType<typeof getSupportTicketsByAssignedTo>>,
+): Promise<SupportTicket[]> {
+  const ticketIds = records.map((r) => r.id);
+  const replyCounts =
+    ticketIds.length > 0
+      ? await prisma.supportTicketReply.groupBy({
+          by: ["ticketId"],
+          where: { ticketId: { in: ticketIds } },
+          _count: { id: true },
+        })
+      : [];
+  const replyCountMap = new Map(
+    replyCounts.map((c) => [c.ticketId, c._count.id]),
+  );
+  const userIds = [
+    ...new Set(
+      records.flatMap((r) =>
+        [r.userId, r.assignedToId].filter(Boolean) as string[],
+      ),
+    ),
+  ];
+  const usersMap = await getUsersMap(userIds);
+  return records.map((r) =>
+    transformSupportTicketListRow(
+      r,
+      usersMap.get(r.userId),
+      r.assignedToId ? usersMap.get(r.assignedToId) : null,
+      replyCountMap.get(r.id) ?? 0,
+    ),
   );
 }
 
 /**
  * GET /api/support-tickets
- * Admin: all tickets (cached). Non-admin: only tickets created by current user.
+ * Admin: tickets assigned to this admin (cached). Non-admin: tickets created by current user.
  */
 export async function GET(request: NextRequest) {
   try {
@@ -80,90 +99,41 @@ export async function GET(request: NextRequest) {
     const isAdmin = session.role === "admin";
     if (isAdmin) {
       const { searchParams } = new URL(request.url);
-      const view = searchParams.get("view") as "all" | "assigned_to_me" | "created_by_me" | null;
+      const view = searchParams.get("view") as
+        | "all"
+        | "assigned_to_me"
+        | "created_by_me"
+        | null;
       if (view === "assigned_to_me" || view === "created_by_me") {
-        const { getSupportTicketsByUserId, getSupportTicketsByAssignedTo } = await import("@/prisma/support-ticket");
+        const {
+          getSupportTicketsByUserId,
+          getSupportTicketsByAssignedTo: getByAssigned,
+        } = await import("@/prisma/support-ticket");
         const records =
           view === "assigned_to_me"
-            ? await getSupportTicketsByAssignedTo(session.id)
+            ? await getByAssigned(session.id)
             : await getSupportTicketsByUserId(session.id);
-        const ticketIds = records.map((r) => r.id);
-        const replyCounts =
-          ticketIds.length > 0
-            ? await prisma.supportTicketReply.groupBy({
-                by: ["ticketId"],
-                where: { ticketId: { in: ticketIds } },
-                _count: { id: true },
-              })
-            : [];
-        const replyCountMap = new Map(replyCounts.map((c) => [c.ticketId, c._count.id]));
-        const userIds = [...new Set(records.flatMap((r) => [r.userId, r.assignedToId].filter(Boolean) as string[]))];
-        const usersMap = await getUsersMap(userIds);
-        const transformed = records.map((r) =>
-          transform(
-            r,
-            usersMap.get(r.userId),
-            r.assignedToId ? usersMap.get(r.assignedToId) : null,
-            replyCountMap.get(r.id) ?? 0,
-          ),
-        );
-        return NextResponse.json(transformed);
+        return NextResponse.json(await mapTicketRecords(records));
       }
-      // Admin "all" = only tickets assigned to this admin (product owner), not every ticket
       const cacheKey = cacheKeys.supportTickets.list({
         assignedToId: session.id,
       });
       const cacheReadStartedAt = Date.now();
       const cached = await getCache<SupportTicket[]>(cacheKey);
-      if (cached) return NextResponse.json(cached);
+      if (hasTicketListV2Shape(cached)) return NextResponse.json(cached);
       const records = await getSupportTicketsByAssignedTo(session.id);
-      const ticketIds = records.map((r) => r.id);
-      const replyCounts =
-        ticketIds.length > 0
-          ? await prisma.supportTicketReply.groupBy({
-              by: ["ticketId"],
-              where: { ticketId: { in: ticketIds } },
-              _count: { id: true },
-            })
-          : [];
-      const replyCountMap = new Map(replyCounts.map((c) => [c.ticketId, c._count.id]));
-      const userIds = [...new Set(records.flatMap((r) => [r.userId, r.assignedToId].filter(Boolean) as string[]))];
-      const usersMap = await getUsersMap(userIds);
-      const transformed = records.map((r) =>
-        transform(
-          r,
-          usersMap.get(r.userId),
-          r.assignedToId ? usersMap.get(r.assignedToId) : null,
-          replyCountMap.get(r.id) ?? 0,
-        ),
-      );
-      await setCache(cacheKey, transformed, 300, { fetchedAt: cacheReadStartedAt });
+      const transformed = await mapTicketRecords(records);
+      await setCache(cacheKey, transformed, 300, {
+        fetchedAt: cacheReadStartedAt,
+      });
       return NextResponse.json(transformed);
     }
 
-    const { getSupportTicketsByUserId } = await import("@/prisma/support-ticket");
-    const records = await getSupportTicketsByUserId(session.id);
-    const ticketIds = records.map((r) => r.id);
-    const replyCounts =
-      ticketIds.length > 0
-        ? await prisma.supportTicketReply.groupBy({
-            by: ["ticketId"],
-            where: { ticketId: { in: ticketIds } },
-            _count: { id: true },
-          })
-        : [];
-    const replyCountMap = new Map(replyCounts.map((c) => [c.ticketId, c._count.id]));
-    const userIds = [...new Set(records.flatMap((r) => [r.userId, r.assignedToId].filter(Boolean) as string[]))];
-    const usersMap = await getUsersMap(userIds);
-    const transformed = records.map((r) =>
-      transform(
-        r,
-        usersMap.get(r.userId),
-        r.assignedToId ? usersMap.get(r.assignedToId) : null,
-        replyCountMap.get(r.id) ?? 0,
-      ),
+    const { getSupportTicketsByUserId } = await import(
+      "@/prisma/support-ticket"
     );
-    return NextResponse.json(transformed);
+    const records = await getSupportTicketsByUserId(session.id);
+    return NextResponse.json(await mapTicketRecords(records));
   } catch (error) {
     logger.error("Error fetching support tickets:", error);
     return NextResponse.json(
@@ -204,6 +174,19 @@ export async function POST(request: NextRequest) {
     }
 
     const data = parsed.data;
+    // REQ-0185 — client/supplier must send to a product owner
+    const requiresAssignee =
+      session.role === "client" || session.role === "supplier";
+    if (requiresAssignee && !data.assignedToId) {
+      logger.warn("Support ticket create missing assignedToId for role", {
+        role: session.role,
+      });
+      return NextResponse.json(
+        { error: "Please select a product owner to send the ticket to." },
+        { status: 400 },
+      );
+    }
+
     const created = await createSupportTicket(
       {
         subject: data.subject,
@@ -225,9 +208,7 @@ export async function POST(request: NextRequest) {
       details: { subject: created.subject },
     }).catch(() => {});
 
-    const creatorDisplay =
-      session.name?.trim() || session.email || "A user";
-    // Notify the assigned product owner (if set); otherwise notify all admins except creator
+    const creatorDisplay = session.name?.trim() || session.email || "A user";
     if (created.assignedToId && created.assignedToId !== userId) {
       createSupportTicketCreatedNotification(
         created.assignedToId,
@@ -263,7 +244,9 @@ export async function POST(request: NextRequest) {
       });
     }
 
-    return NextResponse.json(transform(created), { status: 201 });
+    return NextResponse.json(transformSupportTicketListRow(created), {
+      status: 201,
+    });
   } catch (error) {
     logger.error("Error creating support ticket:", error);
     return NextResponse.json(

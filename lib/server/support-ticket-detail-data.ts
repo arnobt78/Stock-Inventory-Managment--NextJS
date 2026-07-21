@@ -25,12 +25,12 @@ export async function getSupportTicketDetailForPage(
   const [creator, assignedTo] = await Promise.all([
     prisma.user.findUnique({
       where: { id: record.userId },
-      select: { name: true, email: true },
+      select: { name: true, email: true, image: true },
     }),
     record.assignedToId
       ? prisma.user.findUnique({
           where: { id: record.assignedToId },
-          select: { name: true, email: true },
+          select: { name: true, email: true, image: true },
         })
       : null,
   ]);

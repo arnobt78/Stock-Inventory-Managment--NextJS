@@ -934,7 +934,12 @@ Hub: `lib/ui/typography-scale.ts`. Hubs import tokens; ~45 inline files use equi
 
 **Invalidation unchanged** — review/product/dashboard CRUD already clears lists + portals.
 
-**Active wave:** REQ-0185 ticket table/detail (admin/client/supplier) → 0186 warehouse → 0187 order dialog → then REQ-0136 Gate 2.
+**Active wave:** 0185–0190 done → **0186** warehouse → 0187 order dialog → 0136 Gate 2. Gates: lint ✓ test 648 ✓ inv 215 ✓ build ✓.
+
+| 0185 | densify + Actions + dialog edit + list:v2 + Priority contrast |
+| 0188 | Send-to Select no line-clamp; OwnerSelectRow trigger/item |
+| 0189 | Subject&Description / Comment sky links; muted Created/Updated |
+| 0190 | edit Send-to RO; admin Reassign+confirm; `ticket-assignee-policy` |
 
 ## KPI badge helpers (REQ-0156–0157)
 

@@ -4,26 +4,98 @@ Canonical REQ source. All artifacts link via `REQ-XXXX`. Status: `done` | `verif
 
 ---
 
+## REQ-0190 — Edit Send-to read-only + admin Reassign
+
+| Field | Value |
+|-------|-------|
+| **Priority** | P1 |
+| **Risk** | R1 |
+| **Status** | done |
+| **Cycle** | C2 |
+| **Parent** | REQ-0185 |
+
+**Intent:** On edit, Send-to is read-only for all roles so mid-conversation rewiring cannot happen silently. Create keeps the owner Select. Admin reassigns via a separate Actions flow with confirmation. API enforces admin-only assignee changes.
+
+**Acceptance criteria**
+
+- AC1: Edit dialog shows Send-to read-only (densified row); omit `assignedToId` on PUT
+- AC2: Create dialog Select unchanged (optional admin; required client/supplier when owners exist)
+- AC3: Admin Actions **Reassign…** → Select + confirm AlertDialog → `useUpdateSupportTicket({ assignedToId })`
+- AC4: API: `canMutateSupportTicket` includes admin; `resolveAssignedToUpdate` admin-only
+- AC5: Invalidation unchanged (existing patch + `invalidateAllRelatedQueries`); gates pass
+
+**Artifacts:** `SupportTicketDialog`, `SupportTicketActions`, `ticket-assignee-policy`, PUT `[id]` route
+
+---
+
+## REQ-0189 — Ticket/review table Subject·Comment·Date polish
+
+| Field | Value |
+|-------|-------|
+| **Priority** | P2 |
+| **Risk** | R0 |
+| **Status** | done |
+| **Cycle** | C2 |
+| **Parent** | REQ-0185 |
+
+**Intent:** Ticket Subject & Description header + sky subject link + dual-line truncate; review Comment sky link to detail; Created/Updated muted labels on both tables (product table parity). Actions menus unchanged.
+
+**Acceptance criteria**
+
+- AC1: Ticket header → **Subject & Description**; subject + description single-line `truncate` + `title=`
+- AC2: Subject sky `Link` to detail (`TABLE_CATALOG_LINK_CLASS`); Actions View stays
+- AC3: Review Comment sky `Link` to detail; Actions View stays
+- AC4: Both tables muted `Created:` / `Updated:` labels; dates keep `ClientDateTime` semantic
+- AC5: Invalidation unchanged; gates pass
+
+**Artifacts:** `SupportTicketTableColumns.tsx`, `ProductReviewTableColumns.tsx`
+
+---
+
+## REQ-0188 — Send-to Select avatar clip + readable text
+
+| Field | Value |
+|-------|-------|
+| **Priority** | P2 |
+| **Risk** | R0 |
+| **Status** | done |
+| **Cycle** | C2 |
+| **Parent** | REQ-0185 |
+
+**Intent:** Fix Send-to SelectTrigger clipping avatar (Radix line-clamp) without padding; dual-surface owner name/email/product text for dark trigger + light popover.
+
+**Acceptance criteria**
+
+- AC1: Send-to SelectTrigger overrides `line-clamp` / overflow so avatar is not clipped
+- AC2: Avatar uses `overflow-hidden rounded-full` on circle only (no padding workaround)
+- AC3: OwnerSelectRow `surface=trigger|item` readable on dark field + light popover
+- AC4: Invalidation unchanged; gates pass
+
+**Artifacts:** `SupportTicketDialog.tsx` (`OwnerSelectRow`)
+
+---
+
 ## REQ-0185 — Support ticket table + detail UI (admin / client / supplier)
 
 | Field | Value |
 |-------|-------|
 | **Priority** | P2 |
 | **Risk** | R1 |
-| **Status** | planned |
+| **Status** | done |
 | **Cycle** | C2 |
 | **Parent** | REQ-0136 (UI explore findings) |
 
-**Intent:** Fix UI bugs on support ticket **list/table** and **detail** pages for admin, client, and supplier role surfaces (parity with recent densify patterns where applicable).
+**Intent:** Densify ticket tables like reviews; Actions MoreVertical CRUD; create/edit dialog with required Send-to (client/supplier); Priority badge contrast; Reviewer cell supplier-style.
 
 **Acceptance criteria**
 
-- AC1: Ticket table densify / layout bugs fixed (admin + role-scoped lists)
-- AC2: Ticket detail UI polish (admin embed + client/supplier detail)
-- AC3: Role-correct actions/links; no hydrate issues
-- AC4: Invalidation unchanged unless a CRUD display bug requires it; gates pass
+- AC1: Customer/Sent to avatar + sky name + email copy; Redis `supportTickets:list:v2`
+- AC2: `SupportTicketActions` View/Edit/Delete; edit via `SupportTicketDialog`
+- AC3: Client/supplier assignedTo required (API + UI); owner densify image+productCount
+- AC4: `TicketPriorityBadge` contrast solid/opaque; Reviewer column supplier-style
+- AC5: Invalidation unchanged; gates pass
 
-**Artifacts:** (TBD at build) ticket list/columns, `SupportTicketDetailContent`, `AdminSupportTicketDetailContent`
+**Artifacts:** `PersonNameEmailCell`, `SupportTicketActions`, `SupportTicketDialog`, `ticket-list-enrich`, semantic-badges, columns/detail
 
 ---
 

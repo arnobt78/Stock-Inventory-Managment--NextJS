@@ -1,29 +1,34 @@
 /**
  * Support Ticket Table Columns
- * Column definitions for the support tickets table
+ * REQ-0185 — densify Customer/Sent to; Actions MoreVertical; priority opaque on table.
+ * REQ-0189 — Subject & Description header; sky subject link; dual truncate; muted date labels.
  */
 
 "use client";
 
 import React from "react";
+import Link from "next/link";
 import { Column, ColumnDef } from "@tanstack/react-table";
 import {
   TicketStatusBadge,
   TicketPriorityBadge,
 } from "@/lib/ui/semantic-badges";
-import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { ArrowUpDown, Eye } from "lucide-react";
+import { ArrowUpDown } from "lucide-react";
 import { IoMdArrowDown, IoMdArrowUp } from "react-icons/io";
-import Link from "next/link";
 import { cn } from "@/lib/utils";
-import { ClientDateTime } from "@/components/shared";
-import type { SupportTicket } from "@/types";
+import {
+  ClientDateTime,
+  PersonNameEmailCell,
+  TABLE_CATALOG_LINK_CLASS,
+} from "@/components/shared";
+import SupportTicketActions from "@/components/admin/SupportTicketActions";
+import type { ProductOwnerOption, SupportTicket } from "@/types";
 
 type SortableHeaderProps = {
   column: Column<SupportTicket, unknown>;
@@ -67,27 +72,60 @@ function SortableHeader({ column, label }: SortableHeaderProps) {
   );
 }
 
+export type CreateSupportTicketColumnsOptions = {
+  detailHrefBase?: string;
+  productOwners?: ProductOwnerOption[];
+  /** Admin store → violet dialog; personal activity → sky */
+  dialogVariant?: "sky" | "violet";
+  /** When true, person names link to /admin/user-management/{id} */
+  linkUserManagement?: boolean;
+};
+
 export function createSupportTicketColumns(
-  detailHrefBase?: string,
+  detailHrefBaseOrOptions?: string | CreateSupportTicketColumnsOptions,
 ): ColumnDef<SupportTicket>[] {
+  const opts: CreateSupportTicketColumnsOptions =
+    typeof detailHrefBaseOrOptions === "string" ||
+    detailHrefBaseOrOptions === undefined
+      ? {
+          detailHrefBase:
+            typeof detailHrefBaseOrOptions === "string"
+              ? detailHrefBaseOrOptions
+              : "/admin/support-tickets",
+        }
+      : detailHrefBaseOrOptions;
+
+  const detailHrefBase = opts.detailHrefBase ?? "/admin/support-tickets";
+  const productOwners = opts.productOwners ?? [];
+  const dialogVariant =
+    opts.dialogVariant ??
+    (detailHrefBase.startsWith("/admin") ? "violet" : "sky");
+  const linkUserManagement =
+    opts.linkUserManagement ?? detailHrefBase.startsWith("/admin");
+
   return [
     {
       accessorKey: "subject",
       header: ({ column }) => (
-        <SortableHeader column={column} label="Subject" />
+        <SortableHeader column={column} label="Subject & Description" />
       ),
       cell: ({ row }) => {
         const t = row.original;
         const subject = t.subject ?? "";
         const description = t.description ?? "";
+        const detailHref = `${detailHrefBase}/${t.id}`;
         return (
-          <div className="flex flex-col min-w-0 max-w-[280px]">
-            <span className=" truncate" title={subject}>
+          <div className="flex flex-col min-w-0 max-w-[280px] gap-0.5">
+            <Link
+              href={detailHref}
+              className={cn(TABLE_CATALOG_LINK_CLASS, "truncate")}
+              title={subject}
+            >
               {subject}
-            </span>
+            </Link>
             {description ? (
               <span
-                className="text-xs text-muted-foreground line-clamp-2"
+                className="truncate text-xs text-muted-foreground"
                 title={description}
               >
                 {description}
@@ -102,22 +140,22 @@ export function createSupportTicketColumns(
       header: "Customer",
       cell: ({ row }) => {
         const t = row.original;
-        const name = t.creatorName ?? t.userId;
-        const email = t.creatorEmail ?? "";
+        const name =
+          t.creatorName?.trim() ||
+          t.creatorEmail ||
+          t.userId?.slice(-8) ||
+          "—";
+        const href = linkUserManagement
+          ? `/admin/user-management/${t.userId}`
+          : undefined;
         return (
-          <div className="flex flex-col min-w-0 max-w-[180px]">
-            <span className=" truncate" title={String(name)}>
-              {name}
-            </span>
-            {email ? (
-              <span
-                className="text-xs text-muted-foreground truncate"
-                title={email}
-              >
-                {email}
-              </span>
-            ) : null}
-          </div>
+          <PersonNameEmailCell
+            seed={t.userId}
+            name={name}
+            email={t.creatorEmail}
+            image={t.creatorImage}
+            href={href}
+          />
         );
       },
     },
@@ -126,22 +164,26 @@ export function createSupportTicketColumns(
       header: "Sent to",
       cell: ({ row }) => {
         const t = row.original;
-        const name = t.assignedToName ?? t.assignedToId ?? "—";
-        const email = t.assignedToEmail ?? "";
+        if (!t.assignedToId) {
+          return (
+            <span className="text-xs text-muted-foreground">—</span>
+          );
+        }
+        const name =
+          t.assignedToName?.trim() ||
+          t.assignedToEmail ||
+          t.assignedToId.slice(-8);
+        const href = linkUserManagement
+          ? `/admin/user-management/${t.assignedToId}`
+          : `/products?ownerId=${t.assignedToId}`;
         return (
-          <div className="flex flex-col min-w-0 max-w-[180px]">
-            <span className=" truncate" title={String(name)}>
-              {name}
-            </span>
-            {email ? (
-              <span
-                className="text-xs text-muted-foreground truncate"
-                title={email}
-              >
-                {email}
-              </span>
-            ) : null}
-          </div>
+          <PersonNameEmailCell
+            seed={t.assignedToId}
+            name={name}
+            email={t.assignedToEmail}
+            image={t.assignedToImage}
+            href={href}
+          />
         );
       },
     },
@@ -158,7 +200,10 @@ export function createSupportTicketColumns(
         <SortableHeader column={column} label="Priority" />
       ),
       cell: ({ row }) => (
-        <TicketPriorityBadge status={row.original.priority} />
+        <TicketPriorityBadge
+          status={row.original.priority}
+          contrast="opaque"
+        />
       ),
     },
     {
@@ -176,10 +221,11 @@ export function createSupportTicketColumns(
       header: ({ column }) => <SortableHeader column={column} label="Date" />,
       cell: ({ row }) => {
         const t = row.original;
+        // REQ-0189 — muted labels like product Created/Expire
         return (
           <div className="flex flex-col whitespace-nowrap text-xs">
             <span>
-              Created:{" "}
+              <span className="text-muted-foreground">Created: </span>
               {t.createdAt ? (
                 <ClientDateTime date={t.createdAt} semantic="created" />
               ) : (
@@ -187,7 +233,7 @@ export function createSupportTicketColumns(
               )}
             </span>
             <span className="mt-0.5">
-              Updated:{" "}
+              <span className="text-muted-foreground">Updated: </span>
               {t.updatedAt ? (
                 <ClientDateTime date={t.updatedAt} semantic="updated" />
               ) : (
@@ -201,20 +247,14 @@ export function createSupportTicketColumns(
     {
       id: "actions",
       header: "Actions",
-      cell: ({ row }) => {
-        const t = row.original;
-        const href = detailHrefBase
-          ? `${detailHrefBase}/${t.id}`
-          : `/admin/support-tickets/${t.id}`;
-        return (
-          <Button variant="ghost" size="sm" asChild>
-            <Link href={href} className="gap-2">
-              <Eye className="h-4 w-4" />
-              View
-            </Link>
-          </Button>
-        );
-      },
+      cell: ({ row }) => (
+        <SupportTicketActions
+          ticket={row.original}
+          detailHrefBase={detailHrefBase}
+          productOwners={productOwners}
+          dialogVariant={dialogVariant}
+        />
+      ),
     },
   ];
 }

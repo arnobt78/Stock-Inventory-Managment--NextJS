@@ -13,8 +13,16 @@ type SupportTicketRecord = NonNullable<
 export function transformSupportTicketDetail(
   r: SupportTicketRecord,
   opts?: {
-    creator?: { name: string | null; email: string } | null;
-    assignedTo?: { name: string | null; email: string } | null;
+    creator?: {
+      name: string | null;
+      email: string;
+      image?: string | null;
+    } | null;
+    assignedTo?: {
+      name: string | null;
+      email: string;
+      image?: string | null;
+    } | null;
   },
 ): SupportTicket {
   const created = new Date(r.createdAt);
@@ -36,7 +44,9 @@ export function transformSupportTicketDetail(
     ticketNumber,
     creatorName: opts?.creator?.name ?? undefined,
     creatorEmail: opts?.creator?.email ?? undefined,
+    creatorImage: opts?.creator?.image ?? null,
     assignedToName: opts?.assignedTo?.name ?? undefined,
     assignedToEmail: opts?.assignedTo?.email ?? undefined,
+    assignedToImage: opts?.assignedTo?.image ?? null,
   };
 }

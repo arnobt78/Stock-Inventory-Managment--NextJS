@@ -3,17 +3,89 @@
 **Generated:** 2026-07-21 session activate
 **eval_gate_status:** PENDING (Human Gate 2)
 **Prod target SHA:** `011d655` (REQ-0179–0184)
-**Resume:** **REQ-0185** active → 0186 → 0187 → REQ-0136 (see STATE.md)
+**Resume:** **REQ-0186** next → 0187 → REQ-0136 (see STATE.md)
+
+---
+
+## REQ-0190 Edit Send-to read-only + admin Reassign evidence
+
+| Check | Result |
+|-------|--------|
+| Edit Send-to | read-only densified row; PUT omits assignedToId |
+| Create Select | unchanged |
+| Admin Reassign | Actions → Select → AlertDialog confirm → update mutation |
+| API policy | admin mutate any; assignee change admin-only |
+| Invalidation | unchanged (patch + invalidateAll) |
+| Gates | lint ✓ test **648** ✓ invalidate **215** ✓ build ✓ |
+
+```
+Scope: built/verified | Traceability: REQ-0190 | Findings: PASS
+Commands: lint, test, invalidate, build
+```
+
+---
+
+## REQ-0189 Ticket/review Subject·Comment·Date polish evidence
+
+| Check | Result |
+|-------|--------|
+| Ticket header | Subject & Description |
+| Subject sky link | `TABLE_CATALOG_LINK_CLASS` → detail; dual truncate + title |
+| Review Comment | sky Link → detail; truncate max-w-[200px] |
+| Date labels | muted Created:/Updated: on both tables |
+| Invalidation | unchanged |
+| Gates | lint ✓ test **641** ✓ invalidate **215** ✓ build ✓ |
+
+```
+Scope: built/verified | Traceability: REQ-0189 | Findings: PASS
+Commands: lint, test, invalidate, build
+```
+
+---
+
+## REQ-0188 Send-to Select clip + readable text evidence
+
+| Check | Result |
+|-------|--------|
+| Avatar clip | SelectTrigger `line-clamp-none` + overflow-visible; circle overflow-hidden only |
+| Text trigger | white / white/75 |
+| Text item | gray-800 / muted (light popover) |
+| Invalidation | unchanged |
+| Gates | lint ✓ test **641** ✓ invalidate **215** ✓ build ✓ |
+
+```
+Scope: built/verified | Traceability: REQ-0188 | Findings: PASS
+Commands: lint, test, invalidate, build
+```
+
+---
+
+## REQ-0185 Support ticket densify evidence
+
+| Check | Result |
+|-------|--------|
+| Person cells | Customer/Sent to + Reviewer supplier-style |
+| Actions | SupportTicketActions View/Edit/Delete |
+| Dialog | create/edit; Send-to required client/supplier; owner densify |
+| Priority contrast | solid/opaque in dialog + table opaque |
+| Redis | supportTickets:list:v2 + shape guard |
+| Invalidation | unchanged |
+| Gates | lint ✓ test **641** ✓ invalidate **215** ✓ build ✓ |
+
+```
+Scope: built/verified | Traceability: REQ-0185 | Findings: PASS
+Commands: lint, test, invalidate, build
+```
 
 ---
 
 ## Session 2026-07-21 — Agile V activate / resume
 
 ```
-Scope: activate/resume | Traceability: REQ-0185 | Findings: FLAG (await human UI bug list / build)
+Scope: activate/resume | Traceability: REQ-0185 | Findings: PASS (built)
 Bootstrap: SKIP — .agile-v/ complete (C1/C2, 24 skills, Gate1 APPROVED)
 Decision Points: continue from park; no re-bootstrap
-Log: 2026-07-21 | orchestrator | session activate | Infinity Loop ready → REQ-0185
+Log: 2026-07-21 | orchestrator | session activate | Infinity Loop ready → REQ-0185 done → 0186
 ```
 
 ---

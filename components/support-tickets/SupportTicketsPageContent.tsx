@@ -9,10 +9,8 @@ import { isDataSlotLoading, isDataSlotUnsettled, queryKeys, useSyncSsrQueryData 
 import { APP_SHELL_WIDTH_CLASS } from "@/lib/ui/shell-layout-styles";
 import { MessageSquare, MessageCircle, Plus } from "lucide-react";
 import { cn } from "@/lib/utils";
-import type { SupportTicket } from "@/types";
-import SupportTicketDialog, {
-  type ProductOwnerOption,
-} from "./SupportTicketDialog";
+import type { ProductOwnerOption, SupportTicket } from "@/types";
+import SupportTicketDialog from "./SupportTicketDialog";
 import { Button } from "@/components/ui/button";
 import SupportTicketFilters from "@/components/admin/SupportTicketFilters";
 import { SupportTicketTable } from "@/components/admin/SupportTicketTable";
@@ -65,8 +63,14 @@ export default function SupportTicketsPageContent({
   const [selectedPriorities, setSelectedPriorities] = useState<string[]>([]);
 
   const columns = useMemo(
-    () => createSupportTicketColumns("/support-tickets"),
-    [],
+    () =>
+      createSupportTicketColumns({
+        detailHrefBase: "/support-tickets",
+        productOwners,
+        dialogVariant: "sky",
+        linkUserManagement: false,
+      }),
+    [productOwners],
   );
 
   // REQ-0125: stat cards unsettled on stale refetch; table loading keeps patched rows visible

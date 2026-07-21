@@ -34,6 +34,10 @@ export interface SupportTicket {
   assignedToName?: string | null;
   /** Assigned-to email. Present when API includes it. */
   assignedToEmail?: string | null;
+  /** REQ-0185 — creator avatar (Google or null → robohash via seed). */
+  creatorImage?: string | null;
+  /** REQ-0185 — assignee avatar. */
+  assignedToImage?: string | null;
   /** Number of replies/messages on this ticket. Present when API includes it. */
   replyCount?: number;
 }
@@ -68,6 +72,9 @@ export interface CreateSupportTicketReplyInput {
 }
 
 export interface UpdateSupportTicketInput {
+  /** REQ-0185 — edit dialog subject/description */
+  subject?: string;
+  description?: string;
   status?: SupportTicketStatus;
   priority?: SupportTicketPriority;
   assignedToId?: string | null;
@@ -81,3 +88,12 @@ export interface SupportTicketFilters {
   assignedToId?: string;
   search?: string;
 }
+
+/** REQ-0185 — Send-to (product owner) picker densify */
+export type ProductOwnerOption = {
+  id: string;
+  name: string;
+  email: string;
+  image?: string | null;
+  productCount?: number;
+};

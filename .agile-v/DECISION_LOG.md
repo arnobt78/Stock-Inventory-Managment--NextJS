@@ -474,3 +474,12 @@ Format: `TIMESTAMP | AGENT | DECISION | RATIONALE | REQ-ID`
 2026-07-20T17:25:00Z | orchestrator | resume token | tomorrow-UI-tickets-warehouse-order → REQ-0185 | REQ-0185
 2026-07-21T12:31:00Z | orchestrator | session activate | No re-bootstrap; C2 resume REQ-0185; 24 skills OK; Gate1 APPROVED Gate2 PENDING | REQ-0185
 2026-07-21T12:31:00Z | product-owner | wave order | 0185 tickets → 0186 warehouse → 0187 order dialog → 0136 Gate2 | REQ-0185
+2026-07-21T13:00:00Z | build-agent | REQ-0185 ticket densify | PersonNameEmailCell; Actions; dialog edit; list:v2; priority contrast | REQ-0185
+2026-07-21T13:05:00Z | red-team | REQ-0185 gates | lint ✓ test 641 ✓ invalidate 215 ✓ build ✓ | REQ-0185
+2026-07-21T13:10:00Z | build-agent | REQ-0188 Send-to Select clip+text | line-clamp override; OwnerSelectRow trigger/item surfaces | REQ-0188
+2026-07-21T13:15:00Z | red-team | REQ-0188 gates | lint ✓ test 641 ✓ invalidate 215 ✓ build ✓ | REQ-0188
+2026-07-21T13:20:00Z | build-agent | REQ-0189 ticket/review table polish | Subject&Description sky link; Comment sky link; muted date labels | REQ-0189
+2026-07-21T13:25:00Z | red-team | REQ-0189 gates | lint ✓ test 641 ✓ invalidate 215 ✓ build ✓ | REQ-0189
+2026-07-21T13:35:00Z | build-agent | REQ-0190 Send-to lock + Reassign | edit read-only; admin Reassign; API policy | REQ-0190
+2026-07-21T13:40:00Z | red-team | REQ-0190 gates | lint ✓ test 648 ✓ invalidate 215 ✓ build ✓ | REQ-0190
+2026-07-21T14:00:00Z | red-team | REQ-0190 pre-commit audit | plan ACs match; no invalidation gaps; docs sync | REQ-0190

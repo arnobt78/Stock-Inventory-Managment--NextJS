@@ -28,8 +28,11 @@ import { Button } from "@/components/ui/button";
 import { MessageSquare, AlertCircle } from "lucide-react";
 import { StatisticsCard } from "@/components/home/StatisticsCard";
 import { useAuth } from "@/contexts";
-import type { ProductOwnerOption } from "@/components/support-tickets/SupportTicketDialog";
-import type { SupportTicket, DashboardStats } from "@/types";
+import type {
+  ProductOwnerOption,
+  SupportTicket,
+  DashboardStats,
+} from "@/types";
 
 export type SupportTicketListProps = {
   detailHrefBase?: string;
@@ -95,8 +98,13 @@ export default function SupportTicketList({
 
   const columns = useMemo(
     () =>
-      createSupportTicketColumns(detailHrefBase ?? "/admin/support-tickets"),
-    [detailHrefBase],
+      createSupportTicketColumns({
+        detailHrefBase: detailHrefBase ?? "/admin/support-tickets",
+        productOwners,
+        dialogVariant: "violet",
+        linkUserManagement: true,
+      }),
+    [detailHrefBase, productOwners],
   );
 
   // REQ-0125: dashboard status card unsettled; list-derived priority + table use loading (patched rows visible)

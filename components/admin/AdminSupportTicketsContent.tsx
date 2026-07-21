@@ -3,8 +3,11 @@
 import React from "react";
 import SupportTicketList from "./SupportTicketList";
 import { PageContentWrapper } from "@/components/shared";
-import type { SupportTicket, DashboardStats } from "@/types";
-import type { ProductOwnerOption } from "@/components/support-tickets/SupportTicketDialog";
+import type {
+  SupportTicket,
+  DashboardStats,
+  ProductOwnerOption,
+} from "@/types";
 
 export type AdminSupportTicketsContentProps = {
   initialTickets?: SupportTicket[];

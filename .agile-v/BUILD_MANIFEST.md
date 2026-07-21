@@ -471,6 +471,18 @@
 | TC-0091 | REQ-0183 | Gates lint/test/invalidate/build |
 | ART-0184a | REQ-0184 | Edit Review dialog stacked w-full (revert 2-col) | WriteEditReviewDialog |
 | TC-0092 | REQ-0184 | Gates lint/test/invalidate/build |
-| ART-0185a | REQ-0185 | Support ticket table + detail UI (planned) | TBD tomorrow |
-| ART-0186a | REQ-0186 | Warehouse dialog + detail UI (planned) | TBD tomorrow |
-| ART-0187a | REQ-0187 | Order dialog UI polish (planned) | TBD tomorrow |
+| ART-0185a | REQ-0185 | PersonNameEmailCell + ticket Customer/SentTo densify | PersonNameEmailCell, SupportTicketTableColumns |
+| ART-0185b | REQ-0185 | SupportTicketActions + create/edit dialog + list:v2 | SupportTicketActions, SupportTicketDialog, ticket-list-enrich |
+| ART-0185c | REQ-0185 | TicketPriorityBadge contrast + product-owners image/count | semantic-badges, product-owners API |
+| TC-0093 | REQ-0185 | Gates lint/test/invalidate/build |
+| ART-0188a | REQ-0188 | Send-to SelectTrigger overflow + dual-surface OwnerSelectRow | SupportTicketDialog |
+| TC-0094 | REQ-0188 | Gates lint/test/invalidate/build |
+| ART-0189a | REQ-0189 | Ticket Subject & Description sky link + truncate; muted dates | SupportTicketTableColumns |
+| ART-0189b | REQ-0189 | Review Comment sky link + muted date labels | ProductReviewTableColumns |
+| TC-0095 | REQ-0189 | Gates lint/test/invalidate/build |
+| ART-0190a | REQ-0190 | Edit Send-to read-only; omit assignedToId on PUT | SupportTicketDialog |
+| ART-0190b | REQ-0190 | Admin Reassign Select + confirm | SupportTicketActions |
+| ART-0190c | REQ-0190 | canMutate + resolveAssignedToUpdate policy | ticket-assignee-policy |
+| TC-0096 | REQ-0190 | Gates lint/test/invalidate/build + policy unit tests |
+| ART-0186a | REQ-0186 | Warehouse dialog + detail UI (planned) | TBD |
+| ART-0187a | REQ-0187 | Order dialog UI polish (planned) | TBD |

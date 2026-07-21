@@ -88,6 +88,8 @@ export async function updateSupportTicket(
   const updateData: Prisma.SupportTicketUpdateInput = {
     updatedAt: new Date(),
   };
+  if (data.subject != null) updateData.subject = data.subject;
+  if (data.description != null) updateData.description = data.description;
   if (data.status != null) updateData.status = data.status;
   if (data.priority != null) updateData.priority = data.priority;
   if (data.assignedToId !== undefined)

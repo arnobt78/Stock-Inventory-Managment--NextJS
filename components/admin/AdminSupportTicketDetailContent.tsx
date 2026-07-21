@@ -3,7 +3,6 @@
 import React, { useCallback, useState, useEffect } from "react";
 import { SafeAvatarImage } from "@/components/ui/safe-avatar-image";
 import { resolveAvatarSourcesFromSeed } from "@/lib/ui/user-avatar-sources";
-import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useBackWithRefresh } from "@/hooks/use-back-with-refresh";
 import { GlassCard, DetailInfoRow } from "@/components/orders/detail";
@@ -39,7 +38,6 @@ import {
   NotebookPen,
   Send,
   User,
-  Mail,
   Flag,
   CircleDot,
   Calendar,
@@ -64,6 +62,7 @@ import {
   DETAIL_HEADER_BACK_ICON_CLASS,
   DialogSubmitButton,
   ClientDateTime,
+  PersonNameEmailCell,
 } from "@/components/shared";
 import { TYPO_BODY, TYPO_BODY_MUTED } from "@/lib/ui/typography-scale";
 import {
@@ -346,7 +345,11 @@ export default function AdminSupportTicketDetailContent({
                     className="h-6 w-16 rounded-full"
                   />
                 ) : (
-                  <TicketPriorityBadge status={t!.priority} size="detail" />
+                  <TicketPriorityBadge
+                    status={t!.priority}
+                    size="detail"
+                    contrast="opaque"
+                  />
                 )}
                 {!dataLoading && (
                   <DeferredSelectGate
@@ -369,8 +372,14 @@ export default function AdminSupportTicketDetailContent({
                         }
                         disabled={isUpdating || actionsDisabled}
                       >
-                        <SelectTrigger className="w-[140px]">
-                          <SelectValue />
+                        <SelectTrigger className="w-[160px]">
+                          <SelectValue>
+                            <TicketPriorityBadge
+                              status={t!.priority}
+                              size="detail"
+                              contrast="solid"
+                            />
+                          </SelectValue>
                         </SelectTrigger>
                         <SelectContent>
                           {PRIORITY_OPTIONS.map((opt) => (
@@ -379,6 +388,7 @@ export default function AdminSupportTicketDetailContent({
                                 status={opt.value}
                                 label={opt.label}
                                 size="detail"
+                                contrast="opaque"
                               />
                             </SelectItem>
                           ))}
@@ -425,32 +435,19 @@ export default function AdminSupportTicketDetailContent({
                     tone="sky"
                     loading={dataLoading}
                   >
+                    {/* REQ-0185 — densify person cell */}
                     {!dataLoading && (
-                      <div className="flex flex-col ">
-                        <Link
-                          href={`/admin/user-management/${t!.userId}`}
-                          className="font-medium text-sky-600 dark:text-sky-400 hover:text-sky-500 dark:hover:text-sky-300 inline-flex items-center gap-1"
-                        >
-                          <User className="h-3.5 w-3.5" />
-                          {t!.creatorName ?? t!.userId}
-                        </Link>
-                        {t!.creatorEmail && (
-                          <span
-                            className={cn(
-                              "text-xs inline-flex items-center gap-1",
-                              TYPO_BODY_MUTED,
-                            )}
-                          >
-                            <Mail className="h-3 w-3" />
-                            {t!.creatorEmail}
-                          </span>
-                        )}
-                        <span
-                          className={cn("font-mono text-xs", TYPO_BODY_MUTED)}
-                        >
-                          ID: {t!.userId}
-                        </span>
-                      </div>
+                      <PersonNameEmailCell
+                        seed={t!.userId}
+                        name={
+                          t!.creatorName?.trim() ||
+                          t!.creatorEmail ||
+                          t!.userId
+                        }
+                        email={t!.creatorEmail}
+                        image={t!.creatorImage}
+                        href={`/admin/user-management/${t!.userId}`}
+                      />
                     )}
                   </DetailInfoRow>
                   <DetailInfoRow

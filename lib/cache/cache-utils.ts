@@ -344,7 +344,8 @@ export const cacheKeys = {
     all: "supportTickets:all",
     list: (filters?: Record<string, unknown>) => {
       const filterStr = filters ? JSON.stringify(filters) : "default";
-      return `supportTickets:list:${filterStr}`;
+      // REQ-0185 — v2: creatorImage + assignedToImage densify
+      return `supportTickets:list:v2:${filterStr}`;
     },
     detail: (id: string) => `supportTickets:detail:${id}`,
     pattern: "supportTickets:*",

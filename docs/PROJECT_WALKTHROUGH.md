@@ -1,6 +1,6 @@
 # PROJECT_WALKTHROUGH.md
 
-Agent-oriented map of **stock-inventory** (Stockly). Last updated: 2026-07-20.
+Agent-oriented map of **stock-inventory** (Stockly). Last updated: 2026-07-21.
 
 ## 1. What this app is
 
@@ -114,6 +114,18 @@ Details: `docs/Redis_Sentry_PostHog_INTEGRATION_GUIDE.md`
 | Mutation pattern | patch detail + list caches **before** `invalidateAllRelatedQueries` / `invalidateAfterOrderGraphChange` |
 | Domains patched | products/categories/suppliers/warehouses, orders/invoices (+ client variants), portal browse, support tickets, product reviews, user management |
 | Intentional pulse-only | dashboard/home KPI counts (server aggregates); stock transfer (multi-warehouse — invalidate + pulse) |
+
+### Support tickets (REQ-0185–0190)
+
+| Piece | Location |
+|-------|----------|
+| List densify | `PersonNameEmailCell`; Redis `supportTickets:list:v2`; `ticket-list-enrich` |
+| Actions | `SupportTicketActions` — View / Edit / Delete; admin **Reassign…** (0190) |
+| Create/Edit | `SupportTicketDialog` — create Select Send-to; **edit Send-to read-only** |
+| Policy | `ticket-assignee-policy` — admin-only `assignedToId` change; admin may PUT any ticket |
+| Mutate UI | `useUpdateSupportTicket` — patch detail/list → `invalidateAllRelatedQueries` |
+
+**Next UI wave:** REQ-0186 warehouse → 0187 order dialog → REQ-0136 Gate 2.
 
 ## 7b. Table pagination Select (Radix portal, 2026-05-22)
 
@@ -287,7 +299,8 @@ flowchart LR
 | KPI badge helpers (REQ-0156–0157) | store order/invoice + portal order helpers; My Activity parity; tsc clean | UI/test-only |
 | Delivered + Due badges (REQ-0155) | `store-order-status-badges.ts`; Total Orders Delivered; Outstanding→Due | UI-only |
 | Partial pay KPIs (REQ-0154) | `payment-money-stats.ts` → dashboards Paid/Partial/Due/Pending; Partial badges; table Total `text-xs`; `dashboard:overview:v4` | Invalidation unchanged |
-| Next | REQ-0185 ticket table/detail → 0186 warehouse UI → 0187 order dialog → REQ-0136 §10 + Gate 2 | |
+| Tickets densify (REQ-0185) | PersonNameEmailCell; Actions MoreVertical; create/edit dialog; list:v2; Priority contrast | Invalidation unchanged |
+| Next | REQ-0186 warehouse UI → 0187 order dialog → REQ-0136 §10 + Gate 2 | |
 | AI warehouse insights (REQ-0067) | `POST /api/ai/insights` enriches payload with `getWarehouseStockSummary` |
 | Per-warehouse order picking (REQ-0068) | `OrderItem.warehouseId`; `stock-allocation-order-sync.ts`; `OrderLineWarehouseSelect`; reserve/fulfill/cancel sync; invoice-paid gap; `f892b65` removed unused `deleteCache`/`getRateLimitStatus` |
 | Demo reset | `npm run script:reset-demo-db` — accounts-only (3 users + Test Supplier); opt-in catalog via `seed-demo-catalog` |
@@ -301,15 +314,15 @@ flowchart LR
 3. Sentry **stock-inventory** — 24h: compare cases 1–7 vs `docs/SENTRY_ERRORS.md`
 4. Log result in `.agile-v/REVALIDATION_LOG.md`; CAPA if regression
 
-## 8. Quality gates (audit 2026-07-20 REQ-0184)
+## 8. Quality gates (audit 2026-07-21 REQ-0185)
 
 | Check | Status |
 |-------|--------|
 | `npm run lint` | pass |
 | `npm run build` | pass |
-| `npm run test` | 636 passed |
-| `npm run test:invalidate` | 214 passed |
-| Local | REQ-0179–0184 product reviews UX + edit dialog stack |
+| `npm run test` | 641 passed |
+| `npm run test:invalidate` | 215 passed |
+| Local | REQ-0185 ticket densify + Actions + dialog |
 | Radix table Select | `useDeferredRadixSelect` + `PaginationSelector` (11 tables) |
 | Pagination clamp + page-size reset | `useClampPaginationIndex` + `PaginationSelector` pageIndex 0 |
 | Sentry | tunnel + translate scrub + `syncSentryUserFromAuth` |

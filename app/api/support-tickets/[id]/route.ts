@@ -22,6 +22,10 @@ import type { UpdateSupportTicketInput } from "@/types";
 import { getSupportTicketDetailForPage } from "@/lib/server/support-ticket-detail-data";
 import { transformSupportTicketDetail } from "@/lib/support-tickets/transform-support-ticket-detail";
 import { scheduleInvalidateSupportTicketCaches } from "@/lib/cache";
+import {
+  canMutateSupportTicket,
+  resolveAssignedToUpdate,
+} from "@/lib/support-tickets/ticket-assignee-policy";
 
 /**
  * GET /api/support-tickets/:id
@@ -95,9 +99,19 @@ export async function PUT(
         { status: 404 },
       );
     }
-    const isCreator = existing.userId === session.id;
-    const isAssignee = existing.assignedToId === session.id;
-    if (!isCreator && !isAssignee) {
+    // REQ-0190 — admin may update any ticket (reassign); others: creator or assignee
+    const sessionId = session.id ?? "";
+    const sessionRole = session.role ?? "";
+    if (
+      !sessionId ||
+      !canMutateSupportTicket(
+        { id: sessionId, role: sessionRole },
+        {
+          userId: existing.userId,
+          assignedToId: existing.assignedToId ?? null,
+        },
+      )
+    ) {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 
@@ -115,10 +129,19 @@ export async function PUT(
 
     const data = parsed.data;
     const updatePayload: UpdateSupportTicketInput = {};
+    // REQ-0185 — edit dialog subject/description
+    if (data.subject != null) updatePayload.subject = data.subject;
+    if (data.description != null) updatePayload.description = data.description;
     if (data.status != null) updatePayload.status = data.status;
     if (data.priority != null) updatePayload.priority = data.priority;
-    if (data.assignedToId !== undefined)
-      updatePayload.assignedToId = data.assignedToId;
+    // REQ-0190 — only admin may change Send-to; non-admin body field ignored
+    const nextAssignedTo = resolveAssignedToUpdate(
+      { id: sessionId, role: sessionRole },
+      data.assignedToId,
+    );
+    if (nextAssignedTo !== undefined) {
+      updatePayload.assignedToId = nextAssignedTo;
+    }
     if (data.notes !== undefined) updatePayload.notes = data.notes;
 
     const updated = await updateSupportTicket(id, updatePayload);
@@ -166,12 +189,12 @@ export async function PUT(
     const [creator, assignedTo] = await Promise.all([
       prisma.user.findUnique({
         where: { id: updated.userId },
-        select: { name: true, email: true },
+        select: { name: true, email: true, image: true },
       }),
       updated.assignedToId
         ? prisma.user.findUnique({
             where: { id: updated.assignedToId },
-            select: { name: true, email: true },
+            select: { name: true, email: true, image: true },
           })
         : null,
     ]);

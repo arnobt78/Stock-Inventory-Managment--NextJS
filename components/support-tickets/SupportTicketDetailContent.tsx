@@ -4,7 +4,11 @@ import React, { useState } from "react";
 import { SafeAvatarImage } from "@/components/ui/safe-avatar-image";
 import { resolveAvatarSourcesFromSeed } from "@/lib/ui/user-avatar-sources";
 import Navbar from "@/components/layouts/Navbar";
-import { PageContentWrapper, ClientDateTime } from "@/components/shared";
+import {
+  PageContentWrapper,
+  ClientDateTime,
+  PersonNameEmailCell,
+} from "@/components/shared";
 import { useBackWithRefresh } from "@/hooks/use-back-with-refresh";
 import {
   useSupportTicket,
@@ -21,8 +25,6 @@ import {
   ArrowLeft,
   Send,
   Loader2,
-  User,
-  Mail,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -136,51 +138,54 @@ export default function SupportTicketDetailContent({
                 </h1>
                 <div className="flex flex-wrap items-center gap-2 mt-2">
                   <TicketStatusBadge status={ticket.status} size="detail" />
-                  <TicketPriorityBadge status={ticket.priority} size="detail" />
+                  <TicketPriorityBadge
+                    status={ticket.priority}
+                    size="detail"
+                    contrast="opaque"
+                  />
                   <ClientDateTime
                     date={ticket.createdAt}
                     semantic="created"
                     className="text-xs"
                   />
                 </div>
+                {/* REQ-0185 — densify creator / sent-to like table */}
                 {(ticket.creatorName || ticket.creatorEmail) && (
-                  <div className="flex flex-wrap items-center gap-x-4 gap-y-1 mt-3 text-sm text-gray-600 dark:text-gray-300">
-                    <span className="font-medium text-gray-700 dark:text-gray-300">
-                      Creator:
+                  <div className="mt-3 flex flex-wrap items-center gap-2">
+                    <span className="text-xs font-medium text-muted-foreground">
+                      Creator
                     </span>
-                    {ticket.creatorName && (
-                      <span className="inline-flex items-center gap-1">
-                        <User className="h-3.5 w-3.5" />
-                        {ticket.creatorName}
-                      </span>
-                    )}
-                    {ticket.creatorEmail && (
-                      <span className="inline-flex items-center gap-1">
-                        <Mail className="h-3.5 w-3.5" />
-                        {ticket.creatorEmail}
-                      </span>
-                    )}
+                    <PersonNameEmailCell
+                      seed={ticket.userId}
+                      name={
+                        ticket.creatorName?.trim() ||
+                        ticket.creatorEmail ||
+                        "—"
+                      }
+                      email={ticket.creatorEmail}
+                      image={ticket.creatorImage}
+                    />
                   </div>
                 )}
-                {(ticket.assignedToName || ticket.assignedToEmail) && (
-                  <div className="flex flex-wrap items-center gap-x-4 gap-y-1 mt-2 text-sm text-gray-600 dark:text-gray-300">
-                    <span className="font-medium text-gray-700 dark:text-gray-300">
-                      Sent to:
-                    </span>
-                    {ticket.assignedToName && (
-                      <span className="inline-flex items-center gap-1">
-                        <User className="h-3.5 w-3.5" />
-                        {ticket.assignedToName}
+                {ticket.assignedToId &&
+                  (ticket.assignedToName || ticket.assignedToEmail) && (
+                    <div className="mt-2 flex flex-wrap items-center gap-2">
+                      <span className="text-xs font-medium text-muted-foreground">
+                        Sent to
                       </span>
-                    )}
-                    {ticket.assignedToEmail && (
-                      <span className="inline-flex items-center gap-1">
-                        <Mail className="h-3.5 w-3.5" />
-                        {ticket.assignedToEmail}
-                      </span>
-                    )}
-                  </div>
-                )}
+                      <PersonNameEmailCell
+                        seed={ticket.assignedToId}
+                        name={
+                          ticket.assignedToName?.trim() ||
+                          ticket.assignedToEmail ||
+                          "—"
+                        }
+                        email={ticket.assignedToEmail}
+                        image={ticket.assignedToImage}
+                        href={`/products?ownerId=${ticket.assignedToId}`}
+                      />
+                    </div>
+                  )}
               </div>
             </div>
             <div className="rounded-xl bg-white/40 dark:bg-white/5 border border-sky-200/30 dark:border-white/10 p-4">

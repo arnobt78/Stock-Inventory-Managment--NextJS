@@ -2,6 +2,7 @@
  * Product Review Table Columns
  * REQ-0180 — densify Product (thumb+SKU copy) + Reviewer (avatar+email copy)
  * REQ-0182 — Actions → ProductReviewActions MoreVertical menu
+ * REQ-0189 — sky Comment link to detail; muted Created/Updated labels
  */
 
 "use client";
@@ -20,9 +21,9 @@ import { IoMdArrowDown, IoMdArrowUp } from "react-icons/io";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 import {
-  AvatarInlineLink,
   ClientDateTime,
   CopyableText,
+  PersonNameEmailCell,
   TABLE_CATALOG_LINK_CLASS,
 } from "@/components/shared";
 import { ProductThumb } from "@/components/products/ProductOptionRow";
@@ -75,6 +76,7 @@ function SortableHeader({ column, label }: SortableHeaderProps) {
 export function createProductReviewColumns(
   detailHrefBase?: string,
 ): ColumnDef<ProductReview>[] {
+  const reviewDetailBase = detailHrefBase ?? "/admin/product-reviews";
   return [
     {
       accessorKey: "productName",
@@ -149,14 +151,22 @@ export function createProductReviewColumns(
     {
       id: "comment",
       header: "Comment",
-      cell: ({ row }) => (
-        <span
-          className="text-muted-foreground truncate max-w-[200px] block"
-          title={row.original.comment}
-        >
-          {row.original.comment}
-        </span>
-      ),
+      cell: ({ row }) => {
+        const r = row.original;
+        const comment = r.comment ?? "";
+        return (
+          <Link
+            href={`${reviewDetailBase}/${r.id}`}
+            className={cn(
+              TABLE_CATALOG_LINK_CLASS,
+              "truncate max-w-[200px] block",
+            )}
+            title={comment}
+          >
+            {comment}
+          </Link>
+        );
+      },
     },
     {
       accessorKey: "status",
@@ -169,6 +179,7 @@ export function createProductReviewColumns(
     {
       id: "reviewer",
       header: "Reviewer",
+      // REQ-0185 — supplier-style avatar | sky name | muted email+copy
       cell: ({ row }) => {
         const r = row.original;
         const name =
@@ -176,27 +187,15 @@ export function createProductReviewColumns(
           r.reviewerEmail ||
           r.userId?.slice(-8) ||
           "—";
-        const email = r.reviewerEmail?.trim() || "";
-        const href = `/admin/user-management/${r.userId}`;
         return (
-          <div className="flex flex-col gap-0.5 min-w-0 max-w-[200px]">
-            <AvatarInlineLink
-              seed={r.userId}
-              image={r.reviewerImage}
-              label={name}
-              href={href}
-              size={24}
-              linkClassName={TABLE_CATALOG_LINK_CLASS}
-            />
-            {email ? (
-              <CopyableText
-                value={email}
-                className="truncate text-xs text-muted-foreground pl-0.5"
-              >
-                {email}
-              </CopyableText>
-            ) : null}
-          </div>
+          <PersonNameEmailCell
+            seed={r.userId}
+            name={name}
+            email={r.reviewerEmail}
+            image={r.reviewerImage}
+            href={`/admin/user-management/${r.userId}`}
+            avatarSize={28}
+          />
         );
       },
     },
@@ -206,10 +205,11 @@ export function createProductReviewColumns(
       header: ({ column }) => <SortableHeader column={column} label="Date" />,
       cell: ({ row }) => {
         const r = row.original;
+        // REQ-0189 — muted labels like product Created/Expire
         return (
           <div className="flex flex-col whitespace-nowrap text-xs">
             <span>
-              Created:{" "}
+              <span className="text-muted-foreground">Created: </span>
               {r.createdAt ? (
                 <ClientDateTime date={r.createdAt} semantic="created" />
               ) : (
@@ -217,7 +217,7 @@ export function createProductReviewColumns(
               )}
             </span>
             <span className="mt-0.5">
-              Updated:{" "}
+              <span className="text-muted-foreground">Updated: </span>
               {r.updatedAt ? (
                 <ClientDateTime date={r.updatedAt} semantic="updated" />
               ) : (
@@ -234,7 +234,7 @@ export function createProductReviewColumns(
       cell: ({ row }) => (
         <ProductReviewActions
           review={row.original}
-          detailHrefBase={detailHrefBase ?? "/admin/product-reviews"}
+          detailHrefBase={reviewDetailBase}
         />
       ),
     },
