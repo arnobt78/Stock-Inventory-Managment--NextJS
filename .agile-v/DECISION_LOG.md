@@ -472,3 +472,5 @@ Format: `TIMESTAMP | AGENT | DECISION | RATIONALE | REQ-ID`
 2026-07-20T17:15:00Z | red-team | REQ-0184 gates | lint ✓ test 636 ✓ invalidate 214 ✓ build ✓ | REQ-0184
 2026-07-20T17:25:00Z | product-owner | EOD park 2026-07-20 | shipped 0179–0184; tomorrow REQ-0185 tickets → 0186 warehouse → 0187 order dialog → 0136 | REQ-0185
 2026-07-20T17:25:00Z | orchestrator | resume token | tomorrow-UI-tickets-warehouse-order → REQ-0185 | REQ-0185
+2026-07-21T12:31:00Z | orchestrator | session activate | No re-bootstrap; C2 resume REQ-0185; 24 skills OK; Gate1 APPROVED Gate2 PENDING | REQ-0185
+2026-07-21T12:31:00Z | product-owner | wave order | 0185 tickets → 0186 warehouse → 0187 order dialog → 0136 Gate2 | REQ-0185

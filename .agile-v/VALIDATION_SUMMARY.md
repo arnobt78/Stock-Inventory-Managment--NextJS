@@ -1,9 +1,20 @@
 # Validation Summary — Cycle C1
 
-**Generated:** 2026-07-20 EOD park
+**Generated:** 2026-07-21 session activate
 **eval_gate_status:** PENDING (Human Gate 2)
 **Prod target SHA:** `011d655` (REQ-0179–0184)
-**Resume:** **REQ-0185** → 0186 → 0187 → then REQ-0136 (see STATE.md)
+**Resume:** **REQ-0185** active → 0186 → 0187 → REQ-0136 (see STATE.md)
+
+---
+
+## Session 2026-07-21 — Agile V activate / resume
+
+```
+Scope: activate/resume | Traceability: REQ-0185 | Findings: FLAG (await human UI bug list / build)
+Bootstrap: SKIP — .agile-v/ complete (C1/C2, 24 skills, Gate1 APPROVED)
+Decision Points: continue from park; no re-bootstrap
+Log: 2026-07-21 | orchestrator | session activate | Infinity Loop ready → REQ-0185
+```
 
 ---
 

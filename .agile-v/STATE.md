@@ -3,55 +3,52 @@
 | Field | Value |
 |-------|-------|
 | **Cycle** | C2 (C1 Gate 2 still PENDING) |
-| **Phase** | Parked 2026-07-20 — **tomorrow UI bugs** |
-| **Last updated** | 2026-07-20 EOD — reviews REQ-0179–0184 shipped |
-| **Active REQ** | **REQ-0185** (next) → then 0186 → 0187 → resume **REQ-0136** |
+| **Phase** | Stage 3–4 — **REQ-0185** active (session 2026-07-21) |
+| **Last updated** | 2026-07-21 — Agile V activate / resume |
+| **Active REQ** | **REQ-0185** → 0186 → 0187 → **REQ-0136** |
 | **Done range** | REQ-0001 … REQ-0135 + REQ-0137–**0184** |
-| **Prod SHA** | `011d655` (REQ-0179–0184; tip docs `92bd766`) |
+| **Prod SHA** | `011d655` (REQ-0179–0184; tip docs `ceb9097`) |
 | **Human Gate 1** | APPROVED (GATE-0001) |
-| **Human Gate 2** | PENDING (GATE-0002) — after UI bugs + §10 smoke → Sentry 24h |
+| **Human Gate 2** | PENDING (GATE-0002) — after 0185–0187 + §10 smoke → Sentry 24h |
 | **Resume token** | `tomorrow-UI-tickets-warehouse-order` → **REQ-0185** |
 | **CHECKPOINTS** | none PENDING |
 
 ---
 
-## Start here (tomorrow 2026-07-21)
+## Start here (this session)
 
 1. **REQ-0185** — Support ticket **table + detail** UI (admin / client / supplier)
 2. **REQ-0186** — Warehouse **dialog + detail** UI polish
-3. **REQ-0187** — Order **dialog** UI polish (bugs found in explore)
+3. **REQ-0187** — Order **dialog** UI polish
 4. Then **REQ-0136** — cache smoke §10 A1/A2/B1 + Gate 2 Sentry 24h
 
-**Skills active:** 01 · 02 · 03 · 06 · 07 · 17 · 19 · 23 → write-through every prompt
+**Skills active:** 01 · 02 · 03 · 06 · 07 · 17 · 19 · 23 → write-through every prompt  
+**Cursor rule:** `.cursor/rules/agile-v-core.mdc` (`alwaysApply: true`)  
+**Skills registry:** 24 files in `.agile-v/skills/` (SKILLS_INDEX)
 
 ---
 
-## Shipped 2026-07-20
+## Shipped 2026-07-20 (parked)
 
 | REQ | Summary |
 |-----|---------|
-| 0165–0169 | Detail review/audit + admin spacing |
-| 0170–0178 | Forecast / recent cards / admin portals densify |
-| 0179 | Add Product Review rating hues + product picker |
-| 0180 | Reviews table densify + admin detail redesign |
-| 0181 | Detail display-only; Edit dialog + status Select |
-| 0182 | Reviews table Actions MoreVertical menu |
-| 0183 | Review detail polish + purchase enrich + badge contrast |
-| 0184 | Edit Review dialog stacked w-full (revert 2-col) |
+| 0165–0178 | Detail/audit + forecast/portal densify |
+| 0179–0184 | Product reviews densify, Actions, badge contrast, edit dialog stack |
 
-**Gates (EOD):** lint ✓ test **636** ✓ invalidate **214** ✓ build ✓ · pushed `011d655` / tip `92bd766`
+**Gates:** lint ✓ test **636** ✓ invalidate **214** ✓ build ✓ · `011d655` on `origin/main`
 
 ---
 
-## Tomorrow backlog (planned)
+## Backlog (this wave)
 
-| REQ | Focus | Roles / surfaces |
-|-----|-------|------------------|
-| **0185** | Ticket table + detail UI bugs | admin, client, supplier |
-| **0186** | Warehouse dialog + detail UI | admin / owner |
-| **0187** | Order dialog UI bugs | create/edit |
+| REQ | Status | Focus |
+|-----|--------|-------|
+| **0185** | **active** | Ticket table + detail (admin/client/supplier) |
+| **0186** | planned | Warehouse dialog + detail |
+| **0187** | planned | Order dialog UI |
+| **0136** | parked | §10 cache smoke + Gate 2 |
 
-**Out of scope until after 0185–0187:** broad invalidation registry changes (unless a bug requires it).
+**Defaults:** SSR-first · TanStack invalidate after CRUD · match glass/typography tokens · no broad invalidation registry changes unless bug requires.
 
 ---
 
