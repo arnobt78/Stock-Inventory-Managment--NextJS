@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   canMutateSupportTicket,
   resolveAssignedToUpdate,
+  resolveStatusUpdate,
 } from "./ticket-assignee-policy";
 
 const ticket = { userId: "creator-1", assignedToId: "assignee-1" as string | null };
@@ -57,6 +58,32 @@ describe("resolveAssignedToUpdate", () => {
     ).toBeUndefined();
     expect(
       resolveAssignedToUpdate({ id: "c", role: "client" }, undefined),
+    ).toBeUndefined();
+  });
+});
+
+describe("resolveStatusUpdate", () => {
+  it("admin may set status", () => {
+    expect(
+      resolveStatusUpdate({ id: "a", role: "admin" }, "resolved"),
+    ).toBe("resolved");
+  });
+
+  it("non-admin status changes are ignored", () => {
+    expect(
+      resolveStatusUpdate({ id: "creator-1", role: "client" }, "closed"),
+    ).toBeUndefined();
+    expect(
+      resolveStatusUpdate({ id: "s1", role: "supplier" }, "in_progress"),
+    ).toBeUndefined();
+  });
+
+  it("undefined body status stays undefined for all roles", () => {
+    expect(
+      resolveStatusUpdate({ id: "a", role: "admin" }, undefined),
+    ).toBeUndefined();
+    expect(
+      resolveStatusUpdate({ id: "c", role: "client" }, undefined),
     ).toBeUndefined();
   });
 });

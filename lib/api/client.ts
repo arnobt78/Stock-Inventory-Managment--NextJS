@@ -48,6 +48,7 @@ import type {
   ImportHistoryForPage,
   SupportTicket,
   SupportTicketReply,
+  SupportTicketOwnerProduct,
   CreateSupportTicketInput,
   CreateSupportTicketReplyInput,
   UpdateSupportTicketInput,
@@ -654,6 +655,23 @@ class ApiClient {
       const response = await this.client.post<SupportTicketReply>(
         `${API_ENDPOINTS.supportTickets.base}/${id}/replies`,
         data,
+      );
+      return {
+        data: response.data,
+        status: response.status,
+        statusText: response.statusText,
+      };
+    },
+
+    /**
+     * REQ-0200 — Products owned by Send-to user (Related product picker).
+     * Owner-scoped for every role — not GET /api/products viewer scope.
+     */
+    getOwnerProducts: async (
+      ownerId: string,
+    ): Promise<ApiResponse<SupportTicketOwnerProduct[]>> => {
+      const response = await this.client.get<SupportTicketOwnerProduct[]>(
+        `${API_ENDPOINTS.supportTickets.ownerProducts}?ownerId=${encodeURIComponent(ownerId)}`,
       );
       return {
         data: response.data,

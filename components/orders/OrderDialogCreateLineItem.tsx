@@ -162,8 +162,12 @@ export function OrderDialogCreateLineItem({
             <DeferredSelectGate
               enabled={dialogOpen}
               placeholder={
+                // REQ-0198 — match SelectTrigger (product thumb row)
                 <div
-                  className="flex h-11 w-full items-center rounded-md border border-violet-400/30 bg-white/10 px-2 text-sm"
+                  className={cn(
+                    "flex h-11 w-full items-center rounded-md px-2 text-sm",
+                    DIALOG_FORM_FIELD_VIOLET,
+                  )}
                   aria-hidden
                 >
                   {selectedProduct ? (

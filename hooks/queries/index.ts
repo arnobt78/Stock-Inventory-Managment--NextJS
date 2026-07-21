@@ -84,6 +84,7 @@ export {
   useSupportTickets,
   type SupportTicketViewFilter,
   useSupportTicket,
+  useSupportTicketOwnerProducts,
   useSupportTicketReplies,
   useCreateSupportTicket,
   useCreateSupportTicketReply,

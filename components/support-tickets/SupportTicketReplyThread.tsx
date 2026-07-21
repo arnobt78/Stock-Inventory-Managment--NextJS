@@ -2,9 +2,12 @@
 
 /**
  * REQ-0191 — Chat-style ticket replies.
- * REQ-0193 — opening description as first left bubble; 90% width; title link size;
+ * REQ-0193 — opening description as first left bubble; title link size;
  * clickable author names via authorHrefForUserId.
- * Left = ticket creator; right = staff/others. Title: Reply to {creator} sky link.
+ * REQ-0194 — w-fit max-w-[90%] + opposing left/right glow gradients.
+ * REQ-0196 — no inner card pad (GlassCard body already p-2 sm:p-4).
+ * REQ-0197 — Reply-to / placeholder role-aware (creator ↔ assignee/Support).
+ * Left = ticket creator; right = staff/others.
  */
 
 import React, { useState } from "react";
@@ -23,6 +26,12 @@ import { resolveAvatarSourcesFromSeed } from "@/lib/ui/user-avatar-sources";
 import { AVATAR_RING_CLASS } from "@/lib/ui/avatar-ring-styles";
 import { GlassCard } from "@/components/orders/detail";
 import { useCreateSupportTicketReply } from "@/hooks/queries";
+import { resolveTicketReplyTarget } from "@/lib/support-tickets/ticket-reply-target";
+import {
+  TICKET_CHAT_BUBBLE_LEFT,
+  TICKET_CHAT_BUBBLE_RIGHT,
+  TICKET_CHAT_BUBBLE_SHELL,
+} from "@/lib/ui/ticket-chat-bubble-styles";
 import { cn } from "@/lib/utils";
 import { MessageSquare, Send } from "lucide-react";
 import type { SupportTicket, SupportTicketReply } from "@/types";
@@ -37,6 +46,9 @@ export type SupportTicketReplyThreadProps = {
   creatorHref?: string | null;
   /** REQ-0193 — resolve chat author name → profile/catalog href */
   authorHrefForUserId?: (userId: string) => string | undefined;
+  /** REQ-0197 — session for role-aware Reply-to */
+  sessionUserId?: string | null;
+  isAdminRole?: boolean;
 };
 
 /** REQ-0193 — card-title size override so sky name matches “Reply to” */
@@ -85,14 +97,12 @@ function ChatBubble({
     >
       <div
         className={cn(
-          // REQ-0193 — left/right bubbles use 90% of thread width
-          "w-[90%] max-w-[90%] rounded-2xl border px-3 py-2.5 shadow-sm",
-          isCustomer
-            ? "rounded-tl-md bg-muted/40 border-border/60"
-            : "rounded-tr-md bg-violet-500/10 dark:bg-violet-500/20 border-violet-400/25",
+          // REQ-0194 — hug content up to 90%; opposing glow gradients
+          TICKET_CHAT_BUBBLE_SHELL,
+          isCustomer ? TICKET_CHAT_BUBBLE_LEFT : TICKET_CHAT_BUBBLE_RIGHT,
         )}
       >
-        <p className="text-sm text-gray-700 dark:text-white whitespace-pre-wrap">
+        <p className="text-sm text-gray-700 dark:text-white whitespace-pre-wrap break-words">
           {body}
         </p>
         <div
@@ -148,6 +158,8 @@ export default function SupportTicketReplyThread({
   variant = "violet",
   creatorHref,
   authorHrefForUserId,
+  sessionUserId,
+  isAdminRole = false,
 }: SupportTicketReplyThreadProps) {
   const [replyBody, setReplyBody] = useState("");
   const createReply = useCreateSupportTicketReply(ticket.id);
@@ -155,6 +167,19 @@ export default function SupportTicketReplyThread({
     ticket.creatorName?.trim() || ticket.creatorEmail || "user";
   const openingDescription = ticket.description?.trim() ?? "";
   const hasOpening = openingDescription.length > 0;
+
+  // REQ-0197 — creator ↔ assignee / Support (updates after reassign via patched ticket)
+  const replyTarget = resolveTicketReplyTarget(
+    ticket,
+    sessionUserId,
+    isAdminRole,
+  );
+  const replyTargetHref = replyTarget.userId
+    ? (authorHrefForUserId?.(replyTarget.userId) ??
+      (replyTarget.userId === ticket.userId
+        ? (creatorHref ?? undefined)
+        : undefined))
+    : undefined;
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -168,12 +193,12 @@ export default function SupportTicketReplyThread({
   const titleNode = (
     <span className="inline-flex flex-wrap items-center gap-x-1.5">
       <span>Reply to</span>
-      {creatorHref ? (
-        <Link href={creatorHref} className={TITLE_CREATOR_LINK_CLASS}>
-          {creatorName}
+      {replyTargetHref ? (
+        <Link href={replyTargetHref} className={TITLE_CREATOR_LINK_CLASS}>
+          {replyTarget.name}
         </Link>
       ) : (
-        <span className={TITLE_CREATOR_LINK_CLASS}>{creatorName}</span>
+        <span className={TITLE_CREATOR_LINK_CLASS}>{replyTarget.name}</span>
       )}
     </span>
   );
@@ -182,16 +207,21 @@ export default function SupportTicketReplyThread({
     !repliesLoading && replies.length === 0 && !hasOpening;
 
   return (
-    <GlassCard variant={variant === "violet" ? "violet" : "sky"}>
-      <div className="p-2 sm:p-4 space-y-4">
+    // REQ-0194 gap — overflow-visible so bubble glow is not clipped by GlassCard overflow-hidden
+    <GlassCard
+      variant={variant === "violet" ? "violet" : "sky"}
+      className="overflow-visible"
+    >
+      <div className="space-y-4 overflow-visible">
         <SectionCardHeader
           title={titleNode}
-          description="Send a message to the ticket creator. They will see this in the ticket thread and get a notification."
+          description={`Messages appear in this thread. ${replyTarget.name === "Support" ? "Support staff" : replyTarget.name} will be notified when you send a reply.`}
           icon={MessageSquare}
           tone={variant === "violet" ? "violet" : "sky"}
         />
 
-        <div className="space-y-3 max-h-[420px] overflow-y-auto pr-1">
+        {/* No max-h/overflow-y-auto — clips box-shadow; page scroll instead */}
+        <div className="space-y-3 overflow-visible">
           {repliesLoading && replies.length === 0 && !hasOpening ? (
             <DataSlotPulse variant="text-md" className="w-full h-16" />
           ) : showEmpty ? (
@@ -245,7 +275,7 @@ export default function SupportTicketReplyThread({
 
         <form onSubmit={handleSubmit} className="space-y-3">
           <Textarea
-            placeholder={`Write a reply to ${creatorName}…`}
+            placeholder={`Write a reply to ${replyTarget.name}…`}
             value={replyBody}
             onChange={(e) => setReplyBody(e.target.value)}
             disabled={createReply.isPending}

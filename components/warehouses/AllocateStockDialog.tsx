@@ -34,6 +34,7 @@ import {
   DIALOG_EDGE_SCROLL_HEADER,
   DIALOG_EDGE_SCROLL_INNER,
   DIALOG_EDGE_SCROLL_SHELL,
+  DIALOG_COMBOBOX_TRIGGER_CLASS,
   DIALOG_FORM_FEEDBACK_ROW,
   DIALOG_FORM_FIELD_VIOLET,
   DialogFormLabel,
@@ -212,15 +213,17 @@ export default function AllocateStockDialog({
                 <DialogFormLabel icon={Package} required>
                   Product
                 </DialogFormLabel>
-                <Popover open={pickerOpen} onOpenChange={setPickerOpen}>
+                {/* REQ-0199 — modal Combobox; ghost trigger (no outline→white hover) */}
+                <Popover open={pickerOpen} onOpenChange={setPickerOpen} modal>
                   <PopoverTrigger asChild>
                     <Button
                       type="button"
-                      variant="outline"
+                      variant="ghost"
                       role="combobox"
                       disabled={productsLoading || isPending || isEditMode}
                       className={cn(
-                        "mt-1 h-auto min-h-11 w-full justify-between py-2 font-normal",
+                        "mt-1 h-auto min-h-11 w-full justify-between py-2",
+                        DIALOG_COMBOBOX_TRIGGER_CLASS,
                         DIALOG_FORM_FIELD_VIOLET,
                       )}
                     >
@@ -251,6 +254,7 @@ export default function AllocateStockDialog({
                   </PopoverTrigger>
                   <PopoverContent
                     align="start"
+                    onCloseAutoFocus={(e) => e.preventDefault()}
                     className={cn(
                       "w-[var(--radix-popover-trigger-width)] p-0",
                       filterCommandPopoverClass("violet"),

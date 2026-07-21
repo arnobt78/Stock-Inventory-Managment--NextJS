@@ -364,7 +364,10 @@ export default function AdminUserManagementDetailContent({
                       userRoleBadgeClass(u!.role),
                     )}
                   >
-                    <SelectValue />
+                    {/* REQ-0202 — SSR role label on mount (no blank SelectValue flash) */}
+                    <SelectValue>
+                      <UserRoleBadge role={u!.role ?? "user"} />
+                    </SelectValue>
                   </SelectTrigger>
                   <SelectContent>
                     {ROLE_OPTIONS.map((opt) => (

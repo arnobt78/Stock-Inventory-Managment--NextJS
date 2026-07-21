@@ -4,9 +4,10 @@
  * REQ-0165 / REQ-0167 / REQ-0181 / REQ-0183 / REQ-0184 — Write/Edit review dialog.
  * Admin: allowStatusEdit + solid/opaque Status badges (REQ-0183).
  * REQ-0184 — edit stacks like create (Status → Rating → Comment, w-full); no 2-col grid.
+ * REQ-0198 — render-phase open sync (no microtask bounce).
  */
 
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import {
   Dialog,
   DialogContent,
@@ -47,6 +48,7 @@ import {
   useCreateProductReview,
   useUpdateProductReview,
 } from "@/hooks/queries";
+import { useSyncDialogOpenState } from "@/hooks/use-sync-dialog-open-state";
 import type { ProductReview, ProductReviewStatus } from "@/types";
 
 const STATUS_OPTIONS: { value: ProductReviewStatus; label: string }[] = [
@@ -95,20 +97,16 @@ export default function WriteEditReviewDialog({
     existingReview?.status ?? "pending",
   );
 
-  useEffect(() => {
-    if (open) {
-      queueMicrotask(() => {
-        setRating(existingReview?.rating ?? 5);
-        setComment(existingReview?.comment ?? "");
-        setStatus(existingReview?.status ?? "pending");
-      });
-    }
-  }, [
+  // REQ-0198 — sync on open / review change (no queueMicrotask bounce)
+  useSyncDialogOpenState(
     open,
-    existingReview?.rating,
-    existingReview?.comment,
-    existingReview?.status,
-  ]);
+    () => {
+      setRating(existingReview?.rating ?? 5);
+      setComment(existingReview?.comment ?? "");
+      setStatus(existingReview?.status ?? "pending");
+    },
+    existingReview?.id ?? "create",
+  );
 
   const createMutation = useCreateProductReview();
   const updateMutation = useUpdateProductReview();
@@ -170,10 +168,20 @@ export default function WriteEditReviewDialog({
         enabled={open}
         placeholder={
           <div
-            className="flex h-11 w-full min-w-0 items-center rounded-md border border-amber-400/30 bg-white/10 px-2 text-sm text-white/60"
+            className={cn(
+              "flex h-11 w-full min-w-0 items-center rounded-md px-2",
+              DIALOG_FORM_FIELD_AMBER,
+            )}
             aria-hidden
           >
-            {STATUS_OPTIONS.find((o) => o.value === status)?.label ?? status}
+            <ReviewStatusBadge
+              status={status}
+              label={
+                STATUS_OPTIONS.find((o) => o.value === status)?.label
+              }
+              size="detail"
+              contrast="solid"
+            />
           </div>
         }
       >

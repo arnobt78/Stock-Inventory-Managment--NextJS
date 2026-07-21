@@ -177,6 +177,9 @@ export const queryKeys = {
     details: () => [...queryKeys.supportTickets.all, "detail"] as const,
     detail: (id: string) =>
       [...queryKeys.supportTickets.details(), id] as const,
+    /** REQ-0200 — Related product picker by Send-to ownerId */
+    ownerProducts: (ownerId: string) =>
+      [...queryKeys.supportTickets.all, "ownerProducts", ownerId] as const,
   },
 
   // Product Reviews queries

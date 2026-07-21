@@ -172,18 +172,19 @@ All user-facing POST/PUT JSON bodies use `safeParse` + `logger.warn` on fail. Ne
 
 **Every session:** STATE → REQ map → skill 01+17 → Red Team → write-through DECISION/BUILD/VALIDATION.
 
-**C1 open:** Human Gate 2 (Sentry 24h). **REQ-0021–0046** done (C2). **REQ-0185–0193** ticket UI done; next **REQ-0186**.
+**C1 open:** Gate 2 PENDING. **Stopped 2026-07-21:** tickets/dialogs through **REQ-0202**. **Next:** **REQ-0186** warehouse → 0187 → 0136.
 
-## Support ticket chat gaps (REQ-0193)
+## Support tickets + dialogs (REQ-0193–0202)
 
 | Piece | Location |
 |-------|----------|
-| Reassign smooth | `TicketReassignDialog` — placeholder `h-auto min-h-11`; sync open reset |
-| Chat | `SupportTicketReplyThread` — opening description left bubble; `w-[90%]`; title-size sky Link; `authorHrefForUserId` |
-| Notes clear | `AdminSupportTicketDetailContent` — `AlertDialogWrapper` + subject/notes preview |
-| Status Select | `TicketStatusBadge` contrast solid/opaque (Priority parity) in `SupportTicketDialog` |
+| Detail/chat | `SupportTicket*Detail*`, `SupportTicketReplyThread`, `ticket-chat-bubble-styles` |
+| Product link | create Related via `GET …/owner-products`; densify `DialogProductOptionRow` / `TicketRelatedProductDense` |
+| Reassign | `TicketReassignDialog` + clear mismatched `productId` |
+| Dialog UX | `useSyncDialogOpenState`, `useDeferredRadixSelect` (same-route instant), `DIALOG_COMBOBOX_TRIGGER_CLASS` |
+| No-flicker | SelectValue SSR labels (user role, order status); `serverHasRicherDensify` SSR sync |
 
-**Invalidation unchanged** — existing ticket update/reply hooks.
+**Invalidation:** ticket/product CRUD → `invalidateAllRelatedQueries` (`supportTickets.all` includes ownerProducts).
 
 ## SafeImage (REQ-0038)
 
@@ -945,11 +946,11 @@ Hub: `lib/ui/typography-scale.ts`. Hubs import tokens; ~45 inline files use equi
 
 **Invalidation unchanged** — review/product/dashboard CRUD already clears lists + portals.
 
-**Active wave:** 0185–0192 done → **0186** warehouse → 0187 order dialog → 0136 Gate 2.
+**Active wave:** 0185–**0202** done → **0186** warehouse → 0187 order → 0136 Gate 2.
 
-| 0185–90 | densify · Send-to RO · admin Reassign · table polish |
-| 0191 | detail RO Status/Priority/Messages · chat · notes header edit · footer CTAs · admin API |
-| 0192 | Messages = description + replies (`ticket-message-stats`) table/detail/KPI parity |
+| 0185–96 | ticket densify · detail/chat · non-admin parity · GlassCard pad |
+| 0197–201 | optional product · dialog open/combobox · owner-products · Related densify |
+| 0202 | SelectValue SSR labels · densify-richer sync · supplier image · reviewerEmail |
 
 ## KPI badge helpers (REQ-0156–0157)
 

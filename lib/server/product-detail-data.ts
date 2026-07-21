@@ -54,6 +54,8 @@ function transformProductDetail(
     description: string | null;
     status: boolean;
     email?: string | null;
+    /** REQ-0202 — linked User.image */
+    image?: string | null;
   } | null,
   creatorUser: { id: string; email: string; name: string | null; image?: string | null } | null,
   updaterUser: { id: string; email: string; name: string | null; image?: string | null } | null,
@@ -136,6 +138,7 @@ function transformProductDetail(
           description: supplier.description,
           status: supplier.status,
           email: supplier.email ?? null,
+          image: supplier.image ?? null,
         }
       : null,
     userId: product.userId,
@@ -350,10 +353,11 @@ export async function getProductDetailForPage(
     ]),
   );
 
+  // REQ-0202 — supplier user email + image for detail PersonInlineRow
   const supplierUser = supplier?.userId
     ? await prisma.user.findUnique({
         where: { id: supplier.userId },
-        select: { email: true },
+        select: { email: true, image: true },
       })
     : null;
 
@@ -361,7 +365,11 @@ export async function getProductDetailForPage(
     product,
     category,
     supplier
-      ? { ...supplier, email: supplierUser?.email ?? null }
+      ? {
+          ...supplier,
+          email: supplierUser?.email ?? null,
+          image: supplierUser?.image ?? null,
+        }
       : null,
     creatorUser,
     updaterUser,

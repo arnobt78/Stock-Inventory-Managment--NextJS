@@ -311,7 +311,11 @@ export default function AdminOrderDetailContent({
           disabled={isUpdating || actionsDisabled}
         >
           <SelectTrigger className="w-[130px] h-8 text-xs border-gray-300/30 dark:border-white/10">
-            <SelectValue />
+            {/* REQ-0202 — SSR status label on mount (no blank SelectValue flash) */}
+            <SelectValue>
+              {ORDER_STATUSES.find((o) => o.value === order!.status)?.label ??
+                order!.status}
+            </SelectValue>
           </SelectTrigger>
           <SelectContent>
             {ORDER_STATUSES.map((opt) => (
@@ -712,7 +716,11 @@ export default function AdminOrderDetailContent({
                               id="admin-carrier"
                               className="rounded-xl border-gray-300/30 dark:border-white/10"
                             >
-                              <SelectValue />
+                              {/* REQ-0202 — carrier label from SSR/state on mount */}
+                              <SelectValue>
+                                {CARRIERS.find((c) => c.value === manualCarrier)
+                                  ?.label ?? manualCarrier}
+                              </SelectValue>
                             </SelectTrigger>
                             <SelectContent>
                               {CARRIERS.map((c) => (

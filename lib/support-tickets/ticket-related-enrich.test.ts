@@ -29,4 +29,23 @@ describe("mergeTicketRelated", () => {
     expect(merged.relatedOrderNumber).toBe("ORD-1");
     expect(merged.subject).toBe("S");
   });
+
+  // REQ-0201 — densify snap fields merge through
+  it("merges related product densify fields", () => {
+    const merged = mergeTicketRelated(base, {
+      relatedProductName: "Beats",
+      relatedProductSku: "SK56",
+      relatedProductImageUrl: "https://img/x",
+      relatedProductPrice: 199,
+      relatedProductQuantity: 50,
+      relatedProductCategoryName: "Headphone",
+      relatedProductOwnerId: "owner-1",
+      relatedProductOwnerName: "Test Admin",
+      relatedProductSupplierId: "sup-1",
+      relatedProductSupplierName: "Local Parts Co",
+    });
+    expect(merged.relatedProductPrice).toBe(199);
+    expect(merged.relatedProductOwnerName).toBe("Test Admin");
+    expect(merged.relatedProductSupplierName).toBe("Local Parts Co");
+  });
 });

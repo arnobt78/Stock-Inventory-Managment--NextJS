@@ -33,6 +33,8 @@ export const updateSupportTicketSchema = z.object({
   priority: z.enum(["low", "medium", "high", "urgent"]).optional(),
   // REQ-0190 — admin Reassign only (API ignores for non-admin)
   assignedToId: z.string().nullable().optional(),
+  // REQ-0197 — admin clear only (null); non-null productId on PUT ignored by API
+  productId: z.string().nullable().optional(),
   notes: z.string().nullable().optional(),
 });
 

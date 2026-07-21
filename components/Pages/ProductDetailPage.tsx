@@ -671,6 +671,11 @@ export default function ProductDetailPage({
                               ? product.supplier.email
                               : undefined
                           }
+                          image={
+                            "image" in product.supplier
+                              ? product.supplier.image
+                              : undefined
+                          }
                           href={
                             embedInAdmin
                               ? `/admin/suppliers/${product.supplier.id}`

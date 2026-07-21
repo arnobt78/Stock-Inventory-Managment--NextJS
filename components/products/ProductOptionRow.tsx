@@ -2,8 +2,9 @@
  * REQ-0048 — inline product thumb + label for order Select (matches ProductTableColumns).
  * REQ-0059 — ProductThumb extracted for reuse on detail-page line items / allocation rows.
  * REQ-0179 — DialogProductOptionRow for Select densify (no Links inside SelectItem).
+ * REQ-0201 — optional price/quantity icons on DialogProductOptionRow (tickets; review omits).
  */
-import { Package, Tag } from "lucide-react";
+import { Boxes, DollarSign, Package, Tag } from "lucide-react";
 import { SafeImage } from "@/components/ui/safe-image";
 import { AvatarInlineLink } from "@/components/shared/AvatarInlineLink";
 import { cn } from "@/lib/utils";
@@ -164,6 +165,9 @@ export type DialogProductOptionRowProps = {
   name: string;
   imageUrl?: string | null;
   sku?: string | null;
+  /** REQ-0201 — optional; tickets pass, product review omits */
+  price?: number;
+  quantity?: number;
   categoryName?: string | null;
   ownerId?: string | null;
   ownerName?: string | null;
@@ -178,13 +182,15 @@ export type DialogProductOptionRowProps = {
 
 /**
  * REQ-0179 — Select-safe densify row (no Link / CopyableText):
- * thumb · name text-sm · sku muted xs
+ * thumb · name text-sm · sku muted xs · (optional) price · stock
  * Tag category · owner avatar · supplier avatar
  */
 export function DialogProductOptionRow({
   name,
   imageUrl,
   sku,
+  price,
+  quantity,
   categoryName,
   ownerId,
   ownerName,
@@ -199,6 +205,8 @@ export function DialogProductOptionRow({
   const cat = (categoryName ?? "").trim();
   const ownerLabel = (ownerName ?? "").trim();
   const supplierLabel = (supplierName ?? "").trim();
+  const showPrice = price !== undefined && Number.isFinite(price);
+  const showStock = quantity !== undefined && Number.isFinite(quantity);
   const mutedClass = metaOnDark
     ? "text-white/70"
     : "text-gray-500 dark:text-gray-400";
@@ -225,6 +233,38 @@ export function DialogProductOptionRow({
               </span>
               <span className={cn("font-mono truncate", mutedClass, "text-xs")}>
                 {skuText}
+              </span>
+            </>
+          ) : null}
+          {showPrice ? (
+            <>
+              <span aria-hidden className={mutedClass}>
+                ·
+              </span>
+              <span
+                className={cn(
+                  "inline-flex items-center gap-0.5 shrink-0 text-xs",
+                  mutedClass,
+                )}
+              >
+                <DollarSign className="h-3 w-3 shrink-0" aria-hidden />
+                {Number(price).toFixed(2)}
+              </span>
+            </>
+          ) : null}
+          {showStock ? (
+            <>
+              <span aria-hidden className={mutedClass}>
+                ·
+              </span>
+              <span
+                className={cn(
+                  "inline-flex items-center gap-0.5 shrink-0 text-xs",
+                  mutedClass,
+                )}
+              >
+                <Boxes className="h-3 w-3 shrink-0" aria-hidden />
+                {Number(quantity)}
               </span>
             </>
           ) : null}

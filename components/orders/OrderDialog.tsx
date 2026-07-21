@@ -42,6 +42,7 @@ import {
   useProducts,
   useClientBrowseProducts,
 } from "@/hooks/queries";
+import { useSyncDialogOpenState } from "@/hooks/use-sync-dialog-open-state";
 import {
   OrderDialogCreateLineItem,
   type OrderFormData,
@@ -594,43 +595,48 @@ export default function OrderDialog({
 
   const { reset: editReset, watch: editWatch } = editFormMethods;
 
-  // Reset edit form when order changes or dialog opens
-  useEffect(() => {
-    if (open && editingOrder) {
-      editReset({
-        status: editingOrder.status,
-        paymentStatus: editingOrder.paymentStatus,
-        trackingNumber: editingOrder.trackingNumber || "",
-        trackingUrl: editingOrder.trackingUrl || "",
-        estimatedDelivery: editingOrder.estimatedDelivery
-          ? new Date(editingOrder.estimatedDelivery).toISOString().split("T")[0]
-          : "",
-        shippedAt: editingOrder.shippedAt
-          ? new Date(editingOrder.shippedAt).toISOString().split("T")[0]
-          : "",
-        deliveredAt: editingOrder.deliveredAt
-          ? new Date(editingOrder.deliveredAt).toISOString().split("T")[0]
-          : "",
-        cancelledAt: editingOrder.cancelledAt
-          ? new Date(editingOrder.cancelledAt).toISOString().split("T")[0]
-          : "",
-        notes: editingOrder.notes || "",
-      });
-    } else if (open && !editingOrder && externalEditingOrder === null) {
-      // Clear edit form when explicitly set to null
-      editReset({
-        status: "pending",
-        paymentStatus: "unpaid",
-        trackingNumber: "",
-        trackingUrl: "",
-        estimatedDelivery: "",
-        shippedAt: "",
-        deliveredAt: "",
-        cancelledAt: "",
-        notes: "",
-      });
-    }
-  }, [open, editingOrder, externalEditingOrder, editReset]);
+  // REQ-0198 — sync edit form on open / order change (no useEffect bounce)
+  useSyncDialogOpenState(
+    open,
+    () => {
+      if (editingOrder) {
+        editReset({
+          status: editingOrder.status,
+          paymentStatus: editingOrder.paymentStatus,
+          trackingNumber: editingOrder.trackingNumber || "",
+          trackingUrl: editingOrder.trackingUrl || "",
+          estimatedDelivery: editingOrder.estimatedDelivery
+            ? new Date(editingOrder.estimatedDelivery)
+                .toISOString()
+                .split("T")[0]
+            : "",
+          shippedAt: editingOrder.shippedAt
+            ? new Date(editingOrder.shippedAt).toISOString().split("T")[0]
+            : "",
+          deliveredAt: editingOrder.deliveredAt
+            ? new Date(editingOrder.deliveredAt).toISOString().split("T")[0]
+            : "",
+          cancelledAt: editingOrder.cancelledAt
+            ? new Date(editingOrder.cancelledAt).toISOString().split("T")[0]
+            : "",
+          notes: editingOrder.notes || "",
+        });
+      } else if (externalEditingOrder === null) {
+        editReset({
+          status: "pending",
+          paymentStatus: "unpaid",
+          trackingNumber: "",
+          trackingUrl: "",
+          estimatedDelivery: "",
+          shippedAt: "",
+          deliveredAt: "",
+          cancelledAt: "",
+          notes: "",
+        });
+      }
+    },
+    editingOrder?.id ?? (externalEditingOrder === null ? "clear" : "idle"),
+  );
 
   // Handle edit order submission
   const handleUpdateOrder = async (data: UpdateOrderFormData) => {
@@ -757,7 +763,10 @@ export default function OrderDialog({
                     enabled={open}
                     placeholder={
                       <div
-                        className="flex h-11 w-full items-center rounded-md border border-violet-400/30 bg-white/10 px-2 text-sm text-white/60"
+                        className={cn(
+                          "flex h-11 w-full items-center rounded-md px-2 text-sm text-white/60",
+                          DIALOG_FORM_FIELD_VIOLET,
+                        )}
                         aria-hidden
                       >
                         {orderStatusOptions.find(
@@ -815,7 +824,10 @@ export default function OrderDialog({
                     enabled={open}
                     placeholder={
                       <div
-                        className="flex h-11 w-full items-center rounded-md border border-violet-400/30 bg-white/10 px-2 text-sm text-white/60"
+                        className={cn(
+                          "flex h-11 w-full items-center rounded-md px-2 text-sm text-white/60",
+                          DIALOG_FORM_FIELD_VIOLET,
+                        )}
                         aria-hidden
                       >
                         {paymentStatusOptions.find(

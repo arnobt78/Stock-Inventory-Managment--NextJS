@@ -1,6 +1,7 @@
 /**
  * Support Ticket query hooks
  * TanStack Query hooks for support ticket data fetching and mutations
+ * REQ-0200 — useSupportTicketOwnerProducts for create Related product picker
  */
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -18,6 +19,7 @@ import { useToast } from "@/hooks/use-toast";
 import type {
   SupportTicket,
   SupportTicketReply,
+  SupportTicketOwnerProduct,
   CreateSupportTicketInput,
   CreateSupportTicketReplyInput,
   UpdateSupportTicketInput,
@@ -53,6 +55,28 @@ export function useSupportTicket(id: string, initialData?: SupportTicket) {
     },
     enabled: !!id,
     ...withInitialData(initialData),
+  });
+}
+
+/**
+ * REQ-0200 — Owner-scoped products for create Related product picker.
+ * Key under supportTickets.all so invalidateAllRelatedQueries clears after CRUD.
+ */
+export function useSupportTicketOwnerProducts(
+  ownerId: string | null | undefined,
+  options?: { enabled?: boolean },
+) {
+  const enabled =
+    (options?.enabled ?? true) && !!ownerId && ownerId.trim().length > 0;
+  return useQuery({
+    queryKey: queryKeys.supportTickets.ownerProducts(ownerId ?? ""),
+    queryFn: async (): Promise<SupportTicketOwnerProduct[]> => {
+      const response = await apiClient.supportTickets.getOwnerProducts(
+        ownerId!.trim(),
+      );
+      return response.data;
+    },
+    enabled,
   });
 }
 

@@ -494,5 +494,37 @@
 | ART-0193b | REQ-0193 | Opening bubble + 90% width + author links | SupportTicketReplyThread |
 | ART-0193c | REQ-0193 | Notes clear AlertDialog + Status solid/opaque | AdminSupportTicketDetailContent, semantic-badges |
 | TC-0099 | REQ-0193 | Gates lint/test/invalidate/build |
+| ART-0194a | REQ-0194 | ticket-chat-bubble-styles left/right glow + shell | lib/ui/ticket-chat-bubble-styles.ts |
+| ART-0194b | REQ-0194 | ChatBubble w-fit max-w-[90%] + tokens | SupportTicketReplyThread |
+| TC-0100 | REQ-0194 | Gates lint/test/invalidate/build |
+| ART-0195a | REQ-0195 | Non-admin Customer/Sent-to audit href | SupportTicketTableColumns |
+| ART-0195b | REQ-0195 | Client detail admin card parity (sky) | SupportTicketDetailContent |
+| ART-0195c | REQ-0195 | Status RO + resolveStatusUpdate | SupportTicketDialog, ticket-assignee-policy |
+| TC-0101 | REQ-0195 | Gates lint/test/invalidate/build |
+| ART-0196a | REQ-0196 | Strip double pad ticket+review detail GlassCards | AdminSupportTicketDetail, SupportTicketDetail, ReplyThread, AdminProductReviewDetail |
+| TC-0102 | REQ-0196 | Gates lint/test/invalidate/build |
+| ART-0197a | REQ-0197 | Create Related product Command (owner-scoped) | SupportTicketDialog |
+| ART-0197b | REQ-0197 | Reassign clear mismatched productId + confirm | TicketReassignDialog, ticket-reassign-product, PUT |
+| ART-0197c | REQ-0197 | Role-aware Reply-to | ticket-reply-target, SupportTicketReplyThread |
+| TC-0103 | REQ-0197 | Unit tests reply-target + reassign-product + gates |
+| ART-0198a | REQ-0198 | Instant same-route DeferredSelect + unit test | use-deferred-radix-select |
+| ART-0198b | REQ-0198 | useSyncDialogOpenState (render open sync) | hooks/use-sync-dialog-open-state |
+| ART-0198c | REQ-0198 | Placeholder parity sweep gated dialogs | review/ticket/product/warehouse/order/invoice/shipping/user |
+| TC-0104 | REQ-0198 | Gates lint/test/invalidate/build |
+| ART-0199a | REQ-0199 | DIALOG_COMBOBOX_TRIGGER_CLASS shared token | dialog-form-field |
+| ART-0199b | REQ-0199 | OrderPicker modal + ghost trigger | OrderPickerCommand |
+| ART-0199c | REQ-0199 | Ticket/Allocate/Transfer Combobox parity | SupportTicketDialog, Allocate/Transfer |
+| TC-0105 | REQ-0199 | Gates lint/test/invalidate/build |
+| ART-0200a | REQ-0200 | getOwnerProductsForSupport + GET owner-products | support-tickets-data, owner-products route |
+| ART-0200b | REQ-0200 | Hook + dialog use owner fetch; Select controlled | use-support-tickets, SupportTicketDialog |
+| TC-0106 | REQ-0200 | Unit test + gates lint/test/invalidate/build |
+| ART-0201a | REQ-0201 | DialogProductOptionRow price/qty + owner-products densify | ProductOptionRow, support-tickets-data |
+| ART-0201b | REQ-0201 | TicketRelatedProductDense + SSR snap densify | ticket-related-enrich, detail pages |
+| ART-0201c | REQ-0201 | Create/edit dialog densify | SupportTicketDialog |
+| TC-0107 | REQ-0201 | Unit tests + gates lint/test/invalidate/build |
+| ART-0202a | REQ-0202 | SelectValue SSR labels (role/status/carrier) | AdminUserManagementDetail, AdminOrderDetail |
+| ART-0202b | REQ-0202 | densify-richer SSR sync policy + tests | ssr-sync-policy |
+| ART-0202c | REQ-0202 | Product supplier image + reviewerEmail | product-detail-data, product-reviews-detail, by-product |
+| TC-0108 | REQ-0202 | Gates lint/test/invalidate/build |
 | ART-0186a | REQ-0186 | Warehouse dialog + detail UI (planned) | TBD |
 | ART-0187a | REQ-0187 | Order dialog UI polish (planned) | TBD |

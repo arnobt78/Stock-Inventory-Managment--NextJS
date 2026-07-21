@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -32,6 +32,7 @@ import {
 import { cn } from "@/lib/utils";
 import { Building2, MapPin, Layers, Plus, X } from "lucide-react";
 import { useCreateWarehouse, useUpdateWarehouse } from "@/hooks/queries";
+import { useSyncDialogOpenState } from "@/hooks/use-sync-dialog-open-state";
 import { Warehouse } from "@/types";
 
 interface WarehouseDialogProps {
@@ -81,34 +82,24 @@ export default function WarehouseDialog({
       ? onEditWarehouse
       : setInternalEditing;
 
-  useEffect(() => {
-    if (externalEditingWarehouse) {
-      queueMicrotask(() => {
-        setName(externalEditingWarehouse.name);
-        setAddress(externalEditingWarehouse.address || "");
-        setType(externalEditingWarehouse.type || "");
-        setStatus(externalEditingWarehouse.status ?? true);
-      });
-    } else if (externalEditingWarehouse === null) {
-      queueMicrotask(() => {
+  // REQ-0198 — sync fields on open / edit target (no queueMicrotask bounce)
+  useSyncDialogOpenState(
+    open,
+    () => {
+      if (editingWarehouse) {
+        setName(editingWarehouse.name);
+        setAddress(editingWarehouse.address || "");
+        setType(editingWarehouse.type || "");
+        setStatus(editingWarehouse.status ?? true);
+      } else {
         setName("");
         setAddress("");
         setType("");
         setStatus(true);
-      });
-    }
-  }, [externalEditingWarehouse]);
-
-  useEffect(() => {
-    if (!open && !editingWarehouse) {
-      queueMicrotask(() => {
-        setName("");
-        setAddress("");
-        setType("");
-        setStatus(true);
-      });
-    }
-  }, [open, editingWarehouse]);
+      }
+    },
+    editingWarehouse?.id ?? "create",
+  );
 
   const createMutation = useCreateWarehouse();
   const updateMutation = useUpdateWarehouse();
@@ -202,7 +193,10 @@ export default function WarehouseDialog({
               enabled={open}
               placeholder={
                 <div
-                  className="flex h-11 w-full items-center rounded-md border border-teal-400/30 bg-white/10 px-2 text-sm text-white/60"
+                  className={cn(
+                    "flex h-11 w-full items-center rounded-md px-2 text-sm text-white/60",
+                    DIALOG_FORM_FIELD_TEAL,
+                  )}
                   aria-hidden
                 >
                   {warehouseTypes.find((wt) => wt.value === type)?.label ??

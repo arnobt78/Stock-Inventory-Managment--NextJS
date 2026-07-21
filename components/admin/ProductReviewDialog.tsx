@@ -133,8 +133,12 @@ export default function ProductReviewDialog({
             <DeferredSelectGate
               enabled={open}
               placeholder={
+                // REQ-0198 — match SelectTrigger h-auto min-h-11 + densify row
                 <div
-                  className="flex min-h-11 w-full items-center rounded-md border border-amber-400/30 bg-white/10 px-2 text-sm text-white/60"
+                  className={cn(
+                    "flex h-auto min-h-11 w-full items-center rounded-md px-2 py-1.5 text-sm text-white/60",
+                    DIALOG_FORM_FIELD_AMBER,
+                  )}
                   aria-hidden
                 >
                   {selectedProduct ? (
@@ -251,10 +255,18 @@ export default function ProductReviewDialog({
               enabled={open}
               placeholder={
                 <div
-                  className="flex h-11 w-full items-center rounded-md border border-amber-400/30 bg-white/10 px-2 text-sm text-white/60"
+                  className={cn(
+                    "flex h-11 w-full items-center rounded-md px-2",
+                    DIALOG_FORM_FIELD_AMBER,
+                  )}
                   aria-hidden
                 >
-                  {rating} star{rating !== 1 ? "s" : ""}
+                  <span className="flex items-center gap-2">
+                    {renderStars(rating)}
+                    <span className={ratingLabelClass(rating)}>
+                      ({rating} star{rating !== 1 ? "s" : ""})
+                    </span>
+                  </span>
                 </div>
               }
             >

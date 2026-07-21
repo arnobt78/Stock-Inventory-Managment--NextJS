@@ -187,13 +187,42 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // REQ-0197 — optional product must belong to selected Send-to owner
+    let productId = data.productId;
+    if (productId) {
+      if (!data.assignedToId) {
+        return NextResponse.json(
+          {
+            error:
+              "Select a product owner before linking a related product.",
+          },
+          { status: 400 },
+        );
+      }
+      const product = await prisma.product.findUnique({
+        where: { id: productId },
+        select: { id: true, userId: true },
+      });
+      if (!product || product.userId !== data.assignedToId) {
+        return NextResponse.json(
+          {
+            error:
+              "Related product must belong to the selected product owner.",
+          },
+          { status: 400 },
+        );
+      }
+    } else {
+      productId = undefined;
+    }
+
     const created = await createSupportTicket(
       {
         subject: data.subject,
         description: data.description,
         priority: data.priority,
         assignedToId: data.assignedToId ?? null,
-        productId: data.productId,
+        productId,
         orderId: data.orderId,
         supplierId: data.supplierId,
       },

@@ -3,6 +3,7 @@
  * REQ-0185 — densify Customer/Sent to; Actions MoreVertical; priority opaque on table.
  * REQ-0189 — Subject & Description header; sky subject link; dual truncate; muted date labels.
  * REQ-0192 — Messages column via ticketMessageTotal (description + replies).
+ * REQ-0195 — non-admin Customer/Sent to sky text-xs via resolveDetailAuditUserHref.
  */
 
 "use client";
@@ -30,6 +31,7 @@ import {
 } from "@/components/shared";
 import SupportTicketActions from "@/components/admin/SupportTicketActions";
 import { ticketMessageTotal } from "@/lib/support-tickets/ticket-message-stats";
+import { resolveDetailAuditUserHref } from "@/lib/navigation/audit-user-href";
 import type { ProductOwnerOption, SupportTicket } from "@/types";
 
 type SortableHeaderProps = {
@@ -147,9 +149,8 @@ export function createSupportTicketColumns(
           t.creatorEmail ||
           t.userId?.slice(-8) ||
           "—";
-        const href = linkUserManagement
-          ? `/admin/user-management/${t.userId}`
-          : undefined;
+        // REQ-0195 — admin user-mgmt; non-admin owner-products (sky text-xs via href)
+        const href = resolveDetailAuditUserHref(t.userId, linkUserManagement);
         return (
           <PersonNameEmailCell
             seed={t.userId}
@@ -175,9 +176,10 @@ export function createSupportTicketColumns(
           t.assignedToName?.trim() ||
           t.assignedToEmail ||
           t.assignedToId.slice(-8);
-        const href = linkUserManagement
-          ? `/admin/user-management/${t.assignedToId}`
-          : `/products?ownerId=${t.assignedToId}`;
+        const href = resolveDetailAuditUserHref(
+          t.assignedToId,
+          linkUserManagement,
+        );
         return (
           <PersonNameEmailCell
             seed={t.assignedToId}

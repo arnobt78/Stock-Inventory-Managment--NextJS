@@ -1,14 +1,30 @@
 /**
  * REQ-0191 — Bounded related product/order/supplier enrich for ticket detail.
+ * REQ-0201 — Related product densify (image, price, stock, category, owner, supplier).
  * Pure merge helper (testable) + async Prisma load used by SSR/API transform path.
  */
 
 import { prisma } from "@/prisma/client";
+import {
+  loadProductListPartyMaps,
+  productListPartyFields,
+} from "@/lib/server/product-list-party";
 import type { SupportTicket } from "@/types";
 
 export type TicketRelatedSnap = {
   relatedProductName?: string | null;
   relatedProductSku?: string | null;
+  /** REQ-0201 densify */
+  relatedProductImageUrl?: string | null;
+  relatedProductPrice?: number | null;
+  relatedProductQuantity?: number | null;
+  relatedProductCategoryName?: string | null;
+  relatedProductOwnerId?: string | null;
+  relatedProductOwnerName?: string | null;
+  relatedProductOwnerImage?: string | null;
+  relatedProductSupplierId?: string | null;
+  relatedProductSupplierName?: string | null;
+  relatedProductSupplierImage?: string | null;
   relatedOrderNumber?: string | null;
   relatedOrderStatus?: string | null;
   relatedOrderPaymentStatus?: string | null;
@@ -36,7 +52,16 @@ export async function loadTicketRelatedSnap(ticket: {
     ticket.productId
       ? prisma.product.findUnique({
           where: { id: ticket.productId },
-          select: { name: true, sku: true },
+          select: {
+            name: true,
+            sku: true,
+            imageUrl: true,
+            price: true,
+            quantity: true,
+            userId: true,
+            categoryId: true,
+            supplierId: true,
+          },
         })
       : null,
     ticket.orderId
@@ -57,9 +82,32 @@ export async function loadTicketRelatedSnap(ticket: {
       : null,
   ]);
 
-  return {
+  let productDensify: TicketRelatedSnap = {
     relatedProductName: product?.name ?? null,
     relatedProductSku: product?.sku ?? null,
+  };
+
+  if (product) {
+    const partyMaps = await loadProductListPartyMaps([product]);
+    const party = productListPartyFields(product, partyMaps);
+    productDensify = {
+      relatedProductName: product.name,
+      relatedProductSku: product.sku,
+      relatedProductImageUrl: product.imageUrl ?? null,
+      relatedProductPrice: Number(product.price),
+      relatedProductQuantity: Number(product.quantity),
+      relatedProductCategoryName: party.category,
+      relatedProductOwnerId: product.userId,
+      relatedProductOwnerName: party.productOwnerName,
+      relatedProductOwnerImage: party.productOwnerImage,
+      relatedProductSupplierId: product.supplierId,
+      relatedProductSupplierName: party.supplier,
+      relatedProductSupplierImage: party.supplierImage,
+    };
+  }
+
+  return {
+    ...productDensify,
     relatedOrderNumber: order?.orderNumber ?? null,
     relatedOrderStatus: order?.status ?? null,
     relatedOrderPaymentStatus: order?.paymentStatus ?? null,

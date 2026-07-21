@@ -490,3 +490,22 @@ Format: `TIMESTAMP | AGENT | DECISION | RATIONALE | REQ-ID`
 2026-07-21T15:25:00Z | build-agent | REQ-0193 ticket UI gaps | reassign smooth; opening bubble; notes confirm; Status contrast | REQ-0193
 2026-07-21T15:30:00Z | red-team | REQ-0193 gates | lint ✓ test 656 ✓ invalidate 217 ✓ build ✓ | REQ-0193
 2026-07-21T15:35:00Z | release-manager | prod tip SHA 45fd5d6 | REQ-0191–0193 pushed origin/main | REQ-0193
+2026-07-21T15:40:00Z | build-agent | REQ-0194 chat bubble glow | w-fit max-w-90%; opposing left/right gradients | REQ-0194
+2026-07-21T15:45:00Z | red-team | REQ-0194 gates | lint ✓ test 656 ✓ invalidate 217 ✓ build ✓ | REQ-0194
+2026-07-21T15:50:00Z | build-agent | REQ-0195 non-admin ticket parity | list href; detail cards; resolveStatusUpdate | REQ-0195
+2026-07-21T15:55:00Z | red-team | REQ-0195 gates | lint ✓ test 659 ✓ invalidate 217 ✓ build ✓ | REQ-0195
+2026-07-21T16:00:00Z | build-agent | REQ-0196 single GlassCard pad | strip inner p-2 sm:p-4 ticket+review detail | REQ-0196
+2026-07-21T16:05:00Z | red-team | REQ-0196 gates | lint ✓ test 659 ✓ invalidate 217 ✓ build ✓ | REQ-0196
+2026-07-21T16:20:00Z | build-agent | REQ-0197 product+reply+reassign | owner-scoped product picker; clear productId on reassign; resolveTicketReplyTarget | REQ-0197
+2026-07-21T16:25:00Z | red-team | REQ-0197 gates | lint ✓ test 672 ✓ invalidate 217 ✓ build ✓ | REQ-0197
+2026-07-21T17:10:00Z | build-agent | REQ-0198 dialog open smooth | same-route instant DeferredSelect; useSyncDialogOpenState; placeholder parity | REQ-0198
+2026-07-21T17:15:00Z | red-team | REQ-0198 gates | lint ✓ test 675 ✓ invalidate 217 ✓ build ✓ | REQ-0198
+2026-07-21T17:30:00Z | build-agent | REQ-0199 dialog Combobox | DIALOG_COMBOBOX_TRIGGER_CLASS; modal Popover + closeAutoFocus | REQ-0199
+2026-07-21T17:35:00Z | red-team | REQ-0199 gates | lint ✓ test 675 ✓ invalidate 217 ✓ build ✓ | REQ-0199
+2026-07-21T17:50:00Z | build-agent | REQ-0200 owner-scoped ticket products | GET owner-products; useSupportTicketOwnerProducts; Select value never undefined | REQ-0200
+2026-07-21T17:55:00Z | red-team | REQ-0200 gates | lint ✓ test 677 ✓ invalidate 217 ✓ build ✓ | REQ-0200
+2026-07-21T18:10:00Z | build-agent | REQ-0201 related product densify | DialogProductOptionRow price/qty; owner-products party; TicketRelatedProductDense; SSR snap | REQ-0201
+2026-07-21T18:15:00Z | red-team | REQ-0201 gates | lint ✓ test 678 ✓ invalidate 217 ✓ build ✓ | REQ-0201
+2026-07-21T18:30:00Z | build-agent | REQ-0202 detail no-flicker | SelectValue SSR labels; serverHasRicherDensify sync; supplier image; reviewerEmail | REQ-0202
+2026-07-21T18:35:00Z | red-team | REQ-0202 gates | lint ✓ test 683 ✓ invalidate 217 ✓ build ✓ | REQ-0202
+2026-07-21T18:40:00Z | docs | session EOD write-through | STATE/config/CLAUDE/walkthrough → resume REQ-0186 | REQ-0202

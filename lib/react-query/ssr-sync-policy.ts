@@ -1,3 +1,9 @@
+/**
+ * SSR → TanStack sync policy.
+ * REQ-0122 / REQ-0133 — never clobber fresher client cache after CRUD / back-nav.
+ * REQ-0202 — prefer richer densify when updatedAt is equal (email/image/role flash guard).
+ */
+
 export type SsrSyncAction = "apply" | "refetch" | "skip";
 
 /** Subset of TanStack query state used for SSR sync decisions. */
@@ -32,10 +38,53 @@ function maxUpdatedAtMs(value: unknown): number | null {
   return max;
 }
 
+function isPlainObject(value: unknown): value is Record<string, unknown> {
+  return (
+    value != null &&
+    typeof value === "object" &&
+    !Array.isArray(value)
+  );
+}
+
+/**
+ * REQ-0202 — densify keys that often arrive later via client refetch when a
+ * thinner cache row was seeded (list patch / warm prefetch).
+ */
+const DENSIFY_KEY_RE =
+  /(Email|Image|ImageUrl)$|^(role|overview)$|^relatedProduct|^creator|^assignedTo|^reviewer|^productOwner|^supplierImage/;
+
+function densifyValuePresent(value: unknown): boolean {
+  if (value == null) return false;
+  if (typeof value === "string") return value.trim().length > 0;
+  if (typeof value === "object") return true;
+  return true;
+}
+
+/** True when server has at least one densify field defined that cache lacks. */
+export function serverHasRicherDensify(
+  serverData: unknown,
+  cached: unknown,
+): boolean {
+  if (!isPlainObject(serverData) || !isPlainObject(cached)) {
+    return false;
+  }
+  for (const key of Object.keys(serverData)) {
+    if (!DENSIFY_KEY_RE.test(key)) continue;
+    const serverVal = serverData[key];
+    if (!densifyValuePresent(serverVal)) continue;
+    const cachedVal = cached[key];
+    if (!densifyValuePresent(cachedVal)) {
+      return true;
+    }
+  }
+  return false;
+}
+
 /**
  * Decide whether SSR props should overwrite TanStack cache on mount.
  * router.back() can restore stale RSC props — never clobber fresher client cache.
  * REQ-0133: default skip when server cannot prove fresher than cached (lists + entities).
+ * REQ-0202: apply when timestamps equal (or both missing) but SSR densify is richer.
  */
 export function resolveSsrSyncAction<T>(
   serverData: T,
@@ -58,10 +107,14 @@ export function resolveSsrSyncAction<T>(
 
   if (Array.isArray(cached) && Array.isArray(serverData)) {
     if (serverAt != null && cachedAt != null) {
-      if (cachedAt >= serverAt) {
+      if (cachedAt > serverAt) {
         return "skip";
       }
-      return "apply";
+      if (serverAt > cachedAt) {
+        return "apply";
+      }
+      // Equal timestamps — lists stay skip (row densify handled at entity sync)
+      return "skip";
     }
     if (cached.length > 0 && serverData.length === cached.length) {
       return "skip";
@@ -75,11 +128,25 @@ export function resolveSsrSyncAction<T>(
     return "apply";
   }
 
-  if (serverAt != null && cachedAt != null && cachedAt >= serverAt) {
+  // Entity: fresher cache wins
+  if (serverAt != null && cachedAt != null && cachedAt > serverAt) {
     return "skip";
   }
   if (serverAt != null && cachedAt != null && serverAt > cachedAt) {
     return "apply";
+  }
+
+  // Equal timestamps (or both null) — prefer richer densify SSR (REQ-0202)
+  if (
+    cached !== undefined &&
+    (serverAt === cachedAt || (serverAt == null && cachedAt == null)) &&
+    serverHasRicherDensify(serverData, cached)
+  ) {
+    return "apply";
+  }
+
+  if (serverAt != null && cachedAt != null && cachedAt >= serverAt) {
+    return "skip";
   }
 
   if (cached !== undefined) {

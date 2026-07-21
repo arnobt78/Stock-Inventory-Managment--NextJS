@@ -245,7 +245,10 @@ export default function CreateUserDialog() {
               enabled={open}
               placeholder={
                 <div
-                  className="flex h-11 w-full items-center rounded-md border border-blue-400/30 bg-white/10 px-2 text-sm text-white/60"
+                  className={cn(
+                    "flex h-11 w-full items-center rounded-md px-2 text-sm text-white/60",
+                    DIALOG_FORM_FIELD_BLUE,
+                  )}
                   aria-hidden
                 >
                   {ROLE_OPTIONS.find((o) => o.value === selectedRole)?.label ??

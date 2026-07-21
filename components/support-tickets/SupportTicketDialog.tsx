@@ -6,9 +6,13 @@
  * REQ-0188 — Send-to trigger: no line-clamp clip; dual-surface owner text.
  * REQ-0190 — Edit: Send-to read-only (all roles); omit assignedToId on PUT. Create Select unchanged.
  * REQ-0191 — Edit: Status Select (no inline detail Selects).
+ * REQ-0197 — Create: optional Related product Command (owner-scoped); edit RO densify.
+ * REQ-0198 — render-phase open sync; Send-to placeholder height matches trigger.
+ * REQ-0200 — Related products via owner-scoped API (not role-scoped useProducts); Select always controlled.
+ * REQ-0201 — Related product DialogProductOptionRow densify (create + edit RO).
  */
 
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -27,10 +31,26 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from "@/components/ui/command";
+import {
   AlertTriangle,
+  Check,
+  ChevronDown,
   CircleDot,
   FileText,
   MessageSquare,
+  Package,
   Pencil,
   Send,
   User,
@@ -38,6 +58,7 @@ import {
 } from "lucide-react";
 import {
   DeferredSelectGate,
+  DIALOG_COMBOBOX_TRIGGER_CLASS,
   DIALOG_FORM_FIELD_VIOLET,
   DIALOG_FORM_FIELD_SKY,
   DIALOG_SELECT_CONTENT_CLASS,
@@ -47,13 +68,24 @@ import {
   GLASS_GHOST_BUTTON,
   DialogSubmitButton,
 } from "@/components/shared";
+import {
+  DialogProductOptionRow,
+  productCategoryLabel,
+  productSupplierLabel,
+} from "@/components/products/ProductOptionRow";
 import { SafeAvatarImage } from "@/components/ui/safe-avatar-image";
 import { resolveAvatarSourcesFromSeed } from "@/lib/ui/user-avatar-sources";
 import { AVATAR_RING_CLASS } from "@/lib/ui/avatar-ring-styles";
 import {
+  FILTER_COMMAND_INPUT_WRAPPER_CLASS,
+  filterCommandPopoverClass,
+} from "@/lib/ui/popover-readability-styles";
+import {
   useCreateSupportTicket,
+  useSupportTicketOwnerProducts,
   useUpdateSupportTicket,
 } from "@/hooks/queries";
+import { useSyncDialogOpenState } from "@/hooks/use-sync-dialog-open-state";
 import { useAuth } from "@/contexts";
 import { cn } from "@/lib/utils";
 import {
@@ -172,42 +204,70 @@ export default function SupportTicketDialog({
   const [priority, setPriority] = useState<SupportTicketPriority>("medium");
   const [status, setStatus] = useState<SupportTicketStatus>("open");
   const [assignedToId, setAssignedToId] = useState<string | null>(null);
+  // REQ-0197 — optional Related product (create only)
+  const [productId, setProductId] = useState<string | null>(null);
+  const [productPickerOpen, setProductPickerOpen] = useState(false);
 
   const createMutation = useCreateSupportTicket();
   const updateMutation = useUpdateSupportTicket();
+  // REQ-0200/0201 — owner catalog for create picker; edit RO fallback densify
+  const ownerFetchId = isEdit
+    ? (existingTicket?.assignedToId ?? assignedToId)
+    : assignedToId;
+  const { data: ownerProducts = [], isLoading: productsLoading } =
+    useSupportTicketOwnerProducts(ownerFetchId, {
+      enabled:
+        open &&
+        !!ownerFetchId &&
+        (!isEdit || !!existingTicket?.productId),
+    });
 
   const role = user?.role;
+  // REQ-0195 — workflow status Select only for admin; client/supplier see RO badge
+  const canEditStatus = role === "admin";
   const requireAssignee =
     (role === "client" || role === "supplier") && productOwners.length > 0;
   const allowNoneOwner = role === "admin" || !requireAssignee;
 
-  // Sync form when dialog opens (queueMicrotask — avoid set-state-in-effect lint)
-  useEffect(() => {
-    if (!open) return;
-    queueMicrotask(() => {
+  const selectedProduct = ownerProducts.find((p) => p.id === productId);
+  // REQ-0201 — edit RO densify from ticket snap, else owner-products row
+  const editRelatedFromOwner = existingTicket?.productId
+    ? ownerProducts.find((p) => p.id === existingTicket.productId)
+    : undefined;
+  const editHasTicketDensify = Boolean(
+    existingTicket?.relatedProductName ||
+      existingTicket?.relatedProductImageUrl ||
+      existingTicket?.relatedProductSku,
+  );
+
+  const setAssignedToIdAndResetProduct = (next: string | null) => {
+    setAssignedToId(next);
+    setProductId(null);
+  };
+
+  // REQ-0198 — sync on open / ticket change (no queueMicrotask bounce)
+  useSyncDialogOpenState(
+    open,
+    () => {
       if (existingTicket) {
         setSubject(existingTicket.subject ?? "");
         setDescription(existingTicket.description ?? "");
         setPriority(existingTicket.priority ?? "medium");
         setStatus(existingTicket.status ?? "open");
         setAssignedToId(existingTicket.assignedToId ?? null);
+        setProductId(existingTicket.productId ?? null);
       } else {
         setSubject("");
         setDescription("");
         setPriority("medium");
         setStatus("open");
         setAssignedToId(null);
+        setProductId(null);
       }
-    });
-  }, [
-    open,
-    existingTicket?.id,
-    existingTicket?.subject,
-    existingTicket?.description,
-    existingTicket?.priority,
-    existingTicket?.status,
-    existingTicket?.assignedToId,
-  ]);
+      setProductPickerOpen(false);
+    },
+    existingTicket?.id ?? "create",
+  );
 
   const isPending = createMutation.isPending || updateMutation.isPending;
   const isViolet = variant === "violet";
@@ -239,7 +299,7 @@ export default function SupportTicketDialog({
 
     if (isEdit && existingTicket) {
       // REQ-0190 — never send assignedToId from edit (admin Reassign is separate)
-      // REQ-0191 — status via Edit dialog (detail page is read-only badges)
+      // REQ-0195 — omit status for non-admin (API also strips via resolveStatusUpdate)
       updateMutation.mutate(
         {
           id: existingTicket.id,
@@ -247,7 +307,7 @@ export default function SupportTicketDialog({
             subject: subject.trim(),
             description: description.trim(),
             priority,
-            status,
+            ...(canEditStatus ? { status } : {}),
           },
         },
         {
@@ -263,6 +323,7 @@ export default function SupportTicketDialog({
         description: description.trim(),
         priority,
         assignedToId: assignedToId ?? undefined,
+        ...(productId ? { productId } : {}),
       },
       {
         onSuccess: () => {
@@ -270,6 +331,7 @@ export default function SupportTicketDialog({
           setDescription("");
           setPriority("medium");
           setAssignedToId(null);
+          setProductId(null);
           setOpen(false);
         },
       },
@@ -309,7 +371,9 @@ export default function SupportTicketDialog({
           title={isEdit ? "Edit Support Ticket" : "Create Support Ticket"}
           description={
             isEdit
-              ? "Update subject, description, status, or priority. Send-to cannot be changed here."
+              ? canEditStatus
+                ? "Update subject, description, status, or priority. Send-to cannot be changed here."
+                : "Update subject, description, or priority. Status and Send-to cannot be changed here."
               : productOwners.length > 0
                 ? "Open a new support ticket. Add a subject, description, and choose who to send it to (product owner)."
                 : "Open a new support ticket. Add a subject and description."
@@ -387,9 +451,11 @@ export default function SupportTicketDialog({
                 <DeferredSelectGate
                   enabled={open}
                   placeholder={
+                    // REQ-0198 — match SelectTrigger h-auto min-h-11 (Send-to densify)
                     <div
                       className={cn(
-                        "flex h-11 w-full items-center rounded-xl px-2 text-sm text-white/60",
+                        "flex h-auto min-h-11 w-full items-center rounded-xl px-2 py-1.5 text-sm text-white/60",
+                        "overflow-visible",
                         inputClass,
                       )}
                       aria-hidden
@@ -410,11 +476,14 @@ export default function SupportTicketDialog({
                   {({ selectRemountKey }) => (
                     <Select
                       key={selectRemountKey}
+                      // REQ-0200 — always controlled (never undefined → uncontrolled warning)
                       value={
-                        assignedToId ?? (allowNoneOwner ? "none" : undefined)
+                        assignedToId ?? (allowNoneOwner ? "none" : "")
                       }
                       onValueChange={(v) =>
-                        setAssignedToId(v === "none" || !v ? null : v)
+                        setAssignedToIdAndResetProduct(
+                          v === "none" || !v ? null : v,
+                        )
                       }
                       disabled={isPending}
                     >
@@ -476,74 +545,310 @@ export default function SupportTicketDialog({
               )}
             </div>
           )}
-          {/* REQ-0191 — Status only on edit (create defaults open) */}
+          {/* REQ-0197 — create: optional Related product (owner-scoped); edit: RO densify */}
+          {!isEdit ? (
+            <div className="space-y-2">
+              <DialogFormLabel
+                htmlFor="support-ticket-related-product"
+                icon={Package}
+                optional
+              >
+                Related product
+              </DialogFormLabel>
+              {/* REQ-0199 — modal Popover + shared Combobox trigger (no white hover / reopen) */}
+              <Popover
+                open={productPickerOpen}
+                onOpenChange={setProductPickerOpen}
+                modal
+              >
+                <PopoverTrigger asChild>
+                  <Button
+                    id="support-ticket-related-product"
+                    type="button"
+                    variant="ghost"
+                    role="combobox"
+                    disabled={
+                      isPending || !assignedToId || productsLoading
+                    }
+                    className={cn(
+                      "h-auto min-h-11 w-full justify-between rounded-xl py-2",
+                      DIALOG_COMBOBOX_TRIGGER_CLASS,
+                      inputClass,
+                    )}
+                  >
+                    {selectedProduct ? (
+                      <DialogProductOptionRow
+                        name={selectedProduct.name}
+                        imageUrl={selectedProduct.imageUrl}
+                        sku={selectedProduct.sku}
+                        price={selectedProduct.price}
+                        quantity={selectedProduct.quantity}
+                        categoryName={productCategoryLabel(
+                          selectedProduct.category,
+                        )}
+                        ownerId={selectedProduct.userId}
+                        ownerName={selectedProduct.productOwnerName}
+                        ownerImage={selectedProduct.productOwnerImage}
+                        supplierId={selectedProduct.supplierId}
+                        supplierName={productSupplierLabel(
+                          selectedProduct.supplier,
+                        )}
+                        supplierImage={selectedProduct.supplierImage}
+                        metaOnDark
+                        className="flex-1"
+                      />
+                    ) : (
+                      <span className="text-sm text-white/75">
+                        {!assignedToId
+                          ? "Select a product owner first"
+                          : "— None —"}
+                      </span>
+                    )}
+                    <ChevronDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent
+                  align="start"
+                  onCloseAutoFocus={(e) => e.preventDefault()}
+                  className={cn(
+                    "w-[var(--radix-popover-trigger-width)] p-0",
+                    filterCommandPopoverClass(isViolet ? "violet" : "sky"),
+                    FILTER_COMMAND_INPUT_WRAPPER_CLASS,
+                  )}
+                >
+                  <Command className="bg-transparent">
+                    <CommandInput placeholder="Search products…" />
+                    <CommandList className="max-h-[min(60vh,280px)]">
+                      <CommandEmpty>No products found.</CommandEmpty>
+                      <CommandGroup>
+                        <CommandItem
+                          value="none"
+                          onSelect={() => {
+                            setProductId(null);
+                            setProductPickerOpen(false);
+                          }}
+                          className="relative py-2 pr-8"
+                        >
+                          <span className="text-sm">— None —</span>
+                          <Check
+                            className={cn(
+                              "absolute right-2 h-4 w-4 shrink-0",
+                              !productId ? "opacity-100" : "opacity-0",
+                            )}
+                          />
+                        </CommandItem>
+                        {ownerProducts.map((p) => (
+                          <CommandItem
+                            key={p.id}
+                            value={`${p.name} ${p.sku ?? ""} ${productCategoryLabel(p.category) ?? ""} ${productSupplierLabel(p.supplier) ?? ""} ${p.productOwnerName ?? ""}`}
+                            onSelect={() => {
+                              setProductId(p.id);
+                              setProductPickerOpen(false);
+                            }}
+                            className="relative py-2 pr-8"
+                          >
+                            <DialogProductOptionRow
+                              name={p.name}
+                              imageUrl={p.imageUrl}
+                              sku={p.sku}
+                              price={p.price}
+                              quantity={p.quantity}
+                              categoryName={productCategoryLabel(p.category)}
+                              ownerId={p.userId}
+                              ownerName={p.productOwnerName}
+                              ownerImage={p.productOwnerImage}
+                              supplierId={p.supplierId}
+                              supplierName={productSupplierLabel(p.supplier)}
+                              supplierImage={p.supplierImage}
+                            />
+                            <Check
+                              className={cn(
+                                "absolute right-2 h-4 w-4 shrink-0",
+                                productId === p.id
+                                  ? "opacity-100"
+                                  : "opacity-0",
+                              )}
+                            />
+                          </CommandItem>
+                        ))}
+                      </CommandGroup>
+                    </CommandList>
+                  </Command>
+                </PopoverContent>
+              </Popover>
+            </div>
+          ) : existingTicket?.productId ? (
+            <div className="space-y-2">
+              <DialogFormLabel
+                htmlFor="support-ticket-related-product-ro"
+                icon={Package}
+              >
+                Related product
+              </DialogFormLabel>
+              <div
+                id="support-ticket-related-product-ro"
+                className={cn(
+                  "flex h-auto min-h-11 w-full items-center rounded-xl px-3 py-1.5",
+                  inputClass,
+                  "opacity-90",
+                )}
+                aria-readonly="true"
+              >
+                {editHasTicketDensify || editRelatedFromOwner ? (
+                  <DialogProductOptionRow
+                    name={
+                      existingTicket.relatedProductName?.trim() ||
+                      editRelatedFromOwner?.name ||
+                      existingTicket.productId.slice(-8)
+                    }
+                    imageUrl={
+                      existingTicket.relatedProductImageUrl ??
+                      editRelatedFromOwner?.imageUrl
+                    }
+                    sku={
+                      existingTicket.relatedProductSku ??
+                      editRelatedFromOwner?.sku
+                    }
+                    price={
+                      existingTicket.relatedProductPrice ??
+                      editRelatedFromOwner?.price
+                    }
+                    quantity={
+                      existingTicket.relatedProductQuantity ??
+                      editRelatedFromOwner?.quantity
+                    }
+                    categoryName={
+                      existingTicket.relatedProductCategoryName ??
+                      productCategoryLabel(editRelatedFromOwner?.category)
+                    }
+                    ownerId={
+                      existingTicket.relatedProductOwnerId ??
+                      editRelatedFromOwner?.userId
+                    }
+                    ownerName={
+                      existingTicket.relatedProductOwnerName ??
+                      editRelatedFromOwner?.productOwnerName
+                    }
+                    ownerImage={
+                      existingTicket.relatedProductOwnerImage ??
+                      editRelatedFromOwner?.productOwnerImage
+                    }
+                    supplierId={
+                      existingTicket.relatedProductSupplierId ??
+                      editRelatedFromOwner?.supplierId
+                    }
+                    supplierName={
+                      existingTicket.relatedProductSupplierName ??
+                      productSupplierLabel(editRelatedFromOwner?.supplier)
+                    }
+                    supplierImage={
+                      existingTicket.relatedProductSupplierImage ??
+                      editRelatedFromOwner?.supplierImage
+                    }
+                    metaOnDark
+                    className="flex-1"
+                  />
+                ) : (
+                  <span className="text-sm text-white/90">
+                    {existingTicket.relatedProductName?.trim() ||
+                      existingTicket.relatedProductSku ||
+                      existingTicket.productId.slice(-8)}
+                    {existingTicket.relatedProductSku
+                      ? ` · ${existingTicket.relatedProductSku}`
+                      : ""}
+                  </span>
+                )}
+              </div>
+            </div>
+          ) : null}
+          {/* REQ-0191/0195 — Status on edit: admin Select; non-admin read-only badge */}
           {isEdit ? (
             <div className="space-y-2">
               <DialogFormLabel
                 htmlFor="support-ticket-status"
                 icon={CircleDot}
-                required
+                required={canEditStatus}
               >
                 Status
               </DialogFormLabel>
-              <DeferredSelectGate
-                enabled={open}
-                placeholder={
-                  <div
-                    className={cn(
-                      "flex h-11 w-full items-center rounded-xl px-2 text-sm text-white/60",
-                      inputClass,
-                    )}
-                    aria-hidden
-                  >
-                    {STATUSES.find((s) => s.value === status)?.label ??
-                      "Status"}
-                  </div>
-                }
-              >
-                {({ selectRemountKey }) => (
-                  <Select
-                    key={selectRemountKey}
-                    value={status}
-                    onValueChange={(v) => setStatus(v as SupportTicketStatus)}
-                    disabled={isPending}
-                  >
-                    <SelectTrigger
-                      id="support-ticket-status"
-                      className={cn("h-11 rounded-xl w-full", inputClass)}
+              {canEditStatus ? (
+                <DeferredSelectGate
+                  enabled={open}
+                  placeholder={
+                    <div
+                      className={cn(
+                        "flex h-11 w-full items-center rounded-xl px-2",
+                        inputClass,
+                      )}
+                      aria-hidden
                     >
-                      <SelectValue>
-                        {/* REQ-0193 — solid/opaque Status badges (Priority parity) */}
-                        <TicketStatusBadge
-                          status={status}
-                          size="compact"
-                          contrast="solid"
-                        />
-                      </SelectValue>
-                    </SelectTrigger>
-                    <SelectContent
-                      className={cn(DIALOG_SELECT_CONTENT_CLASS, "rounded-xl")}
-                      position="popper"
-                      sideOffset={5}
+                      <TicketStatusBadge
+                        status={status}
+                        size="compact"
+                        contrast="solid"
+                      />
+                    </div>
+                  }
+                >
+                  {({ selectRemountKey }) => (
+                    <Select
+                      key={selectRemountKey}
+                      value={status}
+                      onValueChange={(v) => setStatus(v as SupportTicketStatus)}
+                      disabled={isPending}
                     >
-                      {STATUSES.map((s) => (
-                        <SelectItem
-                          key={s.value}
-                          value={s.value}
-                          className={DIALOG_SELECT_ITEM_CLASS}
-                        >
+                      <SelectTrigger
+                        id="support-ticket-status"
+                        className={cn("h-11 rounded-xl w-full", inputClass)}
+                      >
+                        <SelectValue>
                           <TicketStatusBadge
-                            status={s.value}
-                            label={s.label}
+                            status={status}
                             size="compact"
-                            contrast="opaque"
+                            contrast="solid"
                           />
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                )}
-              </DeferredSelectGate>
+                        </SelectValue>
+                      </SelectTrigger>
+                      <SelectContent
+                        className={cn(DIALOG_SELECT_CONTENT_CLASS, "rounded-xl")}
+                        position="popper"
+                        sideOffset={5}
+                      >
+                        {STATUSES.map((s) => (
+                          <SelectItem
+                            key={s.value}
+                            value={s.value}
+                            className={DIALOG_SELECT_ITEM_CLASS}
+                          >
+                            <TicketStatusBadge
+                              status={s.value}
+                              label={s.label}
+                              size="compact"
+                              contrast="opaque"
+                            />
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  )}
+                </DeferredSelectGate>
+              ) : (
+                <div
+                  id="support-ticket-status"
+                  className={cn(
+                    "flex h-11 w-full items-center rounded-xl px-3",
+                    inputClass,
+                    "opacity-90",
+                  )}
+                  aria-readonly="true"
+                >
+                  <TicketStatusBadge
+                    status={status}
+                    size="compact"
+                    contrast="solid"
+                  />
+                </div>
+              )}
             </div>
           ) : null}
           <div className="space-y-2">
@@ -559,13 +864,16 @@ export default function SupportTicketDialog({
               placeholder={
                 <div
                   className={cn(
-                    "flex h-11 w-full items-center rounded-xl px-2 text-sm text-white/60",
+                    "flex h-11 w-full items-center rounded-xl px-2",
                     inputClass,
                   )}
                   aria-hidden
                 >
-                  {PRIORITIES.find((p) => p.value === priority)?.label ??
-                    "Priority"}
+                  <TicketPriorityBadge
+                    status={priority}
+                    size="compact"
+                    contrast="solid"
+                  />
                 </div>
               }
             >

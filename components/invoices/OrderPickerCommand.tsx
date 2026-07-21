@@ -7,6 +7,9 @@
  * type-to-filter (matches the ProductOwnerSelect pattern). Each row shows
  * order # + total + status (+ placer name on the admin combined invoices page)
  * and all of those fields are searchable.
+ *
+ * REQ-0199 — dark glass Combobox trigger (no outline→white hover); modal Popover
+ * + onCloseAutoFocus preventDefault so outside-click does not close-then-reopen.
  */
 
 import * as React from "react";
@@ -25,6 +28,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { Check, ChevronDown } from "lucide-react";
+import { DIALOG_COMBOBOX_TRIGGER_CLASS } from "@/components/shared/dialog-form-field";
 import { DIALOG_SELECT_CONTENT_CLASS } from "@/components/shared/dialog-edge-scroll";
 import { READABLE_POPOVER_CONTENT_CLASS } from "@/lib/ui/popover-readability-styles";
 import { AvatarInlineLink } from "@/components/shared/AvatarInlineLink";
@@ -72,16 +76,18 @@ export function OrderPickerCommand({
   );
 
   return (
-    <Popover open={open} onOpenChange={setOpen}>
+    // REQ-0199 — modal isolates pointer events from parent Dialog (no reopen race)
+    <Popover open={open} onOpenChange={setOpen} modal>
       <PopoverTrigger asChild>
         <Button
           id={triggerId}
           type="button"
-          variant="outline"
+          variant="ghost"
           role="combobox"
           aria-expanded={open}
           className={cn(
-            "h-11 w-full justify-between font-normal",
+            "h-11 w-full justify-between",
+            DIALOG_COMBOBOX_TRIGGER_CLASS,
             triggerClassName,
           )}
         >
@@ -96,6 +102,7 @@ export function OrderPickerCommand({
       {/* z-[100]: render above the dialog overlay (same as edit-form SelectContent) */}
       <PopoverContent
         align="start"
+        onCloseAutoFocus={(e) => e.preventDefault()}
         className={cn(
           "p-0 w-[var(--radix-popover-trigger-width)] rounded-md",
           READABLE_POPOVER_CONTENT_CLASS,

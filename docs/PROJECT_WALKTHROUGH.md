@@ -115,19 +115,17 @@ Details: `docs/Redis_Sentry_PostHog_INTEGRATION_GUIDE.md`
 | Domains patched | products/categories/suppliers/warehouses, orders/invoices (+ client variants), portal browse, support tickets, product reviews, user management |
 | Intentional pulse-only | dashboard/home KPI counts (server aggregates); stock transfer (multi-warehouse — invalidate + pulse) |
 
-### Support tickets (REQ-0185–0193)
+### Support tickets + dialogs (REQ-0185–0202)
 
 | Piece | Location |
 |-------|----------|
-| List densify | `PersonNameEmailCell`; Redis `supportTickets:list:v2`; `ticket-list-enrich` |
-| Actions | `SupportTicketActions` + `TicketReassignDialog` |
-| Create/Edit | `SupportTicketDialog` — edit Send-to RO; Status solid/opaque (0193); Priority solid/opaque |
-| Detail | Admin RO cards + chat (`SupportTicketReplyThread`) + notes confirm (0193) + footer CTAs |
-| Chat | Opening description left bubble; 90% width; author links (0193) |
-| Policy | `ticket-assignee-policy` — admin GET/PUT/DELETE/replies + assignee mutate |
-| Related | `ticket-related-enrich` — product/order/supplier on detail SSR |
+| List/detail | densify + chat + GlassCard pad (0185–0196) |
+| Related product | owner-scoped `GET /api/support-tickets/owner-products`; densify create/edit/detail (0200–0201) |
+| Dialog UX | same-route DeferredSelect; Combobox modal; `useSyncDialogOpenState` (0198–0199) |
+| Reassign / Reply | clear mismatched productId; `resolveTicketReplyTarget` (0197) |
+| No-flicker | SelectValue SSR labels; `serverHasRicherDensify` sync (0202) |
 
-**Next UI wave:** REQ-0186 warehouse → 0187 order dialog → REQ-0136 Gate 2.
+**Stopped 2026-07-21:** through REQ-0202. **Next:** REQ-0186 warehouse → 0187 order → REQ-0136 Gate 2.
 
 ## 7b. Table pagination Select (Radix portal, 2026-05-22)
 
@@ -301,8 +299,8 @@ flowchart LR
 | KPI badge helpers (REQ-0156–0157) | store order/invoice + portal order helpers; My Activity parity; tsc clean | UI/test-only |
 | Delivered + Due badges (REQ-0155) | `store-order-status-badges.ts`; Total Orders Delivered; Outstanding→Due | UI-only |
 | Partial pay KPIs (REQ-0154) | `payment-money-stats.ts` → dashboards Paid/Partial/Due/Pending; Partial badges; table Total `text-xs`; `dashboard:overview:v4` | Invalidation unchanged |
-| Tickets densify (REQ-0185) | PersonNameEmailCell; Actions MoreVertical; create/edit dialog; list:v2; Priority contrast | Invalidation unchanged |
-| Next | REQ-0186 warehouse UI → 0187 order dialog → REQ-0136 §10 + Gate 2 | |
+| Tickets densify (REQ-0185–0202) | owner-products; Related densify; dialog open/combobox; SelectValue SSR; densify-richer sync | Invalidation unchanged |
+| Next | **REQ-0186** warehouse UI → 0187 order dialog → REQ-0136 §10 + Gate 2 | |
 | AI warehouse insights (REQ-0067) | `POST /api/ai/insights` enriches payload with `getWarehouseStockSummary` |
 | Per-warehouse order picking (REQ-0068) | `OrderItem.warehouseId`; `stock-allocation-order-sync.ts`; `OrderLineWarehouseSelect`; reserve/fulfill/cancel sync; invoice-paid gap; `f892b65` removed unused `deleteCache`/`getRateLimitStatus` |
 | Demo reset | `npm run script:reset-demo-db` — accounts-only (3 users + Test Supplier); opt-in catalog via `seed-demo-catalog` |
@@ -316,15 +314,15 @@ flowchart LR
 3. Sentry **stock-inventory** — 24h: compare cases 1–7 vs `docs/SENTRY_ERRORS.md`
 4. Log result in `.agile-v/REVALIDATION_LOG.md`; CAPA if regression
 
-## 8. Quality gates (audit 2026-07-21 REQ-0185)
+## 8. Quality gates (audit 2026-07-21 REQ-0202)
 
 | Check | Status |
 |-------|--------|
 | `npm run lint` | pass |
 | `npm run build` | pass |
-| `npm run test` | 641 passed |
-| `npm run test:invalidate` | 215 passed |
-| Local | REQ-0185 ticket densify + Actions + dialog |
+| `npm run test` | 683 passed |
+| `npm run test:invalidate` | 217 passed |
+| Local | REQ-0194–0202 tickets/dialogs/SSR densify |
 | Radix table Select | `useDeferredRadixSelect` + `PaginationSelector` (11 tables) |
 | Pagination clamp + page-size reset | `useClampPaginationIndex` + `PaginationSelector` pageIndex 0 |
 | Sentry | tunnel + translate scrub + `syncSentryUserFromAuth` |

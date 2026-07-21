@@ -48,3 +48,10 @@ export const DIALOG_FORM_FIELD_BLUE = glassFormFieldClasses("blue", blueShell);
 /** REQ-0126 — trailing calendar icon in dialog date fields (match Select chevron contrast). */
 export const DIALOG_DATE_CALENDAR_ICON_CLASS =
   "text-white/80 hover:text-white transition-colors";
+
+/**
+ * REQ-0199 — Combobox trigger inside dark dialogs (Popover + Command).
+ * Use with Button `variant="ghost"` + `DIALOG_FORM_FIELD_*` — kills outline→white hover.
+ */
+export const DIALOG_COMBOBOX_TRIGGER_CLASS =
+  "font-normal text-white hover:bg-white/5 hover:text-white focus-visible:ring-0";

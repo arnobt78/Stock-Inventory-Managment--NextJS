@@ -44,6 +44,8 @@ export {
 } from "./ProportionalPriceDisplay";
 export type { ProportionalPriceDisplayProps } from "./ProportionalPriceDisplay";
 export {
+  DIALOG_COMBOBOX_TRIGGER_CLASS,
+  DIALOG_DATE_CALENDAR_ICON_CLASS,
   DIALOG_FORM_FIELD_AMBER,
   DIALOG_FORM_FIELD_BLUE,
   DIALOG_FORM_FIELD_CYAN,

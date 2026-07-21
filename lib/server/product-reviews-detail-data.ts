@@ -1,6 +1,7 @@
 /**
  * SSR product reviews + eligibility for detail pages (REQ-0026).
  * Mirrors GET /api/product-reviews/by-product and /api/product-reviews/eligibility.
+ * REQ-0202 — reviewerEmail densify (parity with review detail).
  */
 import { prisma } from "@/prisma/client";
 import {
@@ -11,7 +12,11 @@ import type { ProductReview, ReviewEligibilitySlot } from "@/types";
 
 function transformReview(
   r: Awaited<ReturnType<typeof getReviewsByProductId>>[number],
-  reviewer?: { name: string | null; image: string | null } | null,
+  reviewer?: {
+    name: string | null;
+    email: string;
+    image: string | null;
+  } | null,
 ): ProductReview {
   return {
     id: r.id,
@@ -27,6 +32,7 @@ function transformReview(
     createdAt: r.createdAt.toISOString(),
     updatedAt: r.updatedAt?.toISOString() ?? null,
     reviewerName: reviewer?.name ?? undefined,
+    reviewerEmail: reviewer?.email ?? undefined,
     reviewerImage: reviewer?.image ?? undefined,
   };
 }
@@ -51,7 +57,7 @@ export async function getReviewsForProductPage(
     userIds.length > 0
       ? await prisma.user.findMany({
           where: { id: { in: userIds } },
-          select: { id: true, name: true, image: true },
+          select: { id: true, name: true, email: true, image: true },
         })
       : [];
   const userMap = new Map(users.map((u) => [u.id, u]));

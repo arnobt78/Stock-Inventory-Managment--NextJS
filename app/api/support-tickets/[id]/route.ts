@@ -25,7 +25,9 @@ import { scheduleInvalidateSupportTicketCaches } from "@/lib/cache";
 import {
   canMutateSupportTicket,
   resolveAssignedToUpdate,
+  resolveStatusUpdate,
 } from "@/lib/support-tickets/ticket-assignee-policy";
+import { resolveProductIdAfterAssigneeChange } from "@/lib/support-tickets/ticket-reassign-product";
 
 /**
  * GET /api/support-tickets/:id
@@ -132,8 +134,15 @@ export async function PUT(
     // REQ-0185 — edit dialog subject/description
     if (data.subject != null) updatePayload.subject = data.subject;
     if (data.description != null) updatePayload.description = data.description;
-    if (data.status != null) updatePayload.status = data.status;
     if (data.priority != null) updatePayload.priority = data.priority;
+    // REQ-0195 — only admin may change workflow status; non-admin body.status ignored
+    const nextStatus = resolveStatusUpdate(
+      { id: sessionId, role: sessionRole },
+      data.status,
+    );
+    if (nextStatus !== undefined) {
+      updatePayload.status = nextStatus;
+    }
     // REQ-0190 — only admin may change Send-to; non-admin body field ignored
     const nextAssignedTo = resolveAssignedToUpdate(
       { id: sessionId, role: sessionRole },
@@ -141,6 +150,28 @@ export async function PUT(
     );
     if (nextAssignedTo !== undefined) {
       updatePayload.assignedToId = nextAssignedTo;
+      // REQ-0197 — clear productId when new Send-to does not own Related product
+      let productOwnerUserId: string | null = null;
+      if (existing.productId) {
+        const linked = await prisma.product.findUnique({
+          where: { id: existing.productId },
+          select: { userId: true },
+        });
+        productOwnerUserId = linked?.userId ?? null;
+      }
+      const nextProductId = resolveProductIdAfterAssigneeChange(
+        {
+          productId: existing.productId,
+          productOwnerUserId,
+        },
+        nextAssignedTo,
+      );
+      if (nextProductId === null) {
+        updatePayload.productId = null;
+      }
+    } else if (data.productId === null && sessionRole === "admin") {
+      // Explicit admin clear without assignee change
+      updatePayload.productId = null;
     }
     if (data.notes !== undefined) updatePayload.notes = data.notes;
 

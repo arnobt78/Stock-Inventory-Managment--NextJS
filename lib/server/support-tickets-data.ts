@@ -2,6 +2,7 @@
  * Server-side data fetching for Support Tickets pages (admin + user-facing) SSR.
  * Only import from server code (e.g. app/admin/support-tickets/page.tsx, app/support-tickets/page.tsx).
  * REQ-0185 — creator/assignee images + product owner densify (image, productCount).
+ * REQ-0200 — owner-scoped products for Related product picker (any role).
  */
 
 import { getCache, setCache, cacheKeys } from "@/lib/cache";
@@ -12,13 +13,21 @@ import {
 import { prisma } from "@/prisma/client";
 import { mergeProductListWhere } from "@/lib/products/product-query";
 import {
+  loadProductListPartyMaps,
+  productListPartyFields,
+} from "@/lib/server/product-list-party";
+import {
   hasTicketListV2Shape,
   transformSupportTicketListRow,
   type TicketUserSnap,
 } from "@/lib/support-tickets/ticket-list-enrich";
-import type { ProductOwnerOption, SupportTicket } from "@/types";
+import type {
+  ProductOwnerOption,
+  SupportTicket,
+  SupportTicketOwnerProduct,
+} from "@/types";
 
-export type { ProductOwnerOption };
+export type { ProductOwnerOption, SupportTicketOwnerProduct };
 
 async function getUsersMap(
   userIds: string[],
@@ -127,4 +136,53 @@ export async function getProductOwnersForSupport(): Promise<
     image: u.image ?? null,
     productCount: countByUser.get(u.id) ?? 0,
   }));
+}
+
+/**
+ * REQ-0200 — Non-deleted products owned by `ownerId` for ticket Related product picker.
+ * Same ownership scope as POST create validation (`product.userId === assignedToId`).
+ * Not role-scoped — client/supplier/admin all see the selected Send-to catalog.
+ */
+export async function getOwnerProductsForSupport(
+  ownerId: string,
+): Promise<SupportTicketOwnerProduct[]> {
+  const trimmed = ownerId.trim();
+  if (!trimmed) return [];
+
+  const products = await prisma.product.findMany({
+    where: mergeProductListWhere({ userId: trimmed }),
+    orderBy: { name: "asc" },
+    select: {
+      id: true,
+      name: true,
+      sku: true,
+      price: true,
+      quantity: true,
+      userId: true,
+      imageUrl: true,
+      categoryId: true,
+      supplierId: true,
+    },
+  });
+
+  const partyMaps = await loadProductListPartyMaps(products);
+  // REQ-0201 — pass owner/supplier avatars for DialogProductOptionRow densify
+  return products.map((product) => {
+    const party = productListPartyFields(product, partyMaps);
+    return {
+      id: product.id,
+      name: product.name,
+      sku: product.sku,
+      price: Number(product.price),
+      quantity: Number(product.quantity),
+      userId: product.userId,
+      imageUrl: product.imageUrl ?? null,
+      category: party.category,
+      supplier: party.supplier,
+      supplierId: product.supplierId,
+      productOwnerName: party.productOwnerName,
+      productOwnerImage: party.productOwnerImage,
+      supplierImage: party.supplierImage,
+    };
+  });
 }

@@ -1,9 +1,171 @@
 # Validation Summary — Cycle C1
 
-**Generated:** 2026-07-21 session activate
+**Generated:** 2026-07-21 EOD
 **eval_gate_status:** PENDING (Human Gate 2)
-**Prod target SHA:** `45fd5d6` (REQ-0191–0193)
-**Resume:** **REQ-0186** next → 0187 → REQ-0136 (see STATE.md)
+**Stopped:** REQ-0202 done — tickets/dialogs/SSR flicker wave complete
+**Prod target SHA:** tip after push (0194–0202)
+**Resume tomorrow:** **REQ-0186** warehouse → 0187 → REQ-0136 (see STATE.md)
+
+---
+
+## REQ-0202 Detail no-flicker evidence
+
+| Check | Result |
+| ----- | ------ |
+| Role Select | SelectValue children = UserRoleBadge |
+| Order Select | status + carrier SelectValue labels |
+| SSR sync | equal updatedAt + richer densify → apply; fresher cache → skip |
+| Product densify | supplier image; reviewerEmail on by-product + SSR |
+| Invalidation | unchanged |
+| Gates | lint ✓ test **683** ✓ invalidate **217** ✓ build ✓ |
+
+```
+Scope: built/verified | Traceability: REQ-0202 | Findings: PASS
+Commands: lint, test, invalidate, build
+```
+
+---
+
+## REQ-0201 Related product densify evidence
+
+| Check | Result |
+| ----- | ------ |
+| Dialog densify | DialogProductOptionRow + optional price/qty |
+| Owner-products | party owner/supplier avatars mapped |
+| Create / edit RO | densify in SupportTicketDialog |
+| Detail | TicketRelatedProductDense; title Related Product |
+| SSR | loadTicketRelatedSnap densify fields |
+| Invalidation | unchanged |
+| Gates | lint ✓ test **678** ✓ invalidate **217** ✓ build ✓ |
+
+```
+Scope: built/verified | Traceability: REQ-0201 | Findings: PASS
+Commands: lint, test, invalidate, build
+```
+
+---
+
+## REQ-0200 Owner-scoped Related products evidence
+
+| Check | Result |
+| ----- | ------ |
+| API | `GET /api/support-tickets/owner-products?ownerId=` |
+| Helper | `getOwnerProductsForSupport` + mergeProductListWhere |
+| Dialog | `useSupportTicketOwnerProducts` (not role-scoped useProducts) |
+| Select | Send-to value always string (`""` / `"none"`) |
+| Invalidation | key under `supportTickets.all`; unchanged registry |
+| Gates | lint ✓ test **677** ✓ invalidate **217** ✓ build ✓ |
+
+```
+Scope: built/verified | Traceability: REQ-0200 | Findings: PASS
+Commands: lint, test, invalidate, build
+```
+
+---
+
+## REQ-0199 Dialog Combobox consistency evidence
+
+| Check | Result |
+| ----- | ------ |
+| Trigger token | `DIALOG_COMBOBOX_TRIGGER_CLASS` (ghost, no white hover) |
+| Invoice Order picker | modal Popover + closeAutoFocus preventDefault |
+| Ticket / allocate / transfer | same pattern |
+| Invalidation | unchanged |
+| Gates | lint ✓ test **675** ✓ invalidate **217** ✓ build ✓ |
+
+```
+Scope: built/verified | Traceability: REQ-0199 | Findings: PASS
+Commands: lint, test, invalidate, build
+```
+
+---
+
+## REQ-0198 Smooth dialog open evidence
+
+| Check | Result |
+| ----- | ------ |
+| Same-route enable | Select mounts immediately (derived; no placeholder flash) |
+| Pathname change | still one-frame defer |
+| Open sync | useSyncDialogOpenState on gated dialogs |
+| Placeholders | match triggers (review/ticket/product/…) |
+| Invalidation | unchanged |
+| Gates | lint ✓ test **675** ✓ invalidate **217** ✓ build ✓ |
+
+```
+Scope: built/verified | Traceability: REQ-0198 | Findings: PASS
+Commands: lint, test, invalidate, build
+```
+
+---
+
+## REQ-0197 Optional product + Reply-to + safe Reassign evidence
+
+| Check | Result |
+| ----- | ------ |
+| Create product picker | owner-scoped; reset on Send-to change |
+| Reassign | kept; server clears mismatched productId; confirm warns |
+| Reply-to | resolveTicketReplyTarget + ReplyThread props |
+| Invalidation | unchanged (patch + invalidateAllRelatedQueries) |
+| Unit tests | ticket-reply-target + ticket-reassign-product (13) |
+| Gates | lint ✓ test **672** ✓ invalidate **217** ✓ build ✓ |
+
+```
+Scope: built/verified | Traceability: REQ-0197 | Findings: PASS
+Commands: lint, test, invalidate, build
+```
+
+---
+
+## REQ-0196 Detail GlassCard single padding evidence
+
+| Check | Result |
+| ----- | ------ |
+| Ticket detail | no inner `p-2 sm:p-4` (body pad only) |
+| Review detail | same |
+| ReplyThread | `space-y-4` only (no card pad) |
+| Invalidation | unchanged |
+| Gates | lint ✓ test **659** ✓ invalidate **217** ✓ build ✓ |
+
+```
+Scope: built/verified | Traceability: REQ-0196 | Findings: PASS
+Commands: lint, test, invalidate, build
+```
+
+---
+
+## REQ-0195 Non-admin ticket list/detail/edit parity evidence
+
+| Check | Result |
+| ----- | ------ |
+| List Customer/Sent to | `resolveDetailAuditUserHref` → sky text-xs |
+| Detail cards | Status/Priority/Messages, info, Description, Related (no Notes) |
+| Edit Status | RO badge non-admin; Select admin; omit PUT status |
+| API | `resolveStatusUpdate` admin-only |
+| Invalidation | unchanged |
+| Gates | lint ✓ test **659** ✓ invalidate **217** ✓ build ✓ |
+
+```
+Scope: built/verified | Traceability: REQ-0195 | Findings: PASS
+Commands: lint, test, invalidate, build
+```
+
+---
+
+## REQ-0194 Ticket chat bubble dynamic width + glow evidence
+
+| Check | Result |
+| ----- | ------ |
+| Width | `w-fit max-w-[90%]` + `break-words` |
+| Left glow | slate → white/clear (to-r) |
+| Right glow | violet → white/clear (to-l) |
+| Tokens | `ticket-chat-bubble-styles.ts` |
+| Invalidation | unchanged |
+| Gates | lint ✓ test **656** ✓ invalidate **217** ✓ build ✓ |
+
+```
+Scope: built/verified | Traceability: REQ-0194 | Findings: PASS
+Commands: lint, test, invalidate, build
+```
 
 ---
 

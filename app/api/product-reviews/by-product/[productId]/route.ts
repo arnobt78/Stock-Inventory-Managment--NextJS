@@ -1,6 +1,7 @@
 /**
  * GET /api/product-reviews/by-product/:productId
  * List reviews for a product (approved by default; optional status=all for pending too).
+ * REQ-0202 — reviewerEmail densify (parity with SSR getReviewsForProductPage).
  */
 
 import { NextRequest, NextResponse } from "next/server";
@@ -12,7 +13,11 @@ import type { ProductReview } from "@/types";
 
 function transform(
   r: Awaited<ReturnType<typeof getReviewsByProductId>>[number],
-  reviewer?: { name: string | null; image: string | null } | null,
+  reviewer?: {
+    name: string | null;
+    email: string;
+    image: string | null;
+  } | null,
 ): ProductReview {
   return {
     id: r.id,
@@ -28,6 +33,7 @@ function transform(
     createdAt: r.createdAt.toISOString(),
     updatedAt: r.updatedAt?.toISOString() ?? null,
     reviewerName: reviewer?.name ?? undefined,
+    reviewerEmail: reviewer?.email ?? undefined,
     reviewerImage: reviewer?.image ?? undefined,
   };
 }
@@ -57,7 +63,7 @@ export async function GET(
       userIds.length > 0
         ? await prisma.user.findMany({
             where: { id: { in: userIds } },
-            select: { id: true, name: true, image: true },
+            select: { id: true, name: true, email: true, image: true },
           })
         : [];
     const userMap = new Map(users.map((u) => [u.id, u]));

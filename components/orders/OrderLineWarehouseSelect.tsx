@@ -136,7 +136,20 @@ export function OrderLineWarehouseSelect({
       <DialogFormLabel icon={Warehouse} optional>
         Warehouse
       </DialogFormLabel>
-      <DeferredSelectGate enabled={dialogOpen}>
+      <DeferredSelectGate
+        enabled={dialogOpen}
+        placeholder={
+          <div
+            className={cn(
+              DIALOG_FORM_FIELD_VIOLET,
+              "flex h-11 w-full items-center rounded-md px-3 text-sm text-white/80",
+            )}
+            aria-hidden
+          >
+            {triggerLabel}
+          </div>
+        }
+      >
         {({ selectRemountKey }) => (
           <Select
             key={selectRemountKey}

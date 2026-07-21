@@ -94,6 +94,8 @@ export async function updateSupportTicket(
   if (data.priority != null) updateData.priority = data.priority;
   if (data.assignedToId !== undefined)
     updateData.assignedToId = data.assignedToId;
+  // REQ-0197 — clear (or keep) Related product when reassigning
+  if (data.productId !== undefined) updateData.productId = data.productId;
   if (data.notes !== undefined) updateData.notes = data.notes;
 
   return prisma.supportTicket.update({

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -29,6 +29,7 @@ import {
   useSuppliers,
   useStockByProduct,
 } from "@/hooks/queries";
+import { useSyncDialogOpenState } from "@/hooks/use-sync-dialog-open-state";
 import { planCatalogQuantityReconcile } from "@/lib/stock-allocation/catalog-quantity-reconcile";
 import { formatCatalogAllocationSummary } from "@/lib/stock-allocation/catalog-allocation-copy";
 import { useCatalogQuantityReconcilePreview } from "@/hooks/use-catalog-quantity-reconcile-preview";
@@ -140,40 +141,44 @@ export default function AddProductDialog({
     { enabled: openProductDialog && !!selectedProduct },
   );
 
-  useEffect(() => {
-    if (selectedProduct) {
-      reset({
-        productName: selectedProduct.name,
-        sku: selectedProduct.sku,
-        quantity: selectedProduct.quantity,
-        price: selectedProduct.price,
-        imageUrl: selectedProduct.imageUrl || "",
-        imageFileId: selectedProduct.imageFileId || "",
-        expirationDate: selectedProduct.expirationDate
-          ? new Date(selectedProduct.expirationDate).toISOString().split("T")[0]
-          : "",
-      });
-      setSelectedCategory(selectedProduct.categoryId || "");
-      setSelectedSupplier(selectedProduct.supplierId || "");
-    } else {
-      // Reset form to default values for adding a new product
-      reset({
-        productName: "",
-        sku: "",
-        quantity: "" as unknown as number,
-        price: "" as unknown as number,
-        imageUrl: "",
-        imageFileId: "",
-        expirationDate: "",
-      });
-      setSelectedCategory("");
-      setSelectedSupplier("");
-    }
-    // Clear inline validation errors on every dialog open/close or product change
-    setCategoryError("");
-    setSupplierError("");
-    setQuantityReconcileError("");
-  }, [selectedProduct, openProductDialog, reset]);
+  useSyncDialogOpenState(
+    openProductDialog,
+    () => {
+      if (selectedProduct) {
+        reset({
+          productName: selectedProduct.name,
+          sku: selectedProduct.sku,
+          quantity: selectedProduct.quantity,
+          price: selectedProduct.price,
+          imageUrl: selectedProduct.imageUrl || "",
+          imageFileId: selectedProduct.imageFileId || "",
+          expirationDate: selectedProduct.expirationDate
+            ? new Date(selectedProduct.expirationDate)
+                .toISOString()
+                .split("T")[0]
+            : "",
+        });
+        setSelectedCategory(selectedProduct.categoryId || "");
+        setSelectedSupplier(selectedProduct.supplierId || "");
+      } else {
+        reset({
+          productName: "",
+          sku: "",
+          quantity: "" as unknown as number,
+          price: "" as unknown as number,
+          imageUrl: "",
+          imageFileId: "",
+          expirationDate: "",
+        });
+        setSelectedCategory("");
+        setSelectedSupplier("");
+      }
+      setCategoryError("");
+      setSupplierError("");
+      setQuantityReconcileError("");
+    },
+    selectedProduct?.id ?? "create",
+  );
 
   const submitProductUpdate = async (payload: UpdateProductInput) => {
     await updateProductMutation.mutateAsync(payload);
@@ -401,7 +406,10 @@ export default function AddProductDialog({
                   enabled={openProductDialog}
                   placeholder={
                     <div
-                      className="flex h-11 w-full items-center rounded-md border border-rose-400/30 bg-white/10 px-2 text-sm text-white/60"
+                      className={cn(
+                        "flex h-11 w-full items-center rounded-md px-2 text-sm text-white/60",
+                        DIALOG_FORM_FIELD_ROSE,
+                      )}
                       aria-hidden
                     >
                       {activeCategories.find((c) => c.id === selectedCategory)
@@ -452,11 +460,30 @@ export default function AddProductDialog({
                   enabled={openProductDialog}
                   placeholder={
                     <div
-                      className="flex h-11 w-full items-center rounded-md border border-rose-400/30 bg-white/10 px-2 text-sm text-white/60"
+                      className={cn(
+                        "flex h-11 w-full items-center rounded-md px-2 text-sm text-white/60",
+                        DIALOG_FORM_FIELD_ROSE,
+                      )}
                       aria-hidden
                     >
-                      {activeSuppliers.find((s) => s.id === selectedSupplier)
-                        ?.name ?? "Select Supplier"}
+                      {selectedSupplier ? (
+                        <AvatarInlineLink
+                          label={
+                            activeSuppliers.find(
+                              (s) => s.id === selectedSupplier,
+                            )?.name ?? "Select Supplier"
+                          }
+                          seed={
+                            activeSuppliers.find(
+                              (s) => s.id === selectedSupplier,
+                            )?.userId ?? selectedSupplier
+                          }
+                          size={22}
+                          linkClassName="text-sm font-normal text-white/90"
+                        />
+                      ) : (
+                        "Select Supplier"
+                      )}
                     </div>
                   }
                 >

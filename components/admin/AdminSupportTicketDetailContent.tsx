@@ -3,6 +3,8 @@
 /**
  * REQ-0191 — Support ticket detail (review parity): read-only Status/Priority/Messages,
  * densified Ticket info + Sent to, chat replies, notes header edit, footer Edit/Reassign/Delete.
+ * REQ-0196 — single GlassCard body pad (no inner p-2 sm:p-4).
+ * REQ-0201 — Related Product densify (TicketRelatedProductDense).
  */
 
 import React, { useCallback, useMemo, useState } from "react";
@@ -67,6 +69,7 @@ import {
   CopyableText,
   TABLE_CATALOG_LINK_CLASS,
 } from "@/components/shared";
+import { TicketRelatedProductDense } from "@/components/support-tickets/TicketRelatedProductDense";
 import { DETAIL_DATA_VALUE_CLASS } from "@/lib/ui/typography-scale";
 import {
   isDataSlotLoading,
@@ -267,8 +270,7 @@ export default function AdminSupportTicketDetailContent({
         {/* Status | Priority | Messages */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-2 sm:gap-4 items-stretch">
           <GlassCard variant="amber">
-            <div className="p-2 sm:p-4">
-              <SectionCardHeader
+<SectionCardHeader
                 title="Status"
                 description="Ticket workflow state — edit via Edit Ticket"
                 icon={CircleDot}
@@ -283,12 +285,10 @@ export default function AdminSupportTicketDetailContent({
               ) : (
                 <TicketStatusBadge status={t!.status} size="detail" />
               )}
-            </div>
           </GlassCard>
 
           <GlassCard variant="rose">
-            <div className="p-2 sm:p-4">
-              <SectionCardHeader
+<SectionCardHeader
                 title="Priority"
                 description="Urgency — edit via Edit Ticket"
                 icon={Flag}
@@ -307,12 +307,10 @@ export default function AdminSupportTicketDetailContent({
                   contrast="opaque"
                 />
               )}
-            </div>
           </GlassCard>
 
           <GlassCard variant="violet">
-            <div className="p-2 sm:p-4">
-              <SectionCardHeader
+<SectionCardHeader
                 title="Messages"
                 description="Opening description + thread replies"
                 icon={MessagesSquare}
@@ -342,15 +340,13 @@ export default function AdminSupportTicketDetailContent({
                   </span>
                 </div>
               )}
-            </div>
           </GlassCard>
         </div>
 
         {/* Ticket information | Description */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-2 sm:gap-4 items-stretch">
           <GlassCard variant="violet">
-            <div className="p-2 sm:p-4">
-              <SectionCardHeader
+<SectionCardHeader
                 title="Ticket information"
                 description="Creator, Send-to, dates, and ticket number"
                 icon={Hash}
@@ -457,12 +453,10 @@ export default function AdminSupportTicketDetailContent({
                   </div>
                 </div>
               )}
-            </div>
           </GlassCard>
 
           <GlassCard variant="amber">
-            <div className="p-2 sm:p-4">
-              <SectionCardHeader
+<SectionCardHeader
                 title="Description"
                 description="Message submitted with the ticket"
                 icon={MessageSquare}
@@ -481,46 +475,39 @@ export default function AdminSupportTicketDetailContent({
                   {t.description}
                 </div>
               )}
-            </div>
           </GlassCard>
         </div>
 
-        {/* Related context */}
+        {/* REQ-0201 — Related Product densify + optional order/supplier rows */}
         {!dataLoading && t && hasRelated ? (
           <GlassCard variant="sky">
-            <div className="p-2 sm:p-4">
-              <SectionCardHeader
-                title="Related"
-                description="Linked product, order, or supplier for quick overview"
-                icon={Boxes}
-                tone="sky"
-                className="mb-4"
-              />
-              <div className="space-y-2">
+            <SectionCardHeader
+              title="Related Product"
+              description="Linked product, order, or supplier for quick overview"
+              icon={Package}
+              tone="sky"
+              className="mb-4"
+            />
+            <div className="space-y-3">
                 {t.productId ? (
-                  <DetailInfoRow
-                    icon={Package}
-                    label="Product:"
-                    tone="sky"
-                    valueClassName="min-w-0"
-                  >
-                    <div className="flex flex-col gap-0.5 min-w-0">
-                      <Link
-                        href={`/admin/products/${t.productId}`}
-                        className={TABLE_CATALOG_LINK_CLASS}
-                      >
-                        {t.relatedProductName ?? t.productId.slice(-8)}
-                      </Link>
-                      {t.relatedProductSku ? (
-                        <CopyableText
-                          value={t.relatedProductSku}
-                          className="text-xs text-muted-foreground dark:text-muted-foreground"
-                        >
-                          {t.relatedProductSku}
-                        </CopyableText>
-                      ) : null}
-                    </div>
-                  </DetailInfoRow>
+                  <TicketRelatedProductDense
+                    productId={t.productId}
+                    productHref={`/admin/products/${t.productId}`}
+                    name={
+                      t.relatedProductName?.trim() || t.productId.slice(-8)
+                    }
+                    sku={t.relatedProductSku}
+                    imageUrl={t.relatedProductImageUrl}
+                    price={t.relatedProductPrice}
+                    quantity={t.relatedProductQuantity}
+                    categoryName={t.relatedProductCategoryName}
+                    ownerId={t.relatedProductOwnerId}
+                    ownerName={t.relatedProductOwnerName}
+                    ownerImage={t.relatedProductOwnerImage}
+                    supplierId={t.relatedProductSupplierId}
+                    supplierName={t.relatedProductSupplierName}
+                    supplierImage={t.relatedProductSupplierImage}
+                  />
                 ) : null}
                 {t.orderId ? (
                   <DetailInfoRow
@@ -567,7 +554,6 @@ export default function AdminSupportTicketDetailContent({
                   </DetailInfoRow>
                 ) : null}
               </div>
-            </div>
           </GlassCard>
         ) : null}
 
@@ -578,6 +564,8 @@ export default function AdminSupportTicketDetailContent({
             replies={replies}
             repliesLoading={repliesLoading}
             variant="violet"
+            sessionUserId={user?.id}
+            isAdminRole={user?.role === "admin"}
             creatorHref={`/admin/user-management/${t.userId}`}
             authorHrefForUserId={(userId) =>
               resolveDetailAuditUserHref(userId, true)
@@ -589,7 +577,7 @@ export default function AdminSupportTicketDetailContent({
 
         {/* Internal Notes — admin header edit/delete */}
         <GlassCard variant="teal">
-          <div className="p-2 sm:p-4 space-y-3">
+          <div className="space-y-3">
             <div className="flex items-start justify-between gap-2">
               <SectionCardHeader
                 title="Internal Notes"

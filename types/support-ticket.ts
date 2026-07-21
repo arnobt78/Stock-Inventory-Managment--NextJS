@@ -43,6 +43,17 @@ export interface SupportTicket {
   /** REQ-0191 — related catalog/order densify on detail */
   relatedProductName?: string | null;
   relatedProductSku?: string | null;
+  /** REQ-0201 — Related product densify (detail / edit RO) */
+  relatedProductImageUrl?: string | null;
+  relatedProductPrice?: number | null;
+  relatedProductQuantity?: number | null;
+  relatedProductCategoryName?: string | null;
+  relatedProductOwnerId?: string | null;
+  relatedProductOwnerName?: string | null;
+  relatedProductOwnerImage?: string | null;
+  relatedProductSupplierId?: string | null;
+  relatedProductSupplierName?: string | null;
+  relatedProductSupplierImage?: string | null;
   relatedOrderNumber?: string | null;
   relatedOrderStatus?: string | null;
   relatedOrderPaymentStatus?: string | null;
@@ -85,6 +96,8 @@ export interface UpdateSupportTicketInput {
   status?: SupportTicketStatus;
   priority?: SupportTicketPriority;
   assignedToId?: string | null;
+  /** REQ-0197 — clear Related product on reassign mismatch (null only) */
+  productId?: string | null;
   notes?: string | null;
 }
 
@@ -103,4 +116,24 @@ export type ProductOwnerOption = {
   email: string;
   image?: string | null;
   productCount?: number;
+};
+
+/**
+ * REQ-0200 / REQ-0201 — Related product picker row for selected Send-to owner.
+ * Owner-scoped; includes party densify for DialogProductOptionRow.
+ */
+export type SupportTicketOwnerProduct = {
+  id: string;
+  name: string;
+  sku: string;
+  price: number;
+  quantity: number;
+  userId: string;
+  imageUrl?: string | null;
+  category?: string | null;
+  supplier?: string | null;
+  supplierId?: string | null;
+  productOwnerName?: string | null;
+  productOwnerImage?: string | null;
+  supplierImage?: string | null;
 };

@@ -30,6 +30,7 @@ import {
   useOrders,
   useClientOrders,
 } from "@/hooks/queries";
+import { useSyncDialogOpenState } from "@/hooks/use-sync-dialog-open-state";
 import {
   createInvoiceSchema,
   updateInvoiceSchema,
@@ -230,61 +231,65 @@ export default function InvoiceDialog({
     setValue: editSetValue,
   } = editFormMethods;
 
-  // Reset edit form when invoice changes or dialog opens
-  useEffect(() => {
-    if (open && editingInvoice) {
-      const taxVal = editingInvoice.tax ?? 0;
-      const shippingVal = editingInvoice.shipping ?? 0;
-      const discountVal = editingInvoice.discount ?? 0;
-      const subtotalVal = editingInvoice.subtotal ?? 0;
-      const totalVal = Math.max(
-        0,
-        subtotalVal + taxVal + shippingVal - discountVal,
-      );
-      editReset({
-        id: editingInvoice.id,
-        status: editingInvoice.status,
-        amountPaid: editingInvoice.amountPaid,
-        tax: taxVal,
-        shipping: shippingVal,
-        discount: discountVal,
-        total: totalVal,
-        amountDue: Math.max(0, totalVal - (editingInvoice.amountPaid ?? 0)),
-        dueDate: editingInvoice.dueDate
-          ? new Date(editingInvoice.dueDate).toISOString().split("T")[0]
-          : "",
-        sentAt: editingInvoice.sentAt
-          ? new Date(editingInvoice.sentAt).toISOString().split("T")[0]
-          : "",
-        paidAt: editingInvoice.paidAt
-          ? new Date(editingInvoice.paidAt).toISOString().split("T")[0]
-          : "",
-        cancelledAt: editingInvoice.cancelledAt
-          ? new Date(editingInvoice.cancelledAt).toISOString().split("T")[0]
-          : "",
-        paymentLink: editingInvoice.paymentLink || "",
-        notes: editingInvoice.notes || "",
-      });
-    } else if (open && !editingInvoice && externalEditingInvoice === null) {
-      // Clear edit form when explicitly set to null
-      editReset({
-        id: "",
-        status: "draft",
-        amountPaid: 0,
-        tax: undefined,
-        shipping: undefined,
-        discount: undefined,
-        total: 0,
-        amountDue: 0,
-        dueDate: "",
-        sentAt: "",
-        paidAt: "",
-        cancelledAt: "",
-        paymentLink: "",
-        notes: "",
-      });
-    }
-  }, [open, editingInvoice, externalEditingInvoice, editReset]);
+  // REQ-0198 — sync edit form on open / invoice change (no useEffect bounce)
+  useSyncDialogOpenState(
+    open,
+    () => {
+      if (editingInvoice) {
+        const taxVal = editingInvoice.tax ?? 0;
+        const shippingVal = editingInvoice.shipping ?? 0;
+        const discountVal = editingInvoice.discount ?? 0;
+        const subtotalVal = editingInvoice.subtotal ?? 0;
+        const totalVal = Math.max(
+          0,
+          subtotalVal + taxVal + shippingVal - discountVal,
+        );
+        editReset({
+          id: editingInvoice.id,
+          status: editingInvoice.status,
+          amountPaid: editingInvoice.amountPaid,
+          tax: taxVal,
+          shipping: shippingVal,
+          discount: discountVal,
+          total: totalVal,
+          amountDue: Math.max(0, totalVal - (editingInvoice.amountPaid ?? 0)),
+          dueDate: editingInvoice.dueDate
+            ? new Date(editingInvoice.dueDate).toISOString().split("T")[0]
+            : "",
+          sentAt: editingInvoice.sentAt
+            ? new Date(editingInvoice.sentAt).toISOString().split("T")[0]
+            : "",
+          paidAt: editingInvoice.paidAt
+            ? new Date(editingInvoice.paidAt).toISOString().split("T")[0]
+            : "",
+          cancelledAt: editingInvoice.cancelledAt
+            ? new Date(editingInvoice.cancelledAt).toISOString().split("T")[0]
+            : "",
+          paymentLink: editingInvoice.paymentLink || "",
+          notes: editingInvoice.notes || "",
+        });
+      } else if (externalEditingInvoice === null) {
+        editReset({
+          id: "",
+          status: "draft",
+          amountPaid: 0,
+          tax: undefined,
+          shipping: undefined,
+          discount: undefined,
+          total: 0,
+          amountDue: 0,
+          dueDate: "",
+          sentAt: "",
+          paidAt: "",
+          cancelledAt: "",
+          paymentLink: "",
+          notes: "",
+        });
+      }
+    },
+    editingInvoice?.id ??
+      (externalEditingInvoice === null ? "clear" : "idle"),
+  );
 
   // Derive total = subtotal + tax + shipping - discount when tax, shipping, or discount change (dynamic calculation)
   const watchedTax = editWatch("tax");
@@ -548,10 +553,20 @@ export default function InvoiceDialog({
                     enabled={open}
                     placeholder={
                       <div
-                        className="flex h-11 w-full items-center rounded-md border border-indigo-400/30 bg-white/10 px-2 text-sm text-white/60 capitalize"
+                        className={cn(
+                          "flex h-11 w-full items-center rounded-md px-2",
+                          DIALOG_FORM_FIELD_INDIGO,
+                        )}
                         aria-hidden
                       >
-                        {editWatch("status") || editingInvoice.status}
+                        <InvoiceStatusBadge
+                          status={
+                            (editWatch("status") ||
+                              editingInvoice.status) as InvoiceStatus
+                          }
+                          size="detail"
+                          contrast="solid"
+                        />
                       </div>
                     }
                   >

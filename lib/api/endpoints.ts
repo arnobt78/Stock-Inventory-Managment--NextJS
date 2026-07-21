@@ -77,6 +77,8 @@ export const API_ENDPOINTS = {
   // Support Tickets endpoints
   supportTickets: {
     base: "/support-tickets",
+    /** REQ-0200 — Related product picker by Send-to owner */
+    ownerProducts: "/support-tickets/owner-products",
   },
 
   // Product Reviews endpoints

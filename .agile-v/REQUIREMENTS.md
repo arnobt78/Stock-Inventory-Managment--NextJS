@@ -4,6 +4,212 @@ Canonical REQ source. All artifacts link via `REQ-XXXX`. Status: `done` | `verif
 
 ---
 
+## REQ-0202 — Detail no-flicker (Select labels + densify SSR sync)
+
+| Field | Value |
+|-------|-------|
+| **Priority** | P1 |
+| **Risk** | R1 |
+| **Status** | done |
+| **Cycle** | C2 |
+| **Parent** | REQ-0020 / REQ-0133 / REQ-0198 |
+
+**Intent:** Stop Role/status Select blank flash on detail; prefer richer densify when SSR sync timestamps match; fill product supplier image + product-page reviewerEmail.
+
+**Acceptance criteria**
+
+- AC1: User role + order status/carrier `SelectValue` children from SSR (no empty mount)
+- AC2: `resolveSsrSyncAction` applies when equal `updatedAt` but SSR densify richer; fresher cache still wins
+- AC3: Product supplier user `image`; product reviews by-product + SSR include `reviewerEmail`
+- AC4: Invalidation unchanged; gates pass
+
+**Artifacts:** AdminUserManagementDetailContent, AdminOrderDetailContent, ssr-sync-policy, product-detail-data, product-reviews-detail-data, by-product route
+
+---
+
+## REQ-0201 — Related product densify (create / edit / detail)
+
+| Field | Value |
+|-------|-------|
+| **Priority** | P1 |
+| **Risk** | R0 |
+| **Status** | done |
+| **Cycle** | C2 |
+| **Parent** | REQ-0197 / REQ-0200 / REQ-0179 |
+
+**Intent:** Related product matches Add Product Review densify (thumb · name · SKU · price · stock · category · owner · supplier) on create picker, edit RO, and detail Related Product card.
+
+**Acceptance criteria**
+
+- AC1: `DialogProductOptionRow` optional price/quantity; owner-products API passes party densify
+- AC2: Create + edit RO use densify; detail SSR `loadTicketRelatedSnap` densify fields
+- AC3: `TicketRelatedProductDense` (Link + CopyableText); card title Related Product; no Product: label
+- AC4: Invalidation unchanged; gates pass
+
+**Artifacts:** ProductOptionRow, SupportTicketDialog, ticket-related-enrich, TicketRelatedProductDense, admin/user detail
+
+---
+
+## REQ-0200 — Owner-scoped Related products + Send-to Select control
+
+| Field | Value |
+|-------|-------|
+| **Priority** | P1 |
+| **Risk** | R1 |
+| **Status** | done |
+| **Cycle** | C2 |
+| **Parent** | REQ-0197 |
+
+**Intent:** Related product picker lists the selected Send-to owner's full catalog for every role (not viewer-scoped `GET /api/products`). Send-to Select stays controlled for client/supplier.
+
+**Acceptance criteria**
+
+- AC1: `GET /api/support-tickets/owner-products?ownerId=` + `getOwnerProductsForSupport` (mergeProductListWhere by owner userId)
+- AC2: Create dialog uses `useSupportTicketOwnerProducts(assignedToId)`; admin/client/supplier see same owner catalog
+- AC3: Send-to Select `value` never `undefined` (`""` / `"none"`)
+- AC4: Query key under `supportTickets.all`; invalidation via existing `invalidateAllRelatedQueries`; unit test; gates pass
+
+**Artifacts:** support-tickets-data, owner-products route, use-support-tickets, SupportTicketDialog, endpoints/client/config
+
+---
+
+## REQ-0199 — Dialog Combobox hover consistency + outside-click reopen fix
+
+| Field | Value |
+|-------|-------|
+| **Priority** | P1 |
+| **Risk** | R0 |
+| **Status** | done |
+| **Cycle** | C2 |
+| **Parent** | REQ-0060 / REQ-0197 / REQ-0198 |
+
+**Intent:** Dialog Combobox triggers match dark glass Selects (no white outline hover); Popover-in-Dialog outside click closes once without reopen.
+
+**Acceptance criteria**
+
+- AC1: `DIALOG_COMBOBOX_TRIGGER_CLASS` + ghost Button on invoice Order picker, ticket Related product, allocate/transfer
+- AC2: `Popover modal` + `onCloseAutoFocus` preventDefault on those pickers
+- AC3: Invalidation unchanged; gates pass
+
+**Artifacts:** dialog-form-field, OrderPickerCommand, SupportTicketDialog, AllocateStockDialog, TransferStockDialog
+
+---
+
+## REQ-0198 — Smooth dialog open (no bounce/flicker)
+
+| Field | Value |
+|-------|-------|
+| **Priority** | P1 |
+| **Risk** | R1 |
+| **Status** | done |
+| **Cycle** | C2 |
+| **Parent** | REQ-0005 / REQ-0006 / REQ-0193 |
+
+**Intent:** Dialogs with DeferredSelectGate open without placeholder→Select bounce; form sync during render; route-nav Select safety preserved.
+
+**Acceptance criteria**
+
+- AC1: `useDeferredRadixSelect` mounts Select immediately on same-route enable; one-frame defer only after pathname change
+- AC2: `useSyncDialogOpenState` replaces queueMicrotask/open useEffect resets in gated dialogs
+- AC3: Placeholders match SelectTrigger height/content (review, ticket, product, warehouse, order, invoice, shipping, create-user)
+- AC4: Invalidation unchanged; gates pass
+
+**Artifacts:** use-deferred-radix-select, DeferredSelectGate, use-sync-dialog-open-state, dialog sweep
+
+---
+
+## REQ-0197 — Optional product link + role-aware Reply-to + safe Reassign
+
+| Field | Value |
+|-------|-------|
+| **Priority** | P1 |
+| **Risk** | R1 |
+| **Status** | done |
+| **Cycle** | C2 |
+| **Parent** | REQ-0190 / REQ-0191 / REQ-0195 |
+
+**Intent:** Optional owner-scoped Related product on create; keep admin Reassign and clear mismatched `productId` server-side; role-aware chat “Reply to” for creator vs assignee/admin.
+
+**Acceptance criteria**
+
+- AC1: Create dialog optional Related product Command after Send-to; options = products owned by selected assignee; reset on owner change; “— None —”; create payload includes `productId` when set
+- AC2: Reassign kept; on assignee change server clears `productId` when product owner ≠ next assignee; confirm copy warns; update schema allows `productId: null`
+- AC3: `resolveTicketReplyTarget` — creator→assignee/Support; assignee/admin→creator; wired in ReplyThread title + placeholder
+- AC4: Invalidation unchanged (`useUpdateSupportTicket` patch + invalidate); unit tests; gates pass
+
+**Artifacts:** SupportTicketDialog, TicketReassignDialog, SupportTicketReplyThread, ticket-reply-target, ticket-reassign-product, PUT/POST support-tickets, updateSupportTicketSchema
+
+---
+
+## REQ-0196 — Detail GlassCard single padding (ticket + review)
+
+| Field | Value |
+|-------|-------|
+| **Priority** | P3 |
+| **Risk** | R0 |
+| **Status** | done |
+| **Cycle** | C2 |
+| **Parent** | REQ-0191 / REQ-0183 |
+
+**Intent:** Remove double `p-2 sm:p-4` on ticket/review detail cards; order-detail GlassCard body pad is the single source.
+
+**Acceptance criteria**
+
+- AC1: Admin + client ticket detail GlassCards — no inner card pad
+- AC2: ReplyThread + AdminProductReviewDetail — same
+- AC3: Keep layout `space-y-*` / flex; leave content-panel `p-4` alone
+- AC4: Invalidation unchanged; gates pass
+
+**Artifacts:** AdminSupportTicketDetailContent, SupportTicketDetailContent, SupportTicketReplyThread, AdminProductReviewDetailContent
+
+---
+
+## REQ-0195 — Non-admin support ticket list/detail/edit parity
+
+| Field | Value |
+|-------|-------|
+| **Priority** | P1 |
+| **Risk** | R1 |
+| **Status** | done |
+| **Cycle** | C2 |
+| **Parent** | REQ-0190–0193 |
+
+**Intent:** Client/supplier ticket list Customer sky text-xs links; detail card parity with admin (minus Notes/Reassign); Edit Status read-only for non-admin with API harden.
+
+**Acceptance criteria**
+
+- AC1: Non-admin list Customer/Sent to use `resolveDetailAuditUserHref` → sky text-xs
+- AC2: Non-admin detail: Status/Priority/Messages, Ticket info, Description, Related, chat, footer
+- AC3: Edit dialog Status RO badge for non-admin; admin Select; omit status from PUT
+- AC4: `resolveStatusUpdate` — admin only; unit tests; invalidation unchanged; gates pass
+
+**Artifacts:** SupportTicketTableColumns, SupportTicketDetailContent, SupportTicketDialog, ticket-assignee-policy, PUT `[id]`
+
+---
+
+## REQ-0194 — Ticket chat bubble dynamic width + glow
+
+| Field | Value |
+|-------|-------|
+| **Priority** | P3 |
+| **Risk** | R0 |
+| **Status** | done |
+| **Cycle** | C2 |
+| **Parent** | REQ-0193 |
+
+**Intent:** Chat bubbles hug content (max 90%) with opposing left/right glass glow gradients instead of flat full-width fills.
+
+**Acceptance criteria**
+
+- AC1: Bubbles `w-fit max-w-[90%]`; short replies shrink; long wrap with `break-words`
+- AC2: Left (creator) glow on left → white/clear on right
+- AC3: Right (staff) glow on right → white/clear on left
+- AC4: Tokens in `ticket-chat-bubble-styles.ts`; invalidation unchanged; gates pass
+
+**Artifacts:** `lib/ui/ticket-chat-bubble-styles.ts`, `SupportTicketReplyThread`
+
+---
+
 ## REQ-0193 — Support ticket detail/dialog gap closure
 
 | Field | Value |

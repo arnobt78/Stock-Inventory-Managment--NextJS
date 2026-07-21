@@ -3,6 +3,7 @@
 /**
  * REQ-0180 / REQ-0181 / REQ-0183 — admin product review detail (display-only).
  * Status+Rating | Comment; densified Purchase; opaque status badge; text-sm values.
+ * REQ-0196 — single GlassCard body pad (no inner p-2 sm:p-4).
  */
 
 import React, { useCallback, useState } from "react";
@@ -218,7 +219,7 @@ export default function AdminProductReviewDetailContent({
         {/* REQ-0183 — Status + Rating | Comment */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-2 sm:gap-4 items-stretch">
           <GlassCard variant="amber">
-            <div className="p-2 sm:p-4 space-y-4">
+            <div className="space-y-4">
               <SectionCardHeader
                 title="Status & Rating"
                 description="Moderation state and stars — edit via Edit Review"
@@ -272,7 +273,7 @@ export default function AdminProductReviewDetailContent({
           </GlassCard>
 
           <GlassCard variant="amber">
-            <div className="p-2 sm:p-4 h-full flex flex-col">
+            <div className="h-full flex flex-col">
               <SectionCardHeader
                 title="Comment"
                 description="Submitted review text"
@@ -301,8 +302,7 @@ export default function AdminProductReviewDetailContent({
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-2 sm:gap-4 items-stretch">
           <GlassCard variant="sky">
-            <div className="p-2 sm:p-4">
-              <SectionCardHeader
+<SectionCardHeader
                 title="Product"
                 description="Live catalog link"
                 icon={Package}
@@ -413,12 +413,10 @@ export default function AdminProductReviewDetailContent({
                   </div>
                 </div>
               )}
-            </div>
           </GlassCard>
 
           <GlassCard variant="violet">
-            <div className="p-2 sm:p-4">
-              <SectionCardHeader
+<SectionCardHeader
                 title="Reviewer"
                 description="Account that submitted this review"
                 icon={User}
@@ -474,14 +472,12 @@ export default function AdminProductReviewDetailContent({
                   </DetailInfoRow>
                 </div>
               )}
-            </div>
           </GlassCard>
         </div>
 
         {!dataLoading && r?.orderId ? (
           <GlassCard variant="sky">
-            <div className="p-2 sm:p-4">
-              <SectionCardHeader
+<SectionCardHeader
                 title="Purchase"
                 description="Related order and invoice for this review"
                 icon={FileText}
@@ -593,7 +589,6 @@ export default function AdminProductReviewDetailContent({
                   </DetailInfoRow>
                 ) : null}
               </div>
-            </div>
           </GlassCard>
         ) : null}
 

@@ -3,6 +3,7 @@
 /**
  * REQ-0190 / REQ-0191 — Admin Reassign Send-to (separate from Edit dialog).
  * Select owner → confirm AlertDialog → useUpdateSupportTicket({ assignedToId }).
+ * REQ-0197 — confirm warns when Related product will clear; client may send productId: null.
  */
 
 import { useState } from "react";
@@ -34,6 +35,7 @@ import {
   GLASS_GHOST_BUTTON,
 } from "@/components/shared";
 import { useUpdateSupportTicket } from "@/hooks/queries";
+import { willClearProductOnReassign } from "@/lib/support-tickets/ticket-reassign-product";
 import { logger } from "@/lib/logger";
 import { cn } from "@/lib/utils";
 import { UserRoundPen, X } from "lucide-react";
@@ -85,11 +87,37 @@ export default function TicketReassignDialog({
     ? selectedOwner.name?.trim() || selectedOwner.email || "selected owner"
     : "no specific owner";
 
+  // REQ-0197 — Related product clears when new owner ≠ product owner (assignee)
+  // Product owner is the Send-to; mismatch when next assignee ≠ current ticket.assignedToId
+  // while product linked — or when clearing assignee. Server re-checks product.userId.
+  const productSnap = {
+    productId: ticket.productId,
+    // Best client estimate: current assignee owns Related product when linked
+    productOwnerUserId: ticket.productId
+      ? (ticket.assignedToId ?? null)
+      : null,
+  };
+  const clearsProduct = willClearProductOnReassign(productSnap, reassignToId);
+  const productLabel =
+    ticket.relatedProductName?.trim() ||
+    ticket.relatedProductSku ||
+    (ticket.productId ? ticket.productId.slice(-8) : "linked product");
+  const productSkuSuffix = ticket.relatedProductSku
+    ? ` (${ticket.relatedProductSku})`
+    : "";
+
+  const confirmDescription = clearsProduct
+    ? `Reassign "${ticket.subject}" to ${targetLabel}? Related product "${productLabel}${productSkuSuffix}" will be cleared because it is not owned by the new recipient.`
+    : `Reassign "${ticket.subject}" to ${targetLabel}? The previous recipient will no longer be the Send-to owner.`;
+
   const handleConfirm = async () => {
     try {
       await updateMutation.mutateAsync({
         id: ticket.id,
-        data: { assignedToId: reassignToId },
+        data: {
+          assignedToId: reassignToId,
+          ...(clearsProduct ? { productId: null } : {}),
+        },
       });
       setConfirmOpen(false);
       onOpenChange(false);
@@ -225,7 +253,7 @@ export default function TicketReassignDialog({
         open={confirmOpen}
         onOpenChange={setConfirmOpen}
         title="Reassign support ticket?"
-        description={`Reassign "${ticket.subject}" to ${targetLabel}? The previous recipient will no longer be the Send-to owner.`}
+        description={confirmDescription}
         actionLabel="Reassign"
         actionLoadingLabel="Reassigning..."
         isLoading={isReassigning}
