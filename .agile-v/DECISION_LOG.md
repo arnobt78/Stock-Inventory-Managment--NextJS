@@ -550,4 +550,6 @@ Format: `TIMESTAMP | AGENT | DECISION | RATIONALE | REQ-ID`
 2026-07-22T17:09:00Z | build-agent | REQ-0206 portal SSR sync | role portal.*Dashboard(userId); fix Order/Invoice/Product list sync | REQ-0206
 2026-07-22T17:09:00Z | red-team | REQ-0206 gates | lint ✓ test 692 ✓ invalidate 217 ✓ build ✓ | REQ-0206
 
+2026-07-22T17:12:00Z | release | Prod SHA fa73409 pushed origin/main | REQ-0204–0206 supplier invoices + portal SSR sync | REQ-0204
+
 2026-07-22T15:32:00Z | release | Prod SHA b41cb11 pushed origin/main | REQ-0009 Sentry expected-client remediations | REQ-0009

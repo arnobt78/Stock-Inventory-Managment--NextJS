@@ -4,7 +4,7 @@
 **eval_gate_status:** PENDING (Human Gate 2)
 **Active:** **REQ-0136** Gate 2 / cache smoke
 **Last ship:** REQ-0206 portal SSR sync key alignment
-**Prod target SHA:** pending (REQ-0204–0206)
+**Prod target SHA:** `fa73409` (REQ-0204–0206)
 
 ---
 
