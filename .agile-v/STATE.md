@@ -8,7 +8,7 @@
 | **Session** | 2026-07-22 — Infinity Loop; REQ-0186 ship + gap closure |
 | **Active REQ** | **REQ-0187** → **REQ-0136** |
 | **Done range** | REQ-0001…0135 + 0137–0186 + **0188–0202** |
-| **Prod SHA** | local (REQ-0186 unpushed) · prior tip `43dda87` |
+| **Prod SHA** | `ac7410c` (REQ-0186 on `origin/main`) |
 | **Human Gate 1** | APPROVED (GATE-0001) |
 | **Human Gate 2** | PENDING — after 0187 + §10 smoke → Sentry 24h |
 | **Resume token** | `tomorrow-0187-order-dialog` → **REQ-0187** |
