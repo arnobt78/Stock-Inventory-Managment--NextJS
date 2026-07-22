@@ -80,3 +80,5 @@
 | 2026-07-22 | REQ-0203 gap — muted SKU, meta/actions layout, Transfer owner densify | REQ-0203 |
 
 | 2026-07-22 | REQ-0203 DRY — productSupplierImage/Id shared in ProductOptionRow | REQ-0203 |
+
+| 2026-07-22 | REQ-0009 Sentry noise — order stock, warehouse pulse, traces, notif 404 | REQ-0009 |

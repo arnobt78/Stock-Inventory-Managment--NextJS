@@ -77,7 +77,6 @@ import type {
 } from "@/types";
 import {
   isDataSlotLoading,
-  isDataSlotUnsettled,
   queryKeys,
   useSyncSsrQueryData,
 } from "@/lib/react-query";
@@ -122,7 +121,8 @@ export default function WarehouseDetailPage({
   const dataLoading = isDataSlotLoading(warehouseQuery, initialWarehouse);
   const stockQuery = useStockByWarehouse(warehouseId, initialStockAllocations);
   const stockAllocations = stockQuery.data;
-  const isLoadingStock = isDataSlotUnsettled(
+  // Cold load only — do not pulse on stale refetch (back invalidate + SSR data present)
+  const isLoadingStock = isDataSlotLoading(
     stockQuery,
     initialStockAllocations,
   );
@@ -161,7 +161,8 @@ export default function WarehouseDetailPage({
   const forecastQuery = useForecastingSummary(initialForecasting ?? undefined, {
     enabled: isAdminRole,
   });
-  const forecastLoading = isDataSlotUnsettled(
+  // Cold load only — keep urgent table / insights visible during background forecast refetch
+  const forecastLoading = isDataSlotLoading(
     forecastQuery,
     initialForecasting ?? undefined,
   );
@@ -608,11 +609,9 @@ export default function WarehouseDetailPage({
                   <div className="min-w-0 flex-1">
                     <div className="flex flex-wrap items-center gap-2">
                       <h3 className={TYPO_CARD_TITLE}>Stock in Warehouse</h3>
-                      {!isLoadingStock &&
-                      stockAllocations &&
-                      stockAllocations.length > 0 ? (
+                      {!isLoadingStock && allocationRows.length > 0 ? (
                         <SectionCountBadge>
-                          {stockAllocations.length} products
+                          {allocationRows.length} products
                         </SectionCountBadge>
                       ) : null}
                     </div>
@@ -632,9 +631,9 @@ export default function WarehouseDetailPage({
                         />
                       ))}
                     </div>
-                  ) : stockAllocations && stockAllocations.length > 0 ? (
+                  ) : allocationRows.length > 0 ? (
                     <div className="space-y-2">
-                      {stockAllocations.map((allocation) => {
+                      {allocationRows.map((allocation) => {
                         const isArchived =
                           allocation.product?.isArchived === true;
                         return (

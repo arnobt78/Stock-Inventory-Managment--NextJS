@@ -4,8 +4,8 @@
 |-------|-------|
 | **Cycle** | C2 (C1 Gate 2 still PENDING) |
 | **Phase** | Stage 3–4 — **REQ-0187** next |
-| **Stopped** | 2026-07-22 — **REQ-0203** DRY helpers done |
-| **Session** | 2026-07-22 — REQ-0203 DRY; next REQ-0187 |
+| **Stopped** | 2026-07-22 — Sentry noise remediations (REQ-0009) |
+| **Session** | 2026-07-22 — REQ-0009 Sentry; next REQ-0187 |
 | **Active REQ** | **REQ-0187** → **REQ-0136** |
 | **Done range** | REQ-0001…0135 + 0137–0186 + **0188–0203** |
 | **Prod SHA** | `730813d` (REQ-0203) |
@@ -30,8 +30,9 @@
 | REQ | One-liner |
 |-----|-----------|
 | 0203 | Detail + Allocate/Transfer; gap layout; DRY productSupplier helpers |
+| 0009 | Sentry noise: order stock warn; warehouse pulse; traces 0; notif 404 |
 
-**Gates (0203):** lint ✓ test **685** ✓ invalidate **217** ✓ build ✓
+**Gates (0009):** lint ✓ invalidate **217** ✓ related unit ✓
 
 ---
 

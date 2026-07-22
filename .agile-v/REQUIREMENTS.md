@@ -1576,6 +1576,8 @@ Canonical REQ source. All artifacts link via `REQ-XXXX`. Status: `done` | `verif
 - AC2: `SENTRY_ERRORS.md` cases 1–7 trend down or resolved
 - AC3: CAPA entry if regression
 
+**Remediations (2026-07-22):** Order stock Max N → warn+disable; warehouse detail cold-load pulse; dev `tracesSampleRate` 0; notification DELETE missing → 404+warn (no Sentry).
+
 ---
 
 ## REQ-0010 — Products API Zod validation (POST + PUT)

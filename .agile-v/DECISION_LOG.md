@@ -528,3 +528,6 @@ Format: `TIMESTAMP | AGENT | DECISION | RATIONALE | REQ-ID`
 2026-07-22T14:52:00Z | red-team | REQ-0203 DRY gates | lint ✓ test 685 ✓ invalidate 217 ✓ build ✓ | REQ-0203
 
 2026-07-22T14:58:00Z | release | Prod SHA 730813d pushed origin/main | REQ-0203 warehouse detail + gap + DRY | REQ-0203
+
+2026-07-22T15:30:00Z | build-agent | REQ-0009 Sentry noise | order stock warn+disable; warehouse isDataSlotLoading; tracesSampleRate 0 dev; notif DELETE 404+warn | REQ-0009
+2026-07-22T15:30:00Z | red-team | REQ-0009 gates | lint ✓ invalidate 217 ✓ logger/errors/sentry tests ✓ | REQ-0009

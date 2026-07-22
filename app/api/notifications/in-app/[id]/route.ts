@@ -14,6 +14,10 @@ import {
 import { withRateLimit, defaultRateLimits } from "@/lib/api/rate-limit";
 import { updateInAppNotificationBodySchema } from "@/lib/validations/notification";
 import { scheduleInvalidateNotificationCaches } from "@/lib/cache";
+import {
+  getErrorHttpStatus,
+  isExpectedClientError,
+} from "@/lib/api/errors";
 import type { UpdateNotificationInput } from "@/types";
 
 /**
@@ -168,14 +172,18 @@ export async function PUT(
 
     return NextResponse.json(transformedNotification);
   } catch (error) {
+    const message =
+      error instanceof Error ? error.message : "Failed to update notification";
+    const status = getErrorHttpStatus(error);
+    const isNotFound =
+      isExpectedClientError(error) ||
+      message.includes("Notification not found or unauthorized");
+    if (isNotFound) {
+      logger.warn("Notification update not found:", message);
+      return NextResponse.json({ error: message }, { status: status ?? 404 });
+    }
     logger.error("Error updating notification:", error);
-    return NextResponse.json(
-      {
-        error:
-          error instanceof Error ? error.message : "Failed to update notification",
-      },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: message }, { status: 500 });
   }
 }
 
@@ -223,13 +231,18 @@ export async function DELETE(
       message: "Notification deleted successfully",
     });
   } catch (error) {
+    const message =
+      error instanceof Error ? error.message : "Failed to delete notification";
+    const status = getErrorHttpStatus(error);
+    // Message fallback covers stale bundles / ApiError instanceof edge cases
+    const isNotFound =
+      isExpectedClientError(error) ||
+      message.includes("Notification not found or unauthorized");
+    if (isNotFound) {
+      logger.warn("Notification delete not found:", message);
+      return NextResponse.json({ error: message }, { status: status ?? 404 });
+    }
     logger.error("Error deleting notification:", error);
-    return NextResponse.json(
-      {
-        error:
-          error instanceof Error ? error.message : "Failed to delete notification",
-      },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: message }, { status: 500 });
   }
 }

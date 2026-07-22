@@ -142,9 +142,13 @@ export function OrderDialogCreateLineItem({
     !isManualPick &&
     validation?.maxQty != null;
 
+  // REQ-0112 / Sentry — manual pick "Max N at Warehouse" must disable Create (not only catalog stockError)
   useEffect(() => {
-    onStockValidityChange(lineId, Boolean(stockError));
-  }, [lineId, onStockValidityChange, stockError]);
+    onStockValidityChange(
+      lineId,
+      Boolean(stockError || manualPickError),
+    );
+  }, [lineId, onStockValidityChange, stockError, manualPickError]);
 
   const itemSubtotal =
     selectedProduct && quantity > 0

@@ -55,3 +55,5 @@ Format: `timestamp | agent | span | req_ids | note`
 2026-07-22T14:40:00Z | build | REQ-0203-gap | stock-row+Transfer-owner PASS
 
 2026-07-22T14:52:00Z | build | REQ-0203-dry | productSupplier helpers PASS
+
+2026-07-22T15:30:00Z | build | REQ-0009-sentry-noise | order+warehouse+notif PASS

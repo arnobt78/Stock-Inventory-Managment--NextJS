@@ -17,9 +17,9 @@ export function isSentryEnabled(): boolean {
   return Boolean(getSentryDsn());
 }
 
-/** Lower sample rate in production to stay within quota */
+/** Lower sample rate in production; skip traces in local/dev to avoid HTTP/1.1 Overhead noise emails */
 export function getTracesSampleRate(): number {
-  return process.env.NODE_ENV === "production" ? 0.1 : 1;
+  return process.env.NODE_ENV === "production" ? 0.1 : 0;
 }
 
 /** Safari / Chrome NotFoundError text variants for DOM removeChild races */

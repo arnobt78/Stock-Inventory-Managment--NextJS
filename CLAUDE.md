@@ -172,7 +172,18 @@ All user-facing POST/PUT JSON bodies use `safeParse` + `logger.warn` on fail. Ne
 
 **Every session:** STATE → REQ map → skill 01+17 → Red Team → write-through DECISION/BUILD/VALIDATION.
 
-**C1 open:** Gate 2 PENDING. **Stopped 2026-07-22:** **REQ-0203** warehouse detail (gap+DRY). **Next:** **REQ-0187** → 0136.
+**C1 open:** Gate 2 PENDING. **Stopped 2026-07-22:** Sentry noise remediations (REQ-0009). **Next:** **REQ-0187** → 0136.
+
+## Sentry expected-client noise (REQ-0009, 2026-07-22)
+
+| Issue | Fix |
+|-------|-----|
+| Order `Max N at Warehouse` | toast + `logger.warn`; Create disabled on manual pick fail |
+| Warehouse detail pulse | stock/forecast `isDataSlotLoading` (not Unsettled) |
+| Dev HTTP/1.1 Overhead | `getTracesSampleRate()` → 0 in non-prod |
+| Notification DELETE missing | `ApiError(404)` + warn; client delete idempotent |
+
+**Invalidation unchanged.**
 
 ## Support tickets + dialogs (REQ-0193–0202)
 

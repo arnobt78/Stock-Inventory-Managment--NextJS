@@ -448,10 +448,17 @@ export default function OrderDialog({
           item,
         );
         if (!stockCheck.ok) {
-          throw new Error(
+          // Expected client validation — toast + warn (never logger.error → Sentry)
+          const msg =
             stockCheck.message ??
-              `Insufficient stock for ${product.name}. Available: ${stockCheck.maxQty}`,
-          );
+            `Insufficient stock for ${product.name}. Available: ${stockCheck.maxQty}`;
+          toast({
+            title: "Insufficient stock",
+            description: msg,
+            variant: "destructive",
+          });
+          logger.warn("Order create stock validation:", msg);
+          return;
         }
       }
 
@@ -526,7 +533,7 @@ export default function OrderDialog({
         notes: "",
       });
     } catch (error) {
-      // Error toast is handled by the mutation hook
+      // Mutation failures: toast from hook; unexpected errors → Sentry via logger.error
       logger.error("Order creation error:", error);
       // Don't close dialog on error - let user fix the issue
     }

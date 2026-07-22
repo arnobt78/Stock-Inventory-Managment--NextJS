@@ -532,3 +532,4 @@
 | ART-0203a | REQ-0203 | WarehouseDetailPage header/reorder/TYPO; stock row; Allocate/Transfer pickers | done |
 | ART-0203b | REQ-0203 | Stock row muted SKU + meta/actions layout; Transfer useProducts owner densify | done |
 | ART-0203c | REQ-0203 | DRY productSupplierImage/Id in ProductOptionRow; Allocate+Transfer | done |
+| ART-0009b | REQ-0009 | Sentry noise: order stock warn; warehouse pulse; traces 0; notif 404 | done |

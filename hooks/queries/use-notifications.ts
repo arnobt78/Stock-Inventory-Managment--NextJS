@@ -4,7 +4,7 @@
  */
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { apiClient, getErrorMessage } from "@/lib/api";
+import { apiClient, getErrorMessage, isExpectedClientError } from "@/lib/api";
 import { queryKeys, withInitialData } from "@/lib/react-query";
 import { useToast } from "@/hooks/use-toast";
 import type {
@@ -303,7 +303,15 @@ export function useDeleteNotification() {
     { previousNotifications?: Notification[]; previousCount?: number }
   >({
     mutationFn: async (notificationId) => {
-      await apiClient.notifications.delete(notificationId);
+      try {
+        await apiClient.notifications.delete(notificationId);
+      } catch (error) {
+        // Idempotent: already gone / unauthorized → treat as success (optimistic UI already removed)
+        if (isExpectedClientError(error)) {
+          return;
+        }
+        throw error;
+      }
     },
     onMutate: async (notificationId) => {
       // Cancel any outgoing refetches

@@ -11,6 +11,7 @@ import type {
 } from "@/types/notification";
 import { Prisma } from "@prisma/client";
 import { logger } from "@/lib/logger";
+import { ApiError } from "@/lib/api/errors";
 
 /**
  * Create a new notification
@@ -134,7 +135,8 @@ export async function updateNotification(
   });
 
   if (!existingNotification) {
-    throw new Error("Notification not found or unauthorized");
+    // Expected 404 — missing id or not owned by user (not a 500)
+    throw new ApiError("Notification not found or unauthorized", 404);
   }
 
   // Prepare update data
@@ -205,7 +207,8 @@ export async function deleteNotification(
   });
 
   if (!existingNotification) {
-    throw new Error("Notification not found or unauthorized");
+    // Expected 404 — already deleted / wrong user (never 500 → Sentry)
+    throw new ApiError("Notification not found or unauthorized", 404);
   }
 
   await prisma.notification.delete({

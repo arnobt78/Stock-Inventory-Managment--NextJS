@@ -1,10 +1,27 @@
 # Validation Summary — Cycle C1
 
-**Generated:** 2026-07-22 (REQ-0203 DRY helpers)
+**Generated:** 2026-07-22 (REQ-0009 Sentry noise)
 **eval_gate_status:** PENDING (Human Gate 2)
 **Active:** **REQ-0187** order dialog → REQ-0136
-**Last ship:** REQ-0203 DRY `productSupplierImage`/`Id`
-**Prod target SHA:** `730813d` (REQ-0203)
+**Last ship:** REQ-0009 Sentry expected-client remediations
+**Prod target SHA:** pending (this ship)
+
+---
+
+## REQ-0009 Sentry expected-client noise (2026-07-22)
+
+| Check | Result |
+| ----- | ------ |
+| Order stock | toast + warn; Create gated on manual pick |
+| Warehouse pulse | `isDataSlotLoading` for stock/forecast |
+| Dev traces | sample rate 0 |
+| Notif DELETE | 404 + warn; idempotent client |
+| Gates | lint ✓ invalidate **217** ✓ logger/errors/sentry tests ✓ |
+
+```
+Scope: built/verified | Traceability: REQ-0009 | Findings: PASS
+Commands: lint, test:invalidate, vitest logger/errors/sentry-config
+```
 
 ---
 
