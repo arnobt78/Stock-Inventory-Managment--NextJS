@@ -4,7 +4,7 @@
 **eval_gate_status:** PENDING (Human Gate 2)
 **Active:** **REQ-0187** order dialog → REQ-0136
 **Last ship:** REQ-0203 DRY `productSupplierImage`/`Id`
-**Prod target SHA:** `ac7410c` (prior) · local REQ-0203
+**Prod target SHA:** `730813d` (REQ-0203)
 
 ---
 

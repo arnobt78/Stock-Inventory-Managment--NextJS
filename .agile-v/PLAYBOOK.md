@@ -3,7 +3,7 @@
 **Project:** Stockly Inventory (Next.js 16, React 19, Prisma/MongoDB)  
 **Cycle:** C2 active (C1 Gate 2 PENDING)  
 **Active:** REQ-0187 — order dialog UI (`resume_token: tomorrow-0187-order-dialog`)  
-**Prod SHA:** pending push (REQ-0203) · prior tip `6b3e76b` · **Last:** REQ-0203 · **Standard:** Agile V 1.4 | Infinity Loop
+**Prod SHA:** `730813d` (REQ-0203) · **Last:** REQ-0203 · **Standard:** Agile V 1.4 | Infinity Loop
 
 ---
 

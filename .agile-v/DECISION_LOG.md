@@ -526,3 +526,5 @@ Format: `TIMESTAMP | AGENT | DECISION | RATIONALE | REQ-ID`
 
 2026-07-22T14:52:00Z | build-agent | REQ-0203 DRY | productSupplierImage/Id → ProductOptionRow; Allocate+Transfer import | REQ-0203
 2026-07-22T14:52:00Z | red-team | REQ-0203 DRY gates | lint ✓ test 685 ✓ invalidate 217 ✓ build ✓ | REQ-0203
+
+2026-07-22T14:58:00Z | release | Prod SHA 730813d pushed origin/main | REQ-0203 warehouse detail + gap + DRY | REQ-0203
