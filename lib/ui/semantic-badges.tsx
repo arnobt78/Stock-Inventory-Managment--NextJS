@@ -42,6 +42,7 @@ import {
   type GlassBadgeHue,
 } from "@/lib/ui/glass-badge-styles";
 import {
+  getWarehouseTypeLabel,
   getWarehouseTypeTone,
 } from "@/lib/ui/warehouse-type-styles";
 import { cn } from "@/lib/utils";
@@ -445,21 +446,45 @@ export function ActiveInactiveBadge({
   );
 }
 
-/** Warehouse type label (main, secondary, distribution) */
+/** Hue map for solid/opaque Select contrast (REQ-0186) — mirrors glass tones. */
+const WAREHOUSE_TYPE_HUE: Record<string, GlassBadgeHue> = {
+  main: "sky",
+  secondary: "teal",
+  storage: "amber",
+  distribution: "violet",
+  retail: "cyan",
+  other: "slate",
+};
+
+/**
+ * Warehouse type badge (main, secondary, distribution, …).
+ * Default `glass` for tables/detail; `solid`/`opaque` for dialog Select (REQ-0186).
+ */
 export function WarehouseTypeBadge({
   type,
   className,
+  label,
   size,
+  contrast = "glass",
 }: {
   type: string;
   className?: string;
+  label?: string;
   size?: "compact" | "detail";
+  contrast?: SemanticBadgeContrast;
 }) {
-  const tone = getWarehouseTypeTone(type);
+  const base = getWarehouseTypeTone(type);
+  const hue = WAREHOUSE_TYPE_HUE[normalizeKey(type)] ?? "slate";
+  const tone: BadgeTone =
+    contrast === "solid"
+      ? { icon: base.icon, className: SOLID_BADGE_CLASS[hue] }
+      : contrast === "opaque"
+        ? { icon: base.icon, className: OPAQUE_BADGE_CLASS[hue] }
+        : base;
   return (
     <SemanticBadgeBase
       tone={tone}
-      label={formatSemanticLabel(type)}
+      label={label ?? getWarehouseTypeLabel(type)}
       className={className}
       size={size}
     />

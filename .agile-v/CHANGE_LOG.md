@@ -68,3 +68,9 @@
 | 2026-07-16 | REQ-0138 product table + detail UI parity | REQ-0138 |
 | 2026-07-16 | REQ-0139 product UI gap closure | REQ-0139 |
 | 2026-07-16 | REQ-0140 seed stock coherence + sold/insights stats | REQ-0140 |
+
+| 2026-07-22 | Session activate — Infinity Loop; resume REQ-0186 warehouse UI | REQ-0186 |
+
+| 2026-07-22 | REQ-0186 warehouse Type badge / View Details / dialog Select | REQ-0186 |
+
+| 2026-07-22 | REQ-0186 gap — long Type labels + Select controlled | REQ-0186 |

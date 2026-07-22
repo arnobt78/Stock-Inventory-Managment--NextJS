@@ -1,10 +1,18 @@
 "use client";
 
+/**
+ * REQ-0186 — Type column uses WarehouseTypeBadge; Name/Address use CopyableText;
+ * Actions receive detailBase for View Details.
+ */
+
 import Link from "next/link";
 import type { Warehouse, WarehouseStockSummary } from "@/types";
 import { Column, ColumnDef } from "@tanstack/react-table";
 import WarehouseActions from "./WarehouseActions";
-import { ActiveInactiveBadge } from "@/lib/ui/semantic-badges";
+import {
+  ActiveInactiveBadge,
+  WarehouseTypeBadge,
+} from "@/lib/ui/semantic-badges";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -13,7 +21,12 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { ArrowUpDown } from "lucide-react";
 import { IoMdArrowDown, IoMdArrowUp } from "react-icons/io";
-import { ClientDate } from "@/components/shared";
+import {
+  ClientDate,
+  CopyableText,
+  TABLE_CATALOG_LINK_CLASS,
+} from "@/components/shared";
+import { cn } from "@/lib/utils";
 
 type SortableHeaderProps = {
   column: Column<Warehouse, unknown>;
@@ -79,11 +92,8 @@ export const createWarehouseColumns = (
         ? `${detailBase}/warehouses/${w.id}`
         : `/warehouses/${w.id}`;
       return (
-        <Link
-          href={href}
-          className="font-normal text-sky-600 dark:text-sky-400 hover:text-sky-500 dark:hover:text-sky-300"
-        >
-          {w.name}
+        <Link href={href} className={cn("truncate", TABLE_CATALOG_LINK_CLASS)}>
+          <CopyableText value={w.name}>{w.name}</CopyableText>
         </Link>
       );
     },
@@ -93,24 +103,31 @@ export const createWarehouseColumns = (
   {
     accessorKey: "address",
     header: ({ column }) => <SortableHeader column={column} label="Address" />,
-    cell: ({ row }) => (
-      <span
-        className="text-gray-700 dark:text-white"
-        title={row.original.address || undefined}
-      >
-        {truncateText(row.original.address, 40)}
-      </span>
-    ),
+    cell: ({ row }) => {
+      const address = row.original.address?.trim();
+      if (!address) {
+        return <span className="text-gray-700 dark:text-white">—</span>;
+      }
+      return (
+        <CopyableText value={address} className="max-w-[14rem]">
+          <span className="truncate text-gray-700 dark:text-white" title={address}>
+            {truncateText(address, 40)}
+          </span>
+        </CopyableText>
+      );
+    },
     size: 25,
   },
   {
     accessorKey: "type",
     header: ({ column }) => <SortableHeader column={column} label="Type" />,
-    cell: ({ row }) => (
-      <span className="text-gray-700 dark:text-white">
-        {row.original.type || "-"}
-      </span>
-    ),
+    cell: ({ row }) => {
+      const type = row.original.type?.trim();
+      if (!type) {
+        return <span className="text-gray-700 dark:text-white">—</span>;
+      }
+      return <WarehouseTypeBadge type={type} size="compact" />;
+    },
     size: 12,
   },
   {
@@ -135,7 +152,10 @@ export const createWarehouseColumns = (
           ? Math.round((qty / totalAllocatedQty) * 100)
           : 0;
       return (
-        <span className="text-gray-700 dark:text-white" title={`${qty} units allocated`}>
+        <span
+          className="text-gray-700 dark:text-white"
+          title={`${qty} units allocated`}
+        >
           {qty > 0 ? `${pct}%` : "—"}
         </span>
       );
@@ -158,7 +178,9 @@ export const createWarehouseColumns = (
   {
     id: "actions",
     header: "Actions",
-    cell: ({ row }) => <WarehouseActions row={row} onEdit={onEdit} />,
+    cell: ({ row }) => (
+      <WarehouseActions row={row} onEdit={onEdit} detailBase={detailBase} />
+    ),
     size: 10,
   },
 ];

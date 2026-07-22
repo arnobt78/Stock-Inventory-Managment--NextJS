@@ -125,7 +125,7 @@ Details: `docs/Redis_Sentry_PostHog_INTEGRATION_GUIDE.md`
 | Reassign / Reply | clear mismatched productId; `resolveTicketReplyTarget` (0197) |
 | No-flicker | SelectValue SSR labels; `serverHasRicherDensify` sync (0202) |
 
-**Stopped 2026-07-21:** through REQ-0202. **Next:** REQ-0186 warehouse → 0187 order → REQ-0136 Gate 2.
+**Stopped 2026-07-22:** REQ-0186 warehouse UI (+ labels/Select gap). **Next:** REQ-0187 order dialog → REQ-0136 Gate 2.
 
 ## 7b. Table pagination Select (Radix portal, 2026-05-22)
 
@@ -300,7 +300,8 @@ flowchart LR
 | Delivered + Due badges (REQ-0155) | `store-order-status-badges.ts`; Total Orders Delivered; Outstanding→Due | UI-only |
 | Partial pay KPIs (REQ-0154) | `payment-money-stats.ts` → dashboards Paid/Partial/Due/Pending; Partial badges; table Total `text-xs`; `dashboard:overview:v4` | Invalidation unchanged |
 | Tickets densify (REQ-0185–0202) | owner-products; Related densify; dialog open/combobox; SelectValue SSR; densify-richer sync | Invalidation unchanged |
-| Next | **REQ-0186** warehouse UI → 0187 order dialog → REQ-0136 §10 + Gate 2 | |
+| Next | **REQ-0187** order dialog → REQ-0136 §10 + Gate 2 | REQ-0186 done |
+| Warehouse Type UI (REQ-0186) | Table Type badge + CopyableText + View Details; dialog Select solid/opaque; `getWarehouseTypeLabel` | Invalidation unchanged |
 | AI warehouse insights (REQ-0067) | `POST /api/ai/insights` enriches payload with `getWarehouseStockSummary` |
 | Per-warehouse order picking (REQ-0068) | `OrderItem.warehouseId`; `stock-allocation-order-sync.ts`; `OrderLineWarehouseSelect`; reserve/fulfill/cancel sync; invoice-paid gap; `f892b65` removed unused `deleteCache`/`getRateLimitStatus` |
 | Demo reset | `npm run script:reset-demo-db` — accounts-only (3 users + Test Supplier); opt-in catalog via `seed-demo-catalog` |

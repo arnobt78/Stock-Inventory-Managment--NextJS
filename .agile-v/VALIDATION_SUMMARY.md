@@ -1,10 +1,47 @@
 # Validation Summary — Cycle C1
 
-**Generated:** 2026-07-21 EOD
+**Generated:** 2026-07-22 (REQ-0186 ship)
 **eval_gate_status:** PENDING (Human Gate 2)
-**Stopped:** REQ-0202 done — tickets/dialogs/SSR flicker wave complete
-**Prod target SHA:** `43dda87` (REQ-0194–0202)
-**Resume tomorrow:** **REQ-0186** warehouse → 0187 → REQ-0136 (see STATE.md)
+**Active:** **REQ-0187** order dialog → REQ-0136
+**Last ship:** REQ-0186 warehouse table + dialog UI
+**Prod target SHA:** `43dda87` (prior) · local REQ-0186
+
+---
+
+## REQ-0186 Warehouse table + dialog evidence
+
+| Check | Result |
+| ----- | ------ |
+| Type column | `WarehouseTypeBadge` compact (glass) |
+| Name/Address | `CopyableText` + truncate |
+| Actions | View Details + `detailBase` |
+| Dialog Type Select | solid trigger / opaque items |
+| Invalidation | unchanged (`invalidateAfterCatalogChange`) |
+| Gates | lint ✓ test **684** ✓ invalidate **217** ✓ build ✓ |
+
+```
+Scope: built/verified | Traceability: REQ-0186 | Findings: PASS
+Commands: lint, test, test:invalidate, build
+```
+
+## REQ-0186 gap closure (labels + Select)
+
+| Check | Result |
+| ----- | ------ |
+| Labels | `getWarehouseTypeLabel` → Main Warehouse on table/detail/dialog |
+| Dead type | `WarehouseTypeOptionValue` removed |
+| Select | `value={type}` always string (no uncontrolled flip) |
+| Gates | lint ✓ warehouse-type **6** ✓ invalidate **217** ✓ build ✓ |
+
+---
+
+## Session activate 2026-07-22
+
+```
+Scope: resume/activate | Traceability: REQ-0186, REQ-0008 | Findings: PASS (bootstrap intact)
+Decision Points: no re-bootstrap; resume tomorrow-0186-warehouse-ui
+Log: 2026-07-22 | orchestrator | Infinity Loop ready | tip 8eb7cab | REQ-0186
+```
 
 ---
 

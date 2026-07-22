@@ -43,3 +43,9 @@ Format: `timestamp | agent | span | req_ids | note`
 2026-07-17T11:30:00Z | agile-v-core | session-activate | REQ-0008, REQ-0136 | Resume tomorrow-UI-then-cache; park 40a7198; skills 01+02+17+19
 2026-07-19T12:56:00Z | session | activate | core+pipeline | STATE resume REQ-0136 | PASS
 2026-07-20T11:17:00Z | session | activate | core+pipeline | Resume tomorrow-UI-then-cache; tip 32711fa; config synced | PASS
+
+2026-07-22T10:22:32Z | session | activate | core+pipeline | Resume tomorrow-0186-warehouse-ui; tip 8eb7cab; PLAYBOOK synced | PASS
+
+2026-07-22T10:50:00Z | build | REQ-0186-ship | AC1–AC3 | warehouse table+dialog UI PASS
+
+2026-07-22T11:07:00Z | build | REQ-0186-gap | labels+Select control PASS

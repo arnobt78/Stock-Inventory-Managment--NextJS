@@ -1,6 +1,7 @@
 /**
  * REQ-0128 — shared warehouse type icon + badge tone map (DRY with WarehouseTypeBadge).
  * Glass glow surfaces (parity with ActiveInactiveBadge / order status chips).
+ * REQ-0186 — WAREHOUSE_TYPE_OPTIONS + getWarehouseTypeLabel for table/detail/dialog badges.
  */
 
 import {
@@ -16,8 +17,40 @@ export type WarehouseTypeTone = {
   icon: LucideIcon;
 };
 
+/** Dialog Select options — values must match WAREHOUSE_TYPE_TONES keys. */
+export const WAREHOUSE_TYPE_OPTIONS = [
+  { value: "main", label: "Main Warehouse" },
+  { value: "secondary", label: "Secondary" },
+  { value: "storage", label: "Storage" },
+  { value: "distribution", label: "Distribution Center" },
+  { value: "retail", label: "Retail Store" },
+  { value: "other", label: "Other" },
+] as const;
+
 function normalizeWarehouseTypeKey(value: string): string {
   return (value || "").toLowerCase().replace(/\s+/g, "_");
+}
+
+/** Title-case fallback for unknown free-text types (avoids importing semantic-badges). */
+function titleCaseTypeLabel(value: string): string {
+  return value
+    .replace(/_/g, " ")
+    .split(" ")
+    .filter(Boolean)
+    .map((w) => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase())
+    .join(" ");
+}
+
+/**
+ * REQ-0186 — human label for badges (e.g. main → "Main Warehouse").
+ * Unknown keys fall back to title-case of the raw value.
+ */
+export function getWarehouseTypeLabel(type?: string | null): string {
+  const trimmed = (type || "").trim();
+  if (!trimmed) return "—";
+  const key = normalizeWarehouseTypeKey(trimmed);
+  const match = WAREHOUSE_TYPE_OPTIONS.find((opt) => opt.value === key);
+  return match?.label ?? titleCaseTypeLabel(trimmed);
 }
 
 /** Meaningful hue per warehouse role — glass glow (not opaque flat chips). */

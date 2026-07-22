@@ -387,7 +387,7 @@ Canonical REQ source. All artifacts link via `REQ-XXXX`. Status: `done` | `verif
 |-------|-------|
 | **Priority** | P2 |
 | **Risk** | R1 |
-| **Status** | planned |
+| **Status** | done |
 | **Cycle** | C2 |
 | **Parent** | REQ-0136 |
 
@@ -395,11 +395,11 @@ Canonical REQ source. All artifacts link via `REQ-XXXX`. Status: `done` | `verif
 
 **Acceptance criteria**
 
-- AC1: Warehouse dialog layout/fields readable (light + dark)
-- AC2: Warehouse detail page spacing/typography/actions polish
+- AC1: Warehouse dialog layout/fields readable (light + dark) — Type Select solid/opaque badges
+- AC2: Warehouse detail page spacing/typography/actions polish — table Type badge + CopyableText + View Details
 - AC3: Invalidation unchanged unless required; gates pass
 
-**Artifacts:** (TBD) warehouse dialog, `WarehouseDetailPage`
+**Artifacts:** `WarehouseTypeBadge` contrast, `WAREHOUSE_TYPE_OPTIONS`, `WarehouseTableColumns`, `WarehouseActions`, `WarehouseDialog`
 
 ---
 

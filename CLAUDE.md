@@ -172,7 +172,7 @@ All user-facing POST/PUT JSON bodies use `safeParse` + `logger.warn` on fail. Ne
 
 **Every session:** STATE → REQ map → skill 01+17 → Red Team → write-through DECISION/BUILD/VALIDATION.
 
-**C1 open:** Gate 2 PENDING. **Stopped 2026-07-21:** tickets/dialogs through **REQ-0202**. **Next:** **REQ-0186** warehouse → 0187 → 0136.
+**C1 open:** Gate 2 PENDING. **Stopped 2026-07-22:** **REQ-0186** warehouse UI (+ gap labels/Select). **Next:** **REQ-0187** order dialog → 0136.
 
 ## Support tickets + dialogs (REQ-0193–0202)
 
@@ -946,11 +946,22 @@ Hub: `lib/ui/typography-scale.ts`. Hubs import tokens; ~45 inline files use equi
 
 **Invalidation unchanged** — review/product/dashboard CRUD already clears lists + portals.
 
-**Active wave:** 0185–**0202** done → **0186** warehouse → 0187 order → 0136 Gate 2.
+**Active wave:** **0186** done → **0187** order dialog → **0136** Gate 2.
 
 | 0185–96 | ticket densify · detail/chat · non-admin parity · GlassCard pad |
 | 0197–201 | optional product · dialog open/combobox · owner-products · Related densify |
 | 0202 | SelectValue SSR labels · densify-richer sync · supplier image · reviewerEmail |
+
+## Warehouse table + dialog Type badges (REQ-0186)
+
+| Piece | Location |
+|-------|----------|
+| Options + labels | `WAREHOUSE_TYPE_OPTIONS` / `getWarehouseTypeLabel` in `warehouse-type-styles.ts` |
+| Badge | `WarehouseTypeBadge` glass (table/detail) · solid/opaque (dialog Select) |
+| Table | Type badge; Name/Address `CopyableText`; Actions View Details + `detailBase` |
+| Dialog | Type Select `value={type}` always controlled; long labels |
+
+**Invalidation unchanged** — `invalidateAfterCatalogChange` on warehouse CRUD.
 
 ## KPI badge helpers (REQ-0156–0157)
 

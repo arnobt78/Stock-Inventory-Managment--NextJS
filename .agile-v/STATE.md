@@ -3,40 +3,35 @@
 | Field | Value |
 |-------|-------|
 | **Cycle** | C2 (C1 Gate 2 still PENDING) |
-| **Phase** | Stage 3–4 — **REQ-0186** next |
-| **Stopped** | 2026-07-21 EOD — tickets/dialogs/SSR flicker through **REQ-0202** |
-| **Active REQ** | **REQ-0186** → 0187 → **REQ-0136** |
-| **Done range** | REQ-0001…0135 + 0137–0185 + **0188–0202** |
-| **Prod SHA** | `43dda87` (REQ-0194–0202 on `origin/main`) |
+| **Phase** | Stage 3–4 — **REQ-0187** next |
+| **Stopped** | 2026-07-22 — **REQ-0186** (+ gap: long labels + Select controlled) |
+| **Session** | 2026-07-22 — Infinity Loop; REQ-0186 ship + gap closure |
+| **Active REQ** | **REQ-0187** → **REQ-0136** |
+| **Done range** | REQ-0001…0135 + 0137–0186 + **0188–0202** |
+| **Prod SHA** | local (REQ-0186 unpushed) · prior tip `43dda87` |
 | **Human Gate 1** | APPROVED (GATE-0001) |
-| **Human Gate 2** | PENDING — after 0186–0187 + §10 smoke → Sentry 24h |
-| **Resume token** | `tomorrow-0186-warehouse-ui` → **REQ-0186** |
+| **Human Gate 2** | PENDING — after 0187 + §10 smoke → Sentry 24h |
+| **Resume token** | `tomorrow-0187-order-dialog` → **REQ-0187** |
 | **CHECKPOINTS** | none PENDING |
 
 ---
 
-## Tomorrow (start here)
+## Next (start here)
 
-1. **REQ-0186** — Warehouse dialog + detail UI polish
-2. **REQ-0187** — Order dialog UI polish
-3. **REQ-0136** — cache smoke §10 + Gate 2 Sentry 24h
+1. **REQ-0187** — Order dialog UI polish
+2. **REQ-0136** — cache smoke §10 + Gate 2 Sentry 24h
 
 **Skills:** 01 · 02 · 03 · 06 · 07 · 17 · 19 · 23
 
 ---
 
-## Shipped 2026-07-21 (compact)
+## Shipped 2026-07-22
 
 | REQ | One-liner |
 |-----|-----------|
-| 0191–96 | Ticket/review detail + chat pad + non-admin parity |
-| 0197 | Optional product + Reply-to + safe Reassign |
-| 0198–99 | Dialog open smooth + Combobox modal |
-| 0200 | Owner-scoped Related products API |
-| 0201 | Related product densify (create/edit/detail) |
-| 0202 | SelectValue SSR labels; densify-richer sync; supplier image + reviewerEmail |
+| 0186 | Warehouse Type badge/table/dialog; View Details; CopyableText; `getWarehouseTypeLabel`; Select always controlled |
 
-**Gates (0202):** lint ✓ test **683** ✓ invalidate **217** ✓ build ✓
+**Gates (0186):** lint ✓ test **684** ✓ invalidate **217** ✓ build ✓
 
 ---
 

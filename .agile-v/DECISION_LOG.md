@@ -509,3 +509,11 @@ Format: `TIMESTAMP | AGENT | DECISION | RATIONALE | REQ-ID`
 2026-07-21T18:30:00Z | build-agent | REQ-0202 detail no-flicker | SelectValue SSR labels; serverHasRicherDensify sync; supplier image; reviewerEmail | REQ-0202
 2026-07-21T18:35:00Z | red-team | REQ-0202 gates | lint ✓ test 683 ✓ invalidate 217 ✓ build ✓ | REQ-0202
 2026-07-21T18:40:00Z | docs | session EOD write-through | STATE/config/CLAUDE/walkthrough → resume REQ-0186 | REQ-0202
+
+2026-07-22T10:22:32Z | orchestrator | Agile V session activate (core+pipeline) | No re-bootstrap — .agile-v intact (24 skills, runtime contracts); sync PLAYBOOK resume_token + prod SHA; resume REQ-0186 → 0187 → 0136; tip 8eb7cab | REQ-0186,REQ-0008
+
+2026-07-22T10:50:00Z | build-agent | REQ-0186 warehouse UI | Type badge table; View Details; CopyableText name/address; dialog Select solid/opaque; WAREHOUSE_TYPE_OPTIONS | REQ-0186
+2026-07-22T10:50:00Z | red-team | REQ-0186 gates | lint ✓ test 684 ✓ invalidate 217 ✓ build ✓ | REQ-0186
+
+2026-07-22T11:07:00Z | build-agent | REQ-0186 gap closure | getWarehouseTypeLabel; drop WarehouseTypeOptionValue; Select value=type always controlled | REQ-0186
+2026-07-22T11:07:00Z | red-team | REQ-0186 gap gates | lint ✓ warehouse-type 6 ✓ invalidate 217 ✓ | REQ-0186

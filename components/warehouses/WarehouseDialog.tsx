@@ -33,6 +33,8 @@ import { cn } from "@/lib/utils";
 import { Building2, MapPin, Layers, Plus, X } from "lucide-react";
 import { useCreateWarehouse, useUpdateWarehouse } from "@/hooks/queries";
 import { useSyncDialogOpenState } from "@/hooks/use-sync-dialog-open-state";
+import { WarehouseTypeBadge } from "@/lib/ui/semantic-badges";
+import { WAREHOUSE_TYPE_OPTIONS } from "@/lib/ui/warehouse-type-styles";
 import { Warehouse } from "@/types";
 
 interface WarehouseDialogProps {
@@ -131,16 +133,6 @@ export default function WarehouseDialog({
     }
   };
 
-  // Predefined warehouse types
-  const warehouseTypes = [
-    { value: "main", label: "Main Warehouse" },
-    { value: "secondary", label: "Secondary" },
-    { value: "storage", label: "Storage" },
-    { value: "distribution", label: "Distribution Center" },
-    { value: "retail", label: "Retail Store" },
-    { value: "other", label: "Other" },
-  ];
-
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       {children && <DialogTrigger asChild>{children}</DialogTrigger>}
@@ -189,31 +181,49 @@ export default function WarehouseDialog({
             <DialogFormLabel htmlFor="warehouse-type" icon={Layers} optional>
               Warehouse Type
             </DialogFormLabel>
+            {/* REQ-0186 — solid trigger / opaque items (ticket Status Select parity) */}
             <DeferredSelectGate
               enabled={open}
               placeholder={
                 <div
                   className={cn(
-                    "flex h-11 w-full items-center rounded-md px-2 text-sm text-white/60",
+                    "flex h-11 w-full items-center rounded-md px-2 text-sm",
                     DIALOG_FORM_FIELD_TEAL,
                   )}
                   aria-hidden
                 >
-                  {warehouseTypes.find((wt) => wt.value === type)?.label ??
-                    "Select type"}
+                  {type ? (
+                    <WarehouseTypeBadge
+                      type={type}
+                      size="compact"
+                      contrast="solid"
+                    />
+                  ) : (
+                    <span className="text-white/60">Select type</span>
+                  )}
                 </div>
               }
             >
               {({ selectRemountKey }) => (
                 <Select
                   key={selectRemountKey}
+                  // REQ-0186 — always string so Radix stays controlled (never undefined)
                   value={type}
                   onValueChange={setType}
                 >
                   <SelectTrigger
+                    id="warehouse-type"
                     className={cn("h-11 w-full", DIALOG_FORM_FIELD_TEAL)}
                   >
-                    <SelectValue placeholder="Select type" />
+                    <SelectValue placeholder="Select type">
+                      {type ? (
+                        <WarehouseTypeBadge
+                          type={type}
+                          size="compact"
+                          contrast="solid"
+                        />
+                      ) : null}
+                    </SelectValue>
                   </SelectTrigger>
                   <SelectContent
                     className={cn(DIALOG_SELECT_CONTENT_CLASS, "z-[100]")}
@@ -221,13 +231,17 @@ export default function WarehouseDialog({
                     sideOffset={5}
                     align="start"
                   >
-                    {warehouseTypes.map((wt) => (
+                    {WAREHOUSE_TYPE_OPTIONS.map((wt) => (
                       <SelectItem
                         key={wt.value}
                         value={wt.value}
                         className={DIALOG_SELECT_ITEM_CLASS}
                       >
-                        {wt.label}
+                        <WarehouseTypeBadge
+                          type={wt.value}
+                          size="compact"
+                          contrast="opaque"
+                        />
                       </SelectItem>
                     ))}
                   </SelectContent>

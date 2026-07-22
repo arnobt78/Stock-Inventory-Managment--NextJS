@@ -526,5 +526,5 @@
 | ART-0202b | REQ-0202 | densify-richer SSR sync policy + tests | ssr-sync-policy |
 | ART-0202c | REQ-0202 | Product supplier image + reviewerEmail | product-detail-data, product-reviews-detail, by-product |
 | TC-0108 | REQ-0202 | Gates lint/test/invalidate/build |
-| ART-0186a | REQ-0186 | Warehouse dialog + detail UI (planned) | TBD |
+| ART-0186a | REQ-0186 | WarehouseTypeBadge + getWarehouseTypeLabel; table/dialog/View Details; Select controlled | done |
 | ART-0187a | REQ-0187 | Order dialog UI polish (planned) | TBD |
