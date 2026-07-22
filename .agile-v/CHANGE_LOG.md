@@ -74,3 +74,9 @@
 | 2026-07-22 | REQ-0186 warehouse Type badge / View Details / dialog Select | REQ-0186 |
 
 | 2026-07-22 | REQ-0186 gap — long Type labels + Select controlled | REQ-0186 |
+
+| 2026-07-22 | REQ-0203 warehouse detail + Allocate/Transfer densify | REQ-0203 |
+
+| 2026-07-22 | REQ-0203 gap — muted SKU, meta/actions layout, Transfer owner densify | REQ-0203 |
+
+| 2026-07-22 | REQ-0203 DRY — productSupplierImage/Id shared in ProductOptionRow | REQ-0203 |

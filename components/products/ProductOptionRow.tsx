@@ -7,6 +7,7 @@
 import { Boxes, DollarSign, Package, Tag } from "lucide-react";
 import { SafeImage } from "@/components/ui/safe-image";
 import { AvatarInlineLink } from "@/components/shared/AvatarInlineLink";
+import type { Product } from "@/types";
 import { cn } from "@/lib/utils";
 
 const thumbSize = {
@@ -159,6 +160,27 @@ export function productSupplierLabel(
 ): string | null {
   if (!supplier) return null;
   return typeof supplier === "string" ? supplier : supplier.name;
+}
+
+/** REQ-0203 — supplier avatar for DialogProductOptionRow densify (Allocate/Transfer). */
+export function productSupplierImage(
+  product: Product,
+): string | null | undefined {
+  if (product.supplierImage) return product.supplierImage;
+  if (product.supplier && typeof product.supplier === "object") {
+    return product.supplier.image ?? null;
+  }
+  return null;
+}
+
+export function productSupplierId(
+  product: Product,
+): string | null | undefined {
+  if (product.supplierId) return product.supplierId;
+  if (product.supplier && typeof product.supplier === "object") {
+    return product.supplier.id;
+  }
+  return null;
 }
 
 export type DialogProductOptionRowProps = {

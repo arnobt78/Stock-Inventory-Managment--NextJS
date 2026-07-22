@@ -49,3 +49,9 @@ Format: `timestamp | agent | span | req_ids | note`
 2026-07-22T10:50:00Z | build | REQ-0186-ship | AC1–AC3 | warehouse table+dialog UI PASS
 
 2026-07-22T11:07:00Z | build | REQ-0186-gap | labels+Select control PASS
+
+2026-07-22T12:21:00Z | build | REQ-0203-ship | AC1–AC6 PASS
+
+2026-07-22T14:40:00Z | build | REQ-0203-gap | stock-row+Transfer-owner PASS
+
+2026-07-22T14:52:00Z | build | REQ-0203-dry | productSupplier helpers PASS

@@ -1,10 +1,63 @@
 # Validation Summary — Cycle C1
 
-**Generated:** 2026-07-22 (REQ-0186 ship)
+**Generated:** 2026-07-22 (REQ-0203 DRY helpers)
 **eval_gate_status:** PENDING (Human Gate 2)
 **Active:** **REQ-0187** order dialog → REQ-0136
-**Last ship:** REQ-0186 warehouse table + dialog UI
-**Prod target SHA:** `43dda87` (prior) · local REQ-0186
+**Last ship:** REQ-0203 DRY `productSupplierImage`/`Id`
+**Prod target SHA:** `ac7410c` (prior) · local REQ-0203
+
+---
+
+## REQ-0203 DRY — productSupplier helpers
+
+| Check | Result |
+| ----- | ------ |
+| Hub | `productSupplierImage` / `productSupplierId` in `ProductOptionRow` |
+| Consumers | Allocate + Transfer import shared; locals removed |
+| Invalidation | unchanged |
+| Gates | lint ✓ test **685** ✓ invalidate **217** ✓ build ✓ |
+
+```
+Scope: built/verified | Traceability: REQ-0203 | Findings: PASS
+Commands: lint, test, test:invalidate, build
+```
+
+---
+
+## REQ-0203 gap — stock row + Transfer owner densify
+
+| Check | Result |
+| ----- | ------ |
+| SKU mute | stock row SKU `text-muted-foreground` / gray (not sky) |
+| Layout | catalog meta under product left; edit/delete `flex-row` same row |
+| Transfer densify | `useProducts` Map join → owner + supplierImage on picker |
+| Invalidation | unchanged |
+| Gates | lint ✓ test **685** ✓ invalidate **217** ✓ build ✓ |
+
+```
+Scope: built/verified | Traceability: REQ-0203 | Findings: PASS
+Commands: lint, test, test:invalidate, build
+```
+
+---
+
+## REQ-0203 Warehouse detail + Allocate/Transfer evidence
+
+| Check | Result |
+| ----- | ------ |
+| Header Status | trailing compact chip (no tall card) |
+| Section order | Stats → Info\|Stock → Insights |
+| TYPO | Insights + Info/Stock `TYPO_CARD_TITLE` / `TYPO_SUBTITLE` |
+| Stock rows | name·SKU; category·supplier; (gap: meta left + inline actions) |
+| Allocate/Transfer | `DialogProductOptionRow` + right Check; destination type badge |
+| Roles | `canManageStock` includes user; footer CRUD gated |
+| Invalidation | unchanged |
+| Gates | lint ✓ test **685** ✓ invalidate **217** ✓ build ✓ |
+
+```
+Scope: built/verified | Traceability: REQ-0203 | Findings: PASS
+Commands: lint, test, test:invalidate, build
+```
 
 ---
 

@@ -53,12 +53,18 @@ import {
   DIALOG_SELECT_ITEM_CLASS,
   getStockQuantityValidation,
 } from "@/components/shared";
-import { ProductOptionRow } from "@/components/products/ProductOptionRow";
+import {
+  DialogProductOptionRow,
+  productSupplierId,
+  productSupplierImage,
+} from "@/components/products/ProductOptionRow";
+import { WarehouseTypeBadge } from "@/lib/ui/semantic-badges";
 import {
   useCreateStockTransfer,
+  useProducts,
   useWarehouses,
 } from "@/hooks/queries";
-import type { StockAllocation } from "@/types";
+import type { Product, StockAllocation } from "@/types";
 import { cn } from "@/lib/utils";
 
 const TRANSFER_DIALOG_CONTENT_CLASS = `${DIALOG_EDGE_SCROLL_SHELL} poppins border-teal-400/30 dark:border-teal-400/30 shadow-[0_30px_80px_rgba(20,184,166,0.35)] dark:shadow-[0_30px_80px_rgba(20,184,166,0.25)]`;
@@ -85,7 +91,15 @@ export default function TransferStockDialog({
   const [pickerOpen, setPickerOpen] = useState(false);
 
   const { data: warehouses = [] } = useWarehouses();
+  // REQ-0203 gap — join catalog products for owner/supplier densify on picker rows
+  const { data: products = [] } = useProducts();
   const transferMutation = useCreateStockTransfer();
+
+  const productById = useMemo(() => {
+    const map = new Map<string, Product>();
+    for (const p of products) map.set(p.id, p);
+    return map;
+  }, [products]);
 
   const destinationOptions = useMemo(
     () => warehouses.filter((w) => w.id !== fromWarehouseId && w.status),
@@ -104,6 +118,10 @@ export default function TransferStockDialog({
     () => stockAllocations.find((a) => a.productId === productId),
     [stockAllocations, productId],
   );
+
+  const selectedCatalog = productId
+    ? productById.get(productId)
+    : undefined;
 
   const maxAvailable = selectedAllocation
     ? selectedAllocation.quantity - selectedAllocation.reservedQuantity
@@ -201,23 +219,35 @@ export default function TransferStockDialog({
                       )}
                     >
                       {selectedAllocation?.product ? (
-                        <ProductOptionRow
+                        <DialogProductOptionRow
                           name={selectedAllocation.product.name}
                           imageUrl={selectedAllocation.product.imageUrl}
+                          sku={selectedAllocation.product.sku}
                           price={selectedAllocation.product.price}
-                          availableQuantity={
+                          quantity={
                             selectedAllocation.quantity -
                             selectedAllocation.reservedQuantity
                           }
                           categoryName={
                             selectedAllocation.product.categoryName
                           }
+                          ownerId={selectedCatalog?.userId}
+                          ownerName={selectedCatalog?.productOwnerName}
+                          ownerImage={selectedCatalog?.productOwnerImage}
+                          supplierId={
+                            selectedCatalog
+                              ? productSupplierId(selectedCatalog)
+                              : selectedAllocation.product.supplierId
+                          }
                           supplierName={
                             selectedAllocation.product.supplierName
                           }
-                          showMeta
+                          supplierImage={
+                            selectedCatalog
+                              ? productSupplierImage(selectedCatalog)
+                              : undefined
+                          }
                           metaOnDark
-                          size="sm"
                           className="flex-1"
                         />
                       ) : (
@@ -244,32 +274,46 @@ export default function TransferStockDialog({
                         <CommandGroup>
                           {allocatable.map((a) => {
                             const avail = a.quantity - a.reservedQuantity;
+                            const catalog = productById.get(a.productId);
                             return (
                               <CommandItem
                                 key={a.id}
-                                value={`${a.product?.name ?? ""} ${a.product?.sku ?? ""}`}
+                                value={`${a.product?.name ?? ""} ${a.product?.sku ?? ""} ${catalog?.productOwnerName ?? ""}`}
                                 onSelect={() => {
                                   setProductId(a.productId);
                                   setPickerOpen(false);
                                 }}
-                                className="py-2"
+                                className="relative py-2 pr-8"
                               >
+                                <DialogProductOptionRow
+                                  name={a.product?.name ?? "Product"}
+                                  imageUrl={a.product?.imageUrl}
+                                  sku={a.product?.sku}
+                                  price={a.product?.price}
+                                  quantity={avail}
+                                  categoryName={a.product?.categoryName}
+                                  ownerId={catalog?.userId}
+                                  ownerName={catalog?.productOwnerName}
+                                  ownerImage={catalog?.productOwnerImage}
+                                  supplierId={
+                                    catalog
+                                      ? productSupplierId(catalog)
+                                      : a.product?.supplierId
+                                  }
+                                  supplierName={a.product?.supplierName}
+                                  supplierImage={
+                                    catalog
+                                      ? productSupplierImage(catalog)
+                                      : undefined
+                                  }
+                                />
                                 <Check
                                   className={cn(
-                                    "mr-2 h-4 w-4 shrink-0",
+                                    "absolute right-2 h-4 w-4 shrink-0",
                                     productId === a.productId
                                       ? "opacity-100"
                                       : "opacity-0",
                                   )}
-                                />
-                                <ProductOptionRow
-                                  name={a.product?.name ?? "Product"}
-                                  imageUrl={a.product?.imageUrl}
-                                  price={a.product?.price}
-                                  availableQuantity={avail}
-                                  categoryName={a.product?.categoryName}
-                                  supplierName={a.product?.supplierName}
-                                  showMeta
                                 />
                               </CommandItem>
                             );
@@ -290,6 +334,7 @@ export default function TransferStockDialog({
                 <DialogFormLabel icon={Warehouse} required>
                   Destination
                 </DialogFormLabel>
+                {/* REQ-0203 — type badge + name; Select check stays right */}
                 <Select
                   value={toWarehouseId}
                   onValueChange={setToWarehouseId}
@@ -303,7 +348,30 @@ export default function TransferStockDialog({
                       DIALOG_FORM_FIELD_TEAL,
                     )}
                   >
-                    <SelectValue placeholder="Select warehouse…" />
+                    <SelectValue placeholder="Select warehouse…">
+                      {toWarehouseId
+                        ? (() => {
+                            const w = destinationOptions.find(
+                              (d) => d.id === toWarehouseId,
+                            );
+                            if (!w) return null;
+                            return (
+                              <span className="flex min-w-0 items-center gap-2">
+                                {w.type ? (
+                                  <WarehouseTypeBadge
+                                    type={w.type}
+                                    size="compact"
+                                    contrast="solid"
+                                  />
+                                ) : null}
+                                <span className="truncate text-sm text-white">
+                                  {w.name}
+                                </span>
+                              </span>
+                            );
+                          })()
+                        : null}
+                    </SelectValue>
                   </SelectTrigger>
                   <SelectContent
                     className={cn(DIALOG_SELECT_CONTENT_CLASS)}
@@ -317,7 +385,16 @@ export default function TransferStockDialog({
                         value={w.id}
                         className={DIALOG_SELECT_ITEM_CLASS}
                       >
-                        {w.name}
+                        <span className="flex min-w-0 items-center gap-2">
+                          {w.type ? (
+                            <WarehouseTypeBadge
+                              type={w.type}
+                              size="compact"
+                              contrast="opaque"
+                            />
+                          ) : null}
+                          <span className="truncate">{w.name}</span>
+                        </span>
                       </SelectItem>
                     ))}
                   </SelectContent>

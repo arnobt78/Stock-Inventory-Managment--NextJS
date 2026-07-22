@@ -403,6 +403,34 @@ Canonical REQ source. All artifacts link via `REQ-XXXX`. Status: `done` | `verif
 
 ---
 
+## REQ-0203 — Warehouse detail + Allocate/Transfer UI polish
+
+| Field | Value |
+|-------|-------|
+| **Priority** | P2 |
+| **Risk** | R1 |
+| **Status** | done |
+| **Cycle** | C2 |
+| **Parent** | REQ-0136 |
+
+**Intent:** Compact detail header status, reorder Info/Stock under stats, TYPO tokens, densify stock rows, ticket-parity product pickers on Allocate/Transfer.
+
+**Acceptance criteria**
+
+- AC1: Status compact in `PageSectionHeader.trailing`; no tall status card
+- AC2: Info|Stock directly under 4 stats; Insights after
+- AC3: Insights + Info/Stock titles use `TYPO_CARD_TITLE` / `TYPO_SUBTITLE`
+- AC4: Stock rows name·SKU (muted) / category·supplier; catalog meta left; edit/delete inline
+- AC5: Allocate/Transfer use `DialogProductOptionRow` (Transfer joins `useProducts` for owner densify); destination `WarehouseTypeBadge` + check
+- AC6: Footer CRUD gated by `canManageStock`; invalidation unchanged; gates pass
+
+**Gap (2026-07-22):** muted SKU; catalog meta + inline actions; Transfer owner densify via catalog join — no API/invalidation.  
+**DRY (2026-07-22):** `productSupplierImage` / `productSupplierId` live in `ProductOptionRow`; Allocate/Transfer import.
+
+**Artifacts:** `WarehouseDetailPage`, `WarehouseStockAllocationRow`, `WarehouseInsightsSection`, `AllocateStockDialog`, `TransferStockDialog`, `ProductOptionRow`
+
+---
+
 ## REQ-0187 — Order dialog UI polish
 
 | Field | Value |

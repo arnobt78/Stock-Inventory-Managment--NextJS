@@ -517,3 +517,12 @@ Format: `TIMESTAMP | AGENT | DECISION | RATIONALE | REQ-ID`
 
 2026-07-22T11:07:00Z | build-agent | REQ-0186 gap closure | getWarehouseTypeLabel; drop WarehouseTypeOptionValue; Select value=type always controlled | REQ-0186
 2026-07-22T11:07:00Z | red-team | REQ-0186 gap gates | lint ✓ warehouse-type 6 ✓ invalidate 217 ✓ | REQ-0186
+
+2026-07-22T12:21:00Z | build-agent | REQ-0203 warehouse detail polish | header Status trailing; Info|Stock under stats; TYPO; stock row densify; Allocate/Transfer DialogProductOptionRow + destination badge; canManageStock includes user | REQ-0203
+2026-07-22T12:21:00Z | red-team | REQ-0203 gates | lint ✓ test 685 ✓ invalidate 217 ✓ build ✓ | REQ-0203
+
+2026-07-22T14:40:00Z | build-agent | REQ-0203 gap | muted SKU; catalog meta left + edit/delete inline; Transfer useProducts owner densify | REQ-0203
+2026-07-22T14:40:00Z | red-team | REQ-0203 gap gates | lint ✓ test 685 ✓ invalidate 217 ✓ build ✓ | REQ-0203
+
+2026-07-22T14:52:00Z | build-agent | REQ-0203 DRY | productSupplierImage/Id → ProductOptionRow; Allocate+Transfer import | REQ-0203
+2026-07-22T14:52:00Z | red-team | REQ-0203 DRY gates | lint ✓ test 685 ✓ invalidate 217 ✓ build ✓ | REQ-0203

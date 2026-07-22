@@ -172,7 +172,7 @@ All user-facing POST/PUT JSON bodies use `safeParse` + `logger.warn` on fail. Ne
 
 **Every session:** STATE → REQ map → skill 01+17 → Red Team → write-through DECISION/BUILD/VALIDATION.
 
-**C1 open:** Gate 2 PENDING. **Stopped 2026-07-22:** **REQ-0186** warehouse UI (+ gap labels/Select). **Next:** **REQ-0187** order dialog → 0136.
+**C1 open:** Gate 2 PENDING. **Stopped 2026-07-22:** **REQ-0203** warehouse detail (gap+DRY). **Next:** **REQ-0187** → 0136.
 
 ## Support tickets + dialogs (REQ-0193–0202)
 
@@ -946,7 +946,18 @@ Hub: `lib/ui/typography-scale.ts`. Hubs import tokens; ~45 inline files use equi
 
 **Invalidation unchanged** — review/product/dashboard CRUD already clears lists + portals.
 
-**Active wave:** **0186** done → **0187** order dialog → **0136** Gate 2.
+**Active wave:** **0203** done → **0187** order dialog → **0136** Gate 2.
+
+## Warehouse detail + Allocate/Transfer (REQ-0203)
+
+| Piece | Location |
+|-------|----------|
+| Header / order | Status trailing; Stats → Info\|Stock → Insights |
+| Stock rows | muted SKU; catalog meta left; edit/delete inline |
+| Dialogs | `DialogProductOptionRow`; Transfer `useProducts` owner join |
+| DRY | `productSupplierImage`/`Id` in `ProductOptionRow` |
+
+**Invalidation unchanged** — `invalidateAfterStockChange`.
 
 | 0185–96 | ticket densify · detail/chat · non-admin parity · GlassCard pad |
 | 0197–201 | optional product · dialog open/combobox · owner-products · Related densify |

@@ -4,11 +4,11 @@
 |-------|-------|
 | **Cycle** | C2 (C1 Gate 2 still PENDING) |
 | **Phase** | Stage 3–4 — **REQ-0187** next |
-| **Stopped** | 2026-07-22 — **REQ-0186** (+ gap: long labels + Select controlled) |
-| **Session** | 2026-07-22 — Infinity Loop; REQ-0186 ship + gap closure |
+| **Stopped** | 2026-07-22 — **REQ-0203** DRY helpers done |
+| **Session** | 2026-07-22 — REQ-0203 DRY; next REQ-0187 |
 | **Active REQ** | **REQ-0187** → **REQ-0136** |
-| **Done range** | REQ-0001…0135 + 0137–0186 + **0188–0202** |
-| **Prod SHA** | `ac7410c` (REQ-0186 on `origin/main`) |
+| **Done range** | REQ-0001…0135 + 0137–0186 + **0188–0203** |
+| **Prod SHA** | local (REQ-0203 unpushed) · prior `6b3e76b` |
 | **Human Gate 1** | APPROVED (GATE-0001) |
 | **Human Gate 2** | PENDING — after 0187 + §10 smoke → Sentry 24h |
 | **Resume token** | `tomorrow-0187-order-dialog` → **REQ-0187** |
@@ -29,9 +29,9 @@
 
 | REQ | One-liner |
 |-----|-----------|
-| 0186 | Warehouse Type badge/table/dialog; View Details; CopyableText; `getWarehouseTypeLabel`; Select always controlled |
+| 0203 | Detail + Allocate/Transfer; gap layout; DRY productSupplier helpers |
 
-**Gates (0186):** lint ✓ test **684** ✓ invalidate **217** ✓ build ✓
+**Gates (0203):** lint ✓ test **685** ✓ invalidate **217** ✓ build ✓
 
 ---
 

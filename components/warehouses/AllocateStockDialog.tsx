@@ -46,13 +46,15 @@ import {
   getStockQuantityValidation,
 } from "@/components/shared";
 import {
-  ProductOptionRow,
+  DialogProductOptionRow,
   productCategoryLabel,
+  productSupplierId,
+  productSupplierImage,
   productSupplierLabel,
 } from "@/components/products/ProductOptionRow";
 import { useCreateStockAllocation, useProducts, useStockByProduct, useUpdateStockAllocation } from "@/hooks/queries";
 import { getAllocationQtyBounds } from "@/lib/stock-allocation/validate-allocation-quantity";
-import type { StockAllocation } from "@/types";
+import type { Product, StockAllocation } from "@/types";
 import { cn } from "@/lib/utils";
 
 const ALLOCATE_DIALOG_CONTENT_CLASS = `${DIALOG_EDGE_SCROLL_SHELL} poppins border-violet-400/30 dark:border-violet-400/30 shadow-[0_30px_80px_rgba(139,92,246,0.35)] dark:shadow-[0_30px_80px_rgba(139,92,246,0.25)]`;
@@ -228,20 +230,24 @@ export default function AllocateStockDialog({
                       )}
                     >
                       {selectedProduct ? (
-                        <ProductOptionRow
+                        <DialogProductOptionRow
                           name={selectedProduct.name}
                           imageUrl={selectedProduct.imageUrl}
+                          sku={selectedProduct.sku}
                           price={selectedProduct.price}
                           quantity={selectedProduct.quantity}
                           categoryName={productCategoryLabel(
                             selectedProduct.category,
                           )}
+                          ownerId={selectedProduct.userId}
+                          ownerName={selectedProduct.productOwnerName}
+                          ownerImage={selectedProduct.productOwnerImage}
+                          supplierId={productSupplierId(selectedProduct)}
                           supplierName={productSupplierLabel(
                             selectedProduct.supplier,
                           )}
-                          showMeta
+                          supplierImage={productSupplierImage(selectedProduct)}
                           metaOnDark
-                          size="sm"
                           className="flex-1"
                         />
                       ) : (
@@ -274,22 +280,29 @@ export default function AllocateStockDialog({
                                 setProductId(p.id);
                                 setPickerOpen(false);
                               }}
-                              className="py-2"
+                              className="relative py-2 pr-8"
                             >
-                              <Check
-                                className={cn(
-                                  "mr-2 h-4 w-4 shrink-0",
-                                  productId === p.id ? "opacity-100" : "opacity-0",
-                                )}
-                              />
-                              <ProductOptionRow
+                              <DialogProductOptionRow
                                 name={p.name}
                                 imageUrl={p.imageUrl}
+                                sku={p.sku}
                                 price={p.price}
                                 quantity={p.quantity}
                                 categoryName={productCategoryLabel(p.category)}
+                                ownerId={p.userId}
+                                ownerName={p.productOwnerName}
+                                ownerImage={p.productOwnerImage}
+                                supplierId={productSupplierId(p)}
                                 supplierName={productSupplierLabel(p.supplier)}
-                                showMeta
+                                supplierImage={productSupplierImage(p)}
+                              />
+                              <Check
+                                className={cn(
+                                  "absolute right-2 h-4 w-4 shrink-0",
+                                  productId === p.id
+                                    ? "opacity-100"
+                                    : "opacity-0",
+                                )}
                               />
                             </CommandItem>
                           ))}

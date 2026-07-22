@@ -22,10 +22,11 @@ import {
   formatChartCountLabel,
 } from "@/lib/ui/chart-point-label";
 import { DetailInfoRow } from "@/components/orders/detail";
-import { GlassCard, SectionTitleRow } from "@/components/shared";
+import { GlassCard } from "@/components/shared";
 import { UrgentReorderForecastTable } from "@/components/shared/catalog-detail/UrgentReorderForecastTable";
 import type { WarehouseInsights } from "@/types/warehouse-insights";
 import type { CategoryForecastUrgentRow } from "@/types/category";
+import { TYPO_CARD_TITLE, TYPO_SUBTITLE } from "@/lib/ui/typography-scale";
 import {
   Bar,
   BarChart,
@@ -89,10 +90,8 @@ export function WarehouseInsightsSection({
             <Boxes className="h-4 w-4 text-gray-700 dark:text-white" />
           </div>
           <div>
-            <h3 className="text-sm sm:text-base font-medium text-gray-700 dark:text-white">
-              Warehouse Insights
-            </h3>
-            <p className="text-xs text-gray-600 dark:text-white/80">
+            <h3 className={TYPO_CARD_TITLE}>Warehouse Insights</h3>
+            <p className={TYPO_SUBTITLE}>
               Stock allocation signals for this warehouse
             </p>
           </div>
@@ -134,7 +133,7 @@ export function WarehouseInsightsSection({
       </GlassCard>
 
       <ChartCard
-        title="Stock allocation"
+        title="Stock Allocation"
         description="Available vs reserved units"
         icon={PieChartIcon}
         variant="amber"
@@ -173,7 +172,7 @@ export function WarehouseInsightsSection({
 
       {categoryChartData.length > 0 && (
         <ChartCard
-          title="Category mix"
+          title="Category Mix"
           description="SKU count by product category"
           icon={BarChart3}
           variant="sky"

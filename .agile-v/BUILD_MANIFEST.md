@@ -528,3 +528,7 @@
 | TC-0108 | REQ-0202 | Gates lint/test/invalidate/build |
 | ART-0186a | REQ-0186 | WarehouseTypeBadge + getWarehouseTypeLabel; table/dialog/View Details; Select controlled | done |
 | ART-0187a | REQ-0187 | Order dialog UI polish (planned) | TBD |
+
+| ART-0203a | REQ-0203 | WarehouseDetailPage header/reorder/TYPO; stock row; Allocate/Transfer pickers | done |
+| ART-0203b | REQ-0203 | Stock row muted SKU + meta/actions layout; Transfer useProducts owner densify | done |
+| ART-0203c | REQ-0203 | DRY productSupplierImage/Id in ProductOptionRow; Allocate+Transfer | done |

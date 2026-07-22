@@ -47,7 +47,6 @@ import {
   PageContentWrapper,
   DataSlotPulse,
   PageSectionHeader,
-  GLASS_GHOST_BUTTON,
   glassDetailBackButtonClass,
   glassDetailFooterButtonClass,
   DETAIL_HEADER_BACK_ICON_CLASS,
@@ -87,7 +86,11 @@ import {
   APP_SHELL_DETAIL_CLASS,
   DETAIL_PAGE_HEADER_SPACING_CLASS,
 } from "@/lib/ui/shell-layout-styles";
-import { detailStatValueToneClass } from "@/lib/ui/typography-scale";
+import {
+  detailStatValueToneClass,
+  TYPO_CARD_TITLE,
+  TYPO_SUBTITLE,
+} from "@/lib/ui/typography-scale";
 
 export type WarehouseDetailPageProps = {
   embedInAdmin?: boolean;
@@ -205,8 +208,10 @@ export default function WarehouseDetailPage({
         : `/suppliers/${supplierId}`
       : null;
 
+  // REQ-0203 — store owners (user) + admin/supplier manage warehouse stock CRUD
   const canManageStock =
     user?.role === "admin" ||
+    user?.role === "user" ||
     user?.role === "supplier" ||
     Boolean(embedInAdmin);
 
@@ -323,20 +328,25 @@ export default function WarehouseDetailPage({
                 semantic="created"
               />
             }
+            trailing={
+              dataLoading ? (
+                <DataSlotPulse variant="badge" className="self-center" />
+              ) : warehouse != null ? (
+                // REQ-0203 — compact status chip; matches title+Created row height
+                <div className="flex shrink-0 flex-col items-end justify-center gap-0.5 self-center">
+                  <span className="inline-flex items-center gap-1 text-[10px] uppercase tracking-wide text-gray-500 dark:text-white/60">
+                    <CheckCircle2 className="h-3 w-3 shrink-0" aria-hidden />
+                    Status
+                  </span>
+                  <ActiveInactiveBadge
+                    active={Boolean(warehouse.status)}
+                    size="compact"
+                    className="self-end text-sm shrink-0"
+                  />
+                </div>
+              ) : undefined
+            }
           />
-
-          {/* Status Card */}
-          <GlassCard variant={warehouse?.status ? "emerald" : "rose"}>
-            <GlassCardBody>
-              <p className="text-xs uppercase tracking-[0.25em] text-gray-600 dark:text-white/80 mb-3">
-                Warehouse Status
-              </p>
-              <ActiveInactiveBadge
-                active={Boolean(warehouse?.status)}
-                size="detail"
-              />
-            </GlassCardBody>
-          </GlassCard>
 
           {/* Stock Summary Statistics */}
           {stockSummary && stockSummary.totalProducts > 0 && (
@@ -440,39 +450,26 @@ export default function WarehouseDetailPage({
             </div>
           )}
 
-          {!isLoadingStock && (
-            <WarehouseInsightsSection
-              insights={warehouseInsights}
-              dataLoading={isLoadingStock}
-              isAdminRole={isAdminRole}
-              forecastLoading={forecastLoading}
-              urgentRows={warehouseForecast?.topUrgent}
-              productHref={productHref}
-              showUrgentForecastTable={
-                isAdminRole &&
-                (forecastLoading ||
-                  (warehouseForecast?.topUrgent.length ?? 0) > 0)
-              }
-            />
-          )}
-
-          {/* Warehouse Information & Stock */}
+          {/* REQ-0203 — Info|Stock directly under stats; Insights below */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-2 sm:gap-4">
             <GlassCard variant="cyan">
               <GlassCardBody>
                 <div className="flex items-center gap-2 mb-4">
                   <div
                     className={cn(
-                      "p-2 rounded-xl border",
+                      "flex h-9 w-9 items-center justify-center rounded-xl border",
                       variantConfig.cyan.iconBg,
                       "dark:border-cyan-400/30 dark:bg-cyan-500/20",
                     )}
                   >
-                    <Building2 className="h-5 w-5 text-cyan-600 dark:text-cyan-400" />
+                    <Building2 className="h-4 w-4 text-cyan-600 dark:text-cyan-400" />
                   </div>
-                  <h3 className="text-sm sm:text-base font-medium text-gray-700 dark:text-white">
-                    Warehouse Information
-                  </h3>
+                  <div>
+                    <h3 className={TYPO_CARD_TITLE}>Warehouse Information</h3>
+                    <p className={TYPO_SUBTITLE}>
+                      Location metadata and audit fields
+                    </p>
+                  </div>
                 </div>
 
                 <div className="space-y-2">
@@ -596,24 +593,21 @@ export default function WarehouseDetailPage({
               </GlassCardBody>
             </GlassCard>
 
-            {/* Stock by warehouse */}
             <GlassCard variant="violet">
               <GlassCardBody>
                 <div className="flex items-center gap-2 mb-2">
                   <div
                     className={cn(
-                      "p-2 rounded-xl border",
+                      "flex h-9 w-9 items-center justify-center rounded-xl border",
                       variantConfig.violet.iconBg,
                       "dark:border-violet-400/30 dark:bg-violet-500/20",
                     )}
                   >
-                    <Package className="h-5 w-5 text-violet-600 dark:text-violet-400" />
+                    <Package className="h-4 w-4 text-violet-600 dark:text-violet-400" />
                   </div>
                   <div className="min-w-0 flex-1">
                     <div className="flex flex-wrap items-center gap-2">
-                      <h3 className="text-sm sm:text-base font-medium text-gray-700 dark:text-white">
-                        Stock in Warehouse
-                      </h3>
+                      <h3 className={TYPO_CARD_TITLE}>Stock in Warehouse</h3>
                       {!isLoadingStock &&
                       stockAllocations &&
                       stockAllocations.length > 0 ? (
@@ -622,7 +616,7 @@ export default function WarehouseDetailPage({
                         </SectionCountBadge>
                       ) : null}
                     </div>
-                    <p className="text-xs text-gray-600 dark:text-gray-300">
+                    <p className={TYPO_SUBTITLE}>
                       Products allocated to this warehouse
                     </p>
                   </div>
@@ -696,7 +690,23 @@ export default function WarehouseDetailPage({
             </GlassCard>
           </div>
 
-          {/* Action Buttons */}
+          {!isLoadingStock && (
+            <WarehouseInsightsSection
+              insights={warehouseInsights}
+              dataLoading={isLoadingStock}
+              isAdminRole={isAdminRole}
+              forecastLoading={forecastLoading}
+              urgentRows={warehouseForecast?.topUrgent}
+              productHref={productHref}
+              showUrgentForecastTable={
+                isAdminRole &&
+                (forecastLoading ||
+                  (warehouseForecast?.topUrgent.length ?? 0) > 0)
+              }
+            />
+          )}
+
+          {/* Action Buttons — REQ-0203 gate CRUD by canManageStock */}
           <div className="flex flex-col sm:flex-row flex-wrap gap-2">
             <Button
               onClick={() => navigateTo(warehousesListHref)}
@@ -705,48 +715,52 @@ export default function WarehouseDetailPage({
               <ArrowLeft className="h-4 w-4 shrink-0" />
               Back
             </Button>
-            <Button
-              onClick={() => {
-                setEditAllocation(null);
-                setAllocateOpen(true);
-              }}
-              disabled={dataLoading || !warehouse}
-              className={glassDetailFooterButtonClass("violet")}
-            >
-              <Plus className="h-4 w-4 shrink-0" />
-              Allocate Stock
-            </Button>
-            <Button
-              onClick={() => setTransferOpen(true)}
-              disabled={
-                dataLoading ||
-                !warehouse ||
-                !stockAllocations?.some(
-                  (a) => a.quantity - a.reservedQuantity > 0,
-                )
-              }
-              className={glassDetailFooterButtonClass("teal")}
-            >
-              <ArrowRightLeft className="h-4 w-4 shrink-0" />
-              Transfer Stock
-            </Button>
-            <Button
-              onClick={handleEdit}
-              className={glassDetailFooterButtonClass("blue")}
-            >
-              <Edit className="h-4 w-4 shrink-0" />
-              Edit Warehouse
-            </Button>
-            <DialogSubmitButton
-              type="button"
-              onClick={() => setDeleteDialogOpen(true)}
-              isPending={isDeleting}
-              pendingLabel="Deleting…"
-              label="Delete Warehouse"
-              icon={Trash2}
-              hue="rose"
-              className="group w-full sm:w-auto gap-2 !text-white"
-            />
+            {canManageStock ? (
+              <>
+                <Button
+                  onClick={() => {
+                    setEditAllocation(null);
+                    setAllocateOpen(true);
+                  }}
+                  disabled={dataLoading || !warehouse}
+                  className={glassDetailFooterButtonClass("violet")}
+                >
+                  <Plus className="h-4 w-4 shrink-0" />
+                  Allocate Stock
+                </Button>
+                <Button
+                  onClick={() => setTransferOpen(true)}
+                  disabled={
+                    dataLoading ||
+                    !warehouse ||
+                    !stockAllocations?.some(
+                      (a) => a.quantity - a.reservedQuantity > 0,
+                    )
+                  }
+                  className={glassDetailFooterButtonClass("teal")}
+                >
+                  <ArrowRightLeft className="h-4 w-4 shrink-0" />
+                  Transfer Stock
+                </Button>
+                <Button
+                  onClick={handleEdit}
+                  className={glassDetailFooterButtonClass("blue")}
+                >
+                  <Edit className="h-4 w-4 shrink-0" />
+                  Edit Warehouse
+                </Button>
+                <DialogSubmitButton
+                  type="button"
+                  onClick={() => setDeleteDialogOpen(true)}
+                  isPending={isDeleting}
+                  pendingLabel="Deleting…"
+                  label="Delete Warehouse"
+                  icon={Trash2}
+                  hue="rose"
+                  className="group w-full sm:w-auto gap-2 !text-white"
+                />
+              </>
+            ) : null}
           </div>
         </div>
 
