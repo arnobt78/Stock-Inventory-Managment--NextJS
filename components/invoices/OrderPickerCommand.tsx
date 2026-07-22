@@ -10,6 +10,7 @@
  *
  * REQ-0199 — dark glass Combobox trigger (no outline→white hover); modal Popover
  * + onCloseAutoFocus preventDefault so outside-click does not close-then-reopen.
+ * REQ-0187 — densify option rows (icons · dots, name · sku); trigger without (status).
  */
 
 import * as React from "react";
@@ -27,13 +28,14 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { Check, ChevronDown } from "lucide-react";
+import { Boxes, Calendar, Check, ChevronDown, Package } from "lucide-react";
 import { DIALOG_COMBOBOX_TRIGGER_CLASS } from "@/components/shared/dialog-form-field";
 import { DIALOG_SELECT_CONTENT_CLASS } from "@/components/shared/dialog-edge-scroll";
 import { READABLE_POPOVER_CONTENT_CLASS } from "@/lib/ui/popover-readability-styles";
 import { AvatarInlineLink } from "@/components/shared/AvatarInlineLink";
 import { ClientCompactDateTime } from "@/components/shared/ClientFormatDisplay";
 import { OrderStatusBadge, PaymentStatusBadge } from "@/lib/ui/semantic-badges";
+import { getOrderItemUnitCounts } from "@/lib/orders/order-list-meta";
 import { cn } from "@/lib/utils";
 import type { Order } from "@/types";
 
@@ -91,11 +93,31 @@ export function OrderPickerCommand({
             triggerClassName,
           )}
         >
-          <span className="truncate">
-            {selected
-              ? `${selected.orderNumber} - ${fmt(selected.total)} (${selected.status})`
-              : "Select an order..."}
-          </span>
+          {selected ? (
+            <span className="flex min-w-0 flex-1 items-center gap-2 truncate text-left">
+              <span className="truncate font-medium">
+                {selected.orderNumber}
+                <span className="font-normal text-white/70">
+                  {" "}
+                  · {fmt(selected.total)}
+                </span>
+              </span>
+              <OrderStatusBadge
+                status={selected.status}
+                size="compact"
+                contrast="solid"
+                className="shrink-0"
+              />
+              <PaymentStatusBadge
+                status={selected.paymentStatus}
+                size="compact"
+                contrast="solid"
+                className="shrink-0"
+              />
+            </span>
+          ) : (
+            <span className="truncate text-white/60">Select an order...</span>
+          )}
           <ChevronDown className="h-4 w-4 shrink-0 opacity-60" />
         </Button>
       </PopoverTrigger>
@@ -124,19 +146,25 @@ export function OrderPickerCommand({
                   ? order.placedByName || order.placedByEmail || null
                   : null;
                 const items = order.items ?? [];
-                const totalQty = items.reduce(
-                  (sum, item) => sum + item.quantity,
-                  0,
-                );
-                const productNames = items
+                const { itemCount, unitCount } = getOrderItemUnitCounts(items);
+                const productSearch = items
                   .map((item) =>
-                    item.sku ? `${item.productName} (${item.sku})` : item.productName,
+                    item.sku
+                      ? `${item.productName} ${item.sku}`
+                      : item.productName,
                   )
-                  .join(", ");
+                  .join(" ");
+                const productPreview = items
+                  .map((item) =>
+                    item.sku
+                      ? `${item.productName} · ${item.sku}`
+                      : item.productName,
+                  )
+                  .join(" · ");
                 return (
                   <CommandItem
                     key={order.id}
-                    value={`${order.orderNumber} ${placer ?? ""} ${order.total} ${order.status} ${productNames}`}
+                    value={`${order.orderNumber} ${placer ?? ""} ${order.total} ${order.status} ${productSearch}`}
                     onSelect={() => handleSelect(order.id)}
                     className="cursor-pointer items-start py-2"
                   >
@@ -151,20 +179,36 @@ export function OrderPickerCommand({
                           size="detail"
                         />
                       </span>
-                      <span className="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-muted-foreground">
+                      <span className="flex flex-wrap items-center gap-x-1.5 gap-y-1 text-xs text-muted-foreground">
                         <span className="font-medium text-foreground">
                           {fmt(order.total)}
                         </span>
-                        <span>
-                          {items.length} item{items.length === 1 ? "" : "s"} ·{" "}
-                          {totalQty} unit{totalQty === 1 ? "" : "s"}
+                        <span aria-hidden>·</span>
+                        <span className="inline-flex items-center gap-1">
+                          <Package className="h-3 w-3 shrink-0" aria-hidden />
+                          {itemCount} item{itemCount === 1 ? "" : "s"}
                         </span>
-                        {productNames && (
-                          <span className="truncate">{productNames}</span>
-                        )}
+                        <span aria-hidden>·</span>
+                        <span className="inline-flex items-center gap-1">
+                          <Boxes className="h-3 w-3 shrink-0" aria-hidden />
+                          {unitCount} unit{unitCount === 1 ? "" : "s"}
+                        </span>
+                        <span aria-hidden>·</span>
+                        <span className="inline-flex items-center gap-1">
+                          <Calendar className="h-3 w-3 shrink-0" aria-hidden />
+                          <ClientCompactDateTime
+                            date={order.createdAt}
+                            semantic="created"
+                          />
+                        </span>
                       </span>
-                      <span className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted-foreground">
-                        {placer && (
+                      {productPreview ? (
+                        <span className="truncate font-mono text-[11px] text-muted-foreground">
+                          {productPreview}
+                        </span>
+                      ) : null}
+                      {placer ? (
+                        <span className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted-foreground">
                           <AvatarInlineLink
                             label={placer}
                             seed={order.placedByUserId ?? order.userId}
@@ -172,9 +216,8 @@ export function OrderPickerCommand({
                             size={16}
                             linkClassName="text-xs font-normal text-muted-foreground"
                           />
-                        )}
-                        <ClientCompactDateTime date={order.createdAt} semantic="created" />
-                      </span>
+                        </span>
+                      ) : null}
                     </span>
                     {order.id === selectedOrderId && (
                       <Check className="h-4 w-4 shrink-0 text-indigo-500 dark:text-indigo-400" />

@@ -195,8 +195,8 @@ describe("order-line-stock-validation", () => {
       null,
     );
     expect(options).toEqual([
-      { warehouseId: "wh-b", name: "Main", available: 20 },
-      { warehouseId: "wh-a", name: "Warehouse", available: 10 },
+      { warehouseId: "wh-b", name: "Main", available: 20, type: null },
+      { warehouseId: "wh-a", name: "Warehouse", available: 10, type: null },
     ]);
   });
 
@@ -206,7 +206,7 @@ describe("order-line-stock-validation", () => {
       "wh-main",
     );
     expect(options).toEqual([
-      { warehouseId: "wh-main", name: "Warehouse", available: 0 },
+      { warehouseId: "wh-main", name: "Warehouse", available: 0, type: null },
     ]);
   });
 });

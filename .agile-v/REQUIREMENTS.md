@@ -431,25 +431,29 @@ Canonical REQ source. All artifacts link via `REQ-XXXX`. Status: `done` | `verif
 
 ---
 
-## REQ-0187 — Order dialog UI polish
+## REQ-0187 — Invoice/Order dialog densify + catalog STATUS
 
 | Field | Value |
 |-------|-------|
 | **Priority** | P2 |
 | **Risk** | R1 |
-| **Status** | planned |
+| **Status** | done |
 | **Cycle** | C2 |
 | **Parent** | REQ-0136 |
 
-**Intent:** Fix Order create/edit dialog UI bugs found in explore (layout, fields, warehouse pick, totals).
+**Intent:** Densify Invoice create order picker + selected panel (glass-readable), unify Order create line feedback, match Category/Supplier detail STATUS captions to Warehouse.
 
 **Acceptance criteria**
 
-- AC1: Order dialog UI bugs addressed (create + edit)
-- AC2: Stock/warehouse pick still valid; no regression on line validation
-- AC3: Invalidation unchanged; gates pass
+- AC1: Invoice picker — no `(sku)` / `(status)`; icons + `·` densify; trigger shows order # · total + badges
+- AC2: Selected-order panel readable on dark glass (solid badges + white/muted lines; `name · sku`)
+- AC3: Order create line — Subtotal under Product; Required under Qty; Max / stockError / Auto-assign under Warehouse (column-scoped; no full-width band)
+- AC3b: Product picker — searchable Combobox; `DialogProductOptionRow` in trigger + list (gray name, muted SKU/price/stock/reserved, supplier avatar)
+- AC3c: Warehouse picker — name line 1 truncate; line 2 type badge · muted avail (trigger + items)
+- AC4: Category/Supplier header STATUS matches Warehouse (`CheckCircle2` + compact badge)
+- AC5: Invalidation unchanged; gates pass
 
-**Artifacts:** (TBD) `OrderDialog`, related line components
+**Artifacts:** `OrderPickerCommand`, `InvoiceDialog`, `OrderDialogCreateLineItem`, `OrderLineWarehouseSelect`, `DialogWarehouseOptionRow`, `DialogProductOptionRow`, `OrderStatusBadge`/`PaymentStatusBadge` contrast, `CategoryDetailPage`, `SupplierDetailPage`
 
 ---
 

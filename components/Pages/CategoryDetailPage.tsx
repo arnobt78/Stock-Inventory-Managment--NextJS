@@ -22,6 +22,7 @@ import {
   Wallet,
   FileText,
   StickyNote,
+  CheckCircle2,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -332,10 +333,18 @@ export default function CategoryDetailPage({
               dataLoading ? (
                 <DataSlotPulse variant="badge" className="self-center" />
               ) : category != null ? (
-                <ActiveInactiveBadge
-                  active={Boolean(category.status)}
-                  className="self-center text-sm shrink-0"
-                />
+                // REQ-0187 — compact status caption; parity with WarehouseDetailPage
+                <div className="flex shrink-0 flex-col items-end justify-center gap-0.5 self-center">
+                  <span className="inline-flex items-center gap-1 text-[10px] uppercase tracking-wide text-gray-500 dark:text-white/60">
+                    <CheckCircle2 className="h-3 w-3 shrink-0" aria-hidden />
+                    Status
+                  </span>
+                  <ActiveInactiveBadge
+                    active={Boolean(category.status)}
+                    size="compact"
+                    className="self-end text-sm shrink-0"
+                  />
+                </div>
               ) : undefined
             }
           />

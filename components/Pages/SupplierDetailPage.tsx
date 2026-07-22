@@ -22,6 +22,7 @@ import {
   Trash2,
   Hash,
   Wallet,
+  CheckCircle2,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ActiveInactiveBadge } from "@/lib/ui/semantic-badges";
@@ -294,10 +295,18 @@ export default function SupplierDetailPage({
               dataLoading ? (
                 <DataSlotPulse variant="badge" className="self-center" />
               ) : supplier != null ? (
-                <ActiveInactiveBadge
-                  active={Boolean(supplier.status)}
-                  className="self-center text-sm shrink-0"
-                />
+                // REQ-0187 — compact status caption; parity with WarehouseDetailPage
+                <div className="flex shrink-0 flex-col items-end justify-center gap-0.5 self-center">
+                  <span className="inline-flex items-center gap-1 text-[10px] uppercase tracking-wide text-gray-500 dark:text-white/60">
+                    <CheckCircle2 className="h-3 w-3 shrink-0" aria-hidden />
+                    Status
+                  </span>
+                  <ActiveInactiveBadge
+                    active={Boolean(supplier.status)}
+                    size="compact"
+                    className="self-end text-sm shrink-0"
+                  />
+                </div>
               ) : undefined
             }
           />

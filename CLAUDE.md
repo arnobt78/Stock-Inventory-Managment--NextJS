@@ -172,7 +172,19 @@ All user-facing POST/PUT JSON bodies use `safeParse` + `logger.warn` on fail. Ne
 
 **Every session:** STATE → REQ map → skill 01+17 → Red Team → write-through DECISION/BUILD/VALIDATION.
 
-**C1 open:** Gate 2 PENDING. **Stopped 2026-07-22:** Sentry noise remediations (REQ-0009). **Next:** **REQ-0187** → 0136.
+**C1 open:** Gate 2 PENDING. **Stopped 2026-07-22:** REQ-0187 densify (invoice/order/STATUS/pickers). **Next:** **REQ-0136**.
+
+## REQ-0187 dialog densify (2026-07-22)
+
+| Piece | Location |
+|-------|----------|
+| Invoice picker/panel | `OrderPickerCommand`, `InvoiceDialog` — no `(sku)`/`(status)`; solid badges; glass lines |
+| Order line cols | Subtotal→Product; Max/hint/stockError→Warehouse; `DIALOG_FORM_ERROR_TEXT` |
+| Cat/Sup STATUS | header trailing = Warehouse (`CheckCircle2` + compact) |
+| Product Combobox | Allocate-style search + `DialogProductOptionRow` (+ reserved) |
+| Warehouse densify | `DialogWarehouseOptionRow` — name; type badge · muted avail |
+
+**Invalidation:** unchanged — UI densify only.
 
 ## Sentry expected-client noise (REQ-0009, 2026-07-22)
 
@@ -957,7 +969,7 @@ Hub: `lib/ui/typography-scale.ts`. Hubs import tokens; ~45 inline files use equi
 
 **Invalidation unchanged** — review/product/dashboard CRUD already clears lists + portals.
 
-**Active wave:** **0203** done → **0187** order dialog → **0136** Gate 2.
+**Active wave:** **0187** done → **0136** Gate 2.
 
 ## Warehouse detail + Allocate/Transfer (REQ-0203)
 

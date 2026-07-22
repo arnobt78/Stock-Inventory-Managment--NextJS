@@ -533,3 +533,6 @@
 | ART-0203b | REQ-0203 | Stock row muted SKU + meta/actions layout; Transfer useProducts owner densify | done |
 | ART-0203c | REQ-0203 | DRY productSupplierImage/Id in ProductOptionRow; Allocate+Transfer | done |
 | ART-0009b | REQ-0009 | Sentry noise: order stock warn; warehouse pulse; traces 0; notif 404 | done |
+| ART-0187a | REQ-0187 | OrderPickerCommand densify; InvoiceDialog glass panel; Order line feedback; Cat/Sup STATUS; badge contrast | done |
+| ART-0187b | REQ-0187 | Column feedback: Subtotal under Product; Max/hint under Warehouse | done |
+| ART-0187c | REQ-0187 | Product Combobox densify; DialogWarehouseOptionRow; reserved on DialogProductOptionRow | done |

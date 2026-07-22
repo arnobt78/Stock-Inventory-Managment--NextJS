@@ -125,7 +125,7 @@ Details: `docs/Redis_Sentry_PostHog_INTEGRATION_GUIDE.md`
 | Reassign / Reply | clear mismatched productId; `resolveTicketReplyTarget` (0197) |
 | No-flicker | SelectValue SSR labels; `serverHasRicherDensify` sync (0202) |
 
-**Stopped 2026-07-22:** REQ-0203 + Sentry noise remediations (REQ-0009). **Next:** REQ-0187 → REQ-0136 Gate 2.
+**Stopped 2026-07-22:** REQ-0187 densify complete. **Next:** REQ-0136 Gate 2.
 
 ## 7b. Table pagination Select (Radix portal, 2026-05-22)
 
@@ -265,6 +265,7 @@ flowchart LR
 | Order workflow (REQ-0111) | `useOrderLineStockValidation`; `OrderDialogCreateLineItem`; `ensureStockAllocationsAndValidate`; server message parity |
 | Line fetch DRY (REQ-0112) | Single stock fetch per line; injected rows; `lineStockErrors` by `field.id` |
 | Warehouse select (REQ-0113) | `OrderLineWarehouseSelect` props-only; `OrderFormData` merged; `.types.ts` deleted |
+| Order/Invoice densify (REQ-0187) | Invoice picker/panel; line Subtotal/Warehouse cols; Cat/Sup STATUS; Product Combobox + `DialogWarehouseOptionRow` |
 | Stock UX + dialog/UI closure (REQ-0114–0116) | `ProportionalPriceDisplay`; catalog-commit hints; proportional pricing; dialog labels; detail typography | Gates: test 498 |
 | Dialog UX parity + admin embed tables (REQ-0117) | `DialogFormLabel` flex-safe; `DialogDateField`/`DialogHeaderBrand`; `AdminEmbedDataTable`; order totals empty state; VS-045 network audit | Gates: test 498 |
 | Readable popover full sweep (REQ-0118) | `popover-readability-styles.ts`; PaymentDialog header; all filter/pagination popovers; VS-046 prod network OK | Gates: test 498 |
@@ -300,7 +301,7 @@ flowchart LR
 | Delivered + Due badges (REQ-0155) | `store-order-status-badges.ts`; Total Orders Delivered; Outstanding→Due | UI-only |
 | Partial pay KPIs (REQ-0154) | `payment-money-stats.ts` → dashboards Paid/Partial/Due/Pending; Partial badges; table Total `text-xs`; `dashboard:overview:v4` | Invalidation unchanged |
 | Tickets densify (REQ-0185–0202) | owner-products; Related densify; dialog open/combobox; SelectValue SSR; densify-richer sync | Invalidation unchanged |
-| Next | **REQ-0187** order dialog → REQ-0136 §10 + Gate 2 | Sentry noise (REQ-0009) done |
+| Next | **REQ-0136** §10 + Gate 2 | REQ-0187 densify done |
 | Sentry noise (REQ-0009) | Order stock warn+disable; warehouse cold-load pulse; tracesSampleRate 0 dev; notif DELETE 404 | Invalidation unchanged |
 | Warehouse detail (REQ-0203) | Status trailing; Info\|Stock; muted SKU + meta/actions; Allocate/Transfer densify; DRY `productSupplierImage`/`Id` | Invalidation unchanged |
 | Warehouse Type UI (REQ-0186) | Table Type badge + CopyableText + View Details; dialog Select solid/opaque; `getWarehouseTypeLabel` | Invalidation unchanged |

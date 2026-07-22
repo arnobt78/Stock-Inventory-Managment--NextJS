@@ -532,4 +532,13 @@ Format: `TIMESTAMP | AGENT | DECISION | RATIONALE | REQ-ID`
 2026-07-22T15:30:00Z | build-agent | REQ-0009 Sentry noise | order stock warn+disable; warehouse isDataSlotLoading; tracesSampleRate 0 dev; notif DELETE 404+warn | REQ-0009
 2026-07-22T15:30:00Z | red-team | REQ-0009 gates | lint ✓ invalidate 217 ✓ logger/errors/sentry tests ✓ | REQ-0009
 
+2026-07-22T15:52:00Z | build-agent | REQ-0187 dialog densify | Invoice picker/panel glass densify; Order line feedback stack; Cat/Sup STATUS parity; Order/Payment solid contrast | REQ-0187
+2026-07-22T15:52:00Z | red-team | REQ-0187 gates | lint ✓ test 685 ✓ invalidate 217 ✓ build ✓ | REQ-0187
+
+2026-07-22T16:04:00Z | build-agent | REQ-0187 gap column feedback | Subtotal under Product; Max/stockError/Auto-assign under Warehouse; drop full-width feedback band | REQ-0187
+2026-07-22T16:04:00Z | red-team | REQ-0187 gap gates | lint ✓ invalidate 217 ✓ | REQ-0187
+
+2026-07-22T16:24:00Z | build-agent | REQ-0187 picker densify | Product Combobox+DialogProductOptionRow+reserved; DialogWarehouseOptionRow type·avail; allocation type on pick options | REQ-0187
+2026-07-22T16:24:00Z | red-team | REQ-0187 picker densify gates | lint ✓ test 685 ✓ invalidate 217 ✓ | REQ-0187
+
 2026-07-22T15:32:00Z | release | Prod SHA b41cb11 pushed origin/main | REQ-0009 Sentry expected-client remediations | REQ-0009

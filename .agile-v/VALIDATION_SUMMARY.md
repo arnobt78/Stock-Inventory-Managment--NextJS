@@ -1,10 +1,63 @@
 # Validation Summary — Cycle C1
 
-**Generated:** 2026-07-22 (REQ-0009 Sentry noise)
+**Generated:** 2026-07-22 (REQ-0187 picker densify ship)
 **eval_gate_status:** PENDING (Human Gate 2)
-**Active:** **REQ-0187** order dialog → REQ-0136
-**Last ship:** REQ-0009 Sentry expected-client remediations
-**Prod target SHA:** `b41cb11` (REQ-0009 Sentry noise)
+**Active:** **REQ-0136** Gate 2 / cache smoke
+**Last ship:** REQ-0187 Invoice/Order densify + pickers
+**Prod target SHA:** pending push (REQ-0187)
+
+---
+
+## REQ-0187 picker densify — Product Combobox + Warehouse two-line (2026-07-22)
+
+| Check | Result |
+| ----- | ------ |
+| Product | Allocate-style Combobox + search; `DialogProductOptionRow` trigger+list; optional reserved |
+| Warehouse | `DialogWarehouseOptionRow` name / type badge · muted avail; trigger densify |
+| Data | pick options include `warehouse.type` from enrich |
+| Invalidation | unchanged |
+| Gates | lint ✓ test **685** ✓ invalidate **217** ✓ |
+
+```
+Scope: built/verified | Traceability: REQ-0187 | Findings: PASS
+Commands: lint, test, test:invalidate
+```
+
+---
+
+## REQ-0187 gap — Order line column feedback (2026-07-22)
+
+| Check | Result |
+| ----- | ------ |
+| Subtotal | under Product column |
+| Required | under Quantity (unchanged) |
+| Max / stockError / Auto-assign | under Warehouse; priority Max → stockError → hint |
+| Full-width band | removed (`md:col-span-3` + `DIALOG_FORM_FEEDBACK_ROW`) |
+| Invalidation | unchanged |
+| Gates | lint ✓ invalidate **217** ✓ |
+
+```
+Scope: built/verified | Traceability: REQ-0187 | Findings: PASS
+Commands: lint, test:invalidate
+```
+
+---
+
+## REQ-0187 Invoice/Order dialog densify + catalog STATUS (2026-07-22)
+
+| Check | Result |
+| ----- | ------ |
+| Invoice picker | no `(sku)`/`(status)`; Package/Boxes/Calendar · densify; solid trigger badges |
+| Selected panel | glass-safe text; solid Order/Payment badges; `name · sku`; CopyableText # |
+| Order line feedback | Subtotal + hint\|stockError one band; `DIALOG_FORM_ERROR_TEXT` |
+| Catalog STATUS | Category/Supplier trailing matches Warehouse |
+| Invalidation | unchanged |
+| Gates | lint ✓ test **685** ✓ invalidate **217** ✓ build ✓ |
+
+```
+Scope: built/verified | Traceability: REQ-0187 | Findings: PASS
+Commands: lint, test, test:invalidate, build
+```
 
 ---
 

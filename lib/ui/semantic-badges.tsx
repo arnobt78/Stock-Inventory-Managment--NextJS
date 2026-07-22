@@ -75,6 +75,16 @@ const ORDER_STATUS: Record<string, BadgeTone> = {
   cancelled: { className: GLASS_BADGE_CLASS.rose, icon: XCircle },
 };
 
+/** REQ-0187 — solid/opaque contrast for dark dialog glass (invoice picker/panel) */
+const ORDER_STATUS_HUE: Record<string, GlassBadgeHue> = {
+  pending: "orange",
+  confirmed: "sky",
+  processing: "yellow",
+  shipped: "purple",
+  delivered: "emerald",
+  cancelled: "rose",
+};
+
 const PAYMENT_STATUS: Record<string, BadgeTone> = {
   paid: { className: GLASS_BADGE_CLASS.emerald, icon: CheckCircle },
   unpaid: { className: GLASS_BADGE_CLASS.slate, icon: AlertCircle },
@@ -82,6 +92,14 @@ const PAYMENT_STATUS: Record<string, BadgeTone> = {
   pending: { className: GLASS_BADGE_CLASS.orange, icon: AlertCircle },
   partial: { className: GLASS_BADGE_CLASS.orange, icon: CircleDollarSign },
   refunded: { className: GLASS_BADGE_CLASS.violet, icon: RotateCcw },
+};
+
+const PAYMENT_STATUS_HUE: Record<string, GlassBadgeHue> = {
+  paid: "emerald",
+  unpaid: "slate",
+  pending: "orange",
+  partial: "orange",
+  refunded: "violet",
 };
 
 const PRODUCT_STOCK_STATUS: Record<string, BadgeTone> = {
@@ -318,8 +336,16 @@ export function OrderStatusBadge({
   className,
   label,
   size,
+  contrast,
 }: SemanticBadgeProps) {
-  const tone = resolveTone(ORDER_STATUS, status);
+  const base = resolveTone(ORDER_STATUS, status);
+  const hue = ORDER_STATUS_HUE[normalizeKey(status)] ?? "slate";
+  const tone: BadgeTone =
+    contrast === "solid"
+      ? { icon: base.icon, className: SOLID_BADGE_CLASS[hue] }
+      : contrast === "opaque"
+        ? { icon: base.icon, className: OPAQUE_BADGE_CLASS[hue] }
+        : base;
   return (
     <SemanticBadgeBase
       tone={tone}
@@ -389,9 +415,17 @@ export function PaymentStatusBadge({
   className,
   label,
   size,
+  contrast,
 }: SemanticBadgeProps) {
   const key = normalizeKey(status);
-  const tone = resolveTone(PAYMENT_STATUS, status);
+  const base = resolveTone(PAYMENT_STATUS, status);
+  const hue = PAYMENT_STATUS_HUE[key] ?? "slate";
+  const tone: BadgeTone =
+    contrast === "solid"
+      ? { icon: base.icon, className: SOLID_BADGE_CLASS[hue] }
+      : contrast === "opaque"
+        ? { icon: base.icon, className: OPAQUE_BADGE_CLASS[hue] }
+        : base;
   const displayLabel =
     label ??
     (key === "pending" ? "Unpaid" : formatSemanticLabel(status));

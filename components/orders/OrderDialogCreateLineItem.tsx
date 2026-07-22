@@ -2,31 +2,44 @@
 
 /**
  * REQ-0111 — single create-order line row with reactive stock validation hook.
+ * REQ-0187 — Product Combobox densify (DialogProductOptionRow + search); Subtotal under Product;
+ * warehouse Max/hint under Warehouse column.
  */
 
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from "@/components/ui/command";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import { Input } from "@/components/ui/input";
 import type { UseFormSetValue, FieldErrors } from "react-hook-form";
 import { useQueryClient } from "@tanstack/react-query";
-import { Package, Layers, X } from "lucide-react";
-import { ProductOptionRow } from "@/components/products/ProductOptionRow";
+import { Check, ChevronDown, Layers, Package, X } from "lucide-react";
+import {
+  DialogProductOptionRow,
+  productCategoryLabel,
+  productSupplierId,
+  productSupplierImage,
+  productSupplierLabel,
+} from "@/components/products/ProductOptionRow";
 import { OrderLineWarehouseSelect } from "@/components/orders/OrderLineWarehouseSelect";
 import {
-  DeferredSelectGate,
+  DIALOG_COMBOBOX_TRIGGER_CLASS,
   DialogFormLabel,
   DIALOG_FORM_FIELD_VIOLET,
   DIALOG_FORM_ERROR_TEXT,
-  DIALOG_FORM_HINT_TEXT,
-  DIALOG_SELECT_CONTENT_CLASS,
-  DIALOG_SELECT_ITEM_CLASS,
+  FILTER_COMMAND_INPUT_WRAPPER_CLASS,
+  filterCommandPopoverClass,
   ProportionalPriceDisplay,
 } from "@/components/shared";
 import { cn } from "@/lib/utils";
@@ -36,6 +49,7 @@ import {
 } from "@/hooks/queries";
 import type { OrderLineStockProduct } from "@/lib/orders/order-line-stock-validation";
 import { formatOrderLineAutoAssignHint } from "@/lib/orders/order-line-stock-validation";
+import type { Product } from "@/types";
 
 /** Create-order form shape shared with OrderDialog (REQ-0111/0113). */
 export type OrderFormData = {
@@ -65,12 +79,23 @@ export type OrderFormData = {
   notes?: string;
 };
 
-/** Minimal product shape for create-order line UI + stock hook (REQ-0111). */
+/**
+ * Product shape for create-order line UI + stock hook (REQ-0111 / REQ-0187 densify).
+ * Compatible with Product list/browse rows from useProducts / useClientBrowseProducts.
+ */
 export type OrderDialogLineProduct = OrderLineStockProduct & {
   id: string;
   name: string;
   imageUrl?: string | null;
   price: number | string;
+  sku?: string | null;
+  userId?: string;
+  productOwnerName?: string | null;
+  productOwnerImage?: string | null;
+  supplierId?: string | null;
+  supplierImage?: string | null;
+  supplier?: Product["supplier"];
+  category?: Product["category"];
 };
 
 export type OrderDialogCreateLineItemProps = {
@@ -109,6 +134,7 @@ export function OrderDialogCreateLineItem({
   onStockValidityChange,
 }: OrderDialogCreateLineItemProps) {
   const queryClient = useQueryClient();
+  const [pickerOpen, setPickerOpen] = useState(false);
 
   const quantity =
     quantityValue !== undefined && quantityValue !== null
@@ -144,16 +170,24 @@ export function OrderDialogCreateLineItem({
 
   // REQ-0112 / Sentry — manual pick "Max N at Warehouse" must disable Create (not only catalog stockError)
   useEffect(() => {
-    onStockValidityChange(
-      lineId,
-      Boolean(stockError || manualPickError),
-    );
+    onStockValidityChange(lineId, Boolean(stockError || manualPickError));
   }, [lineId, onStockValidityChange, stockError, manualPickError]);
 
   const itemSubtotal =
     selectedProduct && quantity > 0
       ? Number(selectedProduct.price) * quantity
       : 0;
+
+  const selectProduct = (nextId: string) => {
+    createSetValue(`items.${index}.productId`, nextId);
+    createSetValue(`items.${index}.quantity`, 1);
+    createSetValue(`items.${index}.warehouseId`, undefined);
+    void prefetchStockByProduct(queryClient, nextId);
+    setPickerOpen(false);
+  };
+
+  const productDisabled =
+    isClientCreatingOrder && availableProducts.length === 0;
 
   return (
     <div className="p-4 border border-violet-400/20 rounded-lg bg-white/5 space-y-2">
@@ -163,99 +197,136 @@ export function OrderDialogCreateLineItem({
             <DialogFormLabel icon={Package} required>
               Product {index + 1}
             </DialogFormLabel>
-            <DeferredSelectGate
-              enabled={dialogOpen}
-              placeholder={
-                // REQ-0198 — match SelectTrigger (product thumb row)
-                <div
+            {/* REQ-0187 — Allocate-style searchable Combobox + DialogProductOptionRow */}
+            <Popover
+              open={dialogOpen && pickerOpen}
+              onOpenChange={(next) => {
+                if (dialogOpen) setPickerOpen(next);
+              }}
+              modal
+            >
+              <PopoverTrigger asChild>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  role="combobox"
+                  aria-expanded={pickerOpen}
+                  disabled={productDisabled}
                   className={cn(
-                    "flex h-11 w-full items-center rounded-md px-2 text-sm",
+                    "h-auto min-h-11 w-full justify-between py-2",
+                    DIALOG_COMBOBOX_TRIGGER_CLASS,
                     DIALOG_FORM_FIELD_VIOLET,
                   )}
-                  aria-hidden
                 >
                   {selectedProduct ? (
-                    <ProductOptionRow
+                    <DialogProductOptionRow
                       name={selectedProduct.name}
                       imageUrl={selectedProduct.imageUrl}
-                      size="sm"
-                      className="text-white/90"
+                      sku={selectedProduct.sku}
+                      price={Number(selectedProduct.price)}
+                      quantity={Number(selectedProduct.quantity)}
+                      reservedQuantity={selectedProduct.reservedQuantity}
+                      categoryName={productCategoryLabel(
+                        selectedProduct.category,
+                      )}
+                      ownerId={selectedProduct.userId}
+                      ownerName={selectedProduct.productOwnerName}
+                      ownerImage={selectedProduct.productOwnerImage}
+                      supplierId={productSupplierId(selectedProduct)}
+                      supplierName={productSupplierLabel(
+                        selectedProduct.supplier,
+                      )}
+                      supplierImage={productSupplierImage(selectedProduct)}
+                      metaOnDark
+                      className="flex-1"
                     />
                   ) : (
                     <span className="text-white/60">
                       {productSelectPlaceholder}
                     </span>
                   )}
-                </div>
-              }
-            >
-              {({ selectRemountKey }) => (
-                <Select
-                  key={selectRemountKey}
-                  value={productId || ""}
-                  onValueChange={(value) => {
-                    createSetValue(`items.${index}.productId`, value);
-                    createSetValue(`items.${index}.quantity`, 1);
-                    createSetValue(`items.${index}.warehouseId`, undefined);
-                    void prefetchStockByProduct(queryClient, value);
-                  }}
-                  disabled={
-                    isClientCreatingOrder && availableProducts.length === 0
-                  }
-                >
-                  <SelectTrigger
-                    className={cn("h-11 w-full", DIALOG_FORM_FIELD_VIOLET)}
-                  >
-                    <SelectValue placeholder={productSelectPlaceholder}>
-                      {selectedProduct ? (
-                        <ProductOptionRow
-                          name={selectedProduct.name}
-                          imageUrl={selectedProduct.imageUrl}
-                          size="sm"
-                          className="text-white/90"
-                        />
-                      ) : null}
-                    </SelectValue>
-                  </SelectTrigger>
-                  <SelectContent
-                    className={cn(DIALOG_SELECT_CONTENT_CLASS)}
-                    position="popper"
-                    sideOffset={5}
-                    align="start"
-                  >
-                    {availableProducts.length === 0 &&
-                    isClientCreatingOrder &&
-                    productOwner ? (
-                      <div className="px-2 text-sm text-muted-foreground dark:text-white/80 text-center">
-                        {productOwner.name} hasn&apos;t added any products yet
-                      </div>
-                    ) : (
-                      availableProducts.map((product) => (
-                        <SelectItem
+                  <ChevronDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent
+                align="start"
+                onCloseAutoFocus={(e) => e.preventDefault()}
+                className={cn(
+                  "w-[var(--radix-popover-trigger-width)] p-0",
+                  filterCommandPopoverClass("violet"),
+                  FILTER_COMMAND_INPUT_WRAPPER_CLASS,
+                )}
+              >
+                <Command className="bg-transparent">
+                  <CommandInput placeholder="Search products…" />
+                  <CommandList className="max-h-[min(60vh,280px)]">
+                    <CommandEmpty>
+                      {availableProducts.length === 0 &&
+                      isClientCreatingOrder &&
+                      productOwner
+                        ? `${productOwner.name} hasn't added any products yet`
+                        : "No products found."}
+                    </CommandEmpty>
+                    <CommandGroup>
+                      {availableProducts.map((product) => (
+                        <CommandItem
                           key={product.id}
-                          value={product.id}
-                          className={cn("py-2", DIALOG_SELECT_ITEM_CLASS)}
+                          value={`${product.name} ${product.sku ?? ""} ${productCategoryLabel(product.category) ?? ""} ${productSupplierLabel(product.supplier) ?? ""}`}
+                          onSelect={() => selectProduct(product.id)}
+                          className="relative py-2 pr-8"
                         >
-                          <ProductOptionRow
+                          <DialogProductOptionRow
                             name={product.name}
                             imageUrl={product.imageUrl}
+                            sku={product.sku}
                             price={Number(product.price)}
                             quantity={Number(product.quantity)}
-                            size="sm"
-                            showMeta
+                            reservedQuantity={product.reservedQuantity}
+                            categoryName={productCategoryLabel(
+                              product.category,
+                            )}
+                            ownerId={product.userId}
+                            ownerName={product.productOwnerName}
+                            ownerImage={product.productOwnerImage}
+                            supplierId={productSupplierId(product)}
+                            supplierName={productSupplierLabel(
+                              product.supplier,
+                            )}
+                            supplierImage={productSupplierImage(product)}
                           />
-                        </SelectItem>
-                      ))
-                    )}
-                  </SelectContent>
-                </Select>
-              )}
-            </DeferredSelectGate>
+                          <Check
+                            className={cn(
+                              "absolute right-2 h-4 w-4 shrink-0",
+                              productId === product.id
+                                ? "opacity-100"
+                                : "opacity-0",
+                            )}
+                          />
+                        </CommandItem>
+                      ))}
+                    </CommandGroup>
+                  </CommandList>
+                </Command>
+              </PopoverContent>
+            </Popover>
             {createErrors.items?.[index]?.productId && (
-              <p className="text-red-500 text-xs">
+              <p className={DIALOG_FORM_ERROR_TEXT}>
                 {String(createErrors.items[index]?.productId?.message)}
               </p>
             )}
+            {/* REQ-0187 gap — Subtotal under Product column */}
+            {selectedProduct ? (
+              <div className="text-sm text-white/70 min-w-0 inline-flex flex-wrap items-center gap-x-2 gap-y-1">
+                <span>Subtotal:</span>
+                <ProportionalPriceDisplay
+                  listAmount={itemSubtotal}
+                  className="text-white/90"
+                />
+                <span>
+                  ({selectedProduct.name} × {quantity || 0})
+                </span>
+              </div>
+            ) : null}
           </div>
 
           <div className="flex flex-col gap-2">
@@ -301,7 +372,7 @@ export function OrderDialogCreateLineItem({
               )}
             />
             {createErrors.items?.[index]?.quantity && (
-              <p className="text-red-500 text-xs">
+              <p className={DIALOG_FORM_ERROR_TEXT}>
                 {String(createErrors.items[index]?.quantity?.message)}
               </p>
             )}
@@ -315,43 +386,15 @@ export function OrderDialogCreateLineItem({
             }
             dialogOpen={dialogOpen}
             manualPickError={manualPickError}
+            catalogStockError={stockError}
+            hintText={
+              showAutoAssignHint
+                ? formatOrderLineAutoAssignHint(validation!.maxQty!)
+                : null
+            }
             allocationRows={allocationRows}
             allocationsLoading={allocationsLoading}
           />
-
-          {selectedProduct ? (
-            <div className="col-span-full md:col-span-3 flex flex-wrap justify-between gap-x-4 gap-y-1 pt-1">
-              <div className="text-sm text-white/70 min-w-0 inline-flex flex-wrap items-center gap-x-2 gap-y-1">
-                <span>Subtotal:</span>
-                <ProportionalPriceDisplay
-                  listAmount={itemSubtotal}
-                  size="sm"
-                  className="text-white/90"
-                />
-                <span>
-                  ({selectedProduct.name} × {quantity || 0})
-                </span>
-              </div>
-              {showAutoAssignHint ? (
-                <p className={cn(DIALOG_FORM_HINT_TEXT, "text-right max-w-sm")}>
-                  {formatOrderLineAutoAssignHint(validation!.maxQty!)}
-                </p>
-              ) : null}
-            </div>
-          ) : null}
-
-          {stockError ? (
-            <p
-              className={cn(
-                DIALOG_FORM_ERROR_TEXT,
-                "col-span-full md:col-span-3 flex items-center gap-1",
-              )}
-              role="alert"
-            >
-              <span>⚠️</span>
-              <span>{stockError}</span>
-            </p>
-          ) : null}
         </div>
 
         {canRemove ? (

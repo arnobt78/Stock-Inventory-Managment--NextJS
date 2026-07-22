@@ -26,7 +26,11 @@ export type OrderLineAllocationRow = {
   warehouseId: string;
   quantity: number;
   reservedQuantity?: number | null;
-  warehouse?: { name?: string | null } | null;
+  warehouse?: {
+    name?: string | null;
+    /** REQ-0187 — for DialogWarehouseOptionRow type badge */
+    type?: string | null;
+  } | null;
 };
 
 export type OrderLineStockProduct = {
@@ -193,11 +197,12 @@ export function getOrderLineWarehouseAvailable(
   return Math.max(0, pickQty - pickReserved);
 }
 
-/** Warehouse picker row for order-line manual override (REQ-0112). */
+/** Warehouse picker row for order-line manual override (REQ-0112 / REQ-0187). */
 export type OrderLineWarehousePickOption = {
   warehouseId: string;
   name: string;
   available: number;
+  type?: string | null;
 };
 
 /** Build sorted warehouse options; keeps selected row when avail is 0. */
@@ -217,6 +222,7 @@ export function buildOrderLineWarehousePickOptions(
         warehouseId: row.warehouseId,
         name: row.warehouse?.name ?? "Warehouse",
         available,
+        type: row.warehouse?.type ?? null,
       };
     })
     .filter(

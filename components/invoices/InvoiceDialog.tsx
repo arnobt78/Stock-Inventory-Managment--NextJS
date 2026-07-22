@@ -44,7 +44,16 @@ import type {
 } from "@/types";
 import { useAuth } from "@/contexts";
 import { useToast } from "@/hooks/use-toast";
-import { FileText, Save, ShoppingCart, StickyNote, X } from "lucide-react";
+import {
+  Boxes,
+  FileText,
+  Package,
+  Save,
+  ShoppingCart,
+  StickyNote,
+  Tag,
+  X,
+} from "lucide-react";
 import { useForm, FormProvider } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { FormField, FormNumberField } from "@/components/forms";
@@ -61,12 +70,14 @@ import {
 } from "@/components/shared";
 import { AvatarInlineLink } from "@/components/shared/AvatarInlineLink";
 import { ClientCompactDateTime } from "@/components/shared/ClientFormatDisplay";
+import { CopyableText } from "@/components/shared/CopyableText";
 import {
   OrderStatusBadge,
   PaymentStatusBadge,
   InvoiceStatusBadge,
 } from "@/lib/ui/semantic-badges";
 import { ProductThumb } from "@/components/products/ProductOptionRow";
+import { getOrderItemUnitCounts } from "@/lib/orders/order-list-meta";
 import { cn } from "@/lib/utils";
 import { OrderPickerCommand } from "./OrderPickerCommand";
 
@@ -838,18 +849,27 @@ export default function InvoiceDialog({
                 />
                 {selectedOrder && (
                   <div className="rounded-md border border-indigo-400/20 bg-white/5 p-3 space-y-2">
-                    <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-white/70">
+                    {/* REQ-0187 — glass-safe densify; solid badges on dark dialog glass */}
+                    <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-white/80">
+                      <CopyableText
+                        value={selectedOrder.orderNumber}
+                        className="font-medium text-white"
+                      >
+                        {selectedOrder.orderNumber}
+                      </CopyableText>
                       <OrderStatusBadge
                         status={selectedOrder.status}
                         size="detail"
+                        contrast="solid"
                       />
                       <PaymentStatusBadge
                         status={selectedOrder.paymentStatus}
                         size="detail"
+                        contrast="solid"
                       />
                       <ClientCompactDateTime
                         date={selectedOrder.createdAt}
-                        semantic="created"
+                        className="text-xs text-white/70"
                       />
                       {(selectedOrder.placedByName ||
                         selectedOrder.placedByEmail) && (
@@ -868,28 +888,77 @@ export default function InvoiceDialog({
                         />
                       )}
                     </div>
-                    <p className="text-xs text-white/60">
-                      Order Total: {fmt(selectedOrder.total)} | Items:{" "}
-                      {selectedOrder.items?.length || 0}
-                    </p>
+                    {(() => {
+                      const { itemCount, unitCount } = getOrderItemUnitCounts(
+                        selectedOrder.items,
+                      );
+                      return (
+                        <p className="flex flex-wrap items-center gap-x-1.5 gap-y-1 text-xs text-white/70">
+                          <span className="font-medium text-white/90">
+                            {fmt(selectedOrder.total)}
+                          </span>
+                          <span aria-hidden>·</span>
+                          <span className="inline-flex items-center gap-1">
+                            <Package className="h-3 w-3 shrink-0" aria-hidden />
+                            {itemCount} item{itemCount === 1 ? "" : "s"}
+                          </span>
+                          <span aria-hidden>·</span>
+                          <span className="inline-flex items-center gap-1">
+                            <Boxes className="h-3 w-3 shrink-0" aria-hidden />
+                            {unitCount} unit{unitCount === 1 ? "" : "s"}
+                          </span>
+                        </p>
+                      );
+                    })()}
                     {selectedOrder.items && selectedOrder.items.length > 0 && (
                       <ul className="space-y-1.5">
                         {selectedOrder.items.map((item) => (
                           <li
                             key={item.id}
-                            className="flex items-center gap-2 text-xs text-gray-600 dark:text-gray-300 min-w-0"
+                            className="flex items-start gap-2 text-xs text-white/85 min-w-0"
                           >
                             <ProductThumb
                               name={item.productName}
                               imageUrl={item.imageUrl}
                               size="sm"
                             />
-                            <span className="truncate min-w-0 flex-1">
-                              {item.productName}
-                              {item.sku ? ` (${item.sku})` : ""} ×{" "}
-                              {item.quantity}
+                            <span className="min-w-0 flex-1 space-y-0.5">
+                              <span className="flex flex-wrap items-baseline gap-x-1.5">
+                                <span className="truncate font-medium text-white">
+                                  {item.productName}
+                                </span>
+                                {item.sku ? (
+                                  <span className="shrink-0 font-mono text-[11px] text-white/60">
+                                    · {item.sku}
+                                  </span>
+                                ) : null}
+                                <span className="shrink-0 text-white/70">
+                                  · ×{item.quantity}
+                                </span>
+                              </span>
+                              {(item.categoryName || item.supplierName) && (
+                                <span className="flex flex-wrap items-center gap-x-2 gap-y-0.5 text-[11px] text-white/60">
+                                  {item.categoryName ? (
+                                    <span className="inline-flex items-center gap-1">
+                                      <Tag
+                                        className="h-3 w-3 shrink-0"
+                                        aria-hidden
+                                      />
+                                      {item.categoryName}
+                                    </span>
+                                  ) : null}
+                                  {item.supplierName ? (
+                                    <AvatarInlineLink
+                                      label={item.supplierName}
+                                      seed={item.supplierId ?? item.supplierName}
+                                      size={14}
+                                      linkClassName="text-[11px] font-normal text-white/60"
+                                    />
+                                  ) : null}
+                                </span>
+                              )}
                             </span>
-                            <span className="shrink-0 text-white/70">
+                            <span className="shrink-0 text-white/80">
                               {fmt(item.subtotal)}
                             </span>
                           </li>

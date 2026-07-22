@@ -4,7 +4,7 @@
  * REQ-0179 — DialogProductOptionRow for Select densify (no Links inside SelectItem).
  * REQ-0201 — optional price/quantity icons on DialogProductOptionRow (tickets; review omits).
  */
-import { Boxes, DollarSign, Package, Tag } from "lucide-react";
+import { Boxes, DollarSign, Lock, Package, Tag } from "lucide-react";
 import { SafeImage } from "@/components/ui/safe-image";
 import { AvatarInlineLink } from "@/components/shared/AvatarInlineLink";
 import type { Product } from "@/types";
@@ -163,8 +163,14 @@ export function productSupplierLabel(
 }
 
 /** REQ-0203 — supplier avatar for DialogProductOptionRow densify (Allocate/Transfer). */
+export type ProductSupplierSource = {
+  supplierId?: string | null;
+  supplierImage?: string | null;
+  supplier?: Product["supplier"];
+};
+
 export function productSupplierImage(
-  product: Product,
+  product: ProductSupplierSource,
 ): string | null | undefined {
   if (product.supplierImage) return product.supplierImage;
   if (product.supplier && typeof product.supplier === "object") {
@@ -174,7 +180,7 @@ export function productSupplierImage(
 }
 
 export function productSupplierId(
-  product: Product,
+  product: ProductSupplierSource,
 ): string | null | undefined {
   if (product.supplierId) return product.supplierId;
   if (product.supplier && typeof product.supplier === "object") {
@@ -190,6 +196,8 @@ export type DialogProductOptionRowProps = {
   /** REQ-0201 — optional; tickets pass, product review omits */
   price?: number;
   quantity?: number;
+  /** REQ-0187 — catalog reserved; muted · reserved N after stock (Order picker) */
+  reservedQuantity?: number | null;
   categoryName?: string | null;
   ownerId?: string | null;
   ownerName?: string | null;
@@ -204,7 +212,7 @@ export type DialogProductOptionRowProps = {
 
 /**
  * REQ-0179 — Select-safe densify row (no Link / CopyableText):
- * thumb · name text-sm · sku muted xs · (optional) price · stock
+ * thumb · name text-sm · sku muted xs · (optional) price · stock · reserved
  * Tag category · owner avatar · supplier avatar
  */
 export function DialogProductOptionRow({
@@ -213,6 +221,7 @@ export function DialogProductOptionRow({
   sku,
   price,
   quantity,
+  reservedQuantity,
   categoryName,
   ownerId,
   ownerName,
@@ -229,6 +238,11 @@ export function DialogProductOptionRow({
   const supplierLabel = (supplierName ?? "").trim();
   const showPrice = price !== undefined && Number.isFinite(price);
   const showStock = quantity !== undefined && Number.isFinite(quantity);
+  const reservedN =
+    reservedQuantity != null && Number.isFinite(Number(reservedQuantity))
+      ? Number(reservedQuantity)
+      : null;
+  const showReserved = reservedN != null && reservedN > 0;
   const mutedClass = metaOnDark
     ? "text-white/70"
     : "text-gray-500 dark:text-gray-400";
@@ -287,6 +301,22 @@ export function DialogProductOptionRow({
               >
                 <Boxes className="h-3 w-3 shrink-0" aria-hidden />
                 {Number(quantity)}
+              </span>
+            </>
+          ) : null}
+          {showReserved ? (
+            <>
+              <span aria-hidden className={mutedClass}>
+                ·
+              </span>
+              <span
+                className={cn(
+                  "inline-flex items-center gap-0.5 shrink-0 text-xs",
+                  mutedClass,
+                )}
+              >
+                <Lock className="h-3 w-3 shrink-0" aria-hidden />
+                {reservedN} reserved
               </span>
             </>
           ) : null}
