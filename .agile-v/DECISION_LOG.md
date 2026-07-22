@@ -531,3 +531,5 @@ Format: `TIMESTAMP | AGENT | DECISION | RATIONALE | REQ-ID`
 
 2026-07-22T15:30:00Z | build-agent | REQ-0009 Sentry noise | order stock warn+disable; warehouse isDataSlotLoading; tracesSampleRate 0 dev; notif DELETE 404+warn | REQ-0009
 2026-07-22T15:30:00Z | red-team | REQ-0009 gates | lint ✓ invalidate 217 ✓ logger/errors/sentry tests ✓ | REQ-0009
+
+2026-07-22T15:32:00Z | release | Prod SHA b41cb11 pushed origin/main | REQ-0009 Sentry expected-client remediations | REQ-0009

@@ -4,7 +4,7 @@
 **eval_gate_status:** PENDING (Human Gate 2)
 **Active:** **REQ-0187** order dialog → REQ-0136
 **Last ship:** REQ-0009 Sentry expected-client remediations
-**Prod target SHA:** pending (this ship)
+**Prod target SHA:** `b41cb11` (REQ-0009 Sentry noise)
 
 ---
 

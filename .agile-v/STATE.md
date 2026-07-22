@@ -8,7 +8,7 @@
 | **Session** | 2026-07-22 — REQ-0009 Sentry; next REQ-0187 |
 | **Active REQ** | **REQ-0187** → **REQ-0136** |
 | **Done range** | REQ-0001…0135 + 0137–0186 + **0188–0203** |
-| **Prod SHA** | `730813d` (REQ-0203) |
+| **Prod SHA** | `b41cb11` (REQ-0009 Sentry noise) |
 | **Human Gate 1** | APPROVED (GATE-0001) |
 | **Human Gate 2** | PENDING — after 0187 + §10 smoke → Sentry 24h |
 | **Resume token** | `tomorrow-0187-order-dialog` → **REQ-0187** |

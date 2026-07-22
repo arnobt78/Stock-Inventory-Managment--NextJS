@@ -12,7 +12,7 @@
   "active_req": "REQ-0187",
   "session_activated": "2026-07-22",
   "stopped": "2026-07-22 REQ-0009 Sentry noise; resume REQ-0187",
-  "prod_target_sha": "730813d",
+  "prod_target_sha": "b41cb11",
   "risk_default": "R2",
   "requirements_file": ".agile-v/REQUIREMENTS.md",
   "skills_upstream": "https://github.com/Agile-V/agile_v_skills",
