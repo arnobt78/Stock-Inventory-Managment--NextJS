@@ -4,7 +4,7 @@
 **eval_gate_status:** PENDING (Human Gate 2)
 **Active:** **REQ-0136** Gate 2 / cache smoke
 **Last ship:** REQ-0187 Invoice/Order densify + pickers
-**Prod target SHA:** pending push (REQ-0187)
+**Prod target SHA:** `321a787` (REQ-0187 densify)
 
 ---
 

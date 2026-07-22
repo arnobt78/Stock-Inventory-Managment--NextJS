@@ -8,7 +8,7 @@
 | **Session** | 2026-07-22 — REQ-0187 shipped; next REQ-0136 |
 | **Active REQ** | **REQ-0136** (Gate 2 / cache smoke) |
 | **Done range** | REQ-0001…0135 + 0137–**0187** + 0188–0203 |
-| **Prod SHA** | pending push (REQ-0187) |
+| **Prod SHA** | `321a787` (REQ-0187 densify) |
 | **Human Gate 1** | APPROVED (GATE-0001) |
 | **Human Gate 2** | PENDING — §10 smoke → Sentry 24h |
 | **Resume token** | `gate2-0136-cache-smoke` → **REQ-0136** |
