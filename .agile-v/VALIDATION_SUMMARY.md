@@ -1,10 +1,64 @@
 # Validation Summary — Cycle C1
 
-**Generated:** 2026-07-22 (REQ-0187 picker densify ship)
+**Generated:** 2026-07-22 (REQ-0206 portal SSR sync keys)
 **eval_gate_status:** PENDING (Human Gate 2)
 **Active:** **REQ-0136** Gate 2 / cache smoke
-**Last ship:** REQ-0187 Invoice/Order densify + pickers
-**Prod target SHA:** `321a787` (REQ-0187 densify)
+**Last ship:** REQ-0206 portal SSR sync key alignment
+**Prod target SHA:** pending (REQ-0204–0206)
+
+---
+
+## REQ-0206 Portal SSR sync key alignment (2026-07-22)
+
+| Check | Result |
+| ----- | ------ |
+| Helpers | `portal.supplierDashboard|clientDashboard|clientCatalogDashboard(userId)` |
+| Hooks/warm | use helpers (same array shape as before) |
+| Lists | Order/Invoice/Product sync role keys (not admin overview) |
+| Admin portals | `supplierPortal` / `clientPortal` unchanged |
+| Invalidation | unchanged (`portal.all` already clears role dashboards) |
+| Gates | lint ✓ test **692** ✓ invalidate **217** ✓ build ✓ |
+
+```
+Scope: built/verified | Traceability: REQ-0206 | Findings: PASS
+Commands: lint, test, test:invalidate, build
+```
+
+---
+
+## REQ-0205 Supplier Related Invoices state cards (2026-07-22)
+
+| Check | Result |
+| ----- | ------ |
+| SSR | `/invoices` supplier → `prefetchListPageStats` → `initialSupplierPortal` |
+| Cards | same 4 as supplier `/orders` via `useSupplierPortalDashboard` |
+| Client/admin | invoice KPI rows unchanged |
+| Invalidation | unchanged (portal cleared on order-graph) |
+| Gates | lint ✓ test **688** ✓ invalidate **217** ✓ build ✓ |
+
+```
+Scope: built/verified | Traceability: REQ-0205 | Findings: PASS
+Commands: lint, test, test:invalidate, build
+```
+
+---
+
+## REQ-0204 Supplier view-only invoice detail (2026-07-22)
+
+| Check | Result |
+| ----- | ------ |
+| Detail gate | supplier → `getInvoiceByIdForSupplier` (order has their product) |
+| PDF | `getInvoiceDetailForPage` auth (client + supplier + owner) |
+| UI | existing `disableInvoiceMutations`; Pay hidden for supplier |
+| Nav | Related Invoices → `/invoices`; warm already lists invoices |
+| Client | view + Pay unchanged |
+| Invalidation | unchanged (read path) |
+| Gates | lint ✓ test **688** ✓ invalidate **217** ✓ build ✓ |
+
+```
+Scope: built/verified | Traceability: REQ-0204 | Findings: PASS
+Commands: lint, test, test:invalidate, build
+```
 
 ---
 

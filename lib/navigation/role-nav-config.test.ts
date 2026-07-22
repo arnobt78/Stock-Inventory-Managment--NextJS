@@ -18,6 +18,7 @@ describe("role-nav-config (REQ-0094)", () => {
       "/supplier",
       "/products",
       "/orders",
+      "/invoices",
     ]);
     expect(getNavPathsForRole("admin")).toHaveLength(9);
   });

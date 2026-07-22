@@ -11,7 +11,11 @@ import InvoiceList from "@/components/invoices/InvoiceList";
 import { PageContentWrapper } from "@/components/shared";
 import FloatingActionButtons from "@/components/shared/FloatingActionButtons";
 import type { InvoiceForPage } from "@/lib/server/invoices-data";
-import type { DashboardStats, ClientPortalDashboard } from "@/types";
+import type {
+  DashboardStats,
+  ClientPortalDashboard,
+  SupplierPortalDashboard,
+} from "@/types";
 
 export type InvoicesPageProps = {
   userRole?: string;
@@ -20,6 +24,8 @@ export type InvoicesPageProps = {
   initialStats?: DashboardStats;
   /** SSR client portal for client /invoices cards */
   initialClientPortal?: ClientPortalDashboard;
+  /** REQ-0205 — SSR supplier portal for supplier /invoices KPI cards */
+  initialSupplierPortal?: SupplierPortalDashboard | null;
 };
 
 /**
@@ -31,6 +37,7 @@ export default function InvoicesPage({
   initialInvoices,
   initialStats,
   initialClientPortal,
+  initialSupplierPortal,
 }: InvoicesPageProps = {}) {
   const showInvoiceFab =
     userRole !== "client" && userRole !== "supplier";
@@ -42,6 +49,7 @@ export default function InvoicesPage({
           initialInvoices={initialInvoices}
           initialStats={initialStats}
           initialClientPortal={initialClientPortal}
+          initialSupplierPortal={initialSupplierPortal}
         />
         {showInvoiceFab ? (
           <FloatingActionButtons variant="invoices" />

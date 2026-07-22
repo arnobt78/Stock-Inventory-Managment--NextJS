@@ -127,7 +127,7 @@ function buildWarmTasks(user: WarmUser): PrefetchTask[] {
       const r = await apiClient.warehouses.getAll();
       return r.data;
     });
-    add([...queryKeys.portal.supplier(), user.id], async () => {
+    add(queryKeys.portal.supplierDashboard(user.id), async () => {
       const r = await apiClient.portal.getSupplierDashboard();
       return r.data;
     });
@@ -138,11 +138,11 @@ function buildWarmTasks(user: WarmUser): PrefetchTask[] {
       const r = await apiClient.invoices.getAll();
       return r.data;
     });
-    add([...queryKeys.portal.client(), user.id], async () => {
+    add(queryKeys.portal.clientDashboard(user.id), async () => {
       const r = await apiClient.portal.getClientDashboard();
       return r.data;
     });
-    add([...queryKeys.portal.clientCatalog(), user.id], async () => {
+    add(queryKeys.portal.clientCatalogDashboard(user.id), async () => {
       const r = await apiClient.portal.getClientCatalog();
       return r.data;
     });

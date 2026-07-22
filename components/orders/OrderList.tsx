@@ -178,12 +178,14 @@ const OrderList = React.memo(
         : undefined,
     );
     useSyncSsrQueryData(
-      queryKeys.clientPortal.overview(),
-      enableClientPortal ? initialClientPortal : undefined,
+      queryKeys.portal.clientDashboard(user?.id ?? ""),
+      enableClientPortal && user?.id ? initialClientPortal : undefined,
     );
     useSyncSsrQueryData(
-      queryKeys.supplierPortal.overview(),
-      enableSupplierPortal ? initialSupplierPortal : undefined,
+      queryKeys.portal.supplierDashboard(user?.id ?? ""),
+      enableSupplierPortal && user?.id
+        ? (initialSupplierPortal ?? undefined)
+        : undefined,
     );
 
     const effectiveDetailBase =

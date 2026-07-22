@@ -82,8 +82,10 @@ const ProductList = React.memo(function ProductList({
       : undefined,
   );
   useSyncSsrQueryData(
-    queryKeys.supplierPortal.overview(),
-    isSupplierProductsPage ? (initialSupplierPortal ?? undefined) : undefined,
+    queryKeys.portal.supplierDashboard(user?.id ?? ""),
+    isSupplierProductsPage && user?.id
+      ? (initialSupplierPortal ?? undefined)
+      : undefined,
   );
 
   const allProducts = productsQuery.data ?? [];

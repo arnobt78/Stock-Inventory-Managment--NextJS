@@ -1,6 +1,9 @@
 /**
  * Invoice PDF API Route
  * GET /api/invoices/[id]/pdf — generate and download invoice PDF
+ *
+ * REQ-0204 — authorize via getInvoiceDetailForPage (admin / client / supplier /
+ * issuer / product-owner), then load PDF payload by invoice id.
  */
 
 import { NextRequest, NextResponse } from "next/server";
@@ -9,6 +12,7 @@ import { logger } from "@/lib/logger";
 import { prisma } from "@/prisma/client";
 import { generateInvoicePDF } from "@/lib/pdf";
 import { withRateLimit, defaultRateLimits } from "@/lib/api/rate-limit";
+import { getInvoiceDetailForPage } from "@/lib/server/invoice-detail-data";
 
 /**
  * GET /api/invoices/[id]/pdf
@@ -32,9 +36,17 @@ export async function GET(
 
     const { id } = await params;
 
-    // Fetch invoice with order and items
-    const invoice = await prisma.invoice.findFirst({
-      where: { id, userId: session.id },
+    // REQ-0204 — same role gate as invoice detail SSR (client + supplier + owner)
+    const authorized = await getInvoiceDetailForPage(
+      { id: session.id, role: session.role },
+      id,
+    );
+    if (!authorized) {
+      return NextResponse.json({ error: "Invoice not found" }, { status: 404 });
+    }
+
+    const invoice = await prisma.invoice.findUnique({
+      where: { id },
       include: {
         order: {
           include: {

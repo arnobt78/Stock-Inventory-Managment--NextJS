@@ -1,6 +1,6 @@
 # PROJECT_WALKTHROUGH.md
 
-Agent-oriented map of **stock-inventory** (Stockly). Last updated: 2026-07-21.
+Agent-oriented map of **stock-inventory** (Stockly). Last updated: 2026-07-22.
 
 ## 1. What this app is
 
@@ -125,7 +125,7 @@ Details: `docs/Redis_Sentry_PostHog_INTEGRATION_GUIDE.md`
 | Reassign / Reply | clear mismatched productId; `resolveTicketReplyTarget` (0197) |
 | No-flicker | SelectValue SSR labels; `serverHasRicherDensify` sync (0202) |
 
-**Stopped 2026-07-22:** REQ-0187 densify complete. **Next:** REQ-0136 Gate 2.
+**Stopped 2026-07-22:** REQ-0206 portal SSR sync. **Next:** REQ-0136 Gate 2.
 
 ## 7b. Table pagination Select (Radix portal, 2026-05-22)
 
@@ -301,7 +301,10 @@ flowchart LR
 | Delivered + Due badges (REQ-0155) | `store-order-status-badges.ts`; Total Orders Delivered; Outstanding→Due | UI-only |
 | Partial pay KPIs (REQ-0154) | `payment-money-stats.ts` → dashboards Paid/Partial/Due/Pending; Partial badges; table Total `text-xs`; `dashboard:overview:v4` | Invalidation unchanged |
 | Tickets densify (REQ-0185–0202) | owner-products; Related densify; dialog open/combobox; SelectValue SSR; densify-richer sync | Invalidation unchanged |
-| Next | **REQ-0136** §10 + Gate 2 | REQ-0187 densify done |
+| Next | **REQ-0136** §10 + Gate 2 | REQ-0204–0206 done |
+| Supplier invoices (REQ-0204) | `getInvoiceByIdForSupplier` + detail/PDF gate; Related Invoices nav | Invalidation unchanged |
+| Supplier invoice KPIs (REQ-0205) | `/invoices` SSR portal + 4 StatisticsCards (OrderList parity) | Invalidation unchanged |
+| Portal SSR sync (REQ-0206) | `portal.*Dashboard(userId)`; list sync matches hooks (not admin keys) | Invalidation unchanged |
 | Sentry noise (REQ-0009) | Order stock warn+disable; warehouse cold-load pulse; tracesSampleRate 0 dev; notif DELETE 404 | Invalidation unchanged |
 | Warehouse detail (REQ-0203) | Status trailing; Info\|Stock; muted SKU + meta/actions; Allocate/Transfer densify; DRY `productSupplierImage`/`Id` | Invalidation unchanged |
 | Warehouse Type UI (REQ-0186) | Table Type badge + CopyableText + View Details; dialog Select solid/opaque; `getWarehouseTypeLabel` | Invalidation unchanged |

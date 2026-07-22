@@ -431,6 +431,76 @@ Canonical REQ source. All artifacts link via `REQ-XXXX`. Status: `done` | `verif
 
 ---
 
+## REQ-0204 — Supplier view-only invoice detail
+
+| Field | Value |
+|-------|-------|
+| **Priority** | P1 |
+| **Risk** | R1 |
+| **Status** | done |
+| **Cycle** | C2 |
+| **Parent** | REQ-0136 |
+
+**Intent:** Close supplier invoice 404s — allow read-only `/invoices/[id]` when the invoice order contains the supplier’s products (parity with client view; no CRUD/pay).
+
+**Acceptance criteria**
+
+- AC1: `getInvoiceByIdForSupplier` + `getInvoiceDetailForPage` supplier branch
+- AC2: Supplier INV links / View Invoice open full detail (no 404); unrelated invoices denied
+- AC3: Mutations off + Pay hidden (existing); PDF uses same detail gate (client + supplier)
+- AC4: Supplier nav **Related Invoices** → `/invoices`; list header copy parity
+- AC5: Client detail + Pay unchanged; invalidation unchanged; gates pass
+
+**Artifacts:** `prisma/invoice.ts`, `lib/server/invoice-detail-data.ts`, `app/api/invoices/[id]/pdf/route.ts`, `role-nav-config.ts`, `InvoiceList.tsx`
+
+---
+
+## REQ-0205 — Supplier Related Invoices state cards
+
+| Field | Value |
+|-------|-------|
+| **Priority** | P2 |
+| **Risk** | R1 |
+| **Status** | done |
+| **Cycle** | C2 |
+| **Parent** | REQ-0136 |
+
+**Intent:** Show the same four supplier-portal KPI cards on Related Invoices (`/invoices` as supplier) that already exist on View Orders (`/orders`).
+
+**Acceptance criteria**
+
+- AC1: SSR `initialSupplierPortal` on `/invoices` supplier branch (parity with `/orders`)
+- AC2: `InvoiceList` wires `useSupplierPortalDashboard` + 4 `StatisticsCard`s (Products / Orders / Revenue / Invoices)
+- AC3: Client/admin invoice cards unchanged
+- AC4: Invalidation unchanged (`supplierPortal` already cleared on order-graph); gates pass
+
+**Artifacts:** `app/invoices/page.tsx`, `InvoicesPage.tsx`, `InvoiceList.tsx`
+
+---
+
+## REQ-0206 — Portal SSR sync key alignment
+
+| Field | Value |
+|-------|-------|
+| **Priority** | P1 |
+| **Risk** | R1 |
+| **Status** | done |
+| **Cycle** | C2 |
+| **Parent** | REQ-0136 |
+
+**Intent:** Role-scoped supplier/client portal SSR sync must write the same TanStack key the live hooks use (`portal.* + userId`), not admin `supplierPortal` / `clientPortal` keys.
+
+**Acceptance criteria**
+
+- AC1: `queryKeys.portal.supplierDashboard|clientDashboard|clientCatalogDashboard(userId)` helpers
+- AC2: Hooks + warm prefetch use helpers
+- AC3: OrderList / InvoiceList / ProductList / portal pages sync to role keys
+- AC4: Admin `useSupplierPortal` / `useClientPortal` keys unchanged; invalidation unchanged; gates pass
+
+**Artifacts:** `lib/react-query/config.ts`, `use-portal.ts`, `warm-route-prefetch.ts`, Order/Invoice/Product lists, portal pages, `portal-query-keys.test.ts`
+
+---
+
 ## REQ-0187 — Invoice/Order dialog densify + catalog STATUS
 
 | Field | Value |

@@ -85,7 +85,7 @@ export default function SupplierPortalPage({
   const dashboardQuery = useSupplierPortalDashboard(initialDashboard);
 
   useSyncSsrQueryData(
-    [...queryKeys.portal.supplier(), user?.id ?? ""],
+    queryKeys.portal.supplierDashboard(user?.id ?? ""),
     user?.id && initialDashboard !== undefined ? initialDashboard : undefined,
   );
 

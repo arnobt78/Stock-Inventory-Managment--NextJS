@@ -22,6 +22,7 @@ import {
   useClientInvoices,
   useDashboard,
   useClientPortalDashboard,
+  useSupplierPortalDashboard,
 } from "@/hooks/queries";
 import {
   isDataSlotLoading,
@@ -32,6 +33,7 @@ import {
 import { APP_SHELL_WIDTH_CLASS } from "@/lib/ui/shell-layout-styles";
 import { buildStoreOrderStatusBadges } from "@/lib/ui/store-order-status-badges";
 import { buildStoreInvoiceStatusBadges } from "@/lib/ui/store-invoice-status-badges";
+import { buildPortalOrderStatusBadges } from "@/lib/ui/portal-order-status-badges";
 import { isSelfOrder } from "@/lib/orders/order-party";
 import InvoiceFilters from "./InvoiceFilters";
 import InvoiceDialog from "./InvoiceDialog";
@@ -42,13 +44,18 @@ import {
   ShoppingCart,
   FileText,
   Clock,
+  Package,
 } from "lucide-react";
 import { PageSectionHeader } from "@/components/shared";
 import type { Invoice } from "@/types";
 import type { InvoiceForPage } from "@/lib/server/invoices-data";
 import type { InvoiceWithSource } from "./InvoiceTableColumns";
 import type { InvoiceSourceFilterValue } from "./InvoiceSourceFilter";
-import type { DashboardStats, ClientPortalDashboard } from "@/types";
+import type {
+  DashboardStats,
+  ClientPortalDashboard,
+  SupplierPortalDashboard,
+} from "@/types";
 import {
   buildInvoiceListFilters,
   isDefaultInvoiceListFilters,
@@ -81,6 +88,8 @@ export type InvoiceListProps = {
   initialStats?: DashboardStats | null;
   /** SSR client portal for client /invoices cards */
   initialClientPortal?: ClientPortalDashboard;
+  /** REQ-0205 — SSR supplier portal for supplier /invoices KPI cards */
+  initialSupplierPortal?: SupplierPortalDashboard | null;
 };
 
 const InvoiceList = React.memo(
@@ -91,6 +100,7 @@ const InvoiceList = React.memo(
     initialClientInvoices,
     initialStats,
     initialClientPortal,
+    initialSupplierPortal,
   }: InvoiceListProps = {}) => {
     // Track if component has mounted on client to prevent hydration mismatch
     const isMountedRef = useRef(false);
@@ -119,6 +129,8 @@ const InvoiceList = React.memo(
       (pathname === "/invoices" && role !== "client" && role !== "supplier") ||
       dataSource === "adminCombined";
     const enableClientPortal = pathname === "/invoices" && role === "client";
+    const enableSupplierPortal =
+      pathname === "/invoices" && role === "supplier";
 
     // REQ-0159 — admin/user /invoices uses Self-only issuer scope (match /orders)
     const apiFilters = useMemo(
@@ -169,8 +181,14 @@ const InvoiceList = React.memo(
     /** Client on /invoices: show client-specific invoice state cards (same data as /client portal) */
     const isClientInvoicesPage =
       pathname === "/invoices" && user?.role === "client";
+    /** REQ-0204 — supplier on /invoices: related invoices (orders with their products) */
+    const isSupplierInvoicesPage =
+      pathname === "/invoices" && user?.role === "supplier";
     const portalDashboardQuery = useClientPortalDashboard(
       enableClientPortal ? initialClientPortal : undefined,
+    );
+    const supplierPortalQuery = useSupplierPortalDashboard(
+      enableSupplierPortal ? (initialSupplierPortal ?? undefined) : undefined,
     );
     const clientPortalDashboard = isClientInvoicesPage
       ? (portalDashboardQuery.data ?? null)
@@ -205,8 +223,14 @@ const InvoiceList = React.memo(
         : undefined,
     );
     useSyncSsrQueryData(
-      queryKeys.clientPortal.overview(),
-      enableClientPortal ? initialClientPortal : undefined,
+      queryKeys.portal.clientDashboard(user?.id ?? ""),
+      enableClientPortal && user?.id ? initialClientPortal : undefined,
+    );
+    useSyncSsrQueryData(
+      queryKeys.portal.supplierDashboard(user?.id ?? ""),
+      enableSupplierPortal && user?.id
+        ? (initialSupplierPortal ?? undefined)
+        : undefined,
     );
 
     const mergedInvoicesForAdmin = useMemo((): InvoiceWithSource[] => {
@@ -335,6 +359,22 @@ const InvoiceList = React.memo(
     const clientPortalCardsLoading = enableClientPortal
       ? isDataSlotUnsettled(portalDashboardQuery, initialClientPortal)
       : false;
+    const supplierPortalCardsLoading = enableSupplierPortal
+      ? isDataSlotUnsettled(
+          supplierPortalQuery,
+          initialSupplierPortal ?? undefined,
+        )
+      : false;
+    const supplierPortal = supplierPortalQuery.data;
+    const supplierNonCancelledOrders = Math.max(
+      0,
+      (supplierPortal?.totalOrders ?? 0) -
+        (supplierPortal?.orderStatusCounts?.cancelled ?? 0),
+    );
+    const supplierAvgOrder =
+      supplierNonCancelledOrders > 0
+        ? (supplierPortal?.totalRevenue ?? 0) / supplierNonCancelledOrders
+        : 0;
 
     const isClientInvoices = dataSource === "clientInvoices";
     const isAdminCombined = dataSource === "adminCombined";
@@ -355,7 +395,9 @@ const InvoiceList = React.memo(
                 ? "Client Invoices"
                 : isClientInvoicesPage
                   ? "My Invoices"
-                  : "Invoice Management"
+                  : isSupplierInvoicesPage
+                    ? "Invoices (Your Products)"
+                    : "Invoice Management"
           }
           description={
             isAdminCombined
@@ -364,7 +406,9 @@ const InvoiceList = React.memo(
                 ? "Invoices for orders placed by clients that include your products. View details, send, and track payment."
                 : isClientInvoicesPage
                   ? "Your invoices, payment status, and order history. View details and track what you owe or have paid."
-                  : "Manage invoices, track payment status, monitor due dates, and handle billing. View invoice history, update statuses, and send invoices to clients."
+                  : isSupplierInvoicesPage
+                    ? "Invoices for orders that contain your products. View status, amounts, and payment (read-only)."
+                    : "Manage invoices, track payment status, monitor due dates, and handle billing. View invoice history, update statuses, and send invoices to clients."
           }
         />
 
@@ -677,6 +721,146 @@ const InvoiceList = React.memo(
                   clientPortalDashboard?.invoiceBreakdown?.cancelled,
                 refundedCount:
                   clientPortalDashboard?.invoiceBreakdown?.refunded,
+              })}
+            />
+          </div>
+        )}
+
+        {/* REQ-0205 — Supplier /invoices state cards (same 4 as supplier /orders) */}
+        {isSupplierInvoicesPage && (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2 items-stretch pb-6">
+            <StatisticsCard
+              title="Total Products"
+              value={supplierPortal?.totalProducts ?? 0}
+              description="Products in your catalog"
+              icon={Package}
+              variant="rose"
+              valueLoading={supplierPortalCardsLoading}
+              badgeValuesLoading={supplierPortalCardsLoading}
+              badges={[
+                {
+                  label: "Available",
+                  value: supplierPortal?.productStatusCounts?.available ?? 0,
+                },
+                {
+                  label: "Stock low",
+                  value: supplierPortal?.productStatusCounts?.stockLow ?? 0,
+                },
+                {
+                  label: "Stock out",
+                  value: supplierPortal?.productStatusCounts?.stockOut ?? 0,
+                },
+                {
+                  label: "Product value",
+                  value: formatCurrency(supplierPortal?.productValue ?? 0),
+                },
+                {
+                  label: "Orders",
+                  value: formatCurrency(
+                    supplierPortal?.valueBreakdown?.orders ?? 0,
+                  ),
+                },
+                {
+                  label: "Invoices",
+                  value: formatCurrency(
+                    supplierPortal?.valueBreakdown?.invoices ?? 0,
+                  ),
+                },
+                {
+                  label: "Due",
+                  value: formatCurrency(
+                    supplierPortal?.valueBreakdown?.due ?? 0,
+                  ),
+                },
+                {
+                  label: "Cancelled",
+                  value: formatCurrency(
+                    supplierPortal?.valueBreakdown?.cancelled ?? 0,
+                  ),
+                },
+                {
+                  label: "Refunded",
+                  value: formatCurrency(
+                    supplierPortal?.valueBreakdown?.refunded ?? 0,
+                  ),
+                },
+              ]}
+            />
+            <StatisticsCard
+              title="Total Orders"
+              value={supplierPortal?.totalOrders ?? 0}
+              description="Orders containing your products"
+              icon={ShoppingCart}
+              variant="emerald"
+              valueLoading={supplierPortalCardsLoading}
+              badgeValuesLoading={supplierPortalCardsLoading}
+              badges={buildPortalOrderStatusBadges({
+                pending: supplierPortal?.orderStatusCounts?.pending,
+                inProgress: supplierPortal?.orderStatusCounts?.inProgress,
+                shipped: supplierPortal?.orderStatusCounts?.shipped,
+                delivered: supplierPortal?.orderStatusCounts?.delivered,
+                refundedCount: supplierPortal?.orderStatusCounts?.refunded ?? 0,
+                cancelledCount:
+                  supplierPortal?.orderStatusCounts?.cancelled ?? 0,
+              })}
+            />
+            <StatisticsCard
+              title="Total Revenue"
+              value={formatCurrency(supplierPortal?.totalRevenue ?? 0)}
+              description="Revenue from your products (excl. cancelled)"
+              icon={DollarSign}
+              variant="amber"
+              valueLoading={supplierPortalCardsLoading}
+              badgeValuesLoading={supplierPortalCardsLoading}
+              badges={[
+                {
+                  label: "Paid",
+                  value: formatCurrency(
+                    supplierPortal?.revenueBreakdown?.paid ?? 0,
+                  ),
+                },
+                {
+                  label: "Partial",
+                  value: formatCurrency(
+                    supplierPortal?.revenueBreakdown?.partial ?? 0,
+                  ),
+                },
+                {
+                  label: "Due",
+                  value: formatCurrency(
+                    supplierPortal?.revenueBreakdown?.due ?? 0,
+                  ),
+                },
+                {
+                  label: "Refund",
+                  value: formatCurrency(
+                    supplierPortal?.revenueBreakdown?.refund ?? 0,
+                  ),
+                },
+                {
+                  label: "Pending",
+                  value: formatCurrency(
+                    supplierPortal?.revenueBreakdown?.pending ?? 0,
+                  ),
+                },
+                { label: "Avg/Order", value: formatCurrency(supplierAvgOrder) },
+              ]}
+            />
+            <StatisticsCard
+              title="Total Invoices"
+              value={supplierPortal?.totalInvoices ?? 0}
+              description="Invoices created by product owner"
+              icon={FileText}
+              variant="sky"
+              valueLoading={supplierPortalCardsLoading}
+              badgeValuesLoading={supplierPortalCardsLoading}
+              badges={buildStoreInvoiceStatusBadges({
+                paidCount: supplierPortal?.invoiceBreakdown?.paid,
+                partialCount: supplierPortal?.invoiceBreakdown?.partial,
+                pendingCount: supplierPortal?.invoiceBreakdown?.pending,
+                overdueCount: supplierPortal?.invoiceBreakdown?.overdue,
+                cancelledCount: supplierPortal?.invoiceBreakdown?.cancelled,
+                refundedCount: supplierPortal?.invoiceBreakdown?.refunded,
               })}
             />
           </div>

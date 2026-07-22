@@ -172,7 +172,39 @@ All user-facing POST/PUT JSON bodies use `safeParse` + `logger.warn` on fail. Ne
 
 **Every session:** STATE → REQ map → skill 01+17 → Red Team → write-through DECISION/BUILD/VALIDATION.
 
-**C1 open:** Gate 2 PENDING. **Stopped 2026-07-22:** REQ-0187 densify (invoice/order/STATUS/pickers). **Next:** **REQ-0136**.
+**C1 open:** Gate 2 PENDING. **Stopped 2026-07-22:** REQ-0206 portal SSR sync. **Next:** **REQ-0136**.
+
+## REQ-0206 portal SSR sync keys (2026-07-22)
+
+| Piece | Location |
+|-------|----------|
+| Helpers | `queryKeys.portal.supplierDashboard|clientDashboard|clientCatalogDashboard(userId)` |
+| Hooks/warm | `use-portal.ts`, `warm-route-prefetch.ts` |
+| Sync | OrderList / InvoiceList / ProductList / Supplier+Client portal pages |
+| Admin | `supplierPortal` / `clientPortal` unchanged |
+
+**Invalidation:** unchanged — `portal.all` already clears role dashboards.
+
+## REQ-0205 supplier Related Invoices KPIs (2026-07-22)
+
+| Piece | Location |
+|-------|----------|
+| SSR | `app/invoices/page.tsx` supplier → `prefetchListPageStats` → `initialSupplierPortal` |
+| Props | `InvoicesPage` / `InvoiceList` optional `initialSupplierPortal` |
+| Cards | same 4 as supplier `/orders` via `useSupplierPortalDashboard` |
+
+**Invalidation:** unchanged — `supplierPortal` already cleared on order-graph.
+
+## REQ-0204 supplier view-only invoices (2026-07-22)
+
+| Piece | Location |
+|-------|----------|
+| Gate | `getInvoiceByIdForSupplier` + `getInvoiceDetailForPage` supplier branch |
+| PDF | `/api/invoices/[id]/pdf` via same detail gate |
+| UI | existing read-only (`disableInvoiceMutations`); Pay client-only |
+| Nav | Related Invoices → `/invoices` |
+
+**Invalidation:** unchanged — read path only.
 
 ## REQ-0187 dialog densify (2026-07-22)
 
@@ -969,7 +1001,7 @@ Hub: `lib/ui/typography-scale.ts`. Hubs import tokens; ~45 inline files use equi
 
 **Invalidation unchanged** — review/product/dashboard CRUD already clears lists + portals.
 
-**Active wave:** **0187** done → **0136** Gate 2.
+**Active wave:** **0206** done → **0136** Gate 2.
 
 ## Warehouse detail + Allocate/Transfer (REQ-0203)
 

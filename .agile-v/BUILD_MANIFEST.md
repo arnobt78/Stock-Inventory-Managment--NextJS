@@ -536,3 +536,6 @@
 | ART-0187a | REQ-0187 | OrderPickerCommand densify; InvoiceDialog glass panel; Order line feedback; Cat/Sup STATUS; badge contrast | done |
 | ART-0187b | REQ-0187 | Column feedback: Subtotal under Product; Max/hint under Warehouse | done |
 | ART-0187c | REQ-0187 | Product Combobox densify; DialogWarehouseOptionRow; reserved on DialogProductOptionRow | done |
+| ART-0204a | REQ-0204 | getInvoiceByIdForSupplier; detail+PDF gate; Related Invoices nav | done |
+| ART-0205a | REQ-0205 | Supplier /invoices SSR portal + 4 StatisticsCards (OrderList parity) | done |
+| ART-0206a | REQ-0206 | portal.*Dashboard(userId) helpers; list SSR sync + hooks/warm parity | done |

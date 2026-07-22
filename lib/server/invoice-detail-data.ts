@@ -6,8 +6,10 @@
 import {
   getInvoiceById,
   getInvoiceByIdForProductOwner,
+  getInvoiceByIdForSupplier,
 } from "@/prisma/invoice";
 import { prisma } from "@/prisma/client";
+import { getSupplierByUserId } from "@/prisma/supplier";
 import {
   transformInvoiceDetail,
   type InvoiceDetailEnrichment,
@@ -164,6 +166,7 @@ export async function getInvoiceDetailForPage(
   const userId = session.id;
   const isAdmin = session.role === "admin";
   const isClient = session.role === "client";
+  const isSupplier = session.role === "supplier";
 
   let invoice: Awaited<ReturnType<typeof getInvoiceById>> | null;
   if (isAdmin) {
@@ -172,6 +175,12 @@ export async function getInvoiceDetailForPage(
     invoice = await prisma.invoice.findFirst({
       where: { id: invoiceId, clientId: userId },
     });
+  } else if (isSupplier) {
+    // REQ-0204 — view invoices for orders that include this supplier's products
+    const supplier = await getSupplierByUserId(userId);
+    invoice = supplier
+      ? await getInvoiceByIdForSupplier(invoiceId, supplier.id)
+      : null;
   } else {
     invoice = await getInvoiceById(invoiceId, userId);
     if (!invoice) {

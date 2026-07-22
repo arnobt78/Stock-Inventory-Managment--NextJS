@@ -541,4 +541,13 @@ Format: `TIMESTAMP | AGENT | DECISION | RATIONALE | REQ-ID`
 2026-07-22T16:24:00Z | build-agent | REQ-0187 picker densify | Product Combobox+DialogProductOptionRow+reserved; DialogWarehouseOptionRow type·avail; allocation type on pick options | REQ-0187
 2026-07-22T16:24:00Z | red-team | REQ-0187 picker densify gates | lint ✓ test 685 ✓ invalidate 217 ✓ | REQ-0187
 
+2026-07-22T16:53:00Z | build-agent | REQ-0204 supplier invoice view | getInvoiceByIdForSupplier + detail/PDF gate; Related Invoices nav; list header | REQ-0204
+2026-07-22T16:53:00Z | red-team | REQ-0204 gates | lint ✓ test 688 ✓ invalidate 217 ✓ build ✓ | REQ-0204
+
+2026-07-22T17:05:00Z | build-agent | REQ-0205 supplier invoice KPIs | SSR initialSupplierPortal + InvoiceList 4 portal StatisticsCards | REQ-0205
+2026-07-22T17:05:00Z | red-team | REQ-0205 gates | lint ✓ test 688 ✓ invalidate 217 ✓ build ✓ | REQ-0205
+
+2026-07-22T17:09:00Z | build-agent | REQ-0206 portal SSR sync | role portal.*Dashboard(userId); fix Order/Invoice/Product list sync | REQ-0206
+2026-07-22T17:09:00Z | red-team | REQ-0206 gates | lint ✓ test 692 ✓ invalidate 217 ✓ build ✓ | REQ-0206
+
 2026-07-22T15:32:00Z | release | Prod SHA b41cb11 pushed origin/main | REQ-0009 Sentry expected-client remediations | REQ-0009

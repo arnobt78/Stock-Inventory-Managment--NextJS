@@ -138,11 +138,11 @@ export default function ClientPortalPage({
   const catalogQuery = useClientCatalogOverview(initialCatalog);
 
   useSyncSsrQueryData(
-    [...queryKeys.portal.client(), user?.id ?? ""],
+    queryKeys.portal.clientDashboard(user?.id ?? ""),
     user?.id && initialDashboard !== undefined ? initialDashboard : undefined,
   );
   useSyncSsrQueryData(
-    [...queryKeys.portal.clientCatalog(), user?.id ?? ""],
+    queryKeys.portal.clientCatalogDashboard(user?.id ?? ""),
     user?.id && initialCatalog !== undefined ? initialCatalog : undefined,
   );
 

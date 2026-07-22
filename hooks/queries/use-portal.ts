@@ -24,7 +24,7 @@ export function useSupplierPortalDashboard(
   const { user } = useAuth();
   const userId = user?.id ?? "";
   return useQuery({
-    queryKey: [...queryKeys.portal.supplier(), userId],
+    queryKey: queryKeys.portal.supplierDashboard(userId),
     queryFn: async (): Promise<SupplierPortalDashboard> => {
       const response = await apiClient.portal.getSupplierDashboard();
       return response.data;
@@ -41,7 +41,7 @@ export function useClientPortalDashboard(
   const { user } = useAuth();
   const userId = user?.id ?? "";
   return useQuery({
-    queryKey: [...queryKeys.portal.client(), userId],
+    queryKey: queryKeys.portal.clientDashboard(userId),
     queryFn: async (): Promise<ClientPortalDashboard> => {
       const response = await apiClient.portal.getClientDashboard();
       return response.data;
@@ -58,7 +58,7 @@ export function useClientCatalogOverview(
   const { user } = useAuth();
   const userId = user?.id ?? "";
   return useQuery({
-    queryKey: [...queryKeys.portal.clientCatalog(), userId],
+    queryKey: queryKeys.portal.clientCatalogDashboard(userId),
     queryFn: async (): Promise<ClientCatalogOverview> => {
       const response = await apiClient.portal.getClientCatalog();
       return response.data;

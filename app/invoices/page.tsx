@@ -34,13 +34,15 @@ export default async function InvoicesRoute() {
 
   if (userRole === "supplier") {
     const supplier = await getSupplierByUserId(user.id);
-    const initialInvoices = supplier
-      ? await getInvoicesForSupplierId(supplier.id)
-      : [];
+    const [initialInvoices, listStats] = await Promise.all([
+      supplier ? getInvoicesForSupplierId(supplier.id) : Promise.resolve([]),
+      prefetchListPageStats(user),
+    ]);
     return (
       <InvoicesPage
         userRole={userRole}
         initialInvoices={initialInvoices}
+        initialSupplierPortal={listStats.initialSupplierPortal}
       />
     );
   }

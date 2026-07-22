@@ -251,12 +251,21 @@ export const queryKeys = {
     summary: () => [...queryKeys.forecasting.all, "summary"] as const,
   },
 
-  // Portal queries
+  // Portal queries (role-scoped dashboards append userId — not admin supplierPortal/clientPortal)
   portal: {
     all: ["portal"] as const,
     supplier: () => [...queryKeys.portal.all, "supplier"] as const,
     client: () => [...queryKeys.portal.all, "client"] as const,
     clientCatalog: () => [...queryKeys.portal.all, "client", "catalog"] as const,
+    /** REQ-0206 — role supplier KPI key (matches useSupplierPortalDashboard) */
+    supplierDashboard: (userId: string) =>
+      [...queryKeys.portal.supplier(), userId] as const,
+    /** REQ-0206 — role client KPI key (matches useClientPortalDashboard) */
+    clientDashboard: (userId: string) =>
+      [...queryKeys.portal.client(), userId] as const,
+    /** REQ-0206 — role client catalog key (matches useClientCatalogOverview) */
+    clientCatalogDashboard: (userId: string) =>
+      [...queryKeys.portal.clientCatalog(), userId] as const,
     clientBrowseMeta: () =>
       [...queryKeys.portal.all, "client", "browse-meta"] as const,
     clientBrowseProducts: (params: {

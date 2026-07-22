@@ -40,6 +40,8 @@ const SUPPLIER_NAV_ITEMS: RoleNavItem[] = [
   { label: "Supplier Portal", path: "/supplier", hasDropdown: false },
   { label: "My Products", path: "/products", hasDropdown: false },
   { label: "View Orders", path: "/orders", hasDropdown: false },
+  // REQ-0204 — related invoices list (view-only detail via same /invoices/[id])
+  { label: "Related Invoices", path: "/invoices", hasDropdown: false },
 ];
 
 /** Navbar items for the given role (admin/user share admin nav). */

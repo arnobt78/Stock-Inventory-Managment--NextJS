@@ -422,6 +422,25 @@ export async function getInvoiceByIdForProductOwner(
 }
 
 /**
+ * REQ-0204 — Get invoice by ID for supplier (order must contain at least one product from this supplier entity).
+ */
+export async function getInvoiceByIdForSupplier(
+  invoiceId: string,
+  supplierEntityId: string,
+): Promise<Prisma.InvoiceGetPayload<Record<string, never>> | null> {
+  const invoice = await prisma.invoice.findUnique({
+    where: { id: invoiceId },
+  });
+  if (!invoice) return null;
+  const { getOrderByIdForSupplier } = await import("@/prisma/order");
+  const order = await getOrderByIdForSupplier(
+    invoice.orderId,
+    supplierEntityId,
+  );
+  return order ? invoice : null;
+}
+
+/**
  * Get invoice by order ID
  *
  * @param orderId - ID of the order
