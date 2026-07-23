@@ -556,3 +556,5 @@ Format: `TIMESTAMP | AGENT | DECISION | RATIONALE | REQ-ID`
 2026-07-23T13:10:00Z | red-team | REQ-0207 docs | docs-only PASS | REQ-0207
 
 2026-07-22T15:32:00Z | release | Prod SHA b41cb11 pushed origin/main | REQ-0009 Sentry expected-client remediations | REQ-0009
+
+2026-07-23T13:15:00Z | release | Prod SHA d1aefda pushed origin/main | REQ-0207 SECURITY.md | REQ-0207

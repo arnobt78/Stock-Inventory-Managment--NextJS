@@ -4,7 +4,7 @@
 **eval_gate_status:** PENDING (Human Gate 2)
 **Active:** **REQ-0136** Gate 2 / cache smoke
 **Last ship:** REQ-0207 SECURITY.md
-**Prod target SHA:** pending (REQ-0207 docs)
+**Prod target SHA:** `d1aefda` (REQ-0207)
 
 ---
 
