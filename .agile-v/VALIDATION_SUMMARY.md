@@ -1,10 +1,26 @@
 # Validation Summary — Cycle C1
 
-**Generated:** 2026-07-22 (REQ-0206 portal SSR sync keys)
+**Generated:** 2026-07-23 (REQ-0207 SECURITY.md)
 **eval_gate_status:** PENDING (Human Gate 2)
 **Active:** **REQ-0136** Gate 2 / cache smoke
-**Last ship:** REQ-0206 portal SSR sync key alignment
-**Prod target SHA:** `fa73409` (REQ-0204–0206)
+**Last ship:** REQ-0207 SECURITY.md
+**Prod target SHA:** pending (REQ-0207 docs)
+
+---
+
+## REQ-0207 SECURITY.md (2026-07-23)
+
+| Check | Result |
+| ----- | ------ |
+| File | root `SECURITY.md` — private email, scope, out-of-scope |
+| README | link + Security section |
+| App code | unchanged |
+| Gates | docs-only N/A |
+
+```
+Scope: built/verified | Traceability: REQ-0207 | Findings: PASS
+Commands: docs-only
+```
 
 ---
 

@@ -539,3 +539,4 @@
 | ART-0204a | REQ-0204 | getInvoiceByIdForSupplier; detail+PDF gate; Related Invoices nav | done |
 | ART-0205a | REQ-0205 | Supplier /invoices SSR portal + 4 StatisticsCards (OrderList parity) | done |
 | ART-0206a | REQ-0206 | portal.*Dashboard(userId) helpers; list SSR sync + hooks/warm parity | done |
+| ART-0207a | REQ-0207 | Root SECURITY.md + README Security link | done |

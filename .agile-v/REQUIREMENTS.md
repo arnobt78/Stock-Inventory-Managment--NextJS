@@ -501,6 +501,28 @@ Canonical REQ source. All artifacts link via `REQ-XXXX`. Status: `done` | `verif
 
 ---
 
+## REQ-0207 — SECURITY.md (OSS hygiene)
+
+| Field | Value |
+|-------|-------|
+| **Priority** | P3 |
+| **Risk** | R0 |
+| **Status** | done |
+| **Cycle** | C2 |
+| **Parent** | REQ-0136 |
+
+**Intent:** Add GitHub-standard private vulnerability reporting for the public showcase repo (no third-party audit program).
+
+**Acceptance criteria**
+
+- AC1: Root `SECURITY.md` — contact, scope, out-of-scope, best-effort response
+- AC2: README links to `SECURITY.md`
+- AC3: No app/invalidation changes; docs write-through
+
+**Artifacts:** `SECURITY.md`, `README.md`
+
+---
+
 ## REQ-0187 — Invoice/Order dialog densify + catalog STATUS
 
 | Field | Value |

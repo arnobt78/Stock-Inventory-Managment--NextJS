@@ -552,4 +552,7 @@ Format: `TIMESTAMP | AGENT | DECISION | RATIONALE | REQ-ID`
 
 2026-07-22T17:12:00Z | release | Prod SHA fa73409 pushed origin/main | REQ-0204–0206 supplier invoices + portal SSR sync | REQ-0204
 
+2026-07-23T13:10:00Z | build-agent | REQ-0207 SECURITY.md | root SECURITY.md + README link; private reports to contact@arnobmahmud.com | REQ-0207
+2026-07-23T13:10:00Z | red-team | REQ-0207 docs | docs-only PASS | REQ-0207
+
 2026-07-22T15:32:00Z | release | Prod SHA b41cb11 pushed origin/main | REQ-0009 Sentry expected-client remediations | REQ-0009

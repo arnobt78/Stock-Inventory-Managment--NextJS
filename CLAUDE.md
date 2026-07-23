@@ -172,7 +172,16 @@ All user-facing POST/PUT JSON bodies use `safeParse` + `logger.warn` on fail. Ne
 
 **Every session:** STATE → REQ map → skill 01+17 → Red Team → write-through DECISION/BUILD/VALIDATION.
 
-**C1 open:** Gate 2 PENDING. **Stopped 2026-07-22:** REQ-0206 portal SSR sync. **Next:** **REQ-0136**.
+**C1 open:** Gate 2 PENDING. **Stopped 2026-07-23:** REQ-0207 SECURITY.md. **Next:** **REQ-0136**.
+
+## REQ-0207 SECURITY.md (2026-07-23)
+
+| Piece | Location |
+|-------|----------|
+| Policy | root `SECURITY.md` — private reports → contact@arnobmahmud.com |
+| README | Security section + top link |
+
+**No app/invalidation changes.**
 
 ## REQ-0206 portal SSR sync keys (2026-07-22)
 
@@ -1001,7 +1010,7 @@ Hub: `lib/ui/typography-scale.ts`. Hubs import tokens; ~45 inline files use equi
 
 **Invalidation unchanged** — review/product/dashboard CRUD already clears lists + portals.
 
-**Active wave:** **0206** done → **0136** Gate 2.
+**Active wave:** **0207** done → **0136** Gate 2.
 
 ## Warehouse detail + Allocate/Transfer (REQ-0203)
 
