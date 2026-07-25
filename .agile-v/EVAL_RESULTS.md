@@ -14,4 +14,4 @@
 
 **Gate 2 blocked until:** Human UI explore (REQ-0136) + §10 cache smoke + Sentry 24h. Tip `60f3280` (REQ-0212); confirm Vercel Ready.
 
-**Session 2026-07-26:** REQ-0212 deploy unblock done. Resume `gate2-0136-cache-smoke`.
+**Session 2026-07-26:** REQ-0212 app tip `60f3280`; REQ-0213 README docs. Resume `gate2-0136-cache-smoke`.

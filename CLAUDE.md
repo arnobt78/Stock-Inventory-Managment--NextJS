@@ -172,7 +172,16 @@ All user-facing POST/PUT JSON bodies use `safeParse` + `logger.warn` on fail. Ne
 
 **Every session:** STATE → REQ map → skill 01+17 → Red Team → write-through DECISION/BUILD/VALIDATION.
 
-**C1 open:** Gate 2 PENDING. **Stopped 2026-07-26:** REQ-0212. **Next:** **REQ-0136**.
+**C1 open:** Gate 2 PENDING. **Stopped 2026-07-26:** REQ-0213. **Next:** **REQ-0136**.
+
+## REQ-0213 educational README (2026-07-26)
+
+| Piece | Location |
+|-------|----------|
+| README | Learner guide — badges, env, APIs, reuse, SECURITY link |
+| Diploi | Deploying → optional launch-big; Vercel = prod demo |
+
+**Docs-only** — no invalidation/app changes.
 
 ## REQ-0212 Vercel deploy unblock (2026-07-26)
 
@@ -1042,7 +1051,7 @@ Hub: `lib/ui/typography-scale.ts`. Hubs import tokens; ~45 inline files use equi
 
 **Invalidation unchanged** — review/product/dashboard CRUD already clears lists + portals.
 
-**Active wave:** **0212** deploy unblock done → **0136** Gate 2.
+**Active wave:** **0213** README done → **0136** Gate 2.
 
 ## Warehouse detail + Allocate/Transfer (REQ-0203)
 

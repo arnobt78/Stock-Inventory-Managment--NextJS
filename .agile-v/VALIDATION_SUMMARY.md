@@ -1,10 +1,26 @@
 # Validation Summary — Cycle C1
 
-**Generated:** 2026-07-26 (REQ-0212 deploy unblock)
+**Generated:** 2026-07-26 (REQ-0213 README)
 **eval_gate_status:** PENDING (Human Gate 2)
 **Active:** **REQ-0136** Gate 2 cache smoke
-**Last ship:** REQ-0212 Vercel cold-install + Order patch TS
-**Prod target SHA:** `60f3280`
+**Last ship:** REQ-0213 educational README + Diploi
+**Prod target SHA:** app `60f3280` (0212); docs tip after 0213 push
+
+---
+
+## REQ-0213 — Educational README + Diploi (2026-07-26)
+
+| Check | Result |
+| ----- | ------ |
+| README | learner guide; badges; env; APIs; reuse; SECURITY link |
+| Diploi | Deploying subsection + launch-big button |
+| App/invalidation | unchanged (docs-only) |
+| Gates | N/A app build (docs) |
+
+```
+Scope: built/verified | Traceability: REQ-0213 | Findings: PASS
+Commands: docs review
+```
 
 ---
 

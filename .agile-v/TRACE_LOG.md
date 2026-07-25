@@ -66,6 +66,7 @@ Format: `timestamp | agent | span | req_ids | note`
 
 2026-07-26T01:32:00Z | build | REQ-0212-ship | cold-install+order-TS PASS | tsc/lint/inv221/build
 2026-07-26T01:32:00Z | session | activate | core+pipeline | Resume gate2-0136-cache-smoke post-0212 | PASS
+2026-07-26T01:44:00Z | docs | REQ-0213-ship | educational README + Diploi PASS | docs-only
 
 2026-07-22T14:52:00Z | build | REQ-0203-dry | productSupplier helpers PASS
 

@@ -4,6 +4,29 @@ Canonical REQ source. All artifacts link via `REQ-XXXX`. Status: `done` | `verif
 
 ---
 
+## REQ-0213 — Educational README + Diploi launch docs
+
+| Field | Value |
+|-------|-------|
+| **Priority** | P2 |
+| **Risk** | R1 |
+| **Status** | done |
+| **Cycle** | C2 |
+| **Parent** | REQ-0207 |
+
+**Intent:** Learner-facing README: stack badges, env (3 required + optional), structure, routes, APIs, reuse, SECURITY link, optional Diploi launch (Vercel = prod demo).
+
+**Acceptance criteria**
+
+- AC1: Badges match stack (Next 16 / React 19 / …) + Diploi badge
+- AC2: Required vs optional env + how to obtain keys; demo seed accounts
+- AC3: SECURITY.md linked; Diploi section under Deploying
+- AC4: Docs-only — no app/invalidation changes
+
+**Artifacts:** `README.md`, `SECURITY.md` (existing)
+
+---
+
 ## REQ-0212 — Vercel cold-install + Order patch TS (deploy unblock)
 
 | Field | Value |

@@ -3,7 +3,7 @@
 **Project:** Stockly Inventory (Next.js 16, React 19, Prisma/MongoDB)  
 **Cycle:** C2 active (C1 Gate 2 PENDING)  
 **Active:** REQ-0136 — Gate 2 UI explore + §10 A1/A2/B1 (`resume_token: gate2-0136-cache-smoke`)  
-**Prod SHA:** `60f3280` · **Last:** REQ-0212 Vercel deploy unblock · **Session:** 2026-07-26 · **Standard:** Agile V 1.4 | Infinity Loop
+**Prod SHA:** app `60f3280` · **Last:** REQ-0213 educational README · **Session:** 2026-07-26 · **Standard:** Agile V 1.4 | Infinity Loop
 
 ---
 

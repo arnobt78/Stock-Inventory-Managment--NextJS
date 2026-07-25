@@ -562,3 +562,8 @@
 | ART-0212b | REQ-0212 | `mergeOrderItemsPreservingDensify` → `OrderItem[]` | Build TS |
 | ART-0212c | REQ-0212 | `types/order` + `OrderTrackingInfo` dates `string\|Date` | Patch assign |
 | TC-0212 | REQ-0212 | tsc ✓ lint ✓ invalidate 221 ✓ build ✓ | done |
+
+## BM-REQ-0213
+| ART-0213a | REQ-0213 | `README.md` educational rewrite + badges | done |
+| ART-0213b | REQ-0213 | Diploi launch-big under Deploying | done |
+| TC-0213 | REQ-0213 | docs-only; SECURITY.md linked | done |
