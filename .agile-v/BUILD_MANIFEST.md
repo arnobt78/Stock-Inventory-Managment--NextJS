@@ -540,3 +540,14 @@
 | ART-0205a | REQ-0205 | Supplier /invoices SSR portal + 4 StatisticsCards (OrderList parity) | done |
 | ART-0206a | REQ-0206 | portal.*Dashboard(userId) helpers; list SSR sync + hooks/warm parity | done |
 | ART-0207a | REQ-0207 | Root SECURITY.md + README Security link | done |
+| ART-0208a | REQ-0208 | OrderDetailActionBar shared store+admin footer | done |
+| ART-0208b | REQ-0208 | PersonInlineRow / PartiesRolesCard User ID CopyableText | done |
+| ART-0208c | REQ-0208 | AdminOrderDetailContent parity (no inline status; Shipping column; dialogs) | done |
+| TC-0208 | REQ-0208 | lint ✓ test 692 ✓ invalidate 217 ✓ build ✓ | done |
+| ART-0209a | REQ-0209 | buildStripeCheckoutReturnUrls + PaymentDialog success/cancel | done |
+| ART-0209b | REQ-0209 | shouldConfirmAndFulfillOnPaymentSync + fulfill on first money | done |
+| ART-0209c | REQ-0209 | OrderDetailActionBar Cancel vs Process Refund + destructive copy | done |
+| TC-0209 | REQ-0209 | lint ✓ test 708 ✓ invalidate 217 ✓ build ✓ | done |
+
+## BM-REQ-0209-0211
+- Stripe confirm-session + reconcile; cancel invoice patch; Shippo test addresses; gates green

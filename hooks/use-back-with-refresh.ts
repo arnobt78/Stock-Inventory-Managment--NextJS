@@ -11,7 +11,7 @@
  *   - navigateTo("/orders")  → invalidate + router.push("/orders")
  */
 
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useQueryClient } from "@tanstack/react-query";
 import {
   invalidateAllRelatedQueries,
@@ -72,12 +72,16 @@ export function useBackWithRefresh(
   options?: UseBackWithRefreshOptions,
 ) {
   const router = useRouter();
+  const pathname = usePathname();
   const queryClient = useQueryClient();
   const fallbackPath = options?.fallbackPath;
 
   const handleBack = () => {
     runInvalidations(queryClient, entity);
-    if (consumeStripeCheckoutReturn() && fallbackPath) {
+    // Clear Stripe return flag when present (history may still contain checkout.stripe.com)
+    consumeStripeCheckoutReturn();
+    // Prefer explicit list path when set (admin order detail → /admin/orders)
+    if (fallbackPath) {
       router.push(fallbackPath);
       return;
     }

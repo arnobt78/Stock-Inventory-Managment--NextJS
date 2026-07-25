@@ -140,14 +140,17 @@ export default function InvoiceActions({
               View Details
             </Link>
           </DropdownMenuItem>
-          <DropdownMenuItem
-            onClick={handleEditInvoice}
-            disabled={disableInvoiceMutations}
-            className="flex items-center gap-2"
-          >
-            <Edit className="h-4 w-4" />
-            Edit Invoice
-          </DropdownMenuItem>
+          {/* REQ-0210 — cancelled invoices are read-only */}
+          {invoice.status !== "cancelled" && (
+            <DropdownMenuItem
+              onClick={handleEditInvoice}
+              disabled={disableInvoiceMutations}
+              className="flex items-center gap-2"
+            >
+              <Edit className="h-4 w-4" />
+              Edit Invoice
+            </DropdownMenuItem>
+          )}
           {invoice.status === "draft" && (
             <DropdownMenuItem
               onClick={() => setSendDialogOpen(true)}

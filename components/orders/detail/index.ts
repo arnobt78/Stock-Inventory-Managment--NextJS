@@ -17,3 +17,7 @@ export {
   type OrderShippingAddressCardProps,
 } from "./OrderShippingAddressCard";
 export { OrderSummaryCard, type OrderSummaryCardProps } from "./OrderSummaryCard";
+export {
+  OrderDetailActionBar,
+  type OrderDetailActionBarProps,
+} from "./OrderDetailActionBar";

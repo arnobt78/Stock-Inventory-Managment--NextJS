@@ -2,7 +2,7 @@
  * Shared invoice detail response transform — used by API GET and SSR prefetch.
  */
 
-import type { Invoice } from "@/types";
+import type { Invoice, BillingAddress } from "@/types";
 import type { OrderItem } from "@/types";
 
 type InvoiceRaw = {
@@ -49,6 +49,9 @@ export type InvoiceDetailEnrichment = {
   /** REQ-0152 — linked order payment for line-item / Pay UI */
   linkedOrderStatus?: string | null;
   linkedOrderPaymentStatus?: string | null;
+  /** REQ-0210 — display addresses (invoice billing may fall back to order) */
+  resolvedBillingAddress?: BillingAddress | null;
+  shippingAddress?: BillingAddress | null;
   /** REQ-0096 — DB audit fields */
   creator?: Invoice["creator"];
   updater?: Invoice["updater"];
@@ -80,7 +83,11 @@ export function transformInvoiceDetail(
     paymentLink: invoice.paymentLink,
     stripePaymentIntentId: invoice.stripePaymentIntentId ?? null,
     notes: invoice.notes,
-    billingAddress: invoice.billingAddress,
+    // REQ-0210 — prefer invoice.billing, else order billing/shipping from enrichment
+    billingAddress:
+      enrichment.resolvedBillingAddress ??
+      (invoice.billingAddress as Invoice["billingAddress"]),
+    shippingAddress: enrichment.shippingAddress ?? null,
     createdAt: invoice.createdAt.toISOString(),
     updatedAt: invoice.updatedAt?.toISOString() || null,
     createdBy: invoice.createdBy,

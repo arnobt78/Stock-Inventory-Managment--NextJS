@@ -555,6 +555,29 @@ Format: `TIMESTAMP | AGENT | DECISION | RATIONALE | REQ-ID`
 2026-07-23T13:10:00Z | build-agent | REQ-0207 SECURITY.md | root SECURITY.md + README link; private reports to contact@arnobmahmud.com | REQ-0207
 2026-07-23T13:10:00Z | red-team | REQ-0207 docs | docs-only PASS | REQ-0207
 
+2026-07-24T12:04:00Z | orchestrator | Agile V session activate (core+pipeline) | No re-bootstrap — .agile-v intact (24 skills, runtime contracts); sync config.json + PLAYBOOK to STATE; resume REQ-0136 §10 A1/A2/B1 → Gate 2; tip 23b955f / prod d1aefda | REQ-0136,REQ-0008
+
+2026-07-25T11:18:00Z | orchestrator | Agile V session activate (core+pipeline) | No re-bootstrap — .agile-v intact (24 skills, runtime contracts, POLICY/TRACE/EVAL/CHECKPOINTS); resume REQ-0136 UI explore → §10 A1/A2/B1 → Gate 2; tip 23b955f / prod d1aefda | REQ-0136,REQ-0008
+
+2026-07-25T13:56:00Z | product-owner | REQ-0208 Specify | Admin order detail parity from UI explore screenshots; shared action bar; Parties User ID; drop Customer/Invoice cards | REQ-0208,REQ-0136
+2026-07-25T13:56:00Z | build-agent | REQ-0208 defaults | Paid→Process Refund (not Cancel); admin full actions; Shipping card→right column; extract OrderDetailActionBar | REQ-0208
+2026-07-25T14:05:00Z | build-agent | REQ-0208 ship | OrderDetailActionBar; Parties User ID; AdminOrderDetailContent parity; OrderDetailPage adopt | REQ-0208
+2026-07-25T14:05:00Z | red-team | REQ-0208 gates | lint ✓ test 692 ✓ invalidate 217 ✓ build ✓ | REQ-0208
+2026-07-25T14:45:00Z | build-agent | REQ-0208 gap partial refund | cancelOrder refunds paid|partial → paymentStatus refunded; admin Process Refund for partial; admin back fallbackPath; Parties User ID layout; shipping dialog densify; hide doc scrollbar | REQ-0208
+
+2026-07-25T15:10:00Z | product-owner | REQ-0209 Specify | Stripe return by origin; confirm+fulfill on first money; Cancel unpaid|partial vs Process Refund paid; no refund-without-cancel | REQ-0209,REQ-0208
+2026-07-25T15:10:00Z | build-agent | REQ-0209 defaults | Fulfill on first partial (same as manual confirm) so cancel restore stays correct | REQ-0209
+2026-07-25T15:15:00Z | build-agent | REQ-0209 ship | stripe-checkout-return-urls; shouldConfirmAndFulfillOnPaymentSync; OrderDetailActionBar; order-destructive-copy; debug cleanup | REQ-0209
+2026-07-25T15:20:00Z | red-team | REQ-0209 gates | lint ✓ test 708 ✓ invalidate 217 ✓ build ✓ | REQ-0209
+
 2026-07-22T15:32:00Z | release | Prod SHA b41cb11 pushed origin/main | REQ-0009 Sentry expected-client remediations | REQ-0009
 
 2026-07-23T13:15:00Z | release | Prod SHA d1aefda pushed origin/main | REQ-0207 SECURITY.md | REQ-0207
+2026-07-25T16:10:00Z | build-agent | patchInvoicesOnOrderCancel by orderId | patchOrderGraphListCaches matched invoice rows by order.id (never); Cancelled/Refunded badges stayed stale | REQ-0210
+2026-07-25T16:10:00Z | build-agent | Invoice billing fallback + shipping from order | Invoice stores billing only; same-as-billing left null on some creates | REQ-0210
+2026-07-25T16:10:00Z | build-agent | Stack ShippingManagement + OrderAddressFields | 2-col pushed Manual Entry below fold; User ID break-all letter-wrap | REQ-0210
+2026-07-25T16:33:00Z | build-agent | Merge invoiceForOrder on cancel (keep invoiceNumber) | Thin replace wiped INV#/createdAt → late flash in Order table | REQ-0210
+2026-07-25T16:33:00Z | build-agent | Disable Edit Order/Invoice when cancelled | Status/payment should not be manipulated after cancel/refund | REQ-0210
+2026-07-25T16:33:00Z | build-agent | resolveOrderPayAmount fallback total-paid | Pay dialog showed $0 due after partial when amountDue zeroed | REQ-0210
+2026-07-25T16:41:00Z | build-agent | Shippo test-key silent US to + USPS prefer | Free-tier shippo_test_* only; order UI keeps customer address | REQ-0211
+2026-07-25T16:45:00Z | red-team | Pre-commit audit PASS | lint/test724/inv221/build; debug logs removed | REQ-0209,0210,0211

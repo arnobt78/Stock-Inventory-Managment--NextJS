@@ -4,6 +4,103 @@ Canonical REQ source. All artifacts link via `REQ-XXXX`. Status: `done` | `verif
 
 ---
 
+## REQ-0211 — Shippo test-key Auto Generate (silent US to + USPS)
+
+| Field | Value |
+|-------|-------|
+| **Priority** | P1 |
+| **Risk** | R2 |
+| **Status** | done |
+| **Cycle** | C2 |
+| **Parent** | REQ-0210 |
+
+**Intent:** With only `shippo_test_*` keys, Auto Generate must succeed: use `SHIPPO_FROM_*` + silent US to-address; prefer USPS rates. Order UI/email still show customer shipping. Gate labels until confirmed or partial/paid. Live keys would use real to-address.
+
+**Acceptance criteria**
+
+- AC1: `isShippoTestMode()` → `resolveShippoLabelAddresses` uses `DEFAULT_TEST_TO_ADDRESS`
+- AC2: `selectShippoRateForLabel` prefers USPS in test mode
+- AC3: Labels API rejects cancelled + pending unpaid
+- AC4: `canShip` on detail matches AC3; customer address unchanged on order record
+
+**Artifacts:** `lib/shippo/server.ts`, `app/api/shipping/labels/route.ts`, `OrderDetailActionBar`
+
+---
+
+## REQ-0210 — Cancel→invoice instant patch + address/shipping UX
+
+| Field | Value |
+|-------|-------|
+| **Priority** | P1 |
+| **Risk** | R2 |
+| **Status** | done |
+| **Cycle** | C2 |
+| **Parent** | REQ-0209, REQ-0153 |
+
+**Intent:** After order cancel/refund, order + invoice list/detail badges update immediately (no stale Cancelled/Refunded). Invoice detail shows billing/shipping from order when needed; cancelled money copy clarifies collected vs due. Shipping Management + order address fields stack so Manual Entry stays visible.
+
+**Acceptance criteria**
+
+- AC1: `patchInvoicesOnOrderCancel` patches invoice list/detail by `orderId` on cancel
+- AC2: DELETE order returns `invoiceForOrder` + `statusAt`
+- AC3: Invoice detail billing fallback + shipping from linked order; cancelled Balance Closed copy
+- AC4: OrderAddressFields + ShippingManagement parties/address stacked; User ID truncate
+- AC5: New invoices copy billing else shipping from order
+
+**Artifacts:** `patch-mutation-cache.ts`, `use-orders.ts`, `invoice-detail-data.ts`, `InvoiceDetailPage`, `ShippingManagement`, `OrderAddressFields`, `resolve-invoice-billing-address.ts`
+
+---
+
+## REQ-0209 — Stripe return, confirm-on-pay, Cancel vs Refund
+
+| Field | Value |
+|-------|-------|
+| **Priority** | P1 |
+| **Risk** | R2 |
+| **Status** | done |
+| **Cycle** | C2 |
+| **Parent** | REQ-0208, REQ-0152 |
+
+**Intent:** Stripe checkout returns to the path that started pay (`/admin/...` vs store). First money (partial or paid) sets fulfillment to Confirmed and fulfills reserved stock once. Unpaid/partial → Cancel Order (cancel + refund if money); fully paid → Process Refund (same API). Cancel restores product + warehouse allocations.
+
+**Acceptance criteria**
+
+- AC1: `PaymentDialog` passes `successUrl`/`cancelUrl` via `buildStripeCheckoutReturnUrls` (admin vs store)
+- AC2: `syncOrderPaymentStatusFromInvoice` confirms + fulfills on pending + (partial|paid); no double-fulfill on partial→paid
+- AC3: `OrderDetailActionBar` Cancel for unpaid|partial; Process Refund for paid (store + admin)
+- AC4: Shared `order-destructive-copy` confirm strings; store refund dialog wired
+- AC5: `cancelOrder` restores fulfilled stock (confirmed after first money); Stripe refund for partial/paid
+- AC6: Debug agent logs removed; gates lint/test/invalidate/build pass
+
+**Artifacts:** `stripe-checkout-return-urls.ts`, `order-payment-from-amounts.ts`, `order-destructive-copy.ts`, `OrderDetailActionBar`, `PaymentDialog`, detail pages, `cancelOrder`
+
+---
+
+## REQ-0208 — Admin order detail parity + Parties User ID
+
+| Field | Value |
+|-------|-------|
+| **Priority** | P1 |
+| **Risk** | R2 |
+| **Status** | done |
+| **Cycle** | C2 |
+| **Parent** | REQ-0136 (UI explore), REQ-0065/0147 admin detail |
+
+**Intent:** Align `/admin/orders/[id]` with `/orders/[id]`: read-only status badges, dialog-driven CRUD via shared bottom action bar (incl. Process Refund when paid), remove redundant Customer/Invoice cards, relocate Shipping & Tracking to right column, show copyable User ID on every Parties & Roles row.
+
+**Acceptance criteria**
+
+- AC1: Admin Order Status is badge-only (no inline Select); status/fields edit via `OrderDialog`
+- AC2: Shared `OrderDetailActionBar` on store + admin — Back, Update, View/Create Invoice, Pay, Ship, Cancel (unpaid) / Process Refund (admin+paid) with glass + spinner pending labels
+- AC3: Remove admin Customer Information + Invoice side cards; invoice remains in Order Information + footer
+- AC4: Shipping & Tracking card moves to right column (former invoice slot); footer Ship Order retained
+- AC5: Parties & Roles shows User ID + `CopyableText` under each party with `userId` (order + invoice detail)
+- AC6: Invalidation unchanged (`invalidateAfterOrderGraphChange` / patch); gates lint/test/invalidate/build pass
+
+**Artifacts:** `OrderDetailActionBar`, `PersonInlineRow`/`PartiesRolesCard`, `AdminOrderDetailContent`, `OrderDetailPage`
+
+---
+
 ## REQ-0202 — Detail no-flicker (Select labels + densify SSR sync)
 
 | Field | Value |

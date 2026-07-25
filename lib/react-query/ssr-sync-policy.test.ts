@@ -31,10 +31,27 @@ describe("resolveSsrSyncAction", () => {
     ).toBe("refetch");
   });
 
-  it("refetches when query is fetching", () => {
+  it("refetches when query is fetching and densify parity", () => {
     expect(
       resolveSsrSyncAction({ id: "1" }, { id: "1" }, { fetchStatus: "fetching" }),
     ).toBe("refetch");
+  });
+
+  // REQ-0209 — thin create patch + SSR parties while refetching → apply densify
+  it("applies richer SSR densify while fetching (parties flash guard)", () => {
+    expect(
+      resolveSsrSyncAction(
+        {
+          id: "1",
+          placedByName: "Admin",
+          placedByEmail: "a@b.com",
+          placedByUserId: "u1",
+          orderProductOwners: [{ userId: "u1", email: "a@b.com" }],
+        },
+        { id: "1", orderNumber: "ORD-1" },
+        { fetchStatus: "fetching", isInvalidated: true },
+      ),
+    ).toBe("apply");
   });
 
   it("skips when cached array is longer than SSR snapshot", () => {

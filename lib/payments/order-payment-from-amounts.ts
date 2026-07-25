@@ -1,7 +1,8 @@
 /**
- * REQ-0152 — Derive order paymentStatus from invoice money fields.
+ * REQ-0152 / REQ-0209 — Derive order paymentStatus from invoice money fields.
  * unpaid (paid<=0) | partial (0 < paid < total) | paid (paid >= total).
  * Does not invent an invoice "partial" status — money fields carry mid-pay.
+ * REQ-0209 — first money (partial or paid) while pending → confirm + fulfill once.
  */
 
 import { prisma } from "@/prisma/client";
@@ -23,6 +24,19 @@ export function deriveOrderPaymentStatus(
   return "partial";
 }
 
+/**
+ * REQ-0209 — When first money lands on a pending order, bump fulfillment to confirmed
+ * and fulfill reserved stock once. Partial → paid later must not fulfill again.
+ */
+export function shouldConfirmAndFulfillOnPaymentSync(args: {
+  derived: Exclude<PaymentStatus, "refunded">;
+  orderStatus: string | null | undefined;
+}): boolean {
+  const status = args.orderStatus ?? "pending";
+  if (status !== "pending") return false;
+  return args.derived === "partial" || args.derived === "paid";
+}
+
 export type SyncOrderPaymentFromInvoiceInput = {
   amountPaid: number;
   total: number;
@@ -32,7 +46,8 @@ export type SyncOrderPaymentFromInvoiceInput = {
 
 /**
  * Sync linked order.paymentStatus from invoice money.
- * Skips refunded orders. On transition to full paid + pending → confirm + fulfill stock.
+ * Skips refunded orders.
+ * REQ-0209 — pending + (partial|paid) → status confirmed + fulfillPendingOrderLines once.
  * Returns the payment status written, or null if skipped.
  */
 export async function syncOrderPaymentStatusFromInvoice(
@@ -51,11 +66,12 @@ export async function syncOrderPaymentStatusFromInvoice(
   if (!order) return null;
   if (order.paymentStatus === "refunded") return null;
 
-  const wasPaid = order.paymentStatus === "paid";
-  const becomingPaid = derived === "paid";
-  const shouldConfirmPending = becomingPaid && order.status === "pending";
+  const shouldConfirmAndFulfill = shouldConfirmAndFulfillOnPaymentSync({
+    derived,
+    orderStatus: order.status,
+  });
   const statusUnchanged =
-    order.paymentStatus === derived && !shouldConfirmPending;
+    order.paymentStatus === derived && !shouldConfirmAndFulfill;
 
   if (statusUnchanged) return derived;
 
@@ -63,13 +79,13 @@ export async function syncOrderPaymentStatusFromInvoice(
     where: { id: orderId },
     data: {
       paymentStatus: derived,
-      ...(shouldConfirmPending ? { status: "confirmed" as const } : {}),
+      ...(shouldConfirmAndFulfill ? { status: "confirmed" as const } : {}),
       updatedAt: new Date(),
     },
   });
 
-  // Stock fulfill only when crossing into full paid from a pending order
-  if (becomingPaid && !wasPaid && order.status === "pending") {
+  // Fulfill reserved lines only when leaving pending on first money (partial or paid)
+  if (shouldConfirmAndFulfill) {
     try {
       await fulfillPendingOrderLines(
         order.items.map((item) => ({
@@ -79,10 +95,14 @@ export async function syncOrderPaymentStatusFromInvoice(
         })),
       );
     } catch (allocErr) {
-      logger.warn("Failed to fulfill stock for invoice-synced paid order", {
-        orderId,
-        error: allocErr,
-      });
+      logger.warn(
+        "Failed to fulfill stock for invoice-synced order after first payment",
+        {
+          orderId,
+          derived,
+          error: allocErr,
+        },
+      );
     }
   }
 

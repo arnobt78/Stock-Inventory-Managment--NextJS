@@ -47,15 +47,17 @@ function isPlainObject(value: unknown): value is Record<string, unknown> {
 }
 
 /**
- * REQ-0202 — densify keys that often arrive later via client refetch when a
- * thinner cache row was seeded (list patch / warm prefetch).
+ * REQ-0202 / REQ-0209 — densify keys that often arrive later via client refetch when a
+ * thinner cache row was seeded (list/create patch / warm prefetch).
+ * Includes order/invoice party fields so Parties & Roles do not pop in after mount.
  */
 const DENSIFY_KEY_RE =
-  /(Email|Image|ImageUrl)$|^(role|overview)$|^relatedProduct|^creator|^assignedTo|^reviewer|^productOwner|^supplierImage/;
+  /(Email|Image|ImageUrl|UserId|Name)$|^(role|overview|orderProductOwners|invoiceForOrder|stripePaymentIntentId|creator|updater|items)$|^relatedProduct|^placedBy|^assignedTo|^reviewer|^productOwner|^supplierImage|^linkedOrder/;
 
 function densifyValuePresent(value: unknown): boolean {
   if (value == null) return false;
   if (typeof value === "string") return value.trim().length > 0;
+  if (Array.isArray(value)) return value.length > 0;
   if (typeof value === "object") return true;
   return true;
 }
@@ -85,6 +87,7 @@ export function serverHasRicherDensify(
  * router.back() can restore stale RSC props — never clobber fresher client cache.
  * REQ-0133: default skip when server cannot prove fresher than cached (lists + entities).
  * REQ-0202: apply when timestamps equal (or both missing) but SSR densify is richer.
+ * REQ-0209: while invalidated/fetching, still apply richer SSR so detail parties paint with RSC.
  */
 export function resolveSsrSyncAction<T>(
   serverData: T,
@@ -92,6 +95,13 @@ export function resolveSsrSyncAction<T>(
   state: SsrQueryStateHint | undefined,
 ): SsrSyncAction {
   if (state?.isInvalidated || state?.fetchStatus === "fetching") {
+    // Create/patch often seeds a thin detail row; keep SSR densify visible during refetch
+    if (
+      cached !== undefined &&
+      serverHasRicherDensify(serverData, cached)
+    ) {
+      return "apply";
+    }
     return "refetch";
   }
   if (

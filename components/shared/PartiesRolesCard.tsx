@@ -4,6 +4,7 @@
  * REQ-0074 — shared Parties & roles card with avatar rings and per-party glow cards.
  * REQ-0127 — single inline row per party: icon label + PersonInlineRow (sky name · muted email).
  * REQ-0165/0166 — optional linkClassName override; default sky for all party names.
+ * REQ-0208 — User ID + CopyableText under each party when userId present.
  */
 
 import React from "react";
@@ -32,6 +33,11 @@ export type PartiesRolesCardProps = {
   customer?: PartyPerson | null;
   customerLabel?: string;
   productOwners?: PartyPerson[];
+  /**
+   * REQ-0209 — always reserve Ordered by / Customer / Product owner rows
+   * (order detail) so slots do not mount at different times when densify arrives.
+   */
+  stableOrderPartySlots?: boolean;
 };
 
 function PartyPersonDisplay({
@@ -41,25 +47,32 @@ function PartyPersonDisplay({
   person?: PartyPerson | null;
   loading?: boolean;
 }) {
-  if (loading) {
-    return <DataSlotPulse variant="text-md" className="w-36" />;
+  // Prefer real person over pulse when SSR/cache already has densify (avoids flash)
+  if (person) {
+    const seed = person.userId ?? person.email;
+    const displayName = person.name ?? person.email;
+    return (
+      <PersonInlineRow
+        seed={seed}
+        image={person.image}
+        name={displayName}
+        email={person.email}
+        href={person.href}
+        linkClassName={person.linkClassName}
+        avatarSize={28}
+        userId={person.userId}
+      />
+    );
   }
-  if (!person) return <span className="text-gray-700 dark:text-white">—</span>;
-
-  const seed = person.userId ?? person.email;
-  const displayName = person.name ?? person.email;
-
-  return (
-    <PersonInlineRow
-      seed={seed}
-      image={person.image}
-      name={displayName}
-      email={person.email}
-      href={person.href}
-      linkClassName={person.linkClassName}
-      avatarSize={28}
-    />
-  );
+  if (loading) {
+    return (
+      <DataSlotPulse
+        variant="text-md"
+        className="w-36 min-h-[2.75rem]"
+      />
+    );
+  }
+  return <span className="text-gray-700 dark:text-white">—</span>;
 }
 
 function PartyFieldRow({
@@ -100,11 +113,15 @@ export function PartiesRolesCard({
   customer,
   customerLabel = "Customer / Ship to",
   productOwners = [],
+  stableOrderPartySlots = false,
 }: PartiesRolesCardProps) {
   const showInvoiceCreated = dataLoading || invoiceCreatedBy != null;
-  const showOrderedBy = dataLoading || orderedBy != null;
-  const showCustomer = dataLoading || customer != null;
-  const showOwners = dataLoading || productOwners.length > 0;
+  const showOrderedBy =
+    stableOrderPartySlots || dataLoading || orderedBy != null;
+  const showCustomer =
+    stableOrderPartySlots || dataLoading || customer != null;
+  const showOwners =
+    stableOrderPartySlots || dataLoading || productOwners.length > 0;
 
   if (!showInvoiceCreated && !showOrderedBy && !showCustomer && !showOwners) {
     return null;
@@ -141,17 +158,18 @@ export function PartiesRolesCard({
         )}
         {showOwners && (
           <PartyFieldRow label="Product owner(s)" icon={Users}>
-            {dataLoading ? (
-              <DataSlotPulse variant="text-md" className="w-48" />
-            ) : (
+            {productOwners.length > 0 ? (
               <div className="flex flex-col gap-2">
                 {productOwners.map((owner) => (
                   <PartyPersonDisplay
                     key={owner.userId ?? owner.email}
                     person={owner}
+                    loading={dataLoading && !owner}
                   />
                 ))}
               </div>
+            ) : (
+              <PartyPersonDisplay person={null} loading={dataLoading} />
             )}
           </PartyFieldRow>
         )}

@@ -2,8 +2,8 @@
 
 **Project:** Stockly Inventory (Next.js 16, React 19, Prisma/MongoDB)  
 **Cycle:** C2 active (C1 Gate 2 PENDING)  
-**Active:** REQ-0187 — order dialog UI (`resume_token: tomorrow-0187-order-dialog`)  
-**Prod SHA:** `b41cb11` (REQ-0009) · **Last:** REQ-0009 Sentry noise · **Standard:** Agile V 1.4 | Infinity Loop
+**Active:** REQ-0136 — Gate 2 UI explore + §10 A1/A2/B1 (`resume_token: gate2-0136-cache-smoke`)  
+**Prod SHA:** `d1aefda` (REQ-0207) · tip pending · **Last:** REQ-0209 Stripe return / confirm-on-pay / Cancel vs Refund · **Session:** 2026-07-25 · **Standard:** Agile V 1.4 | Infinity Loop
 
 ---
 

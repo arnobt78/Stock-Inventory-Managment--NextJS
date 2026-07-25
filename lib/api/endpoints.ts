@@ -128,6 +128,8 @@ export const API_ENDPOINTS = {
   // Payments
   payments: {
     checkout: "/payments/checkout",
+    /** REQ-0209 — browser return reconcile */
+    confirmSession: "/payments/confirm-session",
     webhook: "/payments/webhook",
   },
 

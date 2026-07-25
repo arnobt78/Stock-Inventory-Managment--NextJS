@@ -41,6 +41,8 @@ export interface Invoice {
   stripePaymentIntentId?: string | null;
   notes?: string | null;
   billingAddress?: BillingAddress | null;
+  /** REQ-0210 — from linked order (invoice schema stores billing only) */
+  shippingAddress?: BillingAddress | null;
   createdAt: Date;
   updatedAt?: Date | null;
   createdBy: string;

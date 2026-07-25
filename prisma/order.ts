@@ -5,6 +5,7 @@
 
 import { prisma } from "@/prisma/client";
 import { createStripeRefund } from "@/lib/stripe";
+import { orderCancelShouldRefundPayment } from "@/lib/orders/cancel-payment";
 import type { Prisma } from "@prisma/client";
 import type { CreateOrderInput, UpdateOrderInput } from "@/types/order";
 import { invalidateCache, cacheKeys } from "@/lib/cache";
@@ -801,14 +802,12 @@ export async function cancelOrder(orderId: string, userId: string) {
     throw new Error("Order not found or unauthorized");
   }
 
-  // Cancel order (soft delete)
-  // If order was paid, set paymentStatus to "refunded" and trigger Stripe refund
-  const wasPaid =
-    orderWithItems.paymentStatus === "paid" ||
-    orderWithItems.status === "confirmed" ||
-    orderWithItems.status === "processing" ||
-    orderWithItems.status === "shipped" ||
-    orderWithItems.status === "delivered";
+  // Cancel order (soft delete).
+  // REQ-0208/0209 — refund Stripe + paymentStatus refunded for paid OR partial.
+  const shouldRefund = orderCancelShouldRefundPayment(
+    orderWithItems.paymentStatus,
+    orderWithItems.status,
+  );
 
   // Fetch linked invoice (needed for Stripe refund + invoice cancel)
   const linkedInvoice = await prisma.invoice.findUnique({
@@ -816,8 +815,8 @@ export async function cancelOrder(orderId: string, userId: string) {
     select: { id: true, status: true, stripePaymentIntentId: true },
   });
 
-  // Trigger Stripe refund when order was paid and we have a PaymentIntent ID
-  if (wasPaid) {
+  // Trigger Stripe refund when money was collected and we have a PaymentIntent ID
+  if (shouldRefund) {
     const paymentIntentId =
       orderWithItems.stripePaymentIntentId ??
       linkedInvoice?.stripePaymentIntentId;
@@ -835,7 +834,7 @@ export async function cancelOrder(orderId: string, userId: string) {
     where: { id: orderId },
     data: {
       status: "cancelled",
-      paymentStatus: wasPaid ? "refunded" : orderWithItems.paymentStatus,
+      paymentStatus: shouldRefund ? "refunded" : orderWithItems.paymentStatus,
       cancelledAt: new Date(),
       updatedAt: new Date(),
       updatedBy: userId,
@@ -858,7 +857,8 @@ export async function cancelOrder(orderId: string, userId: string) {
     });
   }
 
-  // Handle stock based on previous order status
+  // REQ-0209 — First money (partial|paid) fulfills reserved stock + sets confirmed.
+  // Cancel/refund therefore restores catalog qty + warehouse allocations when confirmed/paid.
   const wasPending = orderWithItems.status === "pending";
   const wasConfirmedOrPaid =
     orderWithItems.status === "confirmed" ||
@@ -875,7 +875,7 @@ export async function cancelOrder(orderId: string, userId: string) {
     }));
 
     if (wasConfirmedOrPaid) {
-      // Order was confirmed/paid: restore actual stock
+      // Fulfilled stock (incl. after first partial pay) → restore product + allocations
       for (const item of orderWithItems.items) {
         await prisma.product.update({
           where: { id: item.productId },
@@ -893,6 +893,7 @@ export async function cancelOrder(orderId: string, userId: string) {
         });
       }
     } else if (wasPending) {
+      // Still reserved only (unpaid pending) → release reservation
       try {
         await releasePendingOrderLines(allocationItems);
       } catch (error) {

@@ -1,10 +1,73 @@
 # Validation Summary — Cycle C1
 
-**Generated:** 2026-07-23 (REQ-0207 SECURITY.md)
+**Generated:** 2026-07-25 (REQ-0209)
 **eval_gate_status:** PENDING (Human Gate 2)
-**Active:** **REQ-0136** Gate 2 / cache smoke
-**Last ship:** REQ-0207 SECURITY.md
-**Prod target SHA:** `d1aefda` (REQ-0207)
+**Active:** **REQ-0136** Gate 2 cache smoke
+**Last ship:** REQ-0209 Stripe return / confirm-on-pay / Cancel vs Refund
+**Prod target SHA:** `d1aefda` (REQ-0207) · tip pending REQ-0209
+
+---
+
+## REQ-0209 — Stripe return, confirm-on-pay, Cancel vs Refund (2026-07-25)
+
+| Check | Result |
+| ----- | ------ |
+| Stripe return | `buildStripeCheckoutReturnUrls` — admin → `/admin/...`; store → `/orders|invoices/...` |
+| First money | pending + partial\|paid → confirmed + fulfill once; partial→paid no re-fulfill |
+| Actions | Cancel unpaid\|partial; Process Refund fully paid (store + admin) |
+| Confirm copy | `order-destructive-copy` — partial mentions refund $X |
+| Stock cancel | restore product + allocations after fulfill-on-first-money |
+| Debug | agent fetch logs removed from back-nav + admin detail |
+| Invalidation | unchanged (`invalidateAfterOrderGraphChange` on delete) |
+| Gates | lint ✓ test **708** ✓ invalidate **217** ✓ build ✓ |
+
+```
+Scope: built/verified | Traceability: REQ-0209 | Findings: PASS
+Commands: lint, test, test:invalidate, build
+```
+
+---
+
+## REQ-0208 — Admin order detail parity (2026-07-25)
+
+| Check | Result |
+| ----- | ------ |
+| Status badges | admin read-only (no inline Select); edit via OrderDialog |
+| Action bar | shared `OrderDetailActionBar` store+admin; paid|partial→Process Refund |
+| Partial cancel | `orderCancelShouldRefundPayment` → Stripe + paymentStatus `refunded` |
+| Back | admin `fallbackPath=/admin/orders` (log-proven) |
+| Cards | Customer/Invoice/Refund removed; Shipping right column + densify dialog |
+| Parties User ID | avatar | name·email / User ID start-aligned |
+| Scroll | html/body overflow hidden (non-auth); `#main-content` only |
+| Invalidation | unchanged (`invalidateAfterOrderGraphChange`) |
+| Gates | lint ✓ test **696** ✓ invalidate **217** ✓ |
+
+```
+Scope: built/verified | Traceability: REQ-0208 | Findings: PASS (await post-fix repro)
+Commands: lint, test, test:invalidate
+```
+
+---
+
+## Session activate 2026-07-25
+
+```
+Scope: resume/activate | Traceability: REQ-0136, REQ-0008 | Findings: FLAG (human QA pending)
+Decision Points: no re-bootstrap; .agile-v intact (24 skills + runtime contracts); resume gate2-0136-cache-smoke
+Log: 2026-07-25 | orchestrator | session activate | Infinity Loop ready | REQ-0136
+```
+
+**Next:** Human UI explore (AC1–2) → §10 A1/A2/B1 (AC3–5) → record here → Sentry 24h (REQ-0009) → Gate 2.
+
+---
+
+## Session activate 2026-07-24
+
+```
+Scope: resume/activate | Traceability: REQ-0136, REQ-0008 | Findings: FLAG (human QA pending)
+Decision Points: no re-bootstrap; sync stale config/PLAYBOOK → STATE
+Log: 2026-07-24 | orchestrator | session activate | Infinity Loop ready | REQ-0136
+```
 
 ---
 
@@ -2173,3 +2236,14 @@ Commands: lint, test, test:invalidate, build
 Scope: built/verified | Traceability: REQ-0126 | Findings: PASS
 Commands: lint, test, test:invalidate, build
 ```
+
+## VS-REQ-0210 (2026-07-25)
+
+Scope: built/pending-verify | Traceability: REQ-0210 | Findings: PENDING user verify
+Commands: vitest patch+billing PASS; eslint changed files PASS
+
+## VS-REQ-0209-0211 (2026-07-25)
+
+Scope: built/verified | Traceability: REQ-0209,0210,0211 | Findings: PASS
+Commands: lint ✓ · test 724 ✓ · invalidate 221 ✓ · build ✓
+Notes: debug ingest stripped; PersonInlineRow title TS; cancel ISO patch typing

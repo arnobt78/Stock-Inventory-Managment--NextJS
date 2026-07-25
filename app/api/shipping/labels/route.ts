@@ -11,6 +11,8 @@ import {
   isShippoConfigured,
   isShippoTestMode,
   DEFAULT_FROM_ADDRESS,
+  resolveShippoLabelAddresses,
+  selectShippoRateForLabel,
   getTrackingUrl,
 } from "@/lib/shippo";
 import { prisma } from "@/prisma/client";
@@ -110,7 +112,30 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // REQ-0211 — no labels on cancelled; pending+unpaid must confirm/pay first
+    if (order.status === "cancelled") {
+      return NextResponse.json(
+        { error: "Cannot generate a label for a cancelled order" },
+        { status: 400 },
+      );
+    }
+    const canAutoShip =
+      order.status === "confirmed" ||
+      order.status === "processing" ||
+      order.paymentStatus === "partial" ||
+      order.paymentStatus === "paid";
+    if (!canAutoShip) {
+      return NextResponse.json(
+        {
+          error:
+            "Confirm the order or collect payment before generating a shipping label",
+        },
+        { status: 400 },
+      );
+    }
+
     const shippo = getShippo();
+    const testMode = isShippoTestMode();
     let trackingNumber: string;
     let labelUrl: string | undefined;
     let trackingCarrier: string = carrier || "usps";
@@ -149,19 +174,18 @@ export async function POST(request: NextRequest) {
         phone?: string;
       } | null;
 
-      const shipmentToAddress = toAddress || {
-        name: shippingAddr?.name || "Customer",
-        street1: shippingAddr?.street || "123 Test St",
-        city: shippingAddr?.city || "Test City",
-        state: shippingAddr?.state || "NY",
-        zip: shippingAddr?.zipCode || "10001",
-        country: shippingAddr?.country || "US",
-        phone: shippingAddr?.phone || "",
-        email: "",
-      };
+      // REQ-0211 — test key: silent US to-address; live: order/request to
+      const { addressFrom, addressTo: shipmentToAddress } =
+        resolveShippoLabelAddresses({
+          testMode,
+          fromOverride: fromAddress ?? null,
+          toFromRequest: toAddress ?? null,
+          orderShipping: shippingAddr,
+        });
 
       const toCountry = (shipmentToAddress.country || "US").toUpperCase();
-      const isInternational = toCountry !== "US";
+      // Test mode always domestic US — skip customs path
+      const isInternational = !testMode && toCountry !== "US";
 
       // For international shipments, USPS (and others) require a customs declaration.
       // We use DEFAULT_FROM_ADDRESS / .env for certify signer and origin.
@@ -233,16 +257,7 @@ export async function POST(request: NextRequest) {
       }
 
       const shipmentPayload: Parameters<typeof shippo.shipments.create>[0] = {
-        addressFrom: {
-          name: fromAddress?.name || DEFAULT_FROM_ADDRESS.name,
-          street1: fromAddress?.street1 || DEFAULT_FROM_ADDRESS.street1,
-          city: fromAddress?.city || DEFAULT_FROM_ADDRESS.city,
-          state: fromAddress?.state || DEFAULT_FROM_ADDRESS.state,
-          zip: fromAddress?.zip || DEFAULT_FROM_ADDRESS.zip,
-          country: fromAddress?.country || DEFAULT_FROM_ADDRESS.country,
-          phone: fromAddress?.phone || DEFAULT_FROM_ADDRESS.phone,
-          email: fromAddress?.email || DEFAULT_FROM_ADDRESS.email,
-        },
+        addressFrom,
         addressTo: shipmentToAddress,
         parcels: [
           {
@@ -261,26 +276,11 @@ export async function POST(request: NextRequest) {
 
       const shipment = await shippo.shipments.create(shipmentPayload);
 
-      // Find rate for specified carrier or get cheapest
-      let selectedRate = shipment.rates?.find(
-        (r) =>
-          r.provider?.toLowerCase() === carrier?.toLowerCase() &&
-          (!service || r.servicelevel?.token === service),
-      );
-
-      if (!selectedRate && shipment.rates && shipment.rates.length > 0) {
-        // Get cheapest rate
-        const firstRate = shipment.rates[0];
-        if (firstRate) {
-          selectedRate = shipment.rates.reduce(
-            (min, r) =>
-              parseFloat(r.amount || "0") < parseFloat(min?.amount || "0")
-                ? r
-                : min,
-            firstRate,
-          );
-        }
-      }
+      // REQ-0211 — test key prefers USPS; UPS/FedEx need carrier accounts
+      const selectedRate = selectShippoRateForLabel(shipment.rates, carrier, {
+        testMode,
+        service,
+      });
 
       if (!selectedRate) {
         return NextResponse.json(

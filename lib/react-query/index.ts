@@ -27,6 +27,7 @@ export {
   patchListCaches,
   patchOrderGraphListCaches,
   patchLinkedOrderFromInvoiceMoney,
+  patchInvoicesOnOrderCancel,
   patchProductInPortalCaches,
   removeProductFromPortalCaches,
   removeFromListCaches,

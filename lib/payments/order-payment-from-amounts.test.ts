@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   applyIncrementalInvoicePayment,
   deriveOrderPaymentStatus,
+  shouldConfirmAndFulfillOnPaymentSync,
 } from "./order-payment-from-amounts";
 
 describe("deriveOrderPaymentStatus", () => {
@@ -23,6 +24,59 @@ describe("deriveOrderPaymentStatus", () => {
 
   it("returns paid when paid exceeds total", () => {
     expect(deriveOrderPaymentStatus(4000, 3980)).toBe("paid");
+  });
+});
+
+describe("shouldConfirmAndFulfillOnPaymentSync", () => {
+  it("confirms+fulfills on first partial while pending", () => {
+    expect(
+      shouldConfirmAndFulfillOnPaymentSync({
+        derived: "partial",
+        orderStatus: "pending",
+      }),
+    ).toBe(true);
+  });
+
+  it("confirms+fulfills on full paid while pending", () => {
+    expect(
+      shouldConfirmAndFulfillOnPaymentSync({
+        derived: "paid",
+        orderStatus: "pending",
+      }),
+    ).toBe(true);
+  });
+
+  it("does not fulfill again when already confirmed (partial → paid)", () => {
+    expect(
+      shouldConfirmAndFulfillOnPaymentSync({
+        derived: "paid",
+        orderStatus: "confirmed",
+      }),
+    ).toBe(false);
+  });
+
+  it("does not bump shipped/delivered/cancelled", () => {
+    expect(
+      shouldConfirmAndFulfillOnPaymentSync({
+        derived: "partial",
+        orderStatus: "shipped",
+      }),
+    ).toBe(false);
+    expect(
+      shouldConfirmAndFulfillOnPaymentSync({
+        derived: "paid",
+        orderStatus: "cancelled",
+      }),
+    ).toBe(false);
+  });
+
+  it("does not confirm unpaid", () => {
+    expect(
+      shouldConfirmAndFulfillOnPaymentSync({
+        derived: "unpaid",
+        orderStatus: "pending",
+      }),
+    ).toBe(false);
   });
 });
 

@@ -13,4 +13,6 @@
 | UI explore + §10 A1/A2/B1 | REQ-0136 | PENDING | — |
 | Sentry 24h | REQ-0009 | PENDING | — |
 
-**Gate 2 blocked until:** Human UI explore (REQ-0136 AC1–2) + cache smoke §10 A1/A2/B1 (AC3–5) + Sentry 24h (REQ-0009). Prod target SHA `a32be36` (REQ-0162–0164).
+**Gate 2 blocked until:** Human UI explore (REQ-0136 AC1–2) + cache smoke §10 A1/A2/B1 (AC3–5) + Sentry 24h (REQ-0009). Prod target SHA `d1aefda` (REQ-0207). Tip `23b955f`.
+
+**Session 2026-07-25:** Infinity Loop activated (skills 01+02+03+06+07+17+19+23). Resume token `gate2-0136-cache-smoke`. No PENDING checkpoints.

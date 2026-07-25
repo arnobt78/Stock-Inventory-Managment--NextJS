@@ -6,7 +6,7 @@
 "use client";
 
 import React, { useCallback, useEffect, useMemo, useState } from "react";
-import { useParams, useRouter, useSearchParams } from "next/navigation";
+import { useParams, usePathname, useRouter } from "next/navigation";
 import Link from "next/link";
 import {
   ArrowLeft,
@@ -28,17 +28,15 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { InvoiceStatusBadge } from "@/lib/ui/semantic-badges";
-import { useQueryClient } from "@tanstack/react-query";
 import { useInvoice, useDeleteInvoice, useSendInvoice } from "@/hooks/queries";
 import { useBackWithRefresh } from "@/hooks/use-back-with-refresh";
+import { useStripeCheckoutReturn } from "@/hooks/use-stripe-checkout-return";
 import { resolveDetailAuditUserHref } from "@/lib/navigation/audit-user-href";
 import {
   queryKeys,
-  invalidateAfterOrderGraphChange,
   isDataSlotLoading,
   useSyncSsrQueryData,
 } from "@/lib/react-query";
-import { markStripeCheckoutReturn } from "@/lib/payments/stripe-return";
 import { useAuth } from "@/contexts";
 import Navbar from "@/components/layouts/Navbar";
 import {
@@ -95,24 +93,18 @@ export default function InvoiceDetailPage({
 }: InvoiceDetailPageProps = {}) {
   const params = useParams();
   const router = useRouter();
-  const searchParams = useSearchParams();
-  const queryClient = useQueryClient();
+  const pathname = usePathname() ?? "";
   const { user, isCheckingAuth } = useAuth();
-  const invoicesListPath = useMemo(() => {
-    if (user?.role === "admin" || user?.role === "user")
-      return "/admin/invoices";
-    return "/invoices";
-  }, [user?.role]);
+  // REQ-0209 — list path follows route shell (/invoices vs /admin/invoices)
+  const invoicesListPath = useMemo(
+    () => (pathname.startsWith("/admin") ? "/admin/invoices" : "/invoices"),
+    [pathname],
+  );
   const { handleBack, navigateTo } = useBackWithRefresh("invoice", {
     fallbackPath: invoicesListPath,
   });
   const invoiceId = params?.id as string;
-  const onBack = backHref
-    ? () => {
-        invalidateAfterOrderGraphChange(queryClient);
-        navigateTo(backHref);
-      }
-    : handleBack;
+  const onBack = backHref ? () => navigateTo(backHref) : handleBack;
   const Wrapper = embedInAdmin ? React.Fragment : Navbar;
   /** REQ-0063 — admin invoice detail links to /admin/orders (matches InvoiceActions) */
   const linkedOrderHrefBase = embedInAdmin ? "/admin/orders" : "/orders";
@@ -124,48 +116,8 @@ export default function InvoiceDetailPage({
   const { isError, error } = invoiceQuery;
 
   useSyncSsrQueryData(queryKeys.invoices.detail(invoiceId), initialInvoice);
+  useStripeCheckoutReturn({ entityId: invoiceId, entity: "invoice" });
 
-  // When returning from Stripe (payment=success or payment=cancelled), refetch invoice so UI shows Paid without manual refresh.
-  // The webhook updates invoice asynchronously, so we poll a few times to catch the update.
-  // NOTE: searchParams omitted from deps - router.replace clears it, which would re-run effect and cancel polling.
-  useEffect(() => {
-    const payment = searchParams.get("payment");
-    if (
-      !invoiceId ||
-      !payment ||
-      (payment !== "success" && payment !== "cancelled")
-    )
-      return;
-
-    markStripeCheckoutReturn();
-
-    const detailKey = queryKeys.invoices.detail(invoiceId);
-    invalidateAfterOrderGraphChange(queryClient);
-    queryClient.refetchQueries({ queryKey: detailKey });
-
-    // Poll: webhook may not have run yet
-    const runInvalidations = () => {
-      invalidateAfterOrderGraphChange(queryClient);
-      queryClient.refetchQueries({ queryKey: detailKey });
-    };
-    const delays = [500, 1500, 3000, 5000, 8000];
-    const timeouts = delays.map((delay) => setTimeout(runInvalidations, delay));
-
-    const cleanupUrlTimer = setTimeout(() => {
-      const next = new URLSearchParams(searchParams);
-      next.delete("payment");
-      next.delete("session_id");
-      const path =
-        window.location.pathname +
-        (next.toString() ? `?${next.toString()}` : "");
-      window.location.replace(path);
-    }, 1500);
-
-    return () => {
-      clearTimeout(cleanupUrlTimer);
-      timeouts.forEach((t) => clearTimeout(t));
-    };
-  }, [invoiceId, queryClient, router]);
   const deleteInvoiceMutation = useDeleteInvoice();
   const sendInvoiceMutation = useSendInvoice();
   const isDeleting = deleteInvoiceMutation.isPending;
@@ -304,13 +256,19 @@ export default function InvoiceDetailPage({
     dueDate != null &&
     dueDate < new Date();
 
+  const isInvoiceCancelled = invoice?.status === "cancelled";
+  const isOrderRefunded =
+    invoice?.linkedOrderPaymentStatus === "refunded" ||
+    invoice?.linkedOrderStatus === "cancelled";
   const amountDueToneClass =
     !dataLoading && invoice
-      ? invoice.amountDue > 0 && isOverdue
+      ? isInvoiceCancelled
         ? "text-rose-600 dark:text-rose-400"
-        : invoice.amountDue > 0
-          ? "text-amber-600 dark:text-amber-400"
-          : "text-emerald-600 dark:text-emerald-400"
+        : invoice.amountDue > 0 && isOverdue
+          ? "text-rose-600 dark:text-rose-400"
+          : invoice.amountDue > 0
+            ? "text-amber-600 dark:text-amber-400"
+            : "text-emerald-600 dark:text-emerald-400"
       : "text-emerald-600 dark:text-emerald-400";
 
   return (
@@ -387,16 +345,18 @@ export default function InvoiceDetailPage({
               <GlassCard
                 padding="body"
                 variant={
-                  !dataLoading && invoice!.amountDue > 0 && isOverdue
+                  !dataLoading && isInvoiceCancelled
                     ? "rose"
-                    : !dataLoading && invoice!.amountDue > 0
-                      ? "amber"
-                      : "emerald"
+                    : !dataLoading && invoice!.amountDue > 0 && isOverdue
+                      ? "rose"
+                      : !dataLoading && invoice!.amountDue > 0
+                        ? "amber"
+                        : "emerald"
                 }
                 className="flex-1"
               >
                 <p className="text-xs uppercase tracking-[0.25em] text-gray-600 dark:text-white/80 mb-3">
-                  Amount Due
+                  {isInvoiceCancelled ? "Balance Closed" : "Amount Due"}
                 </p>
                 {dataLoading ? (
                   <DataSlotPulse variant="currency" className="h-8 w-28" />
@@ -410,23 +370,35 @@ export default function InvoiceDetailPage({
                     >
                       ${invoice!.amountDue.toFixed(2)}
                     </div>
+                    {/* REQ-0210 — cancelled/refunded: show collected history, not "Paid in full" */}
                     {invoice!.amountPaid > 0 && (
                       <p className="text-sm mt-2 flex flex-wrap items-baseline gap-x-1 gap-y-0.5 text-gray-600 dark:text-gray-300">
-                        <span>Paid:</span>
-                        <span className="text-emerald-600 dark:text-emerald-400 font-normal">
-                          ${invoice!.amountPaid.toFixed(2)}
+                        <span>
+                          {isInvoiceCancelled || isOrderRefunded
+                            ? "Collected:"
+                            : "Paid:"}
                         </span>
-                        <span>/</span>
                         <span
                           className={cn(
                             "font-normal",
-                            invoice!.amountDue === 0
-                              ? "text-emerald-600 dark:text-emerald-400"
-                              : "text-gray-600 dark:text-gray-300",
+                            isInvoiceCancelled || isOrderRefunded
+                              ? "text-rose-600 dark:text-rose-400"
+                              : "text-emerald-600 dark:text-emerald-400",
                           )}
                         >
+                          ${invoice!.amountPaid.toFixed(2)}
+                        </span>
+                        <span>/</span>
+                        <span className="font-normal text-gray-600 dark:text-gray-300">
                           ${invoice!.total.toFixed(2)}
                         </span>
+                        {(isInvoiceCancelled || isOrderRefunded) && (
+                          <span className="w-full text-xs text-rose-600 dark:text-rose-400 mt-0.5">
+                            {isOrderRefunded
+                              ? "Refunded — no remaining balance"
+                              : "Cancelled — no remaining balance"}
+                          </span>
+                        )}
                       </p>
                     )}
                   </>
@@ -434,26 +406,54 @@ export default function InvoiceDetailPage({
               </GlassCard>
             </div>
 
-            {(dataLoading || invoice?.billingAddress) && (
-              <GlassCard padding="body" variant="blue" className="h-full">
-                <SectionCardHeader
-                  title="Billing Address"
-                  icon={MapPin}
-                  tone="blue"
-                  className="mb-3"
-                  titleClassName={cn(
-                    TYPO_CARD_TITLE,
-                    "text-gray-700 dark:text-white",
-                  )}
-                />
-                <p className="text-sm text-gray-700 dark:text-white p-2 rounded-xl bg-gradient-to-r from-blue-100/40 via-blue-50/20 to-transparent dark:from-blue-500/10 dark:via-blue-500/5 dark:to-transparent border border-blue-200/30 dark:border-blue-400/10">
-                  {dataLoading ? (
-                    <DataSlotPulse variant="text-md" className="w-full" />
-                  ) : (
-                    formatAddress(invoice!.billingAddress)
-                  )}
-                </p>
-              </GlassCard>
+            {/* REQ-0210 — billing + shipping stacked (order addresses when invoice billing empty) */}
+            {(dataLoading ||
+              invoice?.billingAddress ||
+              invoice?.shippingAddress) && (
+              <div className="flex flex-col gap-2">
+                {(dataLoading || invoice?.billingAddress) && (
+                  <GlassCard padding="body" variant="blue" className="h-full">
+                    <SectionCardHeader
+                      title="Billing Address"
+                      icon={MapPin}
+                      tone="blue"
+                      className="mb-3"
+                      titleClassName={cn(
+                        TYPO_CARD_TITLE,
+                        "text-gray-700 dark:text-white",
+                      )}
+                    />
+                    <p className="text-sm text-gray-700 dark:text-white p-2 rounded-xl bg-gradient-to-r from-blue-100/40 via-blue-50/20 to-transparent dark:from-blue-500/10 dark:via-blue-500/5 dark:to-transparent border border-blue-200/30 dark:border-blue-400/10">
+                      {dataLoading ? (
+                        <DataSlotPulse variant="text-md" className="w-full" />
+                      ) : (
+                        formatAddress(invoice!.billingAddress)
+                      )}
+                    </p>
+                  </GlassCard>
+                )}
+                {(dataLoading || invoice?.shippingAddress) && (
+                  <GlassCard padding="body" variant="violet" className="h-full">
+                    <SectionCardHeader
+                      title="Shipping Address"
+                      icon={MapPin}
+                      tone="violet"
+                      className="mb-3"
+                      titleClassName={cn(
+                        TYPO_CARD_TITLE,
+                        "text-gray-700 dark:text-white",
+                      )}
+                    />
+                    <p className="text-sm text-gray-700 dark:text-white p-2 rounded-xl bg-gradient-to-r from-violet-100/40 via-violet-50/20 to-transparent dark:from-violet-500/10 dark:via-violet-500/5 dark:to-transparent border border-violet-200/30 dark:border-violet-400/10">
+                      {dataLoading ? (
+                        <DataSlotPulse variant="text-md" className="w-full" />
+                      ) : (
+                        formatAddress(invoice!.shippingAddress)
+                      )}
+                    </p>
+                  </GlassCard>
+                )}
+              </div>
             )}
           </div>
 
@@ -706,14 +706,17 @@ export default function InvoiceDetailPage({
               <ArrowLeft className="h-4 w-4 shrink-0" />
               Back
             </Button>
-            <Button
-              onClick={handleEditInvoice}
-              disabled={actionsDisabled}
-              className={glassDetailFooterButtonClass("blue")}
-            >
-              <Edit className="h-4 w-4 shrink-0" />
-              Edit Invoice
-            </Button>
+            {/* REQ-0210 — cancelled invoices cannot be edited */}
+            {invoice?.status !== "cancelled" && (
+              <Button
+                onClick={handleEditInvoice}
+                disabled={actionsDisabled}
+                className={glassDetailFooterButtonClass("blue")}
+              >
+                <Edit className="h-4 w-4 shrink-0" />
+                Edit Invoice
+              </Button>
+            )}
             {!dataLoading && invoice && (
               <Button asChild className={glassDetailFooterButtonClass("teal")}>
                 <a

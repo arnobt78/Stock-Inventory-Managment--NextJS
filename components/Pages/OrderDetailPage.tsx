@@ -5,32 +5,28 @@
 
 "use client";
 
-import { markStripeCheckoutReturn } from "@/lib/payments/stripe-return";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
-import { useParams, useRouter, useSearchParams } from "next/navigation";
+import { useParams, usePathname, useRouter } from "next/navigation";
+import { useStripeCheckoutReturn } from "@/hooks/use-stripe-checkout-return";
 import {
   ArrowLeft,
   Package,
   Calendar,
   CreditCard,
-  FilePlus2,
   FileText,
-  Truck,
-  Edit,
   Hash,
-  Ban,
   StickyNote,
   CircleDollarSign,
+  Truck,
+  Ban,
 } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { useQueryClient } from "@tanstack/react-query";
 import { useOrder, useDeleteOrder } from "@/hooks/queries";
 import { useBackWithRefresh } from "@/hooks/use-back-with-refresh";
 import { resolveDetailAuditUserHref } from "@/lib/navigation/audit-user-href";
 import {
   queryKeys,
-  invalidateAfterOrderGraphChange,
   isDataSlotLoading,
   useSyncSsrQueryData,
 } from "@/lib/react-query";
@@ -40,10 +36,7 @@ import {
   ClientDate,
   ClientDateTime,
   PageContentWrapper,
-  glassDetailBackButtonClass,
-  glassDetailFooterButtonClass,
   CopyableText,
-  DialogSubmitButton,
   AuditUserDetailRow,
   DetailInfoRowGroup,
   SectionCardHeader,
@@ -57,28 +50,26 @@ import { TYPO_CARD_TITLE } from "@/lib/ui/typography-scale";
 import OrderDialog from "@/components/orders/OrderDialog";
 import InvoiceDialog from "@/components/invoices/InvoiceDialog";
 import { AlertDialogWrapper } from "@/components/dialogs";
-import { PaymentDialog } from "@/components/payments";
 import {
   CarrierGlassBadge,
   OrderTrackingInfo,
-  ShippingManagement,
 } from "@/components/shipping";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
 import {
   formatAddress,
   DetailInfoRow,
   GlassCard,
   OrderDetailHeader,
+  OrderDetailActionBar,
   OrderItemsCard,
   OrderPartiesCard,
   OrderShippingAddressCard,
   OrderStatusBadges,
   OrderSummaryCard,
 } from "@/components/orders/detail";
+import {
+  getOrderCancelConfirmDescription,
+  getOrderRefundConfirmDescription,
+} from "@/lib/orders/order-destructive-copy";
 
 export type OrderDetailPageProps = {
   initialOrder?: Order;
@@ -92,13 +83,13 @@ export default function OrderDetailPage({
 }: OrderDetailPageProps = {}) {
   const params = useParams();
   const router = useRouter();
-  const searchParams = useSearchParams();
-  const queryClient = useQueryClient();
+  const pathname = usePathname() ?? "";
   const { user, isCheckingAuth } = useAuth();
-  const ordersListPath = useMemo(() => {
-    if (user?.role === "admin" || user?.role === "user") return "/admin/orders";
-    return "/orders";
-  }, [user?.role]);
+  // REQ-0209 — back list follows current route shell (not role): /orders vs /admin/orders
+  const ordersListPath = useMemo(
+    () => (pathname.startsWith("/admin") ? "/admin/orders" : "/orders"),
+    [pathname],
+  );
   const { handleBack } = useBackWithRefresh("order", {
     fallbackPath: ordersListPath,
   });
@@ -110,46 +101,9 @@ export default function OrderDetailPage({
   const { isError, error } = orderQuery;
 
   useSyncSsrQueryData(queryKeys.orders.detail(orderId), initialOrder);
+  useStripeCheckoutReturn({ entityId: orderId, entity: "order" });
 
-  useEffect(() => {
-    const payment = searchParams.get("payment");
-    if (
-      !orderId ||
-      !payment ||
-      (payment !== "success" && payment !== "cancelled")
-    )
-      return;
-
-    markStripeCheckoutReturn();
-
-    const detailKey = queryKeys.orders.detail(orderId);
-    invalidateAfterOrderGraphChange(queryClient);
-    queryClient.refetchQueries({ queryKey: detailKey });
-
-    const runInvalidations = () => {
-      invalidateAfterOrderGraphChange(queryClient);
-      queryClient.refetchQueries({ queryKey: detailKey });
-    };
-    const delays = [500, 1500, 3000, 5000, 8000];
-    const timeouts = delays.map((delay) => setTimeout(runInvalidations, delay));
-
-    const cleanupUrlTimer = setTimeout(() => {
-      const next = new URLSearchParams(searchParams);
-      next.delete("payment");
-      next.delete("session_id");
-      const path =
-        window.location.pathname +
-        (next.toString() ? `?${next.toString()}` : "");
-      window.location.replace(path);
-    }, 1500);
-
-    return () => {
-      clearTimeout(cleanupUrlTimer);
-      timeouts.forEach((t) => clearTimeout(t));
-    };
-  }, [orderId, queryClient, router]);
   const deleteOrderMutation = useDeleteOrder();
-  const isCancelling = deleteOrderMutation.isPending;
   const isSupplierRole = user?.role === "supplier";
   const isClientRole = user?.role === "client";
   const isAdminRole = user?.role === "admin";
@@ -158,8 +112,12 @@ export default function OrderDetailPage({
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [editingOrder, setEditingOrder] = useState<Order | null>(null);
   const [cancelDialogOpen, setCancelDialogOpen] = useState(false);
+  const [refundDialogOpen, setRefundDialogOpen] = useState(false);
   // REQ-0061: InvoiceDialog create mode pre-selected with this order
   const [createInvoiceOpen, setCreateInvoiceOpen] = useState(false);
+  // Dialog stays open while pending (AlertDialog preventDefault) — spinner uses isPending
+  const isCancelling = deleteOrderMutation.isPending && cancelDialogOpen;
+  const isRefunding = deleteOrderMutation.isPending && refundDialogOpen;
 
   const handleUpdateOrder = useCallback(() => {
     if (!order) return;
@@ -170,13 +128,30 @@ export default function OrderDetailPage({
   const handleConfirmCancelOrder = useCallback(() => {
     if (!order) return;
     // useDeleteOrder.onSuccess already calls invalidateAfterOrderGraphChange + cancelOrRemoveDetailQuery.
-    // No router.refresh() needed — clicking back will use handleBack which re-invalidates.
     deleteOrderMutation.mutate(order.id, {
       onSuccess: () => {
         setCancelDialogOpen(false);
       },
       onError: () => {
         setCancelDialogOpen(false);
+      },
+    });
+  }, [
+    order,
+    deleteOrderMutation,
+    cancelDialogOpen,
+    ordersListPath,
+  ]);
+
+  // REQ-0209 — Process Refund uses same cancel API (Stripe refund + stock restore)
+  const handleConfirmRefundOrder = useCallback(() => {
+    if (!order) return;
+    deleteOrderMutation.mutate(order.id, {
+      onSuccess: () => {
+        setRefundDialogOpen(false);
+      },
+      onError: () => {
+        setRefundDialogOpen(false);
       },
     });
   }, [order, deleteOrderMutation]);
@@ -236,8 +211,6 @@ export default function OrderDetailPage({
       </Navbar>
     );
   }
-
-  const actionsDisabled = dataLoading || !order || disableOrderActions;
 
   const createdAt = order?.createdAt ? new Date(order.createdAt) : new Date();
   const updatedAt = order?.updatedAt ? new Date(order.updatedAt) : null;
@@ -603,171 +576,48 @@ export default function OrderDetailPage({
             </div>
           </div>
 
-          <div className="flex flex-col sm:flex-row flex-wrap gap-2">
-            <Button
-              onClick={handleBack}
-              className={glassDetailBackButtonClass("w-full sm:w-auto gap-2")}
-            >
-              <ArrowLeft className="h-4 w-4 shrink-0" />
-              Back
-            </Button>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <span className="inline-block">
-                  <Button
-                    onClick={handleUpdateOrder}
-                    disabled={actionsDisabled}
-                    className={glassDetailFooterButtonClass("blue")}
-                  >
-                    <Edit className="h-4 w-4 shrink-0" />
-                    Update Order
-                  </Button>
-                </span>
-              </TooltipTrigger>
-              <TooltipContent side="bottom" className="max-w-xs">
-                {disableOrderActions
-                  ? "Only the admin who owns the order can update it."
-                  : "Edit order details."}
-              </TooltipContent>
-            </Tooltip>
-            {/* REQ-0061: situation-based invoice action — View when linked, Create when absent */}
-            {!dataLoading && order && order.invoiceForOrder ? (
-              <Button
-                asChild
-                className={glassDetailFooterButtonClass("indigo")}
-              >
-                <Link href={`/invoices/${order.invoiceForOrder.id}`}>
-                  <FileText className="h-4 w-4 shrink-0" />
-                  View Invoice
-                </Link>
-              </Button>
-            ) : (
-              !dataLoading &&
-              order &&
-              order.status !== "cancelled" &&
-              !disableOrderActions && (
-                <Button
-                  onClick={() => setCreateInvoiceOpen(true)}
-                  className={glassDetailFooterButtonClass("indigo")}
-                >
-                  <FilePlus2 className="h-4 w-4 shrink-0" />
-                  Create Invoice
-                </Button>
-              )
-            )}
-            {!dataLoading &&
-              order &&
-              order.paymentStatus !== "paid" &&
-              order.status !== "cancelled" && (
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <span className="inline-block">
-                      <PaymentDialog
-                        type="order"
-                        id={order.id}
-                        referenceNumber={order.orderNumber}
-                        amount={
-                          order.invoiceForOrder?.amountDue != null
-                            ? Number(order.invoiceForOrder.amountDue)
-                            : order.total
-                        }
-                        amountPaid={
-                          order.invoiceForOrder?.amountPaid != null
-                            ? Number(order.invoiceForOrder.amountPaid)
-                            : undefined
-                        }
-                        documentTotal={order.total}
-                        subtotal={order.subtotal}
-                        items={order.items.map((item) => ({
-                          name: item.productName,
-                          quantity: item.quantity,
-                          price: item.subtotal,
-                          imageUrl: item.imageUrl,
-                        }))}
-                        tax={order.tax ?? undefined}
-                        shipping={order.shipping ?? undefined}
-                        discount={order.discount ?? undefined}
-                        disabled={isSupplierRole}
-                        trigger={
-                          <Button
-                            disabled={isSupplierRole}
-                            className={glassDetailFooterButtonClass("emerald")}
-                          >
-                            <CreditCard className="h-4 w-4 shrink-0" />
-                            Pay $
-                            {(order.invoiceForOrder?.amountDue != null
-                              ? Number(order.invoiceForOrder.amountDue)
-                              : order.total
-                            ).toFixed(2)}
-                          </Button>
-                        }
-                      />
-                    </span>
-                  </TooltipTrigger>
-                  <TooltipContent side="bottom" className="max-w-xs">
-                    {isSupplierRole
-                      ? "Only the order creator or client can complete payment."
-                      : "Complete payment for this order via Stripe."}
-                  </TooltipContent>
-                </Tooltip>
-              )}
-            {!dataLoading &&
-              order &&
-              order.status !== "cancelled" &&
-              order.status !== "shipped" &&
-              order.status !== "delivered" &&
-              !order.trackingNumber && (
-                <ShippingManagement
-                  order={order}
-                  disabled={disableOrderActions}
-                  trigger={
-                    <Button
-                      disabled={disableOrderActions}
-                      className={glassDetailFooterButtonClass("violet")}
-                    >
-                      <Truck className="h-4 w-4 shrink-0" />
-                      Ship Order
-                    </Button>
-                  }
-                />
-              )}
-            {!dataLoading && order && order.status !== "cancelled" && (
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <span className="inline-block">
-                    <DialogSubmitButton
-                      type="button"
-                      onClick={() => setCancelDialogOpen(true)}
-                      isPending={isCancelling}
-                      pendingLabel="Cancelling…"
-                      label="Cancel Order"
-                      icon={Ban}
-                      hue="rose"
-                      disabled={actionsDisabled}
-                      className="group w-full sm:w-auto gap-2"
-                    />
-                  </span>
-                </TooltipTrigger>
-                <TooltipContent side="bottom" className="max-w-xs">
-                  {disableOrderActions
-                    ? "Only the admin who owns the order can cancel it."
-                    : "Cancel this order."}
-                </TooltipContent>
-              </Tooltip>
-            )}
-          </div>
+          {/* REQ-0209 — Cancel unpaid|partial; Process Refund when fully paid */}
+          <OrderDetailActionBar
+            order={order}
+            dataLoading={dataLoading}
+            invoiceHrefBase="/invoices"
+            mode="store"
+            disableOrderActions={disableOrderActions}
+            isSupplierRole={isSupplierRole}
+            isCancelling={isCancelling}
+            isRefunding={isRefunding}
+            onBack={handleBack}
+            onUpdateOrder={handleUpdateOrder}
+            onCreateInvoice={() => setCreateInvoiceOpen(true)}
+            onCancelClick={() => setCancelDialogOpen(true)}
+            onRefundClick={() => setRefundDialogOpen(true)}
+          />
 
           {order && (
             <AlertDialogWrapper
               open={cancelDialogOpen}
               onOpenChange={setCancelDialogOpen}
               title="Cancel Order"
-              description={`Are you sure you want to cancel order ${order.orderNumber}? This action cannot be undone.`}
+              description={getOrderCancelConfirmDescription(order)}
               actionLabel="Cancel Order"
               actionLoadingLabel="Cancelling..."
               isLoading={isCancelling}
               onAction={handleConfirmCancelOrder}
               onCancel={() => setCancelDialogOpen(false)}
+            />
+          )}
+
+          {order && (
+            <AlertDialogWrapper
+              open={refundDialogOpen}
+              onOpenChange={setRefundDialogOpen}
+              title="Process Refund"
+              description={getOrderRefundConfirmDescription(order)}
+              actionLabel="Process Refund"
+              actionLoadingLabel="Processing..."
+              isLoading={isRefunding}
+              onAction={handleConfirmRefundOrder}
+              onCancel={() => setRefundDialogOpen(false)}
             />
           )}
 

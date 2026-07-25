@@ -172,7 +172,27 @@ All user-facing POST/PUT JSON bodies use `safeParse` + `logger.warn` on fail. Ne
 
 **Every session:** STATE → REQ map → skill 01+17 → Red Team → write-through DECISION/BUILD/VALIDATION.
 
-**C1 open:** Gate 2 PENDING. **Stopped 2026-07-23:** REQ-0207 SECURITY.md. **Next:** **REQ-0136**.
+**C1 open:** Gate 2 PENDING. **Stopped 2026-07-25:** REQ-0209…0211. **Next:** **REQ-0136**.
+
+## REQ-0209…0211 pay / cancel / Shippo (2026-07-25)
+
+| REQ | Hub |
+|-----|-----|
+| 0209 | Stripe return URLs; `confirm-checkout-session` + SSR reconcile; confirm+fulfill on first money; Cancel vs Process Refund |
+| 0210 | `patchInvoicesOnOrderCancel` (keep INV#); invoice billing/shipping; cancelled Edit off; `resolveOrderPayAmount` |
+| 0211 | `shippo_test_*` → silent US to + USPS prefer; `canShip` confirmed\|partial\|paid |
+
+**Invalidation:** order-graph + cancel invoice merge. Debug ingest removed.
+
+## REQ-0208 admin order detail parity (2026-07-25)
+
+| Piece | Location |
+|-------|----------|
+| Action bar | `OrderDetailActionBar` — store + admin footer (Cancel vs Process Refund when paid) |
+| Parties User ID | `PersonInlineRow` / `PartiesRolesCard` — copyable User ID under each party |
+| Admin detail | `AdminOrderDetailContent` — read-only badges; OrderDialog; Shipping in right column; no Customer/Invoice/Refund cards |
+
+**Invalidation unchanged** — order-graph patch + invalidate on existing mutations.
 
 ## REQ-0207 SECURITY.md (2026-07-23)
 
@@ -1010,7 +1030,7 @@ Hub: `lib/ui/typography-scale.ts`. Hubs import tokens; ~45 inline files use equi
 
 **Invalidation unchanged** — review/product/dashboard CRUD already clears lists + portals.
 
-**Active wave:** **0207** done → **0136** Gate 2.
+**Active wave:** **0211** done → **0136** Gate 2.
 
 ## Warehouse detail + Allocate/Transfer (REQ-0203)
 

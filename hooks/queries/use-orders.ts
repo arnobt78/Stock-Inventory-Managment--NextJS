@@ -13,6 +13,7 @@ import {
   patchDetailCache,
   patchListCaches,
   patchOrderGraphListCaches,
+  patchInvoicesOnOrderCancel,
 } from "@/lib/react-query";
 import { useToast } from "@/hooks/use-toast";
 import type { Order, CreateOrderInput, UpdateOrderInput } from "@/types";
@@ -173,8 +174,22 @@ export function useDeleteOrder() {
       return response.data;
     },
     onSuccess: (data: Order) => {
-      patchDetailCache(queryClient, queryKeys.orders.detail(data.id), data);
-      patchOrderGraphListCaches(queryClient, data);
+      // REQ-0210 — statusAt for list Status column; patch linked invoices (not order.id)
+      const cancelledAtIso =
+        data.cancelledAt == null
+          ? new Date().toISOString()
+          : typeof data.cancelledAt === "string"
+            ? data.cancelledAt
+            : new Date(data.cancelledAt).toISOString();
+      // List/detail caches use ISO strings (API JSON), not Date objects
+      const patched = {
+        ...data,
+        statusAt: cancelledAtIso,
+        cancelledAt: cancelledAtIso,
+      };
+      patchDetailCache(queryClient, queryKeys.orders.detail(data.id), patched);
+      patchOrderGraphListCaches(queryClient, patched);
+      patchInvoicesOnOrderCancel(queryClient, patched);
       cancelOrRemoveDetailQuery(queryClient, queryKeys.orders.detail(data.id));
       invalidateAfterOrderGraphChange(queryClient);
 

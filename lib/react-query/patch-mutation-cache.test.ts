@@ -6,6 +6,7 @@ import {
   patchLinkedOrderFromInvoiceMoney,
   patchListCaches,
   patchOrderGraphListCaches,
+  patchInvoicesOnOrderCancel,
   patchProductInPortalCaches,
   removeFromListCaches,
 } from "./patch-mutation-cache";
@@ -62,6 +63,86 @@ describe("patch-mutation-cache", () => {
       { id: "o1", status: "confirmed" },
     ]);
     expect(qc.getQueryData(invoiceListKey)).toEqual([{ id: "i1", status: "sent" }]);
+  });
+
+  // REQ-0210 — cancel patches invoice by orderId, not order.id
+  it("patchInvoicesOnOrderCancel updates linked invoice list + detail", () => {
+    const qc = new QueryClient();
+    const orderListKey = ["orders", "list"] as const;
+    const invoiceListKey = ["invoices", "list"] as const;
+    const invoiceDetailKey = ["invoices", "detail", "i1"] as const;
+    qc.setQueryData(orderListKey, [
+      {
+        id: "o1",
+        status: "confirmed",
+        paymentStatus: "partial",
+        invoiceForOrder: {
+          id: "i1",
+          invoiceNumber: "INV-KEEP",
+          createdAt: "2026-07-25T10:00:00.000Z",
+          status: "sent",
+          amountDue: 78.12,
+        },
+      },
+    ]);
+    qc.setQueryData(invoiceListKey, [
+      {
+        id: "i1",
+        orderId: "o1",
+        status: "sent",
+        amountDue: 78.12,
+        linkedOrderPaymentStatus: "partial",
+      },
+    ]);
+    qc.setQueryData(invoiceDetailKey, {
+      id: "i1",
+      orderId: "o1",
+      status: "sent",
+      amountDue: 78.12,
+      amountPaid: 100,
+    });
+    patchInvoicesOnOrderCancel(qc, {
+      id: "o1",
+      status: "cancelled",
+      paymentStatus: "refunded",
+      cancelledAt: "2026-07-25T12:00:00.000Z",
+      invoiceForOrder: { id: "i1" },
+    });
+    expect(qc.getQueryData(invoiceListKey)).toEqual([
+      {
+        id: "i1",
+        orderId: "o1",
+        status: "cancelled",
+        amountDue: 0,
+        cancelledAt: "2026-07-25T12:00:00.000Z",
+        statusAt: "2026-07-25T12:00:00.000Z",
+        linkedOrderStatus: "cancelled",
+        linkedOrderPaymentStatus: "refunded",
+        linkedOrderStatusAt: "2026-07-25T12:00:00.000Z",
+        updatedAt: "2026-07-25T12:00:00.000Z",
+      },
+    ]);
+    expect(qc.getQueryData(invoiceDetailKey)).toMatchObject({
+      status: "cancelled",
+      amountDue: 0,
+      linkedOrderPaymentStatus: "refunded",
+    });
+    expect(qc.getQueryData(orderListKey)).toMatchObject([
+      {
+        id: "o1",
+        status: "cancelled",
+        paymentStatus: "refunded",
+        statusAt: "2026-07-25T12:00:00.000Z",
+        // Must keep invoiceNumber/createdAt (no late INV# flash)
+        invoiceForOrder: {
+          id: "i1",
+          invoiceNumber: "INV-KEEP",
+          createdAt: "2026-07-25T10:00:00.000Z",
+          status: "cancelled",
+          amountDue: 0,
+        },
+      },
+    ]);
   });
 
   it("patchProductInPortalCaches merges nested browse products array", () => {

@@ -74,7 +74,11 @@ const API_WRITE_ROUTE_INVALIDATION_SPEC: Record<string, readonly string[]> = {
   "app/api/system-config/route.ts": ["invalidateCache(", "scheduleInvalidateSystemConfigCaches"],
   "app/api/auth/register/route.ts": ["scheduleInvalidateAuthCaches"],
   "app/api/payments/checkout/route.ts": ["scheduleInvalidateOrderGraphCaches"],
-  "app/api/payments/webhook/route.ts": ["invalidateOnOrderChange"],
+  "app/api/payments/confirm-session/route.ts": ["confirmCheckoutSessionById"],
+  "app/api/payments/webhook/route.ts": [
+    "confirmCheckoutSessionById",
+    "invalidateOnOrderChange",
+  ],
   "app/api/shipping/labels/route.ts": ["invalidateOnOrderChange"],
   "app/api/shipping/tracking/route.ts": ["invalidateOnOrderChange"],
   "app/api/shipping/webhook/route.ts": ["invalidateOnOrderChange"],
@@ -133,6 +137,8 @@ const SERVER_INVALIDATE_PATTERNS = [
   "scheduleInvalidateImportCaches",
   "scheduleInvalidateAllServerCaches",
   "invalidateCache(",
+  /** REQ-0209 — confirm-session / webhook delegate Redis clear inside helper */
+  "confirmCheckoutSessionById",
 ];
 
 const DIRECT_FETCH_WRITE =
@@ -424,12 +430,22 @@ describe("invalidateAfterOrderGraphChange", () => {
     "components/Pages/InvoiceDetailPage.tsx",
   ];
   for (const rel of orderGraphPages) {
-    it(`${rel} uses invalidateAfterOrderGraphChange for payment/back refresh`, () => {
+    it(`${rel} uses Stripe return hook or invalidateAfterOrderGraphChange`, () => {
       const content = readRepoFile(rel);
-      expect(content).toContain("invalidateAfterOrderGraphChange");
+      // REQ-0209 — payment return via useStripeCheckoutReturn (invalidates inside hook)
+      const ok =
+        content.includes("useStripeCheckoutReturn") ||
+        content.includes("invalidateAfterOrderGraphChange");
+      expect(ok).toBe(true);
       expect(content).not.toMatch(/invalidateAllRelatedQueries\s*\(/);
     });
   }
+
+  it("use-stripe-checkout-return invalidates order graph after confirm", () => {
+    const content = readRepoFile("hooks/use-stripe-checkout-return.ts");
+    expect(content).toContain("invalidateAfterOrderGraphChange");
+    expect(content).toContain("confirmSession");
+  });
 });
 
 describe("invalidateAfterCatalogChange (REQ-0133)", () => {

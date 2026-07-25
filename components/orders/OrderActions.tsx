@@ -136,7 +136,8 @@ export default function OrderActions({
               View Details
             </Link>
           </DropdownMenuItem>
-          {onEdit != null && (
+          {/* REQ-0210 — hide Edit on cancelled (status/payment must not be manipulated) */}
+          {onEdit != null && order.status !== "cancelled" && (
             <DropdownMenuItem
               onClick={handleEditOrder}
               disabled={disableOrderActions}
@@ -159,28 +160,30 @@ export default function OrderActions({
                   View Invoice
                 </Link>
               </DropdownMenuItem>
-              {!disableInvoiceMutations && (
-                <>
-                  {/* Edit navigates to the invoice detail page (full Invoice not in the row) */}
-                  <DropdownMenuItem asChild>
-                    <Link
-                      href={`${invoiceHrefBase}/${linkedInvoice.id}`}
-                      className="flex items-center gap-2"
+              {/* REQ-0210 — no edit/delete when order or invoice cancelled */}
+              {!disableInvoiceMutations &&
+                order.status !== "cancelled" &&
+                linkedInvoice.status !== "cancelled" && (
+                  <>
+                    <DropdownMenuItem asChild>
+                      <Link
+                        href={`${invoiceHrefBase}/${linkedInvoice.id}`}
+                        className="flex items-center gap-2"
+                      >
+                        <Edit className="h-4 w-4" />
+                        Edit Invoice
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                      className="text-red-600 dark:text-red-400"
+                      onClick={() => setDeleteInvoiceDialogOpen(true)}
+                      disabled={isDeletingInvoice}
                     >
-                      <Edit className="h-4 w-4" />
-                      Edit Invoice
-                    </Link>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem
-                    className="text-red-600 dark:text-red-400"
-                    onClick={() => setDeleteInvoiceDialogOpen(true)}
-                    disabled={isDeletingInvoice}
-                  >
-                    <Trash2 className="h-4 w-4" />
-                    {isDeletingInvoice ? "Deleting..." : "Delete Invoice"}
-                  </DropdownMenuItem>
-                </>
-              )}
+                      <Trash2 className="h-4 w-4" />
+                      {isDeletingInvoice ? "Deleting..." : "Delete Invoice"}
+                    </DropdownMenuItem>
+                  </>
+                )}
             </>
           ) : (
             onCreateInvoice &&

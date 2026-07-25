@@ -21,6 +21,18 @@ export const createCheckoutBodySchema = z.object({
 
 export type CreateCheckoutBody = z.infer<typeof createCheckoutBodySchema>;
 
+/** REQ-0209 — Stripe return URL `session_id` reconcile (idempotent with webhook). */
+export const confirmCheckoutSessionBodySchema = z.object({
+  sessionId: z
+    .string()
+    .min(1, "sessionId is required")
+    .refine((v) => v.startsWith("cs_"), "sessionId must be a Checkout Session id"),
+});
+
+export type ConfirmCheckoutSessionBody = z.infer<
+  typeof confirmCheckoutSessionBodySchema
+>;
+
 /**
  * Client-side charge amount vs remaining due (PaymentDialog).
  * Returns error message or null when valid.

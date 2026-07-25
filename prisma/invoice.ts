@@ -8,6 +8,7 @@ import type { Prisma } from "@prisma/client";
 import type { CreateInvoiceInput, UpdateInvoiceInput, InvoiceFilters } from "@/types/invoice";
 import { logger } from "@/lib/logger";
 import { applyIncrementalInvoicePayment } from "@/lib/payments/order-payment-from-amounts";
+import { resolveInvoiceBillingAddressInput } from "@/lib/invoices/resolve-invoice-billing-address";
 
 /** Shared Prisma where clauses for invoice list filters (issuer, client, store-by-orderIds). */
 function applyInvoiceFiltersToWhere(
@@ -133,10 +134,8 @@ export async function createInvoice(
   const amountPaid = 0;
   const amountDue = total;
 
-  // Get billing address from order if available
-  const billingAddress = order.billingAddress
-    ? (JSON.parse(JSON.stringify(order.billingAddress)) as Prisma.InputJsonValue)
-    : null;
+  // REQ-0210 — billing, else shipping (same-as-billing checkbox)
+  const billingAddress = resolveInvoiceBillingAddressInput(order);
 
   // REQ-0158: invoice.userId = store owner (order.userId); clientId = buyer; createdBy = actor
   const invoice = await prisma.invoice.create({
@@ -259,9 +258,8 @@ export async function applyStripeChargeToOrderInvoice(
   const tax = order.tax ?? 0;
   const shipping = order.shipping ?? 0;
   const discount = order.discount ?? 0;
-  const billingAddress = order.billingAddress
-    ? (JSON.parse(JSON.stringify(order.billingAddress)) as Prisma.InputJsonValue)
-    : null;
+  // REQ-0210 — billing, else shipping (same-as-billing checkbox)
+  const billingAddress = resolveInvoiceBillingAddressInput(order);
 
   // REQ-0158 — invoice.userId = store owner on order; createdBy = product owner issuer
   const invoice = await prisma.invoice.create({

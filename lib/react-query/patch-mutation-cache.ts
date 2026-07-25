@@ -203,6 +203,210 @@ export function patchLinkedOrderFromInvoiceMoney(
   );
 }
 
+/** Linked invoice fields needed so Order table Invoice # does not flash empty. REQ-0210 */
+export type OrderCancelLinkedInvoice = {
+  id: string;
+  invoiceNumber?: string | null;
+  createdAt?: string | Date | null;
+  amountPaid?: number | null;
+  amountDue?: number | null;
+  total?: number | null;
+  paidAt?: string | Date | null;
+  dueDate?: string | Date | null;
+  sentAt?: string | Date | null;
+  status?: string | null;
+  cancelledAt?: string | Date | null;
+  updatedAt?: string | Date | null;
+};
+
+/** Order cancel payload — patches linked invoices by orderId (not order.id). REQ-0210 */
+export type OrderCancelInvoicePatchSource = {
+  id: string;
+  status?: string | null;
+  paymentStatus?: string | null;
+  cancelledAt?: string | Date | null;
+  updatedAt?: string | Date | null;
+  invoiceForOrder?: OrderCancelLinkedInvoice | null;
+};
+
+/**
+ * REQ-0210 — On order cancel/refund, patch invoice list + detail immediately.
+ * `patchOrderGraphListCaches(order)` only matches invoice rows by order.id (never),
+ * so Cancelled / Refunded badges stayed stale until slow refetch.
+ */
+export function patchInvoicesOnOrderCancel(
+  queryClient: QueryClient,
+  order: OrderCancelInvoicePatchSource,
+): void {
+  const orderId = order.id;
+  if (!orderId) return;
+
+  const cancelledAt =
+    toIsoOrNull(order.cancelledAt) ?? new Date().toISOString();
+  const statusAt = cancelledAt;
+  const paymentStatus = order.paymentStatus ?? "refunded";
+  const orderStatus = order.status ?? "cancelled";
+
+  const invoiceIds = new Set<string>();
+  if (order.invoiceForOrder?.id) {
+    invoiceIds.add(order.invoiceForOrder.id);
+  }
+
+  const listRoots = [queryKeys.invoices.all, queryKeys.clientInvoices.all];
+  for (const listKeyRoot of listRoots) {
+    const queries = queryClient.getQueriesData<
+      Array<{ id: string; orderId?: string }> | { id: string; orderId?: string }
+    >({ queryKey: listKeyRoot, exact: false });
+    for (const [, data] of queries) {
+      // Lists are arrays; detail keys are single invoice objects
+      if (Array.isArray(data)) {
+        for (const row of data) {
+          if (row?.orderId === orderId && row.id) {
+            invoiceIds.add(row.id);
+          }
+        }
+      } else if (
+        data &&
+        typeof data === "object" &&
+        data.orderId === orderId &&
+        data.id
+      ) {
+        invoiceIds.add(data.id);
+      }
+    }
+  }
+
+  // Detail keys may hold invoice without list warm — scan known detail if order link known
+  if (invoiceIds.size === 0 && order.invoiceForOrder?.id) {
+    invoiceIds.add(order.invoiceForOrder.id);
+  }
+
+  for (const invoiceId of invoiceIds) {
+    const invoicePatch = {
+      id: invoiceId,
+      status: "cancelled" as const,
+      amountDue: 0,
+      cancelledAt,
+      statusAt,
+      linkedOrderStatus: orderStatus,
+      linkedOrderPaymentStatus: paymentStatus,
+      linkedOrderStatusAt: statusAt,
+      updatedAt: toIsoOrNull(order.updatedAt) ?? cancelledAt,
+    };
+
+    patchListCaches(queryClient, queryKeys.invoices.all, invoicePatch);
+    patchListCaches(queryClient, queryKeys.clientInvoices.all, invoicePatch);
+
+    patchDetailCacheMerge<{
+      id: string;
+      status?: string;
+      amountDue?: number;
+      cancelledAt?: string | null;
+      statusAt?: string;
+      linkedOrderStatus?: string | null;
+      linkedOrderPaymentStatus?: string | null;
+      linkedOrderStatusAt?: string | null;
+      updatedAt?: string | null;
+    }>(queryClient, queryKeys.invoices.detail(invoiceId), (old) =>
+      old
+        ? {
+            ...old,
+            ...invoicePatch,
+          }
+        : undefined,
+    );
+    patchDetailCacheMerge<{
+      id: string;
+      status?: string;
+      amountDue?: number;
+      cancelledAt?: string | null;
+      statusAt?: string;
+      linkedOrderStatus?: string | null;
+      linkedOrderPaymentStatus?: string | null;
+      linkedOrderStatusAt?: string | null;
+      updatedAt?: string | null;
+    }>(queryClient, queryKeys.clientInvoices.detail(invoiceId), (old) =>
+      old
+        ? {
+            ...old,
+            ...invoicePatch,
+          }
+        : undefined,
+    );
+  }
+
+  // Merge invoiceForOrder — never replace with thin {id,status} (drops invoiceNumber → late INV#).
+  type OrderRowWithInvoice = {
+    id: string;
+    invoiceForOrder?: OrderCancelLinkedInvoice | null;
+    [key: string]: unknown;
+  };
+
+  const mergeOrderRowOnCancel = (row: OrderRowWithInvoice): OrderRowWithInvoice => {
+    const prevInv = row.invoiceForOrder;
+    const fromApi = order.invoiceForOrder;
+    const linkedId = fromApi?.id ?? prevInv?.id;
+    const mergedInvoice =
+      linkedId != null
+        ? {
+            ...(prevInv ?? {}),
+            ...(fromApi ?? {}),
+            id: linkedId,
+            invoiceNumber:
+              fromApi?.invoiceNumber ?? prevInv?.invoiceNumber ?? "",
+            createdAt:
+              toIsoOrNull(fromApi?.createdAt) ??
+              toIsoOrNull(prevInv?.createdAt) ??
+              undefined,
+            amountPaid: fromApi?.amountPaid ?? prevInv?.amountPaid ?? 0,
+            total: fromApi?.total ?? prevInv?.total,
+            status: "cancelled" as const,
+            amountDue: 0,
+            cancelledAt,
+            updatedAt: toIsoOrNull(order.updatedAt) ?? cancelledAt,
+          }
+        : prevInv ?? null;
+
+    return {
+      ...row,
+      status: orderStatus,
+      paymentStatus,
+      cancelledAt,
+      statusAt,
+      updatedAt: toIsoOrNull(order.updatedAt) ?? cancelledAt,
+      ...(mergedInvoice ? { invoiceForOrder: mergedInvoice } : {}),
+    };
+  };
+
+  for (const listKeyRoot of [queryKeys.orders.all, queryKeys.clientOrders.all]) {
+    const queries = queryClient.getQueriesData<OrderRowWithInvoice[]>({
+      queryKey: listKeyRoot,
+      exact: false,
+    });
+    for (const [key, data] of queries) {
+      if (!Array.isArray(data)) continue;
+      let changed = false;
+      const next = data.map((row) => {
+        if (row?.id !== orderId) return row;
+        changed = true;
+        return mergeOrderRowOnCancel(row);
+      });
+      if (changed) queryClient.setQueryData(key, next);
+    }
+  }
+
+  patchDetailCacheMerge<OrderRowWithInvoice>(
+    queryClient,
+    queryKeys.orders.detail(orderId),
+    (old) => (old ? mergeOrderRowOnCancel(old) : undefined),
+  );
+  patchDetailCacheMerge<OrderRowWithInvoice>(
+    queryClient,
+    queryKeys.clientOrders.detail(orderId),
+    (old) => (old ? mergeOrderRowOnCancel(old) : undefined),
+  );
+}
+
 /**
  * Patch product rows in portal browse caches (nested `{ products: [] }` or plain arrays).
  * Skips portal dashboard objects that are not product lists.

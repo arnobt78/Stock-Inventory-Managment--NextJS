@@ -136,7 +136,15 @@ export function AlertDialogWrapper({
     : actionLabel;
 
   return (
-    <AlertDialog open={open} onOpenChange={onOpenChange} {...alertDialogProps}>
+    <AlertDialog
+      open={open}
+      onOpenChange={(next) => {
+        // Keep open while mutation pending so spinner/label stay visible (REQ-0209)
+        if (!next && isLoading) return;
+        onOpenChange?.(next);
+      }}
+      {...alertDialogProps}
+    >
       <AlertDialogContent className={cn("p-4 sm:p-6", contentClassName)}>
         <AlertDialogHeader>
           <AlertDialogTitle
@@ -156,11 +164,20 @@ export function AlertDialogWrapper({
             footerClassName,
           )}
         >
-          <AlertDialogCancel onClick={onCancel} className="w-full sm:w-auto">
+          <AlertDialogCancel
+            onClick={onCancel}
+            disabled={isLoading}
+            className="w-full sm:w-auto"
+          >
             {cancelLabel}
           </AlertDialogCancel>
           <AlertDialogAction
-            onClick={onAction}
+            onClick={(e) => {
+              // Prevent Radix default close so isLoading spinner can show
+              e.preventDefault();
+              if (isLoading || isDisabled) return;
+              onAction?.();
+            }}
             disabled={isLoading || isDisabled}
             className={cn(
               "w-full sm:w-auto",

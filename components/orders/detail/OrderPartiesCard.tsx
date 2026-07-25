@@ -34,11 +34,8 @@ export function OrderPartiesCard({
   const viewerUserId = user?.id;
   const enrichOpts = { isAdminRole, viewerUserId };
 
-  const shouldShow =
-    dataLoading ||
-    order?.placedByName != null ||
-    order?.placedByEmail != null ||
-    (order?.orderProductOwners && order.orderProductOwners.length > 0);
+  // Always mount when order exists (SSR parties) — avoid late card appear/expand
+  const shouldShow = dataLoading || !!order;
 
   if (!shouldShow) return null;
 
@@ -81,6 +78,7 @@ export function OrderPartiesCard({
         customer={customer}
         customerLabel="Customer / Ship to"
         productOwners={productOwners}
+        stableOrderPartySlots
       />
     </GlassCard>
   );

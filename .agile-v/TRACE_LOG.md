@@ -54,6 +54,16 @@ Format: `timestamp | agent | span | req_ids | note`
 
 2026-07-22T14:40:00Z | build | REQ-0203-gap | stock-row+Transfer-owner PASS
 
+2026-07-24T12:04:00Z | session | activate | core+pipeline | Resume gate2-0136-cache-smoke; tip 23b955f; config+PLAYBOOK synced | PASS
+
+2026-07-25T11:18:00Z | session | activate | core+pipeline | Resume gate2-0136-cache-smoke; tip 23b955f; STATE+PLAYBOOK+EVAL synced | PASS
+
+2026-07-25T13:56:00Z | build | REQ-0208-start | admin-order-parity + Parties User ID | IN_PROGRESS
+2026-07-25T14:05:00Z | build | REQ-0208-ship | AC1–AC6 PASS | gates lint/test/invalidate/build
+
+2026-07-25T15:10:00Z | build | REQ-0209-start | stripe-return + confirm-on-pay + cancel/refund UX | IN_PROGRESS
+2026-07-25T15:15:00Z | build | REQ-0209-ship | AC1–AC6 PASS | gates lint/test/invalidate/build
+
 2026-07-22T14:52:00Z | build | REQ-0203-dry | productSupplier helpers PASS
 
 2026-07-22T15:30:00Z | build | REQ-0009-sentry-noise | order+warehouse+notif PASS

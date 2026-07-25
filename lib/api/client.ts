@@ -1116,6 +1116,28 @@ class ApiClient {
         statusText: response.statusText,
       };
     },
+    /** REQ-0209 — apply/sync after Stripe redirect when webhook is late/missing */
+    confirmSession: async (
+      sessionId: string,
+    ): Promise<
+      ApiResponse<{
+        alreadyApplied: boolean;
+        orderId?: string;
+        invoiceId?: string;
+        paymentStatus?: string | null;
+        orderStatus?: string | null;
+      }>
+    > => {
+      const response = await this.client.post(
+        API_ENDPOINTS.payments.confirmSession,
+        { sessionId },
+      );
+      return {
+        data: response.data,
+        status: response.status,
+        statusText: response.statusText,
+      };
+    },
   };
 
   /**

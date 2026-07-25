@@ -475,6 +475,27 @@ export async function DELETE(
       );
     });
 
+    // REQ-0210 — linked invoice after cancel for instant list/detail badge patch
+    const linkedInvoice = await prisma.invoice.findFirst({
+      where: { orderId: id },
+      select: {
+        id: true,
+        invoiceNumber: true,
+        status: true,
+        amountDue: true,
+        amountPaid: true,
+        total: true,
+        cancelledAt: true,
+        paidAt: true,
+        dueDate: true,
+        sentAt: true,
+        createdAt: true,
+        updatedAt: true,
+      },
+    });
+
+    const cancelledAtIso = order.cancelledAt?.toISOString() || null;
+
     // Transform order for response
     const transformedOrder = {
       id: order.id,
@@ -498,11 +519,29 @@ export async function DELETE(
       estimatedDelivery: order.estimatedDelivery?.toISOString() || null,
       shippedAt: order.shippedAt?.toISOString() || null,
       deliveredAt: order.deliveredAt?.toISOString() || null,
-      cancelledAt: order.cancelledAt?.toISOString() || null,
+      cancelledAt: cancelledAtIso,
+      // List Status column uses statusAt (cancelledAt when cancelled)
+      statusAt: cancelledAtIso,
       createdAt: order.createdAt.toISOString(),
       updatedAt: order.updatedAt?.toISOString() || null,
       createdBy: order.createdBy,
       updatedBy: order.updatedBy,
+      invoiceForOrder: linkedInvoice
+        ? {
+            id: linkedInvoice.id,
+            invoiceNumber: linkedInvoice.invoiceNumber,
+            status: linkedInvoice.status,
+            amountDue: linkedInvoice.amountDue,
+            amountPaid: linkedInvoice.amountPaid,
+            total: linkedInvoice.total,
+            cancelledAt: linkedInvoice.cancelledAt?.toISOString() || null,
+            paidAt: linkedInvoice.paidAt?.toISOString() || null,
+            dueDate: linkedInvoice.dueDate?.toISOString() || undefined,
+            sentAt: linkedInvoice.sentAt?.toISOString() || null,
+            createdAt: linkedInvoice.createdAt.toISOString(),
+            updatedAt: linkedInvoice.updatedAt?.toISOString() || null,
+          }
+        : null,
       items: (order.items || []).map(
         (item: {
           id: string;

@@ -1,11 +1,16 @@
 "use client";
 
+/**
+ * REQ-0208 / REQ-0209 — Admin order detail parity with `/orders/[id]`:
+ * read-only status badges; OrderDialog for edits; shared OrderDetailActionBar
+ * (Cancel unpaid|partial; Process Refund when fully paid); no Customer/Invoice side cards.
+ */
+
 import React, { useCallback, useState } from "react";
 import Link from "next/link";
-import { useParams } from "next/navigation";
+import { useParams, useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import {
   Select,
   SelectContent,
@@ -14,33 +19,21 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
-import {
   ArrowLeft,
   Calendar,
-  FilePlus2,
   FileText,
   Loader2,
-  MapPin,
   Package,
   CreditCard,
-  User,
-  Mail,
   Pencil,
   Truck,
+  Hash,
 } from "lucide-react";
 import InvoiceDialog from "@/components/invoices/InvoiceDialog";
+import OrderDialog from "@/components/orders/OrderDialog";
 import { useOrder, useUpdateOrder, useDeleteOrder } from "@/hooks/queries";
 import { useBackWithRefresh } from "@/hooks/use-back-with-refresh";
+import { useStripeCheckoutReturn } from "@/hooks/use-stripe-checkout-return";
 import { resolveDetailAuditUserHref } from "@/lib/navigation/audit-user-href";
 import {
   ClientDateTime,
@@ -48,9 +41,7 @@ import {
   DeferredSelectGate,
   DetailInfoRowGroup,
   PageContentWrapper,
-  DataSlotPulse,
   GLASS_GHOST_BUTTON,
-  glassDetailBackButtonClass,
   glassDetailFooterButtonClass,
   AuditUserDetailRow,
 } from "@/components/shared";
@@ -60,16 +51,16 @@ import {
   useSyncSsrQueryData,
 } from "@/lib/react-query";
 import { useToast } from "@/hooks/use-toast";
-import type { OrderStatus, Order } from "@/types";
+import type { Order } from "@/types";
 import type { OrderReviewContext } from "@/lib/server/order-review-context-data";
 import { cn } from "@/lib/utils";
 import { OrderTrackingInfo, ShippingManagement } from "@/components/shipping";
+import { AlertDialogWrapper } from "@/components/dialogs";
 import {
   GlassCard,
   DetailInfoRow,
-  getCustomerDisplay,
-  getCustomerEmail,
   OrderDetailHeader,
+  OrderDetailActionBar,
   OrderItemsCard,
   OrderPartiesCard,
   OrderShippingAddressCard,
@@ -79,15 +70,10 @@ import {
 } from "@/components/orders/detail";
 import { APP_SHELL_DETAIL_CLASS } from "@/lib/ui/shell-layout-styles";
 import { OrderStatusBadge, PaymentStatusBadge } from "@/lib/ui/semantic-badges";
-
-const ORDER_STATUSES: { value: OrderStatus; label: string }[] = [
-  { value: "pending", label: "Pending" },
-  { value: "confirmed", label: "Confirmed" },
-  { value: "processing", label: "Processing" },
-  { value: "shipped", label: "Shipped" },
-  { value: "delivered", label: "Delivered" },
-  { value: "cancelled", label: "Cancelled" },
-];
+import {
+  getOrderCancelConfirmDescription,
+  getOrderRefundConfirmDescription,
+} from "@/lib/orders/order-destructive-copy";
 
 const CARRIERS = [
   { value: "usps", label: "USPS" },
@@ -98,7 +84,7 @@ const CARRIERS = [
 ];
 
 export type AdminOrderDetailContentProps = {
-  /** Back link target (e.g. "/admin/personal-orders" or "/admin/client-orders") */
+  /** Back link target (e.g. "/admin/orders") */
   backHref?: string;
   initialOrder?: Order;
   /** REQ-0026 — batch SSR review context for order line items */
@@ -107,25 +93,29 @@ export type AdminOrderDetailContentProps = {
 
 /**
  * Admin Order Detail — view and manage a single order.
- * Status dropdown, Shipping & Tracking (display + manual add), Refund (mark payment as refunded).
- * Matches codebook-ecommerce AdminOrderDetailPage workflow.
+ * Status/fields via OrderDialog; footer actions via OrderDetailActionBar (REQ-0208).
  */
 export default function AdminOrderDetailContent({
-  backHref = "/admin/personal-orders",
+  backHref = "/admin/orders",
   initialOrder,
   initialReviewContext,
 }: AdminOrderDetailContentProps = {}) {
   const params = useParams();
+  const searchParams = useSearchParams();
   const orderId = params?.id as string;
   const { toast } = useToast();
-  // Invalidates order/invoice caches before navigating back so the list shows fresh data
-  const { handleBack, navigateTo } = useBackWithRefresh("order");
+  // Log-proven: admin must pass fallbackPath so Back always returns to list (not router.back history)
+  const { handleBack, navigateTo } = useBackWithRefresh("order", {
+    fallbackPath: backHref,
+  });
   const orderQuery = useOrder(orderId, initialOrder);
   const order = orderQuery.data;
   const dataLoading = isDataSlotLoading(orderQuery, initialOrder);
   const { isError, error } = orderQuery;
 
   useSyncSsrQueryData(queryKeys.orders.detail(orderId), initialOrder);
+  // REQ-0209 — confirm session on return (webhook may hit production, not localhost)
+  useStripeCheckoutReturn({ entityId: orderId, entity: "order" });
 
   const updateOrderMutation = useUpdateOrder();
   const deleteOrderMutation = useDeleteOrder();
@@ -133,34 +123,10 @@ export default function AdminOrderDetailContent({
   const [manualTrackingNumber, setManualTrackingNumber] = useState("");
   const [manualCarrier, setManualCarrier] = useState("usps");
   const [refundDialogOpen, setRefundDialogOpen] = useState(false);
-  // REQ-0061: InvoiceDialog create mode pre-selected with this order
+  const [cancelDialogOpen, setCancelDialogOpen] = useState(false);
   const [createInvoiceOpen, setCreateInvoiceOpen] = useState(false);
-
-  const handleStatusChange = useCallback(
-    (newStatus: OrderStatus) => {
-      if (!orderId || newStatus === order?.status) return;
-      updateOrderMutation.mutate(
-        { id: orderId, data: { status: newStatus } },
-        {
-          onSuccess: () => {
-            toast({
-              title: "Status updated",
-              description: `Order status set to ${newStatus}.`,
-            });
-          },
-          onError: (err) => {
-            toast({
-              title: "Update failed",
-              description:
-                err instanceof Error ? err.message : "Failed to update status.",
-              variant: "destructive",
-            });
-          },
-        },
-      );
-    },
-    [orderId, order?.status, updateOrderMutation, toast],
-  );
+  const [editDialogOpen, setEditDialogOpen] = useState(false);
+  const [editingOrder, setEditingOrder] = useState<Order | null>(null);
 
   const handleAddTracking = useCallback(() => {
     if (!orderId || !manualTrackingNumber.trim()) {
@@ -209,9 +175,37 @@ export default function AdminOrderDetailContent({
     toast,
   ]);
 
+  const handleUpdateOrder = useCallback(() => {
+    if (!order) return;
+    setEditingOrder(order);
+    setEditDialogOpen(true);
+  }, [order]);
+
+  const handleConfirmCancelOrder = useCallback(() => {
+    if (!order) return;
+    deleteOrderMutation.mutate(order.id, {
+      onSuccess: () => {
+        setCancelDialogOpen(false);
+        toast({
+          title: "Order cancelled",
+          description: "Stock restored and related pages updated.",
+        });
+      },
+      onError: (err) => {
+        setCancelDialogOpen(false);
+        toast({
+          title: "Cancel failed",
+          description:
+            err instanceof Error ? err.message : "Failed to cancel order.",
+          variant: "destructive",
+        });
+      },
+    });
+  }, [order, deleteOrderMutation, toast]);
+
   const handleRefund = useCallback(() => {
     if (!orderId) return;
-    // Use Cancel API for full revert: Stripe refund + status cancelled + stock restored + invoice cancelled
+    // Cancel API: Stripe refund + status cancelled + stock restored + invoice cancelled
     deleteOrderMutation.mutate(orderId, {
       onSuccess: () => {
         setRefundDialogOpen(false);
@@ -231,8 +225,6 @@ export default function AdminOrderDetailContent({
       },
     });
   }, [orderId, deleteOrderMutation, toast]);
-
-  const canRefund = !dataLoading && order && order.paymentStatus === "paid";
 
   if (isError) {
     return (
@@ -279,8 +271,8 @@ export default function AdminOrderDetailContent({
   }
 
   const isUpdating = updateOrderMutation.isPending;
-  const isRefunding = deleteOrderMutation.isPending;
-  const actionsDisabled = dataLoading || !order;
+  const isRefunding = deleteOrderMutation.isPending && refundDialogOpen;
+  const isCancelling = deleteOrderMutation.isPending && cancelDialogOpen;
 
   const createdAt = order?.createdAt ? new Date(order.createdAt) : new Date();
   const updatedAt = order?.updatedAt ? new Date(order.updatedAt) : null;
@@ -291,48 +283,9 @@ export default function AdminOrderDetailContent({
       (order.status === "shipped" || order.status === "delivered")
     );
 
-  const statusControl = (
-    <DeferredSelectGate
-      placeholder={
-        <div
-          className="w-[130px] h-8 text-xs border border-gray-300/30 dark:border-white/10 rounded-md flex items-center px-2 text-gray-700 dark:text-white/80"
-          aria-hidden
-        >
-          {ORDER_STATUSES.find((o) => o.value === order!.status)?.label ??
-            order!.status}
-        </div>
-      }
-    >
-      {({ selectRemountKey }) => (
-        <Select
-          key={selectRemountKey}
-          value={order!.status}
-          onValueChange={(v) => handleStatusChange(v as OrderStatus)}
-          disabled={isUpdating || actionsDisabled}
-        >
-          <SelectTrigger className="w-[130px] h-8 text-xs border-gray-300/30 dark:border-white/10">
-            {/* REQ-0202 — SSR status label on mount (no blank SelectValue flash) */}
-            <SelectValue>
-              {ORDER_STATUSES.find((o) => o.value === order!.status)?.label ??
-                order!.status}
-            </SelectValue>
-          </SelectTrigger>
-          <SelectContent>
-            {ORDER_STATUSES.map((opt) => (
-              <SelectItem key={opt.value} value={opt.value}>
-                {opt.label}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      )}
-    </DeferredSelectGate>
-  );
-
   return (
     <PageContentWrapper>
       <div className={APP_SHELL_DETAIL_CLASS}>
-        {/* onBack invalidates order/invoice TanStack caches before navigating back */}
         <OrderDetailHeader
           onBack={handleBack}
           orderNumber={order?.orderNumber}
@@ -340,7 +293,7 @@ export default function AdminOrderDetailContent({
           dataLoading={dataLoading}
         />
 
-        {/* REQ-0146 — equal-height status stack + tracking when shipped */}
+        {/* REQ-0146 — equal-height status stack + tracking when shipped; REQ-0208 read-only badges */}
         {hasShipping && order ? (
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-2 items-stretch">
             <OrderStatusBadges
@@ -349,7 +302,6 @@ export default function AdminOrderDetailContent({
               dataLoading={dataLoading}
               layout="stack"
               className="h-full"
-              statusControl={statusControl}
             />
             <OrderTrackingInfo order={order} className="h-full" />
           </div>
@@ -359,11 +311,9 @@ export default function AdminOrderDetailContent({
             paymentStatus={order?.paymentStatus}
             dataLoading={dataLoading}
             layout="grid"
-            statusControl={statusControl}
           />
         )}
 
-        {/* REQ-0147 — Items | Summary */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-2 sm:gap-4 items-stretch">
           <OrderItemsCard
             order={order}
@@ -375,7 +325,7 @@ export default function AdminOrderDetailContent({
           <OrderSummaryCard order={order} dataLoading={dataLoading} />
         </div>
 
-        {/* REQ-0147 — Info + Customer | Parties + Shipping stack */}
+        {/* REQ-0208 — Info | Parties + ShipAddr + Shipping card (invoice slot) */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-2 sm:gap-4 items-start">
           <div className="flex flex-col gap-2 sm:gap-4 min-w-0">
             <GlassCard variant="orange">
@@ -508,53 +458,6 @@ export default function AdminOrderDetailContent({
                 )}
               </div>
             </GlassCard>
-
-            <GlassCard variant="blue">
-              <div className="flex items-center gap-2 mb-4">
-                <div
-                  className={cn(
-                    "p-2 rounded-xl border",
-                    variantConfig.blue.iconBg,
-                    "dark:border-blue-400/30 dark:bg-blue-500/20",
-                  )}
-                >
-                  <MapPin className="h-5 w-5 text-blue-600 dark:text-blue-400" />
-                </div>
-                <h3 className="text-sm sm:text-base font-medium text-gray-700 dark:text-white">
-                  Customer Information
-                </h3>
-              </div>
-              <div className="space-y-2">
-                <DetailInfoRow
-                  icon={User}
-                  label="Name:"
-                  tone="blue"
-                  loading={dataLoading}
-                >
-                  {!dataLoading && getCustomerDisplay(order!)}
-                </DetailInfoRow>
-                <DetailInfoRow
-                  icon={Mail}
-                  label="Email:"
-                  tone="sky"
-                  loading={dataLoading}
-                >
-                  {!dataLoading && getCustomerEmail(order!)}
-                </DetailInfoRow>
-                <DetailInfoRow
-                  icon={FileText}
-                  label="User ID:"
-                  tone="violet"
-                  loading={dataLoading}
-                >
-                  {!dataLoading && (
-                    <span className="font-mono text-xs break-all">
-                      {order!.userId}
-                    </span>
-                  )}
-                </DetailInfoRow>
-              </div>
-            </GlassCard>
           </div>
 
           <div className="flex flex-col gap-2 sm:gap-4 min-w-0">
@@ -564,272 +467,205 @@ export default function AdminOrderDetailContent({
               isAdminRole
             />
             <OrderShippingAddressCard order={order} dataLoading={dataLoading} />
-            {/* Invoice actions (admin) — Create when absent (REQ-0061) */}
-            {!dataLoading && order && (
-              <GlassCard variant="violet">
-                <div className="flex items-center gap-2 mb-2">
-                  <div
-                    className={cn(
-                      "p-2 rounded-xl border",
-                      variantConfig.violet.iconBg,
-                      "dark:border-violet-400/30 dark:bg-violet-500/20",
-                    )}
-                  >
-                    <FileText className="h-5 w-5 text-violet-600 dark:text-violet-400" />
-                  </div>
-                  <h3 className="text-sm sm:text-base font-medium text-gray-700 dark:text-white">
-                    Invoice
-                  </h3>
-                </div>
-                {order.invoiceForOrder ? (
-                  <>
-                    <p className="text-sm text-gray-600 dark:text-gray-300 mb-2">
-                      This order has a linked invoice.
-                    </p>
-                    <CopyableText value={order.invoiceForOrder.invoiceNumber}>
-                      <Button
-                        asChild
-                        className={glassDetailFooterButtonClass(
-                          "indigo",
-                          "w-auto",
-                        )}
-                      >
-                        <Link
-                          href={`/admin/invoices/${order.invoiceForOrder.id}`}
-                        >
-                          <FileText className="h-4 w-4 shrink-0" />
-                          View invoice {order.invoiceForOrder.invoiceNumber}
-                        </Link>
-                      </Button>
-                    </CopyableText>
-                  </>
-                ) : (
-                  <>
-                    <p className="text-sm text-gray-600 dark:text-gray-300 mb-2">
-                      No invoice has been generated for this order yet.
-                    </p>
-                    <Button
-                      onClick={() => setCreateInvoiceOpen(true)}
-                      disabled={order.status === "cancelled"}
-                      className={glassDetailFooterButtonClass(
-                        "indigo",
-                        "w-auto",
+            {/* REQ-0208 — Shipping & Tracking in former Invoice card slot */}
+            {!dataLoading &&
+              order &&
+              order.status !== "cancelled" &&
+              !hasShipping && (
+                <GlassCard variant="emerald" className="overflow-visible">
+                  <div className="flex items-center gap-2 mb-4">
+                    <div
+                      className={cn(
+                        "p-2 rounded-xl border",
+                        variantConfig.emerald.iconBg,
+                        "dark:border-emerald-400/30 dark:bg-emerald-500/20",
                       )}
                     >
-                      <FilePlus2 className="h-4 w-4 shrink-0" />
-                      Create Invoice
-                    </Button>
-                  </>
-                )}
-              </GlassCard>
-            )}
+                      <Truck className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
+                    </div>
+                    <h3 className="text-sm sm:text-base font-medium text-gray-700 dark:text-white">
+                      Shipping & Tracking
+                    </h3>
+                  </div>
+                  <div className="flex flex-wrap items-center gap-2 mb-4">
+                    <ShippingManagement
+                      order={order}
+                      trigger={
+                        <Button
+                          className={glassDetailFooterButtonClass(
+                            "emerald",
+                            "w-auto",
+                          )}
+                        >
+                          <Truck className="h-4 w-4 shrink-0" />
+                          Generate Shipping Label
+                        </Button>
+                      }
+                    />
+                  </div>
+                  {/* overflow-visible — glass CTA glow must not clip */}
+                  <div className="border-t border-emerald-200/30 dark:border-emerald-400/20 pt-4 overflow-visible">
+                    <h4 className="text-sm font-medium text-gray-700 dark:text-white mb-3">
+                      Or enter tracking manually
+                    </h4>
+                    <div className="flex flex-col gap-3 overflow-visible">
+                      <div className="flex flex-col sm:flex-row gap-2 overflow-visible">
+                        <div className="flex-1 space-y-2 min-w-0">
+                          <label
+                            htmlFor="admin-trackingNumber"
+                            className="inline-flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-300"
+                          >
+                            <Hash className="h-4 w-4 shrink-0 text-emerald-600 dark:text-emerald-400" />
+                            Tracking Number
+                          </label>
+                          <Input
+                            id="admin-trackingNumber"
+                            placeholder="Enter tracking number"
+                            value={manualTrackingNumber}
+                            onChange={(e) =>
+                              setManualTrackingNumber(e.target.value)
+                            }
+                            disabled={isUpdating}
+                            className="rounded-xl border-gray-300/30 dark:border-white/10"
+                          />
+                        </div>
+                        <div className="w-full sm:w-40 space-y-2 shrink-0">
+                          <label
+                            htmlFor="admin-carrier"
+                            className="inline-flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-300"
+                          >
+                            <Truck className="h-4 w-4 shrink-0 text-emerald-600 dark:text-emerald-400" />
+                            Carrier
+                          </label>
+                          <DeferredSelectGate
+                            placeholder={
+                              <div
+                                id="admin-carrier"
+                                className="h-10 rounded-xl border border-gray-300/30 dark:border-white/10 flex items-center px-2 text-sm text-gray-700 dark:text-white/80"
+                                aria-hidden
+                              >
+                                {CARRIERS.find((c) => c.value === manualCarrier)
+                                  ?.label ?? manualCarrier}
+                              </div>
+                            }
+                          >
+                            {({ selectRemountKey }) => (
+                              <Select
+                                key={selectRemountKey}
+                                value={manualCarrier}
+                                onValueChange={setManualCarrier}
+                                disabled={isUpdating}
+                              >
+                                <SelectTrigger
+                                  id="admin-carrier"
+                                  className="rounded-xl border-gray-300/30 dark:border-white/10"
+                                >
+                                  <SelectValue>
+                                    {CARRIERS.find(
+                                      (c) => c.value === manualCarrier,
+                                    )?.label ?? manualCarrier}
+                                  </SelectValue>
+                                </SelectTrigger>
+                                <SelectContent>
+                                  {CARRIERS.map((c) => (
+                                    <SelectItem key={c.value} value={c.value}>
+                                      {c.label}
+                                    </SelectItem>
+                                  ))}
+                                </SelectContent>
+                              </Select>
+                            )}
+                          </DeferredSelectGate>
+                        </div>
+                      </div>
+                      <div className="flex justify-end overflow-visible pb-1">
+                        <Button
+                          onClick={handleAddTracking}
+                          disabled={
+                            isUpdating || !manualTrackingNumber.trim()
+                          }
+                          className={glassDetailFooterButtonClass(
+                            "sky",
+                            "w-full sm:w-auto px-8",
+                          )}
+                        >
+                          {isUpdating ? (
+                            <Loader2 className="h-4 w-4 animate-spin" />
+                          ) : (
+                            <Pencil className="h-4 w-4" />
+                          )}
+                          Add Tracking Number
+                        </Button>
+                      </div>
+                    </div>
+                    <p className="text-xs text-gray-600 dark:text-gray-300 mt-2">
+                      Manually enter tracking. Order status will be updated to
+                      &quot;shipped&quot;.
+                    </p>
+                  </div>
+                </GlassCard>
+              )}
           </div>
         </div>
 
-        {/* Shipping & Tracking — auto generate + manual (tracking card shown above when present) */}
-        {!dataLoading &&
-          order &&
-          order.status !== "cancelled" &&
-          !hasShipping && (
-            <GlassCard variant="emerald">
-              <div className="flex items-center gap-2 mb-4">
-                <div
-                  className={cn(
-                    "p-2 rounded-xl border",
-                    variantConfig.emerald.iconBg,
-                    "dark:border-emerald-400/30 dark:bg-emerald-500/20",
-                  )}
-                >
-                  <Truck className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
-                </div>
-                <h3 className="text-sm sm:text-base font-medium text-gray-700 dark:text-white">
-                  Shipping & Tracking
-                </h3>
-              </div>
-              <>
-                <div className="flex flex-wrap items-center gap-2 mb-4">
-                  <ShippingManagement
-                    order={order!}
-                    trigger={
-                      <Button
-                        className={glassDetailFooterButtonClass(
-                          "emerald",
-                          "w-auto",
-                        )}
-                      >
-                        <Truck className="h-4 w-4 shrink-0" />
-                        Generate Shipping Label
-                      </Button>
-                    }
-                  />
-                </div>
-                <div className="border-t border-emerald-200/30 dark:border-emerald-400/20 pt-4">
-                  <h4 className="text-sm font-medium text-gray-700 dark:text-white mb-3">
-                    Or enter tracking manually
-                  </h4>
-                  <div className="flex flex-col sm:flex-row gap-2">
-                    <div className="flex-1 space-y-2">
-                      <Label
-                        htmlFor="admin-trackingNumber"
-                        className="text-gray-700 dark:text-gray-300"
-                      >
-                        Tracking Number
-                      </Label>
-                      <Input
-                        id="admin-trackingNumber"
-                        placeholder="Enter tracking number"
-                        value={manualTrackingNumber}
-                        onChange={(e) =>
-                          setManualTrackingNumber(e.target.value)
-                        }
-                        disabled={isUpdating}
-                        className="rounded-xl border-gray-300/30 dark:border-white/10"
-                      />
-                    </div>
-                    <div className="w-full sm:w-40 space-y-2">
-                      <Label
-                        htmlFor="admin-carrier"
-                        className="text-gray-700 dark:text-gray-300"
-                      >
-                        Carrier
-                      </Label>
-                      <DeferredSelectGate
-                        placeholder={
-                          <div
-                            id="admin-carrier"
-                            className="h-10 rounded-xl border border-gray-300/30 dark:border-white/10 flex items-center px-2 text-sm text-gray-700 dark:text-white/80"
-                            aria-hidden
-                          >
-                            {CARRIERS.find((c) => c.value === manualCarrier)
-                              ?.label ?? manualCarrier}
-                          </div>
-                        }
-                      >
-                        {({ selectRemountKey }) => (
-                          <Select
-                            key={selectRemountKey}
-                            value={manualCarrier}
-                            onValueChange={setManualCarrier}
-                            disabled={isUpdating}
-                          >
-                            <SelectTrigger
-                              id="admin-carrier"
-                              className="rounded-xl border-gray-300/30 dark:border-white/10"
-                            >
-                              {/* REQ-0202 — carrier label from SSR/state on mount */}
-                              <SelectValue>
-                                {CARRIERS.find((c) => c.value === manualCarrier)
-                                  ?.label ?? manualCarrier}
-                              </SelectValue>
-                            </SelectTrigger>
-                            <SelectContent>
-                              {CARRIERS.map((c) => (
-                                <SelectItem key={c.value} value={c.value}>
-                                  {c.label}
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                        )}
-                      </DeferredSelectGate>
-                    </div>
-                    <div className="flex items-end">
-                      <Button
-                        onClick={handleAddTracking}
-                        disabled={isUpdating || !manualTrackingNumber.trim()}
-                        className={glassDetailFooterButtonClass(
-                          "sky",
-                          "w-auto",
-                        )}
-                      >
-                        {isUpdating ? (
-                          <Loader2 className="h-4 w-4 animate-spin" />
-                        ) : (
-                          <Pencil className="h-4 w-4" />
-                        )}
-                        Add Tracking Number
-                      </Button>
-                    </div>
-                  </div>
-                  <p className="text-xs text-gray-600 dark:text-gray-300 mt-2">
-                    Manually enter tracking. Order status will be updated to
-                    &quot;shipped&quot;.
-                  </p>
-                </div>
-              </>
-            </GlassCard>
-          )}
-
-        {/* Refund Management */}
-        {canRefund && (
-          <GlassCard variant="rose">
-            <div className="flex items-center gap-2 mb-2">
-              <h3 className="text-sm sm:text-base font-medium text-gray-700 dark:text-white">
-                Refund Management
-              </h3>
-            </div>
-            <p className="text-sm text-gray-600 dark:text-gray-300 mb-4">
-              Cancel the order and issue a full refund via Stripe. Stock will be
-              restored and the linked invoice cancelled. All related pages will
-              update.
-            </p>
-            <AlertDialog
-              open={refundDialogOpen}
-              onOpenChange={setRefundDialogOpen}
-            >
-              <AlertDialogTrigger asChild>
-                <Button
-                  variant="destructive"
-                  disabled={isRefunding}
-                  className="rounded-xl"
-                >
-                  {isRefunding ? "Processing..." : "Process Refund"}
-                </Button>
-              </AlertDialogTrigger>
-              <AlertDialogContent>
-                <AlertDialogHeader>
-                  <AlertDialogTitle>Confirm Refund</AlertDialogTitle>
-                  <AlertDialogDescription>
-                    Cancel this order and issue a full refund via Stripe?
-                    Amount:{" "}
-                    <span className="font-normal text-gray-700 dark:text-white">
-                      ${Number(order!.total).toFixed(2)}
-                    </span>
-                    . Status will be cancelled, stock restored, invoice
-                    cancelled, and all related pages will update.
-                  </AlertDialogDescription>
-                </AlertDialogHeader>
-                <AlertDialogFooter>
-                  <AlertDialogCancel disabled={isRefunding}>
-                    Cancel
-                  </AlertDialogCancel>
-                  <AlertDialogAction
-                    onClick={handleRefund}
-                    disabled={isRefunding}
-                    className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-                  >
-                    {isRefunding ? "Processing..." : "Confirm Refund"}
-                  </AlertDialogAction>
-                </AlertDialogFooter>
-              </AlertDialogContent>
-            </AlertDialog>
-          </GlassCard>
-        )}
-
-        <div className="flex flex-col sm:flex-row flex-wrap gap-2">
-          <Button
-            onClick={handleBack}
-            className={glassDetailBackButtonClass(
-              "w-full sm:w-auto gap-2 px-8",
-            )}
-          >
-            <ArrowLeft className="h-4 w-4 shrink-0" />
-            Back
-          </Button>
-        </div>
+        <OrderDetailActionBar
+          order={order}
+          dataLoading={dataLoading}
+          invoiceHrefBase="/admin/invoices"
+          mode="admin"
+          disableOrderActions={false}
+          isCancelling={isCancelling}
+          isRefunding={isRefunding}
+          onBack={handleBack}
+          onUpdateOrder={handleUpdateOrder}
+          onCreateInvoice={() => setCreateInvoiceOpen(true)}
+          onCancelClick={() => setCancelDialogOpen(true)}
+          onRefundClick={() => setRefundDialogOpen(true)}
+        />
       </div>
 
-      {/* REQ-0061: InvoiceDialog create mode pre-selected with this order */}
+      {order && (
+        <AlertDialogWrapper
+          open={cancelDialogOpen}
+          onOpenChange={setCancelDialogOpen}
+          title="Cancel Order"
+          description={getOrderCancelConfirmDescription(order)}
+          actionLabel="Cancel Order"
+          actionLoadingLabel="Cancelling..."
+          isLoading={isCancelling}
+          onAction={handleConfirmCancelOrder}
+          onCancel={() => setCancelDialogOpen(false)}
+        />
+      )}
+
+      {order && (
+        <AlertDialogWrapper
+          open={refundDialogOpen}
+          onOpenChange={setRefundDialogOpen}
+          title="Process Refund"
+          description={getOrderRefundConfirmDescription(order)}
+          actionLabel="Process Refund"
+          actionLoadingLabel="Processing..."
+          isLoading={isRefunding}
+          onAction={handleRefund}
+          onCancel={() => setRefundDialogOpen(false)}
+        />
+      )}
+
+      <OrderDialog
+        open={editDialogOpen}
+        onOpenChange={(open) => {
+          setEditDialogOpen(open);
+          if (!open) setEditingOrder(null);
+        }}
+        editingOrder={editingOrder}
+        onEditOrder={(next) => {
+          setEditingOrder(next ?? null);
+        }}
+      >
+        <div style={{ display: "none" }} aria-hidden />
+      </OrderDialog>
+
       {createInvoiceOpen && order && (
         <InvoiceDialog
           open={createInvoiceOpen}

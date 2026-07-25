@@ -95,6 +95,10 @@ export function InvoiceSummaryCard({
   dataLoading,
 }: InvoiceSummaryCardProps) {
   const amountDue = Number(invoice?.amountDue ?? 0);
+  // REQ-0210 — cancelled/refunded: collected history, not "paid in full"
+  const isClosed =
+    invoice?.status === "cancelled" ||
+    invoice?.linkedOrderPaymentStatus === "refunded";
 
   return (
     <GlassCard variant="teal" className="h-full">
@@ -155,26 +159,38 @@ export function InvoiceSummaryCard({
         </div>
         <SummaryRow
           icon={Wallet}
-          label="Amount Paid:"
+          label={isClosed ? "Collected:" : "Amount Paid:"}
           loading={dataLoading}
-          iconClassName="text-emerald-600 dark:text-emerald-400"
+          iconClassName={
+            isClosed
+              ? "text-rose-600 dark:text-rose-400"
+              : "text-emerald-600 dark:text-emerald-400"
+          }
           value={`$${Number(invoice?.amountPaid ?? 0).toFixed(2)}`}
-          valueClassName="text-emerald-600 dark:text-emerald-400"
+          valueClassName={
+            isClosed
+              ? "text-rose-600 dark:text-rose-400"
+              : "text-emerald-600 dark:text-emerald-400"
+          }
         />
         <SummaryRow
           icon={Banknote}
-          label="Amount Due:"
+          label={isClosed ? "Balance Closed:" : "Amount Due:"}
           loading={dataLoading}
           iconClassName={
-            amountDue > 0
-              ? "text-amber-600 dark:text-amber-400"
-              : "text-emerald-600 dark:text-emerald-400"
+            isClosed
+              ? "text-rose-600 dark:text-rose-400"
+              : amountDue > 0
+                ? "text-amber-600 dark:text-amber-400"
+                : "text-emerald-600 dark:text-emerald-400"
           }
           value={`$${amountDue.toFixed(2)}`}
           valueClassName={
-            amountDue > 0
-              ? "text-amber-600 dark:text-amber-400"
-              : "text-emerald-600 dark:text-emerald-400"
+            isClosed
+              ? "text-rose-600 dark:text-rose-400"
+              : amountDue > 0
+                ? "text-amber-600 dark:text-amber-400"
+                : "text-emerald-600 dark:text-emerald-400"
           }
         />
       </div>

@@ -18,7 +18,8 @@ import { mapOrderItemsFromRaw } from "@/lib/orders/map-order-items";
 import { enrichOrderItemsCatalogNames } from "@/lib/orders/enrich-order-items-catalog";
 import { toParty } from "@/lib/server/catalog-party-snapshot";
 import { resolveBuyerUserId } from "@/lib/orders/order-party";
-import type { Invoice } from "@/types";
+import { resolveInvoiceBillingAddressForDisplay } from "@/lib/invoices/resolve-invoice-billing-address";
+import type { BillingAddress, Invoice } from "@/types";
 import type { SessionForDetail } from "@/lib/server/order-detail-data";
 
 async function enrichInvoice(
@@ -136,6 +137,18 @@ async function enrichInvoice(
     })
     .filter(Boolean) as InvoiceDetailEnrichment["invoiceProductOwners"];
 
+  // REQ-0210 — billing fallback + shipping from linked order for detail cards
+  const resolvedBillingAddress = resolveInvoiceBillingAddressForDisplay(
+    invoice.billingAddress,
+    order
+      ? {
+          billingAddress: order.billingAddress,
+          shippingAddress: order.shippingAddress,
+        }
+      : null,
+  );
+  const shippingAddress = (order?.shippingAddress as BillingAddress | null) ?? null;
+
   return {
     invoiceCreatedBy,
     orderedBy,
@@ -149,6 +162,8 @@ async function enrichInvoice(
     ),
     linkedOrderStatus: order?.status ?? null,
     linkedOrderPaymentStatus: order?.paymentStatus ?? null,
+    resolvedBillingAddress,
+    shippingAddress,
     creator: toParty(
       invoice.createdBy ? userMap.get(invoice.createdBy) ?? null : null,
     ),

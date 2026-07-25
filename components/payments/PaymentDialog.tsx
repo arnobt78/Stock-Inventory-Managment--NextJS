@@ -1,11 +1,13 @@
 "use client";
 
 /**
- * Payment Dialog — Stripe checkout entry (REQ-0152).
+ * Payment Dialog — Stripe checkout entry (REQ-0152 / REQ-0209).
  * Default: pay full remaining (readonly). Toggle: pay partially (editable + Zod hint).
+ * REQ-0209 — success/cancel URLs follow checkout origin (/admin vs store).
  */
 
 import React, { useMemo, useState } from "react";
+import { usePathname } from "next/navigation";
 import {
   Dialog,
   DialogClose,
@@ -42,6 +44,7 @@ import { DIALOG_FORM_FIELD_SKY } from "@/components/shared/dialog-form-field";
 import { ProductThumb } from "@/components/products/ProductOptionRow";
 import { InvoiceSummaryRow } from "@/components/invoices/detail/InvoiceSummaryCard";
 import { validateCheckoutChargeAmount } from "@/lib/validations/payment";
+import { buildStripeCheckoutReturnUrls } from "@/lib/payments/stripe-checkout-return-urls";
 
 interface PaymentDialogProps {
   type: CheckoutType;
@@ -83,6 +86,7 @@ export default function PaymentDialog({
   disabled,
   trigger,
 }: PaymentDialogProps) {
+  const pathname = usePathname() ?? "";
   const remainingDue = Math.max(0, amount);
   const [open, setOpen] = useState(false);
   /** false = pay full (default); true = partial */
@@ -122,10 +126,19 @@ export default function PaymentDialog({
 
   const handlePayment = () => {
     if (!canSubmit) return;
+    // REQ-0209 — land back on /admin/... when checkout started from admin
+    const { successUrl, cancelUrl } = buildStripeCheckoutReturnUrls({
+      origin: window.location.origin,
+      pathname,
+      type,
+      id,
+    });
     checkoutMutation.mutate({
       type,
       id,
       amount: Number(chargeAmount.toFixed(2)),
+      successUrl,
+      cancelUrl,
     });
   };
 

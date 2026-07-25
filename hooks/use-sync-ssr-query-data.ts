@@ -32,6 +32,7 @@ function syncSsrSnapshot<T>(
   if (action === "skip") {
     return;
   }
+  // apply — paint SSR densify immediately (parties / invoice link / images)
   queryClient.setQueryData(queryKey, serverData);
 }
 

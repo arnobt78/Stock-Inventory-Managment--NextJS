@@ -79,6 +79,19 @@
   }
 
   /*
+   * App shell: single scroll on #main-content — hide document/browser scrollbar (double-bar fix).
+   * Auth routes keep document scroll via :has(.auth-page-root) override below.
+   */
+  html:not(:has(.auth-page-root)) {
+    height: 100%;
+    overflow: hidden;
+  }
+  html:not(:has(.auth-page-root)) body {
+    height: 100%;
+    overflow: hidden;
+  }
+
+  /*
    * Scroll lives on #main-content / sidebars — NOT html/body.
    * scrollbar-gutter: stable on the scroll container prevents content width shift when scrollbar appears.
    */
@@ -93,6 +106,12 @@
    */
   html:has(.auth-page-root) {
     scrollbar-gutter: stable;
+    height: auto;
+    overflow: auto;
+  }
+  html:has(.auth-page-root) body {
+    height: auto;
+    overflow: auto;
   }
 
   #main-content,

@@ -6,6 +6,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiClient, getErrorMessage } from "@/lib/api";
 import { useToast } from "@/hooks/use-toast";
 import { invalidateAfterOrderGraphChange } from "@/lib/react-query";
+import { markStripeCheckoutReturn } from "@/lib/payments/stripe-return";
 import type { CreateCheckoutInput, CheckoutSessionResponse } from "@/types";
 
 /**
@@ -28,6 +29,8 @@ export function useCreateCheckout() {
       // Use replace() so the Stripe URL does not sit in browser history;
       // clicking back after payment returns to the app page before checkout, not Stripe.
       if (data.url) {
+        // Flag before leave — SSR return redirects off ?payment= so mark here for back-nav
+        markStripeCheckoutReturn();
         window.location.replace(data.url);
       } else {
         toast({
