@@ -589,3 +589,4 @@ Format: `TIMESTAMP | AGENT | DECISION | RATIONALE | REQ-ID`
 2026-07-25T18:00:00Z | build-agent | listHasFresherStatusBadges in SSR sync | Invalidate skipped RSC list badges; invoice.updatedAt unchanged on order status | REQ-0211
 2026-07-25T18:00:00Z | build-agent | Cancel/update merge detail + mergeOrderItemsPreservingDensify | Thin PUT/DELETE wiped parties + category/supplier line densify | REQ-0211
 2026-07-25T18:05:00Z | red-team | Pre-commit audit PASS | lint ✓ test 738 ✓ invalidate 221 ✓ build ✓; debug logs removed | REQ-0211
+2026-07-25T18:06:00Z | release | Prod SHA 1ec1e8a pushed origin/main | REQ-0211 instant badges/items harden | REQ-0211

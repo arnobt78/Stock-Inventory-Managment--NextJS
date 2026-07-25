@@ -8,7 +8,7 @@
 | **Session** | 2026-07-25 — resume Gate 2 |
 | **Active REQ** | **REQ-0136** (Gate 2 / cache smoke) |
 | **Done range** | REQ-0001…0135 + 0137–0187 + 0188–**0211** |
-| **Prod SHA** | pending push (post-a7d8e7c harden) |
+| **Prod SHA** | `1ec1e8a` (REQ-0211 instant badges) |
 | **Human Gate 1** | APPROVED (GATE-0001) |
 | **Human Gate 2** | PENDING — §10 smoke → Sentry 24h |
 | **Resume token** | `gate2-0136-cache-smoke` → **REQ-0136** |

@@ -4,7 +4,7 @@
 **eval_gate_status:** PENDING (Human Gate 2)
 **Active:** **REQ-0136** Gate 2 cache smoke
 **Last ship:** REQ-0211 instant badge/items + Shippo/heal/create densify
-**Prod target SHA:** tip pending push (post-`a7d8e7c`)
+**Prod target SHA:** `1ec1e8a`
 
 ---
 
