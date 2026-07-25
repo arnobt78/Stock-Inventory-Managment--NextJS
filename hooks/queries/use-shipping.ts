@@ -4,7 +4,10 @@
 
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiClient, getErrorMessage } from "@/lib/api";
-import { invalidateAfterOrderGraphChange } from "@/lib/react-query";
+import {
+  invalidateAfterOrderGraphChange,
+  patchOrdersOnShipping,
+} from "@/lib/react-query";
 import { useToast } from "@/hooks/use-toast";
 import type {
   GenerateLabelInput,
@@ -13,6 +16,21 @@ import type {
   GetRatesInput,
   GetRatesResponse,
 } from "@/types";
+
+function applyShippingCachePatch(
+  queryClient: ReturnType<typeof useQueryClient>,
+  data: GenerateLabelResponse,
+): void {
+  patchOrdersOnShipping(queryClient, {
+    orderId: data.orderId,
+    status: data.status || "shipped",
+    trackingNumber: data.trackingNumber,
+    trackingCarrier: data.trackingCarrier,
+    trackingUrl: data.trackingUrl,
+    labelUrl: data.labelUrl,
+    updatedAt: data.updatedAt,
+  });
+}
 
 /**
  * Get shipping rates (read-only Shippo quote — no DB/cache; no invalidate needed)
@@ -50,6 +68,7 @@ export function useGenerateShippingLabel() {
       return response.data;
     },
     onSuccess: (data: GenerateLabelResponse) => {
+      applyShippingCachePatch(queryClient, data);
       invalidateAfterOrderGraphChange(queryClient);
 
       toast({
@@ -83,6 +102,7 @@ export function useAddTrackingNumber() {
       return response.data;
     },
     onSuccess: (data: GenerateLabelResponse) => {
+      applyShippingCachePatch(queryClient, data);
       invalidateAfterOrderGraphChange(queryClient);
 
       toast({

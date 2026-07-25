@@ -24,6 +24,7 @@ import { generateLabelBodySchema } from "@/lib/validations/shipping";
 import type { GenerateLabelResponse } from "@/types";
 
 import { invalidateOnOrderChange } from "@/lib/cache";
+import { canGenerateShippingLabel } from "@/lib/orders/order-ship-eligibility";
 /**
  * POST /api/shipping/labels
  * Generate a shipping label for an order
@@ -112,23 +113,14 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // REQ-0211 — no labels on cancelled; pending+unpaid must confirm/pay first
-    if (order.status === "cancelled") {
-      return NextResponse.json(
-        { error: "Cannot generate a label for a cancelled order" },
-        { status: 400 },
-      );
-    }
-    const canAutoShip =
-      order.status === "confirmed" ||
-      order.status === "processing" ||
-      order.paymentStatus === "partial" ||
-      order.paymentStatus === "paid";
-    if (!canAutoShip) {
+    // REQ-0211 — same gate as OrderDetailActionBar / admin Shipping card
+    if (!canGenerateShippingLabel(order)) {
       return NextResponse.json(
         {
           error:
-            "Confirm the order or collect payment before generating a shipping label",
+            order.status === "cancelled"
+              ? "Cannot generate a label for a cancelled order"
+              : "Confirm the order or collect payment before generating a shipping label",
         },
         { status: 400 },
       );
@@ -320,6 +312,7 @@ export async function POST(request: NextRequest) {
     const trackingUrl = getTrackingUrl(trackingCarrier, trackingNumber);
 
     // Update order with tracking info
+    const shippedAt = new Date();
     const updatedOrder = await prisma.order.update({
       where: { id: orderId },
       data: {
@@ -328,7 +321,8 @@ export async function POST(request: NextRequest) {
         trackingUrl,
         labelUrl,
         status: "shipped",
-        updatedAt: new Date(),
+        shippedAt,
+        updatedAt: shippedAt,
       },
       include: {
         items: true,
@@ -410,7 +404,7 @@ export async function POST(request: NextRequest) {
       labelUrl,
       trackingUrl: trackingUrl || undefined,
       status: "shipped",
-      updatedAt: new Date().toISOString(),
+      updatedAt: shippedAt.toISOString(),
     };
 
     logger.info(

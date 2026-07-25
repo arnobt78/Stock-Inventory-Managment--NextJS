@@ -73,12 +73,13 @@ export function OrderPartiesCard({
     <GlassCard variant="teal">
       <PartiesRolesCard
         dataLoading={dataLoading}
+        // Keep party rows mounted; cancel merge keeps densify (no "—" flash)
+        stableOrderPartySlots
         headerIcon={Package}
         orderedBy={orderedBy}
         customer={customer}
         customerLabel="Customer / Ship to"
         productOwners={productOwners}
-        stableOrderPartySlots
       />
     </GlassCard>
   );

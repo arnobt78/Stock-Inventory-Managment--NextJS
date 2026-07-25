@@ -19,6 +19,8 @@ import { enrichOrderItemsCatalogNames } from "@/lib/orders/enrich-order-items-ca
 import { toParty } from "@/lib/server/catalog-party-snapshot";
 import { resolveBuyerUserId } from "@/lib/orders/order-party";
 import { resolveInvoiceBillingAddressForDisplay } from "@/lib/invoices/resolve-invoice-billing-address";
+import { healInvoiceStatusAfterMoney } from "@/lib/invoices/heal-invoice-status-after-money";
+import { invalidateOnOrderChange } from "@/lib/cache";
 import type { BillingAddress, Invoice } from "@/types";
 import type { SessionForDetail } from "@/lib/server/order-detail-data";
 
@@ -204,6 +206,18 @@ export async function getInvoiceDetailForPage(
   }
 
   if (!invoice) return null;
+
+  // REQ-0211 — draft + money (webhook/older confirm) → promote before SSR paint
+  if (invoice.amountPaid > 0 && invoice.status === "draft") {
+    const healed = await healInvoiceStatusAfterMoney(invoice.id);
+    if (healed && healed.status !== "draft") {
+      const refreshed = await prisma.invoice.findUnique({
+        where: { id: invoice.id },
+      });
+      if (refreshed) invoice = refreshed;
+      void invalidateOnOrderChange();
+    }
+  }
 
   const enrichment = await enrichInvoice(invoice);
   return transformInvoiceDetail(invoice, enrichment);

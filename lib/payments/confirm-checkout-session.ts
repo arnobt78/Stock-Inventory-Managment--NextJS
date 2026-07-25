@@ -11,6 +11,7 @@ import {
   applyIncrementalInvoicePayment,
   syncOrderPaymentStatusFromInvoice,
 } from "@/lib/payments/order-payment-from-amounts";
+import { healInvoiceStatusAfterMoney } from "@/lib/invoices/heal-invoice-status-after-money";
 import { invalidateOnOrderChange } from "@/lib/cache";
 import { logger } from "@/lib/logger";
 
@@ -107,22 +108,20 @@ export async function confirmCheckoutSessionById(
         invoiceStatus: invoice.status,
       });
     } else {
-      // Webhook (or prior confirm) already applied money — still sync status (Pending→Confirmed)
-      const invoice = await prisma.invoice.findUnique({
+      // Webhook already applied money — heal draft→sent + sync Pending→Confirmed
+      const existing = await prisma.invoice.findUnique({
         where: { orderId },
-        select: {
-          id: true,
-          amountPaid: true,
-          total: true,
-          status: true,
-        },
+        select: { id: true },
       });
-      if (invoice) {
-        await syncOrderPaymentStatusFromInvoice(orderId, {
-          amountPaid: invoice.amountPaid,
-          total: invoice.total,
-          invoiceStatus: invoice.status,
-        });
+      if (existing) {
+        const invoice = await healInvoiceStatusAfterMoney(existing.id);
+        if (invoice) {
+          await syncOrderPaymentStatusFromInvoice(orderId, {
+            amountPaid: invoice.amountPaid,
+            total: invoice.total,
+            invoiceStatus: invoice.status,
+          });
+        }
       }
     }
 
@@ -194,15 +193,19 @@ export async function confirmCheckoutSessionById(
       };
     }
 
-    await syncOrderPaymentStatusFromInvoice(prior.orderId, {
-      amountPaid: prior.amountPaid,
-      total: prior.total,
-      invoiceStatus: prior.status,
-    });
+    // alreadyApplied — still heal draft→sent when money is present
+    const healed = await healInvoiceStatusAfterMoney(invoiceId);
+    if (healed) {
+      await syncOrderPaymentStatusFromInvoice(healed.orderId, {
+        amountPaid: healed.amountPaid,
+        total: healed.total,
+        invoiceStatus: healed.status,
+      });
+    }
     await invalidateOnOrderChange();
-    const refreshed = prior.orderId
+    const refreshed = (healed?.orderId ?? prior.orderId)
       ? await prisma.order.findUnique({
-          where: { id: prior.orderId },
+          where: { id: healed?.orderId ?? prior.orderId },
           select: { status: true, paymentStatus: true },
         })
       : null;
@@ -210,7 +213,7 @@ export async function confirmCheckoutSessionById(
       ok: true,
       alreadyApplied: true,
       invoiceId,
-      orderId: prior.orderId,
+      orderId: healed?.orderId ?? prior.orderId,
       paymentStatus: refreshed?.paymentStatus ?? null,
       orderStatus: refreshed?.status ?? null,
     };

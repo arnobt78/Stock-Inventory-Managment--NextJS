@@ -188,19 +188,34 @@ export function patchLinkedOrderFromInvoiceMoney(
       : undefined,
   );
 
-  // Invoice list Order # Payment badge (linkedOrderPaymentStatus)
-  const invoiceBadgePatch = {
-    id: invoice.id,
-    linkedOrderPaymentStatus: paymentStatus,
-  };
-  patchListCaches(queryClient, queryKeys.invoices.all, invoiceBadgePatch);
-  patchListCaches(queryClient, queryKeys.clientInvoices.all, invoiceBadgePatch);
-  patchDetailCacheMerge<{
-    id: string;
-    linkedOrderPaymentStatus?: string | null;
-  }>(queryClient, queryKeys.invoices.detail(invoice.id), (old) =>
-    old ? { ...old, linkedOrderPaymentStatus: paymentStatus } : undefined,
+  // First money on pending → Confirmed (REQ-0209) so invoice Order badge matches
+  let orderStatus: string | undefined;
+  const orderDetail = queryClient.getQueryData<{ status?: string }>(
+    queryKeys.orders.detail(orderId),
   );
+  orderStatus = orderDetail?.status;
+  if (
+    orderStatus === "pending" &&
+    (paymentStatus === "paid" || paymentStatus === "partial")
+  ) {
+    orderStatus = "confirmed";
+    const confirmPatch = { id: orderId, status: "confirmed" as const };
+    patchListCaches(queryClient, queryKeys.orders.all, confirmPatch);
+    patchListCaches(queryClient, queryKeys.clientOrders.all, confirmPatch);
+    patchDetailCacheMerge<{ id: string; status?: string }>(
+      queryClient,
+      queryKeys.orders.detail(orderId),
+      (old) => (old ? { ...old, status: "confirmed" } : undefined),
+    );
+  }
+
+  // Invoice Order # status + payment badges (all linked invoices)
+  patchLinkedInvoicesFromOrder(queryClient, {
+    orderId,
+    status: orderStatus,
+    paymentStatus,
+    updatedAt: toIsoOrNull(invoice.updatedAt),
+  });
 }
 
 /** Linked invoice fields needed so Order table Invoice # does not flash empty. REQ-0210 */
@@ -228,6 +243,202 @@ export type OrderCancelInvoicePatchSource = {
   updatedAt?: string | Date | null;
   invoiceForOrder?: OrderCancelLinkedInvoice | null;
 };
+
+/** Sync invoice Order # badges from any order status/payment change. REQ-0211 */
+export type LinkedInvoiceOrderPatchSource = {
+  orderId: string;
+  status?: string | null;
+  paymentStatus?: string | null;
+  statusAt?: string | null;
+  updatedAt?: string | null;
+};
+
+function collectInvoiceIdsForOrder(
+  queryClient: QueryClient,
+  orderId: string,
+): Set<string> {
+  const invoiceIds = new Set<string>();
+  const listRoots = [queryKeys.invoices.all, queryKeys.clientInvoices.all];
+  for (const listKeyRoot of listRoots) {
+    const queries = queryClient.getQueriesData<
+      Array<{ id: string; orderId?: string }> | { id: string; orderId?: string }
+    >({ queryKey: listKeyRoot, exact: false });
+    for (const [, data] of queries) {
+      if (Array.isArray(data)) {
+        for (const row of data) {
+          if (row?.orderId === orderId && row.id) invoiceIds.add(row.id);
+        }
+      } else if (
+        data &&
+        typeof data === "object" &&
+        data.orderId === orderId &&
+        data.id
+      ) {
+        invoiceIds.add(data.id);
+      }
+    }
+  }
+
+  for (const listKeyRoot of [queryKeys.orders.all, queryKeys.clientOrders.all]) {
+    const queries = queryClient.getQueriesData<
+      Array<{ id: string; invoiceForOrder?: { id?: string } | null }>
+    >({ queryKey: listKeyRoot, exact: false });
+    for (const [, data] of queries) {
+      if (!Array.isArray(data)) continue;
+      for (const row of data) {
+        if (row?.id === orderId && row.invoiceForOrder?.id) {
+          invoiceIds.add(row.invoiceForOrder.id);
+        }
+      }
+    }
+  }
+  const orderDetail = queryClient.getQueryData<{
+    invoiceForOrder?: { id?: string } | null;
+  }>(queryKeys.orders.detail(orderId));
+  if (orderDetail?.invoiceForOrder?.id) {
+    invoiceIds.add(orderDetail.invoiceForOrder.id);
+  }
+  return invoiceIds;
+}
+
+/**
+ * Patch invoice list/detail linkedOrder* from order fulfillment/payment.
+ * Covers pending→delivered + unpaid→refunded (not only shipped/cancel).
+ */
+export function patchLinkedInvoicesFromOrder(
+  queryClient: QueryClient,
+  order: LinkedInvoiceOrderPatchSource,
+): void {
+  const orderId = order.orderId;
+  if (!orderId) return;
+  if (
+    order.status == null &&
+    order.paymentStatus == null &&
+    order.statusAt == null
+  ) {
+    return;
+  }
+
+  const updatedAt =
+    toIsoOrNull(order.updatedAt) ??
+    toIsoOrNull(order.statusAt) ??
+    new Date().toISOString();
+
+  for (const invoiceId of collectInvoiceIdsForOrder(queryClient, orderId)) {
+    const invoicePatch: {
+      id: string;
+      linkedOrderStatus?: string;
+      linkedOrderPaymentStatus?: string;
+      linkedOrderStatusAt?: string;
+      updatedAt: string;
+    } = { id: invoiceId, updatedAt };
+    if (order.status != null) {
+      invoicePatch.linkedOrderStatus = order.status;
+    }
+    if (order.paymentStatus != null) {
+      invoicePatch.linkedOrderPaymentStatus = order.paymentStatus;
+    }
+    if (order.statusAt != null) {
+      invoicePatch.linkedOrderStatusAt = order.statusAt;
+    }
+
+    patchListCaches(queryClient, queryKeys.invoices.all, invoicePatch);
+    patchListCaches(queryClient, queryKeys.clientInvoices.all, invoicePatch);
+    patchDetailCacheMerge<{
+      id: string;
+      linkedOrderStatus?: string | null;
+      linkedOrderPaymentStatus?: string | null;
+      linkedOrderStatusAt?: string | null;
+      updatedAt?: string | null;
+    }>(queryClient, queryKeys.invoices.detail(invoiceId), (old) =>
+      old ? { ...old, ...invoicePatch } : undefined,
+    );
+    patchDetailCacheMerge<{
+      id: string;
+      linkedOrderStatus?: string | null;
+      linkedOrderPaymentStatus?: string | null;
+      linkedOrderStatusAt?: string | null;
+      updatedAt?: string | null;
+    }>(queryClient, queryKeys.clientInvoices.detail(invoiceId), (old) =>
+      old ? { ...old, ...invoicePatch } : undefined,
+    );
+  }
+}
+
+/** Shippo label / manual tracking success — patch order + linked invoice badges. REQ-0211 */
+export type OrderShippingPatchSource = {
+  orderId: string;
+  status?: string | null;
+  trackingNumber?: string | null;
+  trackingCarrier?: string | null;
+  trackingUrl?: string | null;
+  labelUrl?: string | null;
+  updatedAt?: string | null;
+};
+
+/**
+ * Instant Shipped on order + invoice tables (invalidate-only left badges lagging).
+ * Merges into existing densify; patches invoices by orderId → linkedOrderStatus.
+ */
+export function patchOrdersOnShipping(
+  queryClient: QueryClient,
+  shipping: OrderShippingPatchSource,
+): void {
+  const orderId = shipping.orderId;
+  if (!orderId) return;
+
+  const status = shipping.status ?? "shipped";
+  const statusAt =
+    toIsoOrNull(shipping.updatedAt) ?? new Date().toISOString();
+
+  const orderPatch = {
+    id: orderId,
+    status,
+    statusAt,
+    shippedAt: statusAt,
+    updatedAt: statusAt,
+    trackingNumber: shipping.trackingNumber ?? undefined,
+    trackingCarrier: shipping.trackingCarrier ?? undefined,
+    trackingUrl: shipping.trackingUrl ?? undefined,
+    labelUrl: shipping.labelUrl ?? undefined,
+  };
+
+  patchListCaches(queryClient, queryKeys.orders.all, orderPatch);
+  patchListCaches(queryClient, queryKeys.clientOrders.all, orderPatch);
+  patchDetailCacheMerge<{
+    id: string;
+    status?: string;
+    statusAt?: string;
+    shippedAt?: string | null;
+    updatedAt?: string | null;
+    trackingNumber?: string | null;
+    trackingCarrier?: string | null;
+    trackingUrl?: string | null;
+    labelUrl?: string | null;
+  }>(queryClient, queryKeys.orders.detail(orderId), (old) =>
+    old ? { ...old, ...orderPatch } : undefined,
+  );
+  patchDetailCacheMerge<{
+    id: string;
+    status?: string;
+    statusAt?: string;
+    shippedAt?: string | null;
+    updatedAt?: string | null;
+    trackingNumber?: string | null;
+    trackingCarrier?: string | null;
+    trackingUrl?: string | null;
+    labelUrl?: string | null;
+  }>(queryClient, queryKeys.clientOrders.detail(orderId), (old) =>
+    old ? { ...old, ...orderPatch } : undefined,
+  );
+
+  patchLinkedInvoicesFromOrder(queryClient, {
+    orderId,
+    status,
+    statusAt,
+    updatedAt: statusAt,
+  });
+}
 
 /**
  * REQ-0210 — On order cancel/refund, patch invoice list + detail immediately.

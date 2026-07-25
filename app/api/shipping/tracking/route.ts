@@ -85,6 +85,7 @@ export async function POST(request: NextRequest) {
     const trackingUrl = getTrackingUrl(carrier, trackingNumber);
 
     // Update order with tracking info
+    const shippedAt = new Date();
     await prisma.order.update({
       where: { id: orderId },
       data: {
@@ -92,7 +93,8 @@ export async function POST(request: NextRequest) {
         trackingCarrier: carrier.toLowerCase(),
         trackingUrl,
         status: "shipped",
-        updatedAt: new Date(),
+        shippedAt,
+        updatedAt: shippedAt,
       },
     });
 
@@ -170,7 +172,7 @@ export async function POST(request: NextRequest) {
         carrier.toLowerCase() as GenerateLabelResponse["trackingCarrier"],
       trackingUrl: trackingUrl || undefined,
       status: "shipped",
-      updatedAt: new Date().toISOString(),
+      updatedAt: shippedAt.toISOString(),
     };
 
     logger.info(`Tracking number added to order ${orderId}: ${trackingNumber}`);

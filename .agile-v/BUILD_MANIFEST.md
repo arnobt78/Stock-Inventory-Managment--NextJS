@@ -551,3 +551,8 @@
 
 ## BM-REQ-0209-0211
 - Stripe confirm-session + reconcile; cancel invoice patch; Shippo test addresses; gates green
+| ART-0211d | REQ-0211 | `patchLinkedInvoicesFromOrder` / `patchOrdersOnShipping` | Instant order↔invoice badges |
+| ART-0211e | REQ-0211 | `listHasFresherStatusBadges` SSR sync | List badge apply after invalidate |
+| ART-0211f | REQ-0211 | `merge-order-items-densify.ts` | PUT keeps category/supplier densify |
+| ART-0211g | REQ-0211 | heal draft→sent; create densify; canShip; shippedAt | Money/ship harden |
+| TC-0211 | REQ-0211 | lint ✓ test 738 ✓ invalidate 221 ✓ build ✓ | done |

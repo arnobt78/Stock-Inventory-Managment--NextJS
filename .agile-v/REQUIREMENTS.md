@@ -22,8 +22,10 @@ Canonical REQ source. All artifacts link via `REQ-XXXX`. Status: `done` | `verif
 - AC2: `selectShippoRateForLabel` prefers USPS in test mode
 - AC3: Labels API rejects cancelled + pending unpaid
 - AC4: `canShip` on detail matches AC3; customer address unchanged on order record
+- AC5: Order update/ship/cancel patches invoice `linkedOrder*` instantly; SSR applies fresher list badges
+- AC6: PUT merge keeps line densify (category/supplier); draft→sent heal on money
 
-**Artifacts:** `lib/shippo/server.ts`, `app/api/shipping/labels/route.ts`, `OrderDetailActionBar`
+**Artifacts:** `lib/shippo/server.ts`, labels/tracking routes, `patchOrdersOnShipping`, `patchLinkedInvoicesFromOrder`, `ssr-sync-policy`, `merge-order-items-densify`, `OrderDetailActionBar`
 
 ---
 

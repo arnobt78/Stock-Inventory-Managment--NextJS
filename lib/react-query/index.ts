@@ -28,6 +28,8 @@ export {
   patchOrderGraphListCaches,
   patchLinkedOrderFromInvoiceMoney,
   patchInvoicesOnOrderCancel,
+  patchLinkedInvoicesFromOrder,
+  patchOrdersOnShipping,
   patchProductInPortalCaches,
   removeProductFromPortalCaches,
   removeFromListCaches,

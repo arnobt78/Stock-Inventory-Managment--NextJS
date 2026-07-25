@@ -12,6 +12,7 @@ import {
   withInitialData,
   patchDetailCache,
   patchDetailCacheMerge,
+  patchListCaches,
   patchOrderGraphListCaches,
   patchLinkedOrderFromInvoiceMoney,
   removeFromListCaches,
@@ -22,8 +23,37 @@ import type {
   CreateInvoiceInput,
   UpdateInvoiceInput,
   InvoiceFilters,
+  Order,
 } from "@/types";
 import type { InvoiceForPage } from "@/lib/server/invoices-data";
+import type { QueryClient } from "@tanstack/react-query";
+import { densifyInvoiceFromOrder } from "@/lib/invoices/densify-invoice-from-order";
+
+/** Resolve order from detail or any list cache, then densify invoice row. */
+function densifyInvoiceRowFromOrderCache(
+  queryClient: QueryClient,
+  invoice: Invoice,
+): Invoice {
+  const detail = queryClient.getQueryData<Order>(
+    queryKeys.orders.detail(invoice.orderId),
+  );
+  let order = detail;
+  if (!order) {
+    const lists = queryClient.getQueriesData<Order[]>({
+      queryKey: queryKeys.orders.all,
+      exact: false,
+    });
+    for (const [, rows] of lists) {
+      if (!Array.isArray(rows)) continue;
+      const hit = rows.find((r) => r.id === invoice.orderId);
+      if (hit) {
+        order = hit;
+        break;
+      }
+    }
+  }
+  return densifyInvoiceFromOrder(invoice, order);
+}
 
 /**
  * Optimistic invoice merge — coerces date fields from UpdateInvoiceInput strings.
@@ -142,10 +172,21 @@ export function useCreateInvoice() {
       return response.data;
     },
     onSuccess: (data: Invoice) => {
-      patchDetailCache(queryClient, queryKeys.invoices.detail(data.id), data);
-      patchOrderGraphListCaches(queryClient, data, { prependIfMissing: true });
-      // REQ-0153 — link invoiceForOrder + paymentStatus on order caches
-      patchLinkedOrderFromInvoiceMoney(queryClient, data);
+      // REQ-0211 — densify + prepend only invoice lists (never orders — wrong id)
+      const densified = densifyInvoiceRowFromOrderCache(queryClient, data);
+      patchDetailCache(
+        queryClient,
+        queryKeys.invoices.detail(densified.id),
+        densified,
+      );
+      patchListCaches(queryClient, queryKeys.invoices.all, densified, {
+        prependIfMissing: true,
+      });
+      patchListCaches(queryClient, queryKeys.clientInvoices.all, densified, {
+        prependIfMissing: true,
+      });
+      // REQ-0153 — link invoiceForOrder on order rows (merge, not prepend)
+      patchLinkedOrderFromInvoiceMoney(queryClient, densified);
 
       invalidateAfterOrderGraphChange(queryClient);
 

@@ -180,9 +180,11 @@ All user-facing POST/PUT JSON bodies use `safeParse` + `logger.warn` on fail. Ne
 |-----|-----|
 | 0209 | Stripe return URLs; `confirm-checkout-session` + SSR reconcile; confirm+fulfill on first money; Cancel vs Process Refund |
 | 0210 | `patchInvoicesOnOrderCancel` (keep INV#); invoice billing/shipping; cancelled Edit off; `resolveOrderPayAmount` |
-| 0211 | `shippo_test_*` → silent US to + USPS prefer; `canShip` confirmed\|partial\|paid |
+| 0211 | Shippo test silent US to + USPS; `canShip`; draft→sent heal; create densify; refund only paid\|partial |
 
-**Invalidation:** order-graph + cancel invoice merge. Debug ingest removed.
+**Instant badges (post-0211):** `patchLinkedInvoicesFromOrder` + `patchOrdersOnShipping`; cancel/update merge (not replace); `listHasFresherStatusBadges` SSR; `mergeOrderItemsPreservingDensify` on PUT.
+
+**Invalidation:** order-graph patch→invalidate. Debug ingest removed.
 
 ## REQ-0208 admin order detail parity (2026-07-25)
 
@@ -1030,7 +1032,7 @@ Hub: `lib/ui/typography-scale.ts`. Hubs import tokens; ~45 inline files use equi
 
 **Invalidation unchanged** — review/product/dashboard CRUD already clears lists + portals.
 
-**Active wave:** **0211** done → **0136** Gate 2.
+**Active wave:** **0211** instant-badge harden done → **0136** Gate 2.
 
 ## Warehouse detail + Allocate/Transfer (REQ-0203)
 

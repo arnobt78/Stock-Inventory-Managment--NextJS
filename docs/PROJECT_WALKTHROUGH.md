@@ -125,7 +125,7 @@ Details: `docs/Redis_Sentry_PostHog_INTEGRATION_GUIDE.md`
 | Reassign / Reply | clear mismatched productId; `resolveTicketReplyTarget` (0197) |
 | No-flicker | SelectValue SSR labels; `serverHasRicherDensify` sync (0202) |
 
-**Stopped 2026-07-25:** REQ-0209…0211 (Stripe confirm, cancel→invoice patch, Shippo test labels). **Next:** REQ-0136 Gate 2.
+**Stopped 2026-07-25:** REQ-0209…0211 + instant badge/items harden (SSR fresher badges, densify merge). **Next:** REQ-0136 Gate 2.
 
 ## 7b. Table pagination Select (Radix portal, 2026-05-22)
 
@@ -302,7 +302,7 @@ flowchart LR
 | Partial pay KPIs (REQ-0154) | `payment-money-stats.ts` → dashboards Paid/Partial/Due/Pending; Partial badges; table Total `text-xs`; `dashboard:overview:v4` | Invalidation unchanged |
 | Tickets densify (REQ-0185–0202) | owner-products; Related densify; dialog open/combobox; SelectValue SSR; densify-richer sync | Invalidation unchanged |
 | Next | **REQ-0136** §10 + Gate 2 | REQ-0209…0211 done |
-| Pay/cancel/Shippo (REQ-0209…0211) | Stripe return+confirm; cancel invoice patch; Shippo test silent US to/USPS; cancelled read-only | Order-graph invalidate |
+| Pay/cancel/Shippo (REQ-0209…0211) | Stripe return+confirm; cancel/update/ship→invoice badge patch; SSR fresher badges; item densify merge; Shippo test; draft→sent heal | Order-graph patch→invalidate |
 | SECURITY.md (REQ-0207) | Root policy + README link; private reports → contact@arnobmahmud.com | Docs-only |
 | Supplier invoices (REQ-0204) | `getInvoiceByIdForSupplier` + detail/PDF gate; Related Invoices nav | Invalidation unchanged |
 | Supplier invoice KPIs (REQ-0205) | `/invoices` SSR portal + 4 StatisticsCards (OrderList parity) | Invalidation unchanged |

@@ -582,3 +582,10 @@ Format: `TIMESTAMP | AGENT | DECISION | RATIONALE | REQ-ID`
 2026-07-25T16:41:00Z | build-agent | Shippo test-key silent US to + USPS prefer | Free-tier shippo_test_* only; order UI keeps customer address | REQ-0211
 2026-07-25T16:45:00Z | red-team | Pre-commit audit PASS | lint/test724/inv221/build; debug logs removed | REQ-0209,0210,0211
 2026-07-25T16:48:00Z | release | Prod SHA a7d8e7c pushed origin/main | REQ-0209–0211
+2026-07-25T17:04:00Z | build-agent | Refund only paid|partial; admin Ship gate + draft→sent on money | Confirmed unpaid cancel showed Refunded; pending unpaid Ship still clickable | REQ-0211
+2026-07-25T17:18:00Z | build-agent | Heal draft→sent on confirm alreadyApplied + invoice SSR | Prod webhook applies money first; local confirm skipped status promote | REQ-0211
+2026-07-25T17:22:00Z | build-agent | Invoice create densify POST + prepend invoice-lists only | Thin create + order-list prepend caused late Invoice row | REQ-0211
+2026-07-25T18:00:00Z | build-agent | patchLinkedInvoicesFromOrder + patchOrdersOnShipping | Order update/ship left invoice linkedOrder* stale until refetch | REQ-0211
+2026-07-25T18:00:00Z | build-agent | listHasFresherStatusBadges in SSR sync | Invalidate skipped RSC list badges; invoice.updatedAt unchanged on order status | REQ-0211
+2026-07-25T18:00:00Z | build-agent | Cancel/update merge detail + mergeOrderItemsPreservingDensify | Thin PUT/DELETE wiped parties + category/supplier line densify | REQ-0211
+2026-07-25T18:05:00Z | red-team | Pre-commit audit PASS | lint ✓ test 738 ✓ invalidate 221 ✓ build ✓; debug logs removed | REQ-0211

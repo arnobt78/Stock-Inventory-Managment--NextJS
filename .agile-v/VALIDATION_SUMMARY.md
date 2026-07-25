@@ -1,10 +1,29 @@
 # Validation Summary — Cycle C1
 
-**Generated:** 2026-07-25 (REQ-0209)
+**Generated:** 2026-07-25 (REQ-0211 harden)
 **eval_gate_status:** PENDING (Human Gate 2)
 **Active:** **REQ-0136** Gate 2 cache smoke
-**Last ship:** REQ-0209 Stripe return / confirm-on-pay / Cancel vs Refund
-**Prod target SHA:** `d1aefda` (REQ-0207) · tip pending REQ-0209
+**Last ship:** REQ-0211 instant badge/items + Shippo/heal/create densify
+**Prod target SHA:** tip pending push (post-`a7d8e7c`)
+
+---
+
+## REQ-0211 harden — instant badges + items densify (2026-07-25)
+
+| Check | Result |
+| ----- | ------ |
+| Order update | merge detail + `patchLinkedInvoicesFromOrder` (status+payment) |
+| Ship label/track | `patchOrdersOnShipping` + API `shippedAt` |
+| Cancel | merge detail (parties); `patchInvoicesOnOrderCancel` |
+| SSR lists | `listHasFresherStatusBadges` apply while invalidated |
+| Line items | `mergeOrderItemsPreservingDensify` on PUT |
+| Debug | ingest removed |
+| Gates | lint ✓ test **738** ✓ invalidate **221** ✓ build ✓ |
+
+```
+Scope: built/verified | Traceability: REQ-0211 | Findings: PASS
+Commands: lint, test, test:invalidate, build
+```
 
 ---
 

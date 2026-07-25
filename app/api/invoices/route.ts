@@ -269,34 +269,56 @@ export async function POST(request: NextRequest) {
       details: { invoiceNumber: invoice.invoiceNumber },
     }).catch(() => {});
     await scheduleInvalidateInvoiceCaches();
-    // Transform invoice for response
-    const transformedInvoice = {
-      id: invoice.id,
-      invoiceNumber: invoice.invoiceNumber,
-      orderId: invoice.orderId,
-      userId: invoice.userId,
-      clientId: invoice.clientId,
-      status: invoice.status,
-      subtotal: invoice.subtotal,
-      tax: invoice.tax,
-      shipping: invoice.shipping ?? null,
-      discount: invoice.discount,
-      total: invoice.total,
-      amountPaid: invoice.amountPaid,
-      amountDue: invoice.amountDue,
-      dueDate: invoice.dueDate.toISOString(),
-      issuedAt: invoice.issuedAt.toISOString(),
-      sentAt: invoice.sentAt?.toISOString() || null,
-      paidAt: invoice.paidAt?.toISOString() || null,
-      cancelledAt: invoice.cancelledAt?.toISOString() || null,
-      paymentLink: invoice.paymentLink,
-      notes: invoice.notes,
-      billingAddress: invoice.billingAddress,
-      createdAt: invoice.createdAt.toISOString(),
-      updatedAt: invoice.updatedAt?.toISOString() || null,
-      createdBy: invoice.createdBy,
-      updatedBy: invoice.updatedBy,
-    };
+
+    // REQ-0211 — densify create response like GET list (no thin-row flash on prepend)
+    const orderPreviewMap = await fetchInvoiceListOrderPreviewMap([
+      invoice.orderId,
+    ]);
+    const orderUserIdMap = await fetchOrderUserIdMap([invoice.orderId]);
+    let clientName: string | null = null;
+    let clientEmail: string | null = null;
+    if (invoice.clientId) {
+      const client = await prisma.user.findUnique({
+        where: { id: invoice.clientId },
+        select: { name: true, email: true },
+      });
+      clientName = client?.name ?? client?.email ?? null;
+      clientEmail = client?.email ?? null;
+    }
+
+    const transformedInvoice = attachInvoiceListOrderPreview(
+      {
+        id: invoice.id,
+        invoiceNumber: invoice.invoiceNumber,
+        orderId: invoice.orderId,
+        userId: invoice.userId,
+        clientId: invoice.clientId,
+        status: invoice.status,
+        subtotal: invoice.subtotal,
+        tax: invoice.tax,
+        shipping: invoice.shipping ?? null,
+        discount: invoice.discount,
+        total: invoice.total,
+        amountPaid: invoice.amountPaid,
+        amountDue: invoice.amountDue,
+        dueDate: invoice.dueDate.toISOString(),
+        issuedAt: invoice.issuedAt.toISOString(),
+        sentAt: invoice.sentAt?.toISOString() || null,
+        paidAt: invoice.paidAt?.toISOString() || null,
+        cancelledAt: invoice.cancelledAt?.toISOString() || null,
+        paymentLink: invoice.paymentLink,
+        notes: invoice.notes,
+        billingAddress: invoice.billingAddress,
+        createdAt: invoice.createdAt.toISOString(),
+        updatedAt: invoice.updatedAt?.toISOString() || null,
+        createdBy: invoice.createdBy,
+        updatedBy: invoice.updatedBy,
+        clientName,
+        clientEmail,
+        orderUserId: orderUserIdMap.get(invoice.orderId) ?? null,
+      },
+      orderPreviewMap,
+    );
 
     logger.info("Invoice created successfully", {
       invoiceId: invoice.id,

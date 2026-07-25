@@ -14,7 +14,12 @@ describe("orderCancelShouldRefundPayment", () => {
     expect(orderCancelShouldRefundPayment("unpaid", "pending")).toBe(false);
   });
 
-  it("refunds confirmed unpaid (legacy status path)", () => {
-    expect(orderCancelShouldRefundPayment("unpaid", "confirmed")).toBe(true);
+  // REQ-0211 — confirmed without money stays unpaid (not Refunded)
+  it("does not refund confirmed unpaid", () => {
+    expect(orderCancelShouldRefundPayment("unpaid", "confirmed")).toBe(false);
+  });
+
+  it("does not refund shipped unpaid", () => {
+    expect(orderCancelShouldRefundPayment("unpaid", "shipped")).toBe(false);
   });
 });

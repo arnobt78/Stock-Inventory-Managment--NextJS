@@ -13,6 +13,7 @@ import { apiClient } from "@/lib/api";
 import { markStripeCheckoutReturn } from "@/lib/payments/stripe-return";
 import {
   invalidateAfterOrderGraphChange,
+  patchLinkedInvoicesFromOrder,
   queryKeys,
 } from "@/lib/react-query";
 import type { Order } from "@/types";
@@ -91,17 +92,24 @@ export function useStripeCheckoutReturn({
         .confirmSession(sessionId)
         .then((res) => {
           if (entity === "order" && res.data) {
+            const nextStatus =
+              (res.data.orderStatus as Order["status"]) ?? undefined;
+            const nextPayment =
+              (res.data.paymentStatus as Order["paymentStatus"]) ?? undefined;
             queryClient.setQueryData<Order>(detailKey, (old) =>
               old
                 ? {
                     ...old,
-                    status: (res.data.orderStatus as Order["status"]) ?? old.status,
-                    paymentStatus:
-                      (res.data.paymentStatus as Order["paymentStatus"]) ??
-                      old.paymentStatus,
+                    status: nextStatus ?? old.status,
+                    paymentStatus: nextPayment ?? old.paymentStatus,
                   }
                 : old,
             );
+            patchLinkedInvoicesFromOrder(queryClient, {
+              orderId: entityId,
+              status: nextStatus,
+              paymentStatus: nextPayment,
+            });
           }
           runInvalidations();
           cleanUrl();

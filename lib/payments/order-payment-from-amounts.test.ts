@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   applyIncrementalInvoicePayment,
+  resolveInvoiceStatusAfterMoney,
   deriveOrderPaymentStatus,
   shouldConfirmAndFulfillOnPaymentSync,
 } from "./order-payment-from-amounts";
@@ -116,5 +117,26 @@ describe("applyIncrementalInvoicePayment", () => {
     });
     expect(next.fullyPaid).toBe(false);
     expect(next.status).toBe("sent");
+  });
+
+  it("promotes draft to sent on first money", () => {
+    const next = applyIncrementalInvoicePayment({
+      priorAmountPaid: 0,
+      total: 178.12,
+      chargeAmount: 100,
+      priorStatus: "draft",
+    });
+    expect(next.status).toBe("sent");
+    expect(next.amountDue).toBeCloseTo(78.12, 2);
+  });
+
+  it("resolveInvoiceStatusAfterMoney heals draft when paid already applied", () => {
+    expect(
+      resolveInvoiceStatusAfterMoney({
+        status: "draft",
+        amountPaid: 100,
+        total: 389.22,
+      }),
+    ).toBe("sent");
   });
 });

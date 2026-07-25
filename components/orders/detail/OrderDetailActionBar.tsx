@@ -33,6 +33,7 @@ import {
 } from "@/components/ui/tooltip";
 import type { Order } from "@/types";
 import { resolveOrderPayAmount } from "@/lib/payments/resolve-order-pay-amount";
+import { canGenerateShippingLabel } from "@/lib/orders/order-ship-eligibility";
 
 export type OrderDetailActionBarProps = {
   order?: Order;
@@ -79,17 +80,8 @@ export function OrderDetailActionBar({
       order.paymentStatus === "partial" ||
       // Legacy / missing → Cancel (unpaid path)
       !order.paymentStatus);
-  // REQ-0211 — Ship only after confirm or money (partial|paid); not pending unpaid
-  const canShip =
-    !!order &&
-    !isCancelled &&
-    order.status !== "shipped" &&
-    order.status !== "delivered" &&
-    !order.trackingNumber &&
-    (order.status === "confirmed" ||
-      order.status === "processing" ||
-      order.paymentStatus === "partial" ||
-      order.paymentStatus === "paid");
+  // REQ-0211 — shared canGenerateShippingLabel (admin card + API same rule)
+  const canShip = canGenerateShippingLabel(order);
   const payAmount = order ? resolveOrderPayAmount(order) : 0;
   const canPay =
     !!order &&

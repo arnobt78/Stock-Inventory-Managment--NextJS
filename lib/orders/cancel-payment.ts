@@ -1,20 +1,14 @@
 /**
- * REQ-0208 gap — when cancelling an order, whether money was collected and must be refunded.
- * Includes `partial` (amountPaid > 0) so pending+partial cancels set paymentStatus to refunded.
+ * REQ-0208 / REQ-0211 — refund Stripe + set paymentStatus refunded only when money
+ * was collected (paid|partial). Confirmed+unpaid cancel keeps paymentStatus unpaid
+ * (no refund; do not show Refunded badge).
  */
 
 export function orderCancelShouldRefundPayment(
   paymentStatus: string | null | undefined,
-  orderStatus: string | null | undefined,
+  _orderStatus?: string | null | undefined,
 ): boolean {
+  void _orderStatus;
   const pay = paymentStatus ?? "unpaid";
-  const status = orderStatus ?? "pending";
-  return (
-    pay === "paid" ||
-    pay === "partial" ||
-    status === "confirmed" ||
-    status === "processing" ||
-    status === "shipped" ||
-    status === "delivered"
-  );
+  return pay === "paid" || pay === "partial";
 }

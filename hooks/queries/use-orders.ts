@@ -11,11 +11,18 @@ import {
   cancelOrRemoveDetailQuery,
   withInitialData,
   patchDetailCache,
+  patchDetailCacheMerge,
   patchListCaches,
   patchOrderGraphListCaches,
   patchInvoicesOnOrderCancel,
+  patchLinkedInvoicesFromOrder,
 } from "@/lib/react-query";
 import { useToast } from "@/hooks/use-toast";
+import { resolveOrderStatusAtFromSource } from "@/lib/orders/order-status-display-date";
+import {
+  mergeOrderItemsPreservingDensify,
+  omitUndefinedFields,
+} from "@/lib/orders/merge-order-items-densify";
 import type { Order, CreateOrderInput, UpdateOrderInput } from "@/types";
 import type { OrderForPage } from "@/lib/server/orders-data";
 
@@ -138,8 +145,103 @@ export function useUpdateOrder() {
       return response.data;
     },
     onSuccess: (data: Order) => {
-      patchDetailCache(queryClient, queryKeys.orders.detail(data.id), data);
-      patchOrderGraphListCaches(queryClient, data);
+      // PUT body is thin (no parties densify) — merge, don't replace detail.
+      // Also sync invoice linkedOrderStatus/Payment (patchOrderGraph matches invoice by id≠order.id).
+      const statusAt =
+        resolveOrderStatusAtFromSource(data) ??
+        (data.updatedAt == null
+          ? undefined
+          : typeof data.updatedAt === "string"
+            ? data.updatedAt
+            : new Date(data.updatedAt).toISOString());
+      // Thin PUT items lack category/supplier names — merge densify; omit undefined.
+      const statusPatch = omitUndefinedFields({
+        id: data.id,
+        status: data.status,
+        paymentStatus: data.paymentStatus,
+        statusAt,
+        shippedAt:
+          data.shippedAt == null
+            ? undefined
+            : typeof data.shippedAt === "string"
+              ? data.shippedAt
+              : new Date(data.shippedAt).toISOString(),
+        deliveredAt:
+          data.deliveredAt == null
+            ? undefined
+            : typeof data.deliveredAt === "string"
+              ? data.deliveredAt
+              : new Date(data.deliveredAt).toISOString(),
+        cancelledAt:
+          data.cancelledAt == null
+            ? undefined
+            : typeof data.cancelledAt === "string"
+              ? data.cancelledAt
+              : new Date(data.cancelledAt).toISOString(),
+        trackingNumber: data.trackingNumber,
+        trackingCarrier: data.trackingCarrier,
+        trackingUrl: data.trackingUrl,
+        labelUrl: data.labelUrl,
+        updatedAt:
+          data.updatedAt == null
+            ? statusAt
+            : typeof data.updatedAt === "string"
+              ? data.updatedAt
+              : new Date(data.updatedAt).toISOString(),
+        notes: data.notes,
+        estimatedDelivery:
+          data.estimatedDelivery == null
+            ? undefined
+            : typeof data.estimatedDelivery === "string"
+              ? data.estimatedDelivery
+              : new Date(data.estimatedDelivery).toISOString(),
+        subtotal: data.subtotal,
+        tax: data.tax,
+        shipping: data.shipping,
+        discount: data.discount,
+        total: data.total,
+        shippingAddress: data.shippingAddress,
+        billingAddress: data.billingAddress,
+      } as Record<string, unknown>) as Partial<Order> & { id: string };
+      patchDetailCacheMerge<Order>(
+        queryClient,
+        queryKeys.orders.detail(data.id),
+        (old) => {
+          if (!old) {
+            return { ...data, ...statusPatch } as Order;
+          }
+          return {
+            ...old,
+            ...statusPatch,
+            // Keep invoice chip + parties; merge line densify (no category flash)
+            items: mergeOrderItemsPreservingDensify(old.items, data.items),
+            invoiceForOrder: old.invoiceForOrder ?? data.invoiceForOrder,
+          };
+        },
+      );
+      patchDetailCacheMerge<Order>(
+        queryClient,
+        queryKeys.clientOrders.detail(data.id),
+        (old) => {
+          if (!old) return undefined;
+          return {
+            ...old,
+            ...statusPatch,
+            items: mergeOrderItemsPreservingDensify(old.items, data.items),
+            invoiceForOrder: old.invoiceForOrder ?? data.invoiceForOrder,
+          };
+        },
+      );
+      // Lists do not render line items — never push thin items into list rows
+      patchListCaches(queryClient, queryKeys.orders.all, statusPatch);
+      patchListCaches(queryClient, queryKeys.clientOrders.all, statusPatch);
+      patchLinkedInvoicesFromOrder(queryClient, {
+        orderId: data.id,
+        status: data.status,
+        paymentStatus: data.paymentStatus,
+        statusAt,
+        updatedAt: statusPatch.updatedAt ?? null,
+      });
       invalidateAfterOrderGraphChange(queryClient);
 
       // Show success toast
@@ -181,15 +283,37 @@ export function useDeleteOrder() {
           : typeof data.cancelledAt === "string"
             ? data.cancelledAt
             : new Date(data.cancelledAt).toISOString();
-      // List/detail caches use ISO strings (API JSON), not Date objects
-      const patched = {
-        ...data,
+      // Thin DELETE body — merge into existing detail (keep parties densify).
+      // Full replace wiped placedBy/customer/owners → Parties showed "—" for a beat.
+      const cancelPatch = {
+        id: data.id,
+        status: data.status,
+        paymentStatus: data.paymentStatus,
         statusAt: cancelledAtIso,
         cancelledAt: cancelledAtIso,
+        updatedAt:
+          data.updatedAt == null
+            ? cancelledAtIso
+            : typeof data.updatedAt === "string"
+              ? data.updatedAt
+              : new Date(data.updatedAt).toISOString(),
+        invoiceForOrder: data.invoiceForOrder ?? undefined,
       };
-      patchDetailCache(queryClient, queryKeys.orders.detail(data.id), patched);
-      patchOrderGraphListCaches(queryClient, patched);
-      patchInvoicesOnOrderCancel(queryClient, patched);
+      patchDetailCacheMerge<Order>(
+        queryClient,
+        queryKeys.orders.detail(data.id),
+        (old) => (old ? { ...old, ...cancelPatch } : ({ ...data, ...cancelPatch } as Order)),
+      );
+      patchDetailCacheMerge<Order>(
+        queryClient,
+        queryKeys.clientOrders.detail(data.id),
+        (old) => (old ? { ...old, ...cancelPatch } : undefined),
+      );
+      patchOrderGraphListCaches(queryClient, cancelPatch);
+      patchInvoicesOnOrderCancel(queryClient, {
+        ...cancelPatch,
+        invoiceForOrder: data.invoiceForOrder ?? null,
+      });
       cancelOrRemoveDetailQuery(queryClient, queryKeys.orders.detail(data.id));
       invalidateAfterOrderGraphChange(queryClient);
 

@@ -7,6 +7,8 @@ import {
   patchListCaches,
   patchOrderGraphListCaches,
   patchInvoicesOnOrderCancel,
+  patchOrdersOnShipping,
+  patchLinkedInvoicesFromOrder,
   patchProductInPortalCaches,
   removeFromListCaches,
 } from "./patch-mutation-cache";
@@ -141,6 +143,88 @@ describe("patch-mutation-cache", () => {
           status: "cancelled",
           amountDue: 0,
         },
+      },
+    ]);
+  });
+
+  it("patchLinkedInvoicesFromOrder syncs processing + payment badges", () => {
+    const qc = new QueryClient();
+    const invoiceListKey = queryKeys.invoices.lists();
+    qc.setQueryData(invoiceListKey, [
+      {
+        id: "i1",
+        orderId: "o1",
+        linkedOrderStatus: "confirmed",
+        linkedOrderPaymentStatus: "unpaid",
+      },
+    ]);
+    patchLinkedInvoicesFromOrder(qc, {
+      orderId: "o1",
+      status: "processing",
+      paymentStatus: "partial",
+      statusAt: "2026-07-25T16:00:00.000Z",
+    });
+    expect(qc.getQueryData(invoiceListKey)).toMatchObject([
+      {
+        id: "i1",
+        linkedOrderStatus: "processing",
+        linkedOrderPaymentStatus: "partial",
+        linkedOrderStatusAt: "2026-07-25T16:00:00.000Z",
+      },
+    ]);
+  });
+
+  it("patchOrdersOnShipping sets shipped on order + invoice linked status", () => {
+    const qc = new QueryClient();
+    const orderListKey = queryKeys.orders.lists();
+    const orderDetailKey = queryKeys.orders.detail("o1");
+    const invoiceListKey = queryKeys.invoices.lists();
+    qc.setQueryData(orderListKey, [
+      {
+        id: "o1",
+        status: "confirmed",
+        orderNumber: "ORD-1",
+        invoiceForOrder: { id: "i1", invoiceNumber: "INV-1" },
+      },
+    ]);
+    qc.setQueryData(orderDetailKey, {
+      id: "o1",
+      status: "confirmed",
+      placedByName: "Admin",
+    });
+    qc.setQueryData(invoiceListKey, [
+      {
+        id: "i1",
+        orderId: "o1",
+        status: "sent",
+        linkedOrderStatus: "confirmed",
+      },
+    ]);
+    patchOrdersOnShipping(qc, {
+      orderId: "o1",
+      status: "shipped",
+      trackingNumber: "TEST-1",
+      updatedAt: "2026-07-25T15:00:00.000Z",
+    });
+    expect(qc.getQueryData(orderListKey)).toMatchObject([
+      {
+        id: "o1",
+        status: "shipped",
+        statusAt: "2026-07-25T15:00:00.000Z",
+        shippedAt: "2026-07-25T15:00:00.000Z",
+        trackingNumber: "TEST-1",
+        invoiceForOrder: { id: "i1", invoiceNumber: "INV-1" },
+      },
+    ]);
+    expect(qc.getQueryData(orderDetailKey)).toMatchObject({
+      status: "shipped",
+      placedByName: "Admin",
+    });
+    expect(qc.getQueryData(invoiceListKey)).toMatchObject([
+      {
+        id: "i1",
+        linkedOrderStatus: "shipped",
+        linkedOrderStatusAt: "2026-07-25T15:00:00.000Z",
       },
     ]);
   });

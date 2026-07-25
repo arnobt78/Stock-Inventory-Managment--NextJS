@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
+  listHasFresherStatusBadges,
   resolveSsrSyncAction,
   serverHasRicherDensify,
 } from "./ssr-sync-policy";
@@ -165,5 +166,52 @@ describe("resolveSsrSyncAction", () => {
         {},
       ),
     ).toBe("skip");
+  });
+
+  // REQ-0211 — order status change leaves invoice.updatedAt equal → apply linked badges
+  it("applies list when linkedOrderStatus fresher even if updatedAt equal", () => {
+    const at = "2026-01-02T00:00:00.000Z";
+    expect(
+      resolveSsrSyncAction(
+        [
+          {
+            id: "i1",
+            updatedAt: at,
+            linkedOrderStatus: "confirmed",
+            linkedOrderPaymentStatus: "unpaid",
+          },
+        ],
+        [
+          {
+            id: "i1",
+            updatedAt: at,
+            linkedOrderStatus: "pending",
+            linkedOrderPaymentStatus: "unpaid",
+          },
+        ],
+        {},
+      ),
+    ).toBe("apply");
+  });
+
+  it("applies list status badges while invalidated instead of refetch-only", () => {
+    expect(
+      resolveSsrSyncAction(
+        [{ id: "o1", status: "confirmed", paymentStatus: "unpaid" }],
+        [{ id: "o1", status: "pending", paymentStatus: "unpaid" }],
+        { isInvalidated: true },
+      ),
+    ).toBe("apply");
+  });
+});
+
+describe("listHasFresherStatusBadges", () => {
+  it("detects order status drift", () => {
+    expect(
+      listHasFresherStatusBadges(
+        [{ id: "o1", status: "confirmed" }],
+        [{ id: "o1", status: "pending" }],
+      ),
+    ).toBe(true);
   });
 });

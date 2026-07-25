@@ -135,8 +135,32 @@ export function applyIncrementalInvoicePayment(args: {
   let status = args.priorStatus;
   if (fullyPaid) {
     status = "paid";
-  } else if (args.priorStatus === "paid") {
-    status = "sent";
+  } else if (newPaid > EPS) {
+    // REQ-0211 — any money: draft→sent; keep overdue; never revive cancelled
+    if (args.priorStatus === "cancelled") {
+      status = "cancelled";
+    } else if (args.priorStatus === "overdue") {
+      status = "overdue";
+    } else {
+      status = "sent";
+    }
   }
   return { amountPaid: newPaid, amountDue, status, fullyPaid };
+}
+
+/**
+ * REQ-0211 — Recompute invoice status from current money (chargeAmount 0).
+ * Used when webhook already applied amounts but left status as draft (alreadyApplied).
+ */
+export function resolveInvoiceStatusAfterMoney(args: {
+  status: string;
+  amountPaid: number;
+  total: number;
+}): string {
+  return applyIncrementalInvoicePayment({
+    priorAmountPaid: args.amountPaid,
+    total: args.total,
+    chargeAmount: 0,
+    priorStatus: args.status,
+  }).status;
 }

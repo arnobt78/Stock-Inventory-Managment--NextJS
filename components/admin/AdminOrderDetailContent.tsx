@@ -57,6 +57,10 @@ import { cn } from "@/lib/utils";
 import { OrderTrackingInfo, ShippingManagement } from "@/components/shipping";
 import { AlertDialogWrapper } from "@/components/dialogs";
 import {
+  canGenerateShippingLabel,
+  shippingLabelBlockedReason,
+} from "@/lib/orders/order-ship-eligibility";
+import {
   GlassCard,
   DetailInfoRow,
   OrderDetailHeader,
@@ -282,6 +286,9 @@ export default function AdminOrderDetailContent({
       order?.trackingNumber &&
       (order.status === "shipped" || order.status === "delivered")
     );
+  // REQ-0211 — hide clickable Auto Generate until confirm or money collected
+  const canShipLabel = canGenerateShippingLabel(order);
+  const shipBlockedHint = shippingLabelBlockedReason(order);
 
   return (
     <PageContentWrapper>
@@ -467,7 +474,7 @@ export default function AdminOrderDetailContent({
               isAdminRole
             />
             <OrderShippingAddressCard order={order} dataLoading={dataLoading} />
-            {/* REQ-0208 — Shipping & Tracking in former Invoice card slot */}
+            {/* REQ-0208 / REQ-0211 — Shipping & Tracking; Auto Generate gated */}
             {!dataLoading &&
               order &&
               order.status !== "cancelled" &&
@@ -487,22 +494,28 @@ export default function AdminOrderDetailContent({
                       Shipping & Tracking
                     </h3>
                   </div>
-                  <div className="flex flex-wrap items-center gap-2 mb-4">
-                    <ShippingManagement
-                      order={order}
-                      trigger={
-                        <Button
-                          className={glassDetailFooterButtonClass(
-                            "emerald",
-                            "w-auto",
-                          )}
-                        >
-                          <Truck className="h-4 w-4 shrink-0" />
-                          Generate Shipping Label
-                        </Button>
-                      }
-                    />
-                  </div>
+                  {canShipLabel ? (
+                    <div className="flex flex-wrap items-center gap-2 mb-4">
+                      <ShippingManagement
+                        order={order}
+                        trigger={
+                          <Button
+                            className={glassDetailFooterButtonClass(
+                              "emerald",
+                              "w-auto",
+                            )}
+                          >
+                            <Truck className="h-4 w-4 shrink-0" />
+                            Generate Shipping Label
+                          </Button>
+                        }
+                      />
+                    </div>
+                  ) : (
+                    <p className="text-xs text-amber-700 dark:text-amber-400 mb-4">
+                      {shipBlockedHint}
+                    </p>
+                  )}
                   {/* overflow-visible — glass CTA glow must not clip */}
                   <div className="border-t border-emerald-200/30 dark:border-emerald-400/20 pt-4 overflow-visible">
                     <h4 className="text-sm font-medium text-gray-700 dark:text-white mb-3">

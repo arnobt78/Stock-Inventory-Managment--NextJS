@@ -82,12 +82,56 @@ export function serverHasRicherDensify(
   return false;
 }
 
+function rowStatusBadgeFingerprint(row: unknown): string | null {
+  if (!isPlainObject(row) || typeof row.id !== "string") return null;
+  return [
+    row.id,
+    String(row.status ?? ""),
+    String(row.paymentStatus ?? ""),
+    String(row.linkedOrderStatus ?? ""),
+    String(row.linkedOrderPaymentStatus ?? ""),
+    String(row.statusAt ?? ""),
+    String(row.linkedOrderStatusAt ?? ""),
+  ].join("|");
+}
+
+/**
+ * REQ-0211 — order status change does not bump invoice.updatedAt, so max(updatedAt)
+ * list compare skips while linkedOrderStatus is still stale. Also after order-graph
+ * invalidate, sync used to refetch-only and ignore fresh RSC badges.
+ */
+export function listHasFresherStatusBadges(
+  serverData: unknown,
+  cached: unknown,
+): boolean {
+  if (!Array.isArray(serverData) || !Array.isArray(cached)) return false;
+  const cachedById = new Map<string, string>();
+  for (const row of cached) {
+    const fp = rowStatusBadgeFingerprint(row);
+    if (fp && isPlainObject(row) && typeof row.id === "string") {
+      cachedById.set(row.id, fp);
+    }
+  }
+  for (const row of serverData) {
+    const serverFp = rowStatusBadgeFingerprint(row);
+    if (!serverFp || !isPlainObject(row) || typeof row.id !== "string") {
+      continue;
+    }
+    const cachedFp = cachedById.get(row.id);
+    if (cachedFp != null && cachedFp !== serverFp) {
+      return true;
+    }
+  }
+  return false;
+}
+
 /**
  * Decide whether SSR props should overwrite TanStack cache on mount.
  * router.back() can restore stale RSC props — never clobber fresher client cache.
  * REQ-0133: default skip when server cannot prove fresher than cached (lists + entities).
  * REQ-0202: apply when timestamps equal (or both missing) but SSR densify is richer.
  * REQ-0209: while invalidated/fetching, still apply richer SSR so detail parties paint with RSC.
+ * REQ-0211: list status/payment / linkedOrder* badges apply from SSR when fresher.
  */
 export function resolveSsrSyncAction<T>(
   serverData: T,
@@ -99,6 +143,13 @@ export function resolveSsrSyncAction<T>(
     if (
       cached !== undefined &&
       serverHasRicherDensify(serverData, cached)
+    ) {
+      return "apply";
+    }
+    // Paint RSC status badges immediately (do not wait for invalidated refetch)
+    if (
+      cached !== undefined &&
+      listHasFresherStatusBadges(serverData, cached)
     ) {
       return "apply";
     }
@@ -116,6 +167,13 @@ export function resolveSsrSyncAction<T>(
   const cachedAt = maxUpdatedAtMs(cached);
 
   if (Array.isArray(cached) && Array.isArray(serverData)) {
+    if (listHasFresherStatusBadges(serverData, cached)) {
+      // Prefer SSR badges unless cache rows are strictly newer by updatedAt
+      if (cachedAt != null && serverAt != null && cachedAt > serverAt) {
+        return "skip";
+      }
+      return "apply";
+    }
     if (serverAt != null && cachedAt != null) {
       if (cachedAt > serverAt) {
         return "skip";
@@ -123,7 +181,7 @@ export function resolveSsrSyncAction<T>(
       if (serverAt > cachedAt) {
         return "apply";
       }
-      // Equal timestamps — lists stay skip (row densify handled at entity sync)
+      // Equal timestamps — lists stay skip unless badge fields already handled above
       return "skip";
     }
     if (cached.length > 0 && serverData.length === cached.length) {
