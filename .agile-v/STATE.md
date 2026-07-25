@@ -8,7 +8,7 @@
 | **Session** | 2026-07-26 — resume Gate 2 |
 | **Active REQ** | **REQ-0136** (Gate 2 / cache smoke) |
 | **Done range** | REQ-0001…0135 + 0137–0187 + 0188–**0213** |
-| **Prod SHA** | tip after push (app tip still `60f3280` REQ-0212) |
+| **Prod SHA** | `06eae4a` (REQ-0213 docs; app tip `60f3280`) |
 | **Human Gate 1** | APPROVED (GATE-0001) |
 | **Human Gate 2** | PENDING — §10 smoke → Sentry 24h |
 | **Resume token** | `gate2-0136-cache-smoke` → **REQ-0136** |

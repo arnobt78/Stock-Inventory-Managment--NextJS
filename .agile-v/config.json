@@ -14,7 +14,7 @@
   "stopped": "2026-07-26 REQ-0213 educational README + Diploi; resume REQ-0136",
   "last_shipped_req": "REQ-0213",
   "prod_target_sha": "60f3280",
-  "local_tip_sha": "pending-0213-push",
+  "local_tip_sha": "06eae4a",
   "risk_default": "R2",
   "requirements_file": ".agile-v/REQUIREMENTS.md",
   "skills_upstream": "https://github.com/Agile-V/agile_v_skills",
