@@ -1,6 +1,6 @@
 # PROJECT_WALKTHROUGH.md
 
-Agent-oriented map of **stock-inventory** (Stockly). Last updated: 2026-07-22.
+Agent-oriented map of **stock-inventory** (Stockly). Last updated: 2026-07-26.
 
 ## 1. What this app is
 
@@ -301,7 +301,8 @@ flowchart LR
 | Delivered + Due badges (REQ-0155) | `store-order-status-badges.ts`; Total Orders Delivered; Outstanding→Due | UI-only |
 | Partial pay KPIs (REQ-0154) | `payment-money-stats.ts` → dashboards Paid/Partial/Due/Pending; Partial badges; table Total `text-xs`; `dashboard:overview:v4` | Invalidation unchanged |
 | Tickets densify (REQ-0185–0202) | owner-products; Related densify; dialog open/combobox; SelectValue SSR; densify-richer sync | Invalidation unchanged |
-| Next | **REQ-0136** §10 + Gate 2 | REQ-0209…0211 done |
+| Next | **REQ-0136** §10 + Gate 2 | REQ-0212 done |
+| Deploy unblock (REQ-0212) | Pin `eslint-import-resolver-typescript@3.10.1`; merge items always `OrderItem[]`; Order dates `string\|Date` | No invalidation change |
 | Pay/cancel/Shippo (REQ-0209…0211) | Stripe return+confirm; cancel/update/ship→invoice badge patch; SSR fresher badges; item densify merge; Shippo test; draft→sent heal | Order-graph patch→invalidate |
 | SECURITY.md (REQ-0207) | Root policy + README link; private reports → contact@arnobmahmud.com | Docs-only |
 | Supplier invoices (REQ-0204) | `getInvoiceByIdForSupplier` + detail/PDF gate; Related Invoices nav | Invalidation unchanged |
@@ -323,15 +324,15 @@ flowchart LR
 3. Sentry **stock-inventory** — 24h: compare cases 1–7 vs `docs/SENTRY_ERRORS.md`
 4. Log result in `.agile-v/REVALIDATION_LOG.md`; CAPA if regression
 
-## 8. Quality gates (audit 2026-07-21 REQ-0202)
+## 8. Quality gates (audit 2026-07-26 REQ-0212)
 
 | Check | Status |
 |-------|--------|
+| `npx tsc --noEmit` | pass |
 | `npm run lint` | pass |
 | `npm run build` | pass |
-| `npm run test` | 683 passed |
-| `npm run test:invalidate` | 217 passed |
-| Local | REQ-0194–0202 tickets/dialogs/SSR densify |
+| `npm run test:invalidate` | 221 passed |
+| Local | REQ-0212 deploy unblock (lock + Order patch TS) |
 | Radix table Select | `useDeferredRadixSelect` + `PaginationSelector` (11 tables) |
 | Pagination clamp + page-size reset | `useClampPaginationIndex` + `PaginationSelector` pageIndex 0 |
 | Sentry | tunnel + translate scrub + `syncSentryUserFromAuth` |

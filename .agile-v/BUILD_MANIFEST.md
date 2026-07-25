@@ -556,3 +556,9 @@
 | ART-0211f | REQ-0211 | `merge-order-items-densify.ts` | PUT keeps category/supplier densify |
 | ART-0211g | REQ-0211 | heal draft→sent; create densify; canShip; shippedAt | Money/ship harden |
 | TC-0211 | REQ-0211 | lint ✓ test 738 ✓ invalidate 221 ✓ build ✓ | done |
+
+## BM-REQ-0212
+| ART-0212a | REQ-0212 | `eslint-import-resolver-typescript@3.10.1` direct + lock | Cold install |
+| ART-0212b | REQ-0212 | `mergeOrderItemsPreservingDensify` → `OrderItem[]` | Build TS |
+| ART-0212c | REQ-0212 | `types/order` + `OrderTrackingInfo` dates `string\|Date` | Patch assign |
+| TC-0212 | REQ-0212 | tsc ✓ lint ✓ invalidate 221 ✓ build ✓ | done |

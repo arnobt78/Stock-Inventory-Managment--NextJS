@@ -240,7 +240,13 @@ export function useUpdateOrder() {
         status: data.status,
         paymentStatus: data.paymentStatus,
         statusAt,
-        updatedAt: statusPatch.updatedAt ?? null,
+        // Cache/API dates are ISO strings; Order type still allows Date
+        updatedAt:
+          statusPatch.updatedAt == null
+            ? null
+            : typeof statusPatch.updatedAt === "string"
+              ? statusPatch.updatedAt
+              : new Date(statusPatch.updatedAt).toISOString(),
       });
       invalidateAfterOrderGraphChange(queryClient);
 
@@ -302,12 +308,17 @@ export function useDeleteOrder() {
       patchDetailCacheMerge<Order>(
         queryClient,
         queryKeys.orders.detail(data.id),
-        (old) => (old ? { ...old, ...cancelPatch } : ({ ...data, ...cancelPatch } as Order)),
+        // ISO cancelledAt/updatedAt match list/detail ClientDate* (Order allows Date|string at runtime)
+        (old) =>
+          (old
+            ? { ...old, ...cancelPatch }
+            : { ...data, ...cancelPatch }) as Order,
       );
       patchDetailCacheMerge<Order>(
         queryClient,
         queryKeys.clientOrders.detail(data.id),
-        (old) => (old ? { ...old, ...cancelPatch } : undefined),
+        (old) =>
+          old ? ({ ...old, ...cancelPatch } as Order) : undefined,
       );
       patchOrderGraphListCaches(queryClient, cancelPatch);
       patchInvoicesOnOrderCancel(queryClient, {

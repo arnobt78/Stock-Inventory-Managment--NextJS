@@ -590,3 +590,7 @@ Format: `TIMESTAMP | AGENT | DECISION | RATIONALE | REQ-ID`
 2026-07-25T18:00:00Z | build-agent | Cancel/update merge detail + mergeOrderItemsPreservingDensify | Thin PUT/DELETE wiped parties + category/supplier line densify | REQ-0211
 2026-07-25T18:05:00Z | red-team | Pre-commit audit PASS | lint ✓ test 738 ✓ invalidate 221 ✓ build ✓; debug logs removed | REQ-0211
 2026-07-25T18:06:00Z | release | Prod SHA 1ec1e8a pushed origin/main | REQ-0211 instant badges/items harden | REQ-0211
+2026-07-26T01:30:00Z | build-agent | Pin eslint-import-resolver-typescript@3.10.1 | Cold Vercel install 404 on lock `2.10.1.tgz` | REQ-0212
+2026-07-26T01:30:00Z | build-agent | mergeOrderItemsPreservingDensify → OrderItem[] | next build TS: items `undefined` vs `OrderItem[]` | REQ-0212
+2026-07-26T01:30:00Z | build-agent | Order dates string\|Date | TanStack ISO vs Prisma Date assignability | REQ-0212
+2026-07-26T01:32:00Z | red-team | Pre-commit audit PASS | tsc/lint/inv221/build; no invalidation change | REQ-0212

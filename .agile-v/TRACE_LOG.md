@@ -64,6 +64,9 @@ Format: `timestamp | agent | span | req_ids | note`
 2026-07-25T15:10:00Z | build | REQ-0209-start | stripe-return + confirm-on-pay + cancel/refund UX | IN_PROGRESS
 2026-07-25T15:15:00Z | build | REQ-0209-ship | AC1–AC6 PASS | gates lint/test/invalidate/build
 
+2026-07-26T01:32:00Z | build | REQ-0212-ship | cold-install+order-TS PASS | tsc/lint/inv221/build
+2026-07-26T01:32:00Z | session | activate | core+pipeline | Resume gate2-0136-cache-smoke post-0212 | PASS
+
 2026-07-22T14:52:00Z | build | REQ-0203-dry | productSupplier helpers PASS
 
 2026-07-22T15:30:00Z | build | REQ-0009-sentry-noise | order+warehouse+notif PASS

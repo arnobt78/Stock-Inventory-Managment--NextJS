@@ -1,10 +1,27 @@
 # Validation Summary — Cycle C1
 
-**Generated:** 2026-07-25 (REQ-0211 harden)
+**Generated:** 2026-07-26 (REQ-0212 deploy unblock)
 **eval_gate_status:** PENDING (Human Gate 2)
 **Active:** **REQ-0136** Gate 2 cache smoke
-**Last ship:** REQ-0211 instant badge/items + Shippo/heal/create densify
-**Prod target SHA:** `1ec1e8a`
+**Last ship:** REQ-0212 Vercel cold-install + Order patch TS
+**Prod target SHA:** pending redeploy (was `1ec1e8a`)
+
+---
+
+## REQ-0212 — Vercel deploy unblock (2026-07-26)
+
+| Check | Result |
+| ----- | ------ |
+| Lockfile | `eslint-import-resolver-typescript` → `3.10.1.tgz` (direct dep) |
+| Merge items | always `OrderItem[]` (`previous ?? []`) |
+| Dates | `Order` + `OrderTrackingInfo` `string \| Date` |
+| Invalidation | unchanged (patch→invalidate) |
+| Gates | `tsc` ✓ lint ✓ invalidate **221** ✓ merge tests ✓ build ✓ |
+
+```
+Scope: built/verified | Traceability: REQ-0212 | Findings: PASS
+Commands: tsc, lint, test:invalidate, build
+```
 
 ---
 

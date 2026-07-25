@@ -19,12 +19,15 @@ export function omitUndefinedFields<T extends Record<string, unknown>>(
   return out;
 }
 
-/** Merge API items onto cached items; prefer next scalars, keep densify when thin. */
+/**
+ * Merge API items onto cached items; prefer next scalars, keep densify when thin.
+ * Always returns OrderItem[] so patchDetailCacheMerge stays assignable to Order.items.
+ */
 export function mergeOrderItemsPreservingDensify(
   previous: OrderItem[] | undefined,
   next: OrderItem[] | undefined,
-): OrderItem[] | undefined {
-  if (next == null) return previous;
+): OrderItem[] {
+  if (next == null) return previous ?? [];
   if (!previous?.length) return next;
 
   const prevById = new Map(previous.map((item) => [item.id, item]));

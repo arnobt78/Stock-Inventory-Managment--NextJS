@@ -4,6 +4,29 @@ Canonical REQ source. All artifacts link via `REQ-XXXX`. Status: `done` | `verif
 
 ---
 
+## REQ-0212 — Vercel cold-install + Order patch TS (deploy unblock)
+
+| Field | Value |
+|-------|-------|
+| **Priority** | P0 |
+| **Risk** | R1 |
+| **Status** | done |
+| **Cycle** | C2 |
+| **Parent** | REQ-0211 |
+
+**Intent:** Unblock Vercel Errors after REQ-0211: cold `npm install` 404 on bad lockfile tarball; `next build` TS fail on order patch merge.
+
+**Acceptance criteria**
+
+- AC1: Direct `eslint-import-resolver-typescript@^3.10.1`; lock `resolved` → `…-3.10.1.tgz` (not `2.10.1.tgz`)
+- AC2: `mergeOrderItemsPreservingDensify` always returns `OrderItem[]`
+- AC3: `Order` / tracking date fields accept `string | Date` (TanStack ISO)
+- AC4: `tsc` + `lint` + `test:invalidate` + `build` PASS; invalidation registry unchanged
+
+**Artifacts:** `package.json`/`package-lock.json`, `merge-order-items-densify.ts`, `use-orders.ts`, `types/order.ts`, `OrderTrackingInfo.tsx`
+
+---
+
 ## REQ-0211 — Shippo test-key Auto Generate (silent US to + USPS)
 
 | Field | Value |

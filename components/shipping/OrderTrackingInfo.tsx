@@ -31,8 +31,8 @@ interface Order {
   trackingUrl?: string | null;
   labelUrl?: string | null;
   paymentStatus?: string;
-  shippedAt?: Date | null;
-  deliveredAt?: Date | null;
+  shippedAt?: string | Date | null;
+  deliveredAt?: string | Date | null;
 }
 
 interface OrderTrackingInfoProps {

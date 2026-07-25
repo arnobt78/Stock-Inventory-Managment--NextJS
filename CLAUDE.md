@@ -172,7 +172,17 @@ All user-facing POST/PUT JSON bodies use `safeParse` + `logger.warn` on fail. Ne
 
 **Every session:** STATE → REQ map → skill 01+17 → Red Team → write-through DECISION/BUILD/VALIDATION.
 
-**C1 open:** Gate 2 PENDING. **Stopped 2026-07-25:** REQ-0209…0211. **Next:** **REQ-0136**.
+**C1 open:** Gate 2 PENDING. **Stopped 2026-07-26:** REQ-0212. **Next:** **REQ-0136**.
+
+## REQ-0212 Vercel deploy unblock (2026-07-26)
+
+| Piece | Location |
+|-------|----------|
+| Lockfile | direct `eslint-import-resolver-typescript@^3.10.1` → `3.10.1.tgz` (cold install) |
+| Merge | `mergeOrderItemsPreservingDensify` → always `OrderItem[]` |
+| Types | `Order` dates + `OrderTrackingInfo` → `string \| Date` |
+
+**Invalidation unchanged.** Unblocks Vercel Errors after `1ec1e8a`.
 
 ## REQ-0209…0211 pay / cancel / Shippo (2026-07-25)
 
@@ -1032,7 +1042,7 @@ Hub: `lib/ui/typography-scale.ts`. Hubs import tokens; ~45 inline files use equi
 
 **Invalidation unchanged** — review/product/dashboard CRUD already clears lists + portals.
 
-**Active wave:** **0211** instant-badge harden done → **0136** Gate 2.
+**Active wave:** **0212** deploy unblock done → **0136** Gate 2.
 
 ## Warehouse detail + Allocate/Transfer (REQ-0203)
 

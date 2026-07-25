@@ -4,15 +4,14 @@
 
 | Eval | REQ | Result | Date |
 |------|-----|--------|------|
-| lint | ALL | PASS | 2026-07-20 |
-| unit | ALL | PASS (630) | 2026-07-20 |
-| invalidate | ALL | PASS (213) | 2026-07-20 |
-| build | ALL | PASS | 2026-07-20 |
-| detail-review-ux | REQ-0165 | PASS | 2026-07-20 |
-| prod-insights-groq | REQ-0005 | PASS | 2026-05-28 |
+| lint | ALL | PASS | 2026-07-26 |
+| tsc | REQ-0212 | PASS | 2026-07-26 |
+| invalidate | ALL | PASS (221) | 2026-07-26 |
+| build | ALL | PASS | 2026-07-26 |
+| merge-densify | REQ-0212 | PASS (2) | 2026-07-26 |
 | UI explore + §10 A1/A2/B1 | REQ-0136 | PENDING | — |
 | Sentry 24h | REQ-0009 | PENDING | — |
 
-**Gate 2 blocked until:** Human UI explore (REQ-0136 AC1–2) + cache smoke §10 A1/A2/B1 (AC3–5) + Sentry 24h (REQ-0009). Prod target SHA `d1aefda` (REQ-0207). Tip `23b955f`.
+**Gate 2 blocked until:** Human UI explore (REQ-0136) + §10 cache smoke + Sentry 24h. Tip after REQ-0212 push; prior Ready tip `1ec1e8a` (then Vercel Errors until 0212).
 
-**Session 2026-07-25:** Infinity Loop activated (skills 01+02+03+06+07+17+19+23). Resume token `gate2-0136-cache-smoke`. No PENDING checkpoints.
+**Session 2026-07-26:** REQ-0212 deploy unblock done. Resume `gate2-0136-cache-smoke`.

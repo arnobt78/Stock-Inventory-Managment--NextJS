@@ -95,14 +95,15 @@ export interface Order {
   trackingCarrier?: string | null;
   trackingUrl?: string | null;
   labelUrl?: string | null;
-  estimatedDelivery?: Date | null;
-  shippedAt?: Date | null;
-  deliveredAt?: Date | null;
-  cancelledAt?: Date | null;
+  /** ISO string from API/TanStack cache, or Date from Prisma-shaped payloads */
+  estimatedDelivery?: string | Date | null;
+  shippedAt?: string | Date | null;
+  deliveredAt?: string | Date | null;
+  cancelledAt?: string | Date | null;
   /** Stripe PaymentIntent ID when paid via Stripe (REQ-0071 detail card) */
   stripePaymentIntentId?: string | null;
-  createdAt: Date;
-  updatedAt?: Date | null;
+  createdAt: string | Date;
+  updatedAt?: string | Date | null;
   createdBy: string;
   updatedBy?: string | null;
   items: OrderItem[]; // Order items (populated via relation)
