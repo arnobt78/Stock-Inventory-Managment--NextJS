@@ -594,3 +594,4 @@ Format: `TIMESTAMP | AGENT | DECISION | RATIONALE | REQ-ID`
 2026-07-26T01:30:00Z | build-agent | mergeOrderItemsPreservingDensify → OrderItem[] | next build TS: items `undefined` vs `OrderItem[]` | REQ-0212
 2026-07-26T01:30:00Z | build-agent | Order dates string\|Date | TanStack ISO vs Prisma Date assignability | REQ-0212
 2026-07-26T01:32:00Z | red-team | Pre-commit audit PASS | tsc/lint/inv221/build; no invalidation change | REQ-0212
+2026-07-26T01:33:00Z | release | Tip SHA 60f3280 pushed origin/main | REQ-0212 deploy unblock | REQ-0212

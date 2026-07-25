@@ -4,7 +4,7 @@
 **eval_gate_status:** PENDING (Human Gate 2)
 **Active:** **REQ-0136** Gate 2 cache smoke
 **Last ship:** REQ-0212 Vercel cold-install + Order patch TS
-**Prod target SHA:** pending redeploy (was `1ec1e8a`)
+**Prod target SHA:** `60f3280`
 
 ---
 
