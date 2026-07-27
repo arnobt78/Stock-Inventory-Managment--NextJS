@@ -28,6 +28,14 @@ import type {
 import type { InvoiceForPage } from "@/lib/server/invoices-data";
 import type { QueryClient } from "@tanstack/react-query";
 import { densifyInvoiceFromOrder } from "@/lib/invoices/densify-invoice-from-order";
+import { resolveInvoiceStatusAt } from "@/lib/invoices/invoice-status-display-date";
+
+/** REQ-0136 — keep Status column date in sync after CRUD (draft/sent/paid/…). */
+function withResolvedInvoiceStatusAt(invoice: Invoice): Invoice {
+  const statusAt = resolveInvoiceStatusAt(invoice);
+  if (statusAt == null) return invoice;
+  return { ...invoice, statusAt };
+}
 
 /** Resolve order from detail or any list cache, then densify invoice row. */
 function densifyInvoiceRowFromOrderCache(
@@ -93,6 +101,9 @@ function mergeOptimisticInvoiceUpdate(
       next.amountDue = Math.max(0, total - amountPaid);
     }
   }
+
+  // REQ-0136 — Status column date under badge after dropdown status change
+  next.statusAt = resolveInvoiceStatusAt(next);
 
   return next;
 }
@@ -173,7 +184,9 @@ export function useCreateInvoice() {
     },
     onSuccess: (data: Invoice) => {
       // REQ-0211 — densify + prepend only invoice lists (never orders — wrong id)
-      const densified = densifyInvoiceRowFromOrderCache(queryClient, data);
+      const densified = withResolvedInvoiceStatusAt(
+        densifyInvoiceRowFromOrderCache(queryClient, data),
+      );
       patchDetailCache(
         queryClient,
         queryKeys.invoices.detail(densified.id),
@@ -278,10 +291,15 @@ export function useUpdateInvoice() {
       invalidateAfterOrderGraphChange(queryClient);
     },
     onSuccess: (data) => {
-      patchDetailCache(queryClient, queryKeys.invoices.detail(data.id), data);
-      patchOrderGraphListCaches(queryClient, data);
+      const withStatusAt = withResolvedInvoiceStatusAt(data);
+      patchDetailCache(
+        queryClient,
+        queryKeys.invoices.detail(withStatusAt.id),
+        withStatusAt,
+      );
+      patchOrderGraphListCaches(queryClient, withStatusAt);
       // REQ-0153 — confirm linked order from server invoice money
-      patchLinkedOrderFromInvoiceMoney(queryClient, data);
+      patchLinkedOrderFromInvoiceMoney(queryClient, withStatusAt);
       toast({
         title: "Invoice Updated!",
         description: `Invoice #${data.invoiceNumber} has been successfully updated.`,
@@ -344,14 +362,15 @@ export function useSendInvoice() {
       return response.data;
     },
     onSuccess: (data, invoiceId) => {
+      const withStatusAt = withResolvedInvoiceStatusAt(data.invoice);
       patchDetailCache(
         queryClient,
         queryKeys.invoices.detail(invoiceId),
-        data.invoice,
+        withStatusAt,
       );
-      patchOrderGraphListCaches(queryClient, data.invoice);
+      patchOrderGraphListCaches(queryClient, withStatusAt);
       // REQ-0153 — keep order invoiceForOrder / payment badge in sync after send
-      patchLinkedOrderFromInvoiceMoney(queryClient, data.invoice);
+      patchLinkedOrderFromInvoiceMoney(queryClient, withStatusAt);
 
       invalidateAfterOrderGraphChange(queryClient);
 

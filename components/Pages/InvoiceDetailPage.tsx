@@ -311,8 +311,10 @@ export default function InvoiceDetailPage({
               </>
             }
             description={
-              dataLoading || !createdAt ? (
+              dataLoading ? (
                 <DataSlotPulse variant="date" />
+              ) : !createdAt ? (
+                <span className="text-gray-500 dark:text-white/60">—</span>
               ) : (
                 <ClientRelativeTime
                   date={createdAt}

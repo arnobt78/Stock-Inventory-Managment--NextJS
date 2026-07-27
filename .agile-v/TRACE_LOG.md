@@ -83,3 +83,5 @@ Format: `timestamp | agent | span | req_ids | note`
 2026-07-27T13:35:00Z | session | hold | not committed — awaiting user go-ahead (Sentry watch clock) | PENDING
 
 2026-07-27T11:51:00Z | build | REQ-0136-idle-harden+fixB+hydration | PASS lint/test748/inv221/build | ship
+
+2026-07-27T12:15:00Z | build | REQ-0136-statusAt+hydration | PASS | ship

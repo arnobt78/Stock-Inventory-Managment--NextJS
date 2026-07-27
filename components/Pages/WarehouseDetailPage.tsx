@@ -322,8 +322,10 @@ export default function WarehouseDetailPage({
             }
             title={warehouse?.name}
             description={
-              dataLoading || !createdAt ? (
+              dataLoading ? (
                 <DataSlotPulse variant="date" />
+              ) : !createdAt ? (
+                <span className="text-gray-500 dark:text-white/60">—</span>
               ) : (
                 <ClientRelativeTime
                   date={createdAt}
@@ -530,9 +532,14 @@ export default function WarehouseDetailPage({
                       tone="orange"
                       loading={dataLoading}
                     >
-                      {!dataLoading && createdAt && (
-                        <ClientDateTime date={createdAt} semantic="created" />
-                      )}
+                      {!dataLoading &&
+                        (createdAt ? (
+                          <ClientDateTime date={createdAt} semantic="created" />
+                        ) : (
+                          <span className="text-gray-500 dark:text-white/60">
+                            —
+                          </span>
+                        ))}
                     </DetailInfoRow>
                     {updatedAt && (
                       <DetailInfoRow

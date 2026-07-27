@@ -147,62 +147,63 @@ export function useUpdateOrder() {
     onSuccess: (data: Order) => {
       // PUT body is thin (no parties densify) — merge, don't replace detail.
       // Also sync invoice linkedOrderStatus/Payment (patchOrderGraph matches invoice by id≠order.id).
-      const statusAt =
-        resolveOrderStatusAtFromSource(data) ??
-        (data.updatedAt == null
+      // REQ-0136 — always resolve statusAt (updatedAt fallback) so list Status date
+      // updates on confirm/process and does not keep a stale shipped/delivered stamp.
+      const updatedAtIso =
+        data.updatedAt == null
           ? undefined
           : typeof data.updatedAt === "string"
             ? data.updatedAt
-            : new Date(data.updatedAt).toISOString());
-      // Thin PUT items lack category/supplier names — merge densify; omit undefined.
-      const statusPatch = omitUndefinedFields({
-        id: data.id,
-        status: data.status,
-        paymentStatus: data.paymentStatus,
-        statusAt,
-        shippedAt:
-          data.shippedAt == null
-            ? undefined
-            : typeof data.shippedAt === "string"
-              ? data.shippedAt
-              : new Date(data.shippedAt).toISOString(),
-        deliveredAt:
-          data.deliveredAt == null
-            ? undefined
-            : typeof data.deliveredAt === "string"
-              ? data.deliveredAt
-              : new Date(data.deliveredAt).toISOString(),
-        cancelledAt:
-          data.cancelledAt == null
-            ? undefined
-            : typeof data.cancelledAt === "string"
-              ? data.cancelledAt
-              : new Date(data.cancelledAt).toISOString(),
-        trackingNumber: data.trackingNumber,
-        trackingCarrier: data.trackingCarrier,
-        trackingUrl: data.trackingUrl,
-        labelUrl: data.labelUrl,
-        updatedAt:
-          data.updatedAt == null
-            ? statusAt
-            : typeof data.updatedAt === "string"
-              ? data.updatedAt
-              : new Date(data.updatedAt).toISOString(),
-        notes: data.notes,
-        estimatedDelivery:
-          data.estimatedDelivery == null
-            ? undefined
-            : typeof data.estimatedDelivery === "string"
-              ? data.estimatedDelivery
-              : new Date(data.estimatedDelivery).toISOString(),
-        subtotal: data.subtotal,
-        tax: data.tax,
-        shipping: data.shipping,
-        discount: data.discount,
-        total: data.total,
-        shippingAddress: data.shippingAddress,
-        billingAddress: data.billingAddress,
-      } as Record<string, unknown>) as Partial<Order> & { id: string };
+            : new Date(data.updatedAt).toISOString();
+      const statusAt =
+        resolveOrderStatusAtFromSource(data) ?? updatedAtIso ?? undefined;
+      // Thin PUT items lack category/supplier names — merge densify; omit undefined
+      // except statusAt which must always overwrite prior terminal dates when set.
+      const statusPatch = {
+        ...omitUndefinedFields({
+          id: data.id,
+          status: data.status,
+          paymentStatus: data.paymentStatus,
+          shippedAt:
+            data.shippedAt == null
+              ? undefined
+              : typeof data.shippedAt === "string"
+                ? data.shippedAt
+                : new Date(data.shippedAt).toISOString(),
+          deliveredAt:
+            data.deliveredAt == null
+              ? undefined
+              : typeof data.deliveredAt === "string"
+                ? data.deliveredAt
+                : new Date(data.deliveredAt).toISOString(),
+          cancelledAt:
+            data.cancelledAt == null
+              ? undefined
+              : typeof data.cancelledAt === "string"
+                ? data.cancelledAt
+                : new Date(data.cancelledAt).toISOString(),
+          trackingNumber: data.trackingNumber,
+          trackingCarrier: data.trackingCarrier,
+          trackingUrl: data.trackingUrl,
+          labelUrl: data.labelUrl,
+          updatedAt: updatedAtIso ?? statusAt,
+          notes: data.notes,
+          estimatedDelivery:
+            data.estimatedDelivery == null
+              ? undefined
+              : typeof data.estimatedDelivery === "string"
+                ? data.estimatedDelivery
+                : new Date(data.estimatedDelivery).toISOString(),
+          subtotal: data.subtotal,
+          tax: data.tax,
+          shipping: data.shipping,
+          discount: data.discount,
+          total: data.total,
+          shippingAddress: data.shippingAddress,
+          billingAddress: data.billingAddress,
+        } as Record<string, unknown>),
+        ...(statusAt != null ? { statusAt } : {}),
+      } as Partial<Order> & { id: string };
       patchDetailCacheMerge<Order>(
         queryClient,
         queryKeys.orders.detail(data.id),

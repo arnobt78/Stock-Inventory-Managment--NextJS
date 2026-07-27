@@ -470,8 +470,10 @@ export default function ProductDetailPage({
                     {product!.sku}
                   </CopyableText>{" "}
                   • Created{" "}
-                  {createdAt && (
+                  {createdAt ? (
                     <ClientRelativeTime date={createdAt} semantic="created" />
+                  ) : (
+                    <span className="text-gray-500 dark:text-white/60">—</span>
                   )}
                 </>
               )

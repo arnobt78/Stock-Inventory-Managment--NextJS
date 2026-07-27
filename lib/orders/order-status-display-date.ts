@@ -47,30 +47,40 @@ function toIso(value: Date | string | null | undefined): string | undefined {
   return Number.isNaN(d.getTime()) ? undefined : d.toISOString();
 }
 
-/** Returns ISO string when status warrants a status-specific date on detail cards. */
+/**
+ * Returns ISO string for Status column date under the badge (REQ-0127 / REQ-0136).
+ * Prefer event-specific timestamps; fall back to updatedAt so confirmed/processing/pending
+ * (and shipped without shippedAt) still show a date after dropdown CRUD.
+ */
 export function resolveOrderStatusAt(
   order: OrderStatusDateInput,
 ): string | undefined {
   const status = order.status?.toLowerCase();
   const paymentStatus = order.paymentStatus?.toLowerCase();
+  const updatedAt = toIso(order.updatedAt);
 
   if (paymentStatus === "refunded") {
-    return toIso(order.updatedAt) ?? toIso(order.paidAt);
+    return updatedAt ?? toIso(order.paidAt);
   }
   if (status === "cancelled") {
-    return toIso(order.cancelledAt) ?? toIso(order.updatedAt);
+    return toIso(order.cancelledAt) ?? updatedAt;
   }
   if (status === "delivered") {
-    return toIso(order.deliveredAt) ?? toIso(order.shippedAt);
+    return toIso(order.deliveredAt) ?? toIso(order.shippedAt) ?? updatedAt;
   }
   if (status === "shipped") {
-    return toIso(order.shippedAt);
+    return toIso(order.shippedAt) ?? updatedAt;
   }
-  if (status === "paid" || paymentStatus === "paid" || paymentStatus === "partial") {
-    return toIso(order.paidAt) ?? toIso(order.updatedAt);
+  if (
+    status === "paid" ||
+    paymentStatus === "paid" ||
+    paymentStatus === "partial"
+  ) {
+    return toIso(order.paidAt) ?? updatedAt;
   }
 
-  return undefined;
+  // pending / confirmed / processing / unknown — list Status column needs a date
+  return updatedAt;
 }
 
 /** Attach computed statusAt ISO string for recent-order list rows. Strips nested invoice. */

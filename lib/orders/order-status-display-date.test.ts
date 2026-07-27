@@ -34,8 +34,24 @@ describe("resolveOrderStatusAt", () => {
     ).toBe("2026-07-14T12:00:00.000Z");
   });
 
-  it("returns undefined for pending without terminal dates", () => {
+  it("returns undefined for pending without updatedAt", () => {
     expect(resolveOrderStatusAt({ status: "pending" })).toBeUndefined();
+  });
+
+  it("returns updatedAt for confirmed / processing / pending", () => {
+    const at = "2026-07-27T12:00:00.000Z";
+    expect(
+      resolveOrderStatusAt({ status: "confirmed", updatedAt: at }),
+    ).toBe(at);
+    expect(
+      resolveOrderStatusAt({ status: "processing", updatedAt: at }),
+    ).toBe(at);
+    expect(resolveOrderStatusAt({ status: "pending", updatedAt: at })).toBe(at);
+  });
+
+  it("falls back to updatedAt for shipped when shippedAt missing", () => {
+    const at = "2026-07-27T13:00:00.000Z";
+    expect(resolveOrderStatusAt({ status: "shipped", updatedAt: at })).toBe(at);
   });
 
   it("withOrderStatusAt attaches statusAt when resolved", () => {

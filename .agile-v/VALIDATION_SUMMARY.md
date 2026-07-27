@@ -1,10 +1,26 @@
 # Validation Summary — Cycle C1
 
-**Generated:** 2026-07-27 (REQ-0136 idle badge harden + Fix B + hydration — ship)
-**eval_gate_status:** PENDING (Human Gate 2) — Sentry 24h after this deploy (REQ-0009)
-**Active:** Prod smoke after Vercel Ready
-**Last ship:** pending this commit (idle harden + Claude Fix B + toDateOrNull)
-**Prod target SHA:** tip after push
+**Generated:** 2026-07-27 (REQ-0136 statusAt + hydration)
+**eval_gate_status:** PENDING (Human Gate 2)
+**Active:** Prod smoke after this deploy
+**Last ship:** statusAt under badges + ClientRelativeTime harden
+
+---
+
+## REQ-0136 — statusAt under badges + hydration date sweep (2026-07-27)
+
+| Check | Result |
+| ----- | ------ |
+| resolveOrderStatusAt | updatedAt fallback for confirmed/processing/pending |
+| useUpdateOrder | always patch statusAt when resolved |
+| use-invoices | statusAt on optimistic + create/update/send |
+| Missing date | "—" (pulse only while dataLoading) |
+| ClientRelativeTime | suppressHydrationWarning |
+| Gates | lint ✓ order-status + ssr-sync tests ✓ tsc ✓ |
+
+```
+Scope: built/verified | Traceability: REQ-0136, REQ-0009 | Findings: PASS
+```
 
 ---
 

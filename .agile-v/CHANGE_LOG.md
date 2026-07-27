@@ -86,3 +86,5 @@
 | 2026-07-27 | Session activate — Agile V core+pipeline; resume REQ-0136 Gate 2 | REQ-0136 |
 
 | 2026-07-27 | Idle badge harden + Fix B merge + hydration toDateOrNull | REQ-0136 |
+
+| 2026-07-27 | statusAt under badges + hydration date sweep | REQ-0136 |

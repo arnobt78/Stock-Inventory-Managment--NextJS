@@ -49,7 +49,11 @@ export function ClientRelativeTime({
   }, [mounted, d]);
 
   return (
-    <span className={cn(semanticDateClass(semantic), className)}>
+    <span
+      className={cn(semanticDateClass(semantic), className)}
+      // Relative label swaps after mount (stable → "X ago"); suppress React #418.
+      suppressHydrationWarning
+    >
       {prefix}
       {label}
     </span>
