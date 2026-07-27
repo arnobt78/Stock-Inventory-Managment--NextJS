@@ -1,10 +1,50 @@
 # Validation Summary — Cycle C1
 
-**Generated:** 2026-07-26 (REQ-0213 README)
-**eval_gate_status:** PENDING (Human Gate 2)
-**Active:** **REQ-0136** Gate 2 cache smoke
+**Generated:** 2026-07-27 (REQ-0136 cache smoke complete)
+**eval_gate_status:** PENDING (Human Gate 2) — blocked on Sentry 24h watch only (REQ-0009)
+**Active:** Sentry 24h watch → Gate 2
 **Last ship:** REQ-0213 educational README + Diploi
-**Prod target SHA:** app `60f3280` (0212); docs tip after 0213 push
+**Prod target SHA:** app `60f3280` (0212); tip `142bb2c`
+
+---
+
+## REQ-0136 — Gate-2 cache smoke §10 A1/A2/B1 (2026-07-27)
+
+**Scope:** No code changes — live browser verification only (dev server + demo catalog seed, admin role). AC1–2 (UI mismatch pass) previously closed via REQ-0141–0187 child REQs.
+
+**Method:** `npm run script:reset-demo-db -- --with-catalog` → `npm run dev` → Playwright browser session logged in as `test@admin.com`.
+
+| Check | Action | 0s | ~5 min / nav-away+back | Result |
+|-------|--------|----|-------------------------|--------|
+| A1 | Edit product "Beats"→"Beats Pro", qty 50→55 (catalog) | List/detail/category/supplier grids all show Beats Pro, 35 avail, 20 reserved | Same values held after 5 min background wait + `/` → back navigation | PASS |
+| A2 | List → click product (Link nav) → detail → Back | — | Back returned to list showing "Beats Pro" 35/20 reserved, not stale "Beats" 30 | PASS |
+| B1 | Invoice INV-DEMO-002 Sent/$100-of-$3980 → Edit → Status Paid, Amount Paid 3980 | Invoice detail: Paid, $0.00 due; Order ORD-DEMO-002 paymentStatus instantly "Paid" (order-graph patch) | Same after 5 min + nav away/back — no revert to Sent/partial | PASS |
+
+Warehouse/product reserved qty (20) correctly unchanged by B1 — order stays `Confirmed` (not `Delivered`), so disjoint-reservation stock stays held per REQ-0103; this is expected, not a bug.
+
+**Gates:** lint ✓ · test 738/738 ✓ · invalidate 221/221 ✓ · build ✓ (no code changes)
+
+**Evidence summary**
+
+```
+Scope: validated | Traceability: REQ-0136 (AC3–6) | Findings: PASS (3/3 smoke checks)
+Decision Points: no code changes needed; disjoint-reservation "no release on paid" behavior confirmed correct per REQ-0103, not a regression
+Log: 2026-07-27 | red-team-verifier | REQ-0136 §10 A1/A2/B1 cache smoke PASS | REQ-0136
+```
+
+**Remaining before Gate 2:** Sentry 24h watch (REQ-0009) — human-observed, cannot be automated from this session.
+
+---
+
+## Session activate — 2026-07-27 (core + pipeline)
+
+```
+Scope: resume/activate | Traceability: REQ-0136, REQ-0008 | Findings: FLAG (human QA pending)
+Decision Points: no re-bootstrap; .agile-v intact (24 skills + runtime contracts); resume gate2-0136-cache-smoke
+Log: 2026-07-27 | orchestrator | session activate | Infinity Loop ready | REQ-0136
+```
+
+**Next:** Sentry 24h watch (REQ-0009) → Gate 2 (`eval_gate_status` PASS).
 
 ---
 

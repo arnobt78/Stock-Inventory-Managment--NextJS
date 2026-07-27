@@ -596,3 +596,10 @@ Format: `TIMESTAMP | AGENT | DECISION | RATIONALE | REQ-ID`
 2026-07-26T01:32:00Z | red-team | Pre-commit audit PASS | tsc/lint/inv221/build; no invalidation change | REQ-0212
 2026-07-26T01:33:00Z | release | Tip SHA 60f3280 pushed origin/main | REQ-0212 deploy unblock | REQ-0212
 2026-07-26T01:44:00Z | docs | Educational README + Diploi launch section | Learner env/API/reuse; SECURITY link; optional Diploi vs Vercel prod | REQ-0213
+
+2026-07-27T10:24:00Z | orchestrator | Agile V session activate (core+pipeline) | No re-bootstrap — .agile-v intact (24 skills, runtime contracts, POLICY/TRACE/EVAL/CHECKPOINTS); resume gate2-0136-cache-smoke → REQ-0136 AC1–2 → §10 A1/A2/B1 → Gate 2; tip 142bb2c / prod 60f3280 | REQ-0136,REQ-0008
+2026-07-27T10:57:00Z | red-team-verifier | REQ-0136 §10 A1/A2/B1 cache smoke PASS via live browser session | Verified product edit + detail-back + invoice-paid freshness at 0s and 5min, no revert; disjoint-reservation stock hold on Confirmed (not Delivered) confirmed correct per REQ-0103, not a bug | REQ-0136
+2026-07-27T10:58:00Z | orchestrator | REQ-0136 status -> done; Gate 2 blocked only on Sentry 24h watch (REQ-0009) | AC1-2 already closed via REQ-0141-0187 child REQs; AC3-6 verified this session with no code changes needed | REQ-0136
+
+2026-07-27T11:25:00Z | build-agent | SSR sync never apply while invalidated | Prod badge revert: soft-nav RSC applied over TanStack patch; logs d882bd post-fix refetch-only | REQ-0136
+2026-07-27T11:25:00Z | build-agent | Top Products groupBy productId only | Duplicate React key from name/sku snapshot split | REQ-0136

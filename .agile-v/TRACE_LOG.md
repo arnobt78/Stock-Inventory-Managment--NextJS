@@ -71,3 +71,9 @@ Format: `timestamp | agent | span | req_ids | note`
 2026-07-22T14:52:00Z | build | REQ-0203-dry | productSupplier helpers PASS
 
 2026-07-22T15:30:00Z | build | REQ-0009-sentry-noise | order+warehouse+notif PASS
+
+2026-07-27T10:24:00Z | session | activate | core+pipeline | Resume gate2-0136-cache-smoke; tip 142bb2c; STATE+PLAYBOOK+EVAL+config synced | PASS
+
+2026-07-27T10:44:00Z | verify | REQ-0136-smoke-start | dev server + demo catalog seed (--with-catalog) + Playwright admin session | IN_PROGRESS
+2026-07-27T10:57:00Z | verify | REQ-0136-smoke-done | A1/A2/B1 all PASS at 0s and 5min | PASS
+2026-07-27T10:58:00Z | session | state-sync | REQ-0136 -> done; resume gate2-sentry-24h -> REQ-0009 | PASS

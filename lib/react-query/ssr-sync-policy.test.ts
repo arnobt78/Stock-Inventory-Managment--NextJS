@@ -38,8 +38,8 @@ describe("resolveSsrSyncAction", () => {
     ).toBe("refetch");
   });
 
-  // REQ-0209 — thin create patch + SSR parties while refetching → apply densify
-  it("applies richer SSR densify while fetching (parties flash guard)", () => {
+  // REQ-0136 — never apply SSR while invalidated/fetching (prod badge revert)
+  it("refetches richer SSR densify while fetching instead of apply", () => {
     expect(
       resolveSsrSyncAction(
         {
@@ -52,7 +52,7 @@ describe("resolveSsrSyncAction", () => {
         { id: "1", orderNumber: "ORD-1" },
         { fetchStatus: "fetching", isInvalidated: true },
       ),
-    ).toBe("apply");
+    ).toBe("refetch");
   });
 
   it("skips when cached array is longer than SSR snapshot", () => {
@@ -194,14 +194,38 @@ describe("resolveSsrSyncAction", () => {
     ).toBe("apply");
   });
 
-  it("applies list status badges while invalidated instead of refetch-only", () => {
+  it("refetches list status badges while invalidated instead of applying SSR", () => {
     expect(
       resolveSsrSyncAction(
         [{ id: "o1", status: "confirmed", paymentStatus: "unpaid" }],
         [{ id: "o1", status: "pending", paymentStatus: "unpaid" }],
         { isInvalidated: true },
       ),
-    ).toBe("apply");
+    ).toBe("refetch");
+  });
+
+  it("skips applying stale SSR badges when cache is newer by updatedAt (idle)", () => {
+    expect(
+      resolveSsrSyncAction(
+        [
+          {
+            id: "o1",
+            status: "pending",
+            paymentStatus: "unpaid",
+            updatedAt: "2026-01-01T00:00:00.000Z",
+          },
+        ],
+        [
+          {
+            id: "o1",
+            status: "confirmed",
+            paymentStatus: "unpaid",
+            updatedAt: "2026-01-02T00:00:00.000Z",
+          },
+        ],
+        {},
+      ),
+    ).toBe("skip");
   });
 });
 

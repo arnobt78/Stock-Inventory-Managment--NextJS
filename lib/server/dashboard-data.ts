@@ -342,9 +342,11 @@ export async function getDashboardForAdmin(
       where: whereStoreOrders,
       _count: { id: true },
     }),
+    // Group by productId only — name/sku snapshots can differ across lines
+    // (rename/edit) and would duplicate React keys on Top Products (REQ-0136).
     storeOrderIds.length > 0
       ? prisma.orderItem.groupBy({
-          by: ["productId", "productName", "sku"],
+          by: ["productId"],
           where: { orderId: { in: storeOrderIds } },
           _count: { id: true },
           _sum: { quantity: true, subtotal: true },
@@ -786,6 +788,8 @@ export async function getDashboardForAdmin(
           where: { id: { in: topProductIds } },
           select: {
             id: true,
+            name: true,
+            sku: true,
             imageUrl: true,
             categoryId: true,
             supplierId: true,
@@ -843,15 +847,16 @@ export async function getDashboardForAdmin(
     topSupplierUsers.map((u) => [u.id, u.image]),
   );
 
-  const topProducts: DashboardTopProduct[] = topProductsRaw.map((p) => {
+  const topProductsMerged: DashboardTopProduct[] = topProductsRaw.map((p) => {
     const catalog = topProductById.get(p.productId);
     const supplier = catalog?.supplierId
       ? topSupplierById.get(catalog.supplierId)
       : undefined;
     return {
       productId: p.productId,
-      productName: p.productName,
-      sku: p.sku,
+      // Prefer live catalog name/sku; groupBy is productId-only (unique keys)
+      productName: catalog?.name ?? "Unknown product",
+      sku: catalog?.sku ?? "",
       orderCount: p._count.id,
       totalQuantity: p._sum.quantity ?? 0,
       totalRevenue: p._sum.subtotal ?? 0,
@@ -867,6 +872,24 @@ export async function getDashboardForAdmin(
         : null,
     };
   });
+  // Collapse any stale Redis rows still split by name/sku snapshot (pre-fix)
+  const topProductsById = new Map<string, DashboardTopProduct>();
+  for (const row of topProductsMerged) {
+    const prev = topProductsById.get(row.productId);
+    if (!prev) {
+      topProductsById.set(row.productId, row);
+      continue;
+    }
+    topProductsById.set(row.productId, {
+      ...prev,
+      orderCount: prev.orderCount + row.orderCount,
+      totalQuantity: prev.totalQuantity + row.totalQuantity,
+      totalRevenue: prev.totalRevenue + row.totalRevenue,
+    });
+  }
+  const topProducts = [...topProductsById.values()].sort(
+    (a, b) => b.orderCount - a.orderCount,
+  );
 
   // Calculate average order value (all orders for backward compatibility)
   const totalOrderRevenue = Number(orderSum._sum.total ?? 0);

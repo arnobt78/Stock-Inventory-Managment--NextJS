@@ -130,29 +130,18 @@ export function listHasFresherStatusBadges(
  * router.back() can restore stale RSC props — never clobber fresher client cache.
  * REQ-0133: default skip when server cannot prove fresher than cached (lists + entities).
  * REQ-0202: apply when timestamps equal (or both missing) but SSR densify is richer.
- * REQ-0209: while invalidated/fetching, still apply richer SSR so detail parties paint with RSC.
- * REQ-0211: list status/payment / linkedOrder* badges apply from SSR when fresher.
+ * REQ-0136 / debug d882bd: while invalidated/fetching NEVER apply SSR — soft-nav RSC can
+ * lag the client patch (prod-only revert). Densify/badge apply exceptions caused flash-back.
+ * listHasFresherStatusBadges still used when idle to paint true fresher RSC badges.
  */
 export function resolveSsrSyncAction<T>(
   serverData: T,
   cached: T | undefined,
   state: SsrQueryStateHint | undefined,
 ): SsrSyncAction {
+  // After CRUD invalidate, keep patched badges; let refetch settle from API/Redis.
+  // Applying RSC here reintroduced stale status/payment on production soft-nav.
   if (state?.isInvalidated || state?.fetchStatus === "fetching") {
-    // Create/patch often seeds a thin detail row; keep SSR densify visible during refetch
-    if (
-      cached !== undefined &&
-      serverHasRicherDensify(serverData, cached)
-    ) {
-      return "apply";
-    }
-    // Paint RSC status badges immediately (do not wait for invalidated refetch)
-    if (
-      cached !== undefined &&
-      listHasFresherStatusBadges(serverData, cached)
-    ) {
-      return "apply";
-    }
     return "refetch";
   }
   if (

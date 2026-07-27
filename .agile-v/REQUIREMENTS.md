@@ -4912,7 +4912,7 @@ Canonical REQ source. All artifacts link via `REQ-XXXX`. Status: `done` | `verif
 |-------|-------|
 | **Priority** | P0 |
 | **Risk** | R2 |
-| **Status** | in_progress |
+| **Status** | done |
 | **Cycle** | C2 |
 | **Parent** | REQ-0133–0135 (cache), REQ-0121 (UI sweep), Gate-2 |
 
@@ -4920,13 +4920,13 @@ Canonical REQ source. All artifacts link via `REQ-XXXX`. Status: `done` | `verif
 
 **Acceptance criteria**
 
-- AC1: Each reported UI mismatch logged with route + expected vs actual; fixed with shared tokens/components (no one-off CSS drift)
-- AC2: Lists/dialogs/detail chrome usable for admin + client (+ supplier if touched) without broken layout/click/nav that hides wrong data
-- AC3: §10 **A1** — product name/qty edit stays fresh on list + detail + category/supplier grids at 0s and ~5 min tab away/back
-- AC4: §10 **A2** — detail → Back to list shows updated row (no SSR clobber)
-- AC5: §10 **B1** — mark invoice paid → product/warehouse stock + allocations stay fresh ~5 min
-- AC6: Results recorded in `VALIDATION_SUMMARY.md`; gates (lint/test/invalidate/build) pass for any code fixes
-- AC7: Out of scope unless AC3–5 FAIL — Infinity `staleTime`, full B2–D, every role×route CRUD
+- AC1: Each reported UI mismatch logged with route + expected vs actual; fixed with shared tokens/components (no one-off CSS drift) — **PASS**, closed via REQ-0141–0187 child REQs (all `Parent: REQ-0136`)
+- AC2: Lists/dialogs/detail chrome usable for admin + client (+ supplier if touched) without broken layout/click/nav that hides wrong data — **PASS**, same child-REQ sweep
+- AC3: §10 **A1** — product name/qty edit stays fresh on list + detail + category/supplier grids at 0s and ~5 min tab away/back — **PASS** (2026-07-27, browser-verified: Beats→Beats Pro qty 30→55/avail 35 held on list/detail/category/supplier grids at 0s and after 5 min + navigation away/back)
+- AC4: §10 **A2** — detail → Back to list shows updated row (no SSR clobber) — **PASS** (2026-07-27, list→detail(Link)→Back showed "Beats Pro"/35 avail, no revert)
+- AC5: §10 **B1** — mark invoice paid → product/warehouse stock + allocations stay fresh ~5 min — **PASS** (2026-07-27, INV-DEMO-002 Sent/partial→Paid/$3980; ORD-DEMO-002 paymentStatus instantly Paid; warehouse/product reserved-qty correctly unchanged since order stays Confirmed not Delivered; held at 0s and 5 min)
+- AC6: Results recorded in `VALIDATION_SUMMARY.md`; gates (lint/test/invalidate/build) pass for any code fixes — **PASS** (lint ✓, test 738/738 ✓, invalidate 221/221 ✓, build ✓; no code changes required — smoke only)
+- AC7: Out of scope unless AC3–5 FAIL — Infinity `staleTime`, full B2–D, every role×route CRUD — N/A, AC3–5 all PASS
 
 **Artifacts:** TBD per mismatch; `docs/MANUAL_TEST_FIXTURES.md` §10; `.agile-v/VALIDATION_SUMMARY.md`
 

@@ -903,8 +903,9 @@ export default function AdminAnalyticsContent({
                       <tbody className="divide-y divide-border">
                         {stats.orderAnalytics.topProducts
                           .slice(0, 5)
-                          .map((p) => (
-                            <tr key={p.productId}>
+                          .map((p, i) => (
+                            // Index suffix guards stale Redis rows that still split by name/sku
+                            <tr key={`${p.productId}:${i}`}>
                               <td className="py-2 pr-4 font-normal min-w-0 max-w-[280px]">
                                 <DenseCatalogProductCell
                                   productId={p.productId}
