@@ -14,7 +14,7 @@
   "stopped": "2026-07-27 idle badge harden + Fix B + hydration; resume Sentry 24h",
   "last_shipped_req": "REQ-0136",
   "prod_target_sha": "60f3280",
-  "local_tip_sha": "pending",
+  "local_tip_sha": "ce0f5a2",
   "risk_default": "R2",
   "requirements_file": ".agile-v/REQUIREMENTS.md",
   "skills_upstream": "https://github.com/Agile-V/agile_v_skills",
