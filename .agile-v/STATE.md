@@ -8,7 +8,7 @@
 | **Session** | 2026-07-27 — docs write-through |
 | **Active REQ** | **REQ-0009** (Sentry 24h) |
 | **Done range** | … + **0136** (Fix A/B, idle, statusAt, hydration) |
-| **Prod SHA** | tip `db0bacf` |
+| **Prod SHA** | tip `d8862d4` (docs; app `7bcfa8e`) |
 | **Human Gate 1** | APPROVED |
 | **Human Gate 2** | PENDING — Sentry 24h after Ready |
 | **Resume token** | `gate2-sentry-24h` |
