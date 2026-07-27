@@ -8,7 +8,7 @@
 | **Session** | 2026-07-27 — REQ-0136 statusAt plan |
 | **Active REQ** | Gate 2 Sentry 24h (REQ-0009) after prod Ready |
 | **Done range** | … + **0136** (SSR Fix A/B, idle, statusAt, hydration) |
-| **Prod SHA** | pending this push |
+| **Prod SHA** |  |
 | **Human Gate 1** | APPROVED |
 | **Human Gate 2** | PENDING — Sentry 24h |
 | **Resume token** | `gate2-sentry-24h` |
