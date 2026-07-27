@@ -110,7 +110,7 @@ Details: `docs/Redis_Sentry_PostHog_INTEGRATION_GUIDE.md`
 |-------|------|
 | Patch helpers | `lib/react-query/patch-mutation-cache.ts` — `patchDetailCache`, `patchListCaches`, `patchOrderGraphListCaches`, `patchProductInPortalCaches`, stock allocation helpers |
 | Loading predicates | `lib/react-query/is-data-slot-loading.ts` — `isDataSlotLoading` (cold), `isDataSlotUnsettled` (stale refetch on aggregates) |
-| SSR sync guard | `lib/react-query/ssr-sync-policy.ts` — skip apply when client `updatedAt >= server` |
+| SSR sync guard | `lib/react-query/ssr-sync-policy.ts` — Fix A: no apply while invalidated; idle badges only if `serverAt > cachedAt`; Fix B: `applyDensifyOnly` + merge helpers |
 | Mutation pattern | patch detail + list caches **before** `invalidateAllRelatedQueries` / `invalidateAfterOrderGraphChange` |
 | Domains patched | products/categories/suppliers/warehouses, orders/invoices (+ client variants), portal browse, support tickets, product reviews, user management |
 | Intentional pulse-only | dashboard/home KPI counts (server aggregates); stock transfer (multi-warehouse — invalidate + pulse) |
@@ -125,7 +125,7 @@ Details: `docs/Redis_Sentry_PostHog_INTEGRATION_GUIDE.md`
 | Reassign / Reply | clear mismatched productId; `resolveTicketReplyTarget` (0197) |
 | No-flicker | SelectValue SSR labels; `serverHasRicherDensify` sync (0202) |
 
-**Stopped 2026-07-25:** REQ-0209…0211 + instant badge/items harden (SSR fresher badges, densify merge). **Next:** REQ-0136 Gate 2.
+**Stopped 2026-07-27:** REQ-0136 SSR Fix A/B + idle + statusAt + hydration (`db0bacf`). **Next:** prod smoke → Sentry 24h (REQ-0009) → Gate 2.
 
 ## 7b. Table pagination Select (Radix portal, 2026-05-22)
 
@@ -301,7 +301,8 @@ flowchart LR
 | Delivered + Due badges (REQ-0155) | `store-order-status-badges.ts`; Total Orders Delivered; Outstanding→Due | UI-only |
 | Partial pay KPIs (REQ-0154) | `payment-money-stats.ts` → dashboards Paid/Partial/Due/Pending; Partial badges; table Total `text-xs`; `dashboard:overview:v4` | Invalidation unchanged |
 | Tickets densify (REQ-0185–0202) | owner-products; Related densify; dialog open/combobox; SelectValue SSR; densify-richer sync | Invalidation unchanged |
-| Next | **REQ-0136** §10 + Gate 2 | REQ-0213 done |
+| Next | Gate 2 Sentry 24h (REQ-0009) | tip `db0bacf` |
+| Cache/badges/hydration (REQ-0136) | SSR Fix A/B + idle; statusAt updatedAt fallback; invoice statusAt patch; toDateOrNull; ClientRelativeTime suppress | Invalidation unchanged |
 | Educational README (REQ-0213) | Learner README + Diploi launch; SECURITY link; 3 required env | Docs-only |
 | Deploy unblock (REQ-0212) | Pin `eslint-import-resolver-typescript@3.10.1`; merge items always `OrderItem[]`; Order dates `string\|Date` | No invalidation change |
 | Pay/cancel/Shippo (REQ-0209…0211) | Stripe return+confirm; cancel/update/ship→invoice badge patch; SSR fresher badges; item densify merge; Shippo test; draft→sent heal | Order-graph patch→invalidate |

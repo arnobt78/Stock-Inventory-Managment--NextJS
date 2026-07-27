@@ -85,3 +85,5 @@ Format: `timestamp | agent | span | req_ids | note`
 2026-07-27T11:51:00Z | build | REQ-0136-idle-harden+fixB+hydration | PASS lint/test748/inv221/build | ship
 
 2026-07-27T12:15:00Z | build | REQ-0136-statusAt+hydration | PASS | ship
+
+2026-07-27T12:17:00Z | docs | sync | CLAUDE+walkthrough+STATE/PLAYBOOK/EVAL/config | PASS

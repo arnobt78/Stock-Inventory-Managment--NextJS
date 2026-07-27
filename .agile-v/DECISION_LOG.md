@@ -613,3 +613,5 @@ Format: `TIMESTAMP | AGENT | DECISION | RATIONALE | REQ-ID`
 2026-07-27T12:15:00Z | build-agent | Order statusAt fallback updatedAt for confirmed/processing | List Status date after dropdown CRUD | REQ-0136
 2026-07-27T12:15:00Z | build-agent | Invoice statusAt on optimistic/create/update/send | Status column date sync | REQ-0136
 2026-07-27T12:15:00Z | build-agent | ClientRelativeTime suppressHydrationWarning + missing date em dash | STOCK-INVENTORY-3 defense | REQ-0136,REQ-0009
+
+2026-07-27T12:17:00Z | docs | Sync CLAUDE/walkthrough/agile-v for REQ-0136 tip db0bacf | agent memory write-through | REQ-0136

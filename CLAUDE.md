@@ -172,7 +172,20 @@ All user-facing POST/PUT JSON bodies use `safeParse` + `logger.warn` on fail. Ne
 
 **Every session:** STATE → REQ map → skill 01+17 → Red Team → write-through DECISION/BUILD/VALIDATION.
 
-**C1 open:** Gate 2 PENDING. **Stopped 2026-07-26:** REQ-0213. **Next:** **REQ-0136**.
+**C1 open:** Gate 2 PENDING (Sentry 24h). **Stopped 2026-07-27:** REQ-0136 SSR+statusAt+hydration. **Next:** prod smoke → Sentry 24h (**REQ-0009**).
+
+## REQ-0136 cache / badges / hydration (2026-07-27)
+
+| Piece | Location |
+|-------|----------|
+| Fix A | `ssr-sync-policy` — invalidated/fetching → `refetch` only (no stale RSC apply) |
+| Idle harden | badge fingerprint apply only if `serverAt > cachedAt` |
+| Fix B | `applyDensifyOnly` + `mergeSsrIntoCache` / `mergeDensifyOnly` |
+| statusAt | `resolveOrderStatusAt` → `updatedAt` fallback; invoice hooks recompute `statusAt` |
+| Hydration | `toDateOrNull`; missing Created → `—`; `ClientRelativeTime` `suppressHydrationWarning` |
+| Top Products key | `groupBy(productId)` + collapse (admin dashboard) |
+
+**Invalidation:** unchanged — patch → `invalidateAfterOrderGraphChange`. Tip `db0bacf` / `7bcfa8e`.
 
 ## REQ-0213 educational README (2026-07-26)
 
@@ -1051,7 +1064,7 @@ Hub: `lib/ui/typography-scale.ts`. Hubs import tokens; ~45 inline files use equi
 
 **Invalidation unchanged** — review/product/dashboard CRUD already clears lists + portals.
 
-**Active wave:** **0213** README done → **0136** Gate 2.
+**Active wave:** **0136** SSR/statusAt/hydration shipped → **Gate 2** Sentry 24h (REQ-0009).
 
 ## Warehouse detail + Allocate/Transfer (REQ-0203)
 
