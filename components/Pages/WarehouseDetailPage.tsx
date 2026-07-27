@@ -81,6 +81,7 @@ import {
   useSyncSsrQueryData,
 } from "@/lib/react-query";
 import { cn } from "@/lib/utils";
+import { toDateOrNull } from "@/lib/format";
 import {
   APP_SHELL_DETAIL_CLASS,
   DETAIL_PAGE_HEADER_SPACING_CLASS,
@@ -284,11 +285,9 @@ export default function WarehouseDetailPage({
     );
   }
 
-  const createdAt = warehouse?.createdAt
-    ? typeof warehouse?.createdAt === "string"
-      ? new Date(warehouse?.createdAt)
-      : warehouse?.createdAt
-    : new Date();
+  // REQ-0136 — never fall back to `new Date()` ("now"): SSR/client render at different
+  // instants and that non-determinism is a classic hydration-mismatch source.
+  const createdAt = toDateOrNull(warehouse?.createdAt);
   const updatedAt = warehouse?.updatedAt
     ? typeof warehouse?.updatedAt === "string"
       ? new Date(warehouse?.updatedAt)
@@ -323,11 +322,15 @@ export default function WarehouseDetailPage({
             }
             title={warehouse?.name}
             description={
-              <ClientRelativeTime
-                date={createdAt}
-                prefix="Created "
-                semantic="created"
-              />
+              dataLoading || !createdAt ? (
+                <DataSlotPulse variant="date" />
+              ) : (
+                <ClientRelativeTime
+                  date={createdAt}
+                  prefix="Created "
+                  semantic="created"
+                />
+              )
             }
             trailing={
               dataLoading ? (
@@ -525,8 +528,11 @@ export default function WarehouseDetailPage({
                       icon={Calendar}
                       label="Created:"
                       tone="orange"
+                      loading={dataLoading}
                     >
-                      <ClientDateTime date={createdAt} semantic="created" />
+                      {!dataLoading && createdAt && (
+                        <ClientDateTime date={createdAt} semantic="created" />
+                      )}
                     </DetailInfoRow>
                     {updatedAt && (
                       <DetailInfoRow

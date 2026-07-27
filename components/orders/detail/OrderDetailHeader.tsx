@@ -20,7 +20,7 @@ import { DETAIL_PAGE_HEADER_SPACING_CLASS } from "@/lib/ui/shell-layout-styles";
 
 export type OrderDetailHeaderProps = {
   orderNumber?: string;
-  createdAt: Date;
+  createdAt: Date | null;
   dataLoading: boolean;
   backHref?: string;
   onBack?: () => void;
@@ -78,7 +78,7 @@ export function OrderDetailHeader({
         </>
       }
       description={
-        dataLoading ? (
+        dataLoading || !createdAt ? (
           <DataSlotPulse variant="date" />
         ) : (
           <ClientRelativeTime

@@ -80,6 +80,7 @@ import { findProductForecast } from "@/lib/forecasting/entity-forecast";
 import { enrichProductInsightsWithWarehouseStock } from "@/lib/insights/product-insights-enrich";
 import { sumAllocatedQuantity } from "@/lib/insights/warehouse-stock-aggregate";
 import { formatCatalogCommitWarehouseHint } from "@/lib/stock-allocation/catalog-allocation-copy";
+import { toDateOrNull } from "@/lib/format";
 import {
   computeCommittedQuantity,
   getDisplayCommittedQuantity,
@@ -389,9 +390,9 @@ export default function ProductDetailPage({
   }
 
   // Format dates — REQ-0021 shell-first
-  const createdAt = product?.createdAt
-    ? new Date(product?.createdAt)
-    : new Date();
+  // REQ-0136 — never fall back to `new Date()` ("now"): SSR/client render at different
+  // instants and that non-determinism is a classic hydration-mismatch source.
+  const createdAt = toDateOrNull(product?.createdAt);
   const updatedAt = product?.updatedAt ? new Date(product?.updatedAt) : null;
   const expirationDate = product?.expirationDate
     ? new Date(product?.expirationDate)
@@ -469,7 +470,9 @@ export default function ProductDetailPage({
                     {product!.sku}
                   </CopyableText>{" "}
                   • Created{" "}
-                  <ClientRelativeTime date={createdAt} semantic="created" />
+                  {createdAt && (
+                    <ClientRelativeTime date={createdAt} semantic="created" />
+                  )}
                 </>
               )
             }
@@ -691,7 +694,7 @@ export default function ProductDetailPage({
                       tone="teal"
                       loading={dataLoading}
                     >
-                      {!dataLoading && (
+                      {!dataLoading && createdAt && (
                         <ClientDateTime date={createdAt} semantic="created" />
                       )}
                     </DetailInfoRow>

@@ -45,6 +45,7 @@ import { OrderStatusBadge, PaymentStatusBadge } from "@/lib/ui/semantic-badges";
 import type { Order } from "@/types";
 import type { OrderReviewContext } from "@/lib/server/order-review-context-data";
 import { cn } from "@/lib/utils";
+import { toDateOrNull } from "@/lib/format";
 import { APP_SHELL_DETAIL_CLASS } from "@/lib/ui/shell-layout-styles";
 import { TYPO_CARD_TITLE } from "@/lib/ui/typography-scale";
 import OrderDialog from "@/components/orders/OrderDialog";
@@ -212,7 +213,9 @@ export default function OrderDetailPage({
     );
   }
 
-  const createdAt = order?.createdAt ? new Date(order.createdAt) : new Date();
+  // REQ-0136 — never fall back to `new Date()` ("now"): SSR/client render at different
+  // instants and that non-determinism is a classic hydration-mismatch source.
+  const createdAt = toDateOrNull(order?.createdAt);
   const updatedAt = order?.updatedAt ? new Date(order.updatedAt) : null;
   const shippedAt = order?.shippedAt ? new Date(order.shippedAt) : null;
   const deliveredAt = order?.deliveredAt ? new Date(order.deliveredAt) : null;
@@ -409,7 +412,7 @@ export default function OrderDetailPage({
                     tone="orange"
                     loading={dataLoading}
                   >
-                    {!dataLoading && (
+                    {!dataLoading && createdAt && (
                       <ClientDateTime date={createdAt} semantic="created" />
                     )}
                   </DetailInfoRow>

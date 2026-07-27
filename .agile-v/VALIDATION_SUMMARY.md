@@ -1,10 +1,52 @@
 # Validation Summary — Cycle C1
 
-**Generated:** 2026-07-27 (REQ-0136 cache smoke complete)
-**eval_gate_status:** PENDING (Human Gate 2) — blocked on Sentry 24h watch only (REQ-0009)
-**Active:** Sentry 24h watch → Gate 2
-**Last ship:** REQ-0213 educational README + Diploi
-**Prod target SHA:** app `60f3280` (0212); tip `142bb2c`
+**Generated:** 2026-07-27 (REQ-0136 idle badge harden + Fix B + hydration — ship)
+**eval_gate_status:** PENDING (Human Gate 2) — Sentry 24h after this deploy (REQ-0009)
+**Active:** Prod smoke after Vercel Ready
+**Last ship:** pending this commit (idle harden + Claude Fix B + toDateOrNull)
+**Prod target SHA:** tip after push
+
+---
+
+## REQ-0136 — Idle badge harden + Fix B + hydration (2026-07-27)
+
+| Check | Result |
+| ----- | ------ |
+| Fix A | intact — invalidated/fetching → refetch only |
+| Idle badge | apply only when `serverAt > cachedAt`; equal/missing → skip |
+| Fix B | `applyDensifyOnly` + `mergeSsrIntoCache` / `mergeDensifyOnly` |
+| Hydration | `toDateOrNull`; gated ClientRelativeTime on catalog/warehouse headers |
+| Gates | lint ✓ test 748 ✓ invalidate 221 ✓ build ✓ |
+
+```
+Scope: built/verified | Traceability: REQ-0136, REQ-0009 | Findings: PASS
+Commands: lint, test, test:invalidate, build
+```
+
+---
+
+## REQ-0136 — Fix B (merge not replace) + hydration-unsafe date fallback (2026-07-27, prior draft)
+
+**Trigger:** User-reported recurring badge-revert + Sentry `STOCK-INVENTORY-3` Hydration Error on `/orders/[id]` (prod, 27 events/6 users, regressed).
+
+**Scope:**
+- `lib/react-query/ssr-sync-policy.ts` — added `"applyDensifyOnly"` action + `mergeSsrIntoCache`/`mergeDensifyOnly`. The already-shipped `bf6d9f6` fix (Fix A) stops trusting differing SSR badges while a mutation is invalidated/fetching. This adds Fix B: even the remaining "apply" paths now **merge** onto cached (gap-fill densify fields; overlay-merge for proven-fresher/empty-cache cases) instead of a blind `setQueryData(serverData)` full replace, so a thinner/differently-shaped SSR snapshot can never silently drop or clobber an already-patched field.
+- `hooks/use-sync-ssr-query-data.ts` — consumes the new action.
+- `lib/date/format-stable.ts` (+ `lib/format` barrel) — new `toDateOrNull`. Replaced the `order?.createdAt ? new Date(...) : new Date()` anti-pattern (fallback to "now" differs between SSR render time and client hydration time — a textbook hydration-mismatch source) across all 7 detail pages: Order (store + admin), Invoice, Product, Category, Supplier, Warehouse. Also gated 3 previously **ungated** `ClientRelativeTime`/`ClientDateTime` renders (Category/Supplier/Warehouse header + Warehouse "Created" row rendered unconditionally, not behind `dataLoading`) — the more likely reproducible mismatch source than the already-`dataLoading`-gated Order page.
+- Verified Cursor's already-committed Top Products `groupBy(productId)` + collapse-duplicates fix (dashboard-data.ts / AdminAnalyticsContent.tsx) — correct, no changes needed.
+- No debug instrumentation found in working tree (already clean before this session's edits).
+
+**Gates:** lint ✓ · tsc ✓ · test 746/746 ✓ (+8 new merge-helper tests) · invalidate 221/221 ✓ · build ✓
+
+**Evidence summary**
+
+```
+Scope: built/verified | Traceability: REQ-0136 | Findings: PASS
+Decision Points: kept Fix A (bf6d9f6) as-is; added Fix B as pure-additive safety net (no resolveSsrSyncAction test regressions); hydration fix is defense-in-depth — could not conclusively prove it is the exact STOCK-INVENTORY-3 trigger without Sentry's Diff Viewer HTML, but it is the only concrete non-determinism source found in that render tree and the 3 ungated pages are a stronger repro candidate
+Log: 2026-07-27 | build-agent | REQ-0136 Fix B + hydration harden | REQ-0136, REQ-0009
+```
+
+**Not committed/pushed** — holding for explicit go-ahead since the prior push (`bf6d9f6`) started the Gate-2 Sentry 24h watch; another deploy now would restart that clock.
 
 ---
 

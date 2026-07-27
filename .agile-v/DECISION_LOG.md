@@ -603,3 +603,9 @@ Format: `TIMESTAMP | AGENT | DECISION | RATIONALE | REQ-ID`
 
 2026-07-27T11:25:00Z | build-agent | SSR sync never apply while invalidated | Prod badge revert: soft-nav RSC applied over TanStack patch; logs d882bd post-fix refetch-only | REQ-0136
 2026-07-27T11:25:00Z | build-agent | Top Products groupBy productId only | Duplicate React key from name/sku snapshot split | REQ-0136
+2026-07-27T13:35:00Z | build-agent | REQ-0136 Fix B: mergeSsrIntoCache/mergeDensifyOnly (gap-fill/overlay merge, never blind replace) on top of already-shipped Fix A (bf6d9f6) | Even the surviving "apply" paths (list badge trust, entity densify-equal-timestamp) did setQueryData(serverData) full replace, which could still drop cached-only fields or (equal-timestamp densify case) let a stale non-densify field win | REQ-0136
+2026-07-27T13:35:00Z | build-agent | toDateOrNull in lib/date/format-stable.ts; removed new Date() "now" fallback across 7 detail pages; gated 3 previously-ungated ClientRelativeTime renders (Category/Supplier/Warehouse) | Sentry STOCK-INVENTORY-3 hydration error on /orders/[id]; fallback to new Date() differs SSR vs client render instant — could not prove exact trigger without Diff Viewer, but only concrete non-determinism source found; the 3 ungated pages are a stronger repro candidate | REQ-0136, REQ-0009
+2026-07-27T13:35:00Z | orchestrator | Held commit/push pending user go-ahead | bf6d9f6 already started the Gate-2 Sentry 24h watch; another deploy now restarts that clock — user's call, not mine to force | REQ-0136
+
+2026-07-27T11:51:00Z | build-agent | Idle badge apply only when serverAt > cachedAt | Equal/missing timestamps keep patched cache on soft-nav | REQ-0136
+2026-07-27T11:51:00Z | build-agent | Ship Claude Fix B applyDensifyOnly + hydration toDateOrNull | Additive on Fix A; STOCK-INVENTORY-3 defense-in-depth | REQ-0136,REQ-0009

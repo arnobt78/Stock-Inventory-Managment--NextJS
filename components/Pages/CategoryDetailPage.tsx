@@ -58,6 +58,7 @@ import {
   GLASS_CARD_VARIANT_CONFIG as variantConfig,
 } from "@/components/shared";
 import { buildCategoryForecastRollup } from "@/lib/forecasting/category-forecast-rollup";
+import { toDateOrNull } from "@/lib/format";
 import {
   buildCatalogStockChartData,
   buildSalesChartData,
@@ -271,9 +272,9 @@ export default function CategoryDetailPage({
   }
 
   // Format dates — shell visible while loading; pulse individual slots (REQ-0021)
-  const createdAt = category?.createdAt
-    ? new Date(category.createdAt)
-    : new Date();
+  // REQ-0136 — never fall back to `new Date()` ("now"): SSR/client render at different
+  // instants and that non-determinism is a classic hydration-mismatch source.
+  const createdAt = toDateOrNull(category?.createdAt);
   const updatedAt = category?.updatedAt ? new Date(category.updatedAt) : null;
 
   // Category statistics
@@ -323,11 +324,15 @@ export default function CategoryDetailPage({
               )
             }
             description={
-              <ClientRelativeTime
-                date={createdAt}
-                prefix="Created "
-                semantic="created"
-              />
+              dataLoading || !createdAt ? (
+                <DataSlotPulse variant="date" />
+              ) : (
+                <ClientRelativeTime
+                  date={createdAt}
+                  prefix="Created "
+                  semantic="created"
+                />
+              )
             }
             trailing={
               dataLoading ? (
@@ -416,7 +421,7 @@ export default function CategoryDetailPage({
                       tone="teal"
                       loading={dataLoading}
                     >
-                      {!dataLoading && (
+                      {!dataLoading && createdAt && (
                         <ClientDateTime date={createdAt} semantic="created" />
                       )}
                     </DetailInfoRow>

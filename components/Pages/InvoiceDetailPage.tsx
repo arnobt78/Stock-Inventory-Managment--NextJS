@@ -38,6 +38,7 @@ import {
   useSyncSsrQueryData,
 } from "@/lib/react-query";
 import { useAuth } from "@/contexts";
+import { toDateOrNull } from "@/lib/format";
 import Navbar from "@/components/layouts/Navbar";
 import {
   ClientDateTime,
@@ -235,9 +236,9 @@ export default function InvoiceDetailPage({
   const actionsDisabled = dataLoading || !invoice || disableInvoiceMutations;
 
   // Format dates — shell visible while loading; pulse individual slots (REQ-0022)
-  const createdAt = invoice?.createdAt
-    ? new Date(invoice.createdAt)
-    : new Date();
+  // REQ-0136 — never fall back to `new Date()` ("now"): SSR/client render at different
+  // instants and that non-determinism is a classic hydration-mismatch source.
+  const createdAt = toDateOrNull(invoice?.createdAt);
   const updatedAt = invoice?.updatedAt ? new Date(invoice.updatedAt) : null;
   const issuedAt = invoice?.issuedAt ? new Date(invoice.issuedAt) : null;
   const dueDate = invoice?.dueDate ? new Date(invoice.dueDate) : null;
@@ -310,7 +311,7 @@ export default function InvoiceDetailPage({
               </>
             }
             description={
-              dataLoading ? (
+              dataLoading || !createdAt ? (
                 <DataSlotPulse variant="date" />
               ) : (
                 <ClientRelativeTime

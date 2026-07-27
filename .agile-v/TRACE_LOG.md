@@ -77,3 +77,9 @@ Format: `timestamp | agent | span | req_ids | note`
 2026-07-27T10:44:00Z | verify | REQ-0136-smoke-start | dev server + demo catalog seed (--with-catalog) + Playwright admin session | IN_PROGRESS
 2026-07-27T10:57:00Z | verify | REQ-0136-smoke-done | A1/A2/B1 all PASS at 0s and 5min | PASS
 2026-07-27T10:58:00Z | session | state-sync | REQ-0136 -> done; resume gate2-sentry-24h -> REQ-0009 | PASS
+
+2026-07-27T13:20:00Z | build | REQ-0136-fixB-start | ssr-sync-policy Fix B + hydration new-Date audit | IN_PROGRESS
+2026-07-27T13:35:00Z | build | REQ-0136-fixB-done | lint/tsc/test746/invalidate221/build all PASS | PASS
+2026-07-27T13:35:00Z | session | hold | not committed — awaiting user go-ahead (Sentry watch clock) | PENDING
+
+2026-07-27T11:51:00Z | build | REQ-0136-idle-harden+fixB+hydration | PASS lint/test748/inv221/build | ship

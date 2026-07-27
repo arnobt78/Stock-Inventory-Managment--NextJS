@@ -7,7 +7,11 @@
  */
 import { useLayoutEffect } from "react";
 import { useQueryClient, type QueryKey } from "@tanstack/react-query";
-import { resolveSsrSyncAction } from "@/lib/react-query/ssr-sync-policy";
+import {
+  resolveSsrSyncAction,
+  mergeSsrIntoCache,
+  mergeDensifyOnly,
+} from "@/lib/react-query/ssr-sync-policy";
 
 export type SsrQuerySyncEntry<T = unknown> = {
   queryKey: QueryKey;
@@ -32,8 +36,15 @@ function syncSsrSnapshot<T>(
   if (action === "skip") {
     return;
   }
-  // apply — paint SSR densify immediately (parties / invoice link / images)
-  queryClient.setQueryData(queryKey, serverData);
+  if (action === "applyDensifyOnly") {
+    // Gap-fill only — never let a stale-but-differently-shaped SSR object win on
+    // fields the resolver did not prove fresher (REQ-0136 Fix B).
+    queryClient.setQueryData(queryKey, mergeDensifyOnly(serverData, cached as T));
+    return;
+  }
+  // apply — server proven fresher (or cache empty); merge keeps cached-only fields
+  // that a thinner SSR/PUT response may omit instead of a blind full replace.
+  queryClient.setQueryData(queryKey, mergeSsrIntoCache(serverData, cached));
 }
 
 /** Push one SSR snapshot into the query cache before paint (avoids stale flash). */

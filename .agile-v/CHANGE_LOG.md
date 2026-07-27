@@ -84,3 +84,5 @@
 | 2026-07-22 | REQ-0009 Sentry noise — order stock, warehouse pulse, traces, notif 404 | REQ-0009 |
 
 | 2026-07-27 | Session activate — Agile V core+pipeline; resume REQ-0136 Gate 2 | REQ-0136 |
+
+| 2026-07-27 | Idle badge harden + Fix B merge + hydration toDateOrNull | REQ-0136 |

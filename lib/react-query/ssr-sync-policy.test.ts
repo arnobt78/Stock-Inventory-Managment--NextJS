@@ -1,6 +1,8 @@
 import { describe, expect, it } from "vitest";
 import {
   listHasFresherStatusBadges,
+  mergeDensifyOnly,
+  mergeSsrIntoCache,
   resolveSsrSyncAction,
   serverHasRicherDensify,
 } from "./ssr-sync-policy";
@@ -82,8 +84,8 @@ describe("resolveSsrSyncAction", () => {
     ).toBe("skip");
   });
 
-  // REQ-0202 — equal updatedAt but SSR densify richer → apply
-  it("applies when updatedAt equal but SSR has densify cache lacks", () => {
+  // REQ-0202 / REQ-0136 Fix B — equal updatedAt but SSR densify richer → gap-fill only
+  it("applies densify-only when updatedAt equal but SSR has densify cache lacks", () => {
     const at = "2026-01-02T00:00:00.000Z";
     expect(
       resolveSsrSyncAction(
@@ -91,17 +93,17 @@ describe("resolveSsrSyncAction", () => {
         { id: "1", updatedAt: at },
         {},
       ),
-    ).toBe("apply");
+    ).toBe("applyDensifyOnly");
   });
 
-  it("applies when no updatedAt but SSR densify richer than cache", () => {
+  it("applies densify-only when no updatedAt but SSR densify richer than cache", () => {
     expect(
       resolveSsrSyncAction(
         { id: "1", assignedToEmail: "o@x.com" },
         { id: "1" },
         {},
       ),
-    ).toBe("apply");
+    ).toBe("applyDensifyOnly");
   });
 
   it("still skips when cached updatedAt is newer even if densify thinner", () => {
@@ -168,8 +170,8 @@ describe("resolveSsrSyncAction", () => {
     ).toBe("skip");
   });
 
-  // REQ-0211 — order status change leaves invoice.updatedAt equal → apply linked badges
-  it("applies list when linkedOrderStatus fresher even if updatedAt equal", () => {
+  // REQ-0136 idle harden — equal updatedAt + linked badge drift: keep cache (patch+refetch)
+  it("skips list when linkedOrderStatus differs but updatedAt equal", () => {
     const at = "2026-01-02T00:00:00.000Z";
     expect(
       resolveSsrSyncAction(
@@ -191,7 +193,48 @@ describe("resolveSsrSyncAction", () => {
         ],
         {},
       ),
+    ).toBe("skip");
+  });
+
+  it("applies list badges when SSR updatedAt is strictly newer", () => {
+    expect(
+      resolveSsrSyncAction(
+        [
+          {
+            id: "o1",
+            status: "confirmed",
+            paymentStatus: "unpaid",
+            updatedAt: "2026-01-03T00:00:00.000Z",
+          },
+        ],
+        [
+          {
+            id: "o1",
+            status: "pending",
+            paymentStatus: "unpaid",
+            updatedAt: "2026-01-02T00:00:00.000Z",
+          },
+        ],
+        {},
+      ),
     ).toBe("apply");
+  });
+
+  it("skips list badge diff when either updatedAt is missing", () => {
+    expect(
+      resolveSsrSyncAction(
+        [{ id: "o1", status: "confirmed", paymentStatus: "unpaid" }],
+        [
+          {
+            id: "o1",
+            status: "pending",
+            paymentStatus: "unpaid",
+            updatedAt: "2026-01-02T00:00:00.000Z",
+          },
+        ],
+        {},
+      ),
+    ).toBe("skip");
   });
 
   it("refetches list status badges while invalidated instead of applying SSR", () => {
@@ -237,5 +280,69 @@ describe("listHasFresherStatusBadges", () => {
         [{ id: "o1", status: "pending" }],
       ),
     ).toBe(true);
+  });
+});
+
+// REQ-0136 Fix B — merge helpers must never let a stale/thin SSR object clobber
+// cached-only fields, even when the resolver decided to "apply".
+describe("mergeSsrIntoCache", () => {
+  it("returns serverData as-is when cache is undefined", () => {
+    expect(mergeSsrIntoCache({ id: "1" }, undefined)).toEqual({ id: "1" });
+  });
+
+  it("keeps cached-only fields a thinner SSR entity omits", () => {
+    expect(
+      mergeSsrIntoCache(
+        { id: "1", status: "shipped" },
+        { id: "1", status: "confirmed", notes: "gift wrap" },
+      ),
+    ).toEqual({ id: "1", status: "shipped", notes: "gift wrap" });
+  });
+
+  it("merges arrays per row by id, preserving cached-only rows fields", () => {
+    expect(
+      mergeSsrIntoCache(
+        [{ id: "o1", status: "confirmed" }],
+        [{ id: "o1", status: "pending", orderNumber: "ORD-1" }],
+      ),
+    ).toEqual([{ id: "o1", status: "confirmed", orderNumber: "ORD-1" }]);
+  });
+
+  it("passes through new rows the cache does not have yet", () => {
+    expect(
+      mergeSsrIntoCache(
+        [{ id: "o1" }, { id: "o2" }],
+        [{ id: "o1" }],
+      ),
+    ).toEqual([{ id: "o1" }, { id: "o2" }]);
+  });
+});
+
+describe("mergeDensifyOnly", () => {
+  it("fills a missing densify field without touching status", () => {
+    expect(
+      mergeDensifyOnly(
+        { id: "1", creatorEmail: "a@b.com", status: "sent" },
+        { id: "1", status: "paid" },
+      ),
+    ).toEqual({ id: "1", status: "paid", creatorEmail: "a@b.com" });
+  });
+
+  it("never overwrites a densify field cache already has", () => {
+    expect(
+      mergeDensifyOnly(
+        { id: "1", creatorEmail: "stale@old.com" },
+        { id: "1", creatorEmail: "fresh@new.com" },
+      ),
+    ).toEqual({ id: "1", creatorEmail: "fresh@new.com" });
+  });
+
+  it("ignores non-densify fields entirely (status never merged in)", () => {
+    expect(
+      mergeDensifyOnly(
+        { id: "1", status: "sent", paymentStatus: "unpaid" },
+        { id: "1", status: "paid", paymentStatus: "paid" },
+      ),
+    ).toEqual({ id: "1", status: "paid", paymentStatus: "paid" });
   });
 });

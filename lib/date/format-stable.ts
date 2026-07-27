@@ -10,6 +10,19 @@ export function toDate(value: Date | string | number): Date {
   return value instanceof Date ? value : new Date(value);
 }
 
+/**
+ * Detail-page "created/at" fallback — never invent `new Date()` ("now") when the
+ * source field is missing: that value differs between SSR render time and client
+ * hydration time and is a classic React hydration-mismatch source. Returns null so
+ * callers skip the date UI (or show a loading pulse) instead of a fabricated instant.
+ */
+export function toDateOrNull(
+  value: Date | string | number | null | undefined,
+): Date | null {
+  if (value == null) return null;
+  return toDate(value);
+}
+
 /** Fixed pattern for SSR and hydration (en-US). */
 export function formatStableDate(value: Date | string | number): string {
   return format(toDate(value), "MMM d, yyyy", { locale: enUS });

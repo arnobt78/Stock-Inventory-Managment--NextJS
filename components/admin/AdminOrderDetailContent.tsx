@@ -54,6 +54,7 @@ import { useToast } from "@/hooks/use-toast";
 import type { Order } from "@/types";
 import type { OrderReviewContext } from "@/lib/server/order-review-context-data";
 import { cn } from "@/lib/utils";
+import { toDateOrNull } from "@/lib/format";
 import { OrderTrackingInfo, ShippingManagement } from "@/components/shipping";
 import { AlertDialogWrapper } from "@/components/dialogs";
 import {
@@ -278,7 +279,9 @@ export default function AdminOrderDetailContent({
   const isRefunding = deleteOrderMutation.isPending && refundDialogOpen;
   const isCancelling = deleteOrderMutation.isPending && cancelDialogOpen;
 
-  const createdAt = order?.createdAt ? new Date(order.createdAt) : new Date();
+  // REQ-0136 — never fall back to `new Date()` ("now"): SSR/client render at different
+  // instants and that non-determinism is a classic hydration-mismatch source.
+  const createdAt = toDateOrNull(order?.createdAt);
   const updatedAt = order?.updatedAt ? new Date(order.updatedAt) : null;
   const hasShipping =
     !dataLoading &&
@@ -425,7 +428,7 @@ export default function AdminOrderDetailContent({
                     tone="orange"
                     loading={dataLoading}
                   >
-                    {!dataLoading && (
+                    {!dataLoading && createdAt && (
                       <ClientDateTime date={createdAt} semantic="created" />
                     )}
                   </DetailInfoRow>

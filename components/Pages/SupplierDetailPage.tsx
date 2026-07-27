@@ -74,6 +74,7 @@ import {
   useSyncSsrQueryData,
 } from "@/lib/react-query";
 import { cn } from "@/lib/utils";
+import { toDateOrNull } from "@/lib/format";
 import {
   TYPO_BODY_MUTED,
   TYPO_CARD_TITLE,
@@ -221,9 +222,9 @@ export default function SupplierDetailPage({
   }
 
   // Format dates
-  const createdAt = supplier?.createdAt
-    ? new Date(supplier?.createdAt)
-    : new Date();
+  // REQ-0136 — never fall back to `new Date()` ("now"): SSR/client render at different
+  // instants and that non-determinism is a classic hydration-mismatch source.
+  const createdAt = toDateOrNull(supplier?.createdAt);
   const updatedAt = supplier?.updatedAt ? new Date(supplier?.updatedAt) : null;
 
   // Supplier statistics
@@ -285,11 +286,15 @@ export default function SupplierDetailPage({
               )
             }
             description={
-              <ClientRelativeTime
-                date={createdAt}
-                prefix="Created "
-                semantic="created"
-              />
+              dataLoading || !createdAt ? (
+                <DataSlotPulse variant="date" />
+              ) : (
+                <ClientRelativeTime
+                  date={createdAt}
+                  prefix="Created "
+                  semantic="created"
+                />
+              )
             }
             trailing={
               dataLoading ? (
@@ -377,7 +382,7 @@ export default function SupplierDetailPage({
                       tone="teal"
                       loading={dataLoading}
                     >
-                      {!dataLoading && (
+                      {!dataLoading && createdAt && (
                         <ClientDateTime date={createdAt} semantic="created" />
                       )}
                     </DetailInfoRow>

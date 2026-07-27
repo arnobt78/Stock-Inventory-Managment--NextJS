@@ -4,7 +4,13 @@
  * REQ-0202 — prefer richer densify when updatedAt is equal (email/image/role flash guard).
  */
 
-export type SsrSyncAction = "apply" | "refetch" | "skip";
+/**
+ * "applyDensifyOnly" (REQ-0136 Fix B) — same trust level as REQ-0202's equal-timestamp
+ * densify case, but the caller must gap-fill densify fields only, never replace the
+ * whole cached entity: a stale-but-differently-shaped SSR object could otherwise carry
+ * an older status/paymentStatus that clobbers an already-patched, fresher cache value.
+ */
+export type SsrSyncAction = "apply" | "applyDensifyOnly" | "refetch" | "skip";
 
 /** Subset of TanStack query state used for SSR sync decisions. */
 export type SsrQueryStateHint = {
@@ -96,9 +102,9 @@ function rowStatusBadgeFingerprint(row: unknown): string | null {
 }
 
 /**
- * REQ-0211 — order status change does not bump invoice.updatedAt, so max(updatedAt)
- * list compare skips while linkedOrderStatus is still stale. Also after order-graph
- * invalidate, sync used to refetch-only and ignore fresh RSC badges.
+ * Detects status/payment / linkedOrder* fingerprint inequality between SSR and cache.
+ * Does NOT prove SSR is newer — `resolveSsrSyncAction` must compare updatedAt before apply
+ * (REQ-0136 idle harden: equal/missing timestamps → skip so soft-nav cannot clobber patches).
  */
 export function listHasFresherStatusBadges(
   serverData: unknown,
@@ -130,9 +136,10 @@ export function listHasFresherStatusBadges(
  * router.back() can restore stale RSC props — never clobber fresher client cache.
  * REQ-0133: default skip when server cannot prove fresher than cached (lists + entities).
  * REQ-0202: apply when timestamps equal (or both missing) but SSR densify is richer.
- * REQ-0136 / debug d882bd: while invalidated/fetching NEVER apply SSR — soft-nav RSC can
- * lag the client patch (prod-only revert). Densify/badge apply exceptions caused flash-back.
- * listHasFresherStatusBadges still used when idle to paint true fresher RSC badges.
+ * REQ-0136: while invalidated/fetching NEVER apply SSR — soft-nav RSC can
+ * lag the client patch (prod badge revert). Densify/badge apply exceptions caused flash-back.
+ * listHasFresherStatusBadges detects fingerprint inequality only; idle apply requires
+ * serverAt > cachedAt (REQ-0136).
  */
 export function resolveSsrSyncAction<T>(
   serverData: T,
@@ -157,11 +164,12 @@ export function resolveSsrSyncAction<T>(
 
   if (Array.isArray(cached) && Array.isArray(serverData)) {
     if (listHasFresherStatusBadges(serverData, cached)) {
-      // Prefer SSR badges unless cache rows are strictly newer by updatedAt
-      if (cachedAt != null && serverAt != null && cachedAt > serverAt) {
-        return "skip";
+      // REQ-0136 — only apply when SSR is strictly newer by updatedAt.
+      // Equal/missing timestamps: keep patched cache (stale soft-nav RSC often matches).
+      if (serverAt != null && cachedAt != null && serverAt > cachedAt) {
+        return "apply";
       }
-      return "apply";
+      return "skip";
     }
     if (serverAt != null && cachedAt != null) {
       if (cachedAt > serverAt) {
@@ -193,13 +201,15 @@ export function resolveSsrSyncAction<T>(
     return "apply";
   }
 
-  // Equal timestamps (or both null) — prefer richer densify SSR (REQ-0202)
+  // Equal timestamps (or both null) — prefer richer densify SSR (REQ-0202).
+  // Freshness is NOT proven here (no updatedAt to compare), so the caller must only
+  // gap-fill densify fields (REQ-0136 Fix B) — never replace the whole cached entity.
   if (
     cached !== undefined &&
     (serverAt === cachedAt || (serverAt == null && cachedAt == null)) &&
     serverHasRicherDensify(serverData, cached)
   ) {
-    return "apply";
+    return "applyDensifyOnly";
   }
 
   if (serverAt != null && cachedAt != null && cachedAt >= serverAt) {
@@ -211,4 +221,63 @@ export function resolveSsrSyncAction<T>(
   }
 
   return "apply";
+}
+
+/**
+ * REQ-0136 Fix B — merge helpers for the "apply" / "applyDensifyOnly" actions.
+ * A raw `setQueryData(key, serverData)` replace can silently drop fields the cached
+ * row has but the SSR snapshot omits (thin PUT/create responses), or — worse — let a
+ * stale-but-differently-shaped SSR object win on fields it should never touch. Both
+ * merge functions always keep `cached` as the base and only bring in `serverData`
+ * according to the trust level the resolver already established.
+ */
+
+function mergeEntityOverlay(
+  serverData: unknown,
+  cached: unknown,
+): unknown {
+  if (!isPlainObject(serverData) || !isPlainObject(cached)) {
+    return serverData;
+  }
+  return { ...cached, ...serverData };
+}
+
+/** Full overlay merge for "apply" — server proven fresher (or cache empty/absent). */
+export function mergeSsrIntoCache<T>(serverData: T, cached: T | undefined): T {
+  if (cached === undefined) return serverData;
+  if (Array.isArray(serverData) && Array.isArray(cached)) {
+    const cachedById = new Map<string, unknown>();
+    for (const row of cached) {
+      if (isPlainObject(row) && typeof row.id === "string") {
+        cachedById.set(row.id, row);
+      }
+    }
+    return serverData.map((row) => {
+      if (!isPlainObject(row) || typeof row.id !== "string") return row;
+      const cachedRow = cachedById.get(row.id);
+      return cachedRow === undefined ? row : mergeEntityOverlay(row, cachedRow);
+    }) as T;
+  }
+  return mergeEntityOverlay(serverData, cached) as T;
+}
+
+/**
+ * Gap-fill merge for "applyDensifyOnly" — only copies DENSIFY_KEY_RE fields the cache
+ * currently lacks; every other cached field (status, paymentStatus, statusAt, etc.)
+ * survives untouched even if the SSR snapshot disagrees on it.
+ */
+export function mergeDensifyOnly<T>(serverData: T, cached: T): T {
+  if (!isPlainObject(serverData) || !isPlainObject(cached)) {
+    return cached;
+  }
+  const next: Record<string, unknown> = { ...cached };
+  for (const key of Object.keys(serverData)) {
+    if (!DENSIFY_KEY_RE.test(key)) continue;
+    const serverVal = serverData[key];
+    if (!densifyValuePresent(serverVal)) continue;
+    if (!densifyValuePresent(next[key])) {
+      next[key] = serverVal;
+    }
+  }
+  return next as T;
 }
