@@ -567,3 +567,8 @@
 | ART-0213a | REQ-0213 | `README.md` educational rewrite + badges | done |
 | ART-0213b | REQ-0213 | Diploi launch-big under Deploying | done |
 | TC-0213 | REQ-0213 | docs-only; SECURITY.md linked | done |
+
+| ART-0214a | REQ-0214 | `prisma/invoice.ts` getInvoiceByIdForClient | buyer or order gate |
+| ART-0214b | REQ-0214 | `prisma/order.ts` getOrderByIdForClient | own + catalog history |
+| ART-0214c | REQ-0214 | `invoice-detail-data.ts` client branch | uses ForClient |
+| ART-0214d | REQ-0214 | InvoiceDetailPage / OrderDetailActionBar | Pay gated by buyer |

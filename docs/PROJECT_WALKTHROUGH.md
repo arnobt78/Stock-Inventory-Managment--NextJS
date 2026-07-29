@@ -1,6 +1,6 @@
 # PROJECT_WALKTHROUGH.md
 
-Agent-oriented map of **stock-inventory** (Stockly). Last updated: 2026-07-26 (REQ-0213 README).
+Agent-oriented map of **stock-inventory** (Stockly). Last updated: 2026-07-29 (REQ-0214 client INV/ORD).
 
 ## 1. What this app is
 
@@ -308,6 +308,7 @@ flowchart LR
 | Pay/cancel/Shippo (REQ-0209…0211) | Stripe return+confirm; cancel/update/ship→invoice badge patch; SSR fresher badges; item densify merge; Shippo test; draft→sent heal | Order-graph patch→invalidate |
 | SECURITY.md (REQ-0207) | Root policy + README link; private reports → contact@arnobmahmud.com | Docs-only |
 | Supplier invoices (REQ-0204) | `getInvoiceByIdForSupplier` + detail/PDF gate; Related Invoices nav | Invalidation unchanged |
+| Client catalog INV/ORD (REQ-0214) | `getInvoiceByIdForClient` / expanded `getOrderByIdForClient`; Pay buyer-only; Process Refund disabled for client/supplier | Invalidation unchanged |
 | Supplier invoice KPIs (REQ-0205) | `/invoices` SSR portal + 4 StatisticsCards (OrderList parity) | Invalidation unchanged |
 | Portal SSR sync (REQ-0206) | `portal.*Dashboard(userId)`; list sync matches hooks (not admin keys) | Invalidation unchanged |
 | Sentry noise (REQ-0009) | Order stock warn+disable; warehouse cold-load pulse; tracesSampleRate 0 dev; notif DELETE 404 | Invalidation unchanged |

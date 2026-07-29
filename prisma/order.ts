@@ -471,32 +471,47 @@ export async function getOrderByIdForProductOwner(
   return hasMyProduct ? order : null;
 }
 
+/** Shared include for client order detail (own + catalog-history read). */
+const clientOrderDetailInclude = {
+  items: {
+    include: {
+      product: {
+        select: {
+          id: true,
+          name: true,
+          sku: true,
+          price: true,
+          categoryId: true,
+          supplierId: true,
+          imageUrl: true,
+        },
+      },
+    },
+  },
+} as const;
+
 /**
- * Get order by ID for client (only if order.clientId === clientId)
+ * Get order by ID for client.
+ * REQ-0214 — own buyer (`clientId`) first; else any order with line items so
+ * product/category/supplier recent-order chips open read-only (mutations stay off in UI).
  */
 export async function getOrderByIdForClient(orderId: string, clientId: string) {
-  return prisma.order.findFirst({
+  const own = await prisma.order.findFirst({
     where: {
       id: orderId,
       clientId,
     },
-    include: {
-      items: {
-        include: {
-          product: {
-            select: {
-              id: true,
-              name: true,
-              sku: true,
-              price: true,
-              categoryId: true,
-              supplierId: true,
-              imageUrl: true,
-            },
-          },
-        },
-      },
+    include: clientOrderDetailInclude,
+  });
+  if (own) return own;
+
+  // Catalog recent-order history rows are clickable for clients — mirror that access.
+  return prisma.order.findFirst({
+    where: {
+      id: orderId,
+      items: { some: {} },
     },
+    include: clientOrderDetailInclude,
   });
 }
 

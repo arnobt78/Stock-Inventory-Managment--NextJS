@@ -44,6 +44,11 @@ export type OrderDetailActionBarProps = {
   /** Client/supplier cannot mutate order (store); admin always false */
   disableOrderActions: boolean;
   isSupplierRole?: boolean;
+  /**
+   * REQ-0214 — when false, hide Pay (catalog-history client viewing another buyer).
+   * Default true for admin embeds / owners.
+   */
+  allowPay?: boolean;
   isCancelling: boolean;
   /** Refund confirm uses same delete/cancel mutation */
   isRefunding?: boolean;
@@ -62,6 +67,7 @@ export function OrderDetailActionBar({
   mode: _mode,
   disableOrderActions,
   isSupplierRole = false,
+  allowPay = true,
   isCancelling,
   isRefunding = false,
   onBack,
@@ -84,6 +90,7 @@ export function OrderDetailActionBar({
   const canShip = canGenerateShippingLabel(order);
   const payAmount = order ? resolveOrderPayAmount(order) : 0;
   const canPay =
+    allowPay &&
     !!order &&
     order.paymentStatus !== "paid" &&
     order.paymentStatus !== "refunded" &&
@@ -96,6 +103,8 @@ export function OrderDetailActionBar({
     !isCancelled &&
     isFullyPaid &&
     typeof onRefundClick === "function";
+  // REQ-0214 — Process Refund must match Cancel: client/supplier cannot mutate money
+  const refundDisabled = actionsDisabled || isRefunding;
 
   return (
     <div className="flex flex-col sm:flex-row flex-wrap gap-2">
@@ -252,14 +261,16 @@ export function OrderDetailActionBar({
                 label="Process Refund"
                 icon={RefreshCw}
                 hue="rose"
-                disabled={dataLoading || !order || isRefunding}
+                // REQ-0214 — same disableOrderActions gate as Cancel Order (client/supplier)
+                disabled={refundDisabled}
                 className="group w-full sm:w-auto gap-2"
               />
             </span>
           </TooltipTrigger>
           <TooltipContent side="bottom" className="max-w-xs">
-            Cancel the order and issue a full refund via Stripe. Stock will be
-            restored and the linked invoice cancelled.
+            {disableOrderActions
+              ? "Only the admin who owns the order can process a refund."
+              : "Cancel the order and issue a full refund via Stripe. Stock will be restored and the linked invoice cancelled."}
           </TooltipContent>
         </Tooltip>
       )}

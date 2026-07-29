@@ -109,6 +109,13 @@ export default function OrderDetailPage({
   const isClientRole = user?.role === "client";
   const isAdminRole = user?.role === "admin";
   const disableOrderActions = isSupplierRole || isClientRole;
+  // REQ-0214 — catalog-history clients may open others' ORD; Pay only for assigned buyer
+  const isOrderBuyer =
+    Boolean(user?.id) &&
+    (order?.clientId === user?.id ||
+      (order != null && !order.clientId && order.userId === user?.id));
+  const allowPayOrder =
+    !isSupplierRole && (isAdminRole || user?.role === "user" || isOrderBuyer);
 
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [editingOrder, setEditingOrder] = useState<Order | null>(null);
@@ -587,6 +594,7 @@ export default function OrderDetailPage({
             mode="store"
             disableOrderActions={disableOrderActions}
             isSupplierRole={isSupplierRole}
+            allowPay={allowPayOrder}
             isCancelling={isCancelling}
             isRefunding={isRefunding}
             onBack={handleBack}

@@ -1,5 +1,6 @@
 /**
  * REQ-0204 — supplier invoice detail access via getInvoiceDetailForPage.
+ * REQ-0214 — client catalog-history + buyer invoice access.
  */
 import { describe, expect, it, vi, beforeEach } from "vitest";
 
@@ -13,6 +14,7 @@ vi.mock("@/prisma/supplier", () => ({
 
 vi.mock("@/prisma/invoice", () => ({
   getInvoiceById: vi.fn(),
+  getInvoiceByIdForClient: vi.fn(),
   getInvoiceByIdForProductOwner: vi.fn(),
   getInvoiceByIdForSupplier: vi.fn(),
 }));
@@ -37,9 +39,40 @@ vi.mock("@/lib/invoices/transform-invoice-detail", () => ({
 }));
 
 import { getSupplierByUserId } from "@/prisma/supplier";
-import { getInvoiceByIdForSupplier } from "@/prisma/invoice";
+import {
+  getInvoiceByIdForClient,
+  getInvoiceByIdForSupplier,
+} from "@/prisma/invoice";
 import { prisma } from "@/prisma/client";
 import { getInvoiceDetailForPage } from "./invoice-detail-data";
+
+const sampleInvoice = {
+  id: "inv-1",
+  orderId: "ord-1",
+  invoiceNumber: "INV-1",
+  userId: "owner-1",
+  clientId: "client-1",
+  status: "sent",
+  subtotal: 100,
+  total: 100,
+  amountPaid: 0,
+  amountDue: 100,
+  tax: 0,
+  shipping: 0,
+  discount: 0,
+  issuedAt: new Date(),
+  dueDate: new Date(),
+  paidAt: null,
+  sentAt: null,
+  cancelledAt: null,
+  refundedAt: null,
+  createdAt: new Date(),
+  updatedAt: null,
+  createdBy: "owner-1",
+  updatedBy: null,
+  billingAddress: null,
+  notes: null,
+} as const;
 
 describe("getInvoiceDetailForPage supplier (REQ-0204)", () => {
   beforeEach(() => {
@@ -52,33 +85,9 @@ describe("getInvoiceDetailForPage supplier (REQ-0204)", () => {
     vi.mocked(getSupplierByUserId).mockResolvedValue({
       id: "sup-entity-1",
     } as Awaited<ReturnType<typeof getSupplierByUserId>>);
-    vi.mocked(getInvoiceByIdForSupplier).mockResolvedValue({
-      id: "inv-1",
-      orderId: "ord-1",
-      invoiceNumber: "INV-1",
-      userId: "owner-1",
-      clientId: "client-1",
-      status: "sent",
-      subtotal: 100,
-      total: 100,
-      amountPaid: 0,
-      amountDue: 100,
-      tax: 0,
-      shipping: 0,
-      discount: 0,
-      issuedAt: new Date(),
-      dueDate: new Date(),
-      paidAt: null,
-      sentAt: null,
-      cancelledAt: null,
-      refundedAt: null,
-      createdAt: new Date(),
-      updatedAt: null,
-      createdBy: "owner-1",
-      updatedBy: null,
-      billingAddress: null,
-      notes: null,
-    } as never);
+    vi.mocked(getInvoiceByIdForSupplier).mockResolvedValue(
+      sampleInvoice as never,
+    );
 
     const result = await getInvoiceDetailForPage(
       { id: "supplier-user-1", role: "supplier" },
@@ -116,6 +125,42 @@ describe("getInvoiceDetailForPage supplier (REQ-0204)", () => {
     );
 
     expect(getInvoiceByIdForSupplier).not.toHaveBeenCalled();
+    expect(result).toBeNull();
+  });
+});
+
+describe("getInvoiceDetailForPage client (REQ-0214)", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    vi.mocked(prisma.order.findUnique).mockResolvedValue(null);
+    vi.mocked(prisma.user.findMany).mockResolvedValue([]);
+  });
+
+  it("allows client when getInvoiceByIdForClient resolves (buyer or catalog history)", async () => {
+    vi.mocked(getInvoiceByIdForClient).mockResolvedValue(
+      sampleInvoice as never,
+    );
+
+    const result = await getInvoiceDetailForPage(
+      { id: "client-viewer", role: "client" },
+      "inv-1",
+    );
+
+    expect(getInvoiceByIdForClient).toHaveBeenCalledWith(
+      "inv-1",
+      "client-viewer",
+    );
+    expect(result).toEqual({ id: "inv-1", invoiceNumber: "INV-1" });
+  });
+
+  it("denies client when getInvoiceByIdForClient returns null", async () => {
+    vi.mocked(getInvoiceByIdForClient).mockResolvedValue(null);
+
+    const result = await getInvoiceDetailForPage(
+      { id: "client-viewer", role: "client" },
+      "inv-missing",
+    );
+
     expect(result).toBeNull();
   });
 });

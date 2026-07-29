@@ -127,6 +127,14 @@ export default function InvoiceDetailPage({
   const isSupplierRole = user?.role === "supplier";
   const isAdminRole = user?.role === "admin" || Boolean(embedInAdmin);
   const disableInvoiceMutations = isClientRole || isSupplierRole;
+  // REQ-0214 — catalog-history clients may view others' INV; Pay only for assigned buyer
+  const isInvoiceBuyer =
+    Boolean(user?.id) &&
+    (invoice?.clientId === user?.id ||
+      invoice?.orderedBy?.userId === user?.id);
+  const canShowPayInvoice =
+    !isSupplierRole &&
+    (isAdminRole || user?.role === "user" || isInvoiceBuyer);
 
   // Edit Invoice: open InvoiceDialog in edit mode (same as InvoiceList/InvoiceActions)
   const [editDialogOpen, setEditDialogOpen] = useState(false);
@@ -773,7 +781,7 @@ export default function InvoiceDetailPage({
               </Button>
             )}
             {!dataLoading &&
-              !isSupplierRole &&
+              canShowPayInvoice &&
               invoice &&
               invoice.status !== "paid" &&
               invoice.status !== "cancelled" &&

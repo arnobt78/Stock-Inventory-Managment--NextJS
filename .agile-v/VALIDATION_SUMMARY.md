@@ -2397,3 +2397,21 @@ Commands: vitest patch+billing PASS; eslint changed files PASS
 Scope: built/verified | Traceability: REQ-0209,0210,0211 | Findings: PASS
 Commands: lint ✓ · test 724 ✓ · invalidate 221 ✓ · build ✓
 Notes: debug ingest stripped; PersonInlineRow title TS; cancel ISO patch typing
+
+## REQ-0214 — Client catalog-history invoice/order read parity (2026-07-29)
+
+| Check | Result |
+| ----- | ------ |
+| Client INV gate | `getInvoiceByIdForClient` (buyer or order with items) |
+| Client ORD gate | `getOrderByIdForClient` own + catalog history |
+| Pay | buyer/admin/owner only (UI + checkout order.clientId fallback) |
+| Process Refund | `refundDisabled` = same as Cancel (`disableOrderActions`) |
+| Supplier/admin | unchanged |
+| Invalidation | unchanged (read-path / UI gate only) |
+| Gates | lint ✓ tsc ✓ invoice access 9 ✓ invalidate 221 ✓ |
+
+```
+Scope: built/verified | Traceability: REQ-0214, REQ-0204 | Findings: PASS
+Commands: lint, tsc --noEmit, vitest invoice access, test:invalidate
+```
+

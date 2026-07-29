@@ -169,6 +169,7 @@ export async function POST(request: NextRequest) {
     } else if (type === "invoice") {
       const invoice = await prisma.invoice.findUnique({
         where: { id },
+        include: { order: { select: { clientId: true } } },
       });
 
       if (!invoice) {
@@ -181,7 +182,10 @@ export async function POST(request: NextRequest) {
       const isAdmin = session.role === "admin";
       const isClient = session.role === "client";
       const isCreator = invoice.userId === session.id;
-      const isInvoiceClient = invoice.clientId === session.id;
+      // REQ-0214 — buyer via invoice.clientId or linked order.clientId (legacy null invoice.clientId)
+      const isInvoiceClient =
+        invoice.clientId === session.id ||
+        invoice.order?.clientId === session.id;
       const canCheckout =
         isAdmin || isCreator || (isClient && isInvoiceClient);
 

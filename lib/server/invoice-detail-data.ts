@@ -5,6 +5,7 @@
 
 import {
   getInvoiceById,
+  getInvoiceByIdForClient,
   getInvoiceByIdForProductOwner,
   getInvoiceByIdForSupplier,
 } from "@/prisma/invoice";
@@ -189,9 +190,8 @@ export async function getInvoiceDetailForPage(
   if (isAdmin) {
     invoice = await prisma.invoice.findUnique({ where: { id: invoiceId } });
   } else if (isClient) {
-    invoice = await prisma.invoice.findFirst({
-      where: { id: invoiceId, clientId: userId },
-    });
+    // REQ-0214 — buyer invoices + catalog recent-order INV chips (read-only; Pay gated in UI)
+    invoice = await getInvoiceByIdForClient(invoiceId, userId);
   } else if (isSupplier) {
     // REQ-0204 — view invoices for orders that include this supplier's products
     const supplier = await getSupplierByUserId(userId);

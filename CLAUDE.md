@@ -172,7 +172,7 @@ All user-facing POST/PUT JSON bodies use `safeParse` + `logger.warn` on fail. Ne
 
 **Every session:** STATE → REQ map → skill 01+17 → Red Team → write-through DECISION/BUILD/VALIDATION.
 
-**C1 open:** Gate 2 PENDING (Sentry 24h). **Stopped 2026-07-27:** REQ-0136 SSR+statusAt+hydration. **Next:** prod smoke → Sentry 24h (**REQ-0009**).
+**C1 open:** Gate 2 PENDING (Sentry 24h). **Stopped 2026-07-29:** REQ-0214 client INV/ORD. **Next:** push → prod smoke → Sentry 24h (**REQ-0009**).
 
 ## REQ-0136 cache / badges / hydration (2026-07-27)
 
@@ -268,6 +268,17 @@ All user-facing POST/PUT JSON bodies use `safeParse` + `logger.warn` on fail. Ne
 | Nav | Related Invoices → `/invoices` |
 
 **Invalidation:** unchanged — read path only.
+
+## REQ-0214 client catalog-history INV/ORD (2026-07-29)
+
+| Piece | Location |
+|-------|----------|
+| Client INV | `getInvoiceByIdForClient` — buyer **or** linked order with items |
+| Client ORD | `getOrderByIdForClient` — own buyer **or** any order with line items |
+| Pay | Invoice/Order detail — buyer/admin/owner only; checkout `order.clientId` fallback |
+| UI | Edit/Send/Delete still off for client/supplier |
+
+**Invalidation:** unchanged — read-path gate only.
 
 ## REQ-0187 dialog densify (2026-07-22)
 
@@ -1064,7 +1075,7 @@ Hub: `lib/ui/typography-scale.ts`. Hubs import tokens; ~45 inline files use equi
 
 **Invalidation unchanged** — review/product/dashboard CRUD already clears lists + portals.
 
-**Active wave:** **0136** SSR/statusAt/hydration shipped → **Gate 2** Sentry 24h (REQ-0009).
+**Active wave:** **0214** client INV/ORD read + refund gate → **Gate 2** Sentry 24h (REQ-0009).
 
 ## Warehouse detail + Allocate/Transfer (REQ-0203)
 

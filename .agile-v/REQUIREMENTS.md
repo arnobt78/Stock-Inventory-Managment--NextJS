@@ -4,6 +4,30 @@ Canonical REQ source. All artifacts link via `REQ-XXXX`. Status: `done` | `verif
 
 ---
 
+## REQ-0214 — Client catalog-history invoice/order read parity
+
+| Field | Value |
+|-------|-------|
+| **Priority** | P0 |
+| **Risk** | R2 |
+| **Status** | done |
+| **Cycle** | C2 |
+| **Parent** | REQ-0204 |
+
+**Intent:** Product/category/supplier recent-order history shows other buyers’ ORD/INV chips to clients. Order + invoice detail must open read-only (same as supplier catalog history); Pay / Send / Edit / Delete stay buyer-or-owner only. Close client INV 404s.
+
+**Acceptance criteria**
+
+- AC1: `getInvoiceByIdForClient` + client branch in `getInvoiceDetailForPage` (buyer match **or** linked order catalog-readable)
+- AC2: `getOrderByIdForClient` allows own buyer **or** any order with line items (catalog history read)
+- AC3: Client INV/ORD links from catalog history + tables open detail (no 404); unrelated empty id still 404
+- AC4: Pay hidden unless viewer is invoice buyer; checkout API still buyer/admin/creator only
+- AC5: Supplier/admin/user gates unchanged; PDF uses same detail gate; invalidation unchanged; tests + lint pass
+
+**Artifacts:** `prisma/invoice.ts`, `prisma/order.ts`, `lib/server/invoice-detail-data.ts`, `InvoiceDetailPage`, tests
+
+---
+
 ## REQ-0213 — Educational README + Diploi launch docs
 
 | Field | Value |

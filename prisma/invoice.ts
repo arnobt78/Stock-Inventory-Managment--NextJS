@@ -439,6 +439,26 @@ export async function getInvoiceByIdForSupplier(
 }
 
 /**
+ * REQ-0214 — Get invoice by ID for client.
+ * Buyer match on invoice.clientId, else same catalog-history order gate as getOrderByIdForClient
+ * (legacy invoices with null clientId still resolve via linked order).
+ */
+export async function getInvoiceByIdForClient(
+  invoiceId: string,
+  clientUserId: string,
+): Promise<Prisma.InvoiceGetPayload<Record<string, never>> | null> {
+  const invoice = await prisma.invoice.findUnique({
+    where: { id: invoiceId },
+  });
+  if (!invoice) return null;
+  if (invoice.clientId === clientUserId) return invoice;
+
+  const { getOrderByIdForClient } = await import("@/prisma/order");
+  const order = await getOrderByIdForClient(invoice.orderId, clientUserId);
+  return order ? invoice : null;
+}
+
+/**
  * Get invoice by order ID
  *
  * @param orderId - ID of the order
