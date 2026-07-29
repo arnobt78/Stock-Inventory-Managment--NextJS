@@ -8,7 +8,7 @@
 | **Session** | 2026-07-29 — audit + ship |
 | **Active REQ** | **REQ-0009** (Sentry 24h) |
 | **Done range** | … + **0136** + **0214** |
-| **Prod SHA** | pending push |
+| **Prod SHA** | tip `ac552e7` (REQ-0214) |
 | **Human Gate 1** | APPROVED |
 | **Human Gate 2** | PENDING — Sentry 24h after Ready |
 | **Resume token** | `gate2-sentry-24h` |
