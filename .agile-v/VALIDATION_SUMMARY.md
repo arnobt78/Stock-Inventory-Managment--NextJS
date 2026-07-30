@@ -2498,3 +2498,19 @@ Scope: built/verified | Traceability: REQ-0219, REQ-0218 | Findings: PASS
 Commands: tsc --noEmit, lint
 ```
 
+## REQ-0220 — Detail Back soft-nav empty flash (2026-07-30)
+
+| Check | Result |
+| ----- | ------ |
+| Root cause | invalidate `*.all`/forecast/stock before router; soft-nav keeps detail mounted |
+| Fix | navigate first + `invalidateAfterBackNavigation` (lists/dashboards) |
+| Mutations | unchanged — catalog/order/stock CRUD still full invalidate |
+| Coverage | all detail Back via `useBackWithRefresh` (store + admin) |
+| Runtime | post-fix: detail/forecast/stock fetching 0; lists invalidated |
+| Gates | test:invalidate ✓ lint ✓ |
+
+```
+Scope: built/verified | Traceability: REQ-0220, REQ-0057 | Findings: PASS
+Commands: test:invalidate, lint
+```
+

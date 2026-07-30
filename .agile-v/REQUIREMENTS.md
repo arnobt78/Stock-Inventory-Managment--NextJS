@@ -4,6 +4,30 @@ Canonical REQ source. All artifacts link via `REQ-XXXX`. Status: `done` | `verif
 
 ---
 
+## REQ-0220 — Detail Back soft-nav empty flash
+
+| Field | Value |
+|-------|-------|
+| **Priority** | P0 |
+| **Risk** | R2 |
+| **Status** | done |
+| **Cycle** | C2 |
+| **Parent** | REQ-0057 |
+
+**Intent:** Stop millisecond empty/`—` flash on detail Back (header+footer) when soft-nav keeps the page mounted while `*.all` / forecasting / stock invalidate.
+
+**Acceptance criteria**
+
+- AC1: `useBackWithRefresh` navigates first, then `invalidateAfterBackNavigation`
+- AC2: Back invalidate = lists + dashboards/portals only (no `products.all` / forecasting / stockAllocation)
+- AC3: Mutations unchanged (`invalidateAfterCatalogChange` / order-graph / stock still full)
+- AC4: All detail entities (store + admin embed) use the hook; `test:invalidate` covers registry
+- AC5: Runtime logs: detail/forecast/stock fetching = 0 after Back; UI smoke PASS
+
+**Artifacts:** `hooks/use-back-with-refresh.ts`, `lib/react-query/invalidate-all.ts` (`invalidateAfterBackNavigation`)
+
+---
+
 ## REQ-0219 — Fix `findCachedAllocation` QueryKey type (Vercel build)
 
 | Field | Value |

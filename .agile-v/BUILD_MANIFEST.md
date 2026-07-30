@@ -594,3 +594,7 @@
 
 | ART-0219 | REQ-0219 | use-stock-allocation findCachedAllocation QueryKey[] | Vercel tsc unblock |
 | TC-0219 | REQ-0219 | tsc --noEmit + lint | PASS |
+
+| ART-0220a | REQ-0220 | invalidateAfterBackNavigation | lists/dashboards only |
+| ART-0220b | REQ-0220 | useBackWithRefresh nav-then-invalidate | all detail Back |
+| TC-0220 | REQ-0220 | invalidate-coverage + runtime NDJSON | PASS |

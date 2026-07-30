@@ -172,7 +172,7 @@ All user-facing POST/PUT JSON bodies use `safeParse` + `logger.warn` on fail. Ne
 
 **Every session:** STATE → REQ map → skill 01+17 → Red Team → write-through DECISION/BUILD/VALIDATION.
 
-**C1 open:** Gate 2 PENDING (Sentry 24h). **Stopped 2026-07-30:** REQ-0219 QueryKey tsc fix. **Next:** Vercel Ready → smoke → Sentry 24h (**REQ-0009**).
+**C1 open:** Gate 2 PENDING (Sentry 24h). **Stopped 2026-07-30:** REQ-0220 back-nav flash. **Next:** Vercel Ready → smoke → Sentry 24h (**REQ-0009**).
 
 ## REQ-0136 cache / badges / hydration (2026-07-27)
 
@@ -333,6 +333,16 @@ All user-facing POST/PUT JSON bodies use `safeParse` + `logger.warn` on fail. Ne
 | Why | Vercel `next build` tsc failed after REQ-0218 stock helpers |
 
 **Invalidation unchanged** — typing only.
+
+## REQ-0220 detail Back soft-nav flash (2026-07-30)
+
+| Piece | Location |
+|-------|----------|
+| Hook | `useBackWithRefresh` — router first, then list-safe invalidate |
+| Registry | `invalidateAfterBackNavigation` — lists + dashboards/portals; no `*.all`/forecast/stock |
+| Scope | All detail header+footer Back (store + admin embeds) |
+
+**Mutations unchanged** — CRUD still `invalidateAfterCatalogChange` / order-graph / stock.
 
 ## REQ-0187 dialog densify (2026-07-22)
 
@@ -1129,7 +1139,7 @@ Hub: `lib/ui/typography-scale.ts`. Hubs import tokens; ~45 inline files use equi
 
 **Invalidation unchanged** — review/product/dashboard CRUD already clears lists + portals.
 
-**Active wave:** **0218** catalog densify parity → **Gate 2** Sentry 24h (REQ-0009).
+**Active wave:** **0220** back-nav flash done → **Gate 2** Sentry 24h (REQ-0009).
 
 ## Warehouse detail + Allocate/Transfer (REQ-0203)
 

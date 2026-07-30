@@ -302,21 +302,45 @@ describe("invalidateAllRelatedQueries registry", () => {
   });
 
   it("uses .all for domains with extra sub-query keys", () => {
+    const broadOnly = content.slice(
+      0,
+      content.indexOf("export function invalidateAfterBackNavigation"),
+    );
     for (const { key } of DOMAIN_KEYS_REQUIRE_ALL) {
-      expect(content).toContain(key);
+      expect(broadOnly).toContain(key);
     }
-    expect(content).not.toContain("queryKeys.productReviews.lists()");
-    expect(content).not.toContain("queryKeys.invoices.lists()");
-    expect(content).not.toContain("queryKeys.supportTickets.lists()");
-    expect(content).not.toContain("queryKeys.history.lists()");
+    expect(broadOnly).not.toContain("queryKeys.productReviews.lists()");
+    expect(broadOnly).not.toContain("queryKeys.invoices.lists()");
+    expect(broadOnly).not.toContain("queryKeys.supportTickets.lists()");
+    expect(broadOnly).not.toContain("queryKeys.history.lists()");
+  });
+
+  it("invalidateAfterBackNavigation uses lists only (no forecasting/stock flash)", () => {
+    const start = content.indexOf(
+      "export function invalidateAfterBackNavigation",
+    );
+    const end = content.indexOf(
+      "export function invalidateAfterOrderGraphChange",
+    );
+    const backOnly = content.slice(start, end);
+    expect(backOnly).toContain("queryKeys.invoices.lists()");
+    expect(backOnly).toContain("queryKeys.supportTickets.lists()");
+    expect(backOnly).toContain("queryKeys.productReviews.lists()");
+    expect(backOnly).toContain("queryKeys.history.lists()");
+    expect(backOnly).not.toContain("forecasting");
+    expect(backOnly).not.toContain("stockAllocation");
+    expect(backOnly).not.toMatch(/queryKeys\.products\.all/);
+    expect(backOnly).not.toMatch(/queryKeys\.suppliers\.all/);
   });
 });
 
 describe("hooks/use-back-with-refresh", () => {
-  it("order/invoice back uses invalidateAfterOrderGraphChange", () => {
+  it("back nav uses list-safe invalidateAfterBackNavigation (no detail *.all flash)", () => {
     const content = readRepoFile("hooks/use-back-with-refresh.ts");
-    expect(content).toContain("invalidateAfterOrderGraphChange");
-    expect(content).toContain("invalidateAllRelatedQueries");
+    expect(content).toContain("invalidateAfterBackNavigation");
+    expect(content).not.toContain("invalidateAfterOrderGraphChange");
+    expect(content).not.toContain("invalidateAfterCatalogChange");
+    expect(content).not.toContain("invalidateAfterStockChange");
   });
 });
 

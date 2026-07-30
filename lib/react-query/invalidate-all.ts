@@ -52,6 +52,37 @@ export function invalidateAllRelatedQueries(queryClient: QueryClient): void {
 }
 
 /**
+ * Back-button / leave-detail navigation only (REQ-0220).
+ * Soft-nav keeps the departing detail mounted until the list RSC lands — invalidating
+ * `*.all`, `forecasting`, or `stockAllocation` refetches active detail slots and flashes
+ * empty/`—` UI. Lists + dashboards/portals are enough for a fresh destination.
+ * Mutations still use invalidateAfterCatalogChange / OrderGraph / StockChange.
+ */
+export function invalidateAfterBackNavigation(
+  queryClient: QueryClient,
+): void {
+  queryClient.invalidateQueries({ queryKey: queryKeys.products.lists() });
+  queryClient.invalidateQueries({ queryKey: queryKeys.categories.lists() });
+  queryClient.invalidateQueries({ queryKey: queryKeys.suppliers.lists() });
+  queryClient.invalidateQueries({ queryKey: queryKeys.orders.lists() });
+  queryClient.invalidateQueries({ queryKey: queryKeys.clientOrders.lists() });
+  queryClient.invalidateQueries({ queryKey: queryKeys.invoices.lists() });
+  queryClient.invalidateQueries({ queryKey: queryKeys.clientInvoices.lists() });
+  queryClient.invalidateQueries({ queryKey: queryKeys.warehouses.lists() });
+  queryClient.invalidateQueries({ queryKey: queryKeys.history.lists() });
+  queryClient.invalidateQueries({ queryKey: queryKeys.supportTickets.lists() });
+  queryClient.invalidateQueries({ queryKey: queryKeys.productReviews.lists() });
+  queryClient.invalidateQueries({ queryKey: queryKeys.dashboard.all });
+  queryClient.invalidateQueries({ queryKey: queryKeys.admin.all });
+  queryClient.invalidateQueries({ queryKey: queryKeys.userManagement.lists() });
+  queryClient.invalidateQueries({ queryKey: queryKeys.clientPortal.all });
+  queryClient.invalidateQueries({ queryKey: queryKeys.supplierPortal.all });
+  queryClient.invalidateQueries({ queryKey: queryKeys.portal.all });
+  queryClient.invalidateQueries({ queryKey: queryKeys.auditLogs.all });
+  queryClient.invalidateQueries({ queryKey: queryKeys.notifications.all });
+}
+
+/**
  * Order / payment / shipping / invoice changes affect nested order rows on
  * product, category, and supplier detail payloads (recentOrders.orderStatus).
  * Broad invalidation uses *.lists() for catalog entities — detail queries stay stale without this.

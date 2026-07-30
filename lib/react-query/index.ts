@@ -11,6 +11,7 @@ export {
   invalidateAfterOrderGraphChange,
   invalidateAfterStockChange,
   invalidateAfterCatalogChange,
+  invalidateAfterBackNavigation,
 } from "./invalidate-all";
 export { cancelOrRemoveDetailQuery } from "./cancel-or-remove-detail";
 export {

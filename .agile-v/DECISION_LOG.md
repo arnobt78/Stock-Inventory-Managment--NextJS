@@ -631,3 +631,5 @@ Format: `TIMESTAMP | AGENT | DECISION | RATIONALE | REQ-ID`
 2026-07-30T15:10:00Z | build-agent | Leave remaining densify gaps | KPI/forecast pulse + cross-entity insights intentional; revisit only if user-visible flash | REQ-0218
 
 2026-07-30T15:15:00Z | build-agent | Widen findCachedAllocation keys to QueryKey[] | byWarehouse push incompatible with product-only tuple array; Vercel tsc fail | REQ-0219
+
+2026-07-30T16:05:00Z | build-agent | Back: navigate then list-safe invalidateAfterBackNavigation | Soft-nav kept detail mounted; *.all/forecast/stock flash empty UI | REQ-0220

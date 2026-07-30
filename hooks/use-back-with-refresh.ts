@@ -1,23 +1,20 @@
 /**
  * useBackWithRefresh
  * Central back-navigation hook used on ALL detail pages.
- * Invalidates relevant TanStack Query caches before navigating so the list/dashboard
- * always shows fresh data when the user returns — no manual page refresh needed.
+ * Navigates first, then invalidates list/dashboard caches so the destination is fresh
+ * without refetching the still-mounted detail (soft-nav flash — REQ-0220).
  *
  * Supports every entity that has a detail page in the app.
  * Usage:
  *   const { handleBack, navigateTo } = useBackWithRefresh("order");
- *   - handleBack()           → invalidate + router.back()
- *   - navigateTo("/orders")  → invalidate + router.push("/orders")
+ *   - handleBack()           → router.back() + list-safe invalidate
+ *   - navigateTo("/orders")  → router.push + list-safe invalidate
  */
 
-import { usePathname, useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { useQueryClient } from "@tanstack/react-query";
 import {
-  invalidateAllRelatedQueries,
-  invalidateAfterOrderGraphChange,
-  invalidateAfterStockChange,
-  invalidateAfterCatalogChange,
+  invalidateAfterBackNavigation,
   queryKeys,
 } from "@/lib/react-query";
 import { consumeStripeCheckoutReturn } from "@/lib/payments/stripe-return";
@@ -40,31 +37,17 @@ export type EntityType =
   | "user"
   | "history";
 
-function runInvalidations(
+function runBackInvalidations(
   queryClient: ReturnType<typeof import("@tanstack/react-query").useQueryClient>,
   entity: EntityType,
 ) {
-  // Order/invoice flows stale many cross-domain keys (stock, invoices, portals)
-  if (entity === "order" || entity === "invoice") {
-    invalidateAfterOrderGraphChange(queryClient);
-    return;
-  }
-  // Stock-heavy entities: explicit stock graph invalidation + broad sweep
-  if (entity === "warehouse" || entity === "product") {
-    invalidateAfterStockChange(queryClient);
-    return;
-  }
-  if (entity === "category" || entity === "supplier") {
-    invalidateAfterCatalogChange(queryClient);
-    return;
-  }
-  // Read-only admin history detail — narrow list refresh only
+  // History detail — narrow list only (unchanged)
   if (entity === "history") {
     void queryClient.invalidateQueries({ queryKey: queryKeys.history.lists() });
     return;
   }
-  // All other entities: full cross-domain invalidation covers lists + dashboards
-  invalidateAllRelatedQueries(queryClient);
+  // REQ-0220 — lists/dashboards only; never *.all / forecasting / stock while detail painted
+  invalidateAfterBackNavigation(queryClient);
 }
 
 export function useBackWithRefresh(
@@ -72,25 +55,25 @@ export function useBackWithRefresh(
   options?: UseBackWithRefreshOptions,
 ) {
   const router = useRouter();
-  const pathname = usePathname();
   const queryClient = useQueryClient();
   const fallbackPath = options?.fallbackPath;
 
   const handleBack = () => {
-    runInvalidations(queryClient, entity);
     // Clear Stripe return flag when present (history may still contain checkout.stripe.com)
     consumeStripeCheckoutReturn();
     // Prefer explicit list path when set (admin order detail → /admin/orders)
+    // Navigate BEFORE invalidate so departing detail is not painted as unsettled (REQ-0220)
     if (fallbackPath) {
       router.push(fallbackPath);
-      return;
+    } else {
+      router.back();
     }
-    router.back();
+    runBackInvalidations(queryClient, entity);
   };
 
   const navigateTo = (path: string) => {
-    runInvalidations(queryClient, entity);
     router.push(path);
+    runBackInvalidations(queryClient, entity);
   };
 
   return { handleBack, navigateTo };
