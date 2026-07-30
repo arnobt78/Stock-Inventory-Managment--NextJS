@@ -8,7 +8,7 @@
 | **Session** | 2026-07-30 — remainder pay status heal |
 | **Active REQ** | **REQ-0009** (Sentry 24h) |
 | **Done range** | … + **0214** + **0215** |
-| **Prod SHA** | pending push |
+| **Prod SHA** | tip `13952e7` (REQ-0215) |
 | **Human Gate 1** | APPROVED |
 | **Human Gate 2** | PENDING — Sentry 24h after Ready |
 | **Resume token** | `gate2-sentry-24h` |
