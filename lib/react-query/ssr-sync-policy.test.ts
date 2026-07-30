@@ -25,6 +25,22 @@ describe("serverHasRicherDensify", () => {
       ),
     ).toBe(false);
   });
+
+  // REQ-0218 — catalog calculated densify keys
+  it("detects missing productInsights / committedQuantity / productCount", () => {
+    expect(
+      serverHasRicherDensify(
+        { id: "1", productInsights: { totalStock: 10 }, committedQuantity: 2 },
+        { id: "1" },
+      ),
+    ).toBe(true);
+    expect(
+      serverHasRicherDensify(
+        { id: "c1", productCount: 3, catalogProductTotal: 10 },
+        { id: "c1", productCount: 0 },
+      ),
+    ).toBe(true);
+  });
 });
 
 describe("resolveSsrSyncAction", () => {

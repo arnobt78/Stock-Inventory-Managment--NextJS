@@ -34,6 +34,8 @@ import { planCatalogQuantityReconcile } from "@/lib/stock-allocation/catalog-qua
 import { formatCatalogAllocationSummary } from "@/lib/stock-allocation/catalog-allocation-copy";
 import { useCatalogQuantityReconcilePreview } from "@/hooks/use-catalog-quantity-reconcile-preview";
 import { AlertDialogWrapper } from "@/components/dialogs";
+import { SelectEmptyContent } from "@/components/shared/SelectEmptyContent";
+import { resolveSelectPlaceholder } from "@/lib/ui/select-empty-copy";
 import type { UpdateProductInput } from "@/types";
 import { logger } from "@/lib/logger";
 import ProductName from "./form-fields/NameField";
@@ -120,8 +122,8 @@ export default function AddProductDialog({
   } = useProductStore();
 
   // Use TanStack Query for data fetching
-  const { data: categories = [] } = useCategories();
-  const { data: suppliers = [] } = useSuppliers();
+  const { data: categories = [], isLoading: categoriesLoading } = useCategories();
+  const { data: suppliers = [], isLoading: suppliersLoading } = useSuppliers();
 
   // Filter to only show active categories and suppliers in dropdowns
   // Include currently selected category/supplier even if inactive (for edit mode)
@@ -131,6 +133,17 @@ export default function AddProductDialog({
   const activeSuppliers = suppliers.filter(
     (supplier) => supplier.status !== false || supplier.id === selectedSupplier,
   );
+  // REQ-0217 — empty list copy (placeholder + open panel); skip flash while loading
+  const categoryInvite = resolveSelectPlaceholder("category", {
+    count: activeCategories.length,
+    isLoading: categoriesLoading,
+    invite: "Select Category",
+  });
+  const supplierInvite = resolveSelectPlaceholder("supplier", {
+    count: activeSuppliers.length,
+    isLoading: suppliersLoading,
+    invite: "Select Supplier",
+  });
 
   // Use TanStack Query mutations
   const createProductMutation = useCreateProduct();
@@ -413,7 +426,7 @@ export default function AddProductDialog({
                       aria-hidden
                     >
                       {activeCategories.find((c) => c.id === selectedCategory)
-                        ?.name ?? "Select Category"}
+                        ?.name ?? categoryInvite}
                     </div>
                   }
                 >
@@ -427,7 +440,7 @@ export default function AddProductDialog({
                       }}
                     >
                       <SelectTrigger className={cn("h-11 w-full", DIALOG_FORM_FIELD_ROSE)}>
-                        <SelectValue placeholder="Select Category" />
+                        <SelectValue placeholder={categoryInvite} />
                       </SelectTrigger>
                       <SelectContent
                         className={cn(DIALOG_SELECT_CONTENT_CLASS, "z-[100]")}
@@ -435,15 +448,19 @@ export default function AddProductDialog({
                         sideOffset={5}
                         align="start"
                       >
-                        {activeCategories.map((category) => (
-                          <SelectItem
-                            key={category.id}
-                            value={category.id}
-                            className={DIALOG_SELECT_ITEM_CLASS}
-                          >
-                            {category.name}
-                          </SelectItem>
-                        ))}
+                        {activeCategories.length === 0 ? (
+                          <SelectEmptyContent entity="category" />
+                        ) : (
+                          activeCategories.map((category) => (
+                            <SelectItem
+                              key={category.id}
+                              value={category.id}
+                              className={DIALOG_SELECT_ITEM_CLASS}
+                            >
+                              {category.name}
+                            </SelectItem>
+                          ))
+                        )}
                       </SelectContent>
                     </Select>
                   )}
@@ -471,7 +488,7 @@ export default function AddProductDialog({
                           label={
                             activeSuppliers.find(
                               (s) => s.id === selectedSupplier,
-                            )?.name ?? "Select Supplier"
+                            )?.name ?? supplierInvite
                           }
                           seed={
                             activeSuppliers.find(
@@ -482,7 +499,7 @@ export default function AddProductDialog({
                           linkClassName="text-sm font-normal text-white/90"
                         />
                       ) : (
-                        "Select Supplier"
+                        supplierInvite
                       )}
                     </div>
                   }
@@ -502,13 +519,13 @@ export default function AddProductDialog({
                           DIALOG_FORM_FIELD_ROSE,
                         )}
                       >
-                        <SelectValue placeholder="Select Supplier">
+                        <SelectValue placeholder={supplierInvite}>
                           {selectedSupplier ? (
                             <AvatarInlineLink
                               label={
                                 activeSuppliers.find(
                                   (s) => s.id === selectedSupplier,
-                                )?.name ?? "Select Supplier"
+                                )?.name ?? supplierInvite
                               }
                               seed={
                                 activeSuppliers.find(
@@ -519,7 +536,7 @@ export default function AddProductDialog({
                               linkClassName="text-sm font-normal text-white/90"
                             />
                           ) : (
-                            "Select Supplier"
+                            supplierInvite
                           )}
                         </SelectValue>
                       </SelectTrigger>
@@ -529,20 +546,24 @@ export default function AddProductDialog({
                         sideOffset={5}
                         align="start"
                       >
-                        {activeSuppliers.map((supplier) => (
-                          <SelectItem
-                            key={supplier.id}
-                            value={supplier.id}
-                            className={DIALOG_SELECT_ITEM_CLASS}
-                          >
-                            <AvatarInlineLink
-                              label={supplier.name}
-                              seed={supplier.userId ?? supplier.id}
-                              size={22}
-                              linkClassName="text-sm font-normal text-popover-foreground"
-                            />
-                          </SelectItem>
-                        ))}
+                        {activeSuppliers.length === 0 ? (
+                          <SelectEmptyContent entity="supplier" />
+                        ) : (
+                          activeSuppliers.map((supplier) => (
+                            <SelectItem
+                              key={supplier.id}
+                              value={supplier.id}
+                              className={DIALOG_SELECT_ITEM_CLASS}
+                            >
+                              <AvatarInlineLink
+                                label={supplier.name}
+                                seed={supplier.userId ?? supplier.id}
+                                size={22}
+                                linkClassName="text-sm font-normal text-popover-foreground"
+                              />
+                            </SelectItem>
+                          ))
+                        )}
                       </SelectContent>
                     </Select>
                   )}

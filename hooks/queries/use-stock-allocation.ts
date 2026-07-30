@@ -4,7 +4,15 @@
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { apiClient, getErrorMessage } from "@/lib/api";
-import { invalidateAfterStockChange, queryKeys, withInitialData, patchStockAllocationInCaches, removeStockAllocationFromCaches } from "@/lib/react-query";
+import {
+  invalidateAfterStockChange,
+  queryKeys,
+  withInitialData,
+  patchStockAllocationInCaches,
+  removeStockAllocationFromCaches,
+  patchStockCachesAfterTransfer,
+  patchWarehouseStockSummaryCaches,
+} from "@/lib/react-query";
 import { useToast } from "@/hooks/use-toast";
 import type {
   StockAllocation,
@@ -33,6 +41,26 @@ export function prefetchStockByProduct(
     queryKey: queryKeys.stockAllocation.byProduct(productId),
     queryFn: () => fetchStockByProduct(productId),
   });
+}
+
+function findCachedAllocation(
+  queryClient: QueryClient,
+  allocationId: string,
+  scope?: { productId?: string; warehouseId?: string },
+): StockAllocation | undefined {
+  const keys: ReturnType<typeof queryKeys.stockAllocation.byProduct>[] = [];
+  if (scope?.productId) {
+    keys.push(queryKeys.stockAllocation.byProduct(scope.productId));
+  }
+  if (scope?.warehouseId) {
+    keys.push(queryKeys.stockAllocation.byWarehouse(scope.warehouseId));
+  }
+  for (const key of keys) {
+    const rows = queryClient.getQueryData<StockAllocation[]>(key);
+    const hit = rows?.find((r) => r.id === allocationId);
+    if (hit) return hit;
+  }
+  return undefined;
 }
 
 /**
@@ -112,10 +140,36 @@ export function useCreateStockAllocation() {
       return response.data;
     },
     onSuccess: (data: StockAllocation) => {
+      const warehouseId = data.warehouseId;
+      const prior = warehouseId
+        ? queryClient
+            .getQueryData<StockAllocation[]>(
+              queryKeys.stockAllocation.byWarehouse(warehouseId),
+            )
+            ?.find((r) => r.id === data.id || r.productId === data.productId)
+        : undefined;
+      const priorQty = prior ? Number(prior.quantity ?? 0) : 0;
+      const nextQty = Number(data.quantity ?? 0);
+      const isNewRow = !prior;
+
       patchStockAllocationInCaches(queryClient, data, {
         byProduct: queryKeys.stockAllocation.byProduct,
         byWarehouse: queryKeys.stockAllocation.byWarehouse,
       });
+      // REQ-0218 — list Stock share % from summary
+      if (warehouseId) {
+        patchWarehouseStockSummaryCaches(
+          queryClient,
+          queryKeys.stockAllocation.summary(),
+          [
+            {
+              warehouseId,
+              quantityDelta: nextQty - priorQty,
+              productsDelta: isNewRow ? 1 : 0,
+            },
+          ],
+        );
+      }
       invalidateAfterStockChange(queryClient);
       toast({
         title: "Stock allocation saved",
@@ -148,10 +202,29 @@ export function useUpdateStockAllocation() {
       return response.data;
     },
     onSuccess: (data: StockAllocation) => {
+      const prior = findCachedAllocation(queryClient, data.id, {
+        productId: data.productId,
+        warehouseId: data.warehouseId,
+      });
+      const priorQty = Number(prior?.quantity ?? 0);
+      const nextQty = Number(data.quantity ?? 0);
+
       patchStockAllocationInCaches(queryClient, data, {
         byProduct: queryKeys.stockAllocation.byProduct,
         byWarehouse: queryKeys.stockAllocation.byWarehouse,
       });
+      if (data.warehouseId) {
+        patchWarehouseStockSummaryCaches(
+          queryClient,
+          queryKeys.stockAllocation.summary(),
+          [
+            {
+              warehouseId: data.warehouseId,
+              quantityDelta: nextQty - priorQty,
+            },
+          ],
+        );
+      }
       invalidateAfterStockChange(queryClient);
       toast({
         title: "Allocation updated",
@@ -188,6 +261,12 @@ export function useDeleteStockAllocation() {
       return input;
     },
     onSuccess: (input) => {
+      const prior = findCachedAllocation(queryClient, input.id, {
+        productId: input.productId,
+        warehouseId: input.warehouseId,
+      });
+      const priorQty = Number(prior?.quantity ?? 0);
+
       removeStockAllocationFromCaches(
         queryClient,
         input.id,
@@ -196,6 +275,17 @@ export function useDeleteStockAllocation() {
           byWarehouse: queryKeys.stockAllocation.byWarehouse,
         },
         { productId: input.productId, warehouseId: input.warehouseId },
+      );
+      patchWarehouseStockSummaryCaches(
+        queryClient,
+        queryKeys.stockAllocation.summary(),
+        [
+          {
+            warehouseId: input.warehouseId,
+            quantityDelta: -priorQty,
+            productsDelta: -1,
+          },
+        ],
       );
       invalidateAfterStockChange(queryClient);
       toast({
@@ -227,6 +317,51 @@ export function useCreateStockTransfer() {
       return response.data;
     },
     onSuccess: (data: StockTransfer) => {
+      // REQ-0218 — patch both warehouse/product allocation sides + summary share %
+      const destHadProduct = queryClient
+        .getQueryData<StockAllocation[]>(
+          queryKeys.stockAllocation.byWarehouse(data.toWarehouseId),
+        )
+        ?.some((r) => r.productId === data.productId);
+      const sourceRow = queryClient
+        .getQueryData<StockAllocation[]>(
+          queryKeys.stockAllocation.byWarehouse(data.fromWarehouseId),
+        )
+        ?.find((r) => r.productId === data.productId);
+      const sourceWillEmpty =
+        sourceRow != null &&
+        Number(sourceRow.quantity ?? 0) - Number(data.quantity ?? 0) <= 0 &&
+        Number(sourceRow.reservedQuantity ?? 0) <= 0;
+
+      patchStockCachesAfterTransfer(
+        queryClient,
+        {
+          productId: data.productId,
+          fromWarehouseId: data.fromWarehouseId,
+          toWarehouseId: data.toWarehouseId,
+          quantity: data.quantity,
+        },
+        {
+          byProduct: queryKeys.stockAllocation.byProduct,
+          byWarehouse: queryKeys.stockAllocation.byWarehouse,
+        },
+      );
+      patchWarehouseStockSummaryCaches(
+        queryClient,
+        queryKeys.stockAllocation.summary(),
+        [
+          {
+            warehouseId: data.fromWarehouseId,
+            quantityDelta: -Number(data.quantity ?? 0),
+            productsDelta: sourceWillEmpty ? -1 : 0,
+          },
+          {
+            warehouseId: data.toWarehouseId,
+            quantityDelta: Number(data.quantity ?? 0),
+            productsDelta: destHadProduct ? 0 : 1,
+          },
+        ],
+      );
       invalidateAfterStockChange(queryClient);
       toast({
         title: "Stock transferred",

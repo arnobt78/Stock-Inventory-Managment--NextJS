@@ -2433,3 +2433,53 @@ Scope: built/verified | Traceability: REQ-0215, REQ-0152 | Findings: PASS
 Commands: lint, tsc, vitest payment/heal, test:invalidate
 ```
 
+## REQ-0216 — Global scroll-lock layout shift fix (2026-07-30)
+
+| Check | Result |
+| ----- | ------ |
+| Auth gutter | `:has(.auth-page-root)` only (global html reverted — FAB inset) |
+| RemoveScroll | unlayered `html body[data-scroll-locked]` pad/margin 0 beats injected gap |
+| Logs | post-fix `bodyMargR:0` `rootW` stable; `--removed-body-scroll-bar-size:0` |
+| #main-content | gutter unchanged |
+| Invalidation | N/A (CSS-only) |
+| Gates | lint ✓; Firefox Role Select verified |
+
+```
+Scope: built/verified | Traceability: REQ-0216, REQ-0033 | Findings: PASS
+Commands: lint; Firefox post-fix logs
+```
+
+## REQ-0217 — Dynamic empty Select copy (2026-07-30)
+
+| Check | Result |
+| ----- | ------ |
+| Helpers | selectEmptyPlaceholder / Message / resolveSelectPlaceholder |
+| UI | SelectEmptyContent + ProductForm Category/Supplier + Transfer dest |
+| Invalidation | N/A (presentational) |
+| Gates | lint ✓ select-empty-copy.test ✓ |
+
+```
+Scope: built/verified | Traceability: REQ-0217 | Findings: PASS
+Commands: lint, vitest select-empty-copy
+```
+
+## REQ-0218 — Catalog densify parity (2026-07-30)
+
+| Check | Result |
+| ----- | ------ |
+| Detail merge | product/category/supplier/warehouse patchDetailCacheMerge |
+| Transfer | patchStockCachesAfterTransfer both sides |
+| Summary % | patchWarehouseStockSummaryCaches on allocate/update/delete/transfer |
+| List # · % | patchCatalogListProductCounts on product CRUD |
+| Densify keys | insights/committed/productCount in DENSIFY_KEY_RE |
+| Forecast | pulse-on-invalidate (unchanged) |
+| Invalidation | still after patches |
+| Gates | lint ✓ patch+ssr-sync tests ✓ invalidate ✓ |
+| Deferred | KPI/forecast pulse; cross-entity cat/sup insights; committed after order; review/ticket/user thin replace |
+
+```
+Scope: built/verified | Traceability: REQ-0218, REQ-0122 | Findings: PASS
+Deferred: intentional pulse / lower-impact invalidate lag (not full-app densify)
+Commands: lint, vitest patch-mutation-cache ssr-sync-policy, test:invalidate
+```
+

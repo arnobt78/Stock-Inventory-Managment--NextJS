@@ -14,6 +14,11 @@ export const READABLE_POPOVER_ITEM_CLASS =
 export const DIALOG_SELECT_CONTENT_CLASS = READABLE_POPOVER_CONTENT_CLASS;
 export const DIALOG_SELECT_ITEM_CLASS = READABLE_POPOVER_ITEM_CLASS;
 
+/** REQ-0217 — empty option list body inside SelectContent (not a SelectItem). */
+export const DIALOG_SELECT_EMPTY_CLASS =
+  "px-2 py-6 text-center text-sm text-muted-foreground";
+
+
 export type PopoverHue =
   | "sky"
   | "violet"

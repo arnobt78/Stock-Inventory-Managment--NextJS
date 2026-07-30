@@ -6,7 +6,7 @@
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { apiClient, getErrorMessage, isAxiosError } from "@/lib/api";
-import { invalidateAfterCatalogChange, cancelOrRemoveDetailQuery, invalidateAfterStockChange, queryKeys, withInitialData, patchDetailCache, patchListCaches, patchProductInPortalCaches, removeFromListCaches, removeProductFromPortalCaches } from "@/lib/react-query";
+import { invalidateAfterCatalogChange, cancelOrRemoveDetailQuery, invalidateAfterStockChange, queryKeys, withInitialData, patchDetailCacheMerge, patchListCaches, patchProductInPortalCaches, removeFromListCaches, removeProductFromPortalCaches, patchCatalogListProductCounts } from "@/lib/react-query";
 import { useToast } from "@/hooks/use-toast";
 import type {
   Product,
@@ -70,15 +70,22 @@ export function useCreateProduct() {
     },
     onSuccess: (newProduct) => {
       if (newProduct.id) {
-        patchDetailCache(
+        // REQ-0218 — merge (not replace) so thin create body never wipes densify if detail was warmed
+        patchDetailCacheMerge<Product>(
           queryClient,
           queryKeys.products.detail(newProduct.id),
-          newProduct,
+          (old) => (old ? { ...old, ...newProduct } : newProduct),
         );
         patchListCaches(queryClient, queryKeys.products.all, newProduct, {
           prependIfMissing: true,
         });
         patchProductInPortalCaches(queryClient, newProduct);
+        patchCatalogListProductCounts(queryClient, {
+          categoryId: newProduct.categoryId,
+          supplierId: newProduct.supplierId,
+          delta: 1,
+          adjustCatalogTotal: true,
+        });
       }
       invalidateAfterCatalogChange(queryClient);
       const name = (newProduct as { name?: string })?.name ?? "Product";
@@ -113,13 +120,36 @@ export function useUpdateProduct() {
     },
     onSuccess: (updatedProduct, variables) => {
       if (updatedProduct.id) {
-        patchDetailCache(
+        const prev = queryClient.getQueryData<Product>(
+          queryKeys.products.detail(updatedProduct.id),
+        );
+        // REQ-0218 — thin PUT must not wipe productInsights / committedQuantity / recentOrders
+        patchDetailCacheMerge<Product>(
           queryClient,
           queryKeys.products.detail(updatedProduct.id),
-          updatedProduct,
+          (old) =>
+            old ? { ...old, ...updatedProduct } : updatedProduct,
         );
         patchListCaches(queryClient, queryKeys.products.all, updatedProduct);
         patchProductInPortalCaches(queryClient, updatedProduct);
+        const nextCategoryId =
+          updatedProduct.categoryId ?? variables.categoryId;
+        const nextSupplierId =
+          updatedProduct.supplierId ?? variables.supplierId;
+        if (
+          prev &&
+          (prev.categoryId !== nextCategoryId ||
+            prev.supplierId !== nextSupplierId)
+        ) {
+          patchCatalogListProductCounts(queryClient, {
+            categoryId: nextCategoryId,
+            supplierId: nextSupplierId,
+            prevCategoryId: prev.categoryId,
+            prevSupplierId: prev.supplierId,
+            delta: 1,
+            adjustCatalogTotal: false,
+          });
+        }
       }
       if (variables.quantity !== undefined) {
         invalidateAfterStockChange(queryClient);
@@ -178,8 +208,21 @@ export function useDeleteProduct() {
     },
     onSuccess: (deletedData) => {
       const detailKey = queryKeys.products.detail(deletedData.id);
+      const prev =
+        queryClient.getQueryData<Product>(detailKey) ??
+        queryClient
+          .getQueryData<Product[]>(queryKeys.products.lists())
+          ?.find((p) => p.id === deletedData.id);
       removeFromListCaches(queryClient, queryKeys.products.all, deletedData.id);
       removeProductFromPortalCaches(queryClient, deletedData.id);
+      if (prev) {
+        patchCatalogListProductCounts(queryClient, {
+          categoryId: prev.categoryId,
+          supplierId: prev.supplierId,
+          delta: -1,
+          adjustCatalogTotal: true,
+        });
+      }
       // Skip removeQueries while detail page mounted — avoids GET 404 after soft-delete
       cancelOrRemoveDetailQuery(queryClient, detailKey);
       invalidateAfterCatalogChange(queryClient);

@@ -10,7 +10,7 @@ import {
   invalidateAfterCatalogChange,
   cancelOrRemoveDetailQuery,
   withInitialData,
-  patchDetailCache,
+  patchDetailCacheMerge,
   patchListCaches,
   removeFromListCaches,
 } from "@/lib/react-query";
@@ -73,10 +73,11 @@ export function useCreateCategory() {
     },
     onSuccess: (newCategory) => {
       if (newCategory.id) {
-        patchDetailCache(
+        // REQ-0218 — merge so thin create never wipes densify if detail was warmed
+        patchDetailCacheMerge<Category>(
           queryClient,
           queryKeys.categories.detail(newCategory.id),
-          newCategory,
+          (old) => (old ? { ...old, ...newCategory } : newCategory),
         );
         patchListCaches(queryClient, queryKeys.categories.all, newCategory, {
           prependIfMissing: true,
@@ -114,10 +115,12 @@ export function useUpdateCategory() {
     },
     onSuccess: (updatedCategory) => {
       if (updatedCategory.id) {
-        patchDetailCache(
+        // REQ-0218 — thin PUT must not wipe categoryInsights / products / statistics
+        patchDetailCacheMerge<Category>(
           queryClient,
           queryKeys.categories.detail(updatedCategory.id),
-          updatedCategory,
+          (old) =>
+            old ? { ...old, ...updatedCategory } : updatedCategory,
         );
         patchListCaches(queryClient, queryKeys.categories.all, updatedCategory);
       }

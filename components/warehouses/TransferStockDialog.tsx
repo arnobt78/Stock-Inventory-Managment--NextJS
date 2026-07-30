@@ -51,6 +51,8 @@ import {
   FILTER_COMMAND_INPUT_WRAPPER_CLASS,
   DIALOG_SELECT_CONTENT_CLASS,
   DIALOG_SELECT_ITEM_CLASS,
+  SelectEmptyContent,
+  resolveSelectPlaceholder,
   getStockQuantityValidation,
 } from "@/components/shared";
 import {
@@ -335,7 +337,7 @@ export default function TransferStockDialog({
                   Destination
                 </DialogFormLabel>
                 {/* REQ-0203 — type badge + name; Select check stays right */}
-                <Select
+                  <Select
                   value={toWarehouseId}
                   onValueChange={setToWarehouseId}
                   disabled={
@@ -348,7 +350,12 @@ export default function TransferStockDialog({
                       DIALOG_FORM_FIELD_TEAL,
                     )}
                   >
-                    <SelectValue placeholder="Select warehouse…">
+                    <SelectValue
+                      placeholder={resolveSelectPlaceholder("warehouse", {
+                        count: destinationOptions.length,
+                        invite: "Select warehouse…",
+                      })}
+                    >
                       {toWarehouseId
                         ? (() => {
                             const w = destinationOptions.find(
@@ -379,24 +386,28 @@ export default function TransferStockDialog({
                     sideOffset={5}
                     align="start"
                   >
-                    {destinationOptions.map((w) => (
-                      <SelectItem
-                        key={w.id}
-                        value={w.id}
-                        className={DIALOG_SELECT_ITEM_CLASS}
-                      >
-                        <span className="flex min-w-0 items-center gap-2">
-                          {w.type ? (
-                            <WarehouseTypeBadge
-                              type={w.type}
-                              size="compact"
-                              contrast="opaque"
-                            />
-                          ) : null}
-                          <span className="truncate">{w.name}</span>
-                        </span>
-                      </SelectItem>
-                    ))}
+                    {destinationOptions.length === 0 ? (
+                      <SelectEmptyContent entity="warehouse" />
+                    ) : (
+                      destinationOptions.map((w) => (
+                        <SelectItem
+                          key={w.id}
+                          value={w.id}
+                          className={DIALOG_SELECT_ITEM_CLASS}
+                        >
+                          <span className="flex min-w-0 items-center gap-2">
+                            {w.type ? (
+                              <WarehouseTypeBadge
+                                type={w.type}
+                                size="compact"
+                                contrast="opaque"
+                              />
+                            ) : null}
+                            <span className="truncate">{w.name}</span>
+                          </span>
+                        </SelectItem>
+                      ))
+                    )}
                   </SelectContent>
                 </Select>
               </div>

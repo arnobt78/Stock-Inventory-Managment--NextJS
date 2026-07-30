@@ -577,3 +577,17 @@
 | ART-0215b | REQ-0215 | `heal-invoice-status-after-money.ts` | sent→paid + order sync |
 | ART-0215c | REQ-0215 | `confirm-checkout-session.ts` | always heal after apply |
 | ART-0215d | REQ-0215 | invoice/order detail SSR + stripe return hook | self-heal + patch |
+
+| ART-0216a | REQ-0216 | `app/globals.css` | auth gutter + unlayered html body[data-scroll-locked] cancel |
+| ART-0216b | REQ-0216 | `AuthPageShell.tsx` | comment — gutter auth-scoped |
+| TC-0216 | REQ-0216 | lint + Firefox logs bodyMargR 0 / rootW stable | CSS-only |
+
+| ART-0217a | REQ-0217 | `lib/ui/select-empty-copy.ts` | placeholder + message helpers |
+| ART-0217b | REQ-0217 | `SelectEmptyContent.tsx` + DIALOG_SELECT_EMPTY_CLASS | open-panel empty |
+| ART-0217c | REQ-0217 | ProductFormDialog + TransferStockDialog | wire empty copy |
+| TC-0217 | REQ-0217 | `select-empty-copy.test.ts` + lint | presentational |
+
+| ART-0218a | REQ-0218 | catalog hooks → patchDetailCacheMerge | thin PUT preserve densify |
+| ART-0218b | REQ-0218 | patchStockCachesAfterTransfer + summary + catalog counts | instant stock/% |
+| ART-0218c | REQ-0218 | ssr-sync-policy DENSIFY_KEY_RE catalog keys | soft-nav heal |
+| TC-0218 | REQ-0218 | patch-mutation-cache + ssr-sync + invalidate tests | done |

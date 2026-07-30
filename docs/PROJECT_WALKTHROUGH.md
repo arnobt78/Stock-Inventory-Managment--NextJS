@@ -1,6 +1,6 @@
 # PROJECT_WALKTHROUGH.md
 
-Agent-oriented map of **stock-inventory** (Stockly). Last updated: 2026-07-30 (REQ-0215 partial→paid).
+Agent-oriented map of **stock-inventory** (Stockly). Last updated: 2026-07-30 (REQ-0218 catalog densify).
 
 ## 1. What this app is
 
@@ -171,7 +171,10 @@ Prevents `NotFoundError: removeChild` when App Router navigates between pages wh
 | Locale-aware admin (REQ-0020) | `lib/format/client-locale.ts` + `ClientFormatDisplay.tsx`; browser local TZ/currency after mount on admin dashboard + my-activity |
 | Shell-first nav (REQ-0021) | `DataSlotPulse` + `isDataSlotLoading` / `isDataSlotUnsettled`; `page.tsx` Suspense shell + streamed SSR; hooks `initialData`; tables keep headers, body pulses; REQ-0122+ patch-then-invalidate |
 | Supplier catalog detail (REQ-0029) | `lib/server/catalog-entity-access.ts`; supplier read-only `/categories/[id]` + `/suppliers/[id]` via product links; scoped Redis `detail(id, supplier:{entityId})`; `disableCrud` on detail pages |
-| Auth login/register (REQ-0030–0033) | `components/auth/*` — `AuthPageShell`, flat left list, `AuthFormCard` glass, `LoginRoleSelect`; copy in `auth-panel-copy.ts`; `auth-page-root` scrollbar-gutter; no TanStack changes |
+| Auth login/register (REQ-0030–0033) | `components/auth/*` — `AuthPageShell`, flat left list, `AuthFormCard` glass, `LoginRoleSelect`; copy in `auth-panel-copy.ts`; `.auth-page-root` document scroll; no TanStack changes |
+| Scroll-lock no shift (REQ-0216) | `globals.css` — auth-only html gutter + unlayered `html body[data-scroll-locked]` pad cancel (beats RemoveScroll); CSS-only |
+| Empty Select copy (REQ-0217) | `select-empty-copy` + `SelectEmptyContent`; ProductForm Category/Supplier + Transfer dest; presentational |
+| Catalog densify parity (REQ-0218) | merge-patch detail; transfer + summary + list productCount; densify keys; deferred KPI/forecast/cross-entity insights |
 | Auth session toasts (REQ-0034) | `AuthSessionToasts` + `post-login-welcome.ts` / `post-logout-goodbye.ts`; `Toaster` before consumer in `app/layout.tsx`; welcome on `/` `/client` `/supplier`; goodbye on `/login` |
 | Auth OAuth welcome (REQ-0035) | `AuthSessionToasts` detects `oauth_success`; `refreshSession` + shared welcome copy; URL strip via `oauth-success-url.ts` |
 | App shell full bleed (REQ-0036) | `lib/ui/shell-layout-styles.ts` — `APP_SHELL_WIDTH_CLASS` / `APP_SHELL_DETAIL_CLASS`; Navbar/Footer + 11 lists + 6 details (legacy `SidebarLayout` removed REQ-0069); auth stays `max-w-7xl` in `AuthPageShell`; `9xl` token removed |
@@ -310,6 +313,9 @@ flowchart LR
 | Supplier invoices (REQ-0204) | `getInvoiceByIdForSupplier` + detail/PDF gate; Related Invoices nav | Invalidation unchanged |
 | Client catalog INV/ORD (REQ-0214) | `getInvoiceByIdForClient` / expanded `getOrderByIdForClient`; Pay buyer-only; Process Refund disabled for client/supplier | Invalidation unchanged |
 | Partial→paid settle (REQ-0215) | Cent-safe money; heal sent→paid + order sync; confirm + detail SSR; stripe return patch | Order-graph invalidate unchanged |
+| Scroll-lock layout (REQ-0216) | Auth-only gutter + unlayered RemoveScroll pad cancel | CSS-only; no invalidation |
+| Empty Select copy (REQ-0217) | Shared "No … found" placeholder + SelectEmptyContent | Presentational |
+| Catalog densify (REQ-0218) | Detail merge-patch; transfer/summary/list count patches; densify keys | Patch → invalidate; deferred: KPI/forecast pulse, cross-entity insights |
 | Supplier invoice KPIs (REQ-0205) | `/invoices` SSR portal + 4 StatisticsCards (OrderList parity) | Invalidation unchanged |
 | Portal SSR sync (REQ-0206) | `portal.*Dashboard(userId)`; list sync matches hooks (not admin keys) | Invalidation unchanged |
 | Sentry noise (REQ-0009) | Order stock warn+disable; warehouse cold-load pulse; tracesSampleRate 0 dev; notif DELETE 404 | Invalidation unchanged |

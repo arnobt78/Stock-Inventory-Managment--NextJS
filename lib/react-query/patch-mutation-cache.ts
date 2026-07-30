@@ -769,3 +769,267 @@ export function removeStockAllocationFromCaches(
     removeFrom(keys.byWarehouse(scope.warehouseId));
   }
 }
+
+/** REQ-0218 — allocation row shape for transfer qty adjustments */
+type AllocQtyRow = Identifiable & {
+  productId?: string;
+  warehouseId?: string;
+  quantity?: number;
+  reservedQuantity?: number;
+};
+
+/**
+ * REQ-0218 — Adjust one allocation array by ±qty for a product@warehouse.
+ * Clamps quantity to reserved floor; removes row when qty and reserved are 0.
+ */
+export function applyTransferQtyToAllocationRows(
+  rows: AllocQtyRow[],
+  match: { productId?: string; warehouseId?: string },
+  deltaQty: number,
+  createIfMissing: boolean,
+): AllocQtyRow[] {
+  const index = rows.findIndex((row) => {
+    if (match.productId != null && row.productId !== match.productId) return false;
+    if (match.warehouseId != null && row.warehouseId !== match.warehouseId) {
+      return false;
+    }
+    return true;
+  });
+
+  if (index >= 0) {
+    const next = [...rows];
+    const row = next[index]!;
+    const reserved = Math.max(0, Number(row.reservedQuantity ?? 0));
+    const qty = Math.max(reserved, Number(row.quantity ?? 0) + deltaQty);
+    if (qty <= 0 && reserved <= 0) {
+      next.splice(index, 1);
+      return next;
+    }
+    next[index] = { ...row, quantity: qty };
+    return next;
+  }
+
+  if (createIfMissing && deltaQty > 0 && match.productId && match.warehouseId) {
+    return [
+      ...rows,
+      {
+        id: `optimistic-xfer-${match.productId}-${match.warehouseId}`,
+        productId: match.productId,
+        warehouseId: match.warehouseId,
+        quantity: deltaQty,
+        reservedQuantity: 0,
+      },
+    ];
+  }
+  return rows;
+}
+
+export type StockTransferPatchInput = {
+  productId: string;
+  fromWarehouseId: string;
+  toWarehouseId: string;
+  quantity: number;
+};
+
+/**
+ * REQ-0218 — Instantly move qty between warehouse/product allocation caches (then invalidate).
+ */
+export function patchStockCachesAfterTransfer(
+  queryClient: QueryClient,
+  transfer: StockTransferPatchInput,
+  keys: {
+    byProduct: (productId: string) => QueryKey;
+    byWarehouse: (warehouseId: string) => QueryKey;
+  },
+): void {
+  const qty = Math.max(0, Number(transfer.quantity) || 0);
+  if (!qty || !transfer.productId) return;
+
+  const patchKey = (
+    key: QueryKey,
+    match: { productId?: string; warehouseId?: string },
+    delta: number,
+    createIfMissing: boolean,
+  ) => {
+    const rows = queryClient.getQueryData<AllocQtyRow[]>(key);
+    if (!Array.isArray(rows)) {
+      if (createIfMissing && delta > 0 && match.productId && match.warehouseId) {
+        queryClient.setQueryData(key, [
+          {
+            id: `optimistic-xfer-${match.productId}-${match.warehouseId}`,
+            productId: match.productId,
+            warehouseId: match.warehouseId,
+            quantity: delta,
+            reservedQuantity: 0,
+          },
+        ]);
+      }
+      return;
+    }
+    queryClient.setQueryData(
+      key,
+      applyTransferQtyToAllocationRows(rows, match, delta, createIfMissing),
+    );
+  };
+
+  const { productId, fromWarehouseId, toWarehouseId } = transfer;
+  patchKey(
+    keys.byProduct(productId),
+    { productId, warehouseId: fromWarehouseId },
+    -qty,
+    false,
+  );
+  patchKey(
+    keys.byProduct(productId),
+    { productId, warehouseId: toWarehouseId },
+    qty,
+    true,
+  );
+  patchKey(
+    keys.byWarehouse(fromWarehouseId),
+    { productId, warehouseId: fromWarehouseId },
+    -qty,
+    false,
+  );
+  patchKey(
+    keys.byWarehouse(toWarehouseId),
+    { productId, warehouseId: toWarehouseId },
+    qty,
+    true,
+  );
+}
+
+export type WarehouseSummaryDelta = {
+  warehouseId: string;
+  quantityDelta: number;
+  reservedDelta?: number;
+  productsDelta?: number;
+};
+
+type WarehouseSummaryRow = {
+  warehouseId: string;
+  warehouseName?: string;
+  totalProducts: number;
+  totalQuantity: number;
+  totalReserved: number;
+  totalValue: number;
+};
+
+/**
+ * REQ-0218 — Patch warehouse stock summary (list Stock share %) before invalidate.
+ */
+export function patchWarehouseStockSummaryCaches(
+  queryClient: QueryClient,
+  summaryKey: QueryKey,
+  deltas: WarehouseSummaryDelta[],
+): void {
+  if (deltas.length === 0) return;
+  const rows = queryClient.getQueryData<WarehouseSummaryRow[]>(summaryKey);
+  if (!Array.isArray(rows)) return;
+
+  const byId = new Map(deltas.map((d) => [d.warehouseId, d]));
+  queryClient.setQueryData(
+    summaryKey,
+    rows.map((row) => {
+      const d = byId.get(row.warehouseId);
+      if (!d) return row;
+      return {
+        ...row,
+        totalQuantity: Math.max(
+          0,
+          Number(row.totalQuantity) + d.quantityDelta,
+        ),
+        totalReserved: Math.max(
+          0,
+          Number(row.totalReserved) + (d.reservedDelta ?? 0),
+        ),
+        totalProducts: Math.max(
+          0,
+          Number(row.totalProducts) + (d.productsDelta ?? 0),
+        ),
+      };
+    }),
+  );
+}
+
+type CatalogCountRow = Identifiable & {
+  productCount?: number;
+  catalogProductTotal?: number;
+};
+
+/**
+ * REQ-0218 — Instantly bump category/supplier list productCount (+ catalogProductTotal).
+ * Create/delete: adjustCatalogTotal true. Move category/supplier: false (counts only).
+ */
+export function patchCatalogListProductCounts(
+  queryClient: QueryClient,
+  opts: {
+    categoryId?: string | null;
+    supplierId?: string | null;
+    prevCategoryId?: string | null;
+    prevSupplierId?: string | null;
+    delta: 1 | -1;
+    adjustCatalogTotal: boolean;
+  },
+): void {
+  const totalDelta = opts.adjustCatalogTotal ? opts.delta : 0;
+
+  const applyDomain = (
+    listKeyRoot: QueryKey,
+    nextId: string | null | undefined,
+    prevId: string | null | undefined,
+  ) => {
+    const queries = queryClient.getQueriesData<CatalogCountRow[]>({
+      queryKey: listKeyRoot,
+      exact: false,
+    });
+    for (const [key, data] of queries) {
+      if (!Array.isArray(data)) continue;
+      let changed = false;
+      const next = data.map((row) => {
+        let productCount = Number(row.productCount ?? 0);
+        let catalogProductTotal = row.catalogProductTotal;
+        if (nextId && row.id === nextId) {
+          productCount = Math.max(0, productCount + opts.delta);
+          changed = true;
+        }
+        if (prevId && prevId !== nextId && row.id === prevId) {
+          productCount = Math.max(0, productCount - opts.delta);
+          changed = true;
+        }
+        if (totalDelta !== 0 && catalogProductTotal != null) {
+          catalogProductTotal = Math.max(
+            0,
+            Number(catalogProductTotal) + totalDelta,
+          );
+          changed = true;
+        }
+        if (
+          productCount === Number(row.productCount ?? 0) &&
+          catalogProductTotal === row.catalogProductTotal
+        ) {
+          return row;
+        }
+        return {
+          ...row,
+          productCount,
+          ...(catalogProductTotal != null ? { catalogProductTotal } : {}),
+        };
+      });
+      if (changed) {
+        queryClient.setQueryData(key, next);
+      }
+    }
+  };
+
+  applyDomain(
+    queryKeys.categories.all,
+    opts.categoryId,
+    opts.prevCategoryId,
+  );
+  applyDomain(
+    queryKeys.suppliers.all,
+    opts.supplierId,
+    opts.prevSupplierId,
+  );
+}

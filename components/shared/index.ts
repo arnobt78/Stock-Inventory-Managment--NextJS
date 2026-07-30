@@ -20,6 +20,13 @@ export type {
   DeferredSelectGateProps,
   DeferredSelectGateRenderProps,
 } from "./DeferredSelectGate";
+export { SelectEmptyContent } from "./SelectEmptyContent";
+export {
+  selectEmptyMessage,
+  selectEmptyPlaceholder,
+  resolveSelectPlaceholder,
+} from "@/lib/ui/select-empty-copy";
+export type { SelectEmptyEntity } from "@/lib/ui/select-empty-copy";
 export { NotificationBell } from "./NotificationBell";
 export { NotificationDropdown } from "./NotificationDropdown";
 export { HelpTooltip } from "./HelpTooltip";

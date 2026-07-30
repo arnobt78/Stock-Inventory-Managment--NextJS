@@ -11,6 +11,10 @@ import {
   patchLinkedInvoicesFromOrder,
   patchProductInPortalCaches,
   removeFromListCaches,
+  applyTransferQtyToAllocationRows,
+  patchStockCachesAfterTransfer,
+  patchWarehouseStockSummaryCaches,
+  patchCatalogListProductCounts,
 } from "./patch-mutation-cache";
 import { queryKeys } from "./config";
 
@@ -350,6 +354,124 @@ describe("patch-mutation-cache", () => {
     });
     expect(qc.getQueryData(orderListKey)).toEqual([
       { id: "o1", paymentStatus: "unpaid" },
+    ]);
+  });
+
+  // REQ-0218 — transfer / summary / catalog list counts
+  it("applyTransferQtyToAllocationRows decrements and upserts", () => {
+    const rows = [
+      {
+        id: "a1",
+        productId: "p1",
+        warehouseId: "w1",
+        quantity: 30,
+        reservedQuantity: 5,
+      },
+    ];
+    const afterDec = applyTransferQtyToAllocationRows(
+      rows,
+      { warehouseId: "w1" },
+      -10,
+      false,
+    );
+    expect(afterDec[0]?.quantity).toBe(20);
+    const afterInc = applyTransferQtyToAllocationRows(
+      afterDec,
+      { warehouseId: "w2", productId: "p1" },
+      10,
+      true,
+    );
+    expect(afterInc).toHaveLength(2);
+    expect(afterInc.find((r) => r.warehouseId === "w2")?.quantity).toBe(10);
+  });
+
+  it("patchStockCachesAfterTransfer moves qty across product and warehouse keys", () => {
+    const qc = new QueryClient();
+    const productKey = queryKeys.stockAllocation.byProduct("p1");
+    const fromKey = queryKeys.stockAllocation.byWarehouse("w1");
+    const toKey = queryKeys.stockAllocation.byWarehouse("w2");
+    qc.setQueryData(productKey, [
+      {
+        id: "a1",
+        productId: "p1",
+        warehouseId: "w1",
+        quantity: 30,
+        reservedQuantity: 0,
+      },
+    ]);
+    qc.setQueryData(fromKey, [
+      {
+        id: "a1",
+        productId: "p1",
+        warehouseId: "w1",
+        quantity: 30,
+        reservedQuantity: 0,
+      },
+    ]);
+    qc.setQueryData(toKey, [] as { id: string }[]);
+    patchStockCachesAfterTransfer(
+      qc,
+      {
+        productId: "p1",
+        fromWarehouseId: "w1",
+        toWarehouseId: "w2",
+        quantity: 10,
+      },
+      {
+        byProduct: queryKeys.stockAllocation.byProduct,
+        byWarehouse: queryKeys.stockAllocation.byWarehouse,
+      },
+    );
+    const productRows = qc.getQueryData<{ quantity: number; warehouseId: string }[]>(
+      productKey,
+    );
+    expect(productRows?.find((r) => r.warehouseId === "w1")?.quantity).toBe(20);
+    expect(productRows?.find((r) => r.warehouseId === "w2")?.quantity).toBe(10);
+  });
+
+  it("patchWarehouseStockSummaryCaches adjusts totals", () => {
+    const qc = new QueryClient();
+    const key = queryKeys.stockAllocation.summary();
+    qc.setQueryData(key, [
+      {
+        warehouseId: "w1",
+        warehouseName: "Main",
+        totalProducts: 2,
+        totalQuantity: 100,
+        totalReserved: 10,
+        totalValue: 0,
+      },
+    ]);
+    patchWarehouseStockSummaryCaches(qc, key, [
+      { warehouseId: "w1", quantityDelta: -15, productsDelta: -1 },
+    ]);
+    expect(qc.getQueryData(key)).toEqual([
+      {
+        warehouseId: "w1",
+        warehouseName: "Main",
+        totalProducts: 1,
+        totalQuantity: 85,
+        totalReserved: 10,
+        totalValue: 0,
+      },
+    ]);
+  });
+
+  it("patchCatalogListProductCounts bumps count and catalog total", () => {
+    const qc = new QueryClient();
+    const catKey = queryKeys.categories.list();
+    qc.setQueryData(catKey, [
+      { id: "c1", productCount: 2, catalogProductTotal: 5 },
+      { id: "c2", productCount: 3, catalogProductTotal: 5 },
+    ]);
+    patchCatalogListProductCounts(qc, {
+      categoryId: "c1",
+      delta: 1,
+      adjustCatalogTotal: true,
+    });
+    expect(qc.getQueryData(catKey)).toEqual([
+      { id: "c1", productCount: 3, catalogProductTotal: 6 },
+      { id: "c2", productCount: 3, catalogProductTotal: 6 },
     ]);
   });
 });

@@ -11,7 +11,7 @@ import {
   invalidateAfterStockChange,
   cancelOrRemoveDetailQuery,
   withInitialData,
-  patchDetailCache,
+  patchDetailCacheMerge,
   patchListCaches,
   removeFromListCaches,
 } from "@/lib/react-query";
@@ -66,10 +66,11 @@ export function useCreateWarehouse() {
     },
     onSuccess: (newWarehouse) => {
       if (newWarehouse.id) {
-        patchDetailCache(
+        // REQ-0218 — merge so thin create never wipes densify if detail was warmed
+        patchDetailCacheMerge<Warehouse>(
           queryClient,
           queryKeys.warehouses.detail(newWarehouse.id),
-          newWarehouse,
+          (old) => (old ? { ...old, ...newWarehouse } : newWarehouse),
         );
         patchListCaches(queryClient, queryKeys.warehouses.all, newWarehouse, {
           prependIfMissing: true,
@@ -106,10 +107,12 @@ export function useUpdateWarehouse() {
     },
     onSuccess: (updatedWarehouse) => {
       if (updatedWarehouse.id) {
-        patchDetailCache(
+        // REQ-0218 — thin PUT must not wipe warehouse densify fields
+        patchDetailCacheMerge<Warehouse>(
           queryClient,
           queryKeys.warehouses.detail(updatedWarehouse.id),
-          updatedWarehouse,
+          (old) =>
+            old ? { ...old, ...updatedWarehouse } : updatedWarehouse,
         );
         patchListCaches(queryClient, queryKeys.warehouses.all, updatedWarehouse);
       }

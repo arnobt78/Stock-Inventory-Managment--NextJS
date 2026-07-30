@@ -35,8 +35,16 @@ export {
   removeFromListCaches,
   patchStockAllocationInCaches,
   removeStockAllocationFromCaches,
+  patchStockCachesAfterTransfer,
+  applyTransferQtyToAllocationRows,
+  patchWarehouseStockSummaryCaches,
+  patchCatalogListProductCounts,
 } from "./patch-mutation-cache";
-export type { InvoiceMoneyPatchSource } from "./patch-mutation-cache";
+export type {
+  InvoiceMoneyPatchSource,
+  StockTransferPatchInput,
+  WarehouseSummaryDelta,
+} from "./patch-mutation-cache";
 export { withInitialData } from "./initial-data-options";
 export {
   useSyncSsrQueryData,

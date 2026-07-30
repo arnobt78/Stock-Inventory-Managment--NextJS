@@ -619,3 +619,13 @@ Format: `TIMESTAMP | AGENT | DECISION | RATIONALE | REQ-ID`
 2026-07-29T17:05:00Z | build-agent | Client catalog-history INV/ORD read parity | Product recent-order INV chips 404 for clients; expand getInvoiceByIdForClient + getOrderByIdForClient; Pay stays buyer-only | REQ-0214
 
 2026-07-30T11:35:00Z | build-agent | Cent-safe settle + heal sent→paid + confirm/SSR sync | Remainder Stripe pay left invoice sent / order partial; money already full | REQ-0215
+
+2026-07-30T14:15:00Z | build-agent | Global html scrollbar-gutter + zero RemoveScroll pad | Firefox Select/Dialog horizontal jump; auth-only gutter insufficient | REQ-0216
+
+2026-07-30T14:35:00Z | build-agent | Revert global html gutter; unlayered higher-specificity cancel | Logs: RemoveScroll margin 15px won @layer; global gutter inset FABs | REQ-0216
+
+2026-07-30T14:40:00Z | build-agent | Shared select empty copy + ProductForm/Transfer | Blank Category/Supplier Select when catalog empty | REQ-0217
+
+2026-07-30T15:00:00Z | build-agent | Catalog merge-patch + transfer/summary/list count densify | Thin PUT wiped insights; transfer/summary/% invalidate-only flash | REQ-0218
+
+2026-07-30T15:10:00Z | build-agent | Leave remaining densify gaps | KPI/forecast pulse + cross-entity insights intentional; revisit only if user-visible flash | REQ-0218

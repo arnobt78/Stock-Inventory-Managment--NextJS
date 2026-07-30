@@ -172,7 +172,7 @@ All user-facing POST/PUT JSON bodies use `safeParse` + `logger.warn` on fail. Ne
 
 **Every session:** STATE → REQ map → skill 01+17 → Red Team → write-through DECISION/BUILD/VALIDATION.
 
-**C1 open:** Gate 2 PENDING (Sentry 24h). **Stopped 2026-07-30:** REQ-0215 partial→paid settle. **Next:** push → prod smoke → Sentry 24h (**REQ-0009**).
+**C1 open:** Gate 2 PENDING (Sentry 24h). **Stopped 2026-07-30:** REQ-0218 catalog densify parity. **Next:** push → smoke → Sentry 24h (**REQ-0009**).
 
 ## REQ-0136 cache / badges / hydration (2026-07-27)
 
@@ -292,6 +292,39 @@ All user-facing POST/PUT JSON bodies use `safeParse` + `logger.warn` on fail. Ne
 
 **Invalidation:** unchanged — `invalidateOnOrderChange` / order-graph on settle.
 
+## REQ-0216 global scroll-lock layout shift (2026-07-30)
+
+| Piece | Location |
+|-------|----------|
+| Auth gutter | `html:has(.auth-page-root) { scrollbar-gutter: stable }` only |
+| RemoveScroll cancel | Unlayered `html body[data-scroll-locked]` pad/margin 0 (beats injected gap) |
+| App shell | `#main-content` gutter; no global html gutter (avoids FAB/menu inset) |
+| Covers | Select / Dialog / Dropdown / Sheet |
+
+**No TanStack/invalidation changes** — CSS hub only.
+
+## REQ-0217 empty Select copy (2026-07-30)
+
+| Piece | Location |
+|-------|----------|
+| Copy | `lib/ui/select-empty-copy.ts` — placeholder + message + resolve |
+| Panel | `SelectEmptyContent` + `DIALOG_SELECT_EMPTY_CLASS` |
+| Wired | ProductFormDialog Category/Supplier; TransferStockDialog dest |
+
+**No TanStack/invalidation changes** — presentational.
+
+## REQ-0218 catalog densify parity (2026-07-30)
+
+| Piece | Location |
+|-------|----------|
+| Detail merge | product/category/supplier/warehouse → `patchDetailCacheMerge` |
+| Transfer / summary % / list #·% | `patchStockCachesAfterTransfer`, `patchWarehouseStockSummaryCaches`, `patchCatalogListProductCounts` |
+| Soft-nav | `DENSIFY_KEY_RE` + insights/committed/productCount |
+| Gold | Order/invoice badges; catalog own-edit; stock allocate/transfer/% |
+| Deferred (leave) | KPI pulse; forecast pulse; cat/sup insights after product/stock CRUD; committed after order reserve; review/ticket/user thin replace |
+
+**Invalidation:** patch → `invalidateAfterCatalogChange` / `invalidateAfterStockChange`. Not full-app densify.
+
 ## REQ-0187 dialog densify (2026-07-22)
 
 | Piece | Location |
@@ -370,7 +403,7 @@ All user-facing POST/PUT JSON bodies use `safeParse` + `logger.warn` on fail. Ne
 | Form glass | `AuthFormCard` + `auth-glass-styles.ts` — `backdrop-blur-2xl` |
 | Icon glow | `AUTH_LIST_ICON_GLASS` in `auth-glass-styles.ts` |
 | Role Select | `LoginRoleSelect` — icons in trigger/items; no `DeferredSelectGate` on `/login` |
-| Scroll shift | `html:has(.auth-page-root) { scrollbar-gutter: stable }` in `globals.css` |
+| Scroll shift | REQ-0216 — auth-only html gutter + unlayered `html body[data-scroll-locked]` pad cancel |
 | Animations | `.auth-enter` stagger in `globals.css` + `AuthAnimatedBlock` |
 | Session toasts | `AuthSessionToasts` after `Toaster` in `app/layout.tsx`; `setPostLoginWelcome` / `setPostLogoutGoodbye` in sessionStorage; `useToast` sync on subscribe |
 | OAuth welcome | REQ-0035 — `?oauth_success=true` handled in `AuthSessionToasts`; `oauth-success-url.ts` + `auth-welcome-toast.ts` |
@@ -1087,7 +1120,7 @@ Hub: `lib/ui/typography-scale.ts`. Hubs import tokens; ~45 inline files use equi
 
 **Invalidation unchanged** — review/product/dashboard CRUD already clears lists + portals.
 
-**Active wave:** **0215** partial→paid settle → **Gate 2** Sentry 24h (REQ-0009).
+**Active wave:** **0218** catalog densify parity → **Gate 2** Sentry 24h (REQ-0009).
 
 ## Warehouse detail + Allocate/Transfer (REQ-0203)
 

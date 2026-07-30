@@ -4,6 +4,81 @@ Canonical REQ source. All artifacts link via `REQ-XXXX`. Status: `done` | `verif
 
 ---
 
+## REQ-0218 — Catalog densify parity (Order/Invoice pattern)
+
+| Field | Value |
+|-------|-------|
+| **Priority** | P0 |
+| **Risk** | R2 |
+| **Status** | done |
+| **Cycle** | C2 |
+| **Parent** | REQ-0122 |
+
+**Intent:** Stop old→new flash on catalog detail insights / warehouse pies / list product `# · %` / warehouse stock share % by matching Order/Invoice merge-patch → invalidate (never thin full-replace).
+
+**Acceptance criteria**
+
+- AC1: Product/category/supplier/warehouse create+update use `patchDetailCacheMerge` (preserve insights/products/stats/committed)
+- AC2: Stock transfer patches both warehouse+product allocation caches then invalidate
+- AC3: Allocate/update/delete/transfer patch `stockAllocation.summary` for list Stock share %
+- AC4: Product create/update(move)/delete patch category/supplier `productCount` (+ catalog total on create/delete)
+- AC5: `DENSIFY_KEY_RE` includes catalog calculated keys; forecast stays pulse-on-invalidate
+- AC6: lint + patch/ssr-sync tests + test:invalidate PASS; invalidation registry unchanged
+
+**Deferred (accepted — not full-app densify):** dashboard/portal KPI pulse; forecast urgent pulse; category/supplier insights after product/order/stock CRUD; product `committedQuantity` after order reserve; review/ticket/user thin `patchDetailCache`; payments/shipping invalidate-primary.
+
+**Artifacts:** `patch-mutation-cache.ts`, catalog/stock hooks, `ssr-sync-policy.ts`
+
+---
+
+## REQ-0217 — Dynamic empty Select copy
+
+| Field | Value |
+|-------|-------|
+| **Priority** | P2 |
+| **Risk** | R1 |
+| **Status** | done |
+| **Cycle** | C2 |
+| **Parent** | REQ-0216 |
+
+**Intent:** When a dynamic Select option list is empty (e.g. Add Product Category/Supplier), show table-parity "No … found" on the closed trigger and inside the open panel — shared helper, no blank popover.
+
+**Acceptance criteria**
+
+- AC1: `selectEmptyPlaceholder` / `selectEmptyMessage` / `resolveSelectPlaceholder` in `lib/ui/select-empty-copy.ts`
+- AC2: `SelectEmptyContent` + `DIALOG_SELECT_EMPTY_CLASS` for open-panel empty body
+- AC3: ProductFormDialog Category + Supplier use empty copy (skip flash while loading)
+- AC4: TransferStockDialog destination warehouse empty copy
+- AC5: No TanStack/invalidation changes; unit test + lint PASS
+
+**Artifacts:** `select-empty-copy.ts`, `SelectEmptyContent.tsx`, ProductFormDialog, TransferStockDialog
+
+---
+
+## REQ-0216 — Global scroll-lock layout shift fix
+
+| Field | Value |
+|-------|-------|
+| **Priority** | P1 |
+| **Risk** | R1 |
+| **Status** | done |
+| **Cycle** | C2 |
+| **Parent** | REQ-0033 |
+
+**Intent:** Stop horizontal layout jump when Radix Select/Dialog/Dropdown/Sheet opens (Firefox classic scrollbar + RemoveScroll `padding-right`). Reserve `scrollbar-gutter: stable` on `html` globally; zero RemoveScroll body pad when `data-scroll-locked`.
+
+**Acceptance criteria**
+
+- AC1: Auth routes: `html:has(.auth-page-root) { scrollbar-gutter: stable }` (not global html — app shell insets FABs)
+- AC2: Unlayered `html body[data-scroll-locked]` pad/margin 0 `!important` (beats RemoveScroll injected `margin-right:gap`)
+- AC3: App shell keeps `#main-content` / aside gutter; html/body overflow hidden unchanged
+- AC4: No per-component Select/Dialog forks; no TanStack/invalidation changes
+- AC5: Lint PASS; Firefox login Role Select — no horizontal jump (`rootW` stable; `bodyMargR` 0)
+
+**Artifacts:** `app/globals.css`; comment on `AuthPageShell` `.auth-page-root`
+
+---
+
 ## REQ-0215 — Partial→paid status settle
 
 | Field | Value |

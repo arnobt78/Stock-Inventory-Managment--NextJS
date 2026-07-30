@@ -81,6 +81,8 @@
   /*
    * App shell: single scroll on #main-content — hide document/browser scrollbar (double-bar fix).
    * Auth routes keep document scroll via :has(.auth-page-root) override below.
+   * Do NOT put scrollbar-gutter on html here — it insets FABs/menus from the viewport edge
+   * (Firefox) while #main-content already reserves its own gutter.
    */
   html:not(:has(.auth-page-root)) {
     height: 100%;
@@ -101,8 +103,8 @@
   }
 
   /*
-   * REQ-0033 — auth routes scroll on document; Radix Select RemoveScroll hides body scrollbar.
-   * Reserve gutter on html when AuthPageShell is mounted to prevent horizontal layout shift.
+   * REQ-0033 / REQ-0216 — auth routes scroll on document; reserve gutter so Role Select
+   * RemoveScroll does not change layout width (Firefox classic scrollbar).
    */
   html:has(.auth-page-root) {
     scrollbar-gutter: stable;
@@ -151,6 +153,22 @@
   .dark .overflow-auto::-webkit-scrollbar-thumb {
     background-color: rgba(148, 163, 184, 0.4);
   }
+}
+
+/*
+ * REQ-0216 — Beat react-remove-scroll-bar's injected stylesheet.
+ * Must stay OUTSIDE @layer (unlayered beats @layer base) and use higher specificity
+ * than `body[data-scroll-locked]` so margin-right:gap !important cannot win.
+ * Auth: gutter reserved above; App shell: cancel false gap from document lock.
+ */
+html body[data-scroll-locked] {
+  padding-right: 0 !important;
+  margin-right: 0 !important;
+  --removed-body-scroll-bar-size: 0px;
+}
+html body.with-scroll-bars-hidden,
+html .with-scroll-bars-hidden {
+  padding-right: 0 !important;
 }
 
 @keyframes spin {

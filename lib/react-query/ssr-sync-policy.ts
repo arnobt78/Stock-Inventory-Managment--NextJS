@@ -53,12 +53,13 @@ function isPlainObject(value: unknown): value is Record<string, unknown> {
 }
 
 /**
- * REQ-0202 / REQ-0209 — densify keys that often arrive later via client refetch when a
+ * REQ-0202 / REQ-0209 / REQ-0218 — densify keys that often arrive later via client refetch when a
  * thinner cache row was seeded (list/create patch / warm prefetch).
  * Includes order/invoice party fields so Parties & Roles do not pop in after mount.
+ * Catalog: insights / stats / committed / list share counts (soft-nav heal).
  */
 const DENSIFY_KEY_RE =
-  /(Email|Image|ImageUrl|UserId|Name)$|^(role|overview|orderProductOwners|invoiceForOrder|stripePaymentIntentId|creator|updater|items)$|^relatedProduct|^placedBy|^assignedTo|^reviewer|^productOwner|^supplierImage|^linkedOrder/;
+  /(Email|Image|ImageUrl|UserId|Name)$|^(role|overview|orderProductOwners|invoiceForOrder|stripePaymentIntentId|creator|updater|items|productInsights|categoryInsights|supplierInsights|statistics|committedQuantity|recentOrders|productCount|catalogProductTotal)$|^relatedProduct|^placedBy|^assignedTo|^reviewer|^productOwner|^supplierImage|^linkedOrder/;
 
 function densifyValuePresent(value: unknown): boolean {
   if (value == null) return false;

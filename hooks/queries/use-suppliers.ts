@@ -10,7 +10,7 @@ import {
   invalidateAfterCatalogChange,
   cancelOrRemoveDetailQuery,
   withInitialData,
-  patchDetailCache,
+  patchDetailCacheMerge,
   patchListCaches,
   removeFromListCaches,
 } from "@/lib/react-query";
@@ -73,10 +73,11 @@ export function useCreateSupplier() {
     },
     onSuccess: (newSupplier) => {
       if (newSupplier.id) {
-        patchDetailCache(
+        // REQ-0218 — merge so thin create never wipes densify if detail was warmed
+        patchDetailCacheMerge<Supplier>(
           queryClient,
           queryKeys.suppliers.detail(newSupplier.id),
-          newSupplier,
+          (old) => (old ? { ...old, ...newSupplier } : newSupplier),
         );
         patchListCaches(queryClient, queryKeys.suppliers.all, newSupplier, {
           prependIfMissing: true,
@@ -114,10 +115,12 @@ export function useUpdateSupplier() {
     },
     onSuccess: (updatedSupplier) => {
       if (updatedSupplier.id) {
-        patchDetailCache(
+        // REQ-0218 — thin PUT must not wipe supplierInsights / products / statistics
+        patchDetailCacheMerge<Supplier>(
           queryClient,
           queryKeys.suppliers.detail(updatedSupplier.id),
-          updatedSupplier,
+          (old) =>
+            old ? { ...old, ...updatedSupplier } : updatedSupplier,
         );
         patchListCaches(queryClient, queryKeys.suppliers.all, updatedSupplier);
       }
