@@ -8,7 +8,7 @@
 | **Session** | 2026-07-30 — list-safe back invalidate |
 | **Active REQ** | **REQ-0009** (Sentry 24h) |
 | **Done range** | … + **0219** + **0220** |
-| **Prod SHA** | tip pending push (REQ-0220) |
+| **Prod SHA** | tip `4e06cf9` (REQ-0220) |
 | **Human Gate 1** | APPROVED |
 | **Human Gate 2** | PENDING — Sentry 24h after Ready |
 | **Resume token** | `gate2-sentry-24h` |
