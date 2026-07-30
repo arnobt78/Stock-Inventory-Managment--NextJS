@@ -8,7 +8,7 @@
 | **Session** | 2026-07-30 — scroll-lock + empty Select + catalog densify |
 | **Active REQ** | **REQ-0009** (Sentry 24h) |
 | **Done range** | … + **0216** + **0217** + **0218** |
-| **Prod SHA** | tip pending push |
+| **Prod SHA** | tip `f55368c` (REQ-0216…0218) |
 | **Human Gate 1** | APPROVED |
 | **Human Gate 2** | PENDING — Sentry 24h after Ready |
 | **Resume token** | `gate2-sentry-24h` |
@@ -23,7 +23,7 @@
 
 ## Next
 
-1. Push → Vercel Ready
+1. Vercel Ready after `f55368c`
 2. Smoke catalog densify + Firefox scroll-lock
 3. Sentry 24h → Gate 2
 
