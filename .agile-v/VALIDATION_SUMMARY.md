@@ -2483,3 +2483,18 @@ Deferred: intentional pulse / lower-impact invalidate lag (not full-app densify)
 Commands: lint, vitest patch-mutation-cache ssr-sync-policy, test:invalidate
 ```
 
+## REQ-0219 — findCachedAllocation QueryKey (2026-07-30)
+
+| Check | Result |
+| ----- | ------ |
+| Root cause | keys typed as byProduct-only; byWarehouse push failed tsc |
+| Fix | `QueryKey[]` + shared QueryClient/QueryKey import |
+| Behavior | unchanged — product then warehouse cache lookup |
+| Gates | tsc --noEmit ✓ lint ✓ |
+| Invalidation | unchanged |
+
+```
+Scope: built/verified | Traceability: REQ-0219, REQ-0218 | Findings: PASS
+Commands: tsc --noEmit, lint
+```
+

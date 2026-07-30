@@ -4,6 +4,28 @@ Canonical REQ source. All artifacts link via `REQ-XXXX`. Status: `done` | `verif
 
 ---
 
+## REQ-0219 — Fix `findCachedAllocation` QueryKey type (Vercel build)
+
+| Field | Value |
+|-------|-------|
+| **Priority** | P0 |
+| **Risk** | R1 |
+| **Status** | done |
+| **Cycle** | C2 |
+| **Parent** | REQ-0218 |
+
+**Intent:** Unblock Vercel `next build` typecheck after REQ-0218 stock helpers — `findCachedAllocation` must accept both product and warehouse stockAllocation key tuples.
+
+**Acceptance criteria**
+
+- AC1: `keys` typed as `QueryKey[]` (not product-only ReturnType)
+- AC2: Lookup logic unchanged (product then warehouse caches)
+- AC3: `tsc --noEmit` + lint PASS; deploy Ready after push
+
+**Artifacts:** `hooks/queries/use-stock-allocation.ts`
+
+---
+
 ## REQ-0218 — Catalog densify parity (Order/Invoice pattern)
 
 | Field | Value |

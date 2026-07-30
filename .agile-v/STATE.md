@@ -4,11 +4,11 @@
 |-------|-------|
 | **Cycle** | C2 (C1 Gate 2 still PENDING) |
 | **Phase** | Stage 4 Verify — Sentry 24h |
-| **Stopped** | 2026-07-30 — REQ-0216…0218 ship |
-| **Session** | 2026-07-30 — scroll-lock + empty Select + catalog densify |
+| **Stopped** | 2026-07-30 — REQ-0219 QueryKey fix |
+| **Session** | 2026-07-30 — unblock Vercel tsc after f55368c |
 | **Active REQ** | **REQ-0009** (Sentry 24h) |
-| **Done range** | … + **0216** + **0217** + **0218** |
-| **Prod SHA** | tip `f55368c` (REQ-0216…0218) |
+| **Done range** | … + **0216** + **0217** + **0218** + **0219** |
+| **Prod SHA** | tip pending push (REQ-0219) |
 | **Human Gate 1** | APPROVED |
 | **Human Gate 2** | PENDING — Sentry 24h after Ready |
 | **Resume token** | `gate2-sentry-24h` |
@@ -23,7 +23,7 @@
 
 ## Next
 
-1. Vercel Ready after `f55368c`
+1. Vercel Ready after REQ-0219 tip
 2. Smoke catalog densify + Firefox scroll-lock
 3. Sentry 24h → Gate 2
 

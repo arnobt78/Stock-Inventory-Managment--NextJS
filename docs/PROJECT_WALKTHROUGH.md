@@ -1,6 +1,6 @@
 # PROJECT_WALKTHROUGH.md
 
-Agent-oriented map of **stock-inventory** (Stockly). Last updated: 2026-07-30 (REQ-0218 catalog densify).
+Agent-oriented map of **stock-inventory** (Stockly). Last updated: 2026-07-30 (REQ-0219 QueryKey tsc).
 
 ## 1. What this app is
 
@@ -175,6 +175,7 @@ Prevents `NotFoundError: removeChild` when App Router navigates between pages wh
 | Scroll-lock no shift (REQ-0216) | `globals.css` — auth-only html gutter + unlayered `html body[data-scroll-locked]` pad cancel (beats RemoveScroll); CSS-only |
 | Empty Select copy (REQ-0217) | `select-empty-copy` + `SelectEmptyContent`; ProductForm Category/Supplier + Transfer dest; presentational |
 | Catalog densify parity (REQ-0218) | merge-patch detail; transfer + summary + list productCount; densify keys; deferred KPI/forecast/cross-entity insights |
+| findCachedAllocation QueryKey (REQ-0219) | `QueryKey[]` for product+warehouse keys — Vercel tsc unblock |
 | Auth session toasts (REQ-0034) | `AuthSessionToasts` + `post-login-welcome.ts` / `post-logout-goodbye.ts`; `Toaster` before consumer in `app/layout.tsx`; welcome on `/` `/client` `/supplier`; goodbye on `/login` |
 | Auth OAuth welcome (REQ-0035) | `AuthSessionToasts` detects `oauth_success`; `refreshSession` + shared welcome copy; URL strip via `oauth-success-url.ts` |
 | App shell full bleed (REQ-0036) | `lib/ui/shell-layout-styles.ts` — `APP_SHELL_WIDTH_CLASS` / `APP_SHELL_DETAIL_CLASS`; Navbar/Footer + 11 lists + 6 details (legacy `SidebarLayout` removed REQ-0069); auth stays `max-w-7xl` in `AuthPageShell`; `9xl` token removed |
@@ -316,6 +317,7 @@ flowchart LR
 | Scroll-lock layout (REQ-0216) | Auth-only gutter + unlayered RemoveScroll pad cancel | CSS-only; no invalidation |
 | Empty Select copy (REQ-0217) | Shared "No … found" placeholder + SelectEmptyContent | Presentational |
 | Catalog densify (REQ-0218) | Detail merge-patch; transfer/summary/list count patches; densify keys | Patch → invalidate; deferred: KPI/forecast pulse, cross-entity insights |
+| findCachedAllocation QueryKey (REQ-0219) | `QueryKey[]` for byProduct + byWarehouse | Typing only; Vercel tsc |
 | Supplier invoice KPIs (REQ-0205) | `/invoices` SSR portal + 4 StatisticsCards (OrderList parity) | Invalidation unchanged |
 | Portal SSR sync (REQ-0206) | `portal.*Dashboard(userId)`; list sync matches hooks (not admin keys) | Invalidation unchanged |
 | Sentry noise (REQ-0009) | Order stock warn+disable; warehouse cold-load pulse; tracesSampleRate 0 dev; notif DELETE 404 | Invalidation unchanged |

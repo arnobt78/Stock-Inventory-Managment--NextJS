@@ -172,7 +172,7 @@ All user-facing POST/PUT JSON bodies use `safeParse` + `logger.warn` on fail. Ne
 
 **Every session:** STATE → REQ map → skill 01+17 → Red Team → write-through DECISION/BUILD/VALIDATION.
 
-**C1 open:** Gate 2 PENDING (Sentry 24h). **Stopped 2026-07-30:** REQ-0218 catalog densify parity. **Next:** push → smoke → Sentry 24h (**REQ-0009**).
+**C1 open:** Gate 2 PENDING (Sentry 24h). **Stopped 2026-07-30:** REQ-0219 QueryKey tsc fix. **Next:** Vercel Ready → smoke → Sentry 24h (**REQ-0009**).
 
 ## REQ-0136 cache / badges / hydration (2026-07-27)
 
@@ -324,6 +324,15 @@ All user-facing POST/PUT JSON bodies use `safeParse` + `logger.warn` on fail. Ne
 | Deferred (leave) | KPI pulse; forecast pulse; cat/sup insights after product/stock CRUD; committed after order reserve; review/ticket/user thin replace |
 
 **Invalidation:** patch → `invalidateAfterCatalogChange` / `invalidateAfterStockChange`. Not full-app densify.
+
+## REQ-0219 findCachedAllocation QueryKey (2026-07-30)
+
+| Piece | Location |
+|-------|----------|
+| Fix | `hooks/queries/use-stock-allocation.ts` — `keys: QueryKey[]` (product + warehouse) |
+| Why | Vercel `next build` tsc failed after REQ-0218 stock helpers |
+
+**Invalidation unchanged** — typing only.
 
 ## REQ-0187 dialog densify (2026-07-22)
 

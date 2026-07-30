@@ -591,3 +591,6 @@
 | ART-0218b | REQ-0218 | patchStockCachesAfterTransfer + summary + catalog counts | instant stock/% |
 | ART-0218c | REQ-0218 | ssr-sync-policy DENSIFY_KEY_RE catalog keys | soft-nav heal |
 | TC-0218 | REQ-0218 | patch-mutation-cache + ssr-sync + invalidate tests | done |
+
+| ART-0219 | REQ-0219 | use-stock-allocation findCachedAllocation QueryKey[] | Vercel tsc unblock |
+| TC-0219 | REQ-0219 | tsc --noEmit + lint | PASS |

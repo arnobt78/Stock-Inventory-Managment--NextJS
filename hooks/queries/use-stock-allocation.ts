@@ -2,7 +2,13 @@
  * Stock Allocation query hooks
  */
 
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import {
+  useMutation,
+  useQuery,
+  useQueryClient,
+  type QueryClient,
+  type QueryKey,
+} from "@tanstack/react-query";
 import { apiClient, getErrorMessage } from "@/lib/api";
 import {
   invalidateAfterStockChange,
@@ -21,7 +27,6 @@ import type {
   StockTransfer,
   WarehouseStockSummary,
 } from "@/types";
-import type { QueryClient } from "@tanstack/react-query";
 
 /** Shared queryFn for useStockByProduct + prefetch (REQ-0110). */
 export async function fetchStockByProduct(
@@ -48,7 +53,8 @@ function findCachedAllocation(
   allocationId: string,
   scope?: { productId?: string; warehouseId?: string },
 ): StockAllocation | undefined {
-  const keys: ReturnType<typeof queryKeys.stockAllocation.byProduct>[] = [];
+  // REQ-0219 — QueryKey[] so byProduct + byWarehouse tuples both push (Vercel tsc)
+  const keys: QueryKey[] = [];
   if (scope?.productId) {
     keys.push(queryKeys.stockAllocation.byProduct(scope.productId));
   }
