@@ -21,7 +21,6 @@ import { toParty } from "@/lib/server/catalog-party-snapshot";
 import { resolveBuyerUserId } from "@/lib/orders/order-party";
 import { resolveInvoiceBillingAddressForDisplay } from "@/lib/invoices/resolve-invoice-billing-address";
 import { healInvoiceStatusAfterMoney } from "@/lib/invoices/heal-invoice-status-after-money";
-import { invalidateOnOrderChange } from "@/lib/cache";
 import type { BillingAddress, Invoice } from "@/types";
 import type { SessionForDetail } from "@/lib/server/order-detail-data";
 
@@ -207,15 +206,14 @@ export async function getInvoiceDetailForPage(
 
   if (!invoice) return null;
 
-  // REQ-0211 — draft + money (webhook/older confirm) → promote before SSR paint
-  if (invoice.amountPaid > 0 && invoice.status === "draft") {
+  // REQ-0211 / REQ-0215 — heal draft→sent mid-pay; sent/overdue→paid when settled; sync order
+  if (invoice.status !== "cancelled" && invoice.amountPaid > 0) {
     const healed = await healInvoiceStatusAfterMoney(invoice.id);
-    if (healed && healed.status !== "draft") {
+    if (healed?.changed) {
       const refreshed = await prisma.invoice.findUnique({
         where: { id: invoice.id },
       });
       if (refreshed) invoice = refreshed;
-      void invalidateOnOrderChange();
     }
   }
 

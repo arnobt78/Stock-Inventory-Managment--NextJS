@@ -172,7 +172,7 @@ All user-facing POST/PUT JSON bodies use `safeParse` + `logger.warn` on fail. Ne
 
 **Every session:** STATE → REQ map → skill 01+17 → Red Team → write-through DECISION/BUILD/VALIDATION.
 
-**C1 open:** Gate 2 PENDING (Sentry 24h). **Stopped 2026-07-29:** REQ-0214 client INV/ORD. **Next:** push → prod smoke → Sentry 24h (**REQ-0009**).
+**C1 open:** Gate 2 PENDING (Sentry 24h). **Stopped 2026-07-30:** REQ-0215 partial→paid settle. **Next:** push → prod smoke → Sentry 24h (**REQ-0009**).
 
 ## REQ-0136 cache / badges / hydration (2026-07-27)
 
@@ -279,6 +279,18 @@ All user-facing POST/PUT JSON bodies use `safeParse` + `logger.warn` on fail. Ne
 | UI | Edit/Send/Delete still off for client/supplier |
 
 **Invalidation:** unchanged — read-path gate only.
+
+## REQ-0215 partial→paid settle (2026-07-30)
+
+| Piece | Location |
+|-------|----------|
+| Cent-safe | `applyIncrementalInvoicePayment` / `deriveOrderPaymentStatus` (cents) |
+| Heal | `healInvoiceStatusAfterMoney` — sent/overdue→paid + order sync |
+| Confirm | `confirmCheckoutSessionById` always heal after apply |
+| SSR | invoice + order detail self-heal stuck money/status |
+| Client | `useStripeCheckoutReturn` patch paid then invalidate |
+
+**Invalidation:** unchanged — `invalidateOnOrderChange` / order-graph on settle.
 
 ## REQ-0187 dialog densify (2026-07-22)
 
@@ -1075,7 +1087,7 @@ Hub: `lib/ui/typography-scale.ts`. Hubs import tokens; ~45 inline files use equi
 
 **Invalidation unchanged** — review/product/dashboard CRUD already clears lists + portals.
 
-**Active wave:** **0214** client INV/ORD read + refund gate → **Gate 2** Sentry 24h (REQ-0009).
+**Active wave:** **0215** partial→paid settle → **Gate 2** Sentry 24h (REQ-0009).
 
 ## Warehouse detail + Allocate/Transfer (REQ-0203)
 

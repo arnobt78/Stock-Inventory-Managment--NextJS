@@ -3,6 +3,7 @@
  * unpaid (paid<=0) | partial (0 < paid < total) | paid (paid >= total).
  * Does not invent an invoice "partial" status — money fields carry mid-pay.
  * REQ-0209 — first money (partial or paid) while pending → confirm + fulfill once.
+ * REQ-0215 — cent-safe compare so partial→remainder settle promotes paid (no float stuck sent/partial).
  */
 
 import { prisma } from "@/prisma/client";
@@ -10,17 +11,21 @@ import { fulfillPendingOrderLines } from "@/lib/products/order-stock-reservation
 import { logger } from "@/lib/logger";
 import type { PaymentStatus } from "@/types";
 
-const EPS = 0.001;
+/** Dollar → integer cents for settle comparisons (avoids 1880.06 float noise). */
+export function toCents(amount: number): number {
+  const n = Number.isFinite(amount) ? amount : 0;
+  return Math.round(n * 100);
+}
 
 /** Pure: map amountPaid vs total → order paymentStatus (never refunded). */
 export function deriveOrderPaymentStatus(
   amountPaid: number,
   total: number,
 ): Exclude<PaymentStatus, "refunded"> {
-  const paid = Number.isFinite(amountPaid) ? amountPaid : 0;
-  const tot = Number.isFinite(total) ? total : 0;
-  if (paid <= EPS || tot <= EPS) return "unpaid";
-  if (paid + EPS >= tot) return "paid";
+  const paidCents = toCents(amountPaid);
+  const totalCents = toCents(total);
+  if (paidCents <= 0 || totalCents <= 0) return "unpaid";
+  if (paidCents >= totalCents) return "paid";
   return "partial";
 }
 
@@ -113,6 +118,7 @@ export async function syncOrderPaymentStatusFromInvoice(
  * Apply a Stripe charge amount onto invoice money (incremental).
  * Returns next amountPaid / amountDue / status for prisma update.
  * When not fully paid, caller should clear paidAt (set null).
+ * REQ-0215 — cent-safe fullyPaid; clamp amountDue to 0 when settled.
  */
 export function applyIncrementalInvoicePayment(args: {
   priorAmountPaid: number;
@@ -126,16 +132,21 @@ export function applyIncrementalInvoicePayment(args: {
   fullyPaid: boolean;
 } {
   const total = Math.max(0, args.total);
-  const newPaid = Math.min(
-    total,
-    Math.max(0, args.priorAmountPaid) + Math.max(0, args.chargeAmount),
+  const priorPaid = Math.max(0, args.priorAmountPaid);
+  const charge = Math.max(0, args.chargeAmount);
+  const totalCents = toCents(total);
+  const newPaidCents = Math.min(
+    totalCents,
+    toCents(priorPaid) + toCents(charge),
   );
-  const amountDue = Math.max(0, total - newPaid);
-  const fullyPaid = amountDue <= EPS;
+  const fullyPaid = totalCents > 0 && newPaidCents >= totalCents;
+  // Prefer exact total dollars when settled so UI matches invoice.total
+  const amountPaid = fullyPaid ? total : newPaidCents / 100;
+  const amountDue = fullyPaid ? 0 : Math.max(0, (totalCents - newPaidCents) / 100);
   let status = args.priorStatus;
   if (fullyPaid) {
     status = "paid";
-  } else if (newPaid > EPS) {
+  } else if (newPaidCents > 0) {
     // REQ-0211 — any money: draft→sent; keep overdue; never revive cancelled
     if (args.priorStatus === "cancelled") {
       status = "cancelled";
@@ -145,12 +156,12 @@ export function applyIncrementalInvoicePayment(args: {
       status = "sent";
     }
   }
-  return { amountPaid: newPaid, amountDue, status, fullyPaid };
+  return { amountPaid, amountDue, status, fullyPaid };
 }
 
 /**
- * REQ-0211 — Recompute invoice status from current money (chargeAmount 0).
- * Used when webhook already applied amounts but left status as draft (alreadyApplied).
+ * REQ-0211 / REQ-0215 — Recompute invoice status from current money (chargeAmount 0).
+ * Promotes draft→sent on mid-pay; sent/overdue/draft → paid when fully settled.
  */
 export function resolveInvoiceStatusAfterMoney(args: {
   status: string;

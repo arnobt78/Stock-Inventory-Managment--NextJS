@@ -2,15 +2,14 @@
  * REQ-0209 gap — Apply Stripe Checkout Session on browser return (`?payment=success&session_id=`).
  * Idempotent vs webhook: if PaymentIntent already stored, only re-run payment→status sync
  * (confirms Pending→Confirmed on first money when webhook used older logic or remote webhook).
+ * REQ-0215 — after apply (and alreadyApplied), always heal invoice + sync order so
+ * partial→remainder settle promotes invoice paid / order paymentStatus paid.
  */
 
 import { getStripe } from "@/lib/stripe";
 import { prisma } from "@/prisma/client";
 import { applyStripeChargeToOrderInvoice } from "@/prisma/invoice";
-import {
-  applyIncrementalInvoicePayment,
-  syncOrderPaymentStatusFromInvoice,
-} from "@/lib/payments/order-payment-from-amounts";
+import { applyIncrementalInvoicePayment } from "@/lib/payments/order-payment-from-amounts";
 import { healInvoiceStatusAfterMoney } from "@/lib/invoices/heal-invoice-status-after-money";
 import { invalidateOnOrderChange } from "@/lib/cache";
 import { logger } from "@/lib/logger";
@@ -22,6 +21,8 @@ export type ConfirmCheckoutSessionResult = {
   invoiceId?: string;
   paymentStatus?: string | null;
   orderStatus?: string | null;
+  /** REQ-0215 — healed invoice status when available */
+  invoiceStatus?: string | null;
   error?: string;
 };
 
@@ -81,11 +82,14 @@ export async function confirmCheckoutSessionById(
       !!paymentIntentId &&
       order.stripePaymentIntentId === paymentIntentId;
 
+    let invoiceId: string | undefined;
+
     if (!alreadyApplied) {
       const invoice = await applyStripeChargeToOrderInvoice(
         orderId,
         chargeAmount,
       );
+      invoiceId = invoice.id;
       if (paymentIntentId) {
         await prisma.order.update({
           where: { id: orderId },
@@ -102,27 +106,19 @@ export async function confirmCheckoutSessionById(
           },
         });
       }
-      await syncOrderPaymentStatusFromInvoice(orderId, {
-        amountPaid: invoice.amountPaid,
-        total: invoice.total,
-        invoiceStatus: invoice.status,
-      });
     } else {
-      // Webhook already applied money — heal draft→sent + sync Pending→Confirmed
       const existing = await prisma.invoice.findUnique({
         where: { orderId },
         select: { id: true },
       });
-      if (existing) {
-        const invoice = await healInvoiceStatusAfterMoney(existing.id);
-        if (invoice) {
-          await syncOrderPaymentStatusFromInvoice(orderId, {
-            amountPaid: invoice.amountPaid,
-            total: invoice.total,
-            invoiceStatus: invoice.status,
-          });
-        }
-      }
+      invoiceId = existing?.id;
+    }
+
+    // REQ-0215 — heal+sync always (sent→paid when settled; order partial→paid)
+    let invoiceStatus: string | null = null;
+    if (invoiceId) {
+      const healed = await healInvoiceStatusAfterMoney(invoiceId);
+      invoiceStatus = healed?.status ?? null;
     }
 
     await invalidateOnOrderChange();
@@ -135,8 +131,10 @@ export async function confirmCheckoutSessionById(
       ok: true,
       alreadyApplied,
       orderId,
+      invoiceId,
       paymentStatus: refreshed?.paymentStatus ?? null,
       orderStatus: refreshed?.status ?? null,
+      invoiceStatus,
     };
   }
 
@@ -160,7 +158,7 @@ export async function confirmCheckoutSessionById(
         chargeAmount,
         priorStatus: prior.status,
       });
-      const updated = await prisma.invoice.update({
+      await prisma.invoice.update({
         where: { id: invoiceId },
         data: {
           status: next.status,
@@ -171,51 +169,26 @@ export async function confirmCheckoutSessionById(
           updatedAt: new Date(),
         },
       });
-      await syncOrderPaymentStatusFromInvoice(updated.orderId, {
-        amountPaid: updated.amountPaid,
-        total: updated.total,
-        invoiceStatus: updated.status,
-      });
-      await invalidateOnOrderChange();
-      const refreshed = updated.orderId
-        ? await prisma.order.findUnique({
-            where: { id: updated.orderId },
-            select: { status: true, paymentStatus: true },
-          })
-        : null;
-      return {
-        ok: true,
-        alreadyApplied: false,
-        invoiceId,
-        orderId: updated.orderId,
-        paymentStatus: refreshed?.paymentStatus ?? null,
-        orderStatus: refreshed?.status ?? null,
-      };
     }
 
-    // alreadyApplied — still heal draft→sent when money is present
+    // REQ-0215 — heal after apply or alreadyApplied (promotes stuck sent→paid)
     const healed = await healInvoiceStatusAfterMoney(invoiceId);
-    if (healed) {
-      await syncOrderPaymentStatusFromInvoice(healed.orderId, {
-        amountPaid: healed.amountPaid,
-        total: healed.total,
-        invoiceStatus: healed.status,
-      });
-    }
     await invalidateOnOrderChange();
-    const refreshed = (healed?.orderId ?? prior.orderId)
+    const orderId = healed?.orderId ?? prior.orderId;
+    const refreshed = orderId
       ? await prisma.order.findUnique({
-          where: { id: healed?.orderId ?? prior.orderId },
+          where: { id: orderId },
           select: { status: true, paymentStatus: true },
         })
       : null;
     return {
       ok: true,
-      alreadyApplied: true,
+      alreadyApplied,
       invoiceId,
-      orderId: healed?.orderId ?? prior.orderId,
+      orderId,
       paymentStatus: refreshed?.paymentStatus ?? null,
       orderStatus: refreshed?.status ?? null,
+      invoiceStatus: healed?.status ?? null,
     };
   }
 

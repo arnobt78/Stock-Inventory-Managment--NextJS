@@ -4,6 +4,31 @@ Canonical REQ source. All artifacts link via `REQ-XXXX`. Status: `done` | `verif
 
 ---
 
+## REQ-0215 — Partial→paid status settle
+
+| Field | Value |
+|-------|-------|
+| **Priority** | P0 |
+| **Risk** | R2 |
+| **Status** | done |
+| **Cycle** | C2 |
+| **Parent** | REQ-0152 |
+
+**Intent:** After remainder Stripe pay, promote `invoice.status`→paid and `order.paymentStatus`→paid (cent-safe money). Unblock badges, KPI Partial→Paid, awaiting-payment, product sales. Heal stuck sent+full-money rows on detail SSR.
+
+**Acceptance criteria**
+
+- AC1: Cent-safe `applyIncremental` / `deriveOrderPaymentStatus`; remainder settle → paid + amountDue 0
+- AC2: `healInvoiceStatusAfterMoney` promotes sent/overdue→paid; syncs order; invalidates when changed
+- AC3: `confirmCheckoutSessionById` always heal+sync after apply / alreadyApplied
+- AC4: Invoice + order detail SSR heal inconsistent settled money vs statuses
+- AC5: Stripe return client patches paid statuses then `invalidateAfterOrderGraphChange`
+- AC6: Invalidation registry unchanged; lint + payment/heal tests + invalidate PASS
+
+**Artifacts:** `order-payment-from-amounts.ts`, `heal-invoice-status-after-money.ts`, `confirm-checkout-session.ts`, detail SSR, `use-stripe-checkout-return.ts`
+
+---
+
 ## REQ-0214 — Client catalog-history invoice/order read parity
 
 | Field | Value |

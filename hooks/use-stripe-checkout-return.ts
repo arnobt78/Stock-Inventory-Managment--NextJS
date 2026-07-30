@@ -2,6 +2,7 @@
  * REQ-0209 — Stripe return fallback (client).
  * Prefer SSR `reconcileStripeReturnBeforeDetail` + redirect (no Pending flash).
  * This hook covers cancelled return + edge cases where query params remain.
+ * REQ-0215 — patch paid invoice/order statuses from confirm response before invalidate.
  */
 
 "use client";
@@ -13,10 +14,12 @@ import { apiClient } from "@/lib/api";
 import { markStripeCheckoutReturn } from "@/lib/payments/stripe-return";
 import {
   invalidateAfterOrderGraphChange,
+  patchDetailCacheMerge,
   patchLinkedInvoicesFromOrder,
+  patchLinkedOrderFromInvoiceMoney,
   queryKeys,
 } from "@/lib/react-query";
-import type { Order } from "@/types";
+import type { Invoice, Order } from "@/types";
 
 export type UseStripeCheckoutReturnOptions = {
   entityId: string;
@@ -91,11 +94,21 @@ export function useStripeCheckoutReturn({
       void apiClient.payments
         .confirmSession(sessionId)
         .then((res) => {
-          if (entity === "order" && res.data) {
-            const nextStatus =
-              (res.data.orderStatus as Order["status"]) ?? undefined;
-            const nextPayment =
-              (res.data.paymentStatus as Order["paymentStatus"]) ?? undefined;
+          const data = res.data;
+          if (!data) {
+            runInvalidations();
+            cleanUrl();
+            return;
+          }
+
+          const nextStatus =
+            (data.orderStatus as Order["status"]) ?? undefined;
+          const nextPayment =
+            (data.paymentStatus as Order["paymentStatus"]) ?? undefined;
+          const nextInvoiceStatus =
+            (data.invoiceStatus as Invoice["status"]) ?? undefined;
+
+          if (entity === "order") {
             queryClient.setQueryData<Order>(detailKey, (old) =>
               old
                 ? {
@@ -110,7 +123,60 @@ export function useStripeCheckoutReturn({
               status: nextStatus,
               paymentStatus: nextPayment,
             });
+            // REQ-0215 — remainder settle: patch linked order money + invoice status paid
+            if (nextPayment === "paid") {
+              const cached = queryClient.getQueryData<Order>(detailKey);
+              const inv = cached?.invoiceForOrder;
+              if (cached && inv?.id) {
+                patchLinkedOrderFromInvoiceMoney(queryClient, {
+                  id: inv.id,
+                  orderId: entityId,
+                  amountPaid: inv.amountPaid ?? cached.total,
+                  amountDue: 0,
+                  total: inv.total ?? cached.total,
+                  status: nextInvoiceStatus ?? "paid",
+                  invoiceNumber: inv.invoiceNumber,
+                });
+              }
+            }
+          } else {
+            // Invoice detail return — patch invoice + linked order payment
+            patchDetailCacheMerge<Invoice>(queryClient, detailKey, (old) => {
+              if (!old) return old;
+              return {
+                ...old,
+                status: nextInvoiceStatus ?? old.status,
+                amountDue:
+                  nextInvoiceStatus === "paid" || nextPayment === "paid"
+                    ? 0
+                    : old.amountDue,
+                linkedOrderPaymentStatus:
+                  nextPayment ?? old.linkedOrderPaymentStatus,
+                linkedOrderStatus: nextStatus ?? old.linkedOrderStatus,
+              };
+            });
+            const inv = queryClient.getQueryData<Invoice>(detailKey);
+            const orderId = data.orderId ?? inv?.orderId;
+            if (orderId && nextPayment) {
+              patchLinkedInvoicesFromOrder(queryClient, {
+                orderId,
+                status: nextStatus,
+                paymentStatus: nextPayment,
+              });
+            }
+            if (inv && orderId && nextPayment === "paid") {
+              patchLinkedOrderFromInvoiceMoney(queryClient, {
+                id: inv.id,
+                orderId,
+                amountPaid: inv.amountPaid,
+                amountDue: 0,
+                total: inv.total,
+                status: nextInvoiceStatus ?? "paid",
+                invoiceNumber: inv.invoiceNumber,
+              });
+            }
           }
+
           runInvalidations();
           cleanUrl();
         })

@@ -26,6 +26,12 @@ describe("deriveOrderPaymentStatus", () => {
   it("returns paid when paid exceeds total", () => {
     expect(deriveOrderPaymentStatus(4000, 3980)).toBe("paid");
   });
+
+  // REQ-0215 — cent-safe: float noise near total still paid
+  it("returns paid for float-near-total amounts", () => {
+    expect(deriveOrderPaymentStatus(1880.06, 1880.06)).toBe("paid");
+    expect(deriveOrderPaymentStatus(1000 + 880.06, 1880.06)).toBe("paid");
+  });
 });
 
 describe("shouldConfirmAndFulfillOnPaymentSync", () => {
@@ -138,5 +144,39 @@ describe("applyIncrementalInvoicePayment", () => {
         total: 389.22,
       }),
     ).toBe("sent");
+  });
+
+  // REQ-0215 — remainder settle: sent + full money → paid, amountDue 0
+  it("marks paid when remainder charge settles sent invoice", () => {
+    const next = applyIncrementalInvoicePayment({
+      priorAmountPaid: 1000,
+      total: 1880.06,
+      chargeAmount: 880.06,
+      priorStatus: "sent",
+    });
+    expect(next.fullyPaid).toBe(true);
+    expect(next.status).toBe("paid");
+    expect(next.amountDue).toBe(0);
+    expect(next.amountPaid).toBe(1880.06);
+  });
+
+  it("resolveInvoiceStatusAfterMoney promotes sent to paid when settled", () => {
+    expect(
+      resolveInvoiceStatusAfterMoney({
+        status: "sent",
+        amountPaid: 1880.06,
+        total: 1880.06,
+      }),
+    ).toBe("paid");
+  });
+
+  it("resolveInvoiceStatusAfterMoney promotes overdue to paid when settled", () => {
+    expect(
+      resolveInvoiceStatusAfterMoney({
+        status: "overdue",
+        amountPaid: 50,
+        total: 50,
+      }),
+    ).toBe("paid");
   });
 });

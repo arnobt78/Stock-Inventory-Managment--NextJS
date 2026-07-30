@@ -572,3 +572,8 @@
 | ART-0214b | REQ-0214 | `prisma/order.ts` getOrderByIdForClient | own + catalog history |
 | ART-0214c | REQ-0214 | `invoice-detail-data.ts` client branch | uses ForClient |
 | ART-0214d | REQ-0214 | InvoiceDetailPage / OrderDetailActionBar | Pay gated by buyer |
+
+| ART-0215a | REQ-0215 | `order-payment-from-amounts.ts` cent-safe | fullyPaid / derive |
+| ART-0215b | REQ-0215 | `heal-invoice-status-after-money.ts` | sent→paid + order sync |
+| ART-0215c | REQ-0215 | `confirm-checkout-session.ts` | always heal after apply |
+| ART-0215d | REQ-0215 | invoice/order detail SSR + stripe return hook | self-heal + patch |

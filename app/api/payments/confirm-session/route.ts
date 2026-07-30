@@ -60,6 +60,8 @@ export async function POST(request: NextRequest) {
       invoiceId: result.invoiceId,
       paymentStatus: result.paymentStatus,
       orderStatus: result.orderStatus,
+      // REQ-0215 — client patch invoice badge to paid after remainder settle
+      invoiceStatus: result.invoiceStatus,
     });
   } catch (error) {
     logger.error("confirm-session failed:", error);

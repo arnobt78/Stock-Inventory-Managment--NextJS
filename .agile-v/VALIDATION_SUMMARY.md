@@ -2415,3 +2415,21 @@ Scope: built/verified | Traceability: REQ-0214, REQ-0204 | Findings: PASS
 Commands: lint, tsc --noEmit, vitest invoice access, test:invalidate
 ```
 
+
+## REQ-0215 — Partial→paid status settle (2026-07-30)
+
+| Check | Result |
+| ----- | ------ |
+| Cent-safe money | applyIncremental / deriveOrderPaymentStatus cents |
+| Heal | sent/overdue→paid; sync order; invalidate on change |
+| Confirm | always heal+sync after apply / alreadyApplied |
+| SSR | invoice + order detail heal stuck rows |
+| Client | stripe return patches paid then invalidate |
+| Invalidation | unchanged (order-graph) |
+| Gates | lint ✓ payment+heal tests ✓ invalidate ✓ |
+
+```
+Scope: built/verified | Traceability: REQ-0215, REQ-0152 | Findings: PASS
+Commands: lint, tsc, vitest payment/heal, test:invalidate
+```
+

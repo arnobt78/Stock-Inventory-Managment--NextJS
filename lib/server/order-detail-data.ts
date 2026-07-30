@@ -19,6 +19,7 @@ import {
 import { enrichOrderItemsCatalogNames } from "@/lib/orders/enrich-order-items-catalog";
 import { toParty } from "@/lib/server/catalog-party-snapshot";
 import { resolveBuyerUserId } from "@/lib/orders/order-party";
+import { healInvoiceStatusAfterMoney } from "@/lib/invoices/heal-invoice-status-after-money";
 import type { Order } from "@/types";
 
 export type SessionForDetail = {
@@ -147,6 +148,42 @@ export async function getOrderDetailForPage(
   }
 
   if (!order) return null;
+
+  // REQ-0215 — linked invoice fully settled but order still unpaid/partial → heal + sync
+  if (
+    order.paymentStatus !== "paid" &&
+    order.paymentStatus !== "refunded"
+  ) {
+    const linkedInv = await prisma.invoice.findUnique({
+      where: { orderId },
+      select: { id: true, amountPaid: true, status: true },
+    });
+    if (
+      linkedInv &&
+      linkedInv.status !== "cancelled" &&
+      linkedInv.amountPaid > 0
+    ) {
+      const healed = await healInvoiceStatusAfterMoney(linkedInv.id);
+      if (healed?.changed) {
+        const pay = await prisma.order.findUnique({
+          where: { id: orderId },
+          select: {
+            paymentStatus: true,
+            status: true,
+            updatedAt: true,
+          },
+        });
+        if (pay) {
+          order = {
+            ...order,
+            paymentStatus: pay.paymentStatus,
+            status: pay.status,
+            updatedAt: pay.updatedAt,
+          };
+        }
+      }
+    }
+  }
 
   const enrichment = await enrichOrder(orderId, order);
   const detail = transformOrderDetail(order, enrichment);

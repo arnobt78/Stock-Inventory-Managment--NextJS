@@ -1126,6 +1126,7 @@ class ApiClient {
         invoiceId?: string;
         paymentStatus?: string | null;
         orderStatus?: string | null;
+        invoiceStatus?: string | null;
       }>
     > => {
       const response = await this.client.post(

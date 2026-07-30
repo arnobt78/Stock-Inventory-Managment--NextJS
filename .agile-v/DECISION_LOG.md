@@ -617,3 +617,5 @@ Format: `TIMESTAMP | AGENT | DECISION | RATIONALE | REQ-ID`
 2026-07-27T12:17:00Z | docs | Sync CLAUDE/walkthrough/agile-v for REQ-0136 tip db0bacf | agent memory write-through | REQ-0136
 
 2026-07-29T17:05:00Z | build-agent | Client catalog-history INV/ORD read parity | Product recent-order INV chips 404 for clients; expand getInvoiceByIdForClient + getOrderByIdForClient; Pay stays buyer-only | REQ-0214
+
+2026-07-30T11:35:00Z | build-agent | Cent-safe settle + heal sent→paid + confirm/SSR sync | Remainder Stripe pay left invoice sent / order partial; money already full | REQ-0215
