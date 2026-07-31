@@ -1141,6 +1141,24 @@ Hub: `lib/ui/typography-scale.ts`. Hubs import tokens; ~45 inline files use equi
 
 **Active wave:** **0224** densify parity done → **Gate 2** Sentry 24h (REQ-0009).
 
+## REQ-0225 instant reserved/committed densify + duplicate key fix (2026-07-31)
+
+| Piece | Location |
+|-------|----------|
+| `patchAllocationReservedCaches` | `patch-mutation-cache.ts` — 2-phase: delta `reservedQuantity` per row → sync `product.committedQuantity` from detail cache; no intermediate flash |
+| Catalog shrink stock share | `patchStockCachesAfterCatalogShrink` → `patchWarehouseStockSummaryCaches` at end; warehouse list % instant |
+| Settle unreserve | `patchCommittedAfterOrderMoneySettle` calls `patchAllocationReservedCaches(−1)` on fulfill |
+| Order hooks | `useCreateOrder(+1)` / `useUpdateOrder(±1)` / `useDeleteOrder(−1)` integrate `patchAllocationReservedCaches` |
+| `OrderCommittedSnapshot` | `items[].warehouseId` added for warehouse-specific patching |
+| Duplicate key fix | `OrderTableColumns` + `InvoiceTableColumns`: `key=\`${productId}-${i}\`` |
+| Owner select | trigger + dropdown: image · name · email |
+| Client catalog cell | `DenseCatalogProductCell` `text-xs` name + SKU clipboard |
+| Date icon tokens | `semantic-date-styles` unified `gray-500` for icon color |
+| Densify merge lib | `lib/catalog/merge-catalog-mutation-densify.ts` + `.test.ts` |
+| Debug cleanup | all `#region agent log` instrumentation removed |
+
+**Gates:** build ✓ lint ✓ tsc ✓ tests 785 ✓
+
 ## Densify parity (REQ-0224)
 
 | Piece | Location |

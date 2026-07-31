@@ -462,7 +462,17 @@ export async function PUT(request: NextRequest) {
       quantity !== undefined &&
       existingProduct.quantity !== BigInt(quantity);
 
-    let stockReconcile: { unitsRemovedFromWarehouses: number } | undefined;
+    let stockReconcile:
+      | {
+          unitsRemovedFromWarehouses: number;
+          shrinkSteps?: Array<{
+            id: string;
+            deduct: number;
+            warehouseId?: string;
+            productId: string;
+          }>;
+        }
+      | undefined;
 
     if (quantityChanged) {
       const allocationRows = await getStockAllocationsByProduct(id);
@@ -474,6 +484,7 @@ export async function PUT(request: NextRequest) {
           id: row.id,
           quantity: Number(row.quantity),
           reservedQuantity: Number(row.reservedQuantity ?? 0),
+          warehouseId: row.warehouseId,
         })),
       });
 
@@ -497,6 +508,16 @@ export async function PUT(request: NextRequest) {
           shrinkSteps: reconcilePlan.shrinkSteps,
           productUpdate: productUpdateData,
         });
+        // REQ-0225 — client patches warehouse/product stock caches from steps
+        stockReconcile = {
+          ...stockReconcile,
+          shrinkSteps: reconcilePlan.shrinkSteps.map((step) => ({
+            id: step.id,
+            deduct: step.deduct,
+            warehouseId: step.warehouseId,
+            productId: id,
+          })),
+        };
       } else {
         await prisma.product.update({
           where: { id },
@@ -655,7 +676,13 @@ export async function PUT(request: NextRequest) {
       imageFileId: product.imageFileId || null,
       expirationDate: product.expirationDate?.toISOString() || null,
       ...(stockReconcile
-        ? { stockReconcile: { unitsRemovedFromWarehouses: stockReconcile.unitsRemovedFromWarehouses } }
+        ? {
+            stockReconcile: {
+              unitsRemovedFromWarehouses:
+                stockReconcile.unitsRemovedFromWarehouses,
+              shrinkSteps: stockReconcile.shrinkSteps ?? [],
+            },
+          }
         : {}),
     };
 

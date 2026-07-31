@@ -647,7 +647,7 @@ export default function ClientPortalPage({
                                   <TableCell className="font-normal">
                                     <Link
                                       href={`/categories/${c.id}`}
-                                      className="text-sm font-normal text-sky-600 dark:text-sky-400 hover:text-sky-500 dark:hover:text-sky-300"
+                                      className="text-xs font-normal text-sky-600 dark:text-sky-400 hover:text-sky-500 dark:hover:text-sky-300"
                                     >
                                       {c.name}
                                     </Link>
@@ -721,6 +721,7 @@ export default function ClientPortalPage({
                                       productName={p.name}
                                       sku={p.sku}
                                       imageUrl={p.imageUrl}
+                                      layout="stack"
                                       productHref={(id) => `/products/${id}`}
                                       categoryHref={(id) => `/categories/${id}`}
                                       supplierHref={(id) => `/suppliers/${id}`}
@@ -729,7 +730,7 @@ export default function ClientPortalPage({
                                   <TableCell>
                                     <Link
                                       href={`/categories/${p.categoryId}`}
-                                      className="text-sm font-normal text-sky-600 dark:text-sky-400 hover:text-sky-500 dark:hover:text-sky-300"
+                                      className="text-xs font-normal text-sky-600 dark:text-sky-400 hover:text-sky-500 dark:hover:text-sky-300"
                                     >
                                       {p.categoryName}
                                     </Link>
@@ -814,7 +815,8 @@ export default function ClientPortalPage({
                   ) : (
                     <ul className={CARD_LIST_DIVIDE_CLASS}>
                       {dashboard!.recentOrders.slice(0, 5).map((order) => {
-                        const productLabel = order.productPreview?.trim() || null;
+                        const productLabel =
+                          order.productPreview?.trim() || null;
                         return (
                           <li key={order.id} className={CARD_LIST_ROW_CLASS}>
                             <div className="min-w-0 flex-1 flex flex-col gap-1.5 overflow-visible">

@@ -6,7 +6,8 @@
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { apiClient, getErrorMessage, isAxiosError } from "@/lib/api";
-import { invalidateAfterCatalogChange, cancelOrRemoveDetailQuery, invalidateAfterStockChange, queryKeys, withInitialData, patchDetailCacheMerge, patchListCaches, patchProductInPortalCaches, removeFromListCaches, removeProductFromPortalCaches, patchCatalogListProductCounts } from "@/lib/react-query";
+import { mergeCatalogMutationIntoDetail } from "@/lib/catalog/merge-catalog-mutation-densify";
+import { invalidateAfterCatalogChange, cancelOrRemoveDetailQuery, invalidateAfterStockChange, queryKeys, withInitialData, patchDetailCacheMerge, patchListCaches, patchProductInPortalCaches, removeFromListCaches, removeProductFromPortalCaches, patchCatalogListProductCounts, patchStockCachesAfterCatalogShrink, patchStockAllocationCatalogDensify } from "@/lib/react-query";
 import { useToast } from "@/hooks/use-toast";
 import type {
   Product,
@@ -74,7 +75,7 @@ export function useCreateProduct() {
         patchDetailCacheMerge<Product>(
           queryClient,
           queryKeys.products.detail(newProduct.id),
-          (old) => (old ? { ...old, ...newProduct } : newProduct),
+          (old) => mergeCatalogMutationIntoDetail(old, newProduct),
         );
         patchListCaches(queryClient, queryKeys.products.all, newProduct, {
           prependIfMissing: true,
@@ -123,12 +124,11 @@ export function useUpdateProduct() {
         const prev = queryClient.getQueryData<Product>(
           queryKeys.products.detail(updatedProduct.id),
         );
-        // REQ-0218 — thin PUT must not wipe productInsights / committedQuantity / recentOrders
+        // REQ-0218 / REQ-0225 — thin PUT must not wipe densify objects (creator/supplier)
         patchDetailCacheMerge<Product>(
           queryClient,
           queryKeys.products.detail(updatedProduct.id),
-          (old) =>
-            old ? { ...old, ...updatedProduct } : updatedProduct,
+          (old) => mergeCatalogMutationIntoDetail(old, updatedProduct),
         );
         patchListCaches(queryClient, queryKeys.products.all, updatedProduct);
         patchProductInPortalCaches(queryClient, updatedProduct);
@@ -152,19 +152,62 @@ export function useUpdateProduct() {
         }
       }
       if (variables.quantity !== undefined) {
+        const stockReconcile = (
+          updatedProduct as {
+            stockReconcile?: {
+              unitsRemovedFromWarehouses: number;
+              shrinkSteps?: Array<{
+                id: string;
+                deduct: number;
+                warehouseId?: string;
+              }>;
+            };
+          }
+        ).stockReconcile;
+        // REQ-0225 — patch warehouse/product allocation qty before invalidate
+        if (stockReconcile?.shrinkSteps?.length && updatedProduct.id) {
+          patchStockCachesAfterCatalogShrink(
+            queryClient,
+            updatedProduct.id,
+            stockReconcile.shrinkSteps,
+            {
+              byProduct: queryKeys.stockAllocation.byProduct,
+              byWarehouse: queryKeys.stockAllocation.byWarehouse,
+            },
+            Number(
+              (updatedProduct as { quantity?: number }).quantity ??
+                variables.quantity,
+            ),
+          );
+        } else if (updatedProduct.id) {
+          // Qty increase / no shrink — still refresh Catalog · Unallocated densify
+          patchStockAllocationCatalogDensify(
+            queryClient,
+            updatedProduct.id,
+            Number(
+              (updatedProduct as { quantity?: number }).quantity ??
+                variables.quantity,
+            ),
+            {
+              byProduct: queryKeys.stockAllocation.byProduct,
+              byWarehouse: queryKeys.stockAllocation.byWarehouse,
+            },
+          );
+        }
         invalidateAfterStockChange(queryClient);
       } else {
         invalidateAfterCatalogChange(queryClient);
       }
       const name = (updatedProduct as { name?: string })?.name ?? "Product";
-      const stockReconcile = (
+      const stockReconcileToast = (
         updatedProduct as {
           stockReconcile?: { unitsRemovedFromWarehouses: number };
         }
       ).stockReconcile;
       const shrinkNote =
-        stockReconcile && stockReconcile.unitsRemovedFromWarehouses > 0
-          ? ` ${stockReconcile.unitsRemovedFromWarehouses} unreserved unit(s) removed from warehouses.`
+        stockReconcileToast &&
+        stockReconcileToast.unitsRemovedFromWarehouses > 0
+          ? ` ${stockReconcileToast.unitsRemovedFromWarehouses} unreserved unit(s) removed from warehouses.`
           : "";
       toast({
         title: "Success",

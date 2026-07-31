@@ -37,10 +37,13 @@ export {
   patchStockAllocationInCaches,
   removeStockAllocationFromCaches,
   patchStockCachesAfterTransfer,
+  patchStockCachesAfterCatalogShrink,
+  patchStockAllocationCatalogDensify,
   applyTransferQtyToAllocationRows,
   patchWarehouseStockSummaryCaches,
   patchCatalogListProductCounts,
   patchProductCommittedCaches,
+  patchAllocationReservedCaches,
   resolveOrderCommittedDeltas,
   patchCommittedAfterOrderMoneySettle,
 } from "./patch-mutation-cache";

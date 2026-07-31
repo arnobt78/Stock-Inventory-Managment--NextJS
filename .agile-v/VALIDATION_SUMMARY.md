@@ -1,9 +1,28 @@
 # Validation Summary — Cycle C1
 
-**Generated:** 2026-07-31 (REQ-0224 densify parity)
+**Generated:** 2026-07-31 (REQ-0225 instant reserved/committed + duplicate key fix)
 **eval_gate_status:** PENDING (Human Gate 2)
 **Active:** Prod smoke after next deploy
-**Last ship:** portal/invoice/BI densify parity
+**Last ship:** instant allocation reserved densify + order table key fix
+
+---
+
+## REQ-0225 — Instant reserved/committed densify + duplicate key fix (2026-07-31)
+
+| Check | Result |
+| ----- | ------ |
+| patchAllocationReservedCaches | 2-phase: delta on rows → sync product.committedQuantity from detail cache |
+| useCreateOrder | patchAllocationReservedCaches(sign=+1) on onSuccess |
+| useUpdateOrder | resolveOrderCommittedDeltas once; patchAllocationReservedCaches(sign=±1) on delta |
+| useDeleteOrder / cancel | patchAllocationReservedCaches(sign=−1) on onSuccess |
+| patchCommittedAfterOrderMoneySettle | patchAllocationReservedCaches(sign=−1) on fulfillment |
+| patchStockCachesAfterCatalogShrink | patchWarehouseStockSummaryCaches at end (stock share % instant) |
+| Duplicate key React error | OrderTableColumns + InvoiceTableColumns: key=`${productId}-${i}` |
+| Owner select | image + name + email in trigger and dropdown rows |
+| Client catalog cell | DenseCatalogProductCell text-xs name + SKU copy |
+| Date icon gray tokens | semantic-date-styles: unified gray-500 |
+| Debug instrumentation | fully removed from all files |
+| Gates | build ✓ lint ✓ tsc ✓ tests 785 ✓ |
 
 ---
 

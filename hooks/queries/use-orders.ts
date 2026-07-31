@@ -16,6 +16,7 @@ import {
   patchInvoicesOnOrderCancel,
   patchLinkedInvoicesFromOrder,
   patchProductCommittedCaches,
+  patchAllocationReservedCaches,
   resolveOrderCommittedDeltas,
 } from "@/lib/react-query";
 import { useToast } from "@/hooks/use-toast";
@@ -115,6 +116,16 @@ export function useCreateOrder() {
       patchProductCommittedCaches(
         queryClient,
         resolveOrderCommittedDeltas(null, data),
+      );
+      // REQ-0225 — also patch allocation reservedQuantity for instant warehouse row update
+      patchAllocationReservedCaches(
+        queryClient,
+        (data.items ?? []).map((i) => ({
+          productId: i.productId ?? "",
+          quantity: i.quantity,
+          warehouseId: i.warehouseId ?? null,
+        })),
+        1,
       );
       invalidateAfterOrderGraphChange(queryClient);
 
@@ -266,17 +277,23 @@ export function useUpdateOrder() {
               : new Date(statusPatch.updatedAt).toISOString(),
       });
       // REQ-0221 — fulfill/release reserved densify on status/payment transition
-      patchProductCommittedCaches(
-        queryClient,
-        resolveOrderCommittedDeltas(prevCached, {
-          status: data.status,
-          paymentStatus: data.paymentStatus,
-          items: (prevCached?.items ?? data.items)?.map((i) => ({
-            productId: i.productId,
-            quantity: i.quantity,
-          })),
-        }),
-      );
+      const updateItems = (prevCached?.items ?? data.items ?? []).map((i) => ({
+        productId: i.productId ?? "",
+        quantity: i.quantity,
+        warehouseId: i.warehouseId ?? null,
+      }));
+      const updateDeltas = resolveOrderCommittedDeltas(prevCached, {
+        status: data.status,
+        paymentStatus: data.paymentStatus,
+        items: updateItems,
+      });
+      patchProductCommittedCaches(queryClient, updateDeltas);
+      // REQ-0225 — patch allocation reservedQuantity when reservation is released/acquired
+      if (updateDeltas.some((d) => d.reservedDelta < 0)) {
+        patchAllocationReservedCaches(queryClient, updateItems, -1);
+      } else if (updateDeltas.some((d) => d.reservedDelta > 0)) {
+        patchAllocationReservedCaches(queryClient, updateItems, 1);
+      }
       invalidateAfterOrderGraphChange(queryClient);
 
       // Show success toast
@@ -360,17 +377,21 @@ export function useDeleteOrder() {
         invoiceForOrder: data.invoiceForOrder ?? null,
       });
       // REQ-0221 — release pending reservation densify
+      const cancelItems = (prevCached?.items ?? data.items ?? []).map((i) => ({
+        productId: i.productId ?? "",
+        quantity: i.quantity,
+        warehouseId: i.warehouseId ?? null,
+      }));
       patchProductCommittedCaches(
         queryClient,
         resolveOrderCommittedDeltas(prevCached, {
           status: data.status,
           paymentStatus: data.paymentStatus,
-          items: (prevCached?.items ?? data.items)?.map((i) => ({
-            productId: i.productId,
-            quantity: i.quantity,
-          })),
+          items: cancelItems,
         }),
       );
+      // REQ-0225 — release allocation reservedQuantity immediately on cancel
+      patchAllocationReservedCaches(queryClient, cancelItems, -1);
       cancelOrRemoveDetailQuery(queryClient, queryKeys.orders.detail(data.id));
       invalidateAfterOrderGraphChange(queryClient);
 

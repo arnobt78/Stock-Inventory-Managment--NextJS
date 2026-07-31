@@ -625,3 +625,15 @@
 | ART-0224e | REQ-0224 | WarehouseStockSummary.warehouseType + BI breakdown | type + metric hues |
 | ART-0224f | REQ-0224 | portal overview v5 / catalog v3 cache keys | payload shape bump |
 | TC-0224 | REQ-0224 | lint + tsc + warehouse rollup + invalidate 222 | PASS |
+
+| ART-0225a | REQ-0225 | `patchAllocationReservedCaches` in patch-mutation-cache.ts | 2-phase reserved+committed instant patch |
+| ART-0225b | REQ-0225 | `patchStockCachesAfterCatalogShrink` → `patchWarehouseStockSummaryCaches` | stock share % instant on qty reduce |
+| ART-0225c | REQ-0225 | `patchCommittedAfterOrderMoneySettle` → `patchAllocationReservedCaches(−1)` | fulfill releases reserved instantly |
+| ART-0225d | REQ-0225 | useCreateOrder / useUpdateOrder / useDeleteOrder | patchAllocationReservedCaches integration |
+| ART-0225e | REQ-0225 | OrderTableColumns + InvoiceTableColumns key=`${productId}-${i}` | no React duplicate key |
+| ART-0225f | REQ-0225 | ProductOwnerSelect trigger image+name+email | owner select densify |
+| ART-0225g | REQ-0225 | DenseCatalogProductCell client catalog text-xs+SKU copy | catalog cell densify |
+| ART-0225h | REQ-0225 | semantic-date-styles: unified gray-500 icon tokens | date icon parity |
+| ART-0225i | REQ-0225 | lib/catalog/merge-catalog-mutation-densify.ts | densify merge helper + tests |
+| ART-0225j | REQ-0225 | OrderCommittedSnapshot.items warehouseId added | warehouse-specific patching |
+| TC-0225 | REQ-0225 | build ✓ lint ✓ tsc ✓ tests 785 ✓ | PASS |

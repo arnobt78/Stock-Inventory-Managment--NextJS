@@ -59,7 +59,7 @@ function isPlainObject(value: unknown): value is Record<string, unknown> {
  * Catalog: insights / stats / committed / list share counts (soft-nav heal).
  */
 const DENSIFY_KEY_RE =
-  /(Email|Image|ImageUrl|UserId|Name)$|^(role|overview|orderProductOwners|invoiceForOrder|stripePaymentIntentId|creator|updater|items|productInsights|categoryInsights|supplierInsights|statistics|committedQuantity|recentOrders|productCount|catalogProductTotal)$|^relatedProduct|^placedBy|^assignedTo|^reviewer|^productOwner|^supplierImage|^linkedOrder/;
+  /(Email|Image|ImageUrl|UserId|Name)$|^(role|overview|orderProductOwners|invoiceForOrder|stripePaymentIntentId|creator|updater|supplier|category|items|productInsights|categoryInsights|supplierInsights|statistics|committedQuantity|recentOrders|productCount|catalogProductTotal)$|^relatedProduct|^placedBy|^assignedTo|^reviewer|^productOwner|^supplierImage|^linkedOrder/;
 
 function densifyValuePresent(value: unknown): boolean {
   if (value == null) return false;
@@ -85,6 +85,10 @@ export function serverHasRicherDensify(
     if (!densifyValuePresent(cachedVal)) {
       return true;
     }
+    // Thin list/create string (e.g. supplier: "Name") vs SSR object densify
+    if (typeof cachedVal === "string" && isPlainObject(serverVal)) {
+      return true;
+    }
   }
   return false;
 }
@@ -100,6 +104,42 @@ function rowStatusBadgeFingerprint(row: unknown): string | null {
     String(row.statusAt ?? ""),
     String(row.linkedOrderStatusAt ?? ""),
   ].join("|");
+}
+
+/**
+ * REQ-0225 — SSR allocation qty sum strictly below cache for shared row ids.
+ * Proves DB/reconcile already shrunk while TanStack still holds pre-shrink qty
+ * (common when byWarehouse was never patched / invalidate→refetch paints old first).
+ * Inverse (SSR higher) means client patch is fresher — must keep cache.
+ */
+export function listHasLowerAllocationQuantities(
+  serverData: unknown,
+  cached: unknown,
+): boolean {
+  if (!Array.isArray(serverData) || !Array.isArray(cached)) return false;
+  if (serverData.length === 0 || cached.length === 0) return false;
+  const cachedQty = new Map<string, number>();
+  for (const row of cached) {
+    if (!isPlainObject(row) || typeof row.id !== "string") continue;
+    if (!("quantity" in row)) return false;
+    cachedQty.set(row.id, Math.max(0, Number(row.quantity ?? 0)));
+  }
+  if (cachedQty.size === 0) return false;
+  let compared = false;
+  let serverLower = false;
+  let serverHigher = false;
+  for (const row of serverData) {
+    if (!isPlainObject(row) || typeof row.id !== "string") continue;
+    if (!("quantity" in row)) continue;
+    const prev = cachedQty.get(row.id);
+    if (prev == null) continue;
+    compared = true;
+    const next = Math.max(0, Number(row.quantity ?? 0));
+    if (next < prev) serverLower = true;
+    if (next > prev) serverHigher = true;
+  }
+  // Only trust SSR when it is a pure shrink vs cache (never when any row grew).
+  return compared && serverLower && !serverHigher;
 }
 
 /**
@@ -148,8 +188,24 @@ export function resolveSsrSyncAction<T>(
   state: SsrQueryStateHint | undefined,
 ): SsrSyncAction {
   // After CRUD invalidate, keep patched badges; let refetch settle from API/Redis.
-  // Applying RSC here reintroduced stale status/payment on production soft-nav.
+  // Applying full RSC here reintroduced stale status/payment on production soft-nav.
+  // REQ-0225 — when SSR has densify the thin mutation cache lacks (creator/supplier object),
+  // gap-fill immediately then refetch (avoids late audit/supplier remount on detail soft-nav).
   if (state?.isInvalidated || state?.fetchStatus === "fetching") {
+    if (
+      cached !== undefined &&
+      serverHasRicherDensify(serverData, cached)
+    ) {
+      return "applyDensifyOnly";
+    }
+    // REQ-0225 — stock shrink: apply lower SSR qty immediately (avoids 40→10 flash),
+    // then caller still refetches while invalidated to settle densify/meta.
+    if (
+      cached !== undefined &&
+      listHasLowerAllocationQuantities(serverData, cached)
+    ) {
+      return "apply";
+    }
     return "refetch";
   }
   if (
@@ -276,7 +332,13 @@ export function mergeDensifyOnly<T>(serverData: T, cached: T): T {
     if (!DENSIFY_KEY_RE.test(key)) continue;
     const serverVal = serverData[key];
     if (!densifyValuePresent(serverVal)) continue;
-    if (!densifyValuePresent(next[key])) {
+    const cachedVal = next[key];
+    if (!densifyValuePresent(cachedVal)) {
+      next[key] = serverVal;
+      continue;
+    }
+    // Upgrade thin string placeholders (create/PUT) when SSR has object densify
+    if (typeof cachedVal === "string" && isPlainObject(serverVal)) {
       next[key] = serverVal;
     }
   }

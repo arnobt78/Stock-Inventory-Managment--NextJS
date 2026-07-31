@@ -58,6 +58,10 @@ export function statusAtSemanticKind(
   if (st === "delivered") return "delivered";
   if (st === "shipped") return "shipped";
   if (ps === "paid" || ps === "partial" || st === "paid") return "paid";
+  // pending / confirmed / processing — created hue (matches Invoice # created icon)
+  if (st === "pending" || st === "confirmed" || st === "processing") {
+    return "created";
+  }
   return "updated";
 }
 

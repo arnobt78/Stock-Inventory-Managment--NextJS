@@ -21,6 +21,9 @@ export interface Product {
   reservedQuantity?: number; // Product-level pending reservation (no warehouse pick)
   /** REQ-0103 — display-only; sum of disjoint reservation paths for list badges */
   committedQuantity?: number;
+  /** REQ-0225 — optional list/detail densify for dialog allocation hints */
+  allocatedTotal?: number;
+  unallocated?: number;
   status?: ProductStatus;
   createdAt: Date;
   updatedAt?: Date | null;

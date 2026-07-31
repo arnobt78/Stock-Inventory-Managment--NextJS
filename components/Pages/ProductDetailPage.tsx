@@ -232,19 +232,23 @@ export default function ProductDetailPage({
     () => sumAllocatedQuantity(warehouseAllocations),
     [warehouseAllocations],
   );
-  // REQ-0105 — shared display helper; warehouse fallback when TanStack lags stock hook
+  // REQ-0105 / REQ-0225 — when stock rows are loaded, derive committed from
+  // allocations (instant after reserve); product.committedQuantity alone can lag.
   const displayCommitted = useMemo(() => {
-    if (product?.committedQuantity != null) {
-      return getDisplayCommittedQuantity(product);
-    }
     const allocationReservedSum = warehouseAllocations.reduce(
       (sum, row) => sum + row.reservedQuantity,
       0,
     );
-    return computeCommittedQuantity(
-      product?.reservedQuantity ?? 0,
-      allocationReservedSum,
-    );
+    if (warehouseAllocations.length > 0) {
+      return computeCommittedQuantity(
+        product?.reservedQuantity ?? 0,
+        allocationReservedSum,
+      );
+    }
+    if (product?.committedQuantity != null) {
+      return getDisplayCommittedQuantity(product);
+    }
+    return computeCommittedQuantity(product?.reservedQuantity ?? 0, 0);
   }, [product, warehouseAllocations]);
   const catalogAvailableQty = useMemo(() => {
     if (catalogQuantity == null) return undefined;

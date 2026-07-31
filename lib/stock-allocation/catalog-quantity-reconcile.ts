@@ -10,6 +10,8 @@ export type CatalogReconcileAllocationRow = {
   id: string;
   quantity: number;
   reservedQuantity: number;
+  /** Carried onto shrink steps for TanStack stock cache patch */
+  warehouseId?: string;
 };
 
 export type CatalogQuantityReconcileInput = {

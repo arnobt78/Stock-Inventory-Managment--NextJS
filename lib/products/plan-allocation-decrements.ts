@@ -7,11 +7,14 @@ export type AllocationRow = {
   id: string;
   quantity: number;
   reservedQuantity: number;
+  /** Optional — carried onto shrink steps for client cache patch (REQ-0225) */
+  warehouseId?: string;
 };
 
 export type AllocationDecrementStep = {
   id: string;
   deduct: number;
+  warehouseId?: string;
 };
 
 /** Greedy decrement plan (largest available allocation first). */
@@ -37,7 +40,11 @@ export function planAllocationDecrements(
     if (available <= 0) continue;
 
     const deduct = Math.min(available, remaining);
-    steps.push({ id: row.id, deduct });
+    steps.push({
+      id: row.id,
+      deduct,
+      ...(row.warehouseId ? { warehouseId: row.warehouseId } : {}),
+    });
     remaining -= deduct;
   }
 

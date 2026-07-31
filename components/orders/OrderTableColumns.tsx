@@ -48,7 +48,7 @@ import {
 } from "@/lib/ui/order-invoice-column-tooltips";
 import { cn } from "@/lib/utils";
 
-const META_MUTED = "text-xs text-gray-500 dark:text-gray-300";
+const META_MUTED = "text-xs text-gray-600 dark:text-gray-300";
 
 /** REQ-0145 — items / units / created with icons; date matches muted meta color */
 function OrderCompactMeta({ order }: { order: Order }) {
@@ -236,7 +236,7 @@ export const createOrderColumns = (
                 />
                 {productLinks.map((p, i) => (
                   <span
-                    key={p.productId}
+                    key={`${p.productId}-${i}`}
                     className="inline-flex items-center gap-1 min-w-0"
                   >
                     {i > 0 ? (

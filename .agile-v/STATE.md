@@ -5,10 +5,10 @@
 | **Cycle** | C2 (C1 Gate 2 still PENDING) |
 | **Phase** | Stage 3 Orchestrate — Gate 2 watch |
 | **Stopped** | — |
-| **Session** | 2026-07-31 — REQ-0224 densify parity done |
+| **Session** | 2026-07-31 — REQ-0225 instant reserved/committed densify + duplicate key fix |
 | **Active REQ** | — (next: Gate 2 / REQ-0009) |
-| **Done range** | … + **0222** + **0223** + **0224** |
-| **Local tip** | `a3ce87e` |
+| **Done range** | … + **0222** + **0223** + **0224** + **0225** |
+| **Local tip** | pending commit |
 | **Human Gate 1** | APPROVED |
 | **Human Gate 2** | PENDING — Sentry 24h after Ready |
 | **Resume token** | `gate2-sentry-24h` |

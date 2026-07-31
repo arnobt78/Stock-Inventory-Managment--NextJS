@@ -48,23 +48,23 @@ npx tsx scripts/lib/seed-demo-catalog.ts
 | Description | `Over-ear and on-ear headphones for demo browsing` |
 | Notes       | `Primary category for audio SKUs`                  |
 
-### Category B — Accessories
-
-| Field       | Value                                       |
-| ----------- | ------------------------------------------- |
-| Name        | `Accessories`                               |
-| Status      | Active                                      |
-| Description | `Cables, cases, and add-ons`                |
-| Notes       | `Use to test inactive filter on list pages` |
-
-### Category C — TV (inactive test)
+### Category B — TV
 
 | Field       | Value                       |
 | ----------- | --------------------------- |
 | Name        | `TV`                        |
-| Status      | **Inactive**                |
+| Status      | Active                      |
 | Description | `TVs and other electronics` |
 | Notes       | `Secondary demo category`   |
+
+### Category C — Accessories (inactive test)
+
+| Field       | Value                                       |
+| ----------- | ------------------------------------------- |
+| Name        | `Accessories`                               |
+| Status      | **Inactive**                                |
+| Description | `Cables, cases, and add-ons`                |
+| Notes       | `Use to test inactive filter on list pages` |
 
 ---
 

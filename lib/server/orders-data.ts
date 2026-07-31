@@ -101,6 +101,8 @@ function orderStatusAtForListRow(
     deliveredAt?: string | null;
     cancelledAt?: string | null;
     updatedAt?: string | null;
+    /** Fallback when statusAt event stamps missing (pending first paint) */
+    createdAt?: string | null;
   },
   invoiceLink: InvoiceLinkForOrder,
 ): string | undefined {
@@ -112,6 +114,7 @@ function orderStatusAtForListRow(
       deliveredAt: order.deliveredAt,
       cancelledAt: order.cancelledAt,
       updatedAt: order.updatedAt,
+      createdAt: order.createdAt,
     },
     invoiceLink,
   );

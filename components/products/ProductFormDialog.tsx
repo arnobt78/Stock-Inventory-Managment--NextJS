@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -151,7 +151,9 @@ export default function AddProductDialog({
   const { data: productAllocations = [] } = useStockByProduct(
     selectedProduct?.id ?? "",
     undefined,
-    { enabled: openProductDialog && !!selectedProduct },
+    // Warm as soon as edit target is set (not only while dialog open) — avoids
+    // Catalog · Allocated hint flashing in after the first stock fetch.
+    { enabled: !!selectedProduct?.id },
   );
 
   useSyncDialogOpenState(
@@ -315,10 +317,28 @@ export default function AddProductDialog({
   const isSubmitting =
     createProductMutation.isPending || updateProductMutation.isPending;
 
+  /** REQ-0225 — densify fallback when stock query has not settled yet */
+  const allocationsForPreview = useMemo(() => {
+    if (productAllocations.length > 0) return productAllocations;
+    if (!selectedProduct) return [];
+    if (selectedProduct.allocatedTotal == null) return [];
+    return [
+      {
+        id: "__densify__",
+        quantity: selectedProduct.allocatedTotal,
+        reservedQuantity: Number(
+          selectedProduct.committedQuantity ??
+            selectedProduct.reservedQuantity ??
+            0,
+        ),
+      },
+    ];
+  }, [productAllocations, selectedProduct]);
+
   const formValues = watch();
   const reconcilePreview = useCatalogQuantityReconcilePreview({
     selectedProduct,
-    allocations: productAllocations,
+    allocations: allocationsForPreview,
     quantityRaw: formValues.quantity,
   });
   const isFormValid = productFormSubmitSchema.safeParse({
@@ -377,7 +397,7 @@ export default function AddProductDialog({
               <Price />
               <ExpirationDateField />
               <ImageField />
-              {selectedProduct && productAllocations.length > 0 ? (
+              {selectedProduct && allocationsForPreview.length > 0 ? (
                 <div className={DIALOG_FORM_FEEDBACK_ROW}>
                   <p className={DIALOG_FORM_HINT_TEXT}>
                     {formatCatalogAllocationSummary(

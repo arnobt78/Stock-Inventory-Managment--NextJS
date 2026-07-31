@@ -4,6 +4,35 @@ Canonical REQ source. All artifacts link via `REQ-XXXX`. Status: `done` | `verif
 
 ---
 
+## REQ-0225 — Instant reserved/committed densify + duplicate key fix
+
+| Field | Value |
+|-------|-------|
+| **Priority** | P1 |
+| **Risk** | R1 |
+| **Status** | done |
+| **Cycle** | C2 |
+| **Parent** | REQ-0221, REQ-0218, REQ-0102, REQ-0224 |
+
+**Intent:** Eliminate all intermediate flashes and late-paint of `reservedQuantity` / `committedQuantity` / warehouse stock-share on order create/update/cancel/pay. Fix React duplicate-key console error when same product appears via two warehouses in orders/invoices table.
+
+**Acceptance criteria**
+
+- AC1: Order create → warehouse allocation rows show correct `reservedQuantity` + `committedQuantity` immediately; no 5→6 flash
+- AC2: Order cancel → reserved quantities removed immediately; no delayed hide
+- AC3: Order pay/confirm → allocation rows show 0 reserved immediately via `patchAllocationReservedCaches`
+- AC4: Product qty reduce → warehouse list "Stock share %" updates immediately via `patchWarehouseStockSummaryCaches` at end of `patchStockCachesAfterCatalogShrink`
+- AC5: Same product in multiple warehouses on one order → no React duplicate `key` error in OrderTableColumns / InvoiceTableColumns
+- AC6: Owner select trigger shows image + name + email; dropdown matches trigger style
+- AC7: Client catalog product name `text-xs` + SKU below with clipboard copy
+- AC8: Order status date badge: no flash of stale date on create; stable render
+- AC9: Invoice/Order table date icon semantic gray tokens consistent (`gray-500` everywhere)
+- AC10: lint + tsc + build + test:invalidate PASS
+
+**Artifacts:** `lib/react-query/patch-mutation-cache.ts`, `lib/react-query/index.ts`, `hooks/queries/use-orders.ts`, `components/orders/OrderTableColumns.tsx`, `components/invoices/InvoiceTableColumns.tsx`, `components/products/ProductOwnerSelect.tsx`, `components/shared/DenseCatalogProductCell.tsx`, `hooks/use-sync-ssr-query-data.ts`, `hooks/queries/use-products.ts`, `hooks/queries/use-stock-allocation.ts`, `hooks/queries/use-suppliers.ts`, `hooks/queries/use-warehouses.ts`, `hooks/queries/use-categories.ts`, `components/Pages/WarehouseDetailPage.tsx`, `components/Pages/ClientPortalPage.tsx`, `components/Pages/ProductDetailPage.tsx`, `components/Pages/CategoryDetailPage.tsx`, `components/orders/OrderTableInvoiceCell.tsx`, `components/warehouses/AllocateStockDialog.tsx`, `components/warehouses/WarehouseStockAllocationRow.tsx`, `lib/orders/order-status-display-date.ts`, `lib/products/plan-allocation-decrements.ts`, `lib/stock-allocation/catalog-quantity-reconcile.ts`, `lib/ui/semantic-date-styles.ts`, `app/api/products/route.ts`, `types/product.ts`, `lib/catalog/merge-catalog-mutation-densify.ts`, `lib/catalog/merge-catalog-mutation-densify.test.ts`
+
+---
+
 ## REQ-0224 — Densify parity (portals / invoice Order # / BI cards)
 
 | Field | Value |

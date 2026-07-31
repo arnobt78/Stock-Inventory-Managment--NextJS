@@ -86,10 +86,11 @@ export default function AllocateStockDialog({
   const activeProductId = isEditMode
     ? (editAllocation?.productId ?? "")
     : productId;
+  // Warm stock as soon as product known (edit opens with densify already on row)
   const { data: productAllocations = [] } = useStockByProduct(
     activeProductId,
     undefined,
-    { enabled: open && !!activeProductId },
+    { enabled: !!activeProductId },
   );
   const createMutation = useCreateStockAllocation();
   const updateMutation = useUpdateStockAllocation();
@@ -98,6 +99,12 @@ export default function AllocateStockDialog({
     () => products.find((p) => p.id === activeProductId),
     [products, activeProductId],
   );
+
+  // REQ-0225 — instant hint from edit row densify before byProduct fetch settles
+  const catalogTotal =
+    selectedProduct?.quantity ?? editAllocation?.product?.quantity;
+  const densifyAllocated = editAllocation?.product?.allocatedTotal;
+  const densifyUnallocated = editAllocation?.product?.unallocated;
 
   const allocationRows = useMemo(
     () =>
@@ -114,21 +121,45 @@ export default function AllocateStockDialog({
       : 0;
 
   const allocationBounds = useMemo(() => {
-    if (!selectedProduct) return null;
+    const catalogQty = catalogTotal;
+    if (catalogQty == null) return null;
+    if (allocationRows.length === 0 && densifyAllocated != null) {
+      return getAllocationQtyBounds({
+        catalogQty,
+        allocations: [
+          {
+            warehouseId,
+            quantity: Number(editAllocation?.quantity ?? densifyAllocated),
+          },
+        ],
+        targetWarehouseId: warehouseId,
+        newAbsoluteQty: 0,
+        rowReserved,
+      });
+    }
     return getAllocationQtyBounds({
-      catalogQty: selectedProduct.quantity,
+      catalogQty,
       allocations: allocationRows,
       targetWarehouseId: warehouseId,
       newAbsoluteQty: 0,
       rowReserved,
     });
-  }, [allocationRows, rowReserved, selectedProduct, warehouseId]);
+  }, [
+    allocationRows,
+    catalogTotal,
+    densifyAllocated,
+    editAllocation?.quantity,
+    rowReserved,
+    warehouseId,
+  ]);
 
   const maxProductStock = allocationBounds?.maxQty ?? 0;
-  const allocatedTotal = allocationRows.reduce(
-    (sum, row) => sum + row.quantity,
-    0,
-  );
+  const allocatedTotal =
+    allocationRows.length > 0
+      ? allocationRows.reduce((sum, row) => sum + row.quantity, 0)
+      : Number(densifyAllocated ?? 0);
+  const unallocatedRemaining =
+    allocationBounds?.unallocated ?? densifyUnallocated;
   const qtyValidation = getStockQuantityValidation(
     quantity,
     maxProductStock,
@@ -319,9 +350,9 @@ export default function AllocateStockDialog({
                   value={quantity}
                   onChange={setQuantity}
                   maxAvailable={maxProductStock}
-                  catalogTotal={selectedProduct?.quantity}
+                  catalogTotal={catalogTotal}
                   allocatedTotal={allocatedTotal}
-                  unallocatedRemaining={allocationBounds?.unallocated}
+                  unallocatedRemaining={unallocatedRemaining}
                   minReserved={rowReserved}
                   mode="allocate"
                   disabled={isPending || !activeProductId}

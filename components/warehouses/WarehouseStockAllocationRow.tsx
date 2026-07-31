@@ -71,7 +71,10 @@ export function WarehouseStockAllocationRow({
   const available = allocation.quantity - allocation.reservedQuantity;
   const name = product?.name ?? "Unknown Product";
   const isArchived = product?.isArchived === true;
-  const catalogCommitted = product?.committedQuantity ?? 0;
+  const catalogCommitted = Math.max(
+    product?.committedQuantity ?? 0,
+    Number(allocation.reservedQuantity ?? 0),
+  );
   const catalogOnlyCommit =
     catalogCommitted > Number(allocation.reservedQuantity ?? 0);
   const commitHint = catalogOnlyCommit
@@ -217,12 +220,11 @@ export function WarehouseStockAllocationRow({
                 <span className="text-emerald-600 dark:text-emerald-400">
                   {product!.unallocated} Unallocated
                 </span>
-                {product!.committedQuantity != null &&
-                product!.committedQuantity > 0 ? (
+                {catalogCommitted > 0 ? (
                   <>
                     <span className="text-gray-400 dark:text-white/80">·</span>
                     <span className="text-amber-600 dark:text-amber-400">
-                      {product!.committedQuantity} Reserved
+                      {catalogCommitted} Reserved
                     </span>
                   </>
                 ) : null}

@@ -40,11 +40,19 @@ function syncSsrSnapshot<T>(
     // Gap-fill only — never let a stale-but-differently-shaped SSR object win on
     // fields the resolver did not prove fresher (REQ-0136 Fix B).
     queryClient.setQueryData(queryKey, mergeDensifyOnly(serverData, cached as T));
+    // Still refetch while invalidated so Redis/API confirm; densify already painted.
+    if (state?.isInvalidated || state?.fetchStatus === "fetching") {
+      void queryClient.refetchQueries({ queryKey });
+    }
     return;
   }
   // apply — server proven fresher (or cache empty); merge keeps cached-only fields
   // that a thinner SSR/PUT response may omit instead of a blind full replace.
   queryClient.setQueryData(queryKey, mergeSsrIntoCache(serverData, cached));
+  // REQ-0225 — stock shrink apply while invalidated still needs API settle.
+  if (state?.isInvalidated || state?.fetchStatus === "fetching") {
+    void queryClient.refetchQueries({ queryKey });
+  }
 }
 
 /** Push one SSR snapshot into the query cache before paint (avoids stale flash). */

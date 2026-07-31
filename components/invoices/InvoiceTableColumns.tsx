@@ -27,7 +27,6 @@ import { IoMdArrowDown, IoMdArrowUp } from "react-icons/io";
 import Link from "next/link";
 import {
   CopyableText,
-  ClientDate,
   HelpTooltip,
   SemanticEventDate,
   PaymentMoneyBreakdown,
@@ -49,7 +48,7 @@ import {
 } from "@/lib/ui/order-invoice-column-tooltips";
 import { cn } from "@/lib/utils";
 
-const META_MUTED = "text-xs text-gray-500 dark:text-gray-300";
+const META_MUTED = "text-xs text-gray-600 dark:text-gray-300";
 
 type SortableHeaderProps = {
   column: Column<Invoice, unknown>;
@@ -271,7 +270,11 @@ export const createInvoiceColumns = (
               {orderCreatedAt ? (
                 <>
                   <span aria-hidden className={META_MUTED}>·</span>
-                  <ClientDate date={orderCreatedAt} semantic="created" />
+                  <SemanticEventDate
+                    date={orderCreatedAt}
+                    kind="created"
+                    mode="date"
+                  />
                 </>
               ) : null}
             </div>
@@ -322,7 +325,7 @@ export const createInvoiceColumns = (
                 />
                 {productLinks.map((p, i) => (
                   <span
-                    key={p.productId}
+                    key={`${p.productId}-${i}`}
                     className="inline-flex items-center gap-1 min-w-0"
                   >
                     {i > 0 ? (

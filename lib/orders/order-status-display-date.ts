@@ -10,6 +10,8 @@ export type OrderStatusDateInput = {
   deliveredAt?: Date | string | null;
   shippedAt?: Date | string | null;
   updatedAt?: Date | string | null;
+  /** REQ-0225 — pending create often has null updatedAt; fall back for list Status date */
+  createdAt?: Date | string | null;
 };
 
 export type OrderStatusAtSource = OrderStatusDateInput & {
@@ -37,6 +39,7 @@ export function resolveOrderStatusAtFromSource(
     deliveredAt: source.deliveredAt,
     shippedAt: source.shippedAt,
     updatedAt: source.updatedAt,
+    createdAt: source.createdAt,
     paidAt: resolvePaidAt(source, invoiceLink),
   });
 }
@@ -80,7 +83,7 @@ export function resolveOrderStatusAt(
   }
 
   // pending / confirmed / processing / unknown — list Status column needs a date
-  return updatedAt;
+  return updatedAt ?? toIso(order.createdAt);
 }
 
 /** Attach computed statusAt ISO string for recent-order list rows. Strips nested invoice. */

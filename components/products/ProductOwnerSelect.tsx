@@ -40,10 +40,13 @@ type ProductOwnerSelectProps = {
   triggerClassName?: string;
 };
 
-/** REQ-0081 — stacked name + email; avatar aligns to dynamic row height. */
+/**
+ * REQ-0081 / REQ-0225 — fixed circle avatar (no stretch with name/email height).
+ * Trigger + dropdown both show name + muted email (avatar size locked).
+ */
 function OwnerPickerRow({
   owner,
-  avatarSize = 32,
+  avatarSize = 28,
   showEmail = true,
 }: {
   owner: ProductOwnerOption;
@@ -52,13 +55,13 @@ function OwnerPickerRow({
 }) {
   const avatar = resolveAvatarSourcesFromSeed(owner.id, owner.image);
   return (
-    <span className="flex min-w-0 flex-1 items-stretch gap-2 text-left">
+    <span className="flex min-w-0 flex-1 items-center gap-2 text-left">
       <span
         className={cn(
-          "relative shrink-0 self-stretch aspect-square overflow-hidden rounded-full",
+          "relative shrink-0 overflow-hidden rounded-full",
           AVATAR_RING_CLASS,
         )}
-        style={{ width: avatarSize, minHeight: avatarSize }}
+        style={{ width: avatarSize, height: avatarSize }}
       >
         <SafeAvatarImage
           src={avatar.src}
@@ -66,10 +69,10 @@ function OwnerPickerRow({
           alt=""
           width={avatarSize}
           height={avatarSize}
-          className="absolute inset-0 h-full w-full object-cover"
+          className="h-full w-full object-cover"
         />
       </span>
-      <span className="flex min-w-0 flex-1 flex-col justify-center  py-0.5">
+      <span className="flex min-w-0 flex-1 flex-col justify-center leading-tight">
         <span className="truncate text-sm text-gray-700 dark:text-white">
           {owner.name}
         </span>
@@ -114,7 +117,8 @@ export function ProductOwnerSelect({
         <Button
           variant="outline"
           className={cn(
-            "h-auto min-h-10 w-full gap-2 py-2 sm:w-auto",
+            // min-h-10 — name+email stack; avatar stays fixed circle (no stretch)
+            "h-auto min-h-10 w-full gap-2 px-3 py-1.5 sm:w-auto",
             triggerClassName,
           )}
         >
@@ -151,7 +155,7 @@ export function ProductOwnerSelect({
                   onSelect={() => handleSelect(owner.id)}
                   className={READABLE_POPOVER_ITEM_CLASS}
                 >
-                  <OwnerPickerRow owner={owner} avatarSize={32} />
+                  <OwnerPickerRow owner={owner} avatarSize={28} />
                 </CommandItem>
               ))}
             </CommandGroup>

@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   listHasFresherStatusBadges,
+  listHasLowerAllocationQuantities,
   mergeDensifyOnly,
   mergeSsrIntoCache,
   resolveSsrSyncAction,
@@ -56,8 +57,9 @@ describe("resolveSsrSyncAction", () => {
     ).toBe("refetch");
   });
 
-  // REQ-0136 — never apply SSR while invalidated/fetching (prod badge revert)
-  it("refetches richer SSR densify while fetching instead of apply", () => {
+  // REQ-0136 — never apply full SSR while invalidated/fetching (prod badge revert).
+  // REQ-0225 — densify-only gap-fill is safe (status/qty untouched) when SSR richer.
+  it("applies densify-only for richer SSR while invalidated/fetching", () => {
     expect(
       resolveSsrSyncAction(
         {
@@ -70,7 +72,60 @@ describe("resolveSsrSyncAction", () => {
         { id: "1", orderNumber: "ORD-1" },
         { fetchStatus: "fetching", isInvalidated: true },
       ),
+    ).toBe("applyDensifyOnly");
+  });
+
+  it("refetches when invalidated with densify parity (no richer SSR)", () => {
+    expect(
+      resolveSsrSyncAction(
+        { id: "1", creator: { id: "u1", email: "a@b.com" } },
+        { id: "1", creator: { id: "u1", email: "a@b.com" } },
+        { isInvalidated: true },
+      ),
     ).toBe("refetch");
+  });
+
+  // REQ-0225 — warehouse stock flash: apply lower SSR qty while invalidated
+  it("applies when invalidated and SSR allocation qty is lower than cache", () => {
+    expect(
+      resolveSsrSyncAction(
+        [{ id: "a1", quantity: 10, productId: "p1", warehouseId: "w1" }],
+        [{ id: "a1", quantity: 40, productId: "p1", warehouseId: "w1" }],
+        { isInvalidated: true },
+      ),
+    ).toBe("apply");
+  });
+
+  it("refetches when invalidated and SSR allocation qty is higher (keep patch)", () => {
+    expect(
+      resolveSsrSyncAction(
+        [{ id: "a1", quantity: 40, productId: "p1", warehouseId: "w1" }],
+        [{ id: "a1", quantity: 10, productId: "p1", warehouseId: "w1" }],
+        { isInvalidated: true },
+      ),
+    ).toBe("refetch");
+  });
+
+  it("detects string supplier as thinner than SSR object densify", () => {
+    expect(
+      serverHasRicherDensify(
+        { id: "1", supplier: { id: "s1", name: "Sup", email: "s@x.com" } },
+        { id: "1", supplier: "Sup" },
+      ),
+    ).toBe(true);
+  });
+
+  it("mergeDensifyOnly upgrades string supplier to object", () => {
+    const merged = mergeDensifyOnly(
+      { id: "1", supplier: { id: "s1", name: "Sup", email: "s@x.com" }, quantity: 10 },
+      { id: "1", supplier: "Sup", quantity: 10 },
+    );
+    expect(merged.supplier).toEqual({
+      id: "s1",
+      name: "Sup",
+      email: "s@x.com",
+    });
+    expect(merged.quantity).toBe(10);
   });
 
   it("skips when cached array is longer than SSR snapshot", () => {
@@ -360,5 +415,25 @@ describe("mergeDensifyOnly", () => {
         { id: "1", status: "paid", paymentStatus: "paid" },
       ),
     ).toEqual({ id: "1", status: "paid", paymentStatus: "paid" });
+  });
+});
+
+describe("listHasLowerAllocationQuantities", () => {
+  it("detects SSR shrink vs cache", () => {
+    expect(
+      listHasLowerAllocationQuantities(
+        [{ id: "a1", quantity: 10 }],
+        [{ id: "a1", quantity: 40 }],
+      ),
+    ).toBe(true);
+  });
+
+  it("rejects when SSR is higher (patched cache fresher)", () => {
+    expect(
+      listHasLowerAllocationQuantities(
+        [{ id: "a1", quantity: 40 }],
+        [{ id: "a1", quantity: 10 }],
+      ),
+    ).toBe(false);
   });
 });

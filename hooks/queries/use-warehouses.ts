@@ -15,6 +15,7 @@ import {
   patchListCaches,
   removeFromListCaches,
 } from "@/lib/react-query";
+import { mergeCatalogMutationIntoDetail } from "@/lib/catalog/merge-catalog-mutation-densify";
 import { useToast } from "@/hooks/use-toast";
 import type {
   Warehouse,
@@ -70,7 +71,7 @@ export function useCreateWarehouse() {
         patchDetailCacheMerge<Warehouse>(
           queryClient,
           queryKeys.warehouses.detail(newWarehouse.id),
-          (old) => (old ? { ...old, ...newWarehouse } : newWarehouse),
+          (old) => mergeCatalogMutationIntoDetail(old, newWarehouse),
         );
         patchListCaches(queryClient, queryKeys.warehouses.all, newWarehouse, {
           prependIfMissing: true,
@@ -111,8 +112,7 @@ export function useUpdateWarehouse() {
         patchDetailCacheMerge<Warehouse>(
           queryClient,
           queryKeys.warehouses.detail(updatedWarehouse.id),
-          (old) =>
-            old ? { ...old, ...updatedWarehouse } : updatedWarehouse,
+          (old) => mergeCatalogMutationIntoDetail(old, updatedWarehouse),
         );
         patchListCaches(queryClient, queryKeys.warehouses.all, updatedWarehouse);
       }
