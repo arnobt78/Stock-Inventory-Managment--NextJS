@@ -8,7 +8,7 @@
 | **Session** | 2026-07-31 — REQ-0224 densify parity done |
 | **Active REQ** | — (next: Gate 2 / REQ-0009) |
 | **Done range** | … + **0222** + **0223** + **0224** |
-| **Local tip** | pending commit |
+| **Local tip** | `a3ce87e` |
 | **Human Gate 1** | APPROVED |
 | **Human Gate 2** | PENDING — Sentry 24h after Ready |
 | **Resume token** | `gate2-sentry-24h` |
