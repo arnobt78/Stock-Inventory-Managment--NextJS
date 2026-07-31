@@ -36,8 +36,8 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // Check cache (key includes :v2 so updated "Completed = paid" logic gets fresh data after deploy)
-    const cacheKey = `portal:supplier:v2:${session.id}`;
+    // Check cache — v3 bust: densify recentOrders product/category/buyer meta (REQ-0224)
+    const cacheKey = `portal:supplier:v3:${session.id}`;
     const cacheReadStartedAt = Date.now();
     const cached = await getCache<SupplierPortalDashboard>(cacheKey);
     if (cached) {

@@ -44,6 +44,7 @@ export async function getClientCatalogOverview(
         categoryId: true,
         supplierId: true,
         userId: true,
+        imageUrl: true,
       },
     }),
     prisma.supplier.count(),
@@ -68,7 +69,7 @@ export async function getClientCatalogOverview(
       }),
       prisma.supplier.findMany({
         where: { id: { in: supplierIds } },
-        select: { id: true, name: true },
+        select: { id: true, name: true, userId: true },
       }),
       prisma.product.groupBy({
         by: ["supplierId"],
@@ -85,7 +86,7 @@ export async function getClientCatalogOverview(
     ]);
 
   const categoryMap = new Map(categoryList.map((c) => [c.id, c.name]));
-  const supplierMap = new Map(supplierList.map((s) => [s.id, s.name]));
+  const supplierMap = new Map(supplierList.map((s) => [s.id, s]));
   const userMap = new Map(
     users.map((u) => [u.id, { name: u.name, image: u.image }]),
   );
@@ -95,6 +96,17 @@ export async function getClientCatalogOverview(
   const productCountByCategory = new Map(
     categoryCounts.map((c) => [c.categoryId, c._count.id]),
   );
+
+  // REQ-0224 — resolve supplier user images for product rows
+  const supplierUserIds = [...new Set(supplierList.map((s) => s.userId).filter(Boolean))];
+  const supplierUserImageMap = new Map<string, string | null>();
+  if (supplierUserIds.length > 0) {
+    const sUsers = await prisma.user.findMany({
+      where: { id: { in: supplierUserIds } },
+      select: { id: true, image: true },
+    });
+    sUsers.forEach((u) => supplierUserImageMap.set(u.id, u.image));
+  }
 
   return {
     meta: {
@@ -118,6 +130,10 @@ export async function getClientCatalogOverview(
     })),
     products: products.map((p) => {
       const owner = userMap.get(p.userId);
+      const supplierEntry = supplierMap.get(p.supplierId);
+      const supplierImage = supplierEntry?.userId
+        ? (supplierUserImageMap.get(supplierEntry.userId) ?? null)
+        : null;
       return {
         id: p.id,
         name: p.name,
@@ -125,12 +141,14 @@ export async function getClientCatalogOverview(
         categoryId: p.categoryId,
         categoryName: categoryMap.get(p.categoryId) ?? "—",
         supplierId: p.supplierId,
-        supplierName: supplierMap.get(p.supplierId) ?? "—",
+        supplierName: supplierEntry?.name ?? "—",
         price: Number(p.price),
         status: p.status,
         productOwnerId: p.userId,
         productOwnerName: owner?.name ?? null,
         productOwnerImage: owner?.image ?? null,
+        imageUrl: p.imageUrl ?? null,
+        supplierImage,
       };
     }),
   };

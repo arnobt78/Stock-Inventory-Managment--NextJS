@@ -1,9 +1,27 @@
 # Validation Summary — Cycle C1
 
-**Generated:** 2026-07-31 (REQ-0223 UI polish)
+**Generated:** 2026-07-31 (REQ-0224 densify parity)
 **eval_gate_status:** PENDING (Human Gate 2)
 **Active:** Prod smoke after next deploy
-**Last ship:** datepicker / urgent densify / date flash / BI chart labels
+**Last ship:** portal/invoice/BI densify parity
+
+---
+
+## REQ-0224 — Densify parity (2026-07-31)
+
+| Check | Result |
+| ----- | ------ |
+| Portal SSR | recentOrders/lowStock densify fields; overview v5; catalog v3 |
+| Portal UI | Supplier/Client Store Overview parity; DenseCatalog low stock; catalog text-sm/xs |
+| Invoice Order # | ORD·created → badges → events → products → items·units |
+| BI forecast/alerts | DenseCatalog reorder + alerts; category Tag+sky+semantic |
+| Warehouse | warehouseType under name; qty/reserved/value hues + HelpTooltip |
+| Gates | lint ✓ tsc ✓ warehouse rollup 6 ✓ invalidate 222 ✓ |
+
+```
+Scope: built/verified | Traceability: REQ-0224 | Findings: PASS
+Commands: lint, tsc --noEmit, vitest business-insights-warehouse-rollup, test:invalidate
+```
 
 ---
 

@@ -395,8 +395,8 @@ export const cacheKeys = {
    * Admin Client Portal cache keys
    */
   clientPortal: {
-    /** REQ-0177 — v4: recent orders/invoices include productPreview catalog meta */
-    overview: "clientPortal:overview:v4",
+    /** REQ-0224 — v5: recentOrders product/supplier densify parity */
+    overview: "clientPortal:overview:v5",
     pattern: "clientPortal:*",
   },
 
@@ -404,8 +404,8 @@ export const cacheKeys = {
    * Admin Supplier Portal cache keys (per admin userId)
    */
   supplierPortal: {
-    // REQ-0178 — v4: recent orders include placedById/Name/Image
-    overview: (userId: string) => `supplierPortal:overview:v4:${userId}`,
+    // REQ-0224 — v5: recentOrders product/supplier densify parity
+    overview: (userId: string) => `supplierPortal:overview:v5:${userId}`,
     pattern: "supplierPortal:*",
   },
 

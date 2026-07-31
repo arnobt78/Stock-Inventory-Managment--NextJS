@@ -1,6 +1,6 @@
 # PROJECT_WALKTHROUGH.md
 
-Agent-oriented map of **stock-inventory** (Stockly). Last updated: 2026-07-31 (REQ-0223 UI polish).
+Agent-oriented map of **stock-inventory** (Stockly). Last updated: 2026-07-31 (REQ-0224 densify parity).
 
 ## 1. What this app is
 
@@ -180,6 +180,7 @@ Prevents `NotFoundError: removeChild` when App Router navigates between pages wh
 | Densify gateway (REQ-0221) | parties/audit/reserved/allocate enrich/insights no-pulse; patch → invalidate |
 | Payment settle densify (REQ-0222) | `patchCommittedAfterOrderMoneySettle` on Stripe return + invoice money; checkout create invalidate-only |
 | UI polish (REQ-0223) | single datepicker icon; urgent DenseCatalog; date densify-first; BI chart top margin |
+| Densify parity (REQ-0224) | portal recentOrders/lowStock SSR; invoice Order # restack; BI forecast/alerts/warehouse type |
 | Auth session toasts (REQ-0034) | `AuthSessionToasts` + `post-login-welcome.ts` / `post-logout-goodbye.ts`; `Toaster` before consumer in `app/layout.tsx`; welcome on `/` `/client` `/supplier`; goodbye on `/login` |
 | Auth OAuth welcome (REQ-0035) | `AuthSessionToasts` detects `oauth_success`; `refreshSession` + shared welcome copy; URL strip via `oauth-success-url.ts` |
 | App shell full bleed (REQ-0036) | `lib/ui/shell-layout-styles.ts` — `APP_SHELL_WIDTH_CLASS` / `APP_SHELL_DETAIL_CLASS`; Navbar/Footer + 11 lists + 6 details (legacy `SidebarLayout` removed REQ-0069); auth stays `max-w-7xl` in `AuthPageShell`; `9xl` token removed |
@@ -326,6 +327,7 @@ flowchart LR
 | Densify gateway (REQ-0221) | committed patch; create densify; audit densify-first; allocate enrich | Patch → invalidate |
 | Payment settle (REQ-0222) | settle helper on Stripe invoice/order return + invoice update | Checkout create unchanged |
 | UI polish (REQ-0223) | datepicker hub; urgent densify; date densify-first; BI chart margin | No invalidation change |
+| Densify parity (REQ-0224) | portal SSR+UI; invoice Order #; BI DenseCatalog; warehouseType | No invalidation change |
 | Supplier invoice KPIs (REQ-0205) | `/invoices` SSR portal + 4 StatisticsCards (OrderList parity) | Invalidation unchanged |
 | Portal SSR sync (REQ-0206) | `portal.*Dashboard(userId)`; list sync matches hooks (not admin keys) | Invalidation unchanged |
 | Sentry noise (REQ-0009) | Order stock warn+disable; warehouse cold-load pulse; tracesSampleRate 0 dev; notif DELETE 404 | Invalidation unchanged |

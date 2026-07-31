@@ -22,7 +22,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { ArrowUpDown, Boxes, Calendar, Package } from "lucide-react";
+import { ArrowUpDown, Boxes, Package } from "lucide-react";
 import { IoMdArrowDown, IoMdArrowUp } from "react-icons/io";
 import Link from "next/link";
 import {
@@ -257,7 +257,7 @@ export const createInvoiceColumns = (
 
         return (
           <div className="flex flex-col gap-0.5 min-w-0 max-w-[320px]">
-            {/* REQ-0151 — ORD-# · status · payment (+ dates) */}
+            {/* REQ-0224 — ORD-# · created date on row 1; badges on row 2 */}
             <div className="flex flex-wrap items-center gap-1.5 min-w-0">
               <CopyableText value={orderNumber}>
                 <Link
@@ -268,13 +268,23 @@ export const createInvoiceColumns = (
                   {orderNumber}
                 </Link>
               </CopyableText>
-              {orderStatus ? (
-                <OrderStatusBadge status={orderStatus} size="compact" />
-              ) : null}
-              {paymentStatus ? (
-                <PaymentStatusBadge status={paymentStatus} size="compact" />
+              {orderCreatedAt ? (
+                <>
+                  <span aria-hidden className={META_MUTED}>·</span>
+                  <ClientDate date={orderCreatedAt} semantic="created" />
+                </>
               ) : null}
             </div>
+            {(orderStatus || paymentStatus) ? (
+              <div className="flex flex-wrap items-center gap-1.5 min-w-0">
+                {orderStatus ? (
+                  <OrderStatusBadge status={orderStatus} size="compact" />
+                ) : null}
+                {paymentStatus ? (
+                  <PaymentStatusBadge status={paymentStatus} size="compact" />
+                ) : null}
+              </div>
+            ) : null}
             {(orderStatusAt || showPaymentEvent) && (
               <div className="flex flex-wrap items-center gap-1.5 min-w-0">
                 {orderStatusAt ? (
@@ -350,13 +360,6 @@ export const createInvoiceColumns = (
               <span>
                 {unitCount} unit{unitCount !== 1 ? "s" : ""}
               </span>
-              {orderCreatedAt ? (
-                <>
-                  <span aria-hidden>·</span>
-                  <Calendar className="h-3 w-3 shrink-0" aria-hidden />
-                  <ClientDate date={orderCreatedAt} semantic="created" />
-                </>
-              ) : null}
             </div>
           </div>
         );

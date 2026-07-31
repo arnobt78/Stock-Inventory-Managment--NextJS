@@ -172,7 +172,7 @@ All user-facing POST/PUT JSON bodies use `safeParse` + `logger.warn` on fail. Ne
 
 **Every session:** STATE → REQ map → skill 01+17 → Red Team → write-through DECISION/BUILD/VALIDATION.
 
-**C1 open:** Gate 2 PENDING (Sentry 24h). **Done:** REQ-0220…0223. **Next:** Vercel Ready → smoke → Sentry 24h (**REQ-0009**).
+**C1 open:** Gate 2 PENDING (Sentry 24h). **Done:** REQ-0220…0224. **Next:** Vercel Ready → smoke → Sentry 24h (**REQ-0009**).
 
 ## REQ-0136 cache / badges / hydration (2026-07-27)
 
@@ -1139,7 +1139,19 @@ Hub: `lib/ui/typography-scale.ts`. Hubs import tokens; ~45 inline files use equi
 
 **Invalidation unchanged** — review/product/dashboard CRUD already clears lists + portals.
 
-**Active wave:** **0223** UI polish done → **Gate 2** Sentry 24h (REQ-0009).
+**Active wave:** **0224** densify parity done → **Gate 2** Sentry 24h (REQ-0009).
+
+## Densify parity (REQ-0224)
+
+| Piece | Location |
+|-------|----------|
+| Portal SSR | `types/portal` + supplier/client dashboards; overview v5; catalog v3 |
+| Portal UI | Supplier/Client recent orders + low stock DenseCatalog; catalog text-sm/xs |
+| Invoice Order # | `InvoiceTableColumns` restack (no duplicate created) |
+| BI cards | `forecasting-card` reorder/category; Alerts DenseCatalog |
+| Warehouse | `warehouseType` on summary; type under name + metric hues |
+
+**No invalidation registry changes** — UI + read-path densify only.
 
 ## UI polish (REQ-0223)
 

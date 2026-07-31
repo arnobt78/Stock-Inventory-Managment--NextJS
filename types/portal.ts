@@ -90,6 +90,20 @@ export interface SupplierPortalDashboard {
     productCount: number;
     /** REQ-0128 — terminal status date for recent-order cards */
     statusAt?: string;
+    /** REQ-0224 — product densify (first line item preview) */
+    productId?: string | null;
+    productPreview?: string | null;
+    productImageUrl?: string | null;
+    categoryId?: string | null;
+    categoryName?: string | null;
+    supplierId?: string | null;
+    supplierName?: string | null;
+    supplierImage?: string | null;
+    /** REQ-0224 — buyer (placedBy*) for supplier portal recent orders */
+    placedById?: string | null;
+    placedByName?: string | null;
+    placedByEmail?: string | null;
+    placedByImage?: string | null;
   }>;
   lowStockProducts: Array<{
     id: string;
@@ -97,6 +111,13 @@ export interface SupplierPortalDashboard {
     sku: string;
     quantity: number;
     status: string;
+    /** REQ-0224 — product + catalog densify for low-stock rows */
+    imageUrl?: string | null;
+    categoryId?: string | null;
+    categoryName?: string | null;
+    supplierId?: string | null;
+    supplierName?: string | null;
+    supplierImage?: string | null;
   }>;
   monthlyRevenue: Array<{
     month: string;
@@ -168,6 +189,15 @@ export interface ClientPortalDashboard {
     itemCount: number;
     /** REQ-0128 — terminal status date for recent-order cards */
     statusAt?: string;
+    /** REQ-0224 — product densify (first line item preview) */
+    productId?: string | null;
+    productPreview?: string | null;
+    productImageUrl?: string | null;
+    categoryId?: string | null;
+    categoryName?: string | null;
+    supplierId?: string | null;
+    supplierName?: string | null;
+    supplierImage?: string | null;
   }>;
   recentInvoices: Array<{
     id: string;
@@ -220,6 +250,9 @@ export interface ClientCatalogOverview {
     productOwnerId: string;
     productOwnerName: string | null;
     productOwnerImage?: string | null;
+    /** REQ-0224 — product + supplier avatar densify for client catalog */
+    imageUrl?: string | null;
+    supplierImage?: string | null;
   }>;
 }
 

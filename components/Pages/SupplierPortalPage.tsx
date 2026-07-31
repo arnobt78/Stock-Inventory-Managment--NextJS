@@ -28,6 +28,8 @@ import {
   Clock,
   Truck,
   ArrowRight,
+  Tag,
+  Calendar,
 } from "lucide-react";
 import {
   Area,
@@ -51,10 +53,14 @@ import {
   GLASS_BUTTON_SHELL_RESET,
   ClientCompactDateTime,
   RecentOrderStatusColumn,
+  AvatarInlineLink,
+  DenseCatalogProductCell,
 } from "@/components/shared";
+import { ProductThumb } from "@/components/products/ProductOptionRow";
 import {
   CARD_LIST_DIVIDE_CLASS,
   CARD_LIST_META_CLASS,
+  CARD_LIST_META_ROW_CLASS,
   CARD_LIST_ROW_CLASS,
 } from "@/lib/ui/card-list-styles";
 import { ProductStockFromQuantityBadge } from "@/lib/ui/semantic-badges";
@@ -406,41 +412,125 @@ export default function SupplierPortalPage({
                     </p>
                   ) : (
                     <ul className={CARD_LIST_DIVIDE_CLASS}>
-                      {dashboard!.recentOrders.slice(0, 5).map((order) => (
-                        <li key={order.id} className={CARD_LIST_ROW_CLASS}>
-                          <div className="min-w-0">
-                            <CopyableText
-                              value={order.orderNumber}
-                              className="max-w-full"
-                            >
-                              <Link
-                                href={`/orders/${order.id}`}
-                                prefetch
-                                className="font-normal text-xs text-sky-600 dark:text-sky-400 hover:text-sky-500 dark:hover:text-sky-300 truncate block"
+                      {dashboard!.recentOrders.slice(0, 5).map((order) => {
+                        const productLabel = order.productPreview?.trim() || null;
+                        const buyerLabel =
+                          order.placedByName?.trim() ||
+                          order.placedByEmail?.trim() ||
+                          null;
+                        return (
+                          <li key={order.id} className={CARD_LIST_ROW_CLASS}>
+                            <div className="min-w-0 flex-1 flex flex-col gap-1.5 overflow-visible">
+                              <CopyableText
+                                value={order.orderNumber}
+                                className="max-w-full"
                               >
-                                {order.orderNumber}
-                              </Link>
-                            </CopyableText>
-                            <span className={CARD_LIST_META_CLASS}>
-                              {order.productCount} products ·{" "}
-                              <ClientCompactDateTime
-                                date={order.createdAt}
-                                semantic="created"
-                              />
-                            </span>
-                          </div>
-                          <RecentOrderStatusColumn
-                            status={order.status}
-                            statusAt={order.statusAt}
-                            paymentStatus={order.paymentStatus}
-                            trailing={
-                              <span className="text-xs font-normal text-gray-700 dark:text-white">
-                                ${order.total.toFixed(2)}
-                              </span>
-                            }
-                          />
-                        </li>
-                      ))}
+                                <Link
+                                  href={`/orders/${order.id}`}
+                                  prefetch
+                                  className="font-normal text-xs text-sky-600 dark:text-sky-400 hover:text-sky-500 dark:hover:text-sky-300 truncate block"
+                                >
+                                  {order.orderNumber}
+                                </Link>
+                              </CopyableText>
+                              {/* REQ-0224 — Store Overview densify parity */}
+                              <div className={CARD_LIST_META_ROW_CLASS}>
+                                {order.productId && productLabel ? (
+                                  <span className="inline-flex items-center gap-1 min-w-0">
+                                    <ProductThumb
+                                      name={productLabel}
+                                      imageUrl={order.productImageUrl}
+                                      size="sm"
+                                    />
+                                    <Link
+                                      href={`/products/${order.productId}`}
+                                      prefetch
+                                      className="text-sm font-normal text-sky-600 dark:text-sky-400 hover:text-sky-500 dark:hover:text-sky-300 truncate"
+                                    >
+                                      {productLabel}
+                                    </Link>
+                                  </span>
+                                ) : productLabel ? (
+                                  <span className="truncate text-xs">
+                                    {productLabel}
+                                  </span>
+                                ) : (
+                                  <span className={CARD_LIST_META_CLASS}>
+                                    {order.productCount} products
+                                  </span>
+                                )}
+                                {order.categoryId && order.categoryName ? (
+                                  <>
+                                    <span aria-hidden>·</span>
+                                    <Link
+                                      href={`/categories/${order.categoryId}`}
+                                      prefetch
+                                      className="inline-flex items-center gap-1 text-xs font-normal text-sky-600 dark:text-sky-400 hover:text-sky-500 dark:hover:text-sky-300 min-w-0"
+                                    >
+                                      <Tag
+                                        className="h-3 w-3 shrink-0"
+                                        aria-hidden
+                                      />
+                                      <span className="truncate">
+                                        {order.categoryName}
+                                      </span>
+                                    </Link>
+                                  </>
+                                ) : null}
+                                {order.supplierId && order.supplierName ? (
+                                  <>
+                                    <span aria-hidden>·</span>
+                                    <AvatarInlineLink
+                                      seed={order.supplierId}
+                                      image={order.supplierImage}
+                                      label={order.supplierName}
+                                      href={`/suppliers/${order.supplierId}`}
+                                      size={20}
+                                      linkClassName="text-xs"
+                                      className="gap-1.5"
+                                    />
+                                  </>
+                                ) : null}
+                              </div>
+                              <div className={CARD_LIST_META_ROW_CLASS}>
+                                <span className="inline-flex items-center gap-1 min-w-0">
+                                  <Calendar
+                                    className="h-3 w-3 shrink-0 text-gray-500 dark:text-gray-400"
+                                    aria-hidden
+                                  />
+                                  <ClientCompactDateTime
+                                    date={order.createdAt}
+                                    semantic="created"
+                                  />
+                                </span>
+                                {buyerLabel && order.placedById ? (
+                                  <>
+                                    <span aria-hidden>·</span>
+                                    <AvatarInlineLink
+                                      label={buyerLabel}
+                                      seed={order.placedById}
+                                      image={order.placedByImage}
+                                      size={20}
+                                      linkClassName="text-xs"
+                                      className="gap-1.5"
+                                    />
+                                  </>
+                                ) : null}
+                              </div>
+                            </div>
+                            <RecentOrderStatusColumn
+                              status={order.status}
+                              statusAt={order.statusAt}
+                              paymentStatus={order.paymentStatus}
+                              trailing={
+                                <span className="text-xs font-normal text-gray-700 dark:text-white">
+                                  ${order.total.toFixed(2)}
+                                </span>
+                              }
+                            />
+                          </li>
+                        );
+                      })}
                     </ul>
                   )}
                   <div className="mt-4">
@@ -518,16 +608,20 @@ export default function SupplierPortalPage({
                             .map((product) => (
                               <TableRow key={product.id}>
                                 <TableCell>
-                                  <Link
-                                    href={`/products/${product.id}`}
-                                    prefetch
-                                    className="text-sky-600 dark:text-sky-400 hover:text-sky-500 dark:hover:text-sky-300"
-                                  >
-                                    {product.name}
-                                  </Link>
-                                  <p className="text-xs text-muted-foreground">
-                                    {product.sku}
-                                  </p>
+                                  <DenseCatalogProductCell
+                                    productId={product.id}
+                                    productName={product.name}
+                                    sku={product.sku}
+                                    imageUrl={product.imageUrl}
+                                    categoryId={product.categoryId}
+                                    categoryName={product.categoryName}
+                                    supplierId={product.supplierId}
+                                    supplierName={product.supplierName}
+                                    supplierImage={product.supplierImage}
+                                    productHref={(id) => `/products/${id}`}
+                                    categoryHref={(id) => `/categories/${id}`}
+                                    supplierHref={(id) => `/suppliers/${id}`}
+                                  />
                                 </TableCell>
                                 <TableCell className="text-right font-normal text-red-600">
                                   {product.quantity}

@@ -45,6 +45,8 @@ import {
   buildWarehouseSharePieData,
 } from "@/lib/insights/business-insights-warehouse-rollup";
 import { SectionTitleRow } from "@/components/shared";
+import { HelpTooltip } from "@/components/shared/HelpTooltip";
+import { getWarehouseTypeLabel } from "@/lib/ui/warehouse-type-styles";
 import {
   CHART_LABEL_TOP_MARGIN,
   createChartBarLabelRenderer,
@@ -192,15 +194,45 @@ export function BusinessInsightsWarehouseSection({
         </ChartCard>
       </div>
 
-      <ChartCard title="Warehouse breakdown" icon={Package} variant="violet">
+      <ChartCard title="Warehouse Breakdown" icon={Package} variant="violet">
         <Table>
           <TableHeader>
             <TableRow>
               <TableHead>Warehouse</TableHead>
               <TableHead>SKUs</TableHead>
-              <TableHead>Quantity</TableHead>
-              <TableHead>Reserved</TableHead>
-              <TableHead>Value</TableHead>
+              <TableHead>
+                <span className="inline-flex items-center gap-1">
+                  Quantity
+                  <HelpTooltip
+                    content="Total allocated units at this warehouse"
+                    side="top"
+                    ariaLabel="Quantity column help"
+                    className="shrink-0"
+                  />
+                </span>
+              </TableHead>
+              <TableHead>
+                <span className="inline-flex items-center gap-1">
+                  Reserved
+                  <HelpTooltip
+                    content="Units reserved for open orders (amber/rose when elevated)"
+                    side="top"
+                    ariaLabel="Reserved column help"
+                    className="shrink-0"
+                  />
+                </span>
+              </TableHead>
+              <TableHead>
+                <span className="inline-flex items-center gap-1">
+                  Value
+                  <HelpTooltip
+                    content="Estimated inventory value from allocated stock"
+                    side="top"
+                    ariaLabel="Value column help"
+                    className="shrink-0"
+                  />
+                </span>
+              </TableHead>
             </TableRow>
           </TableHeader>
           {loading && rows.length === 0 ? (
@@ -217,24 +249,44 @@ export function BusinessInsightsWarehouseSection({
               ) : (
                 [...rows]
                   .sort((a, b) => b.totalQuantity - a.totalQuantity)
-                  .map((row) => (
-                    <TableRow key={row.warehouseId}>
-                      <TableCell>
-                        <Link
-                          href={`/warehouses/${row.warehouseId}`}
-                          className={TABLE_LINK_PRIMARY}
-                        >
-                          {row.warehouseName}
-                        </Link>
-                      </TableCell>
-                      <TableCell>{row.totalProducts}</TableCell>
-                      <TableCell>{row.totalQuantity}</TableCell>
-                      <TableCell>{row.totalReserved}</TableCell>
-                      <TableCell>
-                        ${Math.round(row.totalValue).toLocaleString()}
-                      </TableCell>
-                    </TableRow>
-                  ))
+                  .map((row) => {
+                    const typeLabel = getWarehouseTypeLabel(row.warehouseType);
+                    const hasReserved = row.totalReserved > 0;
+                    const reservedClass = hasReserved
+                      ? row.totalReserved > row.totalQuantity * 0.5
+                        ? "text-rose-600 dark:text-rose-400 font-medium"
+                        : "text-amber-600 dark:text-amber-400 font-medium"
+                      : "text-gray-400 dark:text-gray-500";
+                    return (
+                      <TableRow key={row.warehouseId}>
+                        <TableCell>
+                          <div className="flex flex-col gap-0.5">
+                            <Link
+                              href={`/warehouses/${row.warehouseId}`}
+                              className={TABLE_LINK_PRIMARY}
+                            >
+                              {row.warehouseName}
+                            </Link>
+                            {typeLabel && typeLabel !== "—" ? (
+                              <span className="text-xs text-gray-500 dark:text-gray-400">
+                                {typeLabel}
+                              </span>
+                            ) : null}
+                          </div>
+                        </TableCell>
+                        <TableCell>{row.totalProducts}</TableCell>
+                        <TableCell className="text-sky-600 dark:text-sky-400 font-medium">
+                          {row.totalQuantity}
+                        </TableCell>
+                        <TableCell className={reservedClass}>
+                          {row.totalReserved}
+                        </TableCell>
+                        <TableCell className="text-emerald-600 dark:text-emerald-400 font-medium">
+                          ${Math.round(row.totalValue).toLocaleString()}
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })
               )}
             </TableBody>
           )}

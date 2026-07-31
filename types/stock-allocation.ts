@@ -117,6 +117,8 @@ export interface CreateStockTransferInput {
 export interface WarehouseStockSummary {
   warehouseId: string;
   warehouseName: string;
+  /** REQ-0224 — warehouse type for BI breakdown label (e.g. "main", "storage") */
+  warehouseType?: string | null;
   totalProducts: number;
   totalQuantity: number;
   totalReserved: number;

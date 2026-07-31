@@ -36,8 +36,8 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // Check cache
-    const cacheKey = `portal:client:${session.id}`;
+    // Check cache — v2 bust: densify recentOrders product/category/supplier meta (REQ-0224)
+    const cacheKey = `portal:client:v2:${session.id}`;
     const cacheReadStartedAt = Date.now();
     const cached = await getCache<ClientPortalDashboard>(cacheKey);
     if (cached) {

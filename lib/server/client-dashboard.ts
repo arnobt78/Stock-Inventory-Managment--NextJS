@@ -1,5 +1,6 @@
 /**
  * Client Portal Server-Side Data Fetching
+ * REQ-0224 — densify recentOrders with product/category/supplier meta
  */
 
 import { prisma } from "@/prisma/client";
@@ -15,11 +16,24 @@ export async function getClientDashboard(
   userId: string,
   userName: string,
 ): Promise<ClientPortalDashboard> {
-  // Get orders where this user is the client
+  // Get orders where this user is the client — include items with product densify
   const orders = await prisma.order.findMany({
     where: { clientId: userId },
     include: {
-      items: { select: { id: true } },
+      items: {
+        select: {
+          id: true,
+          productId: true,
+          productName: true,
+          product: {
+            select: {
+              imageUrl: true,
+              categoryId: true,
+              supplierId: true,
+            },
+          },
+        },
+      },
       invoice: { select: { paidAt: true } },
     },
     orderBy: { createdAt: "desc" },
@@ -87,9 +101,61 @@ export async function getClientDashboard(
 
   const outstandingAmount = moneyStats.dueOutstanding;
 
-  // Recent orders (last 10)
-  const recentOrders = orders.slice(0, 10).map((o) =>
-    withOrderStatusAt({
+  // REQ-0224 — densify recent orders with product/category/supplier meta
+  const recentSlice = orders.slice(0, 10);
+
+  const neededCategoryIds = new Set<string>();
+  const neededSupplierIds = new Set<string>();
+  for (const o of recentSlice) {
+    const first = o.items[0];
+    if (first?.product?.categoryId) neededCategoryIds.add(first.product.categoryId);
+    if (first?.product?.supplierId) neededSupplierIds.add(first.product.supplierId);
+  }
+
+  const [categoryRows, supplierRows] = await Promise.all([
+    neededCategoryIds.size > 0
+      ? prisma.category.findMany({
+          where: { id: { in: [...neededCategoryIds] } },
+          select: { id: true, name: true },
+        })
+      : Promise.resolve([] as { id: string; name: string }[]),
+    neededSupplierIds.size > 0
+      ? prisma.supplier.findMany({
+          where: { id: { in: [...neededSupplierIds] } },
+          select: { id: true, name: true, userId: true },
+        })
+      : Promise.resolve([] as { id: string; name: string; userId: string }[]),
+  ]);
+
+  const categoryMap = new Map(categoryRows.map((c) => [c.id, c.name]));
+  const supplierMap = new Map(supplierRows.map((s) => [s.id, s]));
+
+  // Fetch supplier user images
+  const supplierUserIds = [...new Set(supplierRows.map((s) => s.userId).filter(Boolean))];
+  const supplierUserImageMap = new Map<string, string | null>();
+  if (supplierUserIds.length > 0) {
+    const sUsers = await prisma.user.findMany({
+      where: { id: { in: supplierUserIds } },
+      select: { id: true, image: true },
+    });
+    sUsers.forEach((u) => supplierUserImageMap.set(u.id, u.image));
+  }
+
+  const recentOrders = recentSlice.map((o) => {
+    const first = o.items[0];
+    const extraItemCount = Math.max(0, o.items.length - 1);
+    const productPreview = first?.productName
+      ? extraItemCount > 0
+        ? `${first.productName} +${extraItemCount}`
+        : first.productName
+      : null;
+    const categoryId = first?.product?.categoryId ?? null;
+    const supplierId = first?.product?.supplierId ?? null;
+    const supplier = supplierId ? supplierMap.get(supplierId) : undefined;
+    const supplierImage = supplier?.userId
+      ? (supplierUserImageMap.get(supplier.userId) ?? null)
+      : null;
+    return withOrderStatusAt({
       id: o.id,
       orderNumber: o.orderNumber,
       status: o.status,
@@ -102,8 +168,16 @@ export async function getClientDashboard(
       shippedAt: o.shippedAt,
       updatedAt: o.updatedAt,
       invoice: o.invoice,
-    }),
-  );
+      productId: first?.productId ?? null,
+      productPreview,
+      productImageUrl: first?.product?.imageUrl ?? null,
+      categoryId,
+      categoryName: categoryId ? (categoryMap.get(categoryId) ?? null) : null,
+      supplierId,
+      supplierName: supplier?.name ?? null,
+      supplierImage,
+    });
+  });
 
   // Recent invoices (last 10)
   const recentInvoices = invoices.slice(0, 10).map((inv) => ({

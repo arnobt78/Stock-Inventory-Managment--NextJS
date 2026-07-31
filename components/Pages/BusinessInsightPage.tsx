@@ -92,6 +92,7 @@ import type { ProductForHome } from "@/lib/server/home-data";
 import type { OrderForPage } from "@/lib/server/orders-data";
 import type { WarehouseStockSummary } from "@/types/stock-allocation";
 import { BusinessInsightsWarehouseSection } from "@/components/business-insights/BusinessInsightsWarehouseSection";
+import { DenseCatalogProductCell } from "@/components/shared/DenseCatalogProductCell";
 import {
   buildWarehouseQuantityChartData,
   buildWarehouseRollupMetrics,
@@ -120,6 +121,20 @@ const BUSINESS_INSIGHT_DATE_INPUT_CLASS = cn(
 );
 
 const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042", "#8884D8"];
+
+/** Resolve product.category to a display name (string | {name} | null). */
+function resolveProductCategoryName(product: Product): string | null {
+  if (!product.category) return null;
+  if (typeof product.category === "object") return product.category.name;
+  return product.category || null;
+}
+
+/** Resolve product.supplier to a display name. */
+function resolveProductSupplierName(product: Product): string | null {
+  if (!product.supplier) return null;
+  if (typeof product.supplier === "object") return product.supplier.name;
+  return (product.supplier as string) || null;
+}
 
 export type BusinessInsightPageProps = {
   initialProducts?: ProductForHome[];
@@ -252,6 +267,7 @@ export default function BusinessInsightPage({
         monthlyTrend: [],
         topProducts: [],
         lowStockProducts: [],
+        outOfStockProducts: [],
         stockUtilization: 0,
         valueDensity: 0,
         stockCoverage: 0,
@@ -440,6 +456,11 @@ export default function BusinessInsightPage({
       .sort((a, b) => Number(a.quantity) - Number(b.quantity))
       .slice(0, 5);
 
+    // Out of stock products (quantity === 0)
+    const outOfStockProducts = filteredProducts
+      .filter((product) => Number(product.quantity) === 0)
+      .slice(0, 5);
+
     // Supplier distribution (by quantity and value) - same pattern as category
     const supplierMap = new Map<
       string,
@@ -486,6 +507,7 @@ export default function BusinessInsightPage({
       monthlyTrend,
       topProducts,
       lowStockProducts,
+      outOfStockProducts,
     };
   }, [filteredProducts]);
 
@@ -1551,48 +1573,109 @@ export default function BusinessInsightPage({
                 </TabsContent>
 
                 <TabsContent value="alerts">
-                  {/* Low Stock Alerts */}
-                  <ChartCard
-                    title="Low Stock Alerts"
-                    icon={AlertTriangle}
-                    variant="rose"
-                  >
-                    <div>
-                      {analyticsData.lowStockProducts.length > 0 ? (
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2 pb-4 text-xs sm:text-sm">
-                          {analyticsData.lowStockProducts.map(
-                            (product, index) => (
-                              <div
-                                key={index}
-                                className="rounded-xl border border-amber-400/30 bg-gradient-to-br from-amber-500/15 via-amber-500/5 to-transparent p-4 backdrop-blur-md"
-                              >
-                                <div className="flex items-center justify-between">
-                                  <div>
-                                    <h4 className="font-medium text-sm text-gray-700 dark:text-white">
-                                      {product.name}
-                                    </h4>
-                                    <p className="text-xs text-gray-600 dark:text-white/80">
-                                      SKU: {product.sku}
-                                    </p>
+                  <div className="flex flex-col gap-4">
+                    {/* Low Stock Alerts */}
+                    <ChartCard
+                      title="Low Stock Alerts"
+                      icon={AlertTriangle}
+                      variant="amber"
+                    >
+                      <div>
+                        {analyticsData.lowStockProducts.length > 0 ? (
+                          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2 pb-4 text-xs sm:text-sm">
+                            {analyticsData.lowStockProducts.map(
+                              (product, index) => (
+                                <div
+                                  key={index}
+                                  className="rounded-xl border border-amber-400/30 bg-gradient-to-br from-amber-500/15 via-amber-500/5 to-transparent p-3 backdrop-blur-md"
+                                >
+                                  <div className="flex items-start justify-between gap-3">
+                                    <div className="flex-1 min-w-0">
+                                      <DenseCatalogProductCell
+                                        productId={product.id}
+                                        productName={product.name}
+                                        sku={product.sku}
+                                        imageUrl={product.imageUrl}
+                                        categoryId={product.categoryId}
+                                        categoryName={resolveProductCategoryName(product)}
+                                        supplierId={product.supplierId}
+                                        supplierName={resolveProductSupplierName(product)}
+                                        supplierImage={product.supplierImage}
+                                        productHref={(id) => `/products/${id}`}
+                                        categoryHref={(id) => `/categories/${id}`}
+                                        supplierHref={(id) => `/suppliers/${id}`}
+                                      />
+                                    </div>
+                                    <StockQuantityLeftBadge
+                                      quantity={product.quantity}
+                                    />
                                   </div>
-                                  <StockQuantityLeftBadge
-                                    quantity={product.quantity}
-                                  />
                                 </div>
-                              </div>
-                            ),
-                          )}
-                        </div>
-                      ) : (
-                        <div className="text-center py-8">
-                          <AlertTriangle className="h-12 w-12 text-emerald-500 mx-auto mb-4" />
-                          <p className="text-gray-600 dark:text-white/80">
-                            No low stock alerts at the moment!
-                          </p>
-                        </div>
-                      )}
-                    </div>
-                  </ChartCard>
+                              ),
+                            )}
+                          </div>
+                        ) : (
+                          <div className="text-center py-8">
+                            <AlertTriangle className="h-12 w-12 text-emerald-500 mx-auto mb-4" />
+                            <p className="text-gray-600 dark:text-white/80">
+                              No low stock alerts at the moment!
+                            </p>
+                          </div>
+                        )}
+                      </div>
+                    </ChartCard>
+
+                    {/* Out of Stock Alerts */}
+                    <ChartCard
+                      title="Out of Stock"
+                      icon={Package}
+                      variant="rose"
+                    >
+                      <div>
+                        {analyticsData.outOfStockProducts.length > 0 ? (
+                          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2 pb-4 text-xs sm:text-sm">
+                            {analyticsData.outOfStockProducts.map(
+                              (product, index) => (
+                                <div
+                                  key={index}
+                                  className="rounded-xl border border-rose-400/30 bg-gradient-to-br from-rose-500/15 via-rose-500/5 to-transparent p-3 backdrop-blur-md"
+                                >
+                                  <div className="flex items-start justify-between gap-3">
+                                    <div className="flex-1 min-w-0">
+                                      <DenseCatalogProductCell
+                                        productId={product.id}
+                                        productName={product.name}
+                                        sku={product.sku}
+                                        imageUrl={product.imageUrl}
+                                        categoryId={product.categoryId}
+                                        categoryName={resolveProductCategoryName(product)}
+                                        supplierId={product.supplierId}
+                                        supplierName={resolveProductSupplierName(product)}
+                                        supplierImage={product.supplierImage}
+                                        productHref={(id) => `/products/${id}`}
+                                        categoryHref={(id) => `/categories/${id}`}
+                                        supplierHref={(id) => `/suppliers/${id}`}
+                                      />
+                                    </div>
+                                    <StockQuantityLeftBadge
+                                      quantity={product.quantity}
+                                    />
+                                  </div>
+                                </div>
+                              ),
+                            )}
+                          </div>
+                        ) : (
+                          <div className="text-center py-8">
+                            <Package className="h-12 w-12 text-emerald-500 mx-auto mb-4" />
+                            <p className="text-gray-600 dark:text-white/80">
+                              No out of stock products!
+                            </p>
+                          </div>
+                        )}
+                      </div>
+                    </ChartCard>
+                  </div>
                 </TabsContent>
               </Tabs>
             )}

@@ -33,7 +33,8 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    const cacheKey = `portal:client:catalog:v2:${session.id}`;
+    // REQ-0224 — v3 bust: products include imageUrl + supplierImage
+    const cacheKey = `portal:client:catalog:v3:${session.id}`;
     const cacheReadStartedAt = Date.now();
     const cached = await getCache<ClientCatalogOverview>(cacheKey);
     // REQ-0077 — skip legacy v1 payloads missing meta totals

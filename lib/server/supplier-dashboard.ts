@@ -1,5 +1,6 @@
 /**
  * Supplier Portal Server-Side Data Fetching
+ * REQ-0224 — densify recentOrders + lowStockProducts with product/category/buyer meta
  */
 
 import { prisma } from "@/prisma/client";
@@ -29,19 +30,30 @@ export async function getSupplierDashboard(
     return null;
   }
 
-  // Get products from this supplier
-  const products = await prisma.product.findMany({
-    where: mergeProductListWhere({ supplierId: supplier.id }),
-    select: {
-      id: true,
-      name: true,
-      sku: true,
-      quantity: true,
-      reservedQuantity: true,
-      status: true,
-      price: true,
-    },
-  });
+  // Fetch supplier user image + products in parallel (REQ-0224)
+  const [supplierUser, products] = await Promise.all([
+    prisma.user.findUnique({
+      where: { id: supplier.userId },
+      select: { image: true },
+    }),
+    prisma.product.findMany({
+      where: mergeProductListWhere({ supplierId: supplier.id }),
+      select: {
+        id: true,
+        name: true,
+        sku: true,
+        quantity: true,
+        reservedQuantity: true,
+        status: true,
+        price: true,
+        imageUrl: true,
+        categoryId: true,
+        supplierId: true,
+      },
+    }),
+  ]);
+
+  const supplierImageUrl = supplierUser?.image ?? null;
 
   const productIds = products.map((p) => p.id);
   const allocationReservedByProduct =
@@ -53,7 +65,7 @@ export async function getSupplierDashboard(
       allocationReservedByProduct.get(productId) ?? 0,
     );
 
-  // Get orders containing products from this supplier (include subtotal for revenue attribution)
+  // Get orders containing products from this supplier — include product relation + buyer ids
   const orderItems = await prisma.orderItem.findMany({
     where: { productId: { in: productIds } },
     include: {
@@ -64,15 +76,24 @@ export async function getSupplierDashboard(
           subtotal: true,
           total: true,
           createdAt: true,
+          userId: true,
+          clientId: true,
           items: { select: { id: true } },
           ...orderStatusAtSelect,
+        },
+      },
+      product: {
+        select: {
+          imageUrl: true,
+          categoryId: true,
+          supplierId: true,
         },
       },
     },
     orderBy: { createdAt: "desc" },
   });
 
-  // Build unique orders map with supplier's portion of order total (includes tax, shipping, discount)
+  // Build unique orders map with supplier's portion of order total + first item densify
   const ordersMap = new Map<
     string,
     {
@@ -90,6 +111,15 @@ export async function getSupplierDashboard(
       shippedAt: Date | null;
       updatedAt: Date | null;
       invoice: { paidAt: Date | null } | null;
+      userId: string;
+      clientId: string | null;
+      firstItemMeta?: {
+        productId: string;
+        productName: string;
+        imageUrl: string | null;
+        categoryId: string | null;
+        itemCount: number;
+      };
     }
   >();
 
@@ -111,10 +141,22 @@ export async function getSupplierDashboard(
         shippedAt: order.shippedAt,
         updatedAt: order.updatedAt,
         invoice: order.invoice,
+        userId: order.userId,
+        clientId: order.clientId,
+        firstItemMeta: {
+          productId: item.productId,
+          productName: item.productName,
+          imageUrl: item.product?.imageUrl ?? null,
+          categoryId: item.product?.categoryId ?? null,
+          itemCount: 1,
+        },
       });
     } else {
       const existing = ordersMap.get(order.id)!;
       existing.supplierSubtotal += item.subtotal;
+      if (existing.firstItemMeta) {
+        existing.firstItemMeta.itemCount += 1;
+      }
     }
   }
 
@@ -218,29 +260,6 @@ export async function getSupplierDashboard(
     refunded: invoices.filter((i) => refundedOrderIds.has(i.orderId)).length,
   };
 
-  // Recent orders (last 10) — "total" = supplier's share of order total
-  const recentOrders = orders
-    .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())
-    .slice(0, 10)
-    .map((o) => {
-      const revenueShare =
-        o.subtotal > 0 ? (o.supplierSubtotal / o.subtotal) * o.total : 0;
-      return withOrderStatusAt({
-        id: o.id,
-        orderNumber: o.orderNumber,
-        status: o.status,
-        total: revenueShare,
-        createdAt: o.createdAt.toISOString(),
-        productCount: o.productCount,
-        paymentStatus: o.paymentStatus,
-        cancelledAt: o.cancelledAt,
-        deliveredAt: o.deliveredAt,
-        shippedAt: o.shippedAt,
-        updatedAt: o.updatedAt,
-        invoice: o.invoice,
-      });
-    });
-
   const STOCK_LOW_MAX = 20;
 
   const productStatusCounts = { available: 0, stockLow: 0, stockOut: 0 };
@@ -255,22 +274,109 @@ export async function getSupplierDashboard(
     else productStatusCounts.stockOut += 1;
   }
 
-  const lowStockProducts = products
-    .filter((p) => {
-      const available =
-        Number(p.quantity) -
-        productCommitted(p.id, Number(p.reservedQuantity ?? 0));
-      return available > 0 && available <= STOCK_LOW_MAX;
-    })
-    .map((p) => ({
-      id: p.id,
-      name: p.name,
-      sku: p.sku,
-      quantity:
-        Number(p.quantity) -
-        productCommitted(p.id, Number(p.reservedQuantity ?? 0)),
-      status: p.status,
-    }));
+  const lowStockRaw = products.filter((p) => {
+    const available =
+      Number(p.quantity) -
+      productCommitted(p.id, Number(p.reservedQuantity ?? 0));
+    return available > 0 && available <= STOCK_LOW_MAX;
+  });
+
+  // REQ-0224 — batch-fetch categories + buyer users for recent orders + low stock products
+  const recentOrderSlice = orders
+    .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())
+    .slice(0, 10);
+
+  const neededCategoryIds = new Set<string>();
+  for (const o of recentOrderSlice) {
+    if (o.firstItemMeta?.categoryId) neededCategoryIds.add(o.firstItemMeta.categoryId);
+  }
+  for (const p of lowStockRaw) {
+    if (p.categoryId) neededCategoryIds.add(p.categoryId);
+  }
+
+  const buyerIds = [
+    ...new Set(
+      recentOrderSlice
+        .map((o) => o.clientId ?? o.userId)
+        .filter((id): id is string => Boolean(id)),
+    ),
+  ];
+
+  const [categoryRows, buyerUsers] = await Promise.all([
+    neededCategoryIds.size > 0
+      ? prisma.category.findMany({
+          where: { id: { in: [...neededCategoryIds] } },
+          select: { id: true, name: true },
+        })
+      : Promise.resolve([] as { id: string; name: string }[]),
+    buyerIds.length > 0
+      ? prisma.user.findMany({
+          where: { id: { in: buyerIds } },
+          select: { id: true, name: true, email: true, image: true },
+        })
+      : Promise.resolve([] as { id: string; name: string | null; email: string; image: string | null }[]),
+  ]);
+
+  const categoryMap = new Map(categoryRows.map((c) => [c.id, c.name]));
+  const buyerUserMap = new Map(buyerUsers.map((u) => [u.id, u]));
+
+  // Recent orders (last 10) — "total" = supplier's share of order total + densify
+  const recentOrders = recentOrderSlice.map((o) => {
+    const revenueShare =
+      o.subtotal > 0 ? (o.supplierSubtotal / o.subtotal) * o.total : 0;
+    const first = o.firstItemMeta;
+    const extraItemCount = first ? Math.max(0, first.itemCount - 1) : 0;
+    const productPreview = first?.productName
+      ? extraItemCount > 0
+        ? `${first.productName} +${extraItemCount}`
+        : first.productName
+      : null;
+    const categoryId = first?.categoryId ?? null;
+    const buyerId = o.clientId ?? o.userId;
+    const buyer = buyerUserMap.get(buyerId);
+    return withOrderStatusAt({
+      id: o.id,
+      orderNumber: o.orderNumber,
+      status: o.status,
+      total: revenueShare,
+      createdAt: o.createdAt.toISOString(),
+      productCount: o.productCount,
+      paymentStatus: o.paymentStatus,
+      cancelledAt: o.cancelledAt,
+      deliveredAt: o.deliveredAt,
+      shippedAt: o.shippedAt,
+      updatedAt: o.updatedAt,
+      invoice: o.invoice,
+      productId: first?.productId ?? null,
+      productPreview,
+      productImageUrl: first?.imageUrl ?? null,
+      categoryId,
+      categoryName: categoryId ? (categoryMap.get(categoryId) ?? null) : null,
+      supplierId: supplier.id,
+      supplierName: supplier.name,
+      supplierImage: supplierImageUrl,
+      placedById: buyerId,
+      placedByName: buyer?.name ?? null,
+      placedByEmail: buyer?.email ?? null,
+      placedByImage: buyer?.image ?? null,
+    });
+  });
+
+  const lowStockProducts = lowStockRaw.map((p) => ({
+    id: p.id,
+    name: p.name,
+    sku: p.sku,
+    quantity:
+      Number(p.quantity) -
+      productCommitted(p.id, Number(p.reservedQuantity ?? 0)),
+    status: p.status,
+    imageUrl: p.imageUrl ?? null,
+    categoryId: p.categoryId ?? null,
+    categoryName: p.categoryId ? (categoryMap.get(p.categoryId) ?? null) : null,
+    supplierId: p.supplierId ?? null,
+    supplierName: supplier.name,
+    supplierImage: supplierImageUrl,
+  }));
 
   // Monthly revenue (last 6 months) — use supplier's share of order total per order
   const sixMonthsAgo = new Date();

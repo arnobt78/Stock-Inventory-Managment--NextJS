@@ -2,6 +2,7 @@
 
 | Date | Trigger | REQ-IDs | Result | Notes |
 |------|---------|---------|--------|-------|
+| 2026-07-31 | Densify parity portals/invoice/BI | REQ-0224 | PASS (automated) | lint ✓ tsc ✓ rollup 6 ✓ invalidate 222 ✓ |
 | 2026-05-19 | Catalog Zod + barrel export deploy | REQ-0012 | PASS (automated) | lint/test(260)/invalidate/build green |
 | 2026-05-19 | Notification bell code + prod reachability | REQ-0007 | PASS (code) | `NotificationBell` uses `DropdownMenu` portal |
 | 2026-07-08 | REQ-0019 dashboard AI + hydration deploy | REQ-0019 | PASS (automated) | test 301; prod `4f02cf3` |

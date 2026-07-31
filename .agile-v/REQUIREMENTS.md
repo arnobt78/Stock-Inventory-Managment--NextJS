@@ -4,6 +4,31 @@ Canonical REQ source. All artifacts link via `REQ-XXXX`. Status: `done` | `verif
 
 ---
 
+## REQ-0224 — Densify parity (portals / invoice Order # / BI cards)
+
+| Field | Value |
+|-------|-------|
+| **Priority** | P1 |
+| **Risk** | R2 |
+| **Status** | done |
+| **Cycle** | C2 |
+| **Parent** | REQ-0173, REQ-0170, REQ-0223 |
+
+**Intent:** Align supplier/client portal recent-orders & low-stock, client catalog typography, invoice Order # stack, and BI forecasting/alerts/warehouse breakdown with DenseCatalog + Store Overview densify. SSR enrich; no invalidation registry change.
+
+**Acceptance criteria**
+
+- AC1: Portal recent orders show thumb · product · category · supplier · date (+ buyer when known); low stock uses DenseCatalogProductCell
+- AC2: Client catalog names `text-sm`, avatar links `text-xs`; product cell densify when imageUrl present
+- AC3: Invoice Order # = ORD·copy·created → status+payment badges → event dates → products → items·units (no duplicate created)
+- AC4: BI ForecastingCard reorder + Alerts use DenseCatalog; category forecast Tag+sky+semantic colors
+- AC5: Warehouse breakdown shows type under name + semantic metric hues
+- AC6: lint + tsc + test:invalidate PASS
+
+**Artifacts:** `types/portal.ts`, supplier/client dashboards, portal pages, `InvoiceTableColumns`, `forecasting-card`, `BusinessInsightPage`, `BusinessInsightsWarehouseSection`, `getWarehouseStockSummary`
+
+---
+
 ## REQ-0223 — UI polish (datepicker / urgent densify / date flash / chart labels)
 
 | Field | Value |

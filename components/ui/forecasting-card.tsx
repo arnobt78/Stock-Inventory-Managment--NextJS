@@ -1,9 +1,11 @@
 "use client";
 
+import Link from "next/link";
 import { Product } from "@/types";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { ForecastUrgencyBadge } from "@/lib/ui/semantic-badges";
+import { DenseCatalogProductCell } from "@/components/shared/DenseCatalogProductCell";
 import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
 import {
@@ -11,12 +13,39 @@ import {
   BarChart3,
   Clock,
   Package,
+  Tag,
   Target,
   TrendingDown,
   TrendingUp,
 } from "lucide-react";
 import { useMemo } from "react";
 import { getDisplayCommittedQuantity } from "@/lib/products/enrich-product-committed-quantity";
+
+/** Resolve product.category to a display name (string | {name} | null). */
+function resolveCategoryName(product: Product): string | null {
+  if (!product.category) return null;
+  if (typeof product.category === "object") return product.category.name;
+  return product.category || null;
+}
+
+/** Resolve product.supplier to a display name. */
+function resolveSupplierName(product: Product): string | null {
+  if (!product.supplier) return null;
+  if (typeof product.supplier === "object") return product.supplier.name;
+  return (product.supplier as string) || null;
+}
+
+/** Urgency-based text hue for reorder current stock value. */
+function availableStockClass(urgency: "high" | "medium" | "low"): string {
+  if (urgency === "high") return "text-rose-600 dark:text-rose-400";
+  if (urgency === "medium") return "text-amber-600 dark:text-amber-400";
+  return "text-sky-600 dark:text-sky-400";
+}
+
+/** Store hrefs for BI page (store owner context). */
+const storeProductHref = (id: string) => `/products/${id}`;
+const storeCategoryHref = (id: string) => `/categories/${id}`;
+const storeSupplierHref = (id: string) => `/suppliers/${id}`;
 
 interface ForecastingCardProps {
   products: Product[];
@@ -36,6 +65,7 @@ interface ForecastData {
   }>;
   demandForecast: Array<{
     category: string;
+    categoryId?: string | null;
     currentStock: number;
     predictedDemand: number;
     confidence: number;
@@ -147,9 +177,11 @@ export function ForecastingCard({ products, className }: ForecastingCardProps) {
         );
 
         const confidence = Math.min(85, Math.max(60, 100 - avgPrice / 10)); // Higher price = lower confidence
+        const categoryId = categoryProducts[0]?.categoryId ?? null;
 
         return {
           category,
+          categoryId,
           currentStock,
           predictedDemand,
           confidence,
@@ -322,18 +354,41 @@ export function ForecastingCard({ products, className }: ForecastingCardProps) {
               forecastData.reorderSuggestions.map((suggestion, index) => (
                 <div
                   key={index}
-                  className="flex items-center justify-between p-2 rounded-xl border border-gray-300/30 bg-gradient-to-r from-gray-100/50 to-transparent dark:border-white/10 dark:from-white/5 backdrop-blur-md"
+                  className="flex items-start justify-between gap-3 p-2 rounded-xl border border-gray-300/30 bg-gradient-to-r from-gray-100/50 to-transparent dark:border-white/10 dark:from-white/5 backdrop-blur-md"
                 >
-                  <div className="flex-1">
-                    <div className="font-medium text-sm text-gray-700 dark:text-white">
-                      {suggestion.product.name}
-                    </div>
-                    <div className="text-xs text-gray-600 dark:text-white/80">
-                      Current: {suggestion.available} | Suggested:{" "}
-                      {suggestion.suggestedQuantity}
-                    </div>
-                    <div className="text-xs text-gray-500 dark:text-white/80">
-                      {suggestion.reason}
+                  <div className="flex-1 min-w-0">
+                    <DenseCatalogProductCell
+                      productId={suggestion.product.id}
+                      productName={suggestion.product.name}
+                      sku={suggestion.product.sku}
+                      imageUrl={suggestion.product.imageUrl}
+                      categoryId={suggestion.product.categoryId}
+                      categoryName={resolveCategoryName(suggestion.product)}
+                      supplierId={suggestion.product.supplierId}
+                      supplierName={resolveSupplierName(suggestion.product)}
+                      supplierImage={suggestion.product.supplierImage}
+                      productHref={storeProductHref}
+                      categoryHref={storeCategoryHref}
+                      supplierHref={storeSupplierHref}
+                    />
+                    <div className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-0.5 text-xs">
+                      <span>
+                        Current:{" "}
+                        <span className={availableStockClass(suggestion.urgency)}>
+                          {suggestion.available}
+                        </span>
+                      </span>
+                      <span aria-hidden className="text-gray-400 dark:text-gray-500">·</span>
+                      <span>
+                        Suggested:{" "}
+                        <span className="text-emerald-600 dark:text-emerald-400">
+                          {suggestion.suggestedQuantity}
+                        </span>
+                      </span>
+                      <span aria-hidden className="text-gray-400 dark:text-gray-500">·</span>
+                      <span className="text-gray-500 dark:text-gray-300 italic">
+                        {suggestion.reason}
+                      </span>
                     </div>
                   </div>
                   <ForecastUrgencyBadge urgency={suggestion.urgency} />
@@ -355,7 +410,7 @@ export function ForecastingCard({ products, className }: ForecastingCardProps) {
         {/* Demand Forecast by Category */}
         <div>
           <h4 className="font-medium mb-3 flex items-center gap-2 text-gray-700 dark:text-white">
-            <Package className="h-4 w-4" />
+            <Tag className="h-4 w-4" />
             Category Demand Forecast
           </h4>
           <div className="space-y-2">
@@ -364,17 +419,39 @@ export function ForecastingCard({ products, className }: ForecastingCardProps) {
                 key={index}
                 className="space-y-2 p-2 rounded-xl border border-gray-300/20 bg-gradient-to-r from-gray-100/30 to-transparent dark:border-white/10 dark:from-white/5"
               >
-                <div className="flex justify-between items-center">
-                  <span className="font-medium text-sm text-gray-700 dark:text-white">
-                    {forecast.category}
-                  </span>
-                  <span className="text-xs text-gray-600 dark:text-white/80">
+                <div className="flex justify-between items-center gap-2">
+                  {forecast.categoryId ? (
+                    <Link
+                      href={storeCategoryHref(forecast.categoryId)}
+                      prefetch
+                      className="inline-flex items-center gap-1 text-sm font-medium text-sky-600 dark:text-sky-400 hover:text-sky-500 dark:hover:text-sky-300 min-w-0 truncate"
+                    >
+                      <Tag className="h-3.5 w-3.5 shrink-0" aria-hidden />
+                      {forecast.category}
+                    </Link>
+                  ) : (
+                    <span className="inline-flex items-center gap-1 font-medium text-sm text-gray-700 dark:text-white min-w-0 truncate">
+                      <Tag className="h-3.5 w-3.5 shrink-0" aria-hidden />
+                      {forecast.category}
+                    </span>
+                  )}
+                  <span className="text-xs text-gray-500 dark:text-gray-300 shrink-0">
                     {forecast.confidence.toFixed(0)}% confidence
                   </span>
                 </div>
-                <div className="flex justify-between text-xs text-gray-500 dark:text-white/80">
-                  <span>Current: {forecast.currentStock}</span>
-                  <span>Predicted: {forecast.predictedDemand}</span>
+                <div className="flex justify-between text-xs">
+                  <span>
+                    Current:{" "}
+                    <span className="text-sky-600 dark:text-sky-400 font-medium">
+                      {forecast.currentStock}
+                    </span>
+                  </span>
+                  <span>
+                    Predicted:{" "}
+                    <span className={forecast.predictedDemand >= forecast.currentStock ? "text-emerald-600 dark:text-emerald-400 font-medium" : "text-amber-600 dark:text-amber-400 font-medium"}>
+                      {forecast.predictedDemand}
+                    </span>
+                  </span>
                 </div>
                 <Progress value={forecast.confidence} className="h-2" />
               </div>

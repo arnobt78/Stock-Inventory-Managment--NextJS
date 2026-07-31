@@ -641,3 +641,5 @@ Format: `TIMESTAMP | AGENT | DECISION | RATIONALE | REQ-ID`
 2026-07-31T13:45:00Z | build-agent | Money-settle densify only; checkout create stays invalidate-only; webhook-only settle heals via SSR/refetch (no client hook) | Reserved must clear on Stripe return / invoice money, not Pay click | REQ-0222
 
 2026-07-31T14:25:00Z | build-agent | Hide native date indicator (not opacity); urgent DenseCatalog densify; date densify-first; BI chart top margin | Four UI gaps from screenshots | REQ-0223
+
+2026-07-31T15:15:00Z | build-agent | Portal/invoice/BI densify parity; SSR widen + cache v5; no invalidation registry change | Align role portals + BI with DenseCatalog / Store Overview | REQ-0224

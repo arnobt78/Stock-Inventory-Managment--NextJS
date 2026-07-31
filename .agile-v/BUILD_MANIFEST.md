@@ -617,3 +617,11 @@
 | ART-0223c | REQ-0223 | Created/Updated date densify-first | detail pages |
 | ART-0223d | REQ-0223 | BI Status/Price CHART_LABEL_TOP_MARGIN | label clip |
 | TC-0223 | REQ-0223 | rollup densify assert + lint/tsc/invalidate | PASS |
+
+| ART-0224a | REQ-0224 | portal types + supplier/client dashboard SSR | recentOrders/lowStock densify |
+| ART-0224b | REQ-0224 | SupplierPortalPage / ClientPortalPage | Store Overview parity + catalog typo |
+| ART-0224c | REQ-0224 | InvoiceTableColumns Order # restack | ORD·created → badges → events |
+| ART-0224d | REQ-0224 | forecasting-card + BI Alerts DenseCatalog | reorder/category/alerts |
+| ART-0224e | REQ-0224 | WarehouseStockSummary.warehouseType + BI breakdown | type + metric hues |
+| ART-0224f | REQ-0224 | portal overview v5 / catalog v3 cache keys | payload shape bump |
+| TC-0224 | REQ-0224 | lint + tsc + warehouse rollup + invalidate 222 | PASS |

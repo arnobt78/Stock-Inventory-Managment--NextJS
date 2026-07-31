@@ -292,7 +292,7 @@ export async function getWarehouseStockSummary(userId: string) {
   // Get all warehouses
   const warehouses = await prisma.warehouse.findMany({
     where: { userId },
-    select: { id: true, name: true },
+    select: { id: true, name: true, type: true },
   });
 
   // Get all stock allocations
@@ -322,6 +322,7 @@ export async function getWarehouseStockSummary(userId: string) {
     return {
       warehouseId: wh.id,
       warehouseName: wh.name,
+      warehouseType: wh.type ?? null,
       totalProducts,
       totalQuantity,
       totalReserved,
