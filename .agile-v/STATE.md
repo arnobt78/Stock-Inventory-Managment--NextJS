@@ -8,7 +8,7 @@
 | **Session** | 2026-07-31 — REQ-0223 done |
 | **Active REQ** | — (next: Gate 2 / REQ-0009) |
 | **Done range** | … + **0221** + **0222** + **0223** |
-| **Local tip** | pending commit |
+| **Local tip** | `a028324` (REQ-0223) |
 | **Human Gate 1** | APPROVED |
 | **Human Gate 2** | PENDING — Sentry 24h after Ready |
 | **Resume token** | `gate2-sentry-24h` |
@@ -18,7 +18,7 @@
 
 ## Next
 
-1. Commit REQ-0223
-2. Vercel Ready → smoke → Sentry 24h (REQ-0009)
+1. Vercel Ready → smoke
+2. Sentry 24h (REQ-0009)
 
 **Skills:** 01 · 02 · 17 · 19
