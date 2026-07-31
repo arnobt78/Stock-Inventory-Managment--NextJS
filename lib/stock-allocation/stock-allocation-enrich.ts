@@ -236,3 +236,49 @@ export function transformStockAllocationRow(
       : undefined,
   };
 }
+
+/**
+ * REQ-0221 — POST/PUT allocate responses match GET densify (category/supplier/catalog totals).
+ */
+export async function densifyStockAllocationWriteResponse(row: {
+  id: string;
+  productId: string;
+  warehouseId: string;
+  quantity: unknown;
+  reservedQuantity: unknown;
+  userId: string;
+  createdAt: Date;
+  updatedAt: Date | null;
+}): Promise<StockAllocation> {
+  const [productMap, warehouses] = await Promise.all([
+    fetchStockAllocationProductMap([row.productId]),
+    prisma.warehouse.findMany({
+      where: { id: { in: [row.warehouseId] } },
+      select: {
+        id: true,
+        name: true,
+        status: true,
+        address: true,
+        type: true,
+      },
+    }),
+  ]);
+  const warehouseMap = new Map(
+    warehouses.map((w) => [
+      w.id,
+      {
+        name: w.name,
+        status: Boolean(w.status),
+        address: w.address ?? null,
+        type: w.type ?? null,
+      },
+    ]),
+  );
+  const transformed = transformStockAllocationRow(
+    row,
+    productMap,
+    warehouseMap,
+  );
+  const [enriched] = await enrichStockAllocationRows([transformed]);
+  return enriched ?? transformed;
+}

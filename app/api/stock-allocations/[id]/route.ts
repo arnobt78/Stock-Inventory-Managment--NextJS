@@ -16,6 +16,7 @@ import { scheduleInvalidateStockAllocationCaches } from "@/lib/cache";
 import { withRateLimit, defaultRateLimits } from "@/lib/api/rate-limit";
 import { validateAllocationUpsert } from "@/lib/stock-allocation/validate-allocation-quantity";
 import { updateStockAllocationSchema } from "@/lib/validations";
+import { densifyStockAllocationWriteResponse } from "@/lib/stock-allocation/stock-allocation-enrich";
 
 type RouteContext = { params: Promise<{ id: string }> };
 
@@ -120,13 +121,9 @@ export async function PUT(request: NextRequest, context: RouteContext) {
     const updated = await updateStockAllocation(id, validation.data);
     await scheduleInvalidateStockAllocationCaches();
 
-    return NextResponse.json({
-      id: updated.id,
-      productId: updated.productId,
-      warehouseId: updated.warehouseId,
-      quantity: Number(updated.quantity),
-      reservedQuantity: Number(updated.reservedQuantity),
-    });
+    // REQ-0221 — densified PUT (parity with GET / allocate POST)
+    const result = await densifyStockAllocationWriteResponse(updated);
+    return NextResponse.json(result);
   } catch (error) {
     logger.error("Error updating stock allocation:", error);
     return NextResponse.json(

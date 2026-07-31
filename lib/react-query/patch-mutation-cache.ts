@@ -1033,3 +1033,209 @@ export function patchCatalogListProductCounts(
     opts.prevSupplierId,
   );
 }
+
+/** REQ-0221 — signed reserved/committed adjustment for product list + detail. */
+export type ProductCommittedDelta = {
+  productId: string;
+  reservedDelta: number;
+};
+
+type OrderCommittedSnapshot = {
+  status?: string;
+  paymentStatus?: string;
+  items?: Array<{ productId: string; quantity: number }>;
+};
+
+function aggregateLineDeltas(
+  items: Array<{ productId: string; quantity: number }> | undefined,
+  sign: 1 | -1,
+): ProductCommittedDelta[] {
+  if (!items?.length) return [];
+  const map = new Map<string, number>();
+  for (const item of items) {
+    if (!item.productId) continue;
+    const qty = Number(item.quantity) || 0;
+    if (!qty) continue;
+    map.set(item.productId, (map.get(item.productId) ?? 0) + sign * qty);
+  }
+  return [...map.entries()].map(([productId, reservedDelta]) => ({
+    productId,
+    reservedDelta,
+  }));
+}
+
+/**
+ * REQ-0221 — map order create / fulfill / cancel to committedQuantity deltas.
+ * Create (+); pending → non-pending/paid fulfill (−); pending cancel (−).
+ */
+export function resolveOrderCommittedDeltas(
+  prev: OrderCommittedSnapshot | null | undefined,
+  next: OrderCommittedSnapshot,
+): ProductCommittedDelta[] {
+  const items =
+    next.items && next.items.length > 0 ? next.items : (prev?.items ?? []);
+  if (!items.length) return [];
+
+  if (!prev) {
+    return aggregateLineDeltas(items, 1);
+  }
+
+  const wasPending = prev.status === "pending";
+  const nextCancelled = next.status === "cancelled";
+  const prevCancelled = prev.status === "cancelled";
+
+  if (wasPending && nextCancelled && !prevCancelled) {
+    return aggregateLineDeltas(items, -1);
+  }
+
+  const leftPending =
+    wasPending &&
+    next.status !== "pending" &&
+    next.status !== "cancelled";
+  const paidWhilePending =
+    wasPending &&
+    prev.paymentStatus !== "paid" &&
+    next.paymentStatus === "paid";
+
+  if (leftPending || paidWhilePending) {
+    return aggregateLineDeltas(items, -1);
+  }
+
+  return [];
+}
+
+type ProductCommittedRow = Identifiable & {
+  committedQuantity?: number;
+  reservedQuantity?: number;
+};
+
+/**
+ * REQ-0221 — instant product list/detail reserved densify before order-graph invalidate.
+ */
+export function patchProductCommittedCaches(
+  queryClient: QueryClient,
+  deltas: ProductCommittedDelta[],
+): void {
+  const byId = new Map<string, number>();
+  for (const d of deltas) {
+    if (!d.productId || !d.reservedDelta) continue;
+    byId.set(d.productId, (byId.get(d.productId) ?? 0) + d.reservedDelta);
+  }
+  if (byId.size === 0) return;
+
+  const applyRow = <T extends ProductCommittedRow>(row: T): T => {
+    const delta = byId.get(row.id);
+    if (delta == null) return row;
+    const prev =
+      typeof row.committedQuantity === "number"
+        ? row.committedQuantity
+        : Math.max(0, Number(row.reservedQuantity ?? 0));
+    return {
+      ...row,
+      committedQuantity: Math.max(0, prev + delta),
+    };
+  };
+
+  const listQueries = queryClient.getQueriesData<ProductCommittedRow[]>({
+    queryKey: queryKeys.products.all,
+    exact: false,
+  });
+  for (const [key, data] of listQueries) {
+    if (!Array.isArray(data)) continue;
+    let changed = false;
+    const next = data.map((row) => {
+      const patched = applyRow(row);
+      if (patched !== row) changed = true;
+      return patched;
+    });
+    if (changed) queryClient.setQueryData(key, next);
+  }
+
+  for (const productId of byId.keys()) {
+    const detailKey = queryKeys.products.detail(productId);
+    const detail = queryClient.getQueryData<ProductCommittedRow>(detailKey);
+    if (detail) {
+      queryClient.setQueryData(detailKey, applyRow(detail));
+    }
+  }
+
+  // Portal browse nested products
+  const portalQueries = queryClient.getQueriesData<unknown>({
+    queryKey: queryKeys.portal.all,
+    exact: false,
+  });
+  for (const [key, data] of portalQueries) {
+    if (Array.isArray(data)) {
+      let changed = false;
+      const next = (data as ProductCommittedRow[]).map((row) => {
+        const patched = applyRow(row);
+        if (patched !== row) changed = true;
+        return patched;
+      });
+      if (changed) queryClient.setQueryData(key, next);
+      continue;
+    }
+    if (
+      data &&
+      typeof data === "object" &&
+      "products" in data &&
+      Array.isArray((data as { products: unknown }).products)
+    ) {
+      const wrapped = data as {
+        products: ProductCommittedRow[];
+      } & Record<string, unknown>;
+      let changed = false;
+      const nextProducts = wrapped.products.map((row) => {
+        const patched = applyRow(row);
+        if (patched !== row) changed = true;
+        return patched;
+      });
+      if (changed) {
+        queryClient.setQueryData(key, { ...wrapped, products: nextProducts });
+      }
+    }
+  }
+}
+
+/**
+ * REQ-0222 — money settle densify helper.
+ * Call before invalidate when payment/status crosses fulfill boundary.
+ * Checkout create must NOT call this (stock not fulfilled until Stripe settle).
+ */
+export function patchCommittedAfterOrderMoneySettle(
+  queryClient: QueryClient,
+  opts: {
+    orderId?: string | null;
+    /** Snapshot before money/status patch (preferred). */
+    prevOrder?: OrderCommittedSnapshot | null;
+    nextStatus?: string | null;
+    nextPaymentStatus?: string | null;
+  },
+): void {
+  const orderId = opts.orderId ?? null;
+  const cached =
+    orderId != null
+      ? (queryClient.getQueryData<OrderCommittedSnapshot>(
+          queryKeys.orders.detail(orderId),
+        ) ??
+        queryClient.getQueryData<OrderCommittedSnapshot>(
+          queryKeys.clientOrders.detail(orderId),
+        ))
+      : null;
+
+  const prev = opts.prevOrder ?? cached;
+  if (!prev) return;
+
+  const items =
+    prev.items?.map((i) => ({
+      productId: i.productId,
+      quantity: i.quantity,
+    })) ?? [];
+
+  const deltas = resolveOrderCommittedDeltas(prev, {
+    status: opts.nextStatus ?? prev.status,
+    paymentStatus: opts.nextPaymentStatus ?? prev.paymentStatus,
+    items,
+  });
+  patchProductCommittedCaches(queryClient, deltas);
+}

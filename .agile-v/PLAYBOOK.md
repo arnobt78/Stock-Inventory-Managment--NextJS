@@ -2,8 +2,8 @@
 
 **Project:** Stockly Inventory (Next.js 16, React 19, Prisma/MongoDB)  
 **Cycle:** C2 active (C1 Gate 2 PENDING)  
-**Active:** Gate 2 Sentry 24h (`resume_token: gate2-sentry-24h`)  
-**Prod SHA:** tip `db0bacf` (REQ-0136 statusAt+SSR) · **Last:** statusAt under badges + hydration · **Session:** 2026-07-27 · **Standard:** Agile V 1.4 | Infinity Loop
+**Active:** Gate 2 Sentry 24h (`resume_token: gate2-sentry-24h`) — **REQ-0009**  
+**Prod SHA target:** `4e06cf9` (REQ-0220) · local tip `8a927bc` · **Last shipped:** REQ-0220 · **Session:** 2026-07-31 · **Standard:** Agile V 1.4 | Infinity Loop
 
 ---
 

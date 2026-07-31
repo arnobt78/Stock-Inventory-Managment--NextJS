@@ -445,22 +445,28 @@ export default function AdminOrderDetailContent({
                     </DetailInfoRow>
                   )}
                 </DetailInfoRowGroup>
-                {!dataLoading && order?.creator && (
-                  <AuditUserDetailRow
-                    label="Created by:"
-                    tone="violet"
-                    user={order.creator}
-                    href={resolveDetailAuditUserHref(order.creator.id, true)}
-                  />
-                )}
-                {!dataLoading && order?.updater && (
-                  <AuditUserDetailRow
-                    label="Updated by:"
-                    tone="blue"
-                    user={order.updater}
-                    href={resolveDetailAuditUserHref(order.updater.id, true)}
-                  />
-                )}
+                <AuditUserDetailRow
+                  label="Created by:"
+                  tone="violet"
+                  user={order?.creator}
+                  loading={dataLoading && !order?.creator}
+                  href={
+                    order?.creator
+                      ? resolveDetailAuditUserHref(order.creator.id, true)
+                      : undefined
+                  }
+                />
+                <AuditUserDetailRow
+                  label="Updated by:"
+                  tone="blue"
+                  user={order?.updater}
+                  loading={dataLoading && !order?.updater}
+                  href={
+                    order?.updater
+                      ? resolveDetailAuditUserHref(order.updater.id, true)
+                      : undefined
+                  }
+                />
                 {!dataLoading && order?.notes && (
                   <DetailInfoRow icon={FileText} label="Notes:" tone="teal">
                     {order.notes}

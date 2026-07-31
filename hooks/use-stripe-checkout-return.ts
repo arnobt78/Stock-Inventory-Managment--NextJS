@@ -17,6 +17,7 @@ import {
   patchDetailCacheMerge,
   patchLinkedInvoicesFromOrder,
   patchLinkedOrderFromInvoiceMoney,
+  patchCommittedAfterOrderMoneySettle,
   queryKeys,
 } from "@/lib/react-query";
 import type { Invoice, Order } from "@/types";
@@ -109,6 +110,7 @@ export function useStripeCheckoutReturn({
             (data.invoiceStatus as Invoice["status"]) ?? undefined;
 
           if (entity === "order") {
+            const prevCached = queryClient.getQueryData<Order>(detailKey);
             queryClient.setQueryData<Order>(detailKey, (old) =>
               old
                 ? {
@@ -122,6 +124,13 @@ export function useStripeCheckoutReturn({
               orderId: entityId,
               status: nextStatus,
               paymentStatus: nextPayment,
+            });
+            // REQ-0221/0222 — clear reserved densify when pay fulfills pending order
+            patchCommittedAfterOrderMoneySettle(queryClient, {
+              orderId: entityId,
+              prevOrder: prevCached ?? null,
+              nextStatus: nextStatus ?? prevCached?.status,
+              nextPaymentStatus: nextPayment ?? prevCached?.paymentStatus,
             });
             // REQ-0215 — remainder settle: patch linked order money + invoice status paid
             if (nextPayment === "paid") {
@@ -141,6 +150,18 @@ export function useStripeCheckoutReturn({
             }
           } else {
             // Invoice detail return — patch invoice + linked order payment
+            const invBefore = queryClient.getQueryData<Invoice>(detailKey);
+            const orderIdHint = data.orderId ?? invBefore?.orderId;
+            const prevOrder =
+              orderIdHint != null
+                ? (queryClient.getQueryData<Order>(
+                    queryKeys.orders.detail(orderIdHint),
+                  ) ??
+                  queryClient.getQueryData<Order>(
+                    queryKeys.clientOrders.detail(orderIdHint),
+                  ))
+                : null;
+
             patchDetailCacheMerge<Invoice>(queryClient, detailKey, (old) => {
               if (!old) return old;
               return {
@@ -173,6 +194,15 @@ export function useStripeCheckoutReturn({
                 total: inv.total,
                 status: nextInvoiceStatus ?? "paid",
                 invoiceNumber: inv.invoiceNumber,
+              });
+            }
+            // REQ-0222 — invoice-page Stripe return: densify reserved clear
+            if (orderId) {
+              patchCommittedAfterOrderMoneySettle(queryClient, {
+                orderId,
+                prevOrder: prevOrder ?? null,
+                nextStatus: nextStatus ?? prevOrder?.status,
+                nextPaymentStatus: nextPayment ?? prevOrder?.paymentStatus,
               });
             }
           }

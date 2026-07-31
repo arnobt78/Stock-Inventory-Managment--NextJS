@@ -598,3 +598,16 @@
 | ART-0220a | REQ-0220 | invalidateAfterBackNavigation | lists/dashboards only |
 | ART-0220b | REQ-0220 | useBackWithRefresh nav-then-invalidate | all detail Back |
 | TC-0220 | REQ-0220 | invalidate-coverage + runtime NDJSON | PASS |
+
+| ART-0221a | REQ-0221 | clientOrderDetailInclude + product.userId | parties owners |
+| ART-0221b | REQ-0221 | POST orders densify 201 + useCreateOrder merge | Store · + parties |
+| ART-0221c | REQ-0221 | AuditUserDetailRow densify-first | Created/Updated by |
+| ART-0221d | REQ-0221 | patchProductCommittedCaches + resolveOrderCommittedDeltas | reserved |
+| ART-0221e | REQ-0221 | densifyStockAllocationWriteResponse POST/PUT | warehouse meta |
+| ART-0221f | REQ-0221 | Insights/Snapshot dataLoading=false when densify | no cold pulse |
+| TC-0221 | REQ-0221 | resolve-order-committed-deltas + invalidate + lint/tsc | PASS |
+
+| ART-0222a | REQ-0222 | patchCommittedAfterOrderMoneySettle | settle densify helper |
+| ART-0222b | REQ-0222 | useStripeCheckoutReturn invoice branch | reserved clear |
+| ART-0222c | REQ-0222 | useUpdateInvoice / useSendInvoice | prevOrder + settle |
+| TC-0222 | REQ-0222 | paid-while-pending deltas + lint/tsc/invalidate | PASS |

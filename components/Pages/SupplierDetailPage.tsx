@@ -401,28 +401,34 @@ export default function SupplierDetailPage({
                       </DetailInfoRow>
                     )}
                   </DetailInfoRowGroup>
-                  {!dataLoading && supplier?.creator && (
-                    <AuditUserDetailRow
-                      label="Created by:"
-                      tone="violet"
-                      user={supplier.creator}
-                      href={resolveDetailAuditUserHref(
-                        supplier.creator.id,
-                        isAdminRole,
-                      )}
-                    />
-                  )}
-                  {!dataLoading && supplier?.updater && (
-                    <AuditUserDetailRow
-                      label="Updated by:"
-                      tone="blue"
-                      user={supplier.updater}
-                      href={resolveDetailAuditUserHref(
-                        supplier.updater.id,
-                        isAdminRole,
-                      )}
-                    />
-                  )}
+                  <AuditUserDetailRow
+                    label="Created by:"
+                    tone="violet"
+                    user={supplier?.creator}
+                    loading={dataLoading && !supplier?.creator}
+                    href={
+                      supplier?.creator
+                        ? resolveDetailAuditUserHref(
+                            supplier.creator.id,
+                            isAdminRole,
+                          )
+                        : undefined
+                    }
+                  />
+                  <AuditUserDetailRow
+                    label="Updated by:"
+                    tone="blue"
+                    user={supplier?.updater}
+                    loading={dataLoading && !supplier?.updater}
+                    href={
+                      supplier?.updater
+                        ? resolveDetailAuditUserHref(
+                            supplier.updater.id,
+                            isAdminRole,
+                          )
+                        : undefined
+                    }
+                  />
                 </div>
               </GlassCardBody>
             </GlassCard>
@@ -486,7 +492,7 @@ export default function SupplierDetailPage({
                   >
                     {!dataLoading && (
                       <span className="inline-flex flex-wrap items-baseline gap-x-1.5">
-                        <span className="text-blue-600 dark:text-blue-400">
+                        <span className="text-sky-600 dark:text-sky-400">
                           ${(stats.totalValue ?? 0).toFixed(2)}
                         </span>
                         <span className={cn("text-xs", TYPO_BODY_MUTED)}>
@@ -503,7 +509,8 @@ export default function SupplierDetailPage({
           {insights && (
             <CatalogInsightsSection
               insights={insights}
-              dataLoading={dataLoading}
+              // REQ-0221 — densify present → no metric pulse
+              dataLoading={false}
               isAdminRole={isAdminRole}
               forecastLoading={forecastLoading}
               title="Supplier Insights"
@@ -528,7 +535,7 @@ export default function SupplierDetailPage({
                     lowStockCount: insights.lowStockCount,
                     outOfStockCount: insights.outOfStockCount,
                   }}
-                  dataLoading={dataLoading}
+                  dataLoading={false}
                 />
               }
             />

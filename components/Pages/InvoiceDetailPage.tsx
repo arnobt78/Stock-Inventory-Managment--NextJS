@@ -670,28 +670,34 @@ export default function InvoiceDetailPage({
                     </CopyableText>
                   </DetailInfoRow>
                 )}
-                {!dataLoading && invoice?.creator && (
-                  <AuditUserDetailRow
-                    label="Created by:"
-                    tone="violet"
-                    user={invoice.creator}
-                    href={resolveDetailAuditUserHref(
-                      invoice.creator.id,
-                      isAdminRole,
-                    )}
-                  />
-                )}
-                {!dataLoading && invoice?.updater && (
-                  <AuditUserDetailRow
-                    label="Updated by:"
-                    tone="blue"
-                    user={invoice.updater}
-                    href={resolveDetailAuditUserHref(
-                      invoice.updater.id,
-                      isAdminRole,
-                    )}
-                  />
-                )}
+                <AuditUserDetailRow
+                  label="Created by:"
+                  tone="violet"
+                  user={invoice?.creator}
+                  loading={dataLoading && !invoice?.creator}
+                  href={
+                    invoice?.creator
+                      ? resolveDetailAuditUserHref(
+                          invoice.creator.id,
+                          isAdminRole,
+                        )
+                      : undefined
+                  }
+                />
+                <AuditUserDetailRow
+                  label="Updated by:"
+                  tone="blue"
+                  user={invoice?.updater}
+                  loading={dataLoading && !invoice?.updater}
+                  href={
+                    invoice?.updater
+                      ? resolveDetailAuditUserHref(
+                          invoice.updater.id,
+                          isAdminRole,
+                        )
+                      : undefined
+                  }
+                />
                 {!dataLoading && invoice?.notes && (
                   <DetailInfoRow icon={StickyNote} label="Notes:" tone="teal">
                     {invoice.notes}

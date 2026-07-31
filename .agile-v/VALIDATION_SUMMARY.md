@@ -1,9 +1,27 @@
 # Validation Summary — Cycle C1
 
-**Generated:** 2026-07-27 (REQ-0136 statusAt + hydration)
+**Generated:** 2026-07-31 (REQ-0222 payment settle densify)
 **eval_gate_status:** PENDING (Human Gate 2)
-**Active:** Prod smoke after this deploy
-**Last ship:** statusAt under badges + ClientRelativeTime harden
+**Active:** Prod smoke after next deploy
+**Last ship:** money-settle committed densify (invoice Stripe return + invoice update)
+
+---
+
+## REQ-0222 — Payment settle densify (2026-07-31)
+
+| Check | Result |
+| ----- | ------ |
+| Helper | `patchCommittedAfterOrderMoneySettle` wraps resolve + patch |
+| Stripe invoice return | patches committed from cached pending order |
+| useUpdateInvoice | prevOrder in onMutate → settle on onSuccess |
+| useCreateCheckout | invalidate-only (unchanged) |
+| Webhook-only | documented — SSR/list refetch heals |
+| Gates | lint ✓ tsc ✓ deltas 6 ✓ invalidate 222 ✓ |
+
+```
+Scope: built/verified | Traceability: REQ-0222, REQ-0221 | Findings: PASS
+Commands: lint, tsc --noEmit, vitest resolve-order-committed-deltas, test:invalidate
+```
 
 ---
 
@@ -2512,5 +2530,32 @@ Commands: tsc --noEmit, lint
 ```
 Scope: built/verified | Traceability: REQ-0220, REQ-0057 | Findings: PASS
 Commands: test:invalidate, lint
+```
+
+## Session 2026-07-31 — Agile V activate / resume (no code)
+
+```
+Scope: resume/activate | Traceability: REQ-0008, REQ-0009, REQ-0220 | Findings: PASS (bootstrap intact)
+Decision Points: no re-bootstrap; 24 skills + runtime contracts present; resume gate2-sentry-24h
+Commands: none (docs sync only)
+```
+
+**Next:** Vercel Ready `4e06cf9` → smoke Back → Sentry 24h (REQ-0009) → Gate 2. New feature work → Specify REQ-0221+.
+
+## REQ-0221 — Densify gateway (2026-07-31)
+
+| Check | Result |
+| ----- | ------ |
+| Client parties owners | `clientOrderDetailInclude.userId` + enrichOrder |
+| Create densify | POST → getOrderDetailForPage + productOwner*; merge patch |
+| Audit rows | densify-first `loading={dataLoading && !user}` |
+| Reserved | patchProductCommittedCaches on create/update/cancel/stripe |
+| Warehouse allocate | densifyStockAllocationWriteResponse on POST/PUT |
+| Insights | dataLoading=false when insights densify mounted |
+| Gates | lint ✓ tsc ✓ test:invalidate 222 ✓ committed-deltas 4 ✓ |
+
+```
+Scope: built/verified | Traceability: REQ-0221 | Findings: PASS
+Commands: lint, tsc --noEmit, test:invalidate, vitest resolve-order-committed-deltas
 ```
 

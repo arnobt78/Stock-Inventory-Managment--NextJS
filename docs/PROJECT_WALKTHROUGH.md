@@ -1,6 +1,6 @@
 # PROJECT_WALKTHROUGH.md
 
-Agent-oriented map of **stock-inventory** (Stockly). Last updated: 2026-07-30 (REQ-0220 back-nav flash).
+Agent-oriented map of **stock-inventory** (Stockly). Last updated: 2026-07-31 (REQ-0221 densify + REQ-0222 payment settle).
 
 ## 1. What this app is
 
@@ -177,6 +177,8 @@ Prevents `NotFoundError: removeChild` when App Router navigates between pages wh
 | Catalog densify parity (REQ-0218) | merge-patch detail; transfer + summary + list productCount; densify keys; deferred KPI/forecast/cross-entity insights |
 | findCachedAllocation QueryKey (REQ-0219) | `QueryKey[]` for product+warehouse keys — Vercel tsc unblock |
 | Detail Back soft-nav flash (REQ-0220) | navigate then list-safe invalidate; no detail/forecast/stock refetch on leave |
+| Densify gateway (REQ-0221) | parties/audit/reserved/allocate enrich/insights no-pulse; patch → invalidate |
+| Payment settle densify (REQ-0222) | `patchCommittedAfterOrderMoneySettle` on Stripe return + invoice money; checkout create invalidate-only |
 | Auth session toasts (REQ-0034) | `AuthSessionToasts` + `post-login-welcome.ts` / `post-logout-goodbye.ts`; `Toaster` before consumer in `app/layout.tsx`; welcome on `/` `/client` `/supplier`; goodbye on `/login` |
 | Auth OAuth welcome (REQ-0035) | `AuthSessionToasts` detects `oauth_success`; `refreshSession` + shared welcome copy; URL strip via `oauth-success-url.ts` |
 | App shell full bleed (REQ-0036) | `lib/ui/shell-layout-styles.ts` — `APP_SHELL_WIDTH_CLASS` / `APP_SHELL_DETAIL_CLASS`; Navbar/Footer + 11 lists + 6 details (legacy `SidebarLayout` removed REQ-0069); auth stays `max-w-7xl` in `AuthPageShell`; `9xl` token removed |
@@ -320,6 +322,8 @@ flowchart LR
 | Catalog densify (REQ-0218) | Detail merge-patch; transfer/summary/list count patches; densify keys | Patch → invalidate; deferred: KPI/forecast pulse, cross-entity insights |
 | findCachedAllocation QueryKey (REQ-0219) | `QueryKey[]` for byProduct + byWarehouse | Typing only; Vercel tsc |
 | Detail Back flash (REQ-0220) | `invalidateAfterBackNavigation` + nav-first | Lists/dashboards only on leave |
+| Densify gateway (REQ-0221) | committed patch; create densify; audit densify-first; allocate enrich | Patch → invalidate |
+| Payment settle (REQ-0222) | settle helper on Stripe invoice/order return + invoice update | Checkout create unchanged |
 | Supplier invoice KPIs (REQ-0205) | `/invoices` SSR portal + 4 StatisticsCards (OrderList parity) | Invalidation unchanged |
 | Portal SSR sync (REQ-0206) | `portal.*Dashboard(userId)`; list sync matches hooks (not admin keys) | Invalidation unchanged |
 | Sentry noise (REQ-0009) | Order stock warn+disable; warehouse cold-load pulse; tracesSampleRate 0 dev; notif DELETE 404 | Invalidation unchanged |

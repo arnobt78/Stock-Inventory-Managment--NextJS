@@ -10,12 +10,13 @@ import {
   invalidateAfterOrderGraphChange,
   cancelOrRemoveDetailQuery,
   withInitialData,
-  patchDetailCache,
   patchDetailCacheMerge,
   patchListCaches,
   patchOrderGraphListCaches,
   patchInvoicesOnOrderCancel,
   patchLinkedInvoicesFromOrder,
+  patchProductCommittedCaches,
+  resolveOrderCommittedDeltas,
 } from "@/lib/react-query";
 import { useToast } from "@/hooks/use-toast";
 import { resolveOrderStatusAtFromSource } from "@/lib/orders/order-status-display-date";
@@ -98,13 +99,23 @@ export function useCreateOrder() {
       return response.data;
     },
     onSuccess: (data: Order) => {
-      patchDetailCache(queryClient, queryKeys.orders.detail(data.id), data);
+      // REQ-0221 — densified 201; merge detail + list (incl. productOwner* for client Store ·)
+      patchDetailCacheMerge<Order>(
+        queryClient,
+        queryKeys.orders.detail(data.id),
+        (old) => (old ? { ...old, ...data } : data),
+      );
       patchListCaches(queryClient, queryKeys.orders.all, data, {
         prependIfMissing: true,
       });
       patchListCaches(queryClient, queryKeys.clientOrders.all, data, {
         prependIfMissing: true,
       });
+      // Pending create reserves stock — bump committedQuantity before invalidate
+      patchProductCommittedCaches(
+        queryClient,
+        resolveOrderCommittedDeltas(null, data),
+      );
       invalidateAfterOrderGraphChange(queryClient);
 
       // Show success toast
@@ -149,6 +160,11 @@ export function useUpdateOrder() {
       // Also sync invoice linkedOrderStatus/Payment (patchOrderGraph matches invoice by id≠order.id).
       // REQ-0136 — always resolve statusAt (updatedAt fallback) so list Status date
       // updates on confirm/process and does not keep a stale shipped/delivered stamp.
+      const prevCached =
+        queryClient.getQueryData<Order>(queryKeys.orders.detail(data.id)) ??
+        queryClient.getQueryData<Order>(
+          queryKeys.clientOrders.detail(data.id),
+        );
       const updatedAtIso =
         data.updatedAt == null
           ? undefined
@@ -249,6 +265,18 @@ export function useUpdateOrder() {
               ? statusPatch.updatedAt
               : new Date(statusPatch.updatedAt).toISOString(),
       });
+      // REQ-0221 — fulfill/release reserved densify on status/payment transition
+      patchProductCommittedCaches(
+        queryClient,
+        resolveOrderCommittedDeltas(prevCached, {
+          status: data.status,
+          paymentStatus: data.paymentStatus,
+          items: (prevCached?.items ?? data.items)?.map((i) => ({
+            productId: i.productId,
+            quantity: i.quantity,
+          })),
+        }),
+      );
       invalidateAfterOrderGraphChange(queryClient);
 
       // Show success toast
@@ -284,6 +312,11 @@ export function useDeleteOrder() {
     },
     onSuccess: (data: Order) => {
       // REQ-0210 — statusAt for list Status column; patch linked invoices (not order.id)
+      const prevCached =
+        queryClient.getQueryData<Order>(queryKeys.orders.detail(data.id)) ??
+        queryClient.getQueryData<Order>(
+          queryKeys.clientOrders.detail(data.id),
+        );
       const cancelledAtIso =
         data.cancelledAt == null
           ? new Date().toISOString()
@@ -326,6 +359,18 @@ export function useDeleteOrder() {
         ...cancelPatch,
         invoiceForOrder: data.invoiceForOrder ?? null,
       });
+      // REQ-0221 — release pending reservation densify
+      patchProductCommittedCaches(
+        queryClient,
+        resolveOrderCommittedDeltas(prevCached, {
+          status: data.status,
+          paymentStatus: data.paymentStatus,
+          items: (prevCached?.items ?? data.items)?.map((i) => ({
+            productId: i.productId,
+            quantity: i.quantity,
+          })),
+        }),
+      );
       cancelOrRemoveDetailQuery(queryClient, queryKeys.orders.detail(data.id));
       invalidateAfterOrderGraphChange(queryClient);
 

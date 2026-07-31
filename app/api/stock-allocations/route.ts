@@ -24,6 +24,7 @@ import {
   fetchStockAllocationProductMap,
   transformStockAllocationRow,
   enrichStockAllocationRows,
+  densifyStockAllocationWriteResponse,
 } from "@/lib/stock-allocation/stock-allocation-enrich";
 
 function transform(
@@ -253,18 +254,8 @@ export async function POST(request: NextRequest) {
 
     const allocation = await upsertStockAllocation(data, session.id);
     await scheduleInvalidateStockAllocationCaches();
-    const result: StockAllocation = {
-      id: allocation.id,
-      productId: allocation.productId,
-      warehouseId: allocation.warehouseId,
-      quantity: Number(allocation.quantity),
-      reservedQuantity: Number(allocation.reservedQuantity),
-      userId: allocation.userId,
-      createdAt: allocation.createdAt.toISOString(),
-      updatedAt: allocation.updatedAt?.toISOString() ?? null,
-      product: { id: product.id, name: product.name, sku: product.sku },
-      warehouse: { id: warehouse.id, name: warehouse.name },
-    };
+    // REQ-0221 — full densify (not thin product:{id,name,sku}) for instant warehouse row paint
+    const result = await densifyStockAllocationWriteResponse(allocation);
 
     return NextResponse.json(result, { status: 201 });
   } catch (error) {

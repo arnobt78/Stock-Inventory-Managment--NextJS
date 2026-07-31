@@ -27,6 +27,8 @@ import {
   resolveBuyerUserId,
   resolveStoreOwnerUserId,
 } from "@/lib/orders/order-party";
+import { getOrderDetailForPage } from "@/lib/server/order-detail-data";
+import { resolveOrderStatusAtFromSource } from "@/lib/orders/order-status-display-date";
 
 /**
  * GET /api/orders
@@ -381,48 +383,35 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // Transform order for response
-    const transformedOrder = {
-      id: order.id,
-      orderNumber: order.orderNumber,
-      userId: order.userId,
-      clientId: order.clientId,
-      status: order.status,
-      paymentStatus: order.paymentStatus,
-      subtotal: order.subtotal,
-      tax: order.tax,
-      shipping: order.shipping,
-      discount: order.discount,
-      total: order.total,
-      shippingAddress: order.shippingAddress,
-      billingAddress: order.billingAddress,
-      notes: order.notes,
-      trackingNumber: order.trackingNumber,
-      trackingCarrier: order.trackingCarrier ?? null,
-      trackingUrl: order.trackingUrl,
-      labelUrl: order.labelUrl ?? null,
-      estimatedDelivery: order.estimatedDelivery?.toISOString() || null,
-      shippedAt: order.shippedAt?.toISOString() || null,
-      deliveredAt: order.deliveredAt?.toISOString() || null,
-      cancelledAt: order.cancelledAt?.toISOString() || null,
-      createdAt: order.createdAt.toISOString(),
-      updatedAt: order.updatedAt?.toISOString() || null,
-      createdBy: order.createdBy,
-      updatedBy: order.updatedBy,
-      items: order.items.map((item) => ({
-        id: item.id,
-        orderId: item.orderId,
-        productId: item.productId,
-        productName: item.productName,
-        sku: item.sku,
-        quantity: item.quantity,
-        price: item.price,
-        subtotal: item.subtotal,
-        createdAt: item.createdAt.toISOString(),
-      })),
-    };
+    // REQ-0221 — densified 201 (parties + creator + list Store owner fields)
+    const densified = await getOrderDetailForPage(
+      { id: session.id, role: session.role },
+      order.id,
+    );
+    if (!densified) {
+      return NextResponse.json(
+        { error: "Order created but detail enrich failed" },
+        { status: 500 },
+      );
+    }
+    const primaryOwner = densified.orderProductOwners?.[0];
+    const statusAt =
+      resolveOrderStatusAtFromSource(densified) ??
+      (typeof densified.createdAt === "string"
+        ? densified.createdAt
+        : densified.createdAt.toISOString());
 
-    return NextResponse.json(transformedOrder, { status: 201 });
+    return NextResponse.json(
+      {
+        ...densified,
+        productOwnerName:
+          primaryOwner?.name ?? primaryOwner?.email ?? densified.productOwnerName ?? null,
+        productOwnerEmail:
+          primaryOwner?.email ?? densified.productOwnerEmail ?? null,
+        statusAt,
+      },
+      { status: 201 },
+    );
   } catch (error) {
     logger.error("Error creating order:", error);
     return NextResponse.json(

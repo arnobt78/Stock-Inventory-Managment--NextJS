@@ -471,7 +471,11 @@ export async function getOrderByIdForProductOwner(
   return hasMyProduct ? order : null;
 }
 
-/** Shared include for client order detail (own + catalog-history read). */
+/**
+ * Shared include for client order detail (own + catalog-history read).
+ * REQ-0221 — `userId` required so enrichOrder can resolve orderProductOwners
+ * (parity with admin/supplier includes + invoice-detail product select).
+ */
 const clientOrderDetailInclude = {
   items: {
     include: {
@@ -481,6 +485,7 @@ const clientOrderDetailInclude = {
           name: true,
           sku: true,
           price: true,
+          userId: true,
           categoryId: true,
           supplierId: true,
           imageUrl: true,

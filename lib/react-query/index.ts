@@ -40,11 +40,15 @@ export {
   applyTransferQtyToAllocationRows,
   patchWarehouseStockSummaryCaches,
   patchCatalogListProductCounts,
+  patchProductCommittedCaches,
+  resolveOrderCommittedDeltas,
+  patchCommittedAfterOrderMoneySettle,
 } from "./patch-mutation-cache";
 export type {
   InvoiceMoneyPatchSource,
   StockTransferPatchInput,
   WarehouseSummaryDelta,
+  ProductCommittedDelta,
 } from "./patch-mutation-cache";
 export { withInitialData } from "./initial-data-options";
 export {

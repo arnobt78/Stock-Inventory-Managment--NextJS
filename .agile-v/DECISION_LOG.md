@@ -633,3 +633,9 @@ Format: `TIMESTAMP | AGENT | DECISION | RATIONALE | REQ-ID`
 2026-07-30T15:15:00Z | build-agent | Widen findCachedAllocation keys to QueryKey[] | byWarehouse push incompatible with product-only tuple array; Vercel tsc fail | REQ-0219
 
 2026-07-30T16:05:00Z | build-agent | Back: navigate then list-safe invalidateAfterBackNavigation | Soft-nav kept detail mounted; *.all/forecast/stock flash empty UI | REQ-0220
+
+2026-07-31T10:45:00Z | agile-v-core | Session activate — no re-bootstrap; resume Gate 2 | .agile-v intact (24 skills + runtime); tip 4e06cf9/8a927bc; WIP dirty parked without REQ | REQ-0008, REQ-0009
+
+2026-07-31T13:30:00Z | build-agent | Densify gateway: client include userId; create 201 enrich; audit densify-first; committed patch; allocate enrich; insights no-pulse when densify | Six first-paint gaps from ed07d6 logs | REQ-0221
+
+2026-07-31T13:45:00Z | build-agent | Money-settle densify only; checkout create stays invalidate-only; webhook-only settle heals via SSR/refetch (no client hook) | Reserved must clear on Stripe return / invoice money, not Pay click | REQ-0222

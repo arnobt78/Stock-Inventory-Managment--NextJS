@@ -172,7 +172,7 @@ All user-facing POST/PUT JSON bodies use `safeParse` + `logger.warn` on fail. Ne
 
 **Every session:** STATE → REQ map → skill 01+17 → Red Team → write-through DECISION/BUILD/VALIDATION.
 
-**C1 open:** Gate 2 PENDING (Sentry 24h). **Stopped 2026-07-30:** REQ-0220 back-nav flash. **Next:** Vercel Ready → smoke → Sentry 24h (**REQ-0009**).
+**C1 open:** Gate 2 PENDING (Sentry 24h). **Done:** REQ-0220…0222. **Next:** Vercel Ready → smoke → Sentry 24h (**REQ-0009**).
 
 ## REQ-0136 cache / badges / hydration (2026-07-27)
 
@@ -1139,7 +1139,20 @@ Hub: `lib/ui/typography-scale.ts`. Hubs import tokens; ~45 inline files use equi
 
 **Invalidation unchanged** — review/product/dashboard CRUD already clears lists + portals.
 
-**Active wave:** **0220** back-nav flash done → **Gate 2** Sentry 24h (REQ-0009).
+**Active wave:** **0221** densify gateway + **0222** payment settle densify **done** → **Gate 2** Sentry 24h (REQ-0009).
+
+## Densify gateway (REQ-0221) + payment settle (REQ-0222)
+
+| Piece | Location |
+|-------|----------|
+| Parties / create | `clientOrderDetailInclude` +userId; POST orders densify 201; `useCreateOrder` merge |
+| Audit / insights | AuditUser densify-first; insights `dataLoading=false` when densify |
+| Reserved | `resolveOrderCommittedDeltas` + `patchProductCommittedCaches` on order CRUD |
+| Allocate enrich | `densifyStockAllocationWriteResponse` POST/PUT |
+| Settle (0222) | `patchCommittedAfterOrderMoneySettle` — Stripe order+invoice return; invoice update/send after money patch; **not** checkout create |
+| Tests | `resolve-order-committed-deltas.test.ts` |
+
+**Invalidation:** patch → order-graph invalidate. Webhook-only settle → SSR/refetch. KPI densify still REQ-0218 deferred.
 
 ## Warehouse detail + Allocate/Transfer (REQ-0203)
 

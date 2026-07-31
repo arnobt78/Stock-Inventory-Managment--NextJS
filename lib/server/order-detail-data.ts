@@ -94,17 +94,19 @@ async function enrichOrder(orderId: string, order: NonNullable<Awaited<ReturnTyp
     ? userMap.get(order.updatedBy)
     : undefined;
 
+  const orderProductOwners = productOwnerUsers.map((u) => ({
+    userId: u.id,
+    name: u.name ?? null,
+    email: u.email,
+    image: u.image ?? null,
+  }));
+
   return {
     placedByName: placedBy?.name ?? placedBy?.email ?? null,
     placedByEmail: placedBy?.email ?? null,
     placedByUserId: buyerUserId,
     placedByImage: placedBy?.image ?? null,
-    orderProductOwners: productOwnerUsers.map((u) => ({
-      userId: u.id,
-      name: u.name ?? null,
-      email: u.email,
-      image: u.image ?? null,
-    })),
+    orderProductOwners,
     invoiceForOrder: invoiceForOrder
       ? {
           id: invoiceForOrder.id,

@@ -1,6 +1,7 @@
 /**
  * REQ-0141 — compact KPI card beside category/supplier stock pie
  * (avoids lg:col-span-2 when stockChartCompanion is omitted).
+ * REQ-0221 — pass dataLoading=false when snapshot densify is already on the entity.
  */
 
 import {
@@ -88,7 +89,7 @@ export function CatalogSnapshotCompanion({
             loading={dataLoading}
           >
             {!dataLoading && (
-              <span className="text-blue-600 dark:text-blue-400">
+              <span className="text-sky-600 dark:text-sky-400">
                 ${stats.totalValue.toFixed(2)}
               </span>
             )}

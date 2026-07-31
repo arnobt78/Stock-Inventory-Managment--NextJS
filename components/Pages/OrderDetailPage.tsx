@@ -526,28 +526,34 @@ export default function OrderDetailPage({
                     </span>
                   </DetailInfoRow>
                 )}
-                {!dataLoading && order?.creator && (
-                  <AuditUserDetailRow
-                    label="Created by:"
-                    tone="violet"
-                    user={order.creator}
-                    href={resolveDetailAuditUserHref(
-                      order.creator.id,
-                      isAdminRole,
-                    )}
-                  />
-                )}
-                {!dataLoading && order?.updater && (
-                  <AuditUserDetailRow
-                    label="Updated by:"
-                    tone="blue"
-                    user={order.updater}
-                    href={resolveDetailAuditUserHref(
-                      order.updater.id,
-                      isAdminRole,
-                    )}
-                  />
-                )}
+                <AuditUserDetailRow
+                  label="Created by:"
+                  tone="violet"
+                  user={order?.creator}
+                  loading={dataLoading && !order?.creator}
+                  href={
+                    order?.creator
+                      ? resolveDetailAuditUserHref(
+                          order.creator.id,
+                          isAdminRole,
+                        )
+                      : undefined
+                  }
+                />
+                <AuditUserDetailRow
+                  label="Updated by:"
+                  tone="blue"
+                  user={order?.updater}
+                  loading={dataLoading && !order?.updater}
+                  href={
+                    order?.updater
+                      ? resolveDetailAuditUserHref(
+                          order.updater.id,
+                          isAdminRole,
+                        )
+                      : undefined
+                  }
+                />
                 {!dataLoading && order?.notes && (
                   <DetailInfoRow icon={StickyNote} label="Notes:" tone="teal">
                     {order.notes}

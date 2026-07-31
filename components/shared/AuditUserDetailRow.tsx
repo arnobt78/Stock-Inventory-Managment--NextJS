@@ -3,6 +3,8 @@
 /**
  * REQ-0095 — merged audit user row for catalog detail pages.
  * REQ-0127 — PersonInlineRow: sky name · muted email, vertically centered.
+ * REQ-0221 — densify-first: pass `loading={dataLoading && !user}` so SSR/cache
+ * creator/updater paint immediately (do not gate the whole row on dataLoading).
  */
 
 import type { LucideIcon } from "lucide-react";

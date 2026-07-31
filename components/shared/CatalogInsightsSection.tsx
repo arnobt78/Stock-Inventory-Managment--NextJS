@@ -1,5 +1,7 @@
 /**
  * REQ-0084 — reusable catalog entity insights + charts (category, supplier, product detail).
+ * REQ-0221 — when densify (`insights`) is mounted, parents pass dataLoading=false so
+ * metrics never pulse; forecast table still uses forecastLoading.
  */
 
 "use client";

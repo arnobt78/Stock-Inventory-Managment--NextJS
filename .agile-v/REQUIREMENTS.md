@@ -4,6 +4,55 @@ Canonical REQ source. All artifacts link via `REQ-XXXX`. Status: `done` | `verif
 
 ---
 
+## REQ-0222 — Payment settle densify (committed residual)
+
+| Field | Value |
+|-------|-------|
+| **Priority** | P0 |
+| **Risk** | R1 |
+| **Status** | done |
+| **Cycle** | C2 |
+| **Parent** | REQ-0221, REQ-0153 |
+
+**Intent:** Patch product `committedQuantity` on money **settle** (Stripe return invoice branch + invoice money update), not on checkout create. Gold path: patch → invalidate.
+
+**Acceptance criteria**
+
+- AC1: `useCreateCheckout` stays invalidate-only (no reserved clear before Stripe)
+- AC2: Stripe return on **invoice** entity patches committed when linked order was pending → paid/confirmed
+- AC3: `useUpdateInvoice` money settle patches committed using cached order items before invalidate
+- AC4: Shared `patchCommittedAfterOrderMoneySettle` wraps resolve/patch; registry unchanged
+- AC5: lint + tsc + test:invalidate + unit tests PASS
+
+**Artifacts:** `patch-mutation-cache.ts`, `use-stripe-checkout-return.ts`, `use-invoices.ts`
+
+---
+
+## REQ-0221 — Densify gateway (parties / audit / reserved / warehouse / insights)
+
+| Field | Value |
+|-------|-------|
+| **Priority** | P0 |
+| **Risk** | R2 |
+| **Status** | done |
+| **Cycle** | C2 |
+| **Parent** | REQ-0122, REQ-0153, REQ-0218 |
+
+**Intent:** Close six first-paint densify gaps so parties, audit users, store owner, reserved qty, warehouse stock meta, and catalog insights appear together (SSR + write densify → merge-patch → invalidate).
+
+**Acceptance criteria**
+
+- AC1: Client order detail `orderProductOwners` populated (`product.userId` on client include)
+- AC2: Order create 201 densifies parties + `productOwnerName`/`Email`; `useCreateOrder` merge-patches
+- AC3: Detail Created/Updated by densify-first (no `!dataLoading` gate when densify present)
+- AC4: Order graph mutations patch product `committedQuantity` then invalidate
+- AC5: Stock allocate POST/PUT returns enriched rows (category/supplier/catalog meta)
+- AC6: Insights/Snapshot pulse only when densify missing (cold); SSR densify never pulses
+
+**Artifacts:** `prisma/order.ts`, `app/api/orders/route.ts`, `patch-mutation-cache.ts`, detail pages, stock-allocations route, CatalogInsightsSection consumers
+
+---
+
 ## REQ-0220 — Detail Back soft-nav empty flash
 
 | Field | Value |

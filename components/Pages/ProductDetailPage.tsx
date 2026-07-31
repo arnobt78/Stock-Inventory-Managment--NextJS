@@ -538,7 +538,7 @@ export default function ProductDetailPage({
                 <GlassCardBody className="flex-1 flex flex-col justify-center">
                   <p className="text-xs uppercase tracking-[0.2em] text-gray-600 dark:text-white/80 mb-3 flex items-center gap-2">
                     <DollarSign
-                      className="h-4 w-4 text-blue-600 dark:text-blue-400 shrink-0"
+                      className="h-4 w-4 text-sky-600 dark:text-sky-400 shrink-0"
                       aria-hidden
                     />
                     Price
@@ -765,25 +765,31 @@ export default function ProductDetailPage({
                       />
                     </DetailInfoRow>
                   )}
-                  {!dataLoading && product?.creator && (
-                    <AuditUserDetailRow
-                      label="Created by:"
-                      tone="violet"
-                      user={product.creator}
-                      href={ownerProductsHref(product.creator.id)}
-                    />
-                  )}
-                  {!dataLoading && product?.updater && (
-                    <AuditUserDetailRow
-                      label="Updated by:"
-                      tone="blue"
-                      user={product.updater}
-                      href={resolveDetailAuditUserHref(
-                        product.updater.id,
-                        isAdminRole,
-                      )}
-                    />
-                  )}
+                  <AuditUserDetailRow
+                    label="Created by:"
+                    tone="violet"
+                    user={product?.creator}
+                    loading={dataLoading && !product?.creator}
+                    href={
+                      product?.creator
+                        ? ownerProductsHref(product.creator.id)
+                        : undefined
+                    }
+                  />
+                  <AuditUserDetailRow
+                    label="Updated by:"
+                    tone="blue"
+                    user={product?.updater}
+                    loading={dataLoading && !product?.updater}
+                    href={
+                      product?.updater
+                        ? resolveDetailAuditUserHref(
+                            product.updater.id,
+                            isAdminRole,
+                          )
+                        : undefined
+                    }
+                  />
                 </div>
               </GlassCardBody>
             </GlassCard>
@@ -839,7 +845,7 @@ export default function ProductDetailPage({
                   >
                     {!dataLoading && (
                       <span className="inline-flex flex-wrap items-baseline gap-x-1.5">
-                        <span className="text-blue-600 dark:text-blue-400">
+                        <span className="text-sky-600 dark:text-sky-400">
                           ${(stats.totalValue ?? 0).toFixed(2)}
                         </span>
                         <span className={cn("text-xs", TYPO_BODY_MUTED)}>
@@ -856,7 +862,8 @@ export default function ProductDetailPage({
           {insights && (
             <CatalogInsightsSection
               insights={insights}
-              dataLoading={dataLoading}
+              // REQ-0221 — densify present → no metric pulse
+              dataLoading={false}
               isAdminRole={isAdminRole}
               forecastLoading={forecastLoading}
               title="Product Insights"

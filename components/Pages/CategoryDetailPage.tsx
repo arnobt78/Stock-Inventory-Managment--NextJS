@@ -440,28 +440,34 @@ export default function CategoryDetailPage({
                       </DetailInfoRow>
                     )}
                   </DetailInfoRowGroup>
-                  {!dataLoading && category?.creator && (
-                    <AuditUserDetailRow
-                      label="Created by:"
-                      tone="violet"
-                      user={category.creator}
-                      href={resolveDetailAuditUserHref(
-                        category.creator.id,
-                        isAdminRole,
-                      )}
-                    />
-                  )}
-                  {!dataLoading && category?.updater && (
-                    <AuditUserDetailRow
-                      label="Updated by:"
-                      tone="blue"
-                      user={category.updater}
-                      href={resolveDetailAuditUserHref(
-                        category.updater.id,
-                        isAdminRole,
-                      )}
-                    />
-                  )}
+                  <AuditUserDetailRow
+                    label="Created by:"
+                    tone="violet"
+                    user={category?.creator}
+                    loading={dataLoading && !category?.creator}
+                    href={
+                      category?.creator
+                        ? resolveDetailAuditUserHref(
+                            category.creator.id,
+                            isAdminRole,
+                          )
+                        : undefined
+                    }
+                  />
+                  <AuditUserDetailRow
+                    label="Updated by:"
+                    tone="blue"
+                    user={category?.updater}
+                    loading={dataLoading && !category?.updater}
+                    href={
+                      category?.updater
+                        ? resolveDetailAuditUserHref(
+                            category.updater.id,
+                            isAdminRole,
+                          )
+                        : undefined
+                    }
+                  />
                 </div>
               </GlassCardBody>
             </GlassCard>
@@ -524,7 +530,7 @@ export default function CategoryDetailPage({
                   >
                     {!dataLoading && (
                       <span className="inline-flex flex-wrap items-baseline gap-x-1.5">
-                        <span className="text-blue-600 dark:text-blue-400">
+                        <span className="text-sky-600 dark:text-sky-400">
                           ${(stats.totalValue ?? 0).toFixed(2)}
                         </span>
                         <span className={cn("text-xs", TYPO_BODY_MUTED)}>
@@ -542,7 +548,8 @@ export default function CategoryDetailPage({
           {insights && (
             <CatalogInsightsSection
               insights={insights}
-              dataLoading={dataLoading}
+              // REQ-0221 — densify present → no metric pulse (cold-only when !insights)
+              dataLoading={false}
               isAdminRole={isAdminRole}
               forecastLoading={forecastLoading}
               title="Category Insights"
@@ -567,7 +574,7 @@ export default function CategoryDetailPage({
                     lowStockCount: insights.lowStockCount,
                     outOfStockCount: insights.outOfStockCount,
                   }}
-                  dataLoading={dataLoading}
+                  dataLoading={false}
                 />
               }
             />

@@ -581,28 +581,34 @@ export default function WarehouseDetailPage({
                       </span>
                     </DetailInfoRow>
                   )}
-                  {warehouse?.creator && (
-                    <AuditUserDetailRow
-                      label="Created by:"
-                      tone="violet"
-                      user={warehouse.creator}
-                      href={resolveDetailAuditUserHref(
-                        warehouse.creator.id,
-                        isAdminRole,
-                      )}
-                    />
-                  )}
-                  {warehouse?.updater && (
-                    <AuditUserDetailRow
-                      label="Updated by:"
-                      tone="blue"
-                      user={warehouse.updater}
-                      href={resolveDetailAuditUserHref(
-                        warehouse.updater.id,
-                        isAdminRole,
-                      )}
-                    />
-                  )}
+                  <AuditUserDetailRow
+                    label="Created by:"
+                    tone="violet"
+                    user={warehouse?.creator}
+                    loading={dataLoading && !warehouse?.creator}
+                    href={
+                      warehouse?.creator
+                        ? resolveDetailAuditUserHref(
+                            warehouse.creator.id,
+                            isAdminRole,
+                          )
+                        : undefined
+                    }
+                  />
+                  <AuditUserDetailRow
+                    label="Updated by:"
+                    tone="blue"
+                    user={warehouse?.updater}
+                    loading={dataLoading && !warehouse?.updater}
+                    href={
+                      warehouse?.updater
+                        ? resolveDetailAuditUserHref(
+                            warehouse.updater.id,
+                            isAdminRole,
+                          )
+                        : undefined
+                    }
+                  />
                 </div>
               </GlassCardBody>
             </GlassCard>
