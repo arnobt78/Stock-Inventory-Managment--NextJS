@@ -530,22 +530,24 @@ export default function WarehouseDetailPage({
                       icon={Calendar}
                       label="Created:"
                       tone="orange"
-                      loading={dataLoading}
+                      loading={dataLoading && !createdAt}
                     >
-                      {!dataLoading &&
-                        (createdAt ? (
-                          <ClientDateTime date={createdAt} semantic="created" />
-                        ) : (
+                      {createdAt ? (
+                        <ClientDateTime date={createdAt} semantic="created" />
+                      ) : (
+                        !dataLoading && (
                           <span className="text-gray-500 dark:text-white/60">
                             —
                           </span>
-                        ))}
+                        )
+                      )}
                     </DetailInfoRow>
                     {updatedAt && (
                       <DetailInfoRow
                         icon={Clock}
                         label="Updated:"
                         tone="violet"
+                        loading={false}
                       >
                         <ClientRelativeTime
                           date={updatedAt}

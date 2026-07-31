@@ -4,6 +4,30 @@ Canonical REQ source. All artifacts link via `REQ-XXXX`. Status: `done` | `verif
 
 ---
 
+## REQ-0223 — UI polish (datepicker / urgent densify / date flash / chart labels)
+
+| Field | Value |
+|-------|-------|
+| **Priority** | P1 |
+| **Risk** | R1 |
+| **Status** | done |
+| **Cycle** | C2 |
+| **Parent** | REQ-0117, REQ-0127, REQ-0173, REQ-0077, REQ-0221 |
+
+**Intent:** Single dialog datepicker icon; urgent forecast DenseCatalog densify + glow overflow; detail Created/Updated date densify-first; BI Status/Price chart top margin.
+
+**Acceptance criteria**
+
+- AC1: Native calendar indicator fully hidden; one Lucide icon in DialogDateField / ExpirationDateField / BI filters
+- AC2: UrgentReorderForecastTable uses DenseCatalogProductCell with image + category/supplier; badge glow not clipped
+- AC3: Detail Created/Updated date pills densify-first (`loading && !value`)
+- AC4: BI Status + Price Range BarCharts use `CHART_LABEL_TOP_MARGIN`
+- AC5: lint + tsc + test:invalidate PASS; no invalidation registry change
+
+**Artifacts:** `dialog-form-field.ts`, `DialogDateField`, `ExpirationDateField`, `UrgentReorderForecastTable`, `DenseCatalogProductCell`, detail pages, `BusinessInsightPage`
+
+---
+
 ## REQ-0222 — Payment settle densify (committed residual)
 
 | Field | Value |

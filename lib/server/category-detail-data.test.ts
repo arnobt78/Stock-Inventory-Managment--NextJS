@@ -12,6 +12,12 @@ describe("buildCategoryForecastRollup", () => {
       productId: "p1",
       productName: "A",
       sku: "SKU-A",
+      imageUrl: "https://example.com/a.jpg",
+      categoryId: "c1",
+      categoryName: "Cat",
+      supplierId: "s1",
+      supplierName: "Sup",
+      supplierImage: null,
       currentStock: 2,
       availableStock: 1,
       averageDailySales: 2,
@@ -59,6 +65,9 @@ describe("buildCategoryForecastRollup", () => {
     expect(rollup.predictedDailyDemand).toBe(4.5);
     expect(rollup.topUrgent).toHaveLength(1);
     expect(rollup.topUrgent[0]?.productId).toBe("p1");
+    expect(rollup.topUrgent[0]?.imageUrl).toBe("https://example.com/a.jpg");
+    expect(rollup.topUrgent[0]?.categoryName).toBe("Cat");
+    expect(rollup.topUrgent[0]?.supplierName).toBe("Sup");
   });
 });
 

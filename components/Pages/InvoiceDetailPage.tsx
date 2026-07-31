@@ -566,11 +566,11 @@ export default function InvoiceDetailPage({
                       icon={Calendar}
                       label="Issued:"
                       tone="orange"
-                      loading={dataLoading}
+                      loading={dataLoading && !issuedAt}
                     >
-                      {!dataLoading && issuedAt && (
+                      {issuedAt ? (
                         <ClientDateTime date={issuedAt} semantic="created" />
-                      )}
+                      ) : null}
                     </DetailInfoRow>
                   )}
                   {(dataLoading || updatedAt) && (
@@ -578,11 +578,11 @@ export default function InvoiceDetailPage({
                       icon={Calendar}
                       label="Updated:"
                       tone="amber"
-                      loading={dataLoading}
+                      loading={dataLoading && !updatedAt}
                     >
-                      {!dataLoading && updatedAt && (
+                      {updatedAt ? (
                         <ClientDateTime date={updatedAt} semantic="updated" />
-                      )}
+                      ) : null}
                     </DetailInfoRow>
                   )}
                 </DetailInfoRowGroup>

@@ -4,6 +4,7 @@
  * REQ-0173 — denser admin catalog product cell (forecast + Top Products).
  *   [thumb] Name · SKU[copy]
  *           Tag Category · AvatarInlineLink supplier (circle ring)
+ * REQ-0223 — optional href builders for store vs admin detail urgent tables.
  */
 
 import Link from "next/link";
@@ -22,6 +23,12 @@ export type DenseCatalogProductCellProps = {
   supplierId?: string | null;
   supplierName?: string | null;
   supplierImage?: string | null;
+  /** Defaults to `/admin/products/{id}` */
+  productHref?: (productId: string) => string;
+  /** Defaults to `/admin/categories/{id}` */
+  categoryHref?: (categoryId: string) => string;
+  /** Defaults to `/admin/suppliers/{id}` */
+  supplierHref?: (supplierId: string) => string;
 };
 
 export function DenseCatalogProductCell({
@@ -34,6 +41,9 @@ export function DenseCatalogProductCell({
   supplierId,
   supplierName,
   supplierImage,
+  productHref = (id) => `/admin/products/${id}`,
+  categoryHref = (id) => `/admin/categories/${id}`,
+  supplierHref = (id) => `/admin/suppliers/${id}`,
 }: DenseCatalogProductCellProps) {
   const skuText = (sku ?? "").trim();
   const hasSku = skuText.length > 0;
@@ -51,7 +61,7 @@ export function DenseCatalogProductCell({
       <div className="flex min-w-0 flex-col gap-0.5">
         <div className="flex flex-wrap items-center gap-x-1.5 gap-y-0.5 min-w-0">
           <Link
-            href={`/admin/products/${productId}`}
+            href={productHref(productId)}
             prefetch
             className="text-sm font-normal text-sky-600 dark:text-sky-400 hover:text-sky-500 dark:hover:text-sky-300 truncate max-w-full"
           >
@@ -75,7 +85,7 @@ export function DenseCatalogProductCell({
           <div className="flex flex-wrap items-center gap-x-1.5 gap-y-0.5 min-w-0 text-xs">
             {hasCategory ? (
               <Link
-                href={`/admin/categories/${categoryId}`}
+                href={categoryHref(categoryId!)}
                 prefetch
                 className="inline-flex items-center gap-1 text-sky-600 dark:text-sky-400 hover:text-sky-500 dark:hover:text-sky-300 min-w-0"
               >
@@ -93,7 +103,7 @@ export function DenseCatalogProductCell({
                 seed={supplierId!}
                 image={supplierImage}
                 label={supplierName!}
-                href={`/admin/suppliers/${supplierId}`}
+                href={supplierHref(supplierId!)}
                 size={20}
                 linkClassName="text-xs font-normal"
                 className="gap-1.5"

@@ -1,9 +1,26 @@
 # Validation Summary — Cycle C1
 
-**Generated:** 2026-07-31 (REQ-0222 payment settle densify)
+**Generated:** 2026-07-31 (REQ-0223 UI polish)
 **eval_gate_status:** PENDING (Human Gate 2)
 **Active:** Prod smoke after next deploy
-**Last ship:** money-settle committed densify (invoice Stripe return + invoice update)
+**Last ship:** datepicker / urgent densify / date flash / BI chart labels
+
+---
+
+## REQ-0223 — UI polish (2026-07-31)
+
+| Check | Result |
+| ----- | ------ |
+| Datepicker | native indicator `display:none`; one Lucide icon |
+| Urgent table | DenseCatalog + rollup image/category/supplier; GlassCard overflow-visible |
+| Date densify | Created/Updated `loading && !value` on detail pages |
+| BI charts | Status + Price Range top margin + count labels |
+| Gates | lint ✓ tsc ✓ category-detail 2 ✓ invalidate 222 ✓ |
+
+```
+Scope: built/verified | Traceability: REQ-0223 | Findings: PASS
+Commands: lint, tsc --noEmit, vitest category-detail-data, test:invalidate
+```
 
 ---
 

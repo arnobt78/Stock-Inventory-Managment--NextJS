@@ -9,7 +9,7 @@ import type { LucideIcon } from "lucide-react";
 import { Calendar as CalendarIcon } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { DialogFormLabel } from "@/components/shared/dialog-form-label";
-import { DIALOG_DATE_CALENDAR_ICON_CLASS } from "@/components/shared/dialog-form-field";
+import { DIALOG_DATE_CALENDAR_ICON_CLASS, DIALOG_NATIVE_DATE_HIDE_INDICATOR } from "@/components/shared/dialog-form-field";
 import { cn } from "@/lib/utils";
 
 export type DialogDateFieldProps = {
@@ -65,7 +65,8 @@ export function DialogDateField({
           min={min}
           disabled={disabled}
           className={cn(
-            "h-11 pr-10 [color-scheme:dark] [&::-webkit-calendar-picker-indicator]:opacity-0 [&::-webkit-calendar-picker-indicator]:absolute [&::-webkit-calendar-picker-indicator]:right-0 [&::-webkit-calendar-picker-indicator]:w-full [&::-webkit-calendar-picker-indicator]:h-full",
+            "h-11 pr-10 [color-scheme:dark]",
+            DIALOG_NATIVE_DATE_HIDE_INDICATOR,
             inputClassName,
           )}
         />

@@ -639,3 +639,5 @@ Format: `TIMESTAMP | AGENT | DECISION | RATIONALE | REQ-ID`
 2026-07-31T13:30:00Z | build-agent | Densify gateway: client include userId; create 201 enrich; audit densify-first; committed patch; allocate enrich; insights no-pulse when densify | Six first-paint gaps from ed07d6 logs | REQ-0221
 
 2026-07-31T13:45:00Z | build-agent | Money-settle densify only; checkout create stays invalidate-only; webhook-only settle heals via SSR/refetch (no client hook) | Reserved must clear on Stripe return / invoice money, not Pay click | REQ-0222
+
+2026-07-31T14:25:00Z | build-agent | Hide native date indicator (not opacity); urgent DenseCatalog densify; date densify-first; BI chart top margin | Four UI gaps from screenshots | REQ-0223

@@ -172,7 +172,7 @@ All user-facing POST/PUT JSON bodies use `safeParse` + `logger.warn` on fail. Ne
 
 **Every session:** STATE → REQ map → skill 01+17 → Red Team → write-through DECISION/BUILD/VALIDATION.
 
-**C1 open:** Gate 2 PENDING (Sentry 24h). **Done:** REQ-0220…0222. **Next:** Vercel Ready → smoke → Sentry 24h (**REQ-0009**).
+**C1 open:** Gate 2 PENDING (Sentry 24h). **Done:** REQ-0220…0223. **Next:** Vercel Ready → smoke → Sentry 24h (**REQ-0009**).
 
 ## REQ-0136 cache / badges / hydration (2026-07-27)
 
@@ -1139,7 +1139,18 @@ Hub: `lib/ui/typography-scale.ts`. Hubs import tokens; ~45 inline files use equi
 
 **Invalidation unchanged** — review/product/dashboard CRUD already clears lists + portals.
 
-**Active wave:** **0221** densify gateway + **0222** payment settle densify **done** → **Gate 2** Sentry 24h (REQ-0009).
+**Active wave:** **0223** UI polish done → **Gate 2** Sentry 24h (REQ-0009).
+
+## UI polish (REQ-0223)
+
+| Piece | Location |
+|-------|----------|
+| Datepicker | `DIALOG_NATIVE_DATE_HIDE_INDICATOR` — DialogDateField / Expiration / BI From–To |
+| Urgent densify | rollup + `DenseCatalogProductCell` href builders; GlassCard overflow-visible |
+| Date densify | Created/Updated pills `loading && !value` on detail pages |
+| BI charts | Status + Price Range `CHART_LABEL_TOP_MARGIN` + count labels |
+
+**No invalidation changes.**
 
 ## Densify gateway (REQ-0221) + payment settle (REQ-0222)
 

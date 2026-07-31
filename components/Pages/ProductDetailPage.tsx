@@ -694,22 +694,22 @@ export default function ProductDetailPage({
                       icon={Calendar}
                       label="Created:"
                       tone="teal"
-                      loading={dataLoading}
+                      loading={dataLoading && !createdAt}
                     >
-                      {!dataLoading && createdAt && (
+                      {createdAt ? (
                         <ClientDateTime date={createdAt} semantic="created" />
-                      )}
+                      ) : null}
                     </DetailInfoRow>
                     {(dataLoading || updatedAt) && (
                       <DetailInfoRow
                         icon={Calendar}
                         label="Updated:"
                         tone="sky"
-                        loading={dataLoading}
+                        loading={dataLoading && !updatedAt}
                       >
-                        {!dataLoading && updatedAt && (
+                        {updatedAt ? (
                           <ClientDateTime date={updatedAt} semantic="updated" />
-                        )}
+                        ) : null}
                       </DetailInfoRow>
                     )}
                     {!dataLoading && expirationDate && (

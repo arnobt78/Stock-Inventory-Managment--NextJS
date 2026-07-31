@@ -6,7 +6,7 @@
 "use client";
 
 import { useRef } from "react";
-import { DIALOG_FORM_FIELD_ROSE, DIALOG_DATE_CALENDAR_ICON_CLASS } from "@/components/shared/dialog-form-field";
+import { DIALOG_FORM_FIELD_ROSE, DIALOG_DATE_CALENDAR_ICON_CLASS, DIALOG_NATIVE_DATE_HIDE_INDICATOR } from "@/components/shared/dialog-form-field";
 import { DialogFormLabel } from "@/components/shared/dialog-form-label";
 import { cn } from "@/lib/utils";
 import { Input } from "@/components/ui/input";
@@ -51,7 +51,8 @@ export default function ExpirationDateField() {
           id="expiration-date"
           value={formattedDate}
           className={cn(
-            "h-11 pr-10 [color-scheme:dark] [&::-webkit-calendar-picker-indicator]:opacity-0 [&::-webkit-calendar-picker-indicator]:absolute [&::-webkit-calendar-picker-indicator]:right-0 [&::-webkit-calendar-picker-indicator]:w-full [&::-webkit-calendar-picker-indicator]:h-full",
+            "h-11 pr-10 [color-scheme:dark]",
+            DIALOG_NATIVE_DATE_HIDE_INDICATOR,
             DIALOG_FORM_FIELD_ROSE,
           )}
         />

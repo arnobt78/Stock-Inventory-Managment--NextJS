@@ -50,6 +50,13 @@ export const DIALOG_DATE_CALENDAR_ICON_CLASS =
   "text-white/80 hover:text-white transition-colors";
 
 /**
+ * REQ-0223 — fully hide native date indicator (opacity-0 still paints a 2nd icon on WebKit).
+ * Pair with custom Lucide button + showPicker(); keep pr-10 for icon gutter.
+ */
+export const DIALOG_NATIVE_DATE_HIDE_INDICATOR =
+  "[&::-webkit-calendar-picker-indicator]:hidden [&::-webkit-calendar-picker-indicator]:appearance-none";
+
+/**
  * REQ-0199 — Combobox trigger inside dark dialogs (Popover + Command).
  * Use with Button `variant="ghost"` + `DIALOG_FORM_FIELD_*` — kills outline→white hover.
  */

@@ -28,6 +28,13 @@ export type CategoryForecastUrgentRow = {
   productId: string;
   productName: string;
   sku: string;
+  /** REQ-0223 — densify parity with admin forecast tables */
+  imageUrl?: string | null;
+  categoryId?: string | null;
+  categoryName?: string | null;
+  supplierId?: string | null;
+  supplierName?: string | null;
+  supplierImage?: string | null;
   availableStock: number;
   daysUntilStockout: number | null;
   reorderRecommendation: "urgent" | "soon" | "normal" | "overstocked";

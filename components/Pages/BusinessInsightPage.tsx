@@ -107,10 +107,14 @@ import {
   GLASS_BUTTON_SHELL_RESET,
   GLASS_PRIMARY_BUTTON,
 } from "@/lib/ui/glass-button-styles";
+import {
+  DIALOG_NATIVE_DATE_HIDE_INDICATOR,
+} from "@/components/shared/dialog-form-field";
 
-/** Date range inputs — violet hue ring, no border-width shift (REQ-0046). */
+/** Date range inputs — violet hue ring; REQ-0223 hide native indicator + one Lucide icon. */
 const BUSINESS_INSIGHT_DATE_INPUT_CLASS = cn(
-  "flex-1 sm:flex-none px-2 py-2 text-sm rounded-xl border border-gray-300/30 bg-white/50 dark:bg-white/5 dark:border-white/10 text-gray-700 dark:text-white backdrop-blur-md transition",
+  "w-full h-10 pr-10 px-2 py-2 text-sm rounded-xl border border-gray-300/30 bg-white/50 dark:bg-white/5 dark:border-white/10 text-gray-700 dark:text-white backdrop-blur-md transition",
+  DIALOG_NATIVE_DATE_HIDE_INDICATOR,
   FOCUS_NO_LAYOUT_SHIFT_CLASS,
   GLASS_FOCUS_RING.violet,
 );
@@ -182,6 +186,9 @@ export default function BusinessInsightPage({
     startDate: "",
     endDate: "",
   });
+  // REQ-0223 — custom calendar button targets for From/To
+  const startDateInputRef = useRef<HTMLInputElement | null>(null);
+  const endDateInputRef = useRef<HTMLInputElement | null>(null);
 
   // Set QR URL after component mounts (client-side only)
   useEffect(() => {
@@ -944,19 +951,36 @@ export default function BusinessInsightPage({
                     >
                       From:
                     </label>
-                    <input
-                      id="start-date"
-                      type="date"
-                      value={dateRange.startDate}
-                      onChange={(e) =>
-                        setDateRange((prev) => ({
-                          ...prev,
-                          startDate: e.target.value,
-                        }))
-                      }
-                      className={BUSINESS_INSIGHT_DATE_INPUT_CLASS}
-                      max={dateRange.endDate || undefined}
-                    />
+                    <div className="relative flex-1 sm:flex-none sm:min-w-[10.5rem]">
+                      <input
+                        ref={startDateInputRef}
+                        id="start-date"
+                        type="date"
+                        value={dateRange.startDate}
+                        onChange={(e) =>
+                          setDateRange((prev) => ({
+                            ...prev,
+                            startDate: e.target.value,
+                          }))
+                        }
+                        className={BUSINESS_INSIGHT_DATE_INPUT_CLASS}
+                        max={dateRange.endDate || undefined}
+                      />
+                      <button
+                        type="button"
+                        onClick={() => {
+                          startDateInputRef.current?.focus();
+                          startDateInputRef.current?.showPicker?.();
+                        }}
+                        className={cn(
+                          "absolute right-2 top-1/2 -translate-y-1/2 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded",
+                          "text-violet-600/80 hover:text-violet-700 dark:text-white/80 dark:hover:text-white",
+                        )}
+                        aria-label="Open start date calendar"
+                      >
+                        <Calendar className="h-4 w-4" />
+                      </button>
+                    </div>
                   </div>
                   <div className="flex items-center gap-2">
                     <label
@@ -965,19 +989,36 @@ export default function BusinessInsightPage({
                     >
                       To:
                     </label>
-                    <input
-                      id="end-date"
-                      type="date"
-                      value={dateRange.endDate}
-                      onChange={(e) =>
-                        setDateRange((prev) => ({
-                          ...prev,
-                          endDate: e.target.value,
-                        }))
-                      }
-                      className={BUSINESS_INSIGHT_DATE_INPUT_CLASS}
-                      min={dateRange.startDate || undefined}
-                    />
+                    <div className="relative flex-1 sm:flex-none sm:min-w-[10.5rem]">
+                      <input
+                        ref={endDateInputRef}
+                        id="end-date"
+                        type="date"
+                        value={dateRange.endDate}
+                        onChange={(e) =>
+                          setDateRange((prev) => ({
+                            ...prev,
+                            endDate: e.target.value,
+                          }))
+                        }
+                        className={BUSINESS_INSIGHT_DATE_INPUT_CLASS}
+                        min={dateRange.startDate || undefined}
+                      />
+                      <button
+                        type="button"
+                        onClick={() => {
+                          endDateInputRef.current?.focus();
+                          endDateInputRef.current?.showPicker?.();
+                        }}
+                        className={cn(
+                          "absolute right-2 top-1/2 -translate-y-1/2 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded",
+                          "text-violet-600/80 hover:text-violet-700 dark:text-white/80 dark:hover:text-white",
+                        )}
+                        aria-label="Open end date calendar"
+                      >
+                        <Calendar className="h-4 w-4" />
+                      </button>
+                    </div>
                   </div>
                   {(dateRange.startDate || dateRange.endDate) && (
                     <Button
@@ -1263,7 +1304,15 @@ export default function BusinessInsightPage({
                         pulseClassName="min-h-[300px]"
                       >
                         <ResponsiveChartContainer>
-                          <BarChart data={analyticsData.statusDistribution}>
+                          <BarChart
+                            data={analyticsData.statusDistribution}
+                            margin={{
+                              top: CHART_LABEL_TOP_MARGIN,
+                              right: 30,
+                              left: 20,
+                              bottom: 5,
+                            }}
+                          >
                             <CartesianGrid strokeDasharray="3 3" />
                             <XAxis dataKey="name" />
                             <YAxis />
@@ -1271,7 +1320,9 @@ export default function BusinessInsightPage({
                             <Bar
                               dataKey="value"
                               fill="#8884d8"
-                              label={createChartBarLabelRenderer()}
+                              label={createChartBarLabelRenderer(
+                                formatChartCountLabel,
+                              )}
                             />
                           </BarChart>
                         </ResponsiveChartContainer>
@@ -1292,7 +1343,15 @@ export default function BusinessInsightPage({
                         pulseClassName="min-h-[300px]"
                       >
                         <ResponsiveChartContainer>
-                          <BarChart data={analyticsData.priceRangeDistribution}>
+                          <BarChart
+                            data={analyticsData.priceRangeDistribution}
+                            margin={{
+                              top: CHART_LABEL_TOP_MARGIN,
+                              right: 30,
+                              left: 20,
+                              bottom: 5,
+                            }}
+                          >
                             <CartesianGrid strokeDasharray="3 3" />
                             <XAxis dataKey="name" />
                             <YAxis />
@@ -1300,7 +1359,9 @@ export default function BusinessInsightPage({
                             <Bar
                               dataKey="value"
                               fill="#00C49F"
-                              label={createChartBarLabelRenderer()}
+                              label={createChartBarLabelRenderer(
+                                formatChartCountLabel,
+                              )}
                             />
                           </BarChart>
                         </ResponsiveChartContainer>

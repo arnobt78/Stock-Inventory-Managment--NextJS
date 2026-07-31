@@ -611,3 +611,9 @@
 | ART-0222b | REQ-0222 | useStripeCheckoutReturn invoice branch | reserved clear |
 | ART-0222c | REQ-0222 | useUpdateInvoice / useSendInvoice | prevOrder + settle |
 | TC-0222 | REQ-0222 | paid-while-pending deltas + lint/tsc/invalidate | PASS |
+
+| ART-0223a | REQ-0223 | DIALOG_NATIVE_DATE_HIDE_INDICATOR | single calendar icon |
+| ART-0223b | REQ-0223 | Urgent DenseCatalog + rollup meta + overflow-visible | image/glow |
+| ART-0223c | REQ-0223 | Created/Updated date densify-first | detail pages |
+| ART-0223d | REQ-0223 | BI Status/Price CHART_LABEL_TOP_MARGIN | label clip |
+| TC-0223 | REQ-0223 | rollup densify assert + lint/tsc/invalidate | PASS |

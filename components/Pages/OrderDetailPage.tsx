@@ -417,22 +417,22 @@ export default function OrderDetailPage({
                     icon={Calendar}
                     label="Created:"
                     tone="orange"
-                    loading={dataLoading}
+                    loading={dataLoading && !createdAt}
                   >
-                    {!dataLoading && createdAt && (
+                    {createdAt ? (
                       <ClientDateTime date={createdAt} semantic="created" />
-                    )}
+                    ) : null}
                   </DetailInfoRow>
                   {(dataLoading || updatedAt) && (
                     <DetailInfoRow
                       icon={Calendar}
                       label="Updated:"
                       tone="amber"
-                      loading={dataLoading}
+                      loading={dataLoading && !updatedAt}
                     >
-                      {!dataLoading && updatedAt && (
+                      {updatedAt ? (
                         <ClientDateTime date={updatedAt} semantic="updated" />
-                      )}
+                      ) : null}
                     </DetailInfoRow>
                   )}
                 </DetailInfoRowGroup>
