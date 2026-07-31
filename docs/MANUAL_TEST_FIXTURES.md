@@ -50,21 +50,21 @@ npx tsx scripts/lib/seed-demo-catalog.ts
 
 ### Category B — Accessories
 
-| Field       | Value                        |
-| ----------- | ---------------------------- |
-| Name        | `Accessories`                |
-| Status      | Active                       |
-| Description | `Cables, cases, and add-ons` |
-| Notes       | `Secondary demo category`    |
+| Field       | Value                                       |
+| ----------- | ------------------------------------------- |
+| Name        | `Accessories`                               |
+| Status      | Active                                      |
+| Description | `Cables, cases, and add-ons`                |
+| Notes       | `Use to test inactive filter on list pages` |
 
 ### Category C — TV (inactive test)
 
-| Field       | Value                                       |
-| ----------- | ------------------------------------------- |
-| Name        | `TV`                                        |
-| Status      | **Inactive**                                |
-| Description | `TVs and other electronics`                 |
-| Notes       | `Use to test inactive filter on list pages` |
+| Field       | Value                       |
+| ----------- | --------------------------- |
+| Name        | `TV`                        |
+| Status      | **Inactive**                |
+| Description | `TVs and other electronics` |
+| Notes       | `Secondary demo category`   |
 
 ---
 
@@ -74,21 +74,21 @@ npx tsx scripts/lib/seed-demo-catalog.ts
 
 ### Supplier A — Acme Parts Co
 
-| Field       | Value                                     |
-| ----------- | ----------------------------------------- |
-| Name        | `Acme Parts Co.`                          |
-| Status      | Active                                    |
-| Description | `Wholesale parts vendor for demo orders.` |
-| Notes       | `Primary supplier for SKU ACM-*`          |
+| Field       | Value                                    |
+| ----------- | ---------------------------------------- |
+| Name        | `Acme Parts Co.`                         |
+| Status      | Active                                   |
+| Description | `Wholesale parts vendor for demo orders` |
+| Notes       | `Primary supplier for SKU ACM-1234`      |
 
 ### Supplier B — Nordic Components
 
-| Field       | Value                                   |
-| ----------- | --------------------------------------- |
-| Name        | `Nordic Components`                     |
-| Status      | Active                                  |
-| Description | `EU-based component supplier.`          |
-| Notes       | `Use for multi-supplier product grids.` |
+| Field       | Value                                  |
+| ----------- | -------------------------------------- |
+| Name        | `Nordic Components`                    |
+| Status      | Active                                 |
+| Description | `EU-based component supplier`          |
+| Notes       | `Use for multi-supplier product grids` |
 
 ### Supplier C — Legacy Vendor (inactive)
 
@@ -216,12 +216,12 @@ Example split for **Demo Wireless Headphone** (catalog qty `100`):
 
 **Explore seed (REQ-0140 / REQ-0158):** After `npm run script:reset-demo-db -- --with-catalog`:
 
-| Order | Buyer | Badge | Notes |
-|-------|-------|-------|-------|
-| ORD/INV-DEMO-001 | client | Client | paid/delivered Sony TV |
-| ORD/INV-DEMO-002 | client | Client | partial Beats $100 / $3980 |
-| ORD/INV-DEMO-003 | **self** (`clientId` null) | Self | admin self paid TV (Secondary) |
-| ORD/INV-DEMO-004 | client | Client | unpaid/pending |
+| Order            | Buyer                      | Badge  | Notes                          |
+| ---------------- | -------------------------- | ------ | ------------------------------ |
+| ORD/INV-DEMO-001 | client                     | Client | paid/delivered Sony TV         |
+| ORD/INV-DEMO-002 | client                     | Client | partial Beats $100 / $3980     |
+| ORD/INV-DEMO-003 | **self** (`clientId` null) | Self   | admin self paid TV (Secondary) |
+| ORD/INV-DEMO-004 | client                     | Client | unpaid/pending                 |
 
 Beats (SK56) catalog **50**, Main alloc **30** with **20 reserved** (ORD-DEMO-002). UI committed = **20**, available = **30**. `/admin/client-portal` counts by `clientId`. If you still see **40 reserved**, re-seed with `--with-catalog`.
 
@@ -247,30 +247,30 @@ Redeploy → **logout/login once** (1d cookie). Prefer Network: after write, GET
 
 **A — Instant + no revert (core)**
 
-| # | Action | Wait | Pass |
-|---|--------|------|------|
-| A1 | Edit product name/qty → list + detail + category/supplier grids | 0s + 5min tab away/back | No revert |
-| A2 | Detail → Back to list | — | Updated row (no SSR clobber) |
-| A3 | Hard reload after CRUD | — | Fresh; only auth may linger in persist |
+| #   | Action                                                          | Wait                    | Pass                                   |
+| --- | --------------------------------------------------------------- | ----------------------- | -------------------------------------- |
+| A1  | Edit product name/qty → list + detail + category/supplier grids | 0s + 5min tab away/back | No revert                              |
+| A2  | Detail → Back to list                                           | —                       | Updated row (no SSR clobber)           |
+| A3  | Hard reload after CRUD                                          | —                       | Fresh; only auth may linger in persist |
 
 **B — Redis pattern gaps (0135)**
 
-| # | Action | Check elsewhere | Pass |
-|---|--------|-----------------|------|
-| B1 | Mark invoice **paid** (pending order) | Product/warehouse stock + allocations | No revert ~5min |
-| B2 | Rename category | Allocation enrich `categoryName` | Updates |
-| B3 | Rename supplier | Allocations + admin client portal | Updates |
-| B4 | Warehouse CRUD | Admin supplier portal | Fresh |
-| B5 | Register or Google OAuth new user | Admin client/supplier portal counts | Fresh |
-| B6 | Product import | Portals + product lists | Fresh |
+| #   | Action                                | Check elsewhere                       | Pass            |
+| --- | ------------------------------------- | ------------------------------------- | --------------- |
+| B1  | Mark invoice **paid** (pending order) | Product/warehouse stock + allocations | No revert ~5min |
+| B2  | Rename category                       | Allocation enrich `categoryName`      | Updates         |
+| B3  | Rename supplier                       | Allocations + admin client portal     | Updates         |
+| B4  | Warehouse CRUD                        | Admin supplier portal                 | Fresh           |
+| B5  | Register or Google OAuth new user     | Admin client/supplier portal counts   | Fresh           |
+| B6  | Product import                        | Portals + product lists               | Fresh           |
 
 **C — Session / QR / idle (0134)**
 
-| # | Action | Pass |
-|---|--------|------|
-| C1 | Create/edit product with QR | QR URL on detail after ImageKit (2nd wipe) |
-| C2 | Idle tab ~30–60min then navigate | Lists load; session OK until 1d |
-| C3 | Focus window | Session may refetch; **lists** do not mass-refetch |
+| #   | Action                           | Pass                                               |
+| --- | -------------------------------- | -------------------------------------------------- |
+| C1  | Create/edit product with QR      | QR URL on detail after ImageKit (2nd wipe)         |
+| C2  | Idle tab ~30–60min then navigate | Lists load; session OK until 1d                    |
+| C3  | Focus window                     | Session may refetch; **lists** do not mass-refetch |
 
 **D — Roles (pick 1 entity each)** admin + client + supplier: order edit, invoice, warehouse allocate/transfer, review/ticket, history, notifications, home/portal stats — mutate → other open tabs/pages update without refresh.
 

@@ -82,7 +82,7 @@ function getNotificationColor(type: NotificationType): string {
       return "text-red-600 dark:text-red-400";
     case "order_confirmation":
     case "order_status_update":
-      return "text-blue-600 dark:text-blue-400";
+      return "text-sky-600 dark:text-sky-400";
     case "client_order_received":
       return "text-violet-600 dark:text-violet-400";
     case "product_review_submitted":
@@ -95,7 +95,7 @@ function getNotificationColor(type: NotificationType): string {
     case "support_ticket_created":
       return "text-sky-600 dark:text-sky-400";
     case "support_ticket_replied":
-      return "text-blue-600 dark:text-blue-400";
+      return "text-sky-600 dark:text-sky-400";
     case "import_complete":
       return "text-green-600 dark:text-green-400";
     case "import_failed":

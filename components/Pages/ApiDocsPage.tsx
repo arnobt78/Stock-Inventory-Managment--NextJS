@@ -1057,7 +1057,7 @@ export default function ApiDocsPage() {
       case "GET":
         return "bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 border-emerald-400/30";
       case "POST":
-        return "bg-blue-500/20 text-blue-700 dark:text-blue-300 border-blue-400/30";
+        return "bg-blue-500/20 text-sky-700 dark:text-sky-300 border-blue-400/30";
       case "PUT":
         return "bg-amber-500/20 text-amber-700 dark:text-amber-300 border-amber-400/30";
       case "DELETE":
@@ -1438,7 +1438,7 @@ export default function ApiDocsPage() {
                           </span>
                         </div>
                         <div className="flex items-center gap-2">
-                          <Badge className="bg-blue-500/20 text-blue-700 dark:text-blue-300 border border-blue-400/30 font-mono">
+                          <Badge className="bg-blue-500/20 text-sky-700 dark:text-sky-300 border border-blue-400/30 font-mono">
                             201
                           </Badge>
                           <span className="text-sm text-gray-700 dark:text-white/80">

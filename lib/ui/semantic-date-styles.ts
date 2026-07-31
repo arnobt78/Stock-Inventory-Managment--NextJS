@@ -34,7 +34,7 @@ const SEMANTIC_DATE_CLASSES: Record<SemanticDateKind, string> = {
   delivered: "text-teal-600 dark:text-teal-400",
   sent: "text-indigo-600 dark:text-indigo-400",
   overdue: "text-red-600 dark:text-red-400",
-  scheduled: "text-blue-600 dark:text-blue-400",
+  scheduled: "text-sky-600 dark:text-sky-400",
   completed: "text-emerald-600 dark:text-emerald-400",
 };
 

@@ -259,7 +259,7 @@ export function ForecastingCard({ products, className }: ForecastingCardProps) {
       case "down":
         return <TrendingDown className="h-4 w-4 text-red-500" />;
       default:
-        return <BarChart3 className="h-4 w-4 text-blue-500" />;
+        return <BarChart3 className="h-4 w-4 text-sky-500" />;
     }
   };
 
@@ -286,7 +286,7 @@ export function ForecastingCard({ products, className }: ForecastingCardProps) {
         {/* Key Metrics */}
         <div className="grid grid-cols-3 gap-2">
           <div className="text-center p-2 rounded-xl border border-blue-400/20 bg-gradient-to-br from-blue-500/15 via-blue-500/5 to-transparent">
-            <div className="text-sm sm:text-lg font-medium text-blue-600 dark:text-blue-400">
+            <div className="text-sm sm:text-lg font-medium text-sky-600 dark:text-sky-400">
               {forecastData.totalProducts}
             </div>
             <div className="text-sm text-gray-600 dark:text-white/80">

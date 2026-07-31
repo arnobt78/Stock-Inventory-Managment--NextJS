@@ -131,7 +131,7 @@ export default function CreateUserDialog() {
         <DialogHeader>
           <DialogTitle className="text-[22px] text-white flex items-center gap-2">
             <div className="p-2 rounded-xl border border-blue-300/30 bg-blue-100/50 dark:border-blue-400/30 dark:bg-blue-500/20">
-              <UserPlus className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+              <UserPlus className="h-5 w-5 text-sky-600 dark:text-sky-400" />
             </div>
             Create New User
           </DialogTitle>

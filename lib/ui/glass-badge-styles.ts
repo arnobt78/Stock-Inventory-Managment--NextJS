@@ -25,7 +25,7 @@ export type GlassBadgeHue =
 export const OPAQUE_BADGE_CLASS: Record<GlassBadgeHue, string> = {
   yellow:
     "border-yellow-200/90 bg-yellow-100 text-yellow-800 shadow-[0_2px_8px_rgba(234,179,8,0.12)] dark:border-yellow-500/30 dark:bg-yellow-950/50 dark:text-yellow-300",
-  blue: "border-blue-200/90 bg-blue-100 text-blue-800 shadow-[0_2px_8px_rgba(59,130,246,0.12)] dark:border-blue-500/30 dark:bg-blue-950/50 dark:text-blue-300",
+  blue: "border-blue-200/90 bg-blue-100 text-sky-800 shadow-[0_2px_8px_rgba(59,130,246,0.12)] dark:border-blue-500/30 dark:bg-blue-950/50 dark:text-sky-300",
   purple:
     "border-purple-200/90 bg-purple-100 text-purple-800 shadow-[0_2px_8px_rgba(168,85,247,0.12)] dark:border-purple-500/30 dark:bg-purple-950/50 dark:text-purple-300",
   indigo:
@@ -82,7 +82,7 @@ export const SOLID_BADGE_CLASS: Record<GlassBadgeHue, string> = {
 export const GLASS_BADGE_CLASS: Record<GlassBadgeHue, string> = {
   yellow:
     "border-yellow-400/35 bg-gradient-to-r from-yellow-500/20 via-yellow-500/10 to-yellow-500/5 text-yellow-700 shadow-[0_10px_28px_rgba(234,179,8,0.18)] backdrop-blur-md dark:border-yellow-500/40 dark:from-yellow-500/30 dark:via-yellow-500/18 dark:to-yellow-500/8 dark:text-yellow-300 dark:shadow-[0_4px_14px_rgba(234,179,8,0.12)]",
-  blue: "border-blue-400/35 bg-gradient-to-r from-blue-500/20 via-blue-500/10 to-blue-500/5 text-blue-700 shadow-[0_10px_28px_rgba(59,130,246,0.18)] backdrop-blur-md dark:border-blue-500/40 dark:from-blue-500/30 dark:via-blue-500/18 dark:to-blue-500/8 dark:text-blue-300 dark:shadow-[0_4px_14px_rgba(59,130,246,0.12)]",
+  blue: "border-blue-400/35 bg-gradient-to-r from-blue-500/20 via-blue-500/10 to-blue-500/5 text-sky-700 shadow-[0_10px_28px_rgba(59,130,246,0.18)] backdrop-blur-md dark:border-blue-500/40 dark:from-blue-500/30 dark:via-blue-500/18 dark:to-blue-500/8 dark:text-sky-300 dark:shadow-[0_4px_14px_rgba(59,130,246,0.12)]",
   purple:
     "border-purple-400/35 bg-gradient-to-r from-purple-500/20 via-purple-500/10 to-purple-500/5 text-purple-700 shadow-[0_10px_28px_rgba(168,85,247,0.18)] backdrop-blur-md dark:border-purple-500/40 dark:from-purple-500/30 dark:via-purple-500/18 dark:to-purple-500/8 dark:text-purple-300 dark:shadow-[0_4px_14px_rgba(168,85,247,0.12)]",
   indigo:

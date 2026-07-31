@@ -24,6 +24,6 @@ export const AUTH_LIST_ICON_STYLES: Record<
   },
   blue: {
     wrap: AUTH_LIST_ICON_GLASS.blue,
-    icon: "text-blue-600 dark:text-blue-400 drop-shadow-[0_2px_8px_rgba(59,130,246,0.35)]",
+    icon: "text-sky-600 dark:text-sky-400 drop-shadow-[0_2px_8px_rgba(59,130,246,0.35)]",
   },
 };

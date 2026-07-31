@@ -91,7 +91,7 @@ const detailInfoToneClasses: Record<
     row: "from-violet-100/50 via-violet-50/30 to-transparent dark:from-violet-500/10 dark:via-violet-500/5 dark:to-transparent border-violet-200/30 dark:border-violet-400/10",
   },
   blue: {
-    icon: "text-blue-500 dark:text-blue-400",
+    icon: "text-sky-500 dark:text-sky-400",
     row: "from-blue-100/50 via-blue-50/30 to-transparent dark:from-blue-500/10 dark:via-blue-500/5 dark:to-transparent border-blue-200/30 dark:border-blue-400/10",
   },
   teal: {

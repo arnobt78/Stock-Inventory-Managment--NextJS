@@ -61,7 +61,7 @@ export function QRCodeHover({
         <QrCode className="h-5 w-5 text-sky-600 dark:text-sky-400" />
       </div>
     ) : (
-      <div className="flex items-center gap-1 text-blue-600">
+      <div className="flex items-center gap-1 text-sky-600">
         <QrCode className="h-4 w-4" />
         {title}
       </div>

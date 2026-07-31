@@ -164,7 +164,9 @@ export default function SystemConfigSettings({
           <Button
             size="sm"
             onClick={handleSave}
-            disabled={!hasChanges || actionsDisabled || updateMutation.isPending}
+            disabled={
+              !hasChanges || actionsDisabled || updateMutation.isPending
+            }
             className={cn(
               GLASS_BUTTON_ICON_HOVER,
               "gap-2",
@@ -267,7 +269,7 @@ function ConfigField({
         <div className="space-y-0.5">
           <Label
             htmlFor={config.key}
-            className={cn("font-medium", isChanged && "text-blue-600")}
+            className={cn("font-medium", isChanged && "text-sky-600")}
           >
             {config.label}
             {isChanged && <span className="ml-2 text-xs">(changed)</span>}
@@ -293,7 +295,7 @@ function ConfigField({
       <div className="space-y-2">
         <Label
           htmlFor={config.key}
-          className={cn("font-medium", isChanged && "text-blue-600")}
+          className={cn("font-medium", isChanged && "text-sky-600")}
         >
           {config.label}
           {isChanged && <span className="ml-2 text-xs">(changed)</span>}
@@ -317,7 +319,7 @@ function ConfigField({
     <div className="space-y-2">
       <Label
         htmlFor={config.key}
-        className={cn("font-medium", isChanged && "text-blue-600")}
+        className={cn("font-medium", isChanged && "text-sky-600")}
       >
         {config.label}
         {isChanged && <span className="ml-2 text-xs">(changed)</span>}
