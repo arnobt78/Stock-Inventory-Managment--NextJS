@@ -1,4 +1,4 @@
-# Stock & Warehouse Inventory Management System — Next.js, TypeScript, Prisma, MongoDB Full-Stack (Business Insights, Admin Panel, Client & Supplier Role-Based Dashboards)
+# Stock & Warehouse Inventory Management System — Next.js, TypeScript, Prisma, MongoDB Full-Stack (including AI Business Insights + Admin Panel + Client & Supplier Role-Based Dashboards & more)
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Next.js](https://img.shields.io/badge/Next.js-16-black)](https://nextjs.org/)
@@ -11,7 +11,7 @@
 [![Vitest](https://img.shields.io/badge/Vitest-4-6E9F18)](https://vitest.dev/)
 [![launch with diploi badge](https://diploi.com/launch.svg)](https://diploi.com/launch/arnobt78/Warehouse-Stock-Inventory-Management-System--NextJS-FullStack)
 
-**Stockly** is an open-source, role-based warehouse and stock inventory platform. Store owners (admin), suppliers, and clients manage products, multi-warehouse stock, orders, invoices, shipping, payments, support tickets, and analytics — with SSR-first Next.js pages, TanStack Query for instant UI updates after CRUD, and optional Stripe / Shippo / Brevo / Redis / Sentry / AI integrations.
+An open-source, role-based warehouse and stock inventory platform. Store owners (admin), suppliers, and clients manage products, multi-warehouse stock, orders, invoices, shipping, payments, support tickets, and analytics — with SSR-first Next.js pages, TanStack Query for instant UI updates after CRUD, and optional Stripe / Shippo / Brevo / Redis / Sentry / AI integrations.
 
 - **Live demo:** [https://stockly-inventory.vercel.app/](https://stockly-inventory.vercel.app/)
 - **Security:** Report vulnerabilities privately — see [SECURITY.md](SECURITY.md) (`contact@arnobmahmud.com`).
