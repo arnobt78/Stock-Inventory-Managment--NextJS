@@ -8,7 +8,7 @@
 | **Session** | 2026-08-01 — REQ-0227 personal ticket list scope |
 | **Active REQ** | — (next: Gate 2 / REQ-0009) |
 | **Done range** | … + **0225** + **0226** + **0227** |
-| **Local/origin tip** | pending commit |
+| **Local/origin tip** | `d11cc8e` |
 | **Human Gate 1** | APPROVED |
 | **Human Gate 2** | PENDING — Sentry 24h after Ready |
 | **Resume token** | `gate2-sentry-24h` |
