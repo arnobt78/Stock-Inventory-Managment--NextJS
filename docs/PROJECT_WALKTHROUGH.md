@@ -306,6 +306,7 @@ flowchart LR
 | Recent cards densify (REQ-0174–0176) | `CARD_LIST_META_ROW`; date-first buyer; gap-1.5; dashboard v7 | Clip fix + UI |
 | Admin portals densify (REQ-0177–0178) | SectionCardHeader; product/order/invoice meta; buyer `placedBy*`; Redis supplierPortal v4 / clientPortal v4 | SSR + UI; invalidation unchanged |
 | Product reviews (REQ-0179–0184) | Rating Select hues; list densify + Actions menu; detail Product/Purchase; badge contrast; Edit dialog stacked w-full; Redis `productReviews:list:v2` / `products:list:v3` | enrich-review-catalog; invalidation unchanged |
+| Supplier Product Owner (REQ-0226) | `PersonNameEmailCell` on supplier `/products`; `productOwnerEmail` list party + cache guards | UI + list DTO; invalidation unchanged |
 | KPI badge helpers (REQ-0156–0157) | store order/invoice + portal order helpers; My Activity parity; tsc clean | UI/test-only |
 | Delivered + Due badges (REQ-0155) | `store-order-status-badges.ts`; Total Orders Delivered; Outstanding→Due | UI-only |
 | Partial pay KPIs (REQ-0154) | `payment-money-stats.ts` → dashboards Paid/Partial/Due/Pending; Partial badges; table Total `text-xs`; `dashboard:overview:v4` | Invalidation unchanged |

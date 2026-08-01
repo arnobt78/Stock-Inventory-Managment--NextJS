@@ -1141,6 +1141,16 @@ Hub: `lib/ui/typography-scale.ts`. Hubs import tokens; ~45 inline files use equi
 
 **Active wave:** **0224** densify parity done → **Gate 2** Sentry 24h (REQ-0009).
 
+## REQ-0226 supplier Product Owner densify (2026-08-01)
+
+| Piece | Location |
+|-------|----------|
+| Party email | `product-list-party` userMap + `productOwnerEmail` |
+| List DTO | `types/product`, home-data, GET `/api/products` + cache guards |
+| UI | `ProductTableColumns` forSupplier → `PersonNameEmailCell` (no href) |
+
+**No invalidation changes.**
+
 ## REQ-0225 instant reserved/committed densify + duplicate key fix (2026-07-31)
 
 | Piece | Location |

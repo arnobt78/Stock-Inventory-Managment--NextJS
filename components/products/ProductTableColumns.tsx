@@ -9,6 +9,7 @@ import { Column, ColumnDef } from "@tanstack/react-table";
 import {
   CopyableText,
   AvatarInlineLink,
+  PersonNameEmailCell,
   TABLE_CATALOG_LINK_CLASS,
   ClientDate,
 } from "@/components/shared";
@@ -287,14 +288,15 @@ export function createProductColumns(
             cell: ({ row }) => {
               const product = row.original;
               const name = product.productOwnerName ?? product.userId ?? "—";
-              // Link to product detail (supplier sees same products; ownerId filter is for client browse)
+              // Supplier densify: avatar | name | email+copy (no href — no admin user link)
               return (
-                <Link
-                  href={detailHref(detailBase, "products", product.id)}
-                  className={TABLE_CATALOG_LINK_CLASS}
-                >
-                  {name}
-                </Link>
+                <PersonNameEmailCell
+                  seed={product.userId}
+                  name={name}
+                  email={product.productOwnerEmail}
+                  image={product.productOwnerImage}
+                  avatarSize={28}
+                />
               );
             },
           } as ColumnDef<Product>,

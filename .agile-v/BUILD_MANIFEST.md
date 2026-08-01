@@ -637,3 +637,8 @@
 | ART-0225i | REQ-0225 | lib/catalog/merge-catalog-mutation-densify.ts | densify merge helper + tests |
 | ART-0225j | REQ-0225 | OrderCommittedSnapshot.items warehouseId added | warehouse-specific patching |
 | TC-0225 | REQ-0225 | build ✓ lint ✓ tsc ✓ tests 785 ✓ | PASS |
+
+| ART-0226a | REQ-0226 | product-list-party productOwnerEmail | owner email densify |
+| ART-0226b | REQ-0226 | ProductTableColumns PersonNameEmailCell | supplier Product Owner |
+| ART-0226c | REQ-0226 | API + home-data cache guards | productOwnerEmail required |
+| TC-0226 | REQ-0226 | lint + tsc | PASS |

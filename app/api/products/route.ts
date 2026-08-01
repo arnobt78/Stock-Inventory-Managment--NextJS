@@ -93,13 +93,14 @@ export async function GET(request: NextRequest) {
     const cachedProducts = await getCache<
       Array<{ committedQuantity?: number }>
     >(cacheKey);
-    // REQ-0179 — require party avatar fields (list v3)
+    // REQ-0179 — require party avatar + owner email fields (list densify)
     if (
       cachedProducts &&
       cachedProducts.every(
         (p) =>
           typeof p.committedQuantity === "number" &&
           "productOwnerImage" in p &&
+          "productOwnerEmail" in p &&
           "supplierImage" in p,
       )
     ) {
@@ -151,6 +152,7 @@ export async function GET(request: NextRequest) {
           expirationDate: product.expirationDate?.toISOString() || null,
           productOwnerName: party.productOwnerName,
           productOwnerImage: party.productOwnerImage,
+          productOwnerEmail: party.productOwnerEmail,
           supplierImage: party.supplierImage,
         };
       }),

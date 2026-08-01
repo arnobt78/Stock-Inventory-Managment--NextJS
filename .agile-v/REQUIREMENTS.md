@@ -4,6 +4,29 @@ Canonical REQ source. All artifacts link via `REQ-XXXX`. Status: `done` | `verif
 
 ---
 
+## REQ-0226 — Supplier Product Owner densify (avatar + email)
+
+| Field | Value |
+|-------|-------|
+| **Priority** | P2 |
+| **Risk** | R0 |
+| **Status** | done |
+| **Cycle** | C2 |
+| **Parent** | REQ-0179, REQ-0185 |
+
+**Intent:** Supplier `/products` Product Owner column matches PersonNameEmailCell densify (avatar/robohash, name, muted email + clipboard). No name href (no admin user link). List DTO + Redis guard include `productOwnerEmail`.
+
+**Acceptance criteria**
+
+- AC1: `productListPartyFields` returns `productOwnerEmail` from User.email
+- AC2: Product list cache guards require `productOwnerEmail` (API + home-data)
+- AC3: `forSupplier` ProductTableColumns uses `PersonNameEmailCell` (no href)
+- AC4: lint + tsc PASS; no invalidation registry change
+
+**Artifacts:** `product-list-party.ts`, `types/product.ts`, `home-data.ts`, `app/api/products/route.ts`, `ProductTableColumns.tsx`
+
+---
+
 ## REQ-0225 — Instant reserved/committed densify + duplicate key fix
 
 | Field | Value |

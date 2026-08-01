@@ -55,6 +55,8 @@ export interface Product {
   productOwnerName?: string | null;
   /** REQ-0179 — owner User.image for dialog/table avatars */
   productOwnerImage?: string | null;
+  /** Owner email for supplier Product Owner densify (PersonNameEmailCell) */
+  productOwnerEmail?: string | null;
   /** REQ-0179 — supplier linked User.image */
   supplierImage?: string | null;
   /** Extended by API for detail page */

@@ -1,9 +1,21 @@
 # Validation Summary — Cycle C1
 
-**Generated:** 2026-07-31 (REQ-0225 instant reserved/committed + duplicate key fix)
+**Generated:** 2026-08-01 (REQ-0226 supplier Product Owner densify)
 **eval_gate_status:** PENDING (Human Gate 2)
 **Active:** Prod smoke after next deploy
-**Last ship:** instant allocation reserved densify + order table key fix
+**Last ship:** supplier Product Owner avatar + email densify
+
+---
+
+## REQ-0226 — Supplier Product Owner densify (2026-08-01)
+
+| Check | Result |
+| ----- | ------ |
+| productListPartyFields | email on userMap + productOwnerEmail |
+| Cache guards | API + home-data require productOwnerEmail |
+| ProductTableColumns forSupplier | PersonNameEmailCell, no href |
+| Invalidation | unchanged |
+| Gates | lint + tsc (see TC-0226) |
 
 ---
 

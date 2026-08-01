@@ -36,6 +36,7 @@ export type ProductForHome = {
   /** REQ-0179 — owner/supplier display for list densify */
   productOwnerName?: string | null;
   productOwnerImage?: string | null;
+  productOwnerEmail?: string | null;
   supplierImage?: string | null;
 };
 
@@ -88,6 +89,7 @@ export async function getProductsForUser(userId: string): Promise<ProductForHome
       (p) =>
         typeof p.committedQuantity === "number" &&
         "productOwnerImage" in p &&
+        "productOwnerEmail" in p &&
         "supplierImage" in p,
     )
   ) {
@@ -131,6 +133,7 @@ export async function getProductsForUser(userId: string): Promise<ProductForHome
         expirationDate: product.expirationDate?.toISOString() ?? null,
         productOwnerName: party.productOwnerName,
         productOwnerImage: party.productOwnerImage,
+        productOwnerEmail: party.productOwnerEmail,
         supplierImage: party.supplierImage,
       };
     }),
@@ -157,6 +160,7 @@ export async function getProductsBySupplierId(
       (p) =>
         typeof p.committedQuantity === "number" &&
         "productOwnerImage" in p &&
+        "productOwnerEmail" in p &&
         "supplierImage" in p,
     )
   ) {
@@ -200,6 +204,7 @@ export async function getProductsBySupplierId(
         expirationDate: product.expirationDate?.toISOString() ?? null,
         productOwnerName: party.productOwnerName,
         productOwnerImage: party.productOwnerImage,
+        productOwnerEmail: party.productOwnerEmail,
         supplierImage: party.supplierImage,
       };
     }),

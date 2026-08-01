@@ -9,8 +9,11 @@ export type ProductListPartyMaps = {
   categoryMap: Map<string, string>;
   /** supplierId → name + linked userId for avatar */
   supplierMap: Map<string, { name: string; userId: string | null }>;
-  /** userId → name + image (owners + supplier users) */
-  userMap: Map<string, { name: string | null; image: string | null }>;
+  /** userId → name + image + email (owners + supplier users) */
+  userMap: Map<
+    string,
+    { name: string | null; image: string | null; email: string | null }
+  >;
 };
 
 type ProductPartyIds = {
@@ -53,7 +56,7 @@ export async function loadProductListPartyMaps(
     allUserIds.length > 0
       ? await prisma.user.findMany({
           where: { id: { in: allUserIds } },
-          select: { id: true, name: true, image: true },
+          select: { id: true, name: true, image: true, email: true },
         })
       : [];
 
@@ -66,7 +69,14 @@ export async function loadProductListPartyMaps(
       ]),
     ),
     userMap: new Map(
-      users.map((u) => [u.id, { name: u.name ?? null, image: u.image ?? null }]),
+      users.map((u) => [
+        u.id,
+        {
+          name: u.name ?? null,
+          image: u.image ?? null,
+          email: u.email ?? null,
+        },
+      ]),
     ),
   };
 }
@@ -80,6 +90,8 @@ export function productListPartyFields(
   supplier: string;
   productOwnerName: string | null;
   productOwnerImage: string | null;
+  /** Owner email for supplier Product Owner densify (PersonNameEmailCell) */
+  productOwnerEmail: string | null;
   supplierImage: string | null;
 } {
   const supplier = maps.supplierMap.get(product.supplierId);
@@ -92,6 +104,7 @@ export function productListPartyFields(
     supplier: supplier?.name || "Unknown",
     productOwnerName: owner?.name ?? product.userId,
     productOwnerImage: owner?.image ?? null,
+    productOwnerEmail: owner?.email ?? null,
     supplierImage: supplierUser?.image ?? null,
   };
 }

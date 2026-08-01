@@ -643,3 +643,5 @@ Format: `TIMESTAMP | AGENT | DECISION | RATIONALE | REQ-ID`
 2026-07-31T14:25:00Z | build-agent | Hide native date indicator (not opacity); urgent DenseCatalog densify; date densify-first; BI chart top margin | Four UI gaps from screenshots | REQ-0223
 
 2026-07-31T15:15:00Z | build-agent | Portal/invoice/BI densify parity; SSR widen + cache v5; no invalidation registry change | Align role portals + BI with DenseCatalog / Store Overview | REQ-0224
+
+2026-08-01T15:16:00Z | build-agent | Supplier Product Owner → PersonNameEmailCell; productOwnerEmail on list party + cache guards; no href | Table densify parity; suppliers lack admin user link | REQ-0226
