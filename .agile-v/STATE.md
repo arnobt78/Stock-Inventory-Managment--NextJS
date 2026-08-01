@@ -8,7 +8,7 @@
 | **Session** | 2026-08-01 — REQ-0226 supplier Product Owner densify |
 | **Active REQ** | — (next: Gate 2 / REQ-0009) |
 | **Done range** | … + **0224** + **0225** + **0226** |
-| **Local tip** | pending commit |
+| **Local tip** | `df4e189` |
 | **Human Gate 1** | APPROVED |
 | **Human Gate 2** | PENDING — Sentry 24h after Ready |
 | **Resume token** | `gate2-sentry-24h` |
