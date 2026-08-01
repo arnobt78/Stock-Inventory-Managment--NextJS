@@ -1141,6 +1141,14 @@ Hub: `lib/ui/typography-scale.ts`. Hubs import tokens; ~45 inline files use equi
 
 **Active wave:** **0224** densify parity done → **Gate 2** Sentry 24h (REQ-0009).
 
+## REQ-0227 personal ticket list scope (2026-08-01)
+
+| Piece | Location |
+|-------|----------|
+| Personal list | `SupportTicketsPageContent` — `view: "created_by_me"` + SSR sync (not admin `all`) |
+
+**No invalidation registry change** — separate TanStack key; CRUD still clears `supportTickets.all`.
+
 ## REQ-0226 supplier Product Owner densify (2026-08-01)
 
 | Piece | Location |

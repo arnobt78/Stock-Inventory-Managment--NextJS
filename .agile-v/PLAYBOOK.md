@@ -2,8 +2,8 @@
 
 **Project:** Stockly Inventory (Next.js 16, React 19, Prisma/MongoDB)  
 **Cycle:** C2 active (C1 Gate 2 PENDING)  
-**Active:** Gate 2 Sentry 24h (`resume_token: gate2-sentry-24h`) — **REQ-0009**  
-**Prod SHA target:** `4e06cf9` (REQ-0220) · local tip `8a927bc` · **Last shipped:** REQ-0220 · **Session:** 2026-07-31 · **Standard:** Agile V 1.4 | Infinity Loop
+**Active:** Gate 2 Sentry 24h (`resume_token: gate2-sentry-24h`, `INT-0001`) — **REQ-0009**
+**Prod application target:** `df4e189`+ (REQ-0226; Ready status unverified) · local/origin tip `76fba96` · **Last completed:** REQ-0226 · **Session:** 2026-08-01 · **Standard:** Agile V 1.4 | Infinity Loop
 
 ---
 
@@ -45,9 +45,9 @@ npm run lint && npm run test && npm run test:invalidate && npm run build
 | Gate | Status (C1) | Prerequisite |
 |------|-------------|--------------|
 | Gate 1 (Blueprint) | APPROVED | `REQUIREMENTS.md` |
-| Gate 2 (Release) | PENDING | `VALIDATION_SUMMARY.md` + `EVAL_RESULTS.md` eval_gate PASS |
+| Gate 2 (Release) | PENDING (`INT-0001`) | `VALIDATION_SUMMARY.md` + `EVAL_RESULTS.md` eval_gate PASS |
 
-**Gate 2 checklist:** Vercel prod SHA, Sentry 24h (REQ-0009), manual QA (REQ-0029, removeChild smoke).
+**Gate 2 checklist:** Vercel Ready at application tip `df4e189`+, Sentry 24h (REQ-0009), deferred manual QA (REQ-0029, REQ-0221–0224, removeChild smoke).
 
 On pause: append `CHECKPOINTS.md` with `resume_token`; resume only from `STATE.md` + matching `APPROVALS.md`.
 

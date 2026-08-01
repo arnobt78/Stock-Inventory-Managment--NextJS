@@ -15,6 +15,7 @@
 
 - **Live demo:** [https://stockly-inventory.vercel.app/](https://stockly-inventory.vercel.app/)
 - **Security:** Report vulnerabilities privately — see [SECURITY.md](SECURITY.md) (`contact@arnobmahmud.com`).
+- **Author:** [Arnob Mahmud](https://www.arnobmahmud.com) · [GitHub @arnobt78](https://github.com/arnobt78)
 
 ![Screenshot 2026-03-07 at 12 16 27](https://github.com/user-attachments/assets/f00d8441-4c1c-467d-b9fa-f5505a48feb0)
 ![Screenshot 2026-03-07 at 12 16 46](https://github.com/user-attachments/assets/64b0dd00-126f-4740-9ab4-fb2a8bc5fca5)

@@ -27,10 +27,12 @@ export default function SupportTicketsPageContent({
   initialTickets,
   productOwners,
 }: SupportTicketsPageContentProps) {
-  const ticketsQuery = useSupportTickets("all", initialTickets);
+  // REQ-0227 — personal /support-tickets = creator scope (matches SSR).
+  // Do not use view "all" — for admin that key/API means assigned-to-me (store inbox).
+  const ticketsQuery = useSupportTickets("created_by_me", initialTickets);
 
   useSyncSsrQueryData(
-    queryKeys.supportTickets.list({ view: "all" }),
+    queryKeys.supportTickets.list({ view: "created_by_me" }),
     initialTickets,
   );
 

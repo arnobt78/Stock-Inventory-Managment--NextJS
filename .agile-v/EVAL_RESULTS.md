@@ -9,9 +9,10 @@
 | statusAt unit | REQ-0136 | PASS (8) | 2026-07-27 |
 | ssr-sync unit | REQ-0136 | PASS (30) | 2026-07-27 |
 | UI explore + §10 A1/A2/B1 | REQ-0136 | PASS | 2026-07-27 |
-| Prod Ready tip `4e06cf9` | REQ-0220 | PENDING confirm | — |
+| Latest recorded implementation gates | REQ-0221–REQ-0226 | PASS (historical evidence; not rerun this session) | 2026-07-31–2026-08-01 |
+| Prod Ready application tip `df4e189`+ | REQ-0226 | PENDING confirm | — |
 | Sentry 24h | REQ-0009 | PENDING | — |
 
-**Gate 2 blocked until:** Vercel Ready includes `4e06cf9`+ → smoke Back (REQ-0220) → Sentry 24h (REQ-0009) → `eval_gate_status` PASS.
+**Gate 2 blocked until:** Vercel Ready includes application tip `df4e189`+ → deferred UI smoke (including REQ-0220–0224) → Sentry 24h (REQ-0009) → `eval_gate_status` PASS.
 
-**Session 2026-07-31:** Agile V activate/resume. Last shipped REQ-0220. Resume `gate2-sentry-24h`.
+**Session 2026-08-01:** Agile V activate/reconcile; no code and no gates rerun. Local/origin `76fba96`; application tip `df4e189`. Resume `gate2-sentry-24h` via `INT-0001`.

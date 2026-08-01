@@ -1,6 +1,30 @@
-# Requirements — stock-inventory (Cycle C1)
+<!-- Revision: C2 -->
+# Requirements — stock-inventory (Living C1 + C2)
 
-Canonical REQ source. All artifacts link via `REQ-XXXX`. Status: `done` | `verify` | `planned`.
+Canonical REQ source. All artifacts link via `REQ-XXXX`. Current cycle: C2. Status: `done` | `verify` | `planned` | lifecycle tags (`approved/new/modified/deprecated/superseded [Cn]`).
+
+---
+
+## REQ-0227 — Personal support-ticket list scope (admin)
+
+| Field | Value |
+|-------|-------|
+| **Priority** | P1 |
+| **Risk** | R1 |
+| **Status** | done |
+| **Cycle** | C2 |
+| **Parent** | REQ-0185 |
+
+**Intent:** `/support-tickets` must stay creator-scoped (`userId`) after TanStack refetch. Admin must not share store key `view: "all"` (API = assigned). Use `created_by_me` key + API param on personal page.
+
+**Acceptance criteria**
+
+- AC1: `SupportTicketsPageContent` uses `useSupportTickets("created_by_me")` + matching SSR sync key
+- AC2: `/admin/support-tickets` default `view: "all"` unchanged (assigned)
+- AC3: After admin creates a ticket on personal page, list shows only tickets they created (no seed client→admin leak)
+- AC4: lint + tsc + test:invalidate PASS; no invalidation registry change
+
+**Artifacts:** `SupportTicketsPageContent.tsx`
 
 ---
 

@@ -1,9 +1,20 @@
 # Validation Summary — Cycle C1
 
-**Generated:** 2026-08-01 (REQ-0226 supplier Product Owner densify)
+**Generated:** 2026-08-01 (REQ-0227 personal ticket list scope)
 **eval_gate_status:** PENDING (Human Gate 2)
 **Active:** Prod smoke after next deploy
-**Last ship:** supplier Product Owner avatar + email densify
+**Last ship:** personal /support-tickets created_by_me key
+
+---
+
+## REQ-0227 — Personal support-ticket list scope (2026-08-01)
+
+| Check | Result |
+| ----- | ------ |
+| SupportTicketsPageContent | view created_by_me + SSR sync key |
+| Admin SupportTicketList | view all unchanged |
+| Invalidation | supportTickets.all still clears both |
+| Gates | lint ✓ tsc ✓ invalidate 222 ✓ |
 
 ---
 
@@ -2625,3 +2636,12 @@ Scope: built/verified | Traceability: REQ-0221 | Findings: PASS
 Commands: lint, tsc --noEmit, test:invalidate, vitest resolve-order-committed-deltas
 ```
 
+## Session 2026-08-01 — Agile V activate / reconcile (no code)
+
+```
+Scope: control-plane resume/reconciliation | Traceability: REQ-0008, REQ-0009 | Findings: PASS 6 / FLAG 2
+Evidence: 24/24 local skill profiles present; runtime contracts present; pre-reconciliation main clean and equal to origin/main at 76fba96; application tip df4e189
+Corrected: C2 revision header; STATE/PLAYBOOK/config/EVAL SHA and resume drift; durable Gate 2 checkpoint INT-0001
+Flags: Gate 2 remains PENDING; GATE-0001 approval record lacks the current compliance-required named approver/authority/evidence
+Commands: read-only repository/document inspection only; application tests not rerun
+```

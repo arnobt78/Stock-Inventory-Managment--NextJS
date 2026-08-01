@@ -642,3 +642,6 @@
 | ART-0226b | REQ-0226 | ProductTableColumns PersonNameEmailCell | supplier Product Owner |
 | ART-0226c | REQ-0226 | API + home-data cache guards | productOwnerEmail required |
 | TC-0226 | REQ-0226 | lint + tsc | PASS |
+
+| ART-0227a | REQ-0227 | SupportTicketsPageContent created_by_me | separate key from admin all |
+| TC-0227 | REQ-0227 | lint + tsc + invalidate | PASS |
